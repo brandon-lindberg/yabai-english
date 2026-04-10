@@ -31,6 +31,7 @@ export function PlacementQuiz() {
   const [writingPromptEn, setWritingPromptEn] = useState("");
   const [writingMinWords, setWritingMinWords] = useState(60);
   const [writingResponse, setWritingResponse] = useState("");
+  const [attemptToken, setAttemptToken] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,9 +47,11 @@ export function PlacementQuiz() {
           promptEn: string;
           minWords: number;
         };
+        attemptToken?: string;
       }) => {
         setQuestions(data.questions ?? []);
         setAnswers(Array(data.questions?.length ?? 0).fill(-1));
+        setAttemptToken(data.attemptToken ?? "");
         if (data.writingTask) {
           setWritingPromptJa(data.writingTask.promptJa);
           setWritingPromptEn(data.writingTask.promptEn);
@@ -68,7 +71,7 @@ export function PlacementQuiz() {
       const res = await fetch("/api/placement", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers: nextAnswers, writingResponse }),
+        body: JSON.stringify({ answers: nextAnswers, writingResponse, attemptToken }),
       });
       const data = (await res.json()) as PlacementResult & { error?: string };
       if (!res.ok) {

@@ -13,7 +13,7 @@ export type PlacementQuestion = {
   correctIndex: number;
 };
 
-export const PLACEMENT_QUESTIONS: PlacementQuestion[] = [
+const BASE_PLACEMENT_QUESTIONS: PlacementQuestion[] = [
   {
     id: "g-a1-1",
     weight: 1,
@@ -393,6 +393,118 @@ export const PLACEMENT_QUESTIONS: PlacementQuestion[] = [
   },
 ];
 
+const TARGET_POOL_PER_SECTION = 120;
+
+function rotateOptions(question: PlacementQuestion, shift: number): PlacementQuestion {
+  const size = question.optionsEn.length;
+  const normalized = ((shift % size) + size) % size;
+  if (normalized === 0) return question;
+  const optionsEn = [...question.optionsEn.slice(normalized), ...question.optionsEn.slice(0, normalized)];
+  const optionsJa = [...question.optionsJa.slice(normalized), ...question.optionsJa.slice(0, normalized)];
+  const correctIndex = (question.correctIndex - normalized + size) % size;
+  return { ...question, optionsEn, optionsJa, correctIndex };
+}
+
+function buildVariantPrompt(section: PlacementQuestion["section"], base: PlacementQuestion, variant: number) {
+  const contextEnBySection: Record<PlacementQuestion["section"], string[]> = {
+    grammar: [
+      "Context: email to a colleague.",
+      "Context: quick business chat.",
+      "Context: customer support reply.",
+      "Context: team status update.",
+      "Context: interview answer.",
+    ],
+    vocabulary: [
+      "Context: workplace communication.",
+      "Context: daily conversation.",
+      "Context: customer message.",
+      "Context: office planning.",
+      "Context: academic reading.",
+    ],
+    reading: [
+      "Read carefully and infer the key point.",
+      "Focus on the writer's intended meaning.",
+      "Choose based on explicit evidence in the text.",
+      "Pick the best inference from the passage.",
+      "Identify the main takeaway from the text.",
+    ],
+    functional: [
+      "Choose the most natural and polite option.",
+      "Prioritize clarity and professionalism.",
+      "Use context-appropriate register.",
+      "Select the best response for the situation.",
+      "Choose wording suitable for international communication.",
+    ],
+  };
+
+  const contextJaBySection: Record<PlacementQuestion["section"], string[]> = {
+    grammar: [
+      "文脈: 同僚へのメール",
+      "文脈: 業務チャット",
+      "文脈: カスタマー対応",
+      "文脈: チーム進捗共有",
+      "文脈: 面接回答",
+    ],
+    vocabulary: [
+      "文脈: 職場コミュニケーション",
+      "文脈: 日常会話",
+      "文脈: 顧客メッセージ",
+      "文脈: オフィスでの計画",
+      "文脈: 学習用リーディング",
+    ],
+    reading: [
+      "文章の要点を推論してください。",
+      "書き手の意図に注目してください。",
+      "文章内の根拠から選んでください。",
+      "本文から最も妥当な推論を選んでください。",
+      "本文の主旨を捉えてください。",
+    ],
+    functional: [
+      "最も自然で丁寧な表現を選んでください。",
+      "明確さとプロらしさを優先してください。",
+      "場面に適切なレジスターを選んでください。",
+      "状況に最適な応答を選んでください。",
+      "国際コミュニケーションに適した表現を選んでください。",
+    ],
+  };
+
+  const enCtx = contextEnBySection[section][variant % contextEnBySection[section].length];
+  const jaCtx = contextJaBySection[section][variant % contextJaBySection[section].length];
+  return {
+    promptEn: `${base.promptEn} (${enCtx})`,
+    promptJa: `${base.promptJa}（${jaCtx}）`,
+  };
+}
+
+function buildSectionPool(section: PlacementQuestion["section"], baseQuestions: PlacementQuestion[]) {
+  const selected = baseQuestions.filter((q) => q.section === section);
+  const expanded: PlacementQuestion[] = [...selected];
+
+  let variant = 1;
+  while (expanded.length < TARGET_POOL_PER_SECTION) {
+    const source = selected[(variant - 1) % selected.length];
+    if (!source) break;
+    const prompt = buildVariantPrompt(section, source, variant);
+    const rotated = rotateOptions(source, variant);
+    expanded.push({
+      ...rotated,
+      id: `${source.id}-v${variant}`,
+      promptEn: prompt.promptEn,
+      promptJa: prompt.promptJa,
+    });
+    variant += 1;
+  }
+
+  return expanded;
+}
+
+export const PLACEMENT_QUESTIONS: PlacementQuestion[] = [
+  ...buildSectionPool("grammar", BASE_PLACEMENT_QUESTIONS),
+  ...buildSectionPool("vocabulary", BASE_PLACEMENT_QUESTIONS),
+  ...buildSectionPool("reading", BASE_PLACEMENT_QUESTIONS),
+  ...buildSectionPool("functional", BASE_PLACEMENT_QUESTIONS),
+];
+
 export type PlacementQuestionPublic = Omit<PlacementQuestion, "correctIndex">;
 
 export const PLACEMENT_WRITING_TASK = {
@@ -406,6 +518,35 @@ export const PLACEMENT_WRITING_TASK = {
 
 export function getPlacementQuestionsForClient(): PlacementQuestionPublic[] {
   return PLACEMENT_QUESTIONS.map(({ correctIndex: _, ...rest }) => rest);
+}
+
+function pickRandom<T>(arr: T[], count: number) {
+  const pool = [...arr];
+  const result: T[] = [];
+  while (pool.length > 0 && result.length < count) {
+    const idx = Math.floor(Math.random() * pool.length);
+    const [item] = pool.splice(idx, 1);
+    if (item !== undefined) result.push(item);
+  }
+  return result;
+}
+
+export function buildPlacementQuestionSet() {
+  const bySection = {
+    grammar: PLACEMENT_QUESTIONS.filter((q) => q.section === "grammar"),
+    vocabulary: PLACEMENT_QUESTIONS.filter((q) => q.section === "vocabulary"),
+    reading: PLACEMENT_QUESTIONS.filter((q) => q.section === "reading"),
+    functional: PLACEMENT_QUESTIONS.filter((q) => q.section === "functional"),
+  } as const;
+
+  const selected = [
+    ...pickRandom(bySection.grammar, 6),
+    ...pickRandom(bySection.vocabulary, 6),
+    ...pickRandom(bySection.reading, 6),
+    ...pickRandom(bySection.functional, 6),
+  ];
+
+  return pickRandom(selected, selected.length);
 }
 
 export type SectionScore = {
@@ -476,6 +617,7 @@ export function evaluateWritingSample(sample: string): {
 export function scorePlacementAnswers(
   answers: number[],
   writingSample?: string,
+  questions: PlacementQuestion[] = PLACEMENT_QUESTIONS,
 ): {
   level: PlacedLevel;
   earned: number;
@@ -487,7 +629,7 @@ export function scorePlacementAnswers(
   needsManualReview: boolean;
   manualReviewReasons: string[];
 } {
-  const objectiveMax = PLACEMENT_QUESTIONS.reduce((s, q) => s + q.weight, 0);
+  const objectiveMax = questions.reduce((s, q) => s + q.weight, 0);
   let earned = 0;
   const sectionScores: Record<PlacementQuestion["section"] | "writing", SectionScore> = {
     grammar: { earned: 0, max: 0, ratio: 0 },
@@ -497,8 +639,8 @@ export function scorePlacementAnswers(
     writing: { earned: 0, max: 0, ratio: 0 },
   };
 
-  for (let i = 0; i < PLACEMENT_QUESTIONS.length; i++) {
-    const q = PLACEMENT_QUESTIONS[i];
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
     if (!q) continue;
     sectionScores[q.section].max += q.weight;
     if (answers[i] === q.correctIndex) {

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   PLACEMENT_QUESTIONS,
+  buildPlacementQuestionSet,
   evaluateWritingSample,
   getPlacementQuestionsForClient,
   scorePlacementAnswers,
@@ -8,7 +9,27 @@ import {
 
 describe("placement test quality", () => {
   test("has a professional-length question bank", () => {
-    expect(PLACEMENT_QUESTIONS.length).toBeGreaterThanOrEqual(24);
+    expect(PLACEMENT_QUESTIONS.length).toBeGreaterThanOrEqual(400);
+  });
+
+  test("builds randomized subset instead of full fixed test", () => {
+    const set = buildPlacementQuestionSet();
+    expect(set.length).toBe(24);
+    const uniqueIds = new Set(set.map((q) => q.id));
+    expect(uniqueIds.size).toBe(24);
+  });
+
+  test("keeps at least 100 questions per section", () => {
+    const count = {
+      grammar: PLACEMENT_QUESTIONS.filter((q) => q.section === "grammar").length,
+      vocabulary: PLACEMENT_QUESTIONS.filter((q) => q.section === "vocabulary").length,
+      reading: PLACEMENT_QUESTIONS.filter((q) => q.section === "reading").length,
+      functional: PLACEMENT_QUESTIONS.filter((q) => q.section === "functional").length,
+    };
+    expect(count.grammar).toBeGreaterThanOrEqual(100);
+    expect(count.vocabulary).toBeGreaterThanOrEqual(100);
+    expect(count.reading).toBeGreaterThanOrEqual(100);
+    expect(count.functional).toBeGreaterThanOrEqual(100);
   });
 
   test("exposes no correct answers to client", () => {
