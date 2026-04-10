@@ -8,9 +8,13 @@ import { Role } from "@prisma/client";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
 
+const hasGoogleOAuth = !!(
+  process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+);
+
 const providers = [];
 
-if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
+if (hasGoogleOAuth) {
   providers.push(
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
@@ -52,8 +56,11 @@ if (providers.length === 0) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: prismaAdapter,
-  session: { strategy: "database" },
+  // Credentials (dev) requires JWT sessions; Google OAuth uses DB sessions + Prisma adapter.
+  adapter: hasGoogleOAuth ? prismaAdapter : undefined,
+  session: {
+    strategy: hasGoogleOAuth ? "database" : "jwt",
+  },
   trustHost: true,
   providers,
   callbacks: {
@@ -76,8 +83,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       });
       return true;
     },
-    async session({ session, user }) {
-      if (session.user) {
+    async jwt({ token, user }) {
+      if (!hasGoogleOAuth && user) {
+        token.role = user.role;
+        token.locale = user.locale;
+      }
+      return token;
+    },
+    async session({ session, user, token }) {
+      if (!session.user) return session;
+      if (hasGoogleOAuth && user) {
         session.user.id = user.id;
         const full = await prisma.user.findUnique({
           where: { id: user.id },
@@ -85,6 +100,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         session.user.role = full?.role ?? Role.STUDENT;
         session.user.locale = full?.locale ?? "ja";
+      } else if (!hasGoogleOAuth && token?.sub) {
+        session.user.id = token.sub;
+        session.user.role = (token.role as Role) ?? Role.STUDENT;
+        session.user.locale = (token.locale as string) ?? "ja";
       }
       return session;
     },
