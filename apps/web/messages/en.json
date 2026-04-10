@@ -1,0 +1,47 @@
+{
+  "common": {
+    "appName": "English Studio",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "learn": "Learn",
+    "bookLesson": "Book a lesson",
+    "buyCredits": "Buy credits",
+    "locale": "Language"
+  },
+  "home": {
+    "title": "Online English lessons",
+    "subtitle": "A simple booking and learning platform for Japanese learners.",
+    "ctaDashboard": "Go to dashboard",
+    "ctaBook": "Book a lesson"
+  },
+  "dashboard": {
+    "title": "My dashboard",
+    "upcoming": "Upcoming lessons",
+    "credits": "Lesson credits",
+    "noBookings": "No bookings yet.",
+    "meetLink": "Join with Google Meet",
+    "teacher": "Teacher"
+  },
+  "admin": {
+    "title": "Admin dashboard",
+    "bookings": "Bookings",
+    "students": "Students",
+    "availability": "Availability",
+    "noPermission": "You do not have access to this page."
+  },
+  "booking": {
+    "title": "Book a lesson",
+    "selectProduct": "Lesson type",
+    "selectSlot": "Pick a time",
+    "confirm": "Confirm booking",
+    "needCredits": "You need more credits. Purchase credits to continue.",
+    "success": "Your lesson is confirmed."
+  },
+  "learn": {
+    "title": "Learn",
+    "courses": "Courses",
+    "placeholder": "Learning content is coming soon. Stay tuned."
+  }
+}

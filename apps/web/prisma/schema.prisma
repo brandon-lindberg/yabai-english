@@ -1,0 +1,345 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum LessonTier {
+  STANDARD
+  PREMIUM
+  EIKAWA
+  PRONUNCIATION_ACTING
+  PRONUNCIATION_SINGING
+  SPECIALIZED
+}
+
+enum CreditTransactionType {
+  PURCHASE
+  LESSON_DEBIT
+  REFUND
+  ADJUSTMENT
+}
+
+enum ExerciseType {
+  MULTIPLE_CHOICE
+  FILL_BLANK
+  MATCH_PAIRS
+  READING_COMPREHENSION
+  SPELLING
+  ORDERING
+}
+
+// --- NextAuth (Auth.js) ---
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(STUDENT)
+  locale        String    @default("ja")
+
+  accounts           Account[]
+  sessions           Session[]
+  studentProfile     StudentProfile?
+  teacherProfile     TeacherProfile?
+  bookingsAsStudent  Booking[]      @relation("StudentBookings")
+  creditTransactions CreditTransaction[]
+  courseProgress     UserCourseProgress[]
+  lessonProgress     UserLessonProgress[]
+  exerciseAttempts   ExerciseAttempt[]
+  sentMessages       ChatMessage[]  @relation("MessageSender")
+  receivedMessages   ChatMessage[]  @relation("MessageRecipient")
+  notifications      Notification[]
+  chatThreadsAsStudent ChatThread[] @relation("ThreadStudent")
+  chatThreadsAsTeacher ChatThread[] @relation("ThreadTeacher")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model StudentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stripeCustomerId String? @unique
+
+  // Total lesson credits (derived from transactions; denormalized for quick reads)
+  lessonCredits Int @default(0)
+}
+
+model TeacherProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Encrypted refresh token for Google Calendar API (app-level encryption)
+  googleCalendarRefreshToken String? @db.Text
+  calendarId                 String? @default("primary")
+  displayName                String?
+
+  availabilitySlots AvailabilitySlot[]
+  bookingsTeaching  Booking[]          @relation("TeacherBookings")
+}
+
+model AvailabilitySlot {
+  id         String   @id @default(cuid())
+  teacherId  String
+  teacher    TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int      // 0-6, Sunday-Saturday in teacher timezone context
+  startMin   Int      // minutes from midnight local
+  endMin     Int
+  timezone   String   @default("Asia/Tokyo")
+  active     Boolean  @default(true)
+}
+
+model LessonProduct {
+  id          String     @id @default(cuid())
+  tier        LessonTier
+  nameJa      String
+  nameEn      String
+  durationMin Int        // 30 or 40
+  creditCost  Int      @default(1) // credits consumed per booking
+  stripePriceId String?  @unique
+  active      Boolean    @default(true)
+
+  bookings Booking[]
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  studentId     String
+  student       User          @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId     String
+  teacher       TeacherProfile @relation("TeacherBookings", fields: [teacherId], references: [id], onDelete: Cascade)
+  lessonProductId String
+  lessonProduct LessonProduct @relation(fields: [lessonProductId], references: [id])
+
+  startsAt      DateTime
+  endsAt        DateTime
+  status        BookingStatus
+  meetUrl       String?       @db.Text
+  googleEventId String?
+
+  stripePaymentIntentId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId, startsAt])
+  @@index([teacherId, startsAt])
+}
+
+model CreditTransaction {
+  id          String                @id @default(cuid())
+  userId      String
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        CreditTransactionType
+  amount      Int                   // positive = add credits, negative = spend
+  balanceAfter Int
+  description String?
+  stripeCheckoutSessionId String?   @unique
+  stripePaymentIntentId   String?
+
+  createdAt DateTime @default(now())
+}
+
+model StripeWebhookEvent {
+  id            String   @id @default(cuid())
+  stripeEventId String   @unique
+  processedAt   DateTime @default(now())
+}
+
+// --- Phase 2: Learning ---
+model Course {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  level       String  // beginner, intermediate, advanced, eikawa, theme:*
+  titleJa     String
+  titleEn     String
+  descriptionJa String? @db.Text
+  descriptionEn String? @db.Text
+  sortOrder   Int     @default(0)
+
+  units CourseUnit[]
+  userProgress UserCourseProgress[]
+}
+
+model CourseUnit {
+  id       String @id @default(cuid())
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  titleJa  String
+  titleEn  String
+  sortOrder Int @default(0)
+
+  skills Skill[]
+}
+
+model Skill {
+  id       String @id @default(cuid())
+  unitId   String
+  unit     CourseUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  titleJa  String
+  titleEn  String
+  sortOrder Int @default(0)
+
+  lessons Lesson[]
+}
+
+model Lesson {
+  id       String @id @default(cuid())
+  skillId  String
+  skill    Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  titleJa  String
+  titleEn  String
+  sortOrder Int @default(0)
+
+  exercises Exercise[]
+  progress  UserLessonProgress[]
+}
+
+model Exercise {
+  id          String       @id @default(cuid())
+  lessonId    String
+  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  type        ExerciseType
+  /// JSON payload: prompts, options, correct answers (validated in app)
+  content     Json
+  points      Int          @default(10)
+  sortOrder   Int          @default(0)
+
+  attempts ExerciseAttempt[]
+}
+
+model UserCourseProgress {
+  id        String @id @default(cuid())
+  userId    String
+  courseId  String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  xp        Int    @default(0)
+  completedAt DateTime?
+
+  @@unique([userId, courseId])
+}
+
+model UserLessonProgress {
+  id        String @id @default(cuid())
+  userId    String
+  lessonId  String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  stars     Int    @default(0)
+  completedAt DateTime?
+
+  @@unique([userId, lessonId])
+}
+
+model ExerciseAttempt {
+  id         String   @id @default(cuid())
+  userId     String
+  exerciseId String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  score      Int
+  response   Json
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model ChatThread {
+  id        String   @id @default(cuid())
+  studentId String
+  teacherId String
+  student   User     @relation("ThreadStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher   User     @relation("ThreadTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+
+  messages ChatMessage[]
+
+  @@unique([studentId, teacherId])
+}
+
+model ChatMessage {
+  id          String     @id @default(cuid())
+  threadId    String
+  thread      ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId    String
+  recipientId String
+  sender      User       @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient   User       @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  body        String     @db.Text
+  readAt      DateTime?
+  createdAt   DateTime   @default(now())
+
+  @@index([threadId, createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  titleJa   String
+  titleEn   String
+  bodyJa    String?  @db.Text
+  bodyEn    String?  @db.Text
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}

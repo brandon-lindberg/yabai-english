@@ -1,0 +1,47 @@
+{
+  "common": {
+    "appName": "English Studio",
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "dashboard": "ダッシュボード",
+    "admin": "管理画面",
+    "learn": "レッスン",
+    "bookLesson": "予約",
+    "buyCredits": "クレジット購入",
+    "locale": "言語"
+  },
+  "home": {
+    "title": "オンライン英会話",
+    "subtitle": "日本の学習者のためのシンプルな予約と学習プラットフォーム。",
+    "ctaDashboard": "ダッシュボードへ",
+    "ctaBook": "レッスンを予約"
+  },
+  "dashboard": {
+    "title": "マイページ",
+    "upcoming": "予定のレッスン",
+    "credits": "残りクレジット",
+    "noBookings": "予約はまだありません。",
+    "meetLink": "Google Meet で参加",
+    "teacher": "講師"
+  },
+  "admin": {
+    "title": "管理ダッシュボード",
+    "bookings": "予約一覧",
+    "students": "受講生",
+    "availability": "出勤可能時間",
+    "noPermission": "このページにアクセスする権限がありません。"
+  },
+  "booking": {
+    "title": "レッスン予約",
+    "selectProduct": "レッスン種別",
+    "selectSlot": "日時を選択",
+    "confirm": "予約を確定",
+    "needCredits": "クレジットが不足しています。購入してください。",
+    "success": "予約が確認されました。"
+  },
+  "learn": {
+    "title": "学習",
+    "courses": "コース",
+    "placeholder": "学習コンテンツは準備中です。しばらくお待ちください。"
+  }
+}

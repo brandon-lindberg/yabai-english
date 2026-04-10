@@ -1,0 +1,16 @@
+{
+  "name": "english-platform",
+  "private": true,
+  "scripts": {
+    "dev": "yarn --cwd apps/web dev",
+    "build": "yarn --cwd apps/web build",
+    "start": "yarn --cwd apps/web start",
+    "lint": "yarn --cwd apps/web lint",
+    "db:generate": "yarn --cwd apps/web prisma generate",
+    "db:migrate": "yarn --cwd apps/web prisma migrate dev",
+    "db:push": "yarn --cwd apps/web prisma db push",
+    "db:studio": "yarn --cwd apps/web prisma studio",
+    "realtime:dev": "yarn --cwd apps/realtime dev"
+  },
+  "packageManager": "yarn@1.22.22"
+}
