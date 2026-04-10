@@ -1,0 +1,3 @@
+ALTER TABLE "ChatThread"
+ADD COLUMN IF NOT EXISTS "twoWayEnabled" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN IF NOT EXISTS "twoWayEnabledByRole" "Role";

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationBell } from "@/components/notification-bell";
 
 export function SiteHeader() {
   const t = useTranslations("common");
@@ -21,6 +22,7 @@ export function SiteHeader() {
           <LocaleSwitcher />
           {session?.user ? (
             <>
+              <NotificationBell />
               <Link
                 href="/learn"
                 className="text-sm font-medium text-muted hover:text-foreground"
@@ -61,20 +63,12 @@ export function SiteHeader() {
           ) : status === "loading" ? (
             <span className="text-sm text-muted">…</span>
           ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href="/auth/signin"
-                className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                {t("signIn")}
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground hover:bg-[var(--app-hover)]"
-              >
-                {t("signUp")}
-              </Link>
-            </div>
+            <Link
+              href="/auth/signin"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              {t("signIn")}
+            </Link>
           )}
         </nav>
       </div>

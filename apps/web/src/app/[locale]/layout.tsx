@@ -6,6 +6,7 @@ import { routing } from "@/i18n/routing";
 import { auth } from "@/auth";
 import { AppProviders } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
+import { ChatPanel } from "@/components/chat-panel";
 
 type Props = {
   children: ReactNode;
@@ -31,6 +32,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <AppProviders session={session}>
         <SiteHeader />
         {children}
+        <ChatPanel />
       </AppProviders>
     </NextIntlClientProvider>
   );

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
+import { requireAuth, requireStudentOnboardingComplete } from "@/lib/onboarding-gate";
 import { getLocale } from "next-intl/server";
 
 export default async function PlacementLayout({
@@ -8,15 +8,11 @@ export default async function PlacementLayout({
 }: {
   children: ReactNode;
 }) {
-  const session = await auth();
   const locale = await getLocale();
-  const user = session?.user;
-  if (!user) {
-    redirect({ href: "/auth/signin", locale });
-    return null;
-  }
+  const user = await requireAuth(locale);
   if (user.role !== "STUDENT") {
     redirect({ href: "/dashboard", locale });
   }
+  await requireStudentOnboardingComplete(locale, user);
   return children;
 }

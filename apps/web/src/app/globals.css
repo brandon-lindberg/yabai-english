@@ -1,268 +1,322 @@
 @import "tailwindcss";
 
 /*
-  Your palettes (exact hex):
-  Spring  #C3FF93 #FFDB5C #FFAF61 #FF70AB
-  Summer  #FA5C5C #FD8A6B #FEC288 #FBEF76
-  Autumn  #D6D46D #F4DFB6 #DE8F5F #9A4444
-  Winter  #0B2D72 #0992C2 #0AC4E0 #F6E7BC
+  Seasonal Palettes (exact hex — all four must be visibly used):
+  Spring  p1=#C3FF93  p2=#FFDB5C  p3=#FFAF61  p4=#FF70AB
+  Summer  p1=#FA5C5C  p2=#FD8A6B  p3=#FEC288  p4=#FBEF76
+  Autumn  p1=#D6D46D  p2=#F4DFB6  p3=#DE8F5F  p4=#9A4444
+  Winter  p1=#0B2D72  p2=#0992C2  p3=#0AC4E0  p4=#F6E7BC
 
-  Season: Northern hemisphere by local month (script).
-  Default theme when nothing in localStorage: light (not system), so “Light” is actually light.
+  Season: Northern hemisphere by local month.
+  Default: light. Storage key: english-platform-theme.
+
+  Design rule: the 3-stop body gradient uses tints of p1→p2→p4.
+  Primary button = one bold palette color. Link, accent, chip each use a different one.
 */
 
+/* ------------------------------------------------------------------ */
+/*  :root  — Spring light fallback before script                       */
+/* ------------------------------------------------------------------ */
 :root {
-  /* Spring light as safe default before script runs */
   --p1: #c3ff93;
   --p2: #ffdb5c;
   --p3: #ffaf61;
   --p4: #ff70ab;
   color-scheme: light;
-  --app-bg: color-mix(in srgb, var(--p1) 40%, white);
-  --app-bg-mid: color-mix(in srgb, var(--p2) 28%, white);
-  --app-hover: color-mix(in srgb, var(--p4) 12%, var(--app-surface));
-  --app-surface: #ffffff;
-  --app-text: #1a3311;
-  --app-muted: #3d5a30;
-  --app-border: color-mix(in srgb, var(--p3) 35%, white);
-  --app-primary: #d63384;
+
+  --app-bg: #d8ffc0;
+  --app-bg-mid: #fff0b0;
+  --app-bg-end: #ffd6e8;
+
+  --app-surface: #fefff5;
+  --app-hover: #ffe8f2;
+  --app-text: #1c3a0e;
+  --app-muted: #4f6e3a;
+  --app-border: #eec868;
+
+  --app-primary: #ff70ab;
   --app-primary-fg: #ffffff;
-  --app-link: #c0286e;
-  --app-accent: #ff70ab;
-  --app-chip: color-mix(in srgb, var(--p2) 45%, white);
-  --app-header-border: color-mix(in srgb, var(--p4) 25%, transparent);
-  --app-success-bg: #e8f8ec;
-  --app-success-border: #7bc99c;
+  --app-link: #d63384;
+  --app-accent: #ffaf61;
+  --app-chip: #fff0a8;
+  --app-header-border: #ffb878;
+
+  --app-success-bg: #e8fce8;
+  --app-success-border: #82d898;
   --app-success-text: #14532d;
-  --app-warn-bg: #fff8e6;
-  --app-warn-border: #e8c96a;
+  --app-warn-bg: #fff6d8;
+  --app-warn-border: #e8c060;
   --app-warn-text: #422006;
   --app-danger: #b91c1c;
 }
 
+/* ================================================================== */
+/*  SPRING                                                             */
+/*  p1=#C3FF93 (lime)  p2=#FFDB5C (gold)                              */
+/*  p3=#FFAF61 (orange) p4=#FF70AB (hot pink)                          */
+/* ================================================================== */
+
 html[data-season="spring"][data-theme="light"] {
-  --p1: #c3ff93;
-  --p2: #ffdb5c;
-  --p3: #ffaf61;
-  --p4: #ff70ab;
+  --p1: #c3ff93; --p2: #ffdb5c; --p3: #ffaf61; --p4: #ff70ab;
   color-scheme: light;
-  --app-bg: color-mix(in srgb, var(--p1) 42%, white);
-  --app-bg-mid: color-mix(in srgb, var(--p2) 32%, white);
-  --app-hover: color-mix(in srgb, var(--p3) 18%, white);
-  --app-surface: #ffffff;
-  --app-text: #173209;
-  --app-muted: #3f5f2f;
-  --app-border: color-mix(in srgb, var(--p3) 40%, #ccc);
-  --app-primary: #c2185a;
+
+  --app-bg: #d8ffc0;
+  --app-bg-mid: #fff0b0;
+  --app-bg-end: #ffd6e8;
+
+  --app-surface: #fefff5;
+  --app-hover: #ffe8f2;
+  --app-text: #1c3a0e;
+  --app-muted: #4f6e3a;
+  --app-border: #eec868;
+
+  --app-primary: #ff70ab;
   --app-primary-fg: #ffffff;
-  --app-link: #b12d6a;
-  --app-accent: #ff70ab;
-  --app-chip: color-mix(in srgb, var(--p1) 35%, white);
-  --app-header-border: color-mix(in srgb, var(--p4) 35%, var(--p3));
+  --app-link: #d63384;
+  --app-accent: #ffaf61;
+  --app-chip: #fff0a8;
+  --app-header-border: #ffb878;
+
   --app-success-bg: #e8fce8;
-  --app-success-border: var(--p1);
+  --app-success-border: #82d898;
   --app-success-text: #14532d;
-  --app-warn-bg: color-mix(in srgb, var(--p2) 22%, white);
-  --app-warn-border: var(--p3);
+  --app-warn-bg: #fff6d8;
+  --app-warn-border: #e8c060;
   --app-warn-text: #422006;
   --app-danger: #b91c1c;
 }
 
 html[data-season="spring"][data-theme="dark"] {
-  --p1: #c3ff93;
-  --p2: #ffdb5c;
-  --p3: #ffaf61;
-  --p4: #ff70ab;
+  --p1: #c3ff93; --p2: #ffdb5c; --p3: #ffaf61; --p4: #ff70ab;
   color-scheme: dark;
-  --app-bg: #0f1f0c;
-  --app-bg-mid: #1a2e14;
-  --app-hover: color-mix(in srgb, var(--p1) 15%, #1a2e14);
-  --app-surface: #152a12;
-  --app-text: #f0ffe0;
-  --app-muted: #c3ff93;
-  --app-border: color-mix(in srgb, var(--p1) 28%, #0f1f0c);
+
+  --app-bg: #0e1a08;
+  --app-bg-mid: #1e1808;
+  --app-bg-end: #1c0c16;
+
+  --app-surface: #1a2c10;
+  --app-hover: #223818;
+  --app-text: #e8ffd4;
+  --app-muted: #b8e878;
+  --app-border: #3a5820;
+
   --app-primary: #ff70ab;
-  --app-primary-fg: #1a0a12;
+  --app-primary-fg: #1a0810;
   --app-link: #ffdb5c;
   --app-accent: #ffaf61;
-  --app-chip: color-mix(in srgb, var(--p4) 22%, #152a12);
-  --app-header-border: color-mix(in srgb, var(--p2) 45%, transparent);
+  --app-chip: #2c1a24;
+  --app-header-border: rgba(255, 175, 97, 0.45);
+
   --app-success-bg: #142818;
-  --app-success-border: var(--p1);
+  --app-success-border: #c3ff93;
   --app-success-text: #e8ffd4;
   --app-warn-bg: #2a1f0c;
-  --app-warn-border: var(--p3);
+  --app-warn-border: #ffaf61;
   --app-warn-text: #ffdb5c;
   --app-danger: #ff8585;
 }
 
+/* ================================================================== */
+/*  SUMMER                                                             */
+/*  p1=#FA5C5C (coral)  p2=#FD8A6B (peach)                            */
+/*  p3=#FEC288 (gold)   p4=#FBEF76 (sun yellow)                       */
+/* ================================================================== */
+
 html[data-season="summer"][data-theme="light"] {
-  --p1: #fa5c5c;
-  --p2: #fd8a6b;
-  --p3: #fec288;
-  --p4: #fbef76;
+  --p1: #fa5c5c; --p2: #fd8a6b; --p3: #fec288; --p4: #fbef76;
   color-scheme: light;
-  --app-bg: color-mix(in srgb, var(--p4) 52%, white);
-  --app-bg-mid: color-mix(in srgb, var(--p3) 35%, white);
-  --app-hover: color-mix(in srgb, var(--p2) 20%, white);
-  --app-surface: #ffffff;
+
+  --app-bg: #fff4c0;
+  --app-bg-mid: #ffe0c0;
+  --app-bg-end: #ffd0d0;
+
+  --app-surface: #fffcf5;
+  --app-hover: #ffe8e0;
   --app-text: #4a1520;
   --app-muted: #8a3a2e;
-  --app-border: color-mix(in srgb, var(--p1) 28%, white);
+  --app-border: #f8a880;
+
   --app-primary: #fa5c5c;
-  --app-primary-fg: #1a0a0a;
-  --app-link: #e03d2d;
-  --app-accent: #fd8a6b;
-  --app-chip: color-mix(in srgb, var(--p4) 40%, white);
-  --app-header-border: color-mix(in srgb, var(--p1) 30%, var(--p2));
+  --app-primary-fg: #ffffff;
+  --app-link: #d44030;
+  --app-accent: #fbef76;
+  --app-chip: #fde0a0;
+  --app-header-border: #fd9878;
+
   --app-success-bg: #ecfdf3;
-  --app-success-border: var(--p3);
+  --app-success-border: #72d498;
   --app-success-text: #134e2a;
-  --app-warn-bg: color-mix(in srgb, var(--p4) 25%, white);
-  --app-warn-border: var(--p2);
+  --app-warn-bg: #fff8d8;
+  --app-warn-border: #f0c060;
   --app-warn-text: #713f12;
   --app-danger: #b91c1c;
 }
 
 html[data-season="summer"][data-theme="dark"] {
-  --p1: #fa5c5c;
-  --p2: #fd8a6b;
-  --p3: #fec288;
-  --p4: #fbef76;
+  --p1: #fa5c5c; --p2: #fd8a6b; --p3: #fec288; --p4: #fbef76;
   color-scheme: dark;
-  --app-bg: #1c1010;
-  --app-bg-mid: #2a1814;
-  --app-hover: color-mix(in srgb, var(--p2) 12%, #2a1814);
-  --app-surface: #261a16;
+
+  --app-bg: #1e0e0e;
+  --app-bg-mid: #201510;
+  --app-bg-end: #1c1a08;
+
+  --app-surface: #2c1818;
+  --app-hover: #361e1e;
   --app-text: #fff5e8;
   --app-muted: #fec288;
-  --app-border: color-mix(in srgb, var(--p1) 35%, #1c1010);
+  --app-border: #4a2020;
+
   --app-primary: #fbef76;
-  --app-primary-fg: #2a1010;
+  --app-primary-fg: #1a1408;
   --app-link: #fd8a6b;
   --app-accent: #fa5c5c;
-  --app-chip: color-mix(in srgb, var(--p1) 18%, #261a16);
-  --app-header-border: color-mix(in srgb, var(--p4) 40%, transparent);
+  --app-chip: #2e1c14;
+  --app-header-border: rgba(251, 239, 118, 0.45);
+
   --app-success-bg: #0f2218;
-  --app-success-border: var(--p3);
+  --app-success-border: #fec288;
   --app-success-text: #d4f5e0;
   --app-warn-bg: #2a1c10;
-  --app-warn-border: var(--p2);
+  --app-warn-border: #fd8a6b;
   --app-warn-text: #fbef76;
   --app-danger: #ff8a8a;
 }
 
+/* ================================================================== */
+/*  AUTUMN                                                             */
+/*  p1=#D6D46D (olive gold)  p2=#F4DFB6 (cream)                       */
+/*  p3=#DE8F5F (burnt orange) p4=#9A4444 (deep red)                    */
+/* ================================================================== */
+
 html[data-season="autumn"][data-theme="light"] {
-  --p1: #d6d46d;
-  --p2: #f4dfb6;
-  --p3: #de8f5f;
-  --p4: #9a4444;
+  --p1: #d6d46d; --p2: #f4dfb6; --p3: #de8f5f; --p4: #9a4444;
   color-scheme: light;
-  --app-bg: color-mix(in srgb, var(--p2) 55%, white);
-  --app-bg-mid: color-mix(in srgb, var(--p1) 38%, white);
-  --app-hover: color-mix(in srgb, var(--p3) 18%, white);
-  --app-surface: #fffefb;
+
+  --app-bg: #f8f0c0;
+  --app-bg-mid: #ece898;
+  --app-bg-end: #f0cca8;
+
+  --app-surface: #fefcf0;
+  --app-hover: #f4e8d0;
   --app-text: #4a2810;
   --app-muted: #7a4a28;
-  --app-border: color-mix(in srgb, var(--p3) 32%, white);
+  --app-border: #dea868;
+
   --app-primary: #9a4444;
-  --app-primary-fg: #fffaf5;
-  --app-link: #b05a2a;
+  --app-primary-fg: #fff5ee;
+  --app-link: #b05028;
   --app-accent: #de8f5f;
-  --app-chip: color-mix(in srgb, var(--p2) 65%, white);
-  --app-header-border: color-mix(in srgb, var(--p4) 25%, var(--p3));
+  --app-chip: #eee098;
+  --app-header-border: #c87850;
+
   --app-success-bg: #f0fdf4;
-  --app-success-border: var(--p1);
+  --app-success-border: #a8c878;
   --app-success-text: #14532d;
-  --app-warn-bg: color-mix(in srgb, var(--p2) 40%, white);
-  --app-warn-border: var(--p3);
+  --app-warn-bg: #fdf0d4;
+  --app-warn-border: #de8f5f;
   --app-warn-text: #713f12;
   --app-danger: #991b1b;
 }
 
 html[data-season="autumn"][data-theme="dark"] {
-  --p1: #d6d46d;
-  --p2: #f4dfb6;
-  --p3: #de8f5f;
-  --p4: #9a4444;
+  --p1: #d6d46d; --p2: #f4dfb6; --p3: #de8f5f; --p4: #9a4444;
   color-scheme: dark;
-  --app-bg: #1a1210;
-  --app-bg-mid: #261c14;
-  --app-hover: color-mix(in srgb, var(--p3) 12%, #261c14);
-  --app-surface: #221a14;
+
+  --app-bg: #1a1208;
+  --app-bg-mid: #201808;
+  --app-bg-end: #1e100e;
+
+  --app-surface: #281c10;
+  --app-hover: #302418;
   --app-text: #f4dfb6;
-  --app-muted: #de8f5f;
-  --app-border: color-mix(in srgb, var(--p4) 32%, #1a1210);
+  --app-muted: #d6d46d;
+  --app-border: #3e2818;
+
   --app-primary: #de8f5f;
   --app-primary-fg: #1f1008;
   --app-link: #d6d46d;
   --app-accent: #f4dfb6;
-  --app-chip: color-mix(in srgb, var(--p4) 22%, #221a14);
-  --app-header-border: color-mix(in srgb, var(--p1) 35%, transparent);
+  --app-chip: #302014;
+  --app-header-border: rgba(214, 212, 109, 0.40);
+
   --app-success-bg: #142018;
-  --app-success-border: var(--p1);
+  --app-success-border: #d6d46d;
   --app-success-text: #e8f5d4;
   --app-warn-bg: #2a2014;
-  --app-warn-border: var(--p3);
+  --app-warn-border: #de8f5f;
   --app-warn-text: #f4dfb6;
   --app-danger: #ff8a8a;
 }
 
+/* ================================================================== */
+/*  WINTER                                                             */
+/*  p1=#0B2D72 (navy)   p2=#0992C2 (blue)                             */
+/*  p3=#0AC4E0 (cyan)   p4=#F6E7BC (warm cream)                       */
+/* ================================================================== */
+
 html[data-season="winter"][data-theme="light"] {
-  --p1: #0b2d72;
-  --p2: #0992c2;
-  --p3: #0ac4e0;
-  --p4: #f6e7bc;
+  --p1: #0b2d72; --p2: #0992c2; --p3: #0ac4e0; --p4: #f6e7bc;
   color-scheme: light;
-  --app-bg: color-mix(in srgb, var(--p4) 40%, white);
-  --app-bg-mid: color-mix(in srgb, var(--p3) 18%, white);
-  --app-hover: color-mix(in srgb, var(--p2) 12%, white);
-  --app-surface: #ffffff;
+
+  --app-bg: #dceeff;
+  --app-bg-mid: #c8f0f8;
+  --app-bg-end: #f6f0d8;
+
+  --app-surface: #f4f8ff;
+  --app-hover: #e4f0ff;
   --app-text: #0b2d72;
-  --app-muted: #2d4a7a;
-  --app-border: color-mix(in srgb, var(--p2) 22%, white);
+  --app-muted: #2d5a8a;
+  --app-border: #78c0e0;
+
   --app-primary: #0b2d72;
   --app-primary-fg: #f6e7bc;
-  --app-link: #0992c2;
+  --app-link: #0880aa;
   --app-accent: #0ac4e0;
-  --app-chip: color-mix(in srgb, var(--p4) 50%, white);
-  --app-header-border: color-mix(in srgb, var(--p3) 40%, var(--p2));
+  --app-chip: #f0e8c0;
+  --app-header-border: #40a8d0;
+
   --app-success-bg: #e8fdf8;
-  --app-success-border: var(--p3);
+  --app-success-border: #40c8b0;
   --app-success-text: #065f46;
-  --app-warn-bg: color-mix(in srgb, var(--p4) 35%, white);
-  --app-warn-border: var(--p2);
+  --app-warn-bg: #fdf4d8;
+  --app-warn-border: #d8b868;
   --app-warn-text: #713f12;
   --app-danger: #b91c1c;
 }
 
 html[data-season="winter"][data-theme="dark"] {
-  --p1: #0b2d72;
-  --p2: #0992c2;
-  --p3: #0ac4e0;
-  --p4: #f6e7bc;
+  --p1: #0b2d72; --p2: #0992c2; --p3: #0ac4e0; --p4: #f6e7bc;
   color-scheme: dark;
-  --app-bg: #041229;
-  --app-bg-mid: #0b2d72;
-  --app-hover: color-mix(in srgb, var(--p2) 18%, #0b2d72);
-  --app-surface: #0e3870;
+
+  --app-bg: #040e22;
+  --app-bg-mid: #082848;
+  --app-bg-end: #0a1830;
+
+  --app-surface: #0c2858;
+  --app-hover: #103060;
   --app-text: #f6e7bc;
   --app-muted: #7dd3fc;
-  --app-border: color-mix(in srgb, var(--p2) 45%, #041229);
+  --app-border: #0c3a6a;
+
   --app-primary: #0ac4e0;
   --app-primary-fg: #041018;
   --app-link: #f6e7bc;
   --app-accent: #0992c2;
-  --app-chip: color-mix(in srgb, var(--p1) 35%, #0e3870);
-  --app-header-border: color-mix(in srgb, var(--p3) 50%, transparent);
+  --app-chip: #102848;
+  --app-header-border: rgba(10, 196, 224, 0.50);
+
   --app-success-bg: #052818;
-  --app-success-border: var(--p3);
+  --app-success-border: #0ac4e0;
   --app-success-text: #b8ffe8;
   --app-warn-bg: #1a1508;
-  --app-warn-border: var(--p4);
+  --app-warn-border: #f6e7bc;
   --app-warn-text: #f6e7bc;
   --app-danger: #ff8585;
 }
+
+/* ================================================================== */
+/*  Tailwind theme bridge                                              */
+/* ================================================================== */
 
 @theme inline {
   --color-background: var(--app-bg);
@@ -280,6 +334,10 @@ html[data-season="winter"][data-theme="dark"] {
   --font-mono: var(--font-geist-mono);
 }
 
+/* ================================================================== */
+/*  Base elements                                                      */
+/* ================================================================== */
+
 html,
 body {
   min-height: 100%;
@@ -287,10 +345,10 @@ body {
 
 body {
   background: linear-gradient(
-    165deg,
+    160deg,
     var(--app-bg) 0%,
-    var(--app-bg-mid) 42%,
-    var(--app-bg) 100%
+    var(--app-bg-mid) 45%,
+    var(--app-bg-end) 100%
   );
   background-attachment: fixed;
   color: var(--app-text);

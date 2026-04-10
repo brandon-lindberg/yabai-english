@@ -3,9 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Link } from "@/i18n/navigation";
 
 type Props = {
   hasGoogleOAuth: boolean;
@@ -15,14 +13,12 @@ type Props = {
 export function SignInForm({ hasGoogleOAuth, devEmailSignIn }: Props) {
   const t = useTranslations("auth");
   const locale = useLocale();
-  const searchParams = useSearchParams();
-  const registered = searchParams.get("registered") === "1";
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const redirectTo =
-    locale === "ja" ? "/dashboard" : `/${locale}/dashboard`;
+    locale === "ja" ? "/onboarding" : `/${locale}/onboarding`;
 
   async function onDevSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -53,17 +49,17 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn }: Props) {
         <p className="mt-2 text-sm text-muted">{t("signInSubtitle")}</p>
       </div>
 
-      {registered && (
+      {devEmailSignIn && (
         <p
           className="rounded-xl border px-4 py-3 text-sm"
           style={{
-            borderColor: "var(--app-success-border)",
-            background: "var(--app-success-bg)",
-            color: "var(--app-success-text)",
+            borderColor: "var(--app-warn-border)",
+            background: "var(--app-warn-bg)",
+            color: "var(--app-warn-text)",
           }}
           role="status"
         >
-          {t("afterSignUp")}
+          {t("devBypassBanner")}
         </p>
       )}
 
@@ -124,12 +120,7 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn }: Props) {
         </p>
       )}
 
-      <p className="text-center text-sm text-muted">
-        {t("noAccount")}{" "}
-        <Link href="/auth/signup" className="font-medium text-link hover:underline">
-          {t("signUpLink")}
-        </Link>
-      </p>
+      <p className="text-center text-sm text-muted">{t("googleOnlyHint")}</p>
     </div>
   );
 }

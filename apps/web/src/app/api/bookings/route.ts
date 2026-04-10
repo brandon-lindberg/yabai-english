@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
+import { buildInvoiceNumber } from "@/lib/invoices";
+import { getBookingPaymentFlow } from "@/lib/payment-flow";
+import { createUserNotification } from "@/lib/notifications";
+import { ensureStudentTeacherThread } from "@/lib/chat-threads";
+import {
+  canBypassLeadTimeWindow,
+  isBookingOutsideLeadWindow,
+} from "@/lib/lead-time-policy";
+import { validateManualOverrideReason } from "@/lib/manual-override";
 import { z } from "zod";
 import { BookingStatus, LessonTier } from "@prisma/client";
 
@@ -9,6 +18,8 @@ const postSchema = z.object({
   lessonProductId: z.string().min(1),
   teacherProfileId: z.string().min(1).optional(),
   startsAt: z.string().datetime(),
+  manualOverride: z.boolean().optional(),
+  manualOverrideReason: z.string().max(500).optional(),
 });
 
 export async function POST(req: Request) {
@@ -23,8 +34,38 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const { lessonProductId, teacherProfileId, startsAt } = parsed.data;
+  const {
+    lessonProductId,
+    teacherProfileId,
+    startsAt,
+    manualOverride,
+    manualOverrideReason,
+  } = parsed.data;
   const start = new Date(startsAt);
+  const outsideLeadWindow = isBookingOutsideLeadWindow({
+    start,
+    minimumHours: 48,
+  });
+  const canBypass = canBypassLeadTimeWindow(
+    session.user.role,
+    Boolean(manualOverride),
+  );
+  const reasonCheck = validateManualOverrideReason(
+    Boolean(manualOverride) && canBypass,
+    manualOverrideReason ?? "",
+  );
+  if (!reasonCheck.ok) {
+    return NextResponse.json(
+      { error: "Manual override reason is required." },
+      { status: 400 },
+    );
+  }
+  if (!outsideLeadWindow && !canBypass) {
+    return NextResponse.json(
+      { error: "Bookings must be made at least 48 hours in advance." },
+      { status: 409 },
+    );
+  }
 
   const product = await prisma.lessonProduct.findFirst({
     where: { id: lessonProductId, active: true },
@@ -65,7 +106,7 @@ export async function POST(req: Request) {
   });
   if (conflict) {
     return NextResponse.json(
-      { error: "That time conflicts with another booking." },
+      { error: "That slot was just booked by another student." },
       { status: 409 },
     );
   }
@@ -79,6 +120,7 @@ export async function POST(req: Request) {
   }
 
   const isFreeTrial = product.tier === LessonTier.FREE_TRIAL;
+  const quotedPriceYen = isFreeTrial ? 0 : (teacher.rateYen ?? 3000);
 
   if (isFreeTrial && student.studentProfile.trialLessonUsedAt) {
     return NextResponse.json(
@@ -92,6 +134,11 @@ export async function POST(req: Request) {
     teacher.user.email,
   ].filter(Boolean) as string[];
 
+  const flow = getBookingPaymentFlow({
+    lessonTier: product.tier,
+    trialAlreadyUsed: Boolean(student.studentProfile.trialLessonUsedAt),
+  });
+
   const booking = await prisma.$transaction(async (tx) => {
     const profile = await tx.studentProfile.findUnique({
       where: { userId: session.user.id },
@@ -100,7 +147,7 @@ export async function POST(req: Request) {
       throw new Error("NO_PROFILE");
     }
 
-    if (isFreeTrial) {
+    if (!flow.requiresPayment) {
       const claimed = await tx.studentProfile.updateMany({
         where: { userId: session.user.id, trialLessonUsedAt: null },
         data: { trialLessonUsedAt: new Date() },
@@ -115,7 +162,11 @@ export async function POST(req: Request) {
           lessonProductId: product.id,
           startsAt: start,
           endsAt,
-          status: BookingStatus.CONFIRMED,
+          status: flow.status,
+          quotedPriceYen,
+          manualOverrideUsed: !outsideLeadWindow && canBypass,
+          manualOverrideReason: !outsideLeadWindow && canBypass ? reasonCheck.normalizedReason : null,
+          manualOverrideByRole: !outsideLeadWindow && canBypass ? session.user.role : null,
         },
         include: { lessonProduct: true, teacher: { include: { user: true } } },
       });
@@ -128,7 +179,11 @@ export async function POST(req: Request) {
         lessonProductId: product.id,
         startsAt: start,
         endsAt,
-        status: BookingStatus.CONFIRMED,
+        status: flow.status,
+        quotedPriceYen,
+        manualOverrideUsed: !outsideLeadWindow && canBypass,
+        manualOverrideReason: !outsideLeadWindow && canBypass ? reasonCheck.normalizedReason : null,
+        manualOverrideByRole: !outsideLeadWindow && canBypass ? session.user.role : null,
       },
       include: { lessonProduct: true, teacher: { include: { user: true } } },
     });
@@ -153,6 +208,21 @@ export async function POST(req: Request) {
 
   const confirmedBooking = booking as Exclude<typeof booking, { _err: string }>;
 
+  if (confirmedBooking.status === BookingStatus.PENDING_PAYMENT) {
+    await createUserNotification({
+      userId: session.user.id,
+      titleJa: "支払い待ちの予約があります",
+      titleEn: "Booking pending payment",
+      bodyJa: "予約を確定するには支払いを完了してください。",
+      bodyEn: "Complete payment to confirm your booking.",
+    });
+    return NextResponse.json({
+      bookingId: confirmedBooking.id,
+      requiresPayment: true,
+      checkoutUrl: `/book/checkout/${confirmedBooking.id}`,
+    });
+  }
+
   const meet = await createMeetLessonEvent({
     refreshTokenEncrypted: teacher.googleCalendarRefreshToken,
     calendarId: teacher.calendarId,
@@ -175,6 +245,31 @@ export async function POST(req: Request) {
   const fresh = await prisma.booking.findUnique({
     where: { id: confirmedBooking.id },
     include: { lessonProduct: true, teacher: { include: { user: true } } },
+  });
+
+  const now = new Date();
+  await prisma.invoice.upsert({
+    where: { bookingId: confirmedBooking.id },
+    create: {
+      bookingId: confirmedBooking.id,
+      studentId: session.user.id,
+      amountYen: confirmedBooking.quotedPriceYen,
+      invoiceNo: buildInvoiceNumber(now),
+      paidAt: now,
+    },
+    update: {
+      amountYen: confirmedBooking.quotedPriceYen,
+      paidAt: now,
+    },
+  });
+
+  await ensureStudentTeacherThread(session.user.id, teacher.userId);
+  await createUserNotification({
+    userId: session.user.id,
+    titleJa: "予約が確定しました",
+    titleEn: "Booking confirmed",
+    bodyJa: `${product.nameJa} の予約が確定しました。`,
+    bodyEn: `Your ${product.nameEn} booking is confirmed.`,
   });
 
   return NextResponse.json(fresh ?? confirmedBooking);

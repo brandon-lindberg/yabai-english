@@ -4,6 +4,8 @@ export function getAuthMode() {
     process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
   );
   const devEmailSignIn =
-    process.env.NODE_ENV !== "production" && !hasGoogleOAuth;
+    process.env.NODE_ENV !== "production" &&
+    process.env.DEV_AUTH_BYPASS === "true" &&
+    !hasGoogleOAuth;
   return { hasGoogleOAuth, devEmailSignIn };
 }

@@ -1,0 +1,8 @@
+-- Teacher discovery profile fields
+ALTER TABLE "TeacherProfile"
+ADD COLUMN IF NOT EXISTS "bio" TEXT,
+ADD COLUMN IF NOT EXISTS "countryOfOrigin" TEXT,
+ADD COLUMN IF NOT EXISTS "credentials" TEXT,
+ADD COLUMN IF NOT EXISTS "instructionLanguages" TEXT[] DEFAULT ARRAY['EN']::TEXT[],
+ADD COLUMN IF NOT EXISTS "specialties" TEXT[] DEFAULT ARRAY[]::TEXT[],
+ADD COLUMN IF NOT EXISTS "rateYen" INTEGER;

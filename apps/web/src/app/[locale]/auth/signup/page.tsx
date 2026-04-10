@@ -1,9 +1,7 @@
-import { SignUpForm } from "@/components/auth/sign-up-form";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 
-export default function SignUpPage() {
-  return (
-    <main className="flex flex-1 flex-col">
-      <SignUpForm />
-    </main>
-  );
+export default async function SignUpPage() {
+  const locale = await getLocale();
+  redirect({ href: "/auth/signin", locale });
 }

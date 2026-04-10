@@ -68,6 +68,7 @@ model User {
   sentMessages       ChatMessage[]  @relation("MessageSender")
   receivedMessages   ChatMessage[]  @relation("MessageRecipient")
   notifications      Notification[]
+  invoices           Invoice[]
   chatThreadsAsStudent ChatThread[] @relation("ThreadStudent")
   chatThreadsAsTeacher ChatThread[] @relation("ThreadTeacher")
 
@@ -116,12 +117,25 @@ model StudentProfile {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  /// Student timezone for rendering schedules in their local calendar/time context.
+  timezone String @default("Asia/Tokyo")
+
   /// Result of the in-app placement activity
   placedLevel           PlacedLevel @default(UNSET)
   placementCompletedAt  DateTime?
 
   /// One free 20-minute trial per student (set when a trial booking is confirmed)
   trialLessonUsedAt DateTime?
+
+  /// Onboarding data
+  learningGoals          String[]  @default([])
+  notifyLessonReminders  Boolean   @default(true)
+  notifyMessages         Boolean   @default(true)
+  notifyPayments         Boolean   @default(true)
+  termsAcceptedAt        DateTime?
+  privacyAcceptedAt      DateTime?
+  recordingConsentAt     DateTime?
+  onboardingCompletedAt  DateTime?
 }
 
 model TeacherProfile {
@@ -133,6 +147,12 @@ model TeacherProfile {
   googleCalendarRefreshToken String? @db.Text
   calendarId                 String? @default("primary")
   displayName                String?
+  bio                        String? @db.Text
+  countryOfOrigin            String?
+  credentials                String? @db.Text
+  instructionLanguages       String[] @default(["EN"])
+  specialties                String[] @default([])
+  rateYen                    Int?
 
   availabilitySlots AvailabilitySlot[]
   bookingsTeaching  Booking[]          @relation("TeacherBookings")
@@ -172,14 +192,33 @@ model Booking {
   startsAt      DateTime
   endsAt        DateTime
   status        BookingStatus
+  quotedPriceYen Int      @default(0)
+  manualOverrideUsed Boolean @default(false)
+  manualOverrideReason String? @db.Text
+  manualOverrideByRole Role?
   meetUrl       String?       @db.Text
   googleEventId String?
+  invoice       Invoice?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([studentId, startsAt])
   @@index([teacherId, startsAt])
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  bookingId   String   @unique
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  amountYen   Int
+  invoiceNo   String   @unique
+  paidAt      DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([studentId, createdAt])
 }
 
 // --- Phase 2: Learning ---
@@ -287,6 +326,8 @@ model ChatThread {
   teacherId String
   student   User     @relation("ThreadStudent", fields: [studentId], references: [id], onDelete: Cascade)
   teacher   User     @relation("ThreadTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  twoWayEnabled Boolean @default(false)
+  twoWayEnabledByRole Role?
   updatedAt DateTime @updatedAt
 
   messages ChatMessage[]

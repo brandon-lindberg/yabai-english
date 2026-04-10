@@ -32,6 +32,56 @@ These four accent slots are fixed hex values. They appear as `--p1` … `--p4` o
 | Sep–Nov | autumn |
 | Dec–Feb | winter |
 
+### Per-season color allocation
+
+**Spring** — fresh, playful:
+
+| Role | Light | Dark |
+|------|-------|------|
+| Gradient | lime `#d8ffc0` → gold `#fff0b0` → blush `#ffd6e8` | `#0e1a08` → `#1e1808` → `#1c0c16` |
+| Surface | `#fefff5` (green-tinted) | `#1a2c10` |
+| Primary | `#FF70AB` (p4 hot pink) | `#FF70AB` |
+| Link | `#d63384` (dark pink) | `#FFDB5C` (p2 gold) |
+| Accent | `#FFAF61` (p3 orange) | `#FFAF61` |
+| Chip | `#fff0a8` (p2 gold tint) | `#2c1a24` (pink-tinted dark) |
+| Border | `#eec868` (gold) | `#3a5820` (green) |
+
+**Summer** — warm, energetic:
+
+| Role | Light | Dark |
+|------|-------|------|
+| Gradient | sun `#fff4c0` → peach `#ffe0c0` → coral `#ffd0d0` | `#1e0e0e` → `#201510` → `#1c1a08` |
+| Surface | `#fffcf5` (warm) | `#2c1818` |
+| Primary | `#FA5C5C` (p1 coral) | `#FBEF76` (p4 sun yellow) |
+| Link | `#d44030` (dark red) | `#FD8A6B` (p2 peach) |
+| Accent | `#FBEF76` (p4 yellow) | `#FA5C5C` (p1 coral) |
+| Chip | `#fde0a0` (p3 gold tint) | `#2e1c14` (warm dark) |
+| Border | `#f8a880` (peach) | `#4a2020` (warm) |
+
+**Autumn** — cozy, earthy:
+
+| Role | Light | Dark |
+|------|-------|------|
+| Gradient | cream `#f8f0c0` → olive `#ece898` → tan `#f0cca8` | `#1a1208` → `#201808` → `#1e100e` |
+| Surface | `#fefcf0` (warm off-white) | `#281c10` |
+| Primary | `#9A4444` (p4 deep red) | `#DE8F5F` (p3 orange) |
+| Link | `#b05028` (dark orange) | `#D6D46D` (p1 olive gold) |
+| Accent | `#DE8F5F` (p3 orange) | `#F4DFB6` (p2 cream) |
+| Chip | `#eee098` (p1 olive tint) | `#302014` (warm dark) |
+| Border | `#dea868` (warm gold) | `#3e2818` (earth) |
+
+**Winter** — cool, elegant:
+
+| Role | Light | Dark |
+|------|-------|------|
+| Gradient | ice `#dceeff` → cyan `#c8f0f8` → warm `#f6f0d8` | `#040e22` → `#082848` → `#0a1830` |
+| Surface | `#f4f8ff` (blue-tinted) | `#0c2858` |
+| Primary | `#0B2D72` (p1 navy) | `#0AC4E0` (p3 cyan) |
+| Link | `#0880aa` (dark cyan) | `#F6E7BC` (p4 cream) |
+| Accent | `#0AC4E0` (p3 cyan) | `#0992C2` (p2 blue) |
+| Chip | `#f0e8c0` (p4 warm tint) | `#102848` (navy) |
+| Border | `#78c0e0` (cyan) | `#0c3a6a` (deep blue) |
+
 ---
 
 ## Light and dark mode
@@ -43,24 +93,48 @@ These four accent slots are fixed hex values. They appear as `--p1` … `--p4` o
 
 ---
 
+## How palette colors map to UI
+
+Every palette color (p1–p4) must be **visibly present** in each season. The mapping strategy:
+
+| UI element | Which palette color | How it shows up |
+|------------|-------------------|-----------------|
+| **Body gradient start** | Tinted from p1 | Visible hue, not washed out — `--app-bg` |
+| **Body gradient middle** | Tinted from p2 | The sweep color — `--app-bg-mid` |
+| **Body gradient end** | Tinted from p4 | Contrasting endpoint — `--app-bg-end` |
+| **Primary button** | One of p1–p4 (the boldest) | At or near full saturation — `--app-primary` |
+| **Links** | Different palette color or accessible derivative | `--app-link` |
+| **Accent** (admin badge, eyebrow) | Another palette color | `--app-accent` |
+| **Chips / tags** | Light tint of remaining color | `--app-chip` |
+| **Borders** | Warm / visible — not invisible pastel | `--app-border` |
+
+The body gradient is a **3-stop** sweep at `160deg`:
+
+```css
+background: linear-gradient(160deg, --app-bg 0%, --app-bg-mid 45%, --app-bg-end 100%);
+```
+
+---
+
 ## Semantic color tokens (CSS)
 
 Defined per `data-season` + `data-theme` in `globals.css`. Use these when you need a raw `var()` (e.g. hover washes, header border):
 
 | Token | Role |
 |-------|------|
-| `--app-bg` | Page gradient start/end |
-| `--app-bg-mid` | Page gradient middle |
-| `--app-surface` | Cards, header tint base |
+| `--app-bg` | Page gradient start (tinted from p1) |
+| `--app-bg-mid` | Page gradient middle (tinted from p2) |
+| `--app-bg-end` | Page gradient end (tinted from p4) |
+| `--app-surface` | Cards, header tint base (lightly palette-tinted, not pure white/black) |
 | `--app-text` | Primary text |
 | `--app-muted` | Secondary / helper text |
-| `--app-border` | Borders, dividers |
-| `--app-primary` | Primary button / strong brand actions |
+| `--app-border` | Borders, dividers (visible palette hue, not invisible) |
+| `--app-primary` | Primary button / strong brand actions (a bold palette color) |
 | `--app-primary-fg` | Text/icons on primary |
-| `--app-link` | Links |
+| `--app-link` | Links (different palette color from primary) |
 | `--app-accent` | Highlights, eyebrow labels, admin nav emphasis |
-| `--app-chip` | Subtle filled chips / tags |
-| `--app-hover` | Hover background mix for neutral controls |
+| `--app-chip` | Filled chips / tags (light tint of a palette color) |
+| `--app-hover` | Hover background tint |
 | `--app-header-border` | Header bottom border |
 | `--app-success-*` | Success backgrounds, border, text |
 | `--app-warn-*` | Warning surfaces |

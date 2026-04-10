@@ -8,44 +8,16 @@ import { Role } from "@prisma/client";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
 
-const hasGoogleOAuth = !!(
-  process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+const hasGoogleOAuth = Boolean(
+  process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
 );
+const useDevCredentialsOnly =
+  process.env.NODE_ENV !== "production" &&
+  process.env.DEV_AUTH_BYPASS === "true" &&
+  !hasGoogleOAuth;
 
 const providers = [];
-
 if (hasGoogleOAuth) {
-  providers.push(
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
-    }),
-  );
-}
-
-// Apple, LINE: add providers here when AUTH_APPLE_* / LINE OAuth env vars are ready
-// import Apple from "next-auth/providers/apple"
-// providers.push(Apple({ clientId: process.env.AUTH_APPLE_ID!, clientSecret: process.env.AUTH_APPLE_SECRET! }))
-
-if (providers.length === 0 && process.env.NODE_ENV !== "production") {
-  providers.push(
-    Credentials({
-      name: "Email (dev only)",
-      credentials: {
-        email: { label: "Email", type: "email" },
-      },
-      async authorize(credentials) {
-        const email = credentials?.email as string | undefined;
-        if (!email) return null;
-        const user = await prisma.user.findUnique({ where: { email } });
-        return user ?? null;
-      },
-    }),
-  );
-}
-
-if (providers.length === 0) {
   providers.push(
     Google({
       clientId: process.env.AUTH_GOOGLE_ID ?? "missing-client-id",
@@ -54,9 +26,26 @@ if (providers.length === 0) {
     }),
   );
 }
+if (useDevCredentialsOnly) {
+  providers.push(
+    Credentials({
+      name: "Email (dev bypass)",
+      credentials: {
+        email: { label: "Email", type: "email" },
+      },
+      async authorize(credentials) {
+        const email = String(credentials?.email ?? "").trim().toLowerCase();
+        if (!email) return null;
+        const user = await prisma.user.findUnique({ where: { email } });
+        return user ?? null;
+      },
+    }),
+  );
+}
+
+// Apple, LINE: add providers here when AUTH_APPLE_* / LINE OAuth env vars are ready
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  // Credentials (dev) requires JWT sessions; Google OAuth uses DB sessions + Prisma adapter.
   adapter: hasGoogleOAuth ? prismaAdapter : undefined,
   session: {
     strategy: hasGoogleOAuth ? "database" : "jwt",
@@ -84,7 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async jwt({ token, user }) {
-      if (!hasGoogleOAuth && user?.id) {
+      if (useDevCredentialsOnly && user?.id) {
         const row = await prisma.user.findUnique({
           where: { id: user.id },
           select: { role: true, locale: true },
@@ -98,7 +87,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, user, token }) {
       if (!session.user) return session;
-      if (hasGoogleOAuth && user) {
+      if (user) {
         session.user.id = user.id;
         const full = await prisma.user.findUnique({
           where: { id: user.id },
@@ -106,7 +95,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         session.user.role = full?.role ?? Role.STUDENT;
         session.user.locale = full?.locale ?? "ja";
-      } else if (!hasGoogleOAuth && token?.sub) {
+      } else if (useDevCredentialsOnly && token?.sub) {
         session.user.id = token.sub;
         session.user.role = (token.role as Role) ?? Role.STUDENT;
         session.user.locale = (token.locale as string) ?? "ja";
