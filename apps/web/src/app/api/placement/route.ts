@@ -26,13 +26,20 @@ export async function GET() {
     issuedAt: Date.now(),
   });
 
-  return NextResponse.json({
-    questions: getPlacementQuestionsForClient().filter((q) =>
-      questionSet.some((selected) => selected.id === q.id),
-    ),
-    writingTask: PLACEMENT_WRITING_TASK,
-    attemptToken,
-  });
+  return NextResponse.json(
+    {
+      questions: getPlacementQuestionsForClient().filter((q) =>
+        questionSet.some((selected) => selected.id === q.id),
+      ),
+      writingTask: PLACEMENT_WRITING_TASK,
+      attemptToken,
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    },
+  );
 }
 
 const postSchema = z.object({

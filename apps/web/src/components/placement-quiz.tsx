@@ -38,7 +38,7 @@ export function PlacementQuiz() {
   const [result, setResult] = useState<PlacementResult | null>(null);
 
   useEffect(() => {
-    void fetch("/api/placement")
+    void fetch(`/api/placement?ts=${Date.now()}`, { cache: "no-store" })
       .then((r) => r.json())
       .then((data: {
         questions: PlacementQuestionPublic[];
