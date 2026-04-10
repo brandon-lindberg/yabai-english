@@ -78,15 +78,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       await prisma.studentProfile.upsert({
         where: { userId: user.id },
-        create: { userId: user.id, lessonCredits: 0 },
+        create: { userId: user.id },
         update: {},
       });
       return true;
     },
     async jwt({ token, user }) {
-      if (!hasGoogleOAuth && user) {
-        token.role = user.role;
-        token.locale = user.locale;
+      if (!hasGoogleOAuth && user?.id) {
+        const row = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { role: true, locale: true },
+        });
+        if (row) {
+          token.role = row.role;
+          token.locale = row.locale;
+        }
       }
       return token;
     },

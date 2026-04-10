@@ -7,8 +7,34 @@
     "admin": "Admin",
     "learn": "Learn",
     "bookLesson": "Book a lesson",
-    "buyCredits": "Buy credits",
-    "locale": "Language"
+    "themeToggle": "Toggle color theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "locale": "Language",
+    "signUp": "Sign up",
+    "placement": "Level check"
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signInSubtitle": "Use Google or your development email.",
+    "signUpTitle": "Create an account",
+    "signUpSubtitle": "Sign up as a student with your email. In production you can switch to Google-only if you prefer.",
+    "continueWithGoogle": "Continue with Google",
+    "email": "Email",
+    "displayName": "Display name",
+    "displayNamePlaceholder": "Optional",
+    "signInWithEmail": "Sign in with email",
+    "createAccount": "Create account",
+    "noAccount": "No account yet?",
+    "haveAccount": "Already have an account?",
+    "signUpLink": "Sign up",
+    "signInLink": "Sign in",
+    "afterSignUp": "Account created. Sign in below.",
+    "devOnlyHint": "Development mode: use any email that exists in the database. Seeded demo teacher:",
+    "devSeedTeacherEmail": "teacher@english-studio.local",
+    "devSignInError": "No user found for that email. Sign up first or use the seed teacher email.",
+    "signUpError": "Could not create account. Try again.",
+    "misconfigured": "Sign-in is not configured. Set AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET, or run in development without them to use email sign-in."
   },
   "home": {
     "title": "Online English lessons",
@@ -19,10 +45,18 @@
   "dashboard": {
     "title": "My dashboard",
     "upcoming": "Upcoming lessons",
-    "credits": "Lesson credits",
     "noBookings": "No bookings yet.",
     "meetLink": "Join with Google Meet",
-    "teacher": "Teacher"
+    "teacher": "Teacher",
+    "placedLevel": "Placed level",
+    "placedUnset": "Not set — take the level check",
+    "placementCta": "Level placement",
+    "retakePlacement": "Retake placement",
+    "levelLabel": {
+      "BEGINNER": "Beginner",
+      "INTERMEDIATE": "Intermediate",
+      "ADVANCED": "Advanced"
+    }
   },
   "admin": {
     "title": "Admin dashboard",
@@ -36,8 +70,24 @@
     "selectProduct": "Lesson type",
     "selectSlot": "Pick a time",
     "confirm": "Confirm booking",
-    "needCredits": "You need more credits. Purchase credits to continue.",
-    "success": "Your lesson is confirmed."
+    "success": "Your lesson is confirmed.",
+    "freeTrialOption": "Free trial"
+  },
+  "placement": {
+    "title": "Level placement",
+    "intro": "Short quiz — we suggest beginner, intermediate, or advanced for your learning path. You can retake anytime from your dashboard.",
+    "loading": "Loading questions…",
+    "loadError": "Could not load the placement activity.",
+    "progress": "Question {current} of {total}",
+    "submitting": "Saving your result…",
+    "submitError": "Something went wrong. Try again.",
+    "resultTitle": "Suggested level",
+    "level": {
+      "BEGINNER": "Beginner",
+      "INTERMEDIATE": "Intermediate",
+      "ADVANCED": "Advanced"
+    },
+    "backToDashboard": "Back to dashboard"
   },
   "learn": {
     "title": "Learn",

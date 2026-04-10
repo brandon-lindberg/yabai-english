@@ -23,18 +23,18 @@ export default async function LearnPage() {
 
   return (
     <main className="mx-auto max-w-3xl flex-1 px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-slate-900">{t("title")}</h1>
-      <p className="mt-2 text-slate-600">{t("placeholder")}</p>
+      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+      <p className="mt-2 text-muted">{t("placeholder")}</p>
       <section className="mt-8 space-y-6">
         {courses.map((c) => (
           <article
             key={c.id}
-            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="rounded-2xl border border-border bg-surface p-5 shadow-sm"
           >
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="text-lg font-semibold text-foreground">
               {c.titleJa} / {c.titleEn}
             </h2>
-            <p className="mt-1 text-sm text-slate-500">{c.level}</p>
+            <p className="mt-1 text-sm text-muted">{c.level}</p>
             <ul className="mt-4 space-y-2">
               {c.units.flatMap((u) =>
                 u.skills.flatMap((s) =>
@@ -42,7 +42,7 @@ export default async function LearnPage() {
                     <li key={lesson.id}>
                       <Link
                         href={`/learn/lesson/${lesson.id}`}
-                        className="text-sky-700 hover:text-sky-900"
+                        className="text-link hover:opacity-90"
                       >
                         {lesson.titleJa} — {lesson.titleEn}
                       </Link>

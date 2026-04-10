@@ -7,8 +7,34 @@
     "admin": "管理画面",
     "learn": "レッスン",
     "bookLesson": "予約",
-    "buyCredits": "クレジット購入",
-    "locale": "言語"
+    "themeToggle": "明暗を切り替え",
+    "themeLight": "ライト",
+    "themeDark": "ダーク",
+    "locale": "言語",
+    "signUp": "新規登録",
+    "placement": "レベル診断"
+  },
+  "auth": {
+    "signInTitle": "ログイン",
+    "signInSubtitle": "Google、または開発用のメールアドレスでサインインします。",
+    "signUpTitle": "アカウント作成",
+    "signUpSubtitle": "受講生としてメールで登録します。本番では Google のみにすることもできます。",
+    "continueWithGoogle": "Google で続ける",
+    "email": "メールアドレス",
+    "displayName": "表示名",
+    "displayNamePlaceholder": "任意",
+    "signInWithEmail": "メールでサインイン",
+    "createAccount": "アカウントを作成",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "haveAccount": "すでにアカウントをお持ちですか？",
+    "signUpLink": "新規登録",
+    "signInLink": "ログイン",
+    "afterSignUp": "アカウントを作成しました。下からサインインしてください。",
+    "devOnlyHint": "開発モード：DB に登録済みのメールを入力。シードのデモ講師：",
+    "devSeedTeacherEmail": "teacher@english-studio.local",
+    "devSignInError": "そのメールのユーザーが見つかりません。先に登録するか、シードの講師メールを使ってください。",
+    "signUpError": "登録に失敗しました。もう一度お試しください。",
+    "misconfigured": "サインインが設定されていません。AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET を設定するか、開発環境でメールサインインを使ってください。"
   },
   "home": {
     "title": "オンライン英会話",
@@ -19,10 +45,18 @@
   "dashboard": {
     "title": "マイページ",
     "upcoming": "予定のレッスン",
-    "credits": "残りクレジット",
     "noBookings": "予約はまだありません。",
     "meetLink": "Google Meet で参加",
-    "teacher": "講師"
+    "teacher": "講師",
+    "placedLevel": "診断レベル",
+    "placedUnset": "未設定 — レベル診断を受けてください",
+    "placementCta": "レベル診断",
+    "retakePlacement": "診断を受け直す",
+    "levelLabel": {
+      "BEGINNER": "初級",
+      "INTERMEDIATE": "中級",
+      "ADVANCED": "上級"
+    }
   },
   "admin": {
     "title": "管理ダッシュボード",
@@ -36,8 +70,24 @@
     "selectProduct": "レッスン種別",
     "selectSlot": "日時を選択",
     "confirm": "予約を確定",
-    "needCredits": "クレジットが不足しています。購入してください。",
-    "success": "予約が確認されました。"
+    "success": "予約が確認されました。",
+    "freeTrialOption": "無料トライアル"
+  },
+  "placement": {
+    "title": "レベル診断",
+    "intro": "短いクイズで、学習パスに合わせて初級・中級・上級を提案します。ダッシュボードからいつでも受け直せます。",
+    "loading": "読み込み中…",
+    "loadError": "診断を読み込めませんでした。",
+    "progress": "質問 {current} / {total}",
+    "submitting": "結果を保存しています…",
+    "submitError": "エラーが発生しました。もう一度お試しください。",
+    "resultTitle": "提案レベル",
+    "level": {
+      "BEGINNER": "初級",
+      "INTERMEDIATE": "中級",
+      "ADVANCED": "上級"
+    },
+    "backToDashboard": "ダッシュボードへ"
   },
   "learn": {
     "title": "学習",

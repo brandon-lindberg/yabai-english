@@ -25,45 +25,46 @@ async function main() {
 
   const products = [
     {
+      tier: LessonTier.FREE_TRIAL,
+      nameJa: "無料トライアルレッスン（20分）",
+      nameEn: "Free trial lesson (20 min)",
+      durationMin: 20,
+    },
+    {
       tier: LessonTier.STANDARD,
       nameJa: "標準レッスン（30分）",
       nameEn: "Standard (30 min)",
       durationMin: 30,
-      creditCost: 1,
     },
     {
       tier: LessonTier.STANDARD,
       nameJa: "標準レッスン（40分）",
       nameEn: "Standard (40 min)",
       durationMin: 40,
-      creditCost: 1,
     },
     {
       tier: LessonTier.EIKAWA,
       nameJa: "英会話",
       nameEn: "Conversation (Eikawa)",
       durationMin: 30,
-      creditCost: 1,
     },
     {
       tier: LessonTier.PRONUNCIATION_ACTING,
       nameJa: "発音・演技",
       nameEn: "Pronunciation — Acting",
       durationMin: 40,
-      creditCost: 2,
     },
   ];
 
   for (const p of products) {
+    const id =
+      p.tier === LessonTier.FREE_TRIAL
+        ? "seed-FREE_TRIAL-20"
+        : `seed-${p.tier}-${p.durationMin}`;
     await prisma.lessonProduct.upsert({
-      where: {
-        id: `seed-${p.tier}-${p.durationMin}`,
-      },
+      where: { id },
       update: p,
-      create: {
-        id: `seed-${p.tier}-${p.durationMin}`,
-        ...p,
-      },
+      create: { id, ...p },
     });
   }
 

@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
 import { z } from "zod";
-import { BookingStatus } from "@prisma/client";
+import { BookingStatus, LessonTier } from "@prisma/client";
 
 const postSchema = z.object({
   lessonProductId: z.string().min(1),
@@ -78,10 +78,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No student profile" }, { status: 400 });
   }
 
-  if (student.studentProfile.lessonCredits < product.creditCost) {
+  const isFreeTrial = product.tier === LessonTier.FREE_TRIAL;
+
+  if (isFreeTrial && student.studentProfile.trialLessonUsedAt) {
     return NextResponse.json(
-      { error: "Not enough credits", need: product.creditCost },
-      { status: 402 },
+      { error: "Free trial lesson already used" },
+      { status: 409 },
     );
   }
 
@@ -94,23 +96,31 @@ export async function POST(req: Request) {
     const profile = await tx.studentProfile.findUnique({
       where: { userId: session.user.id },
     });
-    if (!profile || profile.lessonCredits < product.creditCost) {
-      throw new Error("INSUFFICIENT_CREDITS");
+    if (!profile) {
+      throw new Error("NO_PROFILE");
     }
-    const newBal = profile.lessonCredits - product.creditCost;
-    await tx.studentProfile.update({
-      where: { userId: session.user.id },
-      data: { lessonCredits: newBal },
-    });
-    await tx.creditTransaction.create({
-      data: {
-        userId: session.user.id,
-        type: "LESSON_DEBIT",
-        amount: -product.creditCost,
-        balanceAfter: newBal,
-        description: `Booking ${product.nameEn}`,
-      },
-    });
+
+    if (isFreeTrial) {
+      const claimed = await tx.studentProfile.updateMany({
+        where: { userId: session.user.id, trialLessonUsedAt: null },
+        data: { trialLessonUsedAt: new Date() },
+      });
+      if (claimed.count === 0) {
+        throw new Error("TRIAL_USED");
+      }
+      return tx.booking.create({
+        data: {
+          studentId: session.user.id,
+          teacherId: teacher.id,
+          lessonProductId: product.id,
+          startsAt: start,
+          endsAt,
+          status: BookingStatus.CONFIRMED,
+        },
+        include: { lessonProduct: true, teacher: { include: { user: true } } },
+      });
+    }
+
     return tx.booking.create({
       data: {
         studentId: session.user.id,
@@ -123,13 +133,25 @@ export async function POST(req: Request) {
       include: { lessonProduct: true, teacher: { include: { user: true } } },
     });
   }).catch((e) => {
-    if (String(e.message) === "INSUFFICIENT_CREDITS") return null;
+    const msg = String((e as Error).message);
+    if (msg === "TRIAL_USED" || msg === "NO_PROFILE") {
+      return { _err: msg } as const;
+    }
     throw e;
   });
 
-  if (!booking) {
-    return NextResponse.json({ error: "Not enough credits" }, { status: 402 });
+  if (booking && typeof booking === "object" && "_err" in booking) {
+    const code = (booking as { _err: string })._err;
+    if (code === "TRIAL_USED") {
+      return NextResponse.json(
+        { error: "Free trial lesson already used" },
+        { status: 409 },
+      );
+    }
+    return NextResponse.json({ error: "No student profile" }, { status: 400 });
   }
+
+  const confirmedBooking = booking as Exclude<typeof booking, { _err: string }>;
 
   const meet = await createMeetLessonEvent({
     refreshTokenEncrypted: teacher.googleCalendarRefreshToken,
@@ -142,7 +164,7 @@ export async function POST(req: Request) {
 
   if (meet.meetUrl || meet.googleEventId) {
     await prisma.booking.update({
-      where: { id: booking.id },
+      where: { id: confirmedBooking.id },
       data: {
         meetUrl: meet.meetUrl,
         googleEventId: meet.googleEventId,
@@ -151,11 +173,11 @@ export async function POST(req: Request) {
   }
 
   const fresh = await prisma.booking.findUnique({
-    where: { id: booking.id },
+    where: { id: confirmedBooking.id },
     include: { lessonProduct: true, teacher: { include: { user: true } } },
   });
 
-  return NextResponse.json(fresh ?? booking);
+  return NextResponse.json(fresh ?? confirmedBooking);
 }
 
 export async function GET() {

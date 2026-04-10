@@ -39,26 +39,26 @@ export default async function AdminPage() {
 
   return (
     <main className="mx-auto max-w-4xl flex-1 px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-slate-900">{t("title")}</h1>
+      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
 
       <section className="mt-10">
-        <h2 className="text-lg font-semibold text-slate-800">{t("bookings")}</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t("bookings")}</h2>
         <ul className="mt-4 space-y-3">
           {bookings.map((b) => (
             <li
               key={b.id}
-              className="rounded-xl border border-slate-200 bg-white p-4 text-sm shadow-sm"
+              className="rounded-xl border border-border bg-surface p-4 text-sm shadow-sm"
             >
-              <p className="font-medium text-slate-900">
+              <p className="font-medium text-foreground">
                 {b.lessonProduct.nameEn} — {b.student.name ?? b.student.email}
               </p>
-              <p className="text-slate-500">
+              <p className="text-muted">
                 {b.startsAt.toLocaleString()} — {b.status}
               </p>
               {b.meetUrl && (
                 <a
                   href={b.meetUrl}
-                  className="mt-1 inline-block text-sky-600 hover:underline"
+                  className="mt-1 inline-block text-link hover:underline"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -72,13 +72,13 @@ export default async function AdminPage() {
 
       {session.user.role === "ADMIN" && (
         <section className="mt-10">
-          <h2 className="text-lg font-semibold text-slate-800">{t("students")}</h2>
-          <ul className="mt-4 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
+          <h2 className="text-lg font-semibold text-foreground">{t("students")}</h2>
+          <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface">
             {students.map((s) => (
               <li key={s.id} className="flex justify-between px-4 py-3 text-sm">
-                <span>{s.name ?? s.email}</span>
-                <span className="text-slate-500">
-                  credits: {s.studentProfile?.lessonCredits ?? 0}
+                <span className="text-foreground">{s.name ?? s.email}</span>
+                <span className="text-muted">
+                  {s.studentProfile?.placedLevel ?? "—"}
                 </span>
               </li>
             ))}
@@ -87,10 +87,10 @@ export default async function AdminPage() {
       )}
 
       <section className="mt-10">
-        <h2 className="text-lg font-semibold text-slate-800">
+        <h2 className="text-lg font-semibold text-foreground">
           Google Calendar (Meet)
         </h2>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-muted">
           OAuth refresh token with Calendar scope — store via API for automated Meet
           links.
         </p>

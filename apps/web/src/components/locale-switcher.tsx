@@ -15,12 +15,12 @@ export function LocaleSwitcher() {
   }
 
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-600">
+    <label className="flex items-center gap-2 text-sm text-muted">
       <span className="sr-only">{t("locale")}</span>
       <select
         value={locale}
         onChange={onChange}
-        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-slate-800"
+        className="rounded-lg border border-border bg-surface px-2 py-1 text-foreground"
         aria-label={t("locale")}
       >
         <option value="ja">日本語</option>

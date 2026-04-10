@@ -32,12 +32,12 @@ export function CalendarTokenForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="mt-4 max-w-xl space-y-3 rounded-xl border border-slate-200 bg-white p-4"
+      className="mt-4 max-w-xl space-y-3 rounded-xl border border-border bg-surface p-4"
     >
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="block text-sm font-medium text-foreground">
         Refresh token
         <textarea
-          className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-xs"
+          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs text-foreground"
           rows={3}
           value={token}
           onChange={(e) => setToken(e.target.value)}
@@ -48,11 +48,11 @@ export function CalendarTokenForm() {
       <button
         type="submit"
         disabled={loading}
-        className="rounded-full bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+        className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
       >
         Save token
       </button>
-      {status && <p className="text-sm text-slate-600">{status}</p>}
+      {status && <p className="text-sm text-muted">{status}</p>}
     </form>
   );
 }

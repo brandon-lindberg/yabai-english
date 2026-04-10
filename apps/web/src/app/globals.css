@@ -1,26 +1,298 @@
 @import "tailwindcss";
 
+/*
+  Your palettes (exact hex):
+  Spring  #C3FF93 #FFDB5C #FFAF61 #FF70AB
+  Summer  #FA5C5C #FD8A6B #FEC288 #FBEF76
+  Autumn  #D6D46D #F4DFB6 #DE8F5F #9A4444
+  Winter  #0B2D72 #0992C2 #0AC4E0 #F6E7BC
+
+  Season: Northern hemisphere by local month (script).
+  Default theme when nothing in localStorage: light (not system), so “Light” is actually light.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Spring light as safe default before script runs */
+  --p1: #c3ff93;
+  --p2: #ffdb5c;
+  --p3: #ffaf61;
+  --p4: #ff70ab;
+  color-scheme: light;
+  --app-bg: color-mix(in srgb, var(--p1) 40%, white);
+  --app-bg-mid: color-mix(in srgb, var(--p2) 28%, white);
+  --app-hover: color-mix(in srgb, var(--p4) 12%, var(--app-surface));
+  --app-surface: #ffffff;
+  --app-text: #1a3311;
+  --app-muted: #3d5a30;
+  --app-border: color-mix(in srgb, var(--p3) 35%, white);
+  --app-primary: #d63384;
+  --app-primary-fg: #ffffff;
+  --app-link: #c0286e;
+  --app-accent: #ff70ab;
+  --app-chip: color-mix(in srgb, var(--p2) 45%, white);
+  --app-header-border: color-mix(in srgb, var(--p4) 25%, transparent);
+  --app-success-bg: #e8f8ec;
+  --app-success-border: #7bc99c;
+  --app-success-text: #14532d;
+  --app-warn-bg: #fff8e6;
+  --app-warn-border: #e8c96a;
+  --app-warn-text: #422006;
+  --app-danger: #b91c1c;
+}
+
+html[data-season="spring"][data-theme="light"] {
+  --p1: #c3ff93;
+  --p2: #ffdb5c;
+  --p3: #ffaf61;
+  --p4: #ff70ab;
+  color-scheme: light;
+  --app-bg: color-mix(in srgb, var(--p1) 42%, white);
+  --app-bg-mid: color-mix(in srgb, var(--p2) 32%, white);
+  --app-hover: color-mix(in srgb, var(--p3) 18%, white);
+  --app-surface: #ffffff;
+  --app-text: #173209;
+  --app-muted: #3f5f2f;
+  --app-border: color-mix(in srgb, var(--p3) 40%, #ccc);
+  --app-primary: #c2185a;
+  --app-primary-fg: #ffffff;
+  --app-link: #b12d6a;
+  --app-accent: #ff70ab;
+  --app-chip: color-mix(in srgb, var(--p1) 35%, white);
+  --app-header-border: color-mix(in srgb, var(--p4) 35%, var(--p3));
+  --app-success-bg: #e8fce8;
+  --app-success-border: var(--p1);
+  --app-success-text: #14532d;
+  --app-warn-bg: color-mix(in srgb, var(--p2) 22%, white);
+  --app-warn-border: var(--p3);
+  --app-warn-text: #422006;
+  --app-danger: #b91c1c;
+}
+
+html[data-season="spring"][data-theme="dark"] {
+  --p1: #c3ff93;
+  --p2: #ffdb5c;
+  --p3: #ffaf61;
+  --p4: #ff70ab;
+  color-scheme: dark;
+  --app-bg: #0f1f0c;
+  --app-bg-mid: #1a2e14;
+  --app-hover: color-mix(in srgb, var(--p1) 15%, #1a2e14);
+  --app-surface: #152a12;
+  --app-text: #f0ffe0;
+  --app-muted: #c3ff93;
+  --app-border: color-mix(in srgb, var(--p1) 28%, #0f1f0c);
+  --app-primary: #ff70ab;
+  --app-primary-fg: #1a0a12;
+  --app-link: #ffdb5c;
+  --app-accent: #ffaf61;
+  --app-chip: color-mix(in srgb, var(--p4) 22%, #152a12);
+  --app-header-border: color-mix(in srgb, var(--p2) 45%, transparent);
+  --app-success-bg: #142818;
+  --app-success-border: var(--p1);
+  --app-success-text: #e8ffd4;
+  --app-warn-bg: #2a1f0c;
+  --app-warn-border: var(--p3);
+  --app-warn-text: #ffdb5c;
+  --app-danger: #ff8585;
+}
+
+html[data-season="summer"][data-theme="light"] {
+  --p1: #fa5c5c;
+  --p2: #fd8a6b;
+  --p3: #fec288;
+  --p4: #fbef76;
+  color-scheme: light;
+  --app-bg: color-mix(in srgb, var(--p4) 52%, white);
+  --app-bg-mid: color-mix(in srgb, var(--p3) 35%, white);
+  --app-hover: color-mix(in srgb, var(--p2) 20%, white);
+  --app-surface: #ffffff;
+  --app-text: #4a1520;
+  --app-muted: #8a3a2e;
+  --app-border: color-mix(in srgb, var(--p1) 28%, white);
+  --app-primary: #fa5c5c;
+  --app-primary-fg: #1a0a0a;
+  --app-link: #e03d2d;
+  --app-accent: #fd8a6b;
+  --app-chip: color-mix(in srgb, var(--p4) 40%, white);
+  --app-header-border: color-mix(in srgb, var(--p1) 30%, var(--p2));
+  --app-success-bg: #ecfdf3;
+  --app-success-border: var(--p3);
+  --app-success-text: #134e2a;
+  --app-warn-bg: color-mix(in srgb, var(--p4) 25%, white);
+  --app-warn-border: var(--p2);
+  --app-warn-text: #713f12;
+  --app-danger: #b91c1c;
+}
+
+html[data-season="summer"][data-theme="dark"] {
+  --p1: #fa5c5c;
+  --p2: #fd8a6b;
+  --p3: #fec288;
+  --p4: #fbef76;
+  color-scheme: dark;
+  --app-bg: #1c1010;
+  --app-bg-mid: #2a1814;
+  --app-hover: color-mix(in srgb, var(--p2) 12%, #2a1814);
+  --app-surface: #261a16;
+  --app-text: #fff5e8;
+  --app-muted: #fec288;
+  --app-border: color-mix(in srgb, var(--p1) 35%, #1c1010);
+  --app-primary: #fbef76;
+  --app-primary-fg: #2a1010;
+  --app-link: #fd8a6b;
+  --app-accent: #fa5c5c;
+  --app-chip: color-mix(in srgb, var(--p1) 18%, #261a16);
+  --app-header-border: color-mix(in srgb, var(--p4) 40%, transparent);
+  --app-success-bg: #0f2218;
+  --app-success-border: var(--p3);
+  --app-success-text: #d4f5e0;
+  --app-warn-bg: #2a1c10;
+  --app-warn-border: var(--p2);
+  --app-warn-text: #fbef76;
+  --app-danger: #ff8a8a;
+}
+
+html[data-season="autumn"][data-theme="light"] {
+  --p1: #d6d46d;
+  --p2: #f4dfb6;
+  --p3: #de8f5f;
+  --p4: #9a4444;
+  color-scheme: light;
+  --app-bg: color-mix(in srgb, var(--p2) 55%, white);
+  --app-bg-mid: color-mix(in srgb, var(--p1) 38%, white);
+  --app-hover: color-mix(in srgb, var(--p3) 18%, white);
+  --app-surface: #fffefb;
+  --app-text: #4a2810;
+  --app-muted: #7a4a28;
+  --app-border: color-mix(in srgb, var(--p3) 32%, white);
+  --app-primary: #9a4444;
+  --app-primary-fg: #fffaf5;
+  --app-link: #b05a2a;
+  --app-accent: #de8f5f;
+  --app-chip: color-mix(in srgb, var(--p2) 65%, white);
+  --app-header-border: color-mix(in srgb, var(--p4) 25%, var(--p3));
+  --app-success-bg: #f0fdf4;
+  --app-success-border: var(--p1);
+  --app-success-text: #14532d;
+  --app-warn-bg: color-mix(in srgb, var(--p2) 40%, white);
+  --app-warn-border: var(--p3);
+  --app-warn-text: #713f12;
+  --app-danger: #991b1b;
+}
+
+html[data-season="autumn"][data-theme="dark"] {
+  --p1: #d6d46d;
+  --p2: #f4dfb6;
+  --p3: #de8f5f;
+  --p4: #9a4444;
+  color-scheme: dark;
+  --app-bg: #1a1210;
+  --app-bg-mid: #261c14;
+  --app-hover: color-mix(in srgb, var(--p3) 12%, #261c14);
+  --app-surface: #221a14;
+  --app-text: #f4dfb6;
+  --app-muted: #de8f5f;
+  --app-border: color-mix(in srgb, var(--p4) 32%, #1a1210);
+  --app-primary: #de8f5f;
+  --app-primary-fg: #1f1008;
+  --app-link: #d6d46d;
+  --app-accent: #f4dfb6;
+  --app-chip: color-mix(in srgb, var(--p4) 22%, #221a14);
+  --app-header-border: color-mix(in srgb, var(--p1) 35%, transparent);
+  --app-success-bg: #142018;
+  --app-success-border: var(--p1);
+  --app-success-text: #e8f5d4;
+  --app-warn-bg: #2a2014;
+  --app-warn-border: var(--p3);
+  --app-warn-text: #f4dfb6;
+  --app-danger: #ff8a8a;
+}
+
+html[data-season="winter"][data-theme="light"] {
+  --p1: #0b2d72;
+  --p2: #0992c2;
+  --p3: #0ac4e0;
+  --p4: #f6e7bc;
+  color-scheme: light;
+  --app-bg: color-mix(in srgb, var(--p4) 40%, white);
+  --app-bg-mid: color-mix(in srgb, var(--p3) 18%, white);
+  --app-hover: color-mix(in srgb, var(--p2) 12%, white);
+  --app-surface: #ffffff;
+  --app-text: #0b2d72;
+  --app-muted: #2d4a7a;
+  --app-border: color-mix(in srgb, var(--p2) 22%, white);
+  --app-primary: #0b2d72;
+  --app-primary-fg: #f6e7bc;
+  --app-link: #0992c2;
+  --app-accent: #0ac4e0;
+  --app-chip: color-mix(in srgb, var(--p4) 50%, white);
+  --app-header-border: color-mix(in srgb, var(--p3) 40%, var(--p2));
+  --app-success-bg: #e8fdf8;
+  --app-success-border: var(--p3);
+  --app-success-text: #065f46;
+  --app-warn-bg: color-mix(in srgb, var(--p4) 35%, white);
+  --app-warn-border: var(--p2);
+  --app-warn-text: #713f12;
+  --app-danger: #b91c1c;
+}
+
+html[data-season="winter"][data-theme="dark"] {
+  --p1: #0b2d72;
+  --p2: #0992c2;
+  --p3: #0ac4e0;
+  --p4: #f6e7bc;
+  color-scheme: dark;
+  --app-bg: #041229;
+  --app-bg-mid: #0b2d72;
+  --app-hover: color-mix(in srgb, var(--p2) 18%, #0b2d72);
+  --app-surface: #0e3870;
+  --app-text: #f6e7bc;
+  --app-muted: #7dd3fc;
+  --app-border: color-mix(in srgb, var(--p2) 45%, #041229);
+  --app-primary: #0ac4e0;
+  --app-primary-fg: #041018;
+  --app-link: #f6e7bc;
+  --app-accent: #0992c2;
+  --app-chip: color-mix(in srgb, var(--p1) 35%, #0e3870);
+  --app-header-border: color-mix(in srgb, var(--p3) 50%, transparent);
+  --app-success-bg: #052818;
+  --app-success-border: var(--p3);
+  --app-success-text: #b8ffe8;
+  --app-warn-bg: #1a1508;
+  --app-warn-border: var(--p4);
+  --app-warn-text: #f6e7bc;
+  --app-danger: #ff8585;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--app-bg);
+  --color-foreground: var(--app-text);
+  --color-muted: var(--app-muted);
+  --color-surface: var(--app-surface);
+  --color-border: var(--app-border);
+  --color-primary: var(--app-primary);
+  --color-primary-foreground: var(--app-primary-fg);
+  --color-link: var(--app-link);
+  --color-accent: var(--app-accent);
+  --color-chip: var(--app-chip);
+  --color-success: var(--app-success-text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  min-height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(
+    165deg,
+    var(--app-bg) 0%,
+    var(--app-bg-mid) 42%,
+    var(--app-bg) 100%
+  );
+  background-attachment: fixed;
+  color: var(--app-text);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }

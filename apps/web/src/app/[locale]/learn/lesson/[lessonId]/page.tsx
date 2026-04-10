@@ -19,8 +19,8 @@ export default async function LessonPlayerPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-lg flex-1 px-4 py-10 sm:px-6">
-      <p className="text-sm font-medium text-sky-600">{t("courses")}</p>
-      <h1 className="mt-1 text-2xl font-bold text-slate-900">
+      <p className="text-sm font-medium text-link">{t("courses")}</p>
+      <h1 className="mt-1 text-2xl font-bold text-foreground">
         {lesson.titleJa} / {lesson.titleEn}
       </h1>
       <div className="mt-8 space-y-6">

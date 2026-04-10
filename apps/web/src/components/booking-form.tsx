@@ -7,7 +7,7 @@ type LessonProductOption = {
   nameJa: string;
   nameEn: string;
   durationMin: number;
-  creditCost: number;
+  tier: string;
 };
 
 export function BookingForm() {
@@ -50,40 +50,41 @@ export function BookingForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <label className="block text-sm font-medium text-slate-700">
+    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-sm">
+      <label className="block text-sm font-medium text-foreground">
         {t("selectProduct")}
         <select
-          className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2"
+          className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
           value={lessonProductId}
           onChange={(e) => setLessonProductId(e.target.value)}
         >
           {products.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.nameJa} — {p.durationMin}分 / {p.creditCost} cr
+              {p.nameJa} — {p.durationMin}
+              {p.tier === "FREE_TRIAL" ? ` · ${t("freeTrialOption")}` : ""}
             </option>
           ))}
         </select>
       </label>
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="block text-sm font-medium text-foreground">
         {t("selectSlot")}
         <input
           type="datetime-local"
           required
-          className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2"
+          className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
           value={startsAt}
           onChange={(e) => setStartsAt(e.target.value)}
         />
       </label>
       {message && (
-        <p className="text-sm text-sky-700" role="status">
+        <p className="text-sm text-link" role="status">
           {message}
         </p>
       )}
       <button
         type="submit"
         disabled={loading || !lessonProductId}
-        className="w-full rounded-full bg-slate-900 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+        className="w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
       >
         {t("confirm")}
       </button>

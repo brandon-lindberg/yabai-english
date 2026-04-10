@@ -21,6 +21,7 @@ enum BookingStatus {
 }
 
 enum LessonTier {
+  FREE_TRIAL
   STANDARD
   PREMIUM
   EIKAWA
@@ -29,11 +30,12 @@ enum LessonTier {
   SPECIALIZED
 }
 
-enum CreditTransactionType {
-  PURCHASE
-  LESSON_DEBIT
-  REFUND
-  ADJUSTMENT
+/// Level from the placement activity (unset until completed).
+enum PlacedLevel {
+  UNSET
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
 }
 
 enum ExerciseType {
@@ -60,7 +62,6 @@ model User {
   studentProfile     StudentProfile?
   teacherProfile     TeacherProfile?
   bookingsAsStudent  Booking[]      @relation("StudentBookings")
-  creditTransactions CreditTransaction[]
   courseProgress     UserCourseProgress[]
   lessonProgress     UserLessonProgress[]
   exerciseAttempts   ExerciseAttempt[]
@@ -115,10 +116,12 @@ model StudentProfile {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  stripeCustomerId String? @unique
+  /// Result of the in-app placement activity
+  placedLevel           PlacedLevel @default(UNSET)
+  placementCompletedAt  DateTime?
 
-  // Total lesson credits (derived from transactions; denormalized for quick reads)
-  lessonCredits Int @default(0)
+  /// One free 20-minute trial per student (set when a trial booking is confirmed)
+  trialLessonUsedAt DateTime?
 }
 
 model TeacherProfile {
@@ -151,9 +154,7 @@ model LessonProduct {
   tier        LessonTier
   nameJa      String
   nameEn      String
-  durationMin Int        // 30 or 40
-  creditCost  Int      @default(1) // credits consumed per booking
-  stripePriceId String?  @unique
+  durationMin Int
   active      Boolean    @default(true)
 
   bookings Booking[]
@@ -174,33 +175,11 @@ model Booking {
   meetUrl       String?       @db.Text
   googleEventId String?
 
-  stripePaymentIntentId String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([studentId, startsAt])
   @@index([teacherId, startsAt])
-}
-
-model CreditTransaction {
-  id          String                @id @default(cuid())
-  userId      String
-  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type        CreditTransactionType
-  amount      Int                   // positive = add credits, negative = spend
-  balanceAfter Int
-  description String?
-  stripeCheckoutSessionId String?   @unique
-  stripePaymentIntentId   String?
-
-  createdAt DateTime @default(now())
-}
-
-model StripeWebhookEvent {
-  id            String   @id @default(cuid())
-  stripeEventId String   @unique
-  processedAt   DateTime @default(now())
 }
 
 // --- Phase 2: Learning ---

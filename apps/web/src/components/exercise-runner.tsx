@@ -57,8 +57,8 @@ export function ExerciseRunner({ exercise }: Props) {
         : (content.promptEn ?? content.promptJa ?? "");
 
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <p className="font-medium text-slate-900">{prompt}</p>
+      <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+        <p className="font-medium text-foreground">{prompt}</p>
         <ul className="mt-4 space-y-2">
           {content.options.map((opt, idx) => {
             const selected = submitted === idx;
@@ -70,13 +70,13 @@ export function ExerciseRunner({ exercise }: Props) {
                   type="button"
                   disabled={submitted !== null}
                   onClick={() => void submitMc(idx, content)}
-                  className={`w-full rounded-xl border px-4 py-3 text-left text-sm transition ${
+                  className={`w-full rounded-xl border px-4 py-3 text-left text-sm text-foreground transition disabled:cursor-not-allowed ${
                     isCorrect
-                      ? "border-emerald-500 bg-emerald-50"
+                      ? "border-[var(--app-success-border)] bg-[var(--app-success-bg)]"
                       : isWrong
-                        ? "border-rose-400 bg-rose-50"
-                        : "border-slate-200 hover:border-slate-300"
-                  } disabled:cursor-not-allowed`}
+                        ? "border-[var(--app-danger)] bg-[color-mix(in_srgb,var(--app-danger)_12%,var(--app-surface))]"
+                        : "border-border hover:border-accent/50 hover:bg-[var(--app-hover)]"
+                  }`}
                 >
                   {opt}
                 </button>
@@ -85,7 +85,7 @@ export function ExerciseRunner({ exercise }: Props) {
           })}
         </ul>
         {feedback && (
-          <p className="mt-3 text-sm text-slate-600" role="status">
+          <p className="mt-3 text-sm text-muted" role="status">
             {feedback}
           </p>
         )}
@@ -94,7 +94,7 @@ export function ExerciseRunner({ exercise }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-dashed border-slate-200 p-5 text-sm text-slate-500">
+    <div className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted">
       Unsupported exercise type: {exercise.type}
     </div>
   );

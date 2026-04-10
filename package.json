@@ -10,6 +10,7 @@
     "db:migrate": "yarn --cwd apps/web prisma migrate dev",
     "db:push": "yarn --cwd apps/web prisma db push",
     "db:studio": "yarn --cwd apps/web prisma studio",
+    "db:seed": "yarn --cwd apps/web prisma db seed",
     "realtime:dev": "yarn --cwd apps/realtime dev"
   },
   "packageManager": "yarn@1.22.22"
