@@ -85,6 +85,9 @@
     "title": "管理ダッシュボード",
     "bookings": "予約一覧",
     "students": "受講生",
+    "reviewQueue": "レベル判定レビューキュー",
+    "noReviewItems": "レビューが必要な受講生はいません。",
+    "reviewReason": "レビュー理由",
     "availability": "出勤可能時間",
     "noPermission": "このページにアクセスする権限がありません。"
   },
@@ -127,13 +130,36 @@
   },
   "placement": {
     "title": "レベル診断",
-    "intro": "短いクイズで、学習パスに合わせて初級・中級・上級を提案します。ダッシュボードからいつでも受け直せます。",
+    "intro": "CEFR準拠で、文法・語彙・読解・機能的コミュニケーション・ライティングを評価します。ダッシュボードから受け直しできます。",
     "loading": "読み込み中…",
     "loadError": "診断を読み込めませんでした。",
     "progress": "質問 {current} / {total}",
     "submitting": "結果を保存しています…",
     "submitError": "エラーが発生しました。もう一度お試しください。",
+    "submitPlacement": "診断結果を送信",
+    "writingPlaceholder": "英語で回答を入力してください...",
+    "writingWordGuide": "推奨最低語数: {min} 語。",
+    "manualReviewNotice": "結果にばらつきがあるため、講師レビュー対象としてマークされました。いったん開始レベルを表示しますが、レビュー後に調整される場合があります。",
     "resultTitle": "提案レベル",
+    "scoreSummary": "スコア: {earned} / {max}",
+    "strengthsTitle": "現在の強み",
+    "improvementsTitle": "優先して改善すべき項目",
+    "writingFeedbackTitle": "ライティングフィードバック",
+    "section": {
+      "grammar": "文法",
+      "vocabulary": "語彙",
+      "reading": "読解",
+      "functional": "機能的コミュニケーション",
+      "writing": "ライティング"
+    },
+    "writingFeedback": {
+      "writingTooShort": "回答が短すぎます。理由や具体例を加えて内容を広げましょう。",
+      "limitedSentenceVariety": "文の構造にバリエーションを増やしましょう。",
+      "articleOrPluralRisk": "冠詞・複数形（a/an/the、単複）を見直しましょう。",
+      "prepositionRisk": "前置詞の定型表現（コロケーション）を見直しましょう。",
+      "goodTaskCompletion": "課題に対して十分かつ明確に回答できています。",
+      "strongCoherence": "接続語を使って論理的に書けています。"
+    },
     "level": {
       "BEGINNER": "初級",
       "INTERMEDIATE": "中級",

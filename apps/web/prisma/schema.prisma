@@ -123,6 +123,10 @@ model StudentProfile {
   /// Result of the in-app placement activity
   placedLevel           PlacedLevel @default(UNSET)
   placementCompletedAt  DateTime?
+  placementNeedsReview  Boolean     @default(false)
+  placementReviewReason String?
+  placementReport       Json?
+  placementWritingSample String?    @db.Text
 
   /// One free 20-minute trial per student (set when a trial booking is confirmed)
   trialLessonUsedAt DateTime?

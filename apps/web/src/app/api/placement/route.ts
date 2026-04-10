@@ -5,17 +5,20 @@ import { prisma } from "@/lib/prisma";
 import {
   getPlacementQuestionsForClient,
   PLACEMENT_QUESTIONS,
+  PLACEMENT_WRITING_TASK,
   scorePlacementAnswers,
 } from "@/lib/placement-test";
 
 export async function GET() {
   return NextResponse.json({
     questions: getPlacementQuestionsForClient(),
+    writingTask: PLACEMENT_WRITING_TASK,
   });
 }
 
 const postSchema = z.object({
   answers: z.array(z.number().int().min(0)).length(PLACEMENT_QUESTIONS.length),
+  writingResponse: z.string().trim().max(2000).optional().default(""),
 });
 
 export async function POST(req: Request) {
@@ -38,15 +41,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Students only" }, { status: 403 });
   }
 
-  const { level, earned, max } = scorePlacementAnswers(parsed.data.answers);
+  const result = scorePlacementAnswers(
+    parsed.data.answers,
+    parsed.data.writingResponse,
+  );
 
   await prisma.studentProfile.update({
     where: { userId: session.user.id },
     data: {
-      placedLevel: level,
+      placedLevel: result.level,
       placementCompletedAt: new Date(),
+      placementNeedsReview: result.needsManualReview,
+      placementReviewReason: result.manualReviewReasons.join(", "),
+      placementReport: {
+        earned: result.earned,
+        max: result.max,
+        sectionScores: result.sectionScores,
+        strengths: result.strengths,
+        improvements: result.improvements,
+        writingFeedback: result.writingFeedback,
+        manualReviewReasons: result.manualReviewReasons,
+      },
+      placementWritingSample: parsed.data.writingResponse,
     },
   });
 
-  return NextResponse.json({ level, earned, max });
+  return NextResponse.json(result);
 }

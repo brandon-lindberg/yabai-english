@@ -85,6 +85,9 @@
     "title": "Admin dashboard",
     "bookings": "Bookings",
     "students": "Students",
+    "reviewQueue": "Placement review queue",
+    "noReviewItems": "No students currently require placement review.",
+    "reviewReason": "Review reason",
     "availability": "Availability",
     "noPermission": "You do not have access to this page."
   },
@@ -127,13 +130,36 @@
   },
   "placement": {
     "title": "Level placement",
-    "intro": "Short quiz — we suggest beginner, intermediate, or advanced for your learning path. You can retake anytime from your dashboard.",
+    "intro": "CEFR-aligned placement covering grammar, vocabulary, reading, functional communication, and writing. You can retake from your dashboard.",
     "loading": "Loading questions…",
     "loadError": "Could not load the placement activity.",
     "progress": "Question {current} of {total}",
     "submitting": "Saving your result…",
     "submitError": "Something went wrong. Try again.",
+    "submitPlacement": "Submit placement test",
+    "writingPlaceholder": "Write your response in English...",
+    "writingWordGuide": "Recommended minimum: {min} words.",
+    "manualReviewNotice": "Your placement is marked for teacher review due to mixed indicators. We will still suggest a starting level now and can adjust after review.",
     "resultTitle": "Suggested level",
+    "scoreSummary": "Score: {earned} / {max}",
+    "strengthsTitle": "Current strengths",
+    "improvementsTitle": "Priority improvements",
+    "writingFeedbackTitle": "Writing feedback",
+    "section": {
+      "grammar": "Grammar",
+      "vocabulary": "Vocabulary",
+      "reading": "Reading comprehension",
+      "functional": "Functional communication",
+      "writing": "Writing"
+    },
+    "writingFeedback": {
+      "writingTooShort": "Your writing is too short. Expand your ideas with examples and reasons.",
+      "limitedSentenceVariety": "Use more varied sentence structures.",
+      "articleOrPluralRisk": "Review article/plural usage (a/an/the, singular/plural nouns).",
+      "prepositionRisk": "Review common preposition usage in collocations.",
+      "goodTaskCompletion": "You addressed the task clearly and sufficiently.",
+      "strongCoherence": "Your writing shows good coherence with linking words."
+    },
     "level": {
       "BEGINNER": "Beginner",
       "INTERMEDIATE": "Intermediate",

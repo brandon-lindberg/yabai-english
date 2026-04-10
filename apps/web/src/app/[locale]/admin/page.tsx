@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CalendarTokenForm } from "@/components/calendar-token-form";
+import { AdminPlacementReviewForm } from "@/components/admin-placement-review-form";
 
 export default async function AdminPage() {
   const t = await getTranslations("admin");
@@ -36,6 +37,7 @@ export default async function AdminPage() {
     take: 30,
     include: { studentProfile: true },
   });
+  const reviewQueue = students.filter((s) => s.studentProfile?.placementNeedsReview);
 
   return (
     <main className="mx-auto max-w-4xl flex-1 px-4 py-10 sm:px-6">
@@ -72,13 +74,60 @@ export default async function AdminPage() {
 
       {session.user.role === "ADMIN" && (
         <section className="mt-10">
+          <h2 className="text-lg font-semibold text-foreground">{t("reviewQueue")}</h2>
+          {reviewQueue.length === 0 ? (
+            <p className="mt-3 rounded-xl border border-dashed border-border bg-surface p-4 text-sm text-muted">
+              {t("noReviewItems")}
+            </p>
+          ) : (
+            <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface">
+              {reviewQueue.map((s) => (
+                <li key={s.id} className="px-4 py-3 text-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-foreground">{s.name ?? s.email}</p>
+                      <p className="text-xs text-muted">
+                        {t("reviewReason")}: {s.studentProfile?.placementReviewReason ?? "—"}
+                      </p>
+                    </div>
+                    {s.studentProfile && (
+                      <AdminPlacementReviewForm
+                        studentId={s.id}
+                        currentLevel={s.studentProfile.placedLevel}
+                        defaultNeedsReview={true}
+                      />
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
+      {session.user.role === "ADMIN" && (
+        <section className="mt-10">
           <h2 className="text-lg font-semibold text-foreground">{t("students")}</h2>
           <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface">
             {students.map((s) => (
               <li key={s.id} className="flex justify-between px-4 py-3 text-sm">
-                <span className="text-foreground">{s.name ?? s.email}</span>
-                <span className="text-muted">
-                  {s.studentProfile?.placedLevel ?? "—"}
+                <span className="text-foreground">
+                  {s.name ?? s.email}
+                  {session.user.role === "ADMIN" && s.studentProfile && (
+                    <AdminPlacementReviewForm
+                      studentId={s.id}
+                      currentLevel={s.studentProfile.placedLevel}
+                      defaultNeedsReview={Boolean(s.studentProfile.placementNeedsReview)}
+                    />
+                  )}
+                </span>
+                <span className="text-right text-muted">
+                  <span>{s.studentProfile?.placedLevel ?? "—"}</span>
+                  {s.studentProfile?.placementNeedsReview && (
+                    <span className="ml-2 rounded-full border border-[var(--app-warning-border)] bg-[var(--app-warning-bg)] px-2 py-0.5 text-[10px] font-semibold text-[var(--app-warning-text)]">
+                      REVIEW
+                    </span>
+                  )}
                 </span>
               </li>
             ))}
