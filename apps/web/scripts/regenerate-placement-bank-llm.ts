@@ -14,7 +14,8 @@
  * Optional: OPENAI_MODEL (default gpt-5.4), PLACEMENT_REGEN_BATCH (default 5)
  *
  * Safety: does nothing unless you pass --run (API calls). Add --write to persist JSON files.
- * Backup: default copies data/placement-bank → data/placement-bank.backup-<iso> once before first write.
+ * Backup: full run copies the whole placement-bank folder. With --band <X>, only data/placement-bank/<X>.json
+ *   is copied once to data/placement-bank-level-backups/<X>-<iso>.json (nothing else under placement-bank/ is read for backup).
  *
  *   yarn placement-bank:regenerate-llm --help
  *   yarn placement-bank:regenerate-llm --run --max-batches 2          # smoke: 2 batches API only
@@ -91,7 +92,7 @@ function parseArgs() {
   --run                 Call OpenAI (costs tokens). Without --run/--write, prints plan only.
   --write               Write level JSON from checkpoint (no API). With --band, merges partial checkpoint into existing {band}.json if the checkpoint is not yet complete; otherwise replaces from full checkpoint.
   --resume              Skip batches already present in the checkpoint file (with --run).
-  --no-backup           Skip copying placement-bank to placement-bank.backup-<timestamp> before write.
+  --no-backup           Skip backup. With --band, default backup is only that level JSON (see script header).
   --max-batches N       Stop after N successful API batches (smoke test).
   --delay-ms M          Pause between batches (default 600).
   --band A1           Only this CEFR file (A1|A2|B1|B2|C1). Uses checkpoint data/placement-bank-regenerate-llm.<BAND>.checkpoint.jsonl so other bands are untouched.
@@ -381,6 +382,37 @@ function mergeBandCheckpointOntoExisting(
   return orderBandQuestions(band, byId);
 }
 
+/** When --band is set, only that level file is backed up (under data/), never the whole placement-bank tree. */
+function maybeBackupBeforeLevelWrite(
+  webRoot: string,
+  dataDir: string,
+  bankDir: string,
+  band: string,
+  bandOnly: string | null,
+  backup: boolean,
+  wroteBackup: boolean,
+): boolean {
+  if (!backup || wroteBackup) return wroteBackup;
+  const src = path.join(bankDir, `${band}.json`);
+  if (!fs.existsSync(src)) return false;
+
+  if (bandOnly) {
+    const dir = path.join(dataDir, "placement-bank-level-backups");
+    fs.mkdirSync(dir, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const dest = path.join(dir, `${band}-${stamp}.json`);
+    fs.copyFileSync(src, dest);
+    console.error(`Backed up ${path.relative(webRoot, src)} → ${path.relative(webRoot, dest)}`);
+    return true;
+  }
+
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const dest = path.join(dataDir, `placement-bank.backup-${stamp}`);
+  fs.cpSync(bankDir, dest, { recursive: true });
+  console.error(`Backed up placement-bank to ${path.relative(webRoot, dest)}`);
+  return true;
+}
+
 function assembleOrMergeBandForWrite(
   band: string,
   checkpoint: Map<string, PlacementBankFile[]>,
@@ -450,13 +482,15 @@ async function main() {
       const level = { cefrBand: band, questions: merged };
       placementBankLevelFileSchema.parse(level);
       console.error(`Write mode: ${writeMode}`);
-      if (backup && !wroteBackup && fs.existsSync(bankDir)) {
-        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-        const dest = path.join(dataDir, `placement-bank.backup-${stamp}`);
-        fs.cpSync(bankDir, dest, { recursive: true });
-        console.error(`Backed up placement-bank to ${path.relative(webRoot, dest)}`);
-        wroteBackup = true;
-      }
+      wroteBackup = maybeBackupBeforeLevelWrite(
+        webRoot,
+        dataDir,
+        bankDir,
+        band,
+        bandOnly,
+        backup,
+        wroteBackup,
+      );
       fs.mkdirSync(bankDir, { recursive: true });
       const fp = path.join(bankDir, `${band}.json`);
       fs.writeFileSync(fp, `${JSON.stringify(level, null, 2)}\n`, "utf8");
@@ -554,13 +588,15 @@ async function main() {
               const merged = mergeBandCheckpointOntoExisting(band, checkpoint, levelPath);
               const level = { cefrBand: band, questions: merged };
               placementBankLevelFileSchema.parse(level);
-              if (backup && !wroteBackup && fs.existsSync(bankDir)) {
-                const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-                const dest = path.join(dataDir, `placement-bank.backup-${stamp}`);
-                fs.cpSync(bankDir, dest, { recursive: true });
-                console.error(`Backed up placement-bank to ${path.relative(webRoot, dest)}`);
-                wroteBackup = true;
-              }
+              wroteBackup = maybeBackupBeforeLevelWrite(
+                webRoot,
+                dataDir,
+                bankDir,
+                band,
+                bandOnly,
+                backup,
+                wroteBackup,
+              );
               fs.mkdirSync(bankDir, { recursive: true });
               fs.writeFileSync(levelPath, `${JSON.stringify(level, null, 2)}\n`, "utf8");
               console.error(
@@ -616,13 +652,15 @@ async function main() {
     const level = { cefrBand: band, questions: merged };
     placementBankLevelFileSchema.parse(level);
 
-    if (backup && !wroteBackup && fs.existsSync(bankDir)) {
-      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const dest = path.join(dataDir, `placement-bank.backup-${stamp}`);
-      fs.cpSync(bankDir, dest, { recursive: true });
-      console.error(`Backed up placement-bank to ${path.relative(webRoot, dest)}`);
-      wroteBackup = true;
-    }
+    wroteBackup = maybeBackupBeforeLevelWrite(
+      webRoot,
+      dataDir,
+      bankDir,
+      band,
+      bandOnly,
+      backup,
+      wroteBackup,
+    );
 
     fs.mkdirSync(bankDir, { recursive: true });
     const fp = path.join(bankDir, `${band}.json`);

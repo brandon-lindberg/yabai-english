@@ -45,6 +45,12 @@ yarn-error.log*
 /data/placement-bank-llm-audit.checkpoint.jsonl
 /data/placement-bank-llm-audit.summary.json
 
+# LLM placement bank regen / fix checkpoints & backups (machine-local; not part of the canonical bank)
+/data/placement-bank-regenerate-llm*.checkpoint.jsonl
+/data/placement-bank-llm-fix-bad.checkpoint.jsonl
+/data/placement-bank.backup-*/
+/data/placement-bank-level-backups/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
