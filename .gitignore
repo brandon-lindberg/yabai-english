@@ -8,3 +8,5 @@ dist
 .yarn-cache
 *.log
 .DS_Store
+PRODUCT_REQUIREMENTS.md
+
