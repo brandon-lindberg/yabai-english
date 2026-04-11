@@ -118,8 +118,10 @@ describe("placement scoring", () => {
   });
 
   test("low reading blocks advanced placement even if other parts are strong", () => {
+    // Always picking index 0 is not "all wrong" when many items key 0; use a guaranteed-wrong choice per item.
+    const wrongIndex = (correct: number) => (correct + 1) % 3;
     const answers = PLACEMENT_QUESTIONS.map((q) =>
-      q.section === "reading" ? 0 : q.correctIndex,
+      q.section === "reading" ? wrongIndex(q.correctIndex) : q.correctIndex,
     );
     const result = scorePlacementAnswers(answers, PLACEMENT_QUESTIONS);
     expect(result.level).not.toBe("ADVANCED");
