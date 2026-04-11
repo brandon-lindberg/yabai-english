@@ -1,3 +1,4 @@
+import { placementTextToReact } from "@/lib/placement-question-display";
 import type { PlacementQuestionPublic } from "@/lib/placement-test";
 
 type PlacementBankQuestionCardProps = {
@@ -24,20 +25,24 @@ export function PlacementBankQuestionCard({
         {question.cefrBand} · {question.section} · {question.id}
       </p>
       <p className="mt-2 text-sm font-medium text-neutral-600 dark:text-neutral-400">
-        {question.instructionEn}
+        {placementTextToReact(question.instructionEn)}
       </p>
-      <p className="mt-2 text-base text-neutral-900 dark:text-neutral-100">{question.questionEn}</p>
+      <p className="mt-2 text-base text-neutral-900 dark:text-neutral-100">
+        {placementTextToReact(question.questionEn)}
+      </p>
       {showJapanese ? (
         <>
           <p className="mt-2 text-sm font-medium text-neutral-600 dark:text-neutral-400">
-            {question.instructionJa}
+            {placementTextToReact(question.instructionJa)}
           </p>
-          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{question.questionJa}</p>
+          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+            {placementTextToReact(question.questionJa)}
+          </p>
         </>
       ) : null}
       <ul className="mt-3 list-inside list-decimal space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
         {question.optionsEn.map((opt, i) => (
-          <li key={i}>{opt}</li>
+          <li key={i}>{placementTextToReact(opt)}</li>
         ))}
       </ul>
       {showCorrectIndex && correctIndex !== undefined ? (

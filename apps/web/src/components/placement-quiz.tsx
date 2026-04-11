@@ -1,5 +1,6 @@
 "use client";
 
+import { placementTextToReact } from "@/lib/placement-question-display";
 import type { PlacementQuestionPublic } from "@/lib/placement-test";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -244,10 +245,12 @@ export function PlacementQuiz() {
       {!objectiveComplete && q ? (
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <p className="text-sm font-medium text-muted">
-            {isJa ? q.instructionJa : q.instructionEn}
+            {placementTextToReact(isJa ? q.instructionJa : q.instructionEn)}
           </p>
           {/* Stimulus and answers stay English: this is an English test; JA locale only affects instructions. */}
-          <p className="mt-3 text-base font-semibold text-foreground">{q.questionEn}</p>
+          <p className="mt-3 text-base font-semibold text-foreground">
+            {placementTextToReact(q.questionEn)}
+          </p>
           <ul className="mt-4 space-y-2">
             {q.optionsEn.map((opt, idx) => (
               <li key={`${q.id}-${idx}`}>
@@ -257,7 +260,7 @@ export function PlacementQuiz() {
                   onClick={() => void selectOption(idx)}
                   className="w-full rounded-xl border border-border px-4 py-3 text-left text-sm text-foreground transition hover:border-accent/60 hover:bg-[var(--app-hover)] disabled:opacity-50"
                 >
-                  {opt}
+                  {placementTextToReact(opt)}
                 </button>
               </li>
             ))}
