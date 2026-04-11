@@ -246,12 +246,11 @@ export function PlacementQuiz() {
           <p className="text-sm font-medium text-muted">
             {isJa ? q.instructionJa : q.instructionEn}
           </p>
-          <p className="mt-3 text-base font-semibold text-foreground">
-            {isJa ? q.questionJa : q.questionEn}
-          </p>
+          {/* Stimulus and answers stay English: this is an English test; JA locale only affects instructions. */}
+          <p className="mt-3 text-base font-semibold text-foreground">{q.questionEn}</p>
           <ul className="mt-4 space-y-2">
-            {(isJa ? q.optionsJa : q.optionsEn).map((opt, idx) => (
-              <li key={opt}>
+            {q.optionsEn.map((opt, idx) => (
+              <li key={`${q.id}-${idx}`}>
                 <button
                   type="button"
                   disabled={submitting || remainingSec === 0}
