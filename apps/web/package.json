@@ -16,6 +16,12 @@
     "test:e2e:headed": "playwright test --headed",
     "placement-bank:scaffold": "tsx scripts/scaffold-placement-bank.ts",
     "placement-bank:reset": "tsx scripts/scaffold-placement-bank.ts --force",
+    "placement-bank:audit": "tsx scripts/audit-placement-bank.ts",
+    "placement-bank:report-quality": "tsx scripts/report-placement-bank-quality.ts",
+    "placement-bank:report-full": "tsx scripts/report-placement-full-audit.ts",
+    "placement-bank:llm-audit": "tsx scripts/placement-bank-llm-audit.ts",
+    "placement-bank:llm-fix-bad": "tsx scripts/placement-bank-llm-fix-bad.ts",
+    "placement-bank:regenerate-llm": "tsx scripts/regenerate-placement-bank-llm.ts",
     "db:seed": "prisma db seed"
   },
   "prisma": {

@@ -22,10 +22,16 @@ function buildOptionsEnJa(
 ): Pick<PlacementBankFile, "optionsEn" | "optionsJa" | "correctIndex"> {
   const wEn = wrongEn.filter((w) => w !== correctEn);
   const wJa = wrongJa.filter((w) => w !== correctJa);
-  const e1 = pick(wEn, seed);
-  const e2 = pick(wEn, seed + 3);
-  const j1 = pick(wJa, seed + 5);
-  const j2 = pick(wJa, seed + 11);
+  let e1 = pick(wEn, seed);
+  let e2 = pick(wEn, seed + 3);
+  if (e1 === e2 && wEn.length > 1) {
+    e2 = wEn.find((w) => w !== e1) ?? e2;
+  }
+  let j1 = pick(wJa, seed + 5);
+  let j2 = pick(wJa, seed + 11);
+  if (j1 === j2 && wJa.length > 1) {
+    j2 = wJa.find((w) => w !== j1) ?? j2;
+  }
   const optionsEn = [correctEn, e1, e2];
   const optionsJa = [correctJa, j1, j2];
   const order = [0, 1, 2].sort((a, b) => ((seed + a * 5) % 3) - ((seed + b * 5) % 3));
@@ -70,10 +76,50 @@ function grammarDefault(
   }
 
   if (band === "A2") {
-    const v = pick(["visit", "call", "finish", "start", "watch", "clean"], seq);
-    const correct = `${v}ed`;
-    const wrong = [`${v}s`, `have ${v}ed`];
-    const opts = buildOptionsEnJa(correct, correct, wrong, wrong, n);
+    const rows = [
+      {
+        sentence: "Yesterday we ___ our manager after lunch.",
+        correct: "visited",
+        wrong: ["visit", "have visited"] as const,
+      },
+      {
+        sentence: "Yesterday we ___ our manager after lunch.",
+        correct: "called",
+        wrong: ["call", "have called"] as const,
+      },
+      {
+        sentence: "Yesterday we ___ our manager after lunch.",
+        correct: "helped",
+        wrong: ["help", "have helped"] as const,
+      },
+      {
+        sentence: "Yesterday we ___ the report before the meeting.",
+        correct: "finished",
+        wrong: ["finish", "have finished"] as const,
+      },
+      {
+        sentence: "Yesterday we ___ a training video at work.",
+        correct: "watched",
+        wrong: ["watch", "have watched"] as const,
+      },
+      {
+        sentence: "Yesterday we ___ the office before the visit.",
+        correct: "cleaned",
+        wrong: ["clean", "have cleaned"] as const,
+      },
+      {
+        sentence: "Yesterday we ___ work at 6 p.m.",
+        correct: "started",
+        wrong: ["start", "have started"] as const,
+      },
+      {
+        sentence: "Yesterday we ___ early because of the snow.",
+        correct: "left",
+        wrong: ["leave", "have left"] as const,
+      },
+    ] as const;
+    const row = rows[seq % rows.length]!;
+    const opts = buildOptionsEnJa(row.correct, row.correct, [...row.wrong], [...row.wrong], n);
     return {
       id,
       weight,
@@ -81,8 +127,8 @@ function grammarDefault(
       cefrBand: band,
       instructionEn: "Choose the best option.",
       instructionJa: "空所に入る語を選んでください。",
-      questionEn: `"Yesterday we ___ our manager after lunch."`,
-      questionJa: `"Yesterday we ___ our manager after lunch."`,
+      questionEn: `"${row.sentence}"`,
+      questionJa: `"${row.sentence}"`,
       ...opts,
     };
   }
@@ -201,9 +247,9 @@ function vocabularyDefault(
   const sets = VOCAB_SETS[band];
   const slot = index - 1;
   const set = pick(sets, slot);
-  const n = seq * 13 + band.length;
-  const glossEn = slot < sets.length ? set.en : `${set.en} (set ${index})`;
-  const glossJa = slot < sets.length ? set.ja : `${set.ja}（セット ${index}）`;
+  const n = seq * 13 + band.length + index * 97;
+  const glossEn = set.en;
+  const glossJa = set.ja;
   const opts = buildOptionsEnJa(set.correct, set.cj, set.wrongEn, set.wrongJa, n);
   return {
     id,
@@ -230,15 +276,13 @@ function readingDefault(
 
   if (band === "A1") {
     const open = 10 + (seq % 6);
-    const close = open + 8 + (seq % 3);
+    // Keep closing hour in 0–23 and strictly after open (avoids e.g. 25:00 from open=15, +8+2).
+    const close = Math.min(22, Math.max(open + 2, open + 5 + (seq % 4)));
     const correct = `${close}:00`;
-    const opts = buildOptionsEnJa(
-      correct,
-      correct,
-      [`${close - 1}:00`, `${close + 1}:00`],
-      [`${close - 1}:00`, `${close + 1}:00`],
-      n,
-    );
+    const wrongA = close > open + 1 ? `${close - 1}:00` : `${Math.min(22, close + 2)}:00`;
+    const wrongB =
+      close < 22 ? `${close + 1}:00` : `${Math.max(open + 1, close - 2)}:00`;
+    const opts = buildOptionsEnJa(correct, correct, [wrongA, wrongB], [wrongA, wrongB], n);
     return {
       id,
       weight,
@@ -387,8 +431,8 @@ function functionalDefault(
   }
 
   if (band === "A2") {
-    const correct = "Sorry, I'm running five minutes late.";
     const minutes = 6 + ((index * 2 - 2) % 20);
+    const correct = `Sorry, I'm running ${minutes} minutes late.`;
     const meetingContextsEn = [
       "a client call",
       "a team stand-up",

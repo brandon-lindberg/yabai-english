@@ -20,7 +20,7 @@ import type { LoadedPlacementQuestion } from "@/lib/placement-bank/load-placemen
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 const RECENT_PLACEMENT_IDS_COOKIE = "placement_recent_ids";
-const PLACEMENT_TIME_LIMIT_SECONDS = 45 * 60;
+const PLACEMENT_TIME_LIMIT_SECONDS = 20 * 60;
 
 function toPublicQuestion(question: LoadedPlacementQuestion) {
   const { correctIndex, stemId, ...rest } = question;

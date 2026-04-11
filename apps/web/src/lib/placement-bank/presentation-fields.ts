@@ -19,6 +19,11 @@ export function splitLegacyPromptsToPresentation(
   const en = stripPlacementBankItemTag(promptEn);
   const ja = stripPlacementBankItemTag(promptJa);
 
+  // Curated rows occasionally file a grammar cloze under `section: "vocabulary"`; split as grammar.
+  if (section === "vocabulary" && /^Choose the best option:\s*"/i.test(en)) {
+    return splitLegacyPromptsToPresentation("grammar", promptEn, promptJa);
+  }
+
   if (section === "grammar") {
     const mEn = /^(Choose the best option:\s*)("(?:[^"\\]|\\.)*")\s*$/i.exec(en);
     if (mEn) {

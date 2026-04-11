@@ -41,6 +41,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# LLM placement bank audit outputs (regenerate with yarn placement-bank:llm-audit)
+/data/placement-bank-llm-audit.checkpoint.jsonl
+/data/placement-bank-llm-audit.summary.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

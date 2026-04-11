@@ -16,7 +16,15 @@
     "db:push": "yarn --cwd apps/web prisma db push",
     "db:studio": "yarn --cwd apps/web prisma studio",
     "db:seed": "yarn --cwd apps/web prisma db seed",
-    "realtime:dev": "yarn --cwd apps/realtime dev"
+    "realtime:dev": "yarn --cwd apps/realtime dev",
+    "placement-bank:scaffold": "yarn --cwd apps/web placement-bank:scaffold",
+    "placement-bank:reset": "yarn --cwd apps/web placement-bank:reset",
+    "placement-bank:audit": "yarn --cwd apps/web placement-bank:audit",
+    "placement-bank:report-quality": "yarn --cwd apps/web placement-bank:report-quality",
+    "placement-bank:report-full": "yarn --cwd apps/web placement-bank:report-full",
+    "placement-bank:llm-audit": "yarn --cwd apps/web placement-bank:llm-audit",
+    "placement-bank:llm-fix-bad": "yarn --cwd apps/web placement-bank:llm-fix-bad",
+    "placement-bank:regenerate-llm": "yarn --cwd apps/web placement-bank:regenerate-llm"
   },
   "packageManager": "yarn@1.22.22"
 }

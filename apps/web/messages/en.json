@@ -131,7 +131,6 @@
   },
   "placement": {
     "title": "Level placement",
-    "intro": "CEFR-aligned placement covering grammar, vocabulary, reading, functional communication, and writing. You can retake from your dashboard.",
     "loading": "Loading questions…",
     "loadError": "Could not load the placement activity.",
     "progress": "Question {current} of {total}",

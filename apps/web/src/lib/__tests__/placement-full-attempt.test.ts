@@ -66,9 +66,14 @@ function assertNoNearDuplicatePrompts(asked: PlacementQuestion[]) {
       if (a.section === "vocabulary" && b.section === "vocabulary") {
         const ga = vocabularyHeadwordGloss(a.questionEn);
         const gb = vocabularyHeadwordGloss(b.questionEn);
-        if (ga && gb && ga === gb) {
+        if (
+          ga &&
+          gb &&
+          ga === gb &&
+          placementQuestionChoicesDedupeKey(a) === placementQuestionChoicesDedupeKey(b)
+        ) {
           throw new Error(
-            `Same vocabulary gloss in one attempt:\n---\n${a.id}: ${a.questionEn}\n---\n${b.id}: ${b.questionEn}`,
+            `Same vocabulary gloss and same choices in one attempt:\n---\n${a.id}: ${a.questionEn}\n---\n${b.id}: ${b.questionEn}`,
           );
         }
         continue;

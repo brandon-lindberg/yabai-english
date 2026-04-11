@@ -7,15 +7,20 @@ const ITEM_TAG_EN = /\s+—\s+(A1|A2|B1|B2|C1)-(grammar|vocabulary|reading|funct
 /**
  * Normalized English **question line** for deduplication (instruction is shared across templates).
  * Used by `chooseNextAdaptiveQuestion` so two bank rows with different ids cannot show the same body twice in one attempt.
+ *
+ * Vocabulary: the visible gloss line may repeat across the bank with different MCQ lines — the key
+ * includes the choice fingerprint so learners are not forced to read internal disambiguators like `(set 50)`.
  */
 export function placementQuestionPromptDedupeKey(
-  question: Pick<PlacementQuestion, "questionEn">,
+  question: Pick<PlacementQuestion, "section" | "questionEn" | "optionsEn" | "optionsJa">,
 ): string {
-  return question.questionEn
+  const base = question.questionEn
     .replace(ITEM_TAG_EN, "")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
+  if (question.section !== "vocabulary") return base;
+  return `${base}\u001e${placementQuestionChoicesDedupeKey(question)}`;
 }
 
 function normalizeChoiceLine(s: string) {
