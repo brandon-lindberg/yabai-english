@@ -62,13 +62,16 @@ export function ChatPanel() {
   }
 
   useEffect(() => {
-    void loadThreads();
-  }, []);
+    queueMicrotask(() => {
+      void loadThreads();
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount bootstrap only
 
   useEffect(() => {
-    if (activeThreadId) {
+    if (!activeThreadId) return;
+    queueMicrotask(() => {
       void loadMessages(activeThreadId);
-    }
+    });
   }, [activeThreadId]);
 
   useEffect(() => {
@@ -85,7 +88,7 @@ export function ChatPanel() {
     return () => {
       socket.off(REALTIME_EVENTS.CHAT_UPDATE, onChatUpdate);
     };
-  }, [session?.user?.id, activeThreadId]);
+  }, [session?.user?.id, activeThreadId]); // eslint-disable-line react-hooks/exhaustive-deps -- avoid resubscribe churn
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });

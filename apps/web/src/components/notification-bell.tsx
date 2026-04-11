@@ -35,7 +35,9 @@ export function NotificationBell() {
   }
 
   useEffect(() => {
-    void refresh();
+    queueMicrotask(() => {
+      void refresh();
+    });
     const interval = window.setInterval(() => {
       void refresh();
     }, 15000);

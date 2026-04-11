@@ -1,511 +1,24 @@
 import { PlacedLevel } from "@prisma/client";
+import { randomInt } from "crypto";
+import {
+  EXPECTED_PLACEMENT_QUESTION_TOTAL,
+  PLACEMENT_BANK_BANDS,
+  PLACEMENT_BANK_SECTIONS,
+  PLACEMENT_QUESTIONS_PER_BAND_SECTION,
+} from "@/lib/placement-bank/constants";
+import type { LoadedPlacementQuestion } from "@/lib/placement-bank/load-placement-bank";
 
-export type PlacementQuestion = {
-  id: string;
-  /** Higher weight = harder item; counts more toward advanced placement */
-  weight: number;
-  section: "grammar" | "vocabulary" | "reading" | "functional";
-  cefrBand: "A1" | "A2" | "B1" | "B2" | "C1";
-  promptJa: string;
-  promptEn: string;
-  optionsJa: string[];
-  optionsEn: string[];
-  correctIndex: number;
+export type PlacementQuestion = LoadedPlacementQuestion;
+
+/** Re-export for tests and tooling. */
+export {
+  EXPECTED_PLACEMENT_QUESTION_TOTAL,
+  PLACEMENT_QUESTIONS_PER_BAND_SECTION,
+  PLACEMENT_BANK_BANDS,
+  PLACEMENT_BANK_SECTIONS,
 };
 
-const BASE_PLACEMENT_QUESTIONS: PlacementQuestion[] = [
-  {
-    id: "g-a1-1",
-    weight: 1,
-    section: "grammar",
-    cefrBand: "A1",
-    promptJa: "空所に入る語を選んでください: \"She ___ from Japan.\"",
-    promptEn: 'Choose the best option: "She ___ from Japan."',
-    optionsJa: ["is", "are", "am"],
-    optionsEn: ["is", "are", "am"],
-    correctIndex: 0,
-  },
-  {
-    id: "g-a1-2",
-    weight: 1,
-    section: "grammar",
-    cefrBand: "A1",
-    promptJa: "正しい文を選んでください。",
-    promptEn: "Choose the correct sentence.",
-    optionsJa: ["He don't like coffee.", "He doesn't like coffee.", "He doesn't likes coffee."],
-    optionsEn: ["He don't like coffee.", "He doesn't like coffee.", "He doesn't likes coffee."],
-    correctIndex: 1,
-  },
-  {
-    id: "g-a2-1",
-    weight: 2,
-    section: "grammar",
-    cefrBand: "A2",
-    promptJa: "空所に入る語を選んでください: \"I ___ my homework before dinner yesterday.\"",
-    promptEn: 'Choose the best option: "I ___ my homework before dinner yesterday."',
-    optionsJa: ["finish", "finished", "have finished"],
-    optionsEn: ["finish", "finished", "have finished"],
-    correctIndex: 1,
-  },
-  {
-    id: "g-a2-2",
-    weight: 2,
-    section: "grammar",
-    cefrBand: "A2",
-    promptJa: "空所に入る語を選んでください: \"There aren't ___ apples left.\"",
-    promptEn: 'Choose the best option: "There aren\'t ___ apples left."',
-    optionsJa: ["some", "any", "much"],
-    optionsEn: ["some", "any", "much"],
-    correctIndex: 1,
-  },
-  {
-    id: "g-b1-1",
-    weight: 3,
-    section: "grammar",
-    cefrBand: "B1",
-    promptJa: "空所に入る最も自然な語を選んでください: \"If it ___ tomorrow, we'll cancel the picnic.\"",
-    promptEn: 'Choose the best option: "If it ___ tomorrow, we\'ll cancel the picnic."',
-    optionsJa: ["rains", "will rain", "would rain"],
-    optionsEn: ["rains", "will rain", "would rain"],
-    correctIndex: 0,
-  },
-  {
-    id: "g-b1-2",
-    weight: 3,
-    section: "grammar",
-    cefrBand: "B1",
-    promptJa: "空所に入る語を選んでください: \"By the time we arrived, the movie ___.\"",
-    promptEn: 'Choose the best option: "By the time we arrived, the movie ___."',
-    optionsJa: ["started", "had started", "has started"],
-    optionsEn: ["started", "had started", "has started"],
-    correctIndex: 1,
-  },
-  {
-    id: "g-b2-1",
-    weight: 4,
-    section: "grammar",
-    cefrBand: "B2",
-    promptJa: "空所に入る語を選んでください: \"Hardly ___ the meeting started when the fire alarm went off.\"",
-    promptEn: 'Choose the best option: "Hardly ___ the meeting started when the fire alarm went off."',
-    optionsJa: ["had", "did", "was"],
-    optionsEn: ["had", "did", "was"],
-    correctIndex: 0,
-  },
-  {
-    id: "g-c1-1",
-    weight: 5,
-    section: "grammar",
-    cefrBand: "C1",
-    promptJa: "最も自然な文を選んでください。",
-    promptEn: "Choose the most natural sentence.",
-    optionsJa: [
-      "Not only the manager apologized, but also offered a refund.",
-      "Not only did the manager apologize, but he also offered a refund.",
-      "Not only the manager did apologize, but he offered also a refund.",
-    ],
-    optionsEn: [
-      "Not only the manager apologized, but also offered a refund.",
-      "Not only did the manager apologize, but he also offered a refund.",
-      "Not only the manager did apologize, but he offered also a refund.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    id: "v-a1-1",
-    weight: 1,
-    section: "vocabulary",
-    cefrBand: "A1",
-    promptJa: "「安い」に最も近い語を選んでください。",
-    promptEn: 'Choose the word closest to "inexpensive."',
-    optionsJa: ["cheap", "large", "quiet"],
-    optionsEn: ["cheap", "large", "quiet"],
-    correctIndex: 0,
-  },
-  {
-    id: "v-a2-1",
-    weight: 2,
-    section: "vocabulary",
-    cefrBand: "A2",
-    promptJa: "空所に入る語を選んでください: \"Could you ___ me a favor?\"",
-    promptEn: 'Choose the best option: "Could you ___ me a favor?"',
-    optionsJa: ["do", "make", "take"],
-    optionsEn: ["do", "make", "take"],
-    correctIndex: 0,
-  },
-  {
-    id: "v-a2-2",
-    weight: 2,
-    section: "vocabulary",
-    cefrBand: "A2",
-    promptJa: "「予約する」の意味に最も近い語句を選んでください。",
-    promptEn: 'Choose the phrase closest to "reserve."',
-    optionsJa: ["book in advance", "look around", "turn down"],
-    optionsEn: ["book in advance", "look around", "turn down"],
-    correctIndex: 0,
-  },
-  {
-    id: "v-b1-1",
-    weight: 3,
-    section: "vocabulary",
-    cefrBand: "B1",
-    promptJa: "空所に入る語を選んでください: \"The new policy will ___ everyone in the company.\"",
-    promptEn: 'Choose the best option: "The new policy will ___ everyone in the company."',
-    optionsJa: ["affect", "effect", "infect"],
-    optionsEn: ["affect", "effect", "infect"],
-    correctIndex: 0,
-  },
-  {
-    id: "v-b1-2",
-    weight: 3,
-    section: "vocabulary",
-    cefrBand: "B1",
-    promptJa: "最も自然なコロケーションを選んでください。",
-    promptEn: "Choose the most natural collocation.",
-    optionsJa: ["make progress", "do progress", "take progress"],
-    optionsEn: ["make progress", "do progress", "take progress"],
-    correctIndex: 0,
-  },
-  {
-    id: "v-b2-1",
-    weight: 4,
-    section: "vocabulary",
-    cefrBand: "B2",
-    promptJa: "「The proposal was rejected due to budget constraints.」で constraints に最も近い意味は？",
-    promptEn: 'In "The proposal was rejected due to budget constraints," what does constraints mean?',
-    optionsJa: ["limitations", "benefits", "bonuses"],
-    optionsEn: ["limitations", "benefits", "bonuses"],
-    correctIndex: 0,
-  },
-  {
-    id: "v-c1-1",
-    weight: 5,
-    section: "vocabulary",
-    cefrBand: "C1",
-    promptJa: "最も適切な語を選んでください: \"The CEO's statement was deliberately ___ to avoid legal risk.\"",
-    promptEn: 'Choose the best option: "The CEO\'s statement was deliberately ___ to avoid legal risk."',
-    optionsJa: ["unequivocal", "ambiguous", "redundant"],
-    optionsEn: ["unequivocal", "ambiguous", "redundant"],
-    correctIndex: 1,
-  },
-  {
-    id: "r-a2-1",
-    weight: 2,
-    section: "reading",
-    cefrBand: "A2",
-    promptJa:
-      "文を読んで答えてください: \"The museum opens at 9:00 and closes at 17:00. Last entry is at 16:30.\" 最終入場は？",
-    promptEn:
-      'Read and answer: "The museum opens at 9:00 and closes at 17:00. Last entry is at 16:30." What is the last entry time?',
-    optionsJa: ["16:00", "16:30", "17:00"],
-    optionsEn: ["16:00", "16:30", "17:00"],
-    correctIndex: 1,
-  },
-  {
-    id: "r-a2-2",
-    weight: 2,
-    section: "reading",
-    cefrBand: "A2",
-    promptJa:
-      "文を読んで答えてください: \"Please submit your report by Friday noon.\" いつまでに提出する必要がありますか？",
-    promptEn:
-      'Read and answer: "Please submit your report by Friday noon." When is the deadline?',
-    optionsJa: ["金曜の正午まで", "金曜の夜まで", "土曜の朝まで"],
-    optionsEn: ["By Friday noon", "By Friday night", "By Saturday morning"],
-    correctIndex: 0,
-  },
-  {
-    id: "r-b1-1",
-    weight: 3,
-    section: "reading",
-    cefrBand: "B1",
-    promptJa:
-      "文章: \"Although the weather forecast predicted rain, the event organizers decided to proceed, citing improved drainage systems.\" 主催者が開催した主な理由は？",
-    promptEn:
-      'Text: "Although the weather forecast predicted rain, the event organizers decided to proceed, citing improved drainage systems." Why did they proceed?',
-    optionsJa: ["雨予報が外れたから", "排水設備が改善されていたから", "参加者が少なかったから"],
-    optionsEn: [
-      "Because the forecast was wrong",
-      "Because drainage systems had improved",
-      "Because attendance was low",
-    ],
-    correctIndex: 1,
-  },
-  {
-    id: "r-b1-2",
-    weight: 3,
-    section: "reading",
-    cefrBand: "B1",
-    promptJa:
-      "文章: \"Sales increased by 12%, largely due to repeat customers rather than new acquisitions.\" 何が増加の主因でしたか？",
-    promptEn:
-      'Text: "Sales increased by 12%, largely due to repeat customers rather than new acquisitions." What mainly drove the increase?',
-    optionsJa: ["新規顧客", "既存顧客の再購入", "広告費の削減"],
-    optionsEn: ["New customers", "Repeat customers", "Reduced advertising costs"],
-    correctIndex: 1,
-  },
-  {
-    id: "r-b2-1",
-    weight: 4,
-    section: "reading",
-    cefrBand: "B2",
-    promptJa:
-      "文章: \"The committee's recommendation, while not legally binding, carries substantial influence over municipal funding decisions.\" recommendation の性質として正しいのは？",
-    promptEn:
-      'Text: "The committee\'s recommendation, while not legally binding, carries substantial influence over municipal funding decisions." Which is true?',
-    optionsJa: [
-      "法的拘束力があり必ず従う必要がある",
-      "法的拘束力はないが、実務上の影響は大きい",
-      "資金配分には全く影響しない",
-    ],
-    optionsEn: [
-      "It is legally binding",
-      "It is not binding but highly influential",
-      "It has no effect on funding decisions",
-    ],
-    correctIndex: 1,
-  },
-  {
-    id: "r-c1-1",
-    weight: 5,
-    section: "reading",
-    cefrBand: "C1",
-    promptJa:
-      "文章: \"While the initiative was praised publicly, internal reports suggested implementation had been uneven across regions.\" どの推論が妥当ですか？",
-    promptEn:
-      'Text: "While the initiative was praised publicly, internal reports suggested implementation had been uneven across regions." Which inference is best?',
-    optionsJa: [
-      "実施は全地域で同程度に成功した",
-      "公的評価と内部評価にギャップがある",
-      "この施策はすでに終了している",
-    ],
-    optionsEn: [
-      "Implementation succeeded equally in all regions",
-      "There is a gap between public praise and internal findings",
-      "The initiative has already ended",
-    ],
-    correctIndex: 1,
-  },
-  {
-    id: "f-a1-1",
-    weight: 1,
-    section: "functional",
-    cefrBand: "A1",
-    promptJa: "店員に丁寧に値段を聞く最も自然な表現は？",
-    promptEn: "Which is the most polite way to ask the price?",
-    optionsJa: ["How much is this?", "Price?", "Tell me price now."],
-    optionsEn: ["How much is this?", "Price?", "Tell me price now."],
-    correctIndex: 0,
-  },
-  {
-    id: "f-a2-1",
-    weight: 2,
-    section: "functional",
-    cefrBand: "A2",
-    promptJa: "会議に5分遅れる連絡として最も適切なのは？",
-    promptEn: "Which message is most appropriate if you will be 5 minutes late to a meeting?",
-    optionsJa: [
-      "I'm stuck in traffic. I'll be there in about five minutes. Sorry.",
-      "Meeting late me.",
-      "You start. I maybe come.",
-    ],
-    optionsEn: [
-      "I'm stuck in traffic. I'll be there in about five minutes. Sorry.",
-      "Meeting late me.",
-      "You start. I maybe come.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    id: "f-b1-1",
-    weight: 3,
-    section: "functional",
-    cefrBand: "B1",
-    promptJa: "丁寧に意見に反対する最も適切な表現は？",
-    promptEn: "Which is the most appropriate way to disagree politely?",
-    optionsJa: [
-      "You're wrong.",
-      "I see your point, but I have a different view.",
-      "No, absolutely not.",
-    ],
-    optionsEn: [
-      "You're wrong.",
-      "I see your point, but I have a different view.",
-      "No, absolutely not.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    id: "f-b1-2",
-    weight: 3,
-    section: "functional",
-    cefrBand: "B1",
-    promptJa: "上司への依頼メールの締めとして最も適切なのは？",
-    promptEn: "Which closing is most suitable in a request email to your manager?",
-    optionsJa: [
-      "Let me know if this works for you. Thank you.",
-      "Reply soon.",
-      "Do it quickly.",
-    ],
-    optionsEn: [
-      "Let me know if this works for you. Thank you.",
-      "Reply soon.",
-      "Do it quickly.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    id: "f-b2-1",
-    weight: 4,
-    section: "functional",
-    cefrBand: "B2",
-    promptJa: "交渉で譲歩しつつ条件提示する最も適切な文は？",
-    promptEn: "Which sentence best shows concession plus condition in negotiation?",
-    optionsJa: [
-      "We can reduce the fee, provided the contract term is extended.",
-      "We reduce fee. You choose.",
-      "No discount unless maybe later.",
-    ],
-    optionsEn: [
-      "We can reduce the fee, provided the contract term is extended.",
-      "We reduce fee. You choose.",
-      "No discount unless maybe later.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    id: "f-c1-1",
-    weight: 5,
-    section: "functional",
-    cefrBand: "C1",
-    promptJa: "苦情対応として最も適切な文を選んでください。",
-    promptEn: "Choose the most appropriate response to a customer complaint.",
-    optionsJa: [
-      "That's not our fault.",
-      "I understand your frustration. Let me look into this immediately and update you by 3 p.m.",
-      "Please calm down first.",
-    ],
-    optionsEn: [
-      "That's not our fault.",
-      "I understand your frustration. Let me look into this immediately and update you by 3 p.m.",
-      "Please calm down first.",
-    ],
-    correctIndex: 1,
-  },
-];
-
-const TARGET_POOL_PER_SECTION = 120;
-
-function rotateOptions(question: PlacementQuestion, shift: number): PlacementQuestion {
-  const size = question.optionsEn.length;
-  const normalized = ((shift % size) + size) % size;
-  if (normalized === 0) return question;
-  const optionsEn = [...question.optionsEn.slice(normalized), ...question.optionsEn.slice(0, normalized)];
-  const optionsJa = [...question.optionsJa.slice(normalized), ...question.optionsJa.slice(0, normalized)];
-  const correctIndex = (question.correctIndex - normalized + size) % size;
-  return { ...question, optionsEn, optionsJa, correctIndex };
-}
-
-function buildVariantPrompt(section: PlacementQuestion["section"], base: PlacementQuestion, variant: number) {
-  const contextEnBySection: Record<PlacementQuestion["section"], string[]> = {
-    grammar: [
-      "Context: email to a colleague.",
-      "Context: quick business chat.",
-      "Context: customer support reply.",
-      "Context: team status update.",
-      "Context: interview answer.",
-    ],
-    vocabulary: [
-      "Context: workplace communication.",
-      "Context: daily conversation.",
-      "Context: customer message.",
-      "Context: office planning.",
-      "Context: academic reading.",
-    ],
-    reading: [
-      "Read carefully and infer the key point.",
-      "Focus on the writer's intended meaning.",
-      "Choose based on explicit evidence in the text.",
-      "Pick the best inference from the passage.",
-      "Identify the main takeaway from the text.",
-    ],
-    functional: [
-      "Choose the most natural and polite option.",
-      "Prioritize clarity and professionalism.",
-      "Use context-appropriate register.",
-      "Select the best response for the situation.",
-      "Choose wording suitable for international communication.",
-    ],
-  };
-
-  const contextJaBySection: Record<PlacementQuestion["section"], string[]> = {
-    grammar: [
-      "文脈: 同僚へのメール",
-      "文脈: 業務チャット",
-      "文脈: カスタマー対応",
-      "文脈: チーム進捗共有",
-      "文脈: 面接回答",
-    ],
-    vocabulary: [
-      "文脈: 職場コミュニケーション",
-      "文脈: 日常会話",
-      "文脈: 顧客メッセージ",
-      "文脈: オフィスでの計画",
-      "文脈: 学習用リーディング",
-    ],
-    reading: [
-      "文章の要点を推論してください。",
-      "書き手の意図に注目してください。",
-      "文章内の根拠から選んでください。",
-      "本文から最も妥当な推論を選んでください。",
-      "本文の主旨を捉えてください。",
-    ],
-    functional: [
-      "最も自然で丁寧な表現を選んでください。",
-      "明確さとプロらしさを優先してください。",
-      "場面に適切なレジスターを選んでください。",
-      "状況に最適な応答を選んでください。",
-      "国際コミュニケーションに適した表現を選んでください。",
-    ],
-  };
-
-  const enCtx = contextEnBySection[section][variant % contextEnBySection[section].length];
-  const jaCtx = contextJaBySection[section][variant % contextJaBySection[section].length];
-  return {
-    promptEn: `${base.promptEn} (${enCtx})`,
-    promptJa: `${base.promptJa}（${jaCtx}）`,
-  };
-}
-
-function buildSectionPool(section: PlacementQuestion["section"], baseQuestions: PlacementQuestion[]) {
-  const selected = baseQuestions.filter((q) => q.section === section);
-  const expanded: PlacementQuestion[] = [...selected];
-
-  let variant = 1;
-  while (expanded.length < TARGET_POOL_PER_SECTION) {
-    const source = selected[(variant - 1) % selected.length];
-    if (!source) break;
-    const prompt = buildVariantPrompt(section, source, variant);
-    const rotated = rotateOptions(source, variant);
-    expanded.push({
-      ...rotated,
-      id: `${source.id}-v${variant}`,
-      promptEn: prompt.promptEn,
-      promptJa: prompt.promptJa,
-    });
-    variant += 1;
-  }
-
-  return expanded;
-}
-
-export const PLACEMENT_QUESTIONS: PlacementQuestion[] = [
-  ...buildSectionPool("grammar", BASE_PLACEMENT_QUESTIONS),
-  ...buildSectionPool("vocabulary", BASE_PLACEMENT_QUESTIONS),
-  ...buildSectionPool("reading", BASE_PLACEMENT_QUESTIONS),
-  ...buildSectionPool("functional", BASE_PLACEMENT_QUESTIONS),
-];
-
-export type PlacementQuestionPublic = Omit<PlacementQuestion, "correctIndex">;
+export type PlacementQuestionPublic = Omit<PlacementQuestion, "correctIndex" | "stemId">;
 
 export const PLACEMENT_WRITING_TASK = {
   promptJa:
@@ -516,37 +29,91 @@ export const PLACEMENT_WRITING_TASK = {
   recommendedWords: 120,
 } as const;
 
-export function getPlacementQuestionsForClient(): PlacementQuestionPublic[] {
-  return PLACEMENT_QUESTIONS.map(({ correctIndex: _, ...rest }) => rest);
+export function getPlacementQuestionsForClient(
+  questions: PlacementQuestion[],
+): PlacementQuestionPublic[] {
+  return questions.map((q) => {
+    const { correctIndex, stemId, ...rest } = q;
+    void correctIndex;
+    void stemId;
+    return rest;
+  });
 }
 
-function pickRandom<T>(arr: T[], count: number) {
-  const pool = [...arr];
-  const result: T[] = [];
-  while (pool.length > 0 && result.length < count) {
-    const idx = Math.floor(Math.random() * pool.length);
-    const [item] = pool.splice(idx, 1);
-    if (item !== undefined) result.push(item);
+const CEFR_ORDER = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5 } as const;
+
+function pickByBandProgression(pool: PlacementQuestion[], count: number) {
+  const remaining = [...pool];
+  const picked: PlacementQuestion[] = [];
+  const targetBands: Array<PlacementQuestion["cefrBand"]> = [
+    "A1",
+    "A2",
+    "B1",
+    "B1",
+    "B2",
+    "C1",
+  ];
+
+  for (let i = 0; i < count; i++) {
+    const target = targetBands[i] ?? "B1";
+    let candidates = remaining.filter((q) => q.cefrBand === target);
+    if (candidates.length === 0) {
+      candidates = [...remaining].sort(
+        (a, b) =>
+          Math.abs(CEFR_ORDER[a.cefrBand] - CEFR_ORDER[target]) -
+          Math.abs(CEFR_ORDER[b.cefrBand] - CEFR_ORDER[target]),
+      );
+    }
+    const candidatePool = candidates.length > 0 ? candidates : remaining;
+    if (candidatePool.length === 0) break;
+    const choice = candidatePool[randomInt(0, candidatePool.length)];
+    if (!choice) break;
+    picked.push(choice);
+    const removeIdx = remaining.findIndex((q) => q.id === choice.id);
+    if (removeIdx >= 0) remaining.splice(removeIdx, 1);
   }
-  return result;
+  return picked;
 }
 
-export function buildPlacementQuestionSet() {
+export function buildPlacementQuestionSet(
+  questions: PlacementQuestion[],
+  avoidIds: string[] = [],
+) {
+  const avoid = new Set(avoidIds);
   const bySection = {
-    grammar: PLACEMENT_QUESTIONS.filter((q) => q.section === "grammar"),
-    vocabulary: PLACEMENT_QUESTIONS.filter((q) => q.section === "vocabulary"),
-    reading: PLACEMENT_QUESTIONS.filter((q) => q.section === "reading"),
-    functional: PLACEMENT_QUESTIONS.filter((q) => q.section === "functional"),
+    grammar: questions.filter((q) => q.section === "grammar" && !avoid.has(q.id)),
+    vocabulary: questions.filter((q) => q.section === "vocabulary" && !avoid.has(q.id)),
+    reading: questions.filter((q) => q.section === "reading" && !avoid.has(q.id)),
+    functional: questions.filter((q) => q.section === "functional" && !avoid.has(q.id)),
+  } as const;
+
+  const fallback = {
+    grammar: questions.filter((q) => q.section === "grammar"),
+    vocabulary: questions.filter((q) => q.section === "vocabulary"),
+    reading: questions.filter((q) => q.section === "reading"),
+    functional: questions.filter((q) => q.section === "functional"),
   } as const;
 
   const selected = [
-    ...pickRandom(bySection.grammar, 6),
-    ...pickRandom(bySection.vocabulary, 6),
-    ...pickRandom(bySection.reading, 6),
-    ...pickRandom(bySection.functional, 6),
+    ...pickByBandProgression(
+      bySection.grammar.length >= 6 ? bySection.grammar : fallback.grammar,
+      6,
+    ),
+    ...pickByBandProgression(
+      bySection.vocabulary.length >= 6 ? bySection.vocabulary : fallback.vocabulary,
+      6,
+    ),
+    ...pickByBandProgression(
+      bySection.reading.length >= 6 ? bySection.reading : fallback.reading,
+      6,
+    ),
+    ...pickByBandProgression(
+      bySection.functional.length >= 6 ? bySection.functional : fallback.functional,
+      6,
+    ),
   ];
 
-  return pickRandom(selected, selected.length);
+  return [...selected].sort((a, b) => CEFR_ORDER[a.cefrBand] - CEFR_ORDER[b.cefrBand]);
 }
 
 export type SectionScore = {
@@ -555,88 +122,27 @@ export type SectionScore = {
   ratio: number;
 };
 
-export type PlacementFeedbackCode =
-  | "writingTooShort"
-  | "limitedSentenceVariety"
-  | "articleOrPluralRisk"
-  | "prepositionRisk"
-  | "goodTaskCompletion"
-  | "strongCoherence";
-
-export function evaluateWritingSample(sample: string): {
-  earned: number;
-  max: number;
-  ratio: number;
-  feedbackCodes: PlacementFeedbackCode[];
-} {
-  const max = 12;
-  const text = sample.trim();
-  const words = text.length === 0 ? [] : text.split(/\s+/);
-  const wordCount = words.length;
-  const sentences = text
-    .split(/[.!?]+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-
-  let score = 0;
-  const feedbackCodes: PlacementFeedbackCode[] = [];
-
-  if (wordCount >= 60) score += 4;
-  else if (wordCount >= 40) score += 2;
-  else feedbackCodes.push("writingTooShort");
-
-  if (sentences.length >= 4) score += 2;
-  else feedbackCodes.push("limitedSentenceVariety");
-
-  const hasLinkers = /\b(because|however|although|therefore|for example|in addition)\b/i.test(text);
-  if (hasLinkers) {
-    score += 2;
-    feedbackCodes.push("strongCoherence");
-  }
-
-  const articleRisk = /\bI have experience in [a-z]+\b/i.test(text) || /\bI am engineer\b/i.test(text);
-  if (!articleRisk) score += 2;
-  else feedbackCodes.push("articleOrPluralRisk");
-
-  const prepRisk = /\bdiscuss about\b/i.test(text) || /\bmarried with\b/i.test(text);
-  if (!prepRisk) score += 2;
-  else feedbackCodes.push("prepositionRisk");
-
-  if (wordCount >= 60 && sentences.length >= 4) {
-    feedbackCodes.push("goodTaskCompletion");
-  }
-
-  return {
-    earned: Math.max(0, Math.min(max, score)),
-    max,
-    ratio: max > 0 ? Math.max(0, Math.min(max, score)) / max : 0,
-    feedbackCodes,
-  };
-}
-
 export function scorePlacementAnswers(
   answers: number[],
-  writingSample?: string,
-  questions: PlacementQuestion[] = PLACEMENT_QUESTIONS,
+  questions: PlacementQuestion[],
 ): {
   level: PlacedLevel;
+  subLevel: 1 | 2 | 3;
   earned: number;
   max: number;
-  sectionScores: Record<PlacementQuestion["section"] | "writing", SectionScore>;
+  sectionScores: Record<PlacementQuestion["section"], SectionScore>;
   strengths: string[];
   improvements: string[];
-  writingFeedback: PlacementFeedbackCode[];
   needsManualReview: boolean;
   manualReviewReasons: string[];
 } {
   const objectiveMax = questions.reduce((s, q) => s + q.weight, 0);
   let earned = 0;
-  const sectionScores: Record<PlacementQuestion["section"] | "writing", SectionScore> = {
+  const sectionScores: Record<PlacementQuestion["section"], SectionScore> = {
     grammar: { earned: 0, max: 0, ratio: 0 },
     vocabulary: { earned: 0, max: 0, ratio: 0 },
     reading: { earned: 0, max: 0, ratio: 0 },
     functional: { earned: 0, max: 0, ratio: 0 },
-    writing: { earned: 0, max: 0, ratio: 0 },
   };
 
   for (let i = 0; i < questions.length; i++) {
@@ -654,23 +160,15 @@ export function scorePlacementAnswers(
     section.ratio = section.max > 0 ? section.earned / section.max : 0;
   }
 
-  const writing = evaluateWritingSample(writingSample ?? "");
-  sectionScores.writing = {
-    earned: writing.earned,
-    max: writing.max,
-    ratio: writing.ratio,
-  };
-
-  const max = objectiveMax + writing.max;
-  const totalEarned = earned + writing.earned;
+  const max = objectiveMax;
+  const totalEarned = earned;
   const ratio = max > 0 ? totalEarned / max : 0;
 
   let level: PlacedLevel;
   if (
     ratio >= 0.78 &&
     sectionScores.grammar.ratio >= 0.6 &&
-    sectionScores.reading.ratio >= 0.6 &&
-    sectionScores.writing.ratio >= 0.55
+    sectionScores.reading.ratio >= 0.6
   ) {
     level = PlacedLevel.ADVANCED;
   } else if (
@@ -683,6 +181,18 @@ export function scorePlacementAnswers(
     level = PlacedLevel.BEGINNER;
   }
 
+  let subLevel: 1 | 2 | 3 = 1;
+  if (level === PlacedLevel.BEGINNER) {
+    if (ratio >= 0.32) subLevel = 3;
+    else if (ratio >= 0.2) subLevel = 2;
+  } else if (level === PlacedLevel.INTERMEDIATE) {
+    if (ratio >= 0.68) subLevel = 3;
+    else if (ratio >= 0.57) subLevel = 2;
+  } else {
+    if (ratio >= 0.93) subLevel = 3;
+    else if (ratio >= 0.86) subLevel = 2;
+  }
+
   const strengths: string[] = [];
   const improvements: string[] = [];
   const manualReviewReasons: string[] = [];
@@ -691,7 +201,6 @@ export function scorePlacementAnswers(
     "vocabulary",
     "reading",
     "functional",
-    "writing",
   ];
 
   for (const key of sectionOrder) {
@@ -708,23 +217,17 @@ export function scorePlacementAnswers(
   if (Math.abs(ratio - advancedCut) <= 0.03) {
     manualReviewReasons.push("nearIntermediateAdvancedBoundary");
   }
-  if (writing.feedbackCodes.includes("writingTooShort")) {
-    manualReviewReasons.push("writingTooShortForConfidentPlacement");
-  }
-
   const maxSectionRatio = Math.max(
     sectionScores.grammar.ratio,
     sectionScores.vocabulary.ratio,
     sectionScores.reading.ratio,
     sectionScores.functional.ratio,
-    sectionScores.writing.ratio,
   );
   const minSectionRatio = Math.min(
     sectionScores.grammar.ratio,
     sectionScores.vocabulary.ratio,
     sectionScores.reading.ratio,
     sectionScores.functional.ratio,
-    sectionScores.writing.ratio,
   );
   if (maxSectionRatio - minSectionRatio >= 0.45) {
     manualReviewReasons.push("highSectionVariance");
@@ -734,12 +237,12 @@ export function scorePlacementAnswers(
 
   return {
     level,
+    subLevel,
     earned: totalEarned,
     max,
     sectionScores,
     strengths,
     improvements,
-    writingFeedback: writing.feedbackCodes,
     needsManualReview,
     manualReviewReasons,
   };

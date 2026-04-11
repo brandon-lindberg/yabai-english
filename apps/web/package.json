@@ -10,16 +10,19 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:unit": "vitest run src/**/__tests__/**/*.test.ts",
-    "test:integration": "vitest run src/app/api/**/__tests__/**/*.test.ts tests/integration/**/*.test.ts",
+    "test:unit": "vitest run",
+    "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
+    "placement-bank:scaffold": "tsx scripts/scaffold-placement-bank.ts",
+    "placement-bank:reset": "tsx scripts/scaffold-placement-bank.ts --force",
     "db:seed": "prisma db seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "server-only": "^0.0.1",
     "@auth/prisma-adapter": "^2.7.4",
     "@prisma/client": "^6.3.1",
     "googleapis": "^144.0.0",

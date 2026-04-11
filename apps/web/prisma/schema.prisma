@@ -122,6 +122,7 @@ model StudentProfile {
 
   /// Result of the in-app placement activity
   placedLevel           PlacedLevel @default(UNSET)
+  placedSubLevel        Int?        @default(1)
   placementCompletedAt  DateTime?
   placementNeedsReview  Boolean     @default(false)
   placementReviewReason String?
@@ -366,4 +367,20 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+/// Authoritative placement MCQ bank (loaded by API only; never bundled to the browser).
+model PlacementBankQuestion {
+  id           String  @id
+  stemId       String?
+  weight       Int
+  cefrBand     String
+  section      String
+  promptEn     String  @db.Text
+  promptJa     String  @db.Text
+  optionsEn    Json
+  optionsJa    Json
+  correctIndex Int
+
+  @@index([cefrBand, section])
 }

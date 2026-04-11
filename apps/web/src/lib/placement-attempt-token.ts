@@ -1,9 +1,22 @@
 import { createHmac } from "crypto";
 
-type PlacementAttemptPayload = {
+export type PlacementAttemptPayload = {
   userId: string;
-  questionIds: string[];
   issuedAt: number;
+  expiresAt: number;
+  mode: "adaptive";
+  currentQuestionId: string | null;
+  asked: Array<{ id: string; answer: number }>;
+  adaptiveState: {
+    sectionState: Record<
+      "grammar" | "vocabulary" | "reading" | "functional",
+      { asked: number; correct: number; targetBand: 1 | 2 | 3 | 4 | 5 }
+    >;
+    askedQuestionIds: string[];
+    askedStemIds: string[];
+    maxQuestions: number;
+    perSectionMax: number;
+  };
 };
 
 function getSecret() {
@@ -30,6 +43,8 @@ export function verifyPlacementAttemptToken(token: string): PlacementAttemptPayl
   const expected = createHmac("sha256", getSecret()).update(body).digest("base64url");
   if (sig !== expected) return null;
   const parsed = JSON.parse(fromBase64Url(body)) as PlacementAttemptPayload;
-  if (!parsed.userId || !Array.isArray(parsed.questionIds) || !parsed.issuedAt) return null;
+  if (!parsed.userId || !parsed.issuedAt || !parsed.expiresAt) return null;
+  if (parsed.mode !== "adaptive") return null;
+  if (!Array.isArray(parsed.asked) || !parsed.adaptiveState) return null;
   return parsed;
 }

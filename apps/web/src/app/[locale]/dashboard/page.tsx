@@ -46,7 +46,9 @@ export default async function DashboardPage() {
           <span className="font-semibold text-foreground">
             {profile.placedLevel === "UNSET"
               ? t("placedUnset")
-              : t(`levelLabel.${profile.placedLevel}`)}
+              : `${t(`levelLabel.${profile.placedLevel}`)} ${t("subLevelShort", {
+                  subLevel: profile.placedSubLevel ?? 1,
+                })}`}
           </span>
         </p>
       )}

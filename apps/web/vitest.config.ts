@@ -5,11 +5,13 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "server-only": path.resolve(__dirname, "./test/server-only-shim.ts"),
     },
   },
   test: {
     environment: "node",
     globals: true,
+    globalSetup: "./vitest.global-setup.ts",
     setupFiles: ["./vitest.setup.ts"],
     include: [
       "src/**/__tests__/**/*.test.ts",

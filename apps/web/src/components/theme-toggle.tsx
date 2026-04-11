@@ -19,7 +19,9 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
-    setTheme(readTheme());
+    queueMicrotask(() => {
+      setTheme(readTheme());
+    });
   }, []);
 
   function setMode(next: Theme) {

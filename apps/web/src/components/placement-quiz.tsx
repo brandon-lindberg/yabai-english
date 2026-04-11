@@ -7,15 +7,15 @@ import { useEffect, useState } from "react";
 
 type PlacementResult = {
   level: string;
+  subLevel: 1 | 2 | 3;
   earned: number;
   max: number;
   sectionScores: Record<
-    "grammar" | "vocabulary" | "reading" | "functional" | "writing",
+    "grammar" | "vocabulary" | "reading" | "functional",
     { earned: number; max: number; ratio: number }
   >;
   strengths: string[];
   improvements: string[];
-  writingFeedback: string[];
   needsManualReview: boolean;
   manualReviewReasons: string[];
 };
@@ -24,14 +24,14 @@ export function PlacementQuiz() {
   const t = useTranslations("placement");
   const locale = useLocale();
   const router = useRouter();
-  const [questions, setQuestions] = useState<PlacementQuestionPublic[]>([]);
-  const [answers, setAnswers] = useState<number[]>([]);
-  const [step, setStep] = useState(0);
-  const [writingPromptJa, setWritingPromptJa] = useState("");
-  const [writingPromptEn, setWritingPromptEn] = useState("");
-  const [writingMinWords, setWritingMinWords] = useState(60);
-  const [writingResponse, setWritingResponse] = useState("");
+  const [question, setQuestion] = useState<PlacementQuestionPublic | null>(null);
+  const [objectiveComplete, setObjectiveComplete] = useState(false);
+  const [progressCurrent, setProgressCurrent] = useState(1);
+  const [progressTotal, setProgressTotal] = useState(24);
   const [attemptToken, setAttemptToken] = useState("");
+  const [expiresAt, setExpiresAt] = useState<number | null>(null);
+  const [remainingSec, setRemainingSec] = useState<number | null>(null);
+  const [autoSubmitted, setAutoSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,42 +41,62 @@ export function PlacementQuiz() {
     void fetch(`/api/placement?ts=${Date.now()}`, { cache: "no-store" })
       .then((r) => r.json())
       .then((data: {
-        questions: PlacementQuestionPublic[];
-        writingTask?: {
-          promptJa: string;
-          promptEn: string;
-          minWords: number;
-        };
+        question: PlacementQuestionPublic | null;
         attemptToken?: string;
+        expiresAt?: number;
+        progress?: { current: number; total: number };
       }) => {
-        setQuestions(data.questions ?? []);
-        setAnswers(Array(data.questions?.length ?? 0).fill(-1));
+        setQuestion(data.question ?? null);
+        setObjectiveComplete(false);
+        setProgressCurrent(data.progress?.current ?? 1);
+        setProgressTotal(data.progress?.total ?? 24);
         setAttemptToken(data.attemptToken ?? "");
-        if (data.writingTask) {
-          setWritingPromptJa(data.writingTask.promptJa);
-          setWritingPromptEn(data.writingTask.promptEn);
-          setWritingMinWords(data.writingTask.minWords);
+        setAutoSubmitted(false);
+        setExpiresAt(data.expiresAt ?? null);
+        if (typeof data.expiresAt === "number") {
+          setRemainingSec(Math.max(0, Math.floor((data.expiresAt - Date.now()) / 1000)));
         }
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const q = questions[step];
+  useEffect(() => {
+    if (!expiresAt) return;
+    const tick = () => setRemainingSec(Math.max(0, Math.floor((expiresAt - Date.now()) / 1000)));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [expiresAt]);
+
+  useEffect(() => {
+    if (remainingSec !== 0) return;
+    if (autoSubmitted || submitting || result) return;
+    setAutoSubmitted(true);
+    void onFinish(true);
+  }, [remainingSec, autoSubmitted, submitting, result]); // eslint-disable-line react-hooks/exhaustive-deps -- onFinish would loop
+
+  const q = question;
   const isJa = locale === "ja";
 
-  async function onFinish(nextAnswers: number[]) {
+  async function onFinish(fromTimeout = false) {
     setSubmitting(true);
     setError(null);
     try {
       const res = await fetch("/api/placement", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers: nextAnswers, writingResponse, attemptToken }),
+        body: JSON.stringify({
+          action: "finish",
+          attemptToken,
+        }),
       });
       const data = (await res.json()) as PlacementResult & { error?: string };
       if (!res.ok) {
         setError(data.error ?? t("submitError"));
         return;
+      }
+      if (fromTimeout) {
+        setError(t("timeExpired"));
       }
       if (data.level) {
         setResult(data);
@@ -86,15 +106,42 @@ export function PlacementQuiz() {
     }
   }
 
-  function selectOption(idx: number) {
-    if (!q) return;
-    const next = [...answers];
-    next[step] = idx;
-    setAnswers(next);
-    if (step < questions.length - 1) {
-      setStep(step + 1);
-    } else {
-      setStep(questions.length);
+  async function selectOption(idx: number) {
+    if (!q || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/placement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "answer",
+          answer: idx,
+          attemptToken,
+        }),
+      });
+      const data = (await res.json()) as {
+        error?: string;
+        attemptToken?: string;
+        question?: PlacementQuestionPublic | null;
+        objectiveComplete?: boolean;
+        progress?: { current: number; total: number };
+        expiresAt?: number;
+      };
+      if (!res.ok) {
+        setError(data.error ?? t("submitError"));
+        return;
+      }
+      setAttemptToken(data.attemptToken ?? attemptToken);
+      setQuestion(data.question ?? null);
+      setObjectiveComplete(Boolean(data.objectiveComplete));
+      setProgressCurrent(data.progress?.current ?? progressCurrent);
+      setProgressTotal(data.progress?.total ?? progressTotal);
+      if (typeof data.expiresAt === "number") {
+        setExpiresAt(data.expiresAt);
+      }
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -102,7 +149,7 @@ export function PlacementQuiz() {
     return <p className="text-muted">{t("loading")}</p>;
   }
 
-  if (questions.length === 0) {
+  if (!question && !objectiveComplete) {
     return (
       <p className="text-sm" style={{ color: "var(--app-danger)" }}>
         {t("loadError")}
@@ -117,7 +164,6 @@ export function PlacementQuiz() {
       "vocabulary",
       "reading",
       "functional",
-      "writing",
     ];
     return (
       <div className="rounded-2xl border p-6" style={{ borderColor: "var(--app-success-border)", background: "var(--app-success-bg)" }}>
@@ -125,6 +171,9 @@ export function PlacementQuiz() {
           {t("resultTitle")}
         </p>
         <p className="mt-2 text-xl font-bold text-foreground">{t(labelKey)}</p>
+        <p className="mt-1 text-sm font-semibold text-foreground">
+          {t("subLevelLabel", { subLevel: result.subLevel })}
+        </p>
         <p className="mt-1 text-sm text-muted">
           {t("scoreSummary", { earned: result.earned, max: result.max })}
         </p>
@@ -165,16 +214,6 @@ export function PlacementQuiz() {
           </div>
         )}
 
-        {result.writingFeedback.length > 0 && (
-          <div className="mt-3 text-left">
-            <p className="text-sm font-semibold text-foreground">{t("writingFeedbackTitle")}</p>
-            <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted">
-              {result.writingFeedback.map((code) => (
-                <li key={code}>{t(`writingFeedback.${code}` as const)}</li>
-              ))}
-            </ul>
-          </div>
-        )}
         {result.needsManualReview && (
           <p className="mt-3 rounded-xl border border-[var(--app-warning-border)] bg-[var(--app-warning-bg)] px-3 py-2 text-sm text-[var(--app-warning-text)]">
             {t("manualReviewNotice")}
@@ -194,10 +233,15 @@ export function PlacementQuiz() {
 
   return (
     <div className="space-y-6">
+      {remainingSec !== null && (
+        <p className="text-sm font-medium text-foreground">
+          {t("timeRemaining")}: {Math.floor(remainingSec / 60)}:{String(remainingSec % 60).padStart(2, "0")}
+        </p>
+      )}
       <p className="text-xs text-muted">
-        {t("progress", { current: step + 1, total: questions.length + 1 })}
+        {t("progress", { current: progressCurrent, total: progressTotal })}
       </p>
-      {step < questions.length && q ? (
+      {!objectiveComplete && q ? (
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <p className="text-base font-medium text-foreground">
             {isJa ? q.promptJa : q.promptEn}
@@ -207,8 +251,8 @@ export function PlacementQuiz() {
               <li key={opt}>
                 <button
                   type="button"
-                  disabled={submitting}
-                  onClick={() => selectOption(idx)}
+                  disabled={submitting || remainingSec === 0}
+                  onClick={() => void selectOption(idx)}
                   className="w-full rounded-xl border border-border px-4 py-3 text-left text-sm text-foreground transition hover:border-accent/60 hover:bg-[var(--app-hover)] disabled:opacity-50"
                 >
                   {opt}
@@ -219,20 +263,12 @@ export function PlacementQuiz() {
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-          <p className="text-base font-medium text-foreground">
-            {isJa ? writingPromptJa : writingPromptEn}
-          </p>
-          <p className="mt-2 text-xs text-muted">{t("writingWordGuide", { min: writingMinWords })}</p>
-          <textarea
-            value={writingResponse}
-            onChange={(e) => setWritingResponse(e.target.value)}
-            className="mt-3 min-h-36 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
-            placeholder={t("writingPlaceholder")}
-          />
+          <p className="text-base font-medium text-foreground">{t("objectiveComplete")}</p>
+          <p className="mt-2 text-xs text-muted">{t("submitWhenReady")}</p>
           <button
             type="button"
-            disabled={submitting || writingResponse.trim().split(/\s+/).filter(Boolean).length < 20}
-            onClick={() => void onFinish(answers)}
+            disabled={submitting || remainingSec === 0}
+            onClick={() => void onFinish(false)}
             className="mt-3 w-full rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
           >
             {t("submitPlacement")}

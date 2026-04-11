@@ -3,6 +3,7 @@ import {
   LessonTier,
   ExerciseType,
 } from "@prisma/client";
+import { seedPlacementBankQuestions } from "./seed-placement-bank";
 
 const prisma = new PrismaClient();
 
@@ -309,6 +310,8 @@ async function main() {
       sortOrder: 0,
     },
   });
+
+  await seedPlacementBankQuestions(prisma);
 
   console.log("Seed complete.");
 }
