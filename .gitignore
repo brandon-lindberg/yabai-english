@@ -8,5 +8,7 @@ dist
 .yarn-cache
 *.log
 .DS_Store
+
+# Product notes — keep local only (already in .gitignore; if Git still tracked it, run: git rm --cached PRODUCT_REQUIREMENTS.md)
 PRODUCT_REQUIREMENTS.md
 
