@@ -1,0 +1,30 @@
+---
+description: Test-Driven Development — write tests first, then implementation
+alwaysApply: true
+---
+
+# TDD (required)
+
+This project uses **TDD by default** for all new behavior and non-trivial fixes.
+
+## Workflow
+
+1. **Red**: Add or extend a failing test that specifies the desired behavior (unit, integration, or both as appropriate).
+2. **Green**: Implement the minimum code to make that test pass.
+3. **Refactor**: Clean up with tests still green.
+
+## Scope
+
+- **New features / APIs / domain logic**: tests before production code.
+- **Bug fixes**: reproduce with a failing test first when feasible.
+- **Pure refactors** (no behavior change): keep existing tests green; add coverage only if gaps are exposed.
+
+## Practical defaults (apps/web)
+
+- Prefer **Vitest** for unit tests near the code (`src/**/__tests__/*.test.ts` or colocated patterns already in the repo).
+- Add **integration** tests for HTTP/DB boundaries when the project already uses that pattern.
+- Do **not** merge behavior-only changes that lack tests unless the user explicitly waives TDD for that change.
+
+## When unclear
+
+If requirements are ambiguous, write the test from the clearest case first, then ask or narrow scope—do not skip tests because the spec is fuzzy.
