@@ -30,7 +30,7 @@ export function splitLegacyPromptsToPresentation(
       return {
         instructionEn: "Choose the best option.",
         questionEn: mEn[2]!.replace(/\\"/g, '"'),
-        instructionJa: grammarInstructionJaFromJa(ja, mEn[2]!),
+        instructionJa: grammarInstructionJaFromJa(ja),
         questionJa: grammarQuestionJaFromJa(ja, mEn[2]!),
       };
     }
@@ -180,7 +180,7 @@ function extractQuotedGrammarJa(full: string): string | null {
   return m ? `"${m[1]!.replace(/\\"/g, '"')}"` : null;
 }
 
-function grammarInstructionJaFromJa(ja: string, quoteEn: string): string {
+function grammarInstructionJaFromJa(ja: string): string {
   if (/空所に入る語を選んでください/.test(ja)) return "空所に入る語を選んでください。";
   if (/条件文の空所/.test(ja)) return "条件文の空所に入る語を選んでください。";
   if (/倒置/.test(ja)) return "倒置を含む文の空所を選んでください。";

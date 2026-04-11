@@ -22,12 +22,12 @@ function buildOptionsEnJa(
 ): Pick<PlacementBankFile, "optionsEn" | "optionsJa" | "correctIndex"> {
   const wEn = wrongEn.filter((w) => w !== correctEn);
   const wJa = wrongJa.filter((w) => w !== correctJa);
-  let e1 = pick(wEn, seed);
+  const e1 = pick(wEn, seed);
   let e2 = pick(wEn, seed + 3);
   if (e1 === e2 && wEn.length > 1) {
     e2 = wEn.find((w) => w !== e1) ?? e2;
   }
-  let j1 = pick(wJa, seed + 5);
+  const j1 = pick(wJa, seed + 5);
   let j2 = pick(wJa, seed + 11);
   if (j1 === j2 && wJa.length > 1) {
     j2 = wJa.find((w) => w !== j1) ?? j2;

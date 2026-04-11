@@ -26,7 +26,9 @@ function main() {
         promptEn,
         promptJa,
       );
-      const { promptEn: _pe, promptJa: _pj, ...rest } = q as Record<string, unknown>;
+      const rest = { ...(q as Record<string, unknown>) };
+      delete rest.promptEn;
+      delete rest.promptJa;
       return {
         ...rest,
         instructionEn,

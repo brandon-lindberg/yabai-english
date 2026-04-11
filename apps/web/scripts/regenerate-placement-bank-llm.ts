@@ -467,7 +467,7 @@ async function main() {
     fs.unlinkSync(checkpointPath);
   }
 
-  let checkpoint = loadCheckpoint(checkpointPath);
+  const checkpoint = loadCheckpoint(checkpointPath);
 
   if (!run && write) {
     let wroteBackup = false;

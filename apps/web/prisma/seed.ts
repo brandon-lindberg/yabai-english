@@ -1,9 +1,6 @@
-import {
-  PrismaClient,
-  LessonTier,
-  ExerciseType,
-} from "@prisma/client";
+import { PrismaClient, LessonTier } from "@prisma/client";
 import { seedPlacementBankQuestions } from "./seed-placement-bank";
+import { seedStudyTrack } from "./seed-study";
 
 const prisma = new PrismaClient();
 
@@ -243,75 +240,11 @@ async function main() {
     });
   }
 
-  const course = await prisma.course.upsert({
-    where: { slug: "beginner-demo" },
-    update: {},
-    create: {
-      slug: "beginner-demo",
-      level: "beginner",
-      titleJa: "初級デモ",
-      titleEn: "Beginner demo",
-      descriptionJa: "プラットフォームのデモ用ミニコースです。",
-      descriptionEn: "A tiny demo course for the platform.",
-      sortOrder: 0,
-    },
-  });
-
-  const unit = await prisma.courseUnit.upsert({
-    where: { id: "seed-unit-1" },
-    update: {},
-    create: {
-      id: "seed-unit-1",
-      courseId: course.id,
-      titleJa: "あいさつ",
-      titleEn: "Greetings",
-      sortOrder: 0,
-    },
-  });
-
-  const skill = await prisma.skill.upsert({
-    where: { id: "seed-skill-1" },
-    update: {},
-    create: {
-      id: "seed-skill-1",
-      unitId: unit.id,
-      titleJa: "基礎",
-      titleEn: "Basics",
-      sortOrder: 0,
-    },
-  });
-
-  const lesson = await prisma.lesson.upsert({
-    where: { id: "seed-lesson-1" },
-    update: {},
-    create: {
-      id: "seed-lesson-1",
-      skillId: skill.id,
-      titleJa: "Hello",
-      titleEn: "Hello",
-      sortOrder: 0,
-    },
-  });
-
-  await prisma.exercise.upsert({
-    where: { id: "seed-ex-1" },
-    update: {},
-    create: {
-      id: "seed-ex-1",
-      lessonId: lesson.id,
-      type: ExerciseType.MULTIPLE_CHOICE,
-      content: {
-        promptJa: "「こんにちは」に相当する英語は？",
-        promptEn: 'Which phrase means "hello" in a general greeting?',
-        options: ["Good night", "Hello", "Goodbye"],
-        correctIndex: 1,
-      },
-      points: 30,
-      sortOrder: 0,
-    },
-  });
+  // Remove legacy placeholder demo course (replaced by /learn/study flashcard track).
+  await prisma.course.deleteMany({ where: { slug: "beginner-demo" } });
 
   await seedPlacementBankQuestions(prisma);
+  await seedStudyTrack(prisma);
 
   console.log("Seed complete.");
 }

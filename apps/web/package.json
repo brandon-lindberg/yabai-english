@@ -22,6 +22,7 @@
     "placement-bank:llm-audit": "tsx scripts/placement-bank-llm-audit.ts",
     "placement-bank:llm-fix-bad": "tsx scripts/placement-bank-llm-fix-bad.ts",
     "placement-bank:regenerate-llm": "tsx scripts/regenerate-placement-bank-llm.ts",
+    "study:generate-beginner-1": "tsx scripts/generate-study-level-llm.ts",
     "db:seed": "prisma db seed"
   },
   "prisma": {

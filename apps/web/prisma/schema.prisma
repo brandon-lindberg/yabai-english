@@ -47,6 +47,29 @@ enum ExerciseType {
   ORDERING
 }
 
+/// Leveled flashcard curriculum (Beginner 1–3, Intermediate 1–3, Advanced 1–3).
+enum StudyLevelCode {
+  BEGINNER_1
+  BEGINNER_2
+  BEGINNER_3
+  INTERMEDIATE_1
+  INTERMEDIATE_2
+  INTERMEDIATE_3
+  ADVANCED_1
+  ADVANCED_2
+  ADVANCED_3
+}
+
+enum StudyDeckVisibility {
+  SYSTEM
+  PRIVATE
+  COMMUNITY
+}
+
+enum StudyAssessmentKind {
+  LEVEL_EXIT
+}
+
 // --- NextAuth (Auth.js) ---
 model User {
   id            String    @id @default(cuid())
@@ -71,6 +94,10 @@ model User {
   invoices           Invoice[]
   chatThreadsAsStudent ChatThread[] @relation("ThreadStudent")
   chatThreadsAsTeacher ChatThread[] @relation("ThreadTeacher")
+  ownedStudyDecks          StudyDeck[]                 @relation("StudyDeckOwner")
+  studyLevelProgress       UserStudyLevelProgress[]
+  studyCardStates          UserStudyCardState[]
+  studyAssessmentAttempts  UserStudyAssessmentAttempt[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -321,6 +348,135 @@ model ExerciseAttempt {
   score      Int
   response   Json
   createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// --- Study track (flashcards / leveled SRS) ---
+model StudyTrack {
+  id        String  @id @default(cuid())
+  slug      String  @unique
+  titleJa   String
+  titleEn   String
+  sortOrder Int     @default(0)
+
+  levels StudyLevel[]
+}
+
+model StudyLevel {
+  id                 String         @id @default(cuid())
+  trackId            String
+  track              StudyTrack     @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  levelCode          StudyLevelCode
+  titleJa            String
+  titleEn            String
+  sortOrder          Int            @default(0)
+  /// Optional curriculum notes (future MDX / export).
+  referenceMarkdown  String?        @db.Text
+
+  decks     StudyDeck[]
+  assessments StudyAssessment[]
+  userProgress UserStudyLevelProgress[]
+
+  @@unique([trackId, levelCode])
+  @@index([trackId, sortOrder])
+}
+
+model StudyDeck {
+  id          String              @id @default(cuid())
+  levelId     String
+  level       StudyLevel          @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  titleJa     String
+  titleEn     String
+  sortOrder   Int                 @default(0)
+  ownerUserId String?
+  ownerUser   User?               @relation("StudyDeckOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  visibility  StudyDeckVisibility @default(SYSTEM)
+
+  cards StudyCard[]
+
+  @@index([levelId, sortOrder])
+}
+
+/// Front = Japanese prompt, back = English answer (typical learner direction).
+model StudyCard {
+  id        String    @id @default(cuid())
+  deckId    String
+  deck      StudyDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  frontJa   String    @db.Text
+  backEn    String    @db.Text
+  sortOrder Int       @default(0)
+
+  userStates UserStudyCardState[]
+
+  @@index([deckId, sortOrder])
+}
+
+model UserStudyLevelProgress {
+  id                   String    @id @default(cuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  levelId              String
+  level                StudyLevel @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  xp                   Int       @default(0)
+  /// 0–100 aggregate mastery for UI (updated on reviews).
+  masteryScore         Int       @default(0)
+  unlockedAt           DateTime  @default(now())
+  completedAt          DateTime?
+  assessmentPassedAt   DateTime?
+  lastStudiedAt        DateTime?
+
+  @@unique([userId, levelId])
+  @@index([userId])
+}
+
+model UserStudyCardState {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId       String
+  card         StudyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  /// MCQ performance (SRS-style ease/reps kept for legacy rows; queue uses counts + dueAt).
+  ease         Float     @default(2.5)
+  intervalDays Float     @default(0)
+  dueAt        DateTime?
+  reps         Int       @default(0)
+  lapses       Int       @default(0)
+  correctCount Int       @default(0)
+  wrongCount   Int       @default(0)
+  streakCorrect Int      @default(0)
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([userId, cardId])
+  @@index([userId, dueAt])
+}
+
+model StudyAssessment {
+  id            String              @id @default(cuid())
+  levelId       String
+  level         StudyLevel          @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  kind          StudyAssessmentKind @default(LEVEL_EXIT)
+  /// MCQ items: { items: [{ id, promptJa, promptEn, options[], correctIndex }] }
+  itemsJson     Json
+  passingScore  Int                 @default(70)
+  sortOrder     Int                 @default(0)
+
+  attempts UserStudyAssessmentAttempt[]
+
+  @@index([levelId, sortOrder])
+}
+
+model UserStudyAssessmentAttempt {
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessmentId String
+  assessment   StudyAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  score        Int
+  /// Map of itemId -> chosenIndex (number)
+  answersJson  Json
+  passed       Boolean
+  createdAt    DateTime        @default(now())
 
   @@index([userId, createdAt])
 }
