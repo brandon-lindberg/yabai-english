@@ -11,8 +11,10 @@ function rowToQuestion(r: {
   weight: number;
   cefrBand: string;
   section: string;
-  promptEn: string;
-  promptJa: string;
+  instructionEn: string;
+  instructionJa: string;
+  questionEn: string;
+  questionJa: string;
   optionsEn: unknown;
   optionsJa: unknown;
   correctIndex: number;
@@ -23,8 +25,10 @@ function rowToQuestion(r: {
     weight: r.weight,
     cefrBand: r.cefrBand as LoadedPlacementQuestion["cefrBand"],
     section: r.section as LoadedPlacementQuestion["section"],
-    promptEn: r.promptEn,
-    promptJa: r.promptJa,
+    instructionEn: r.instructionEn,
+    instructionJa: r.instructionJa,
+    questionEn: r.questionEn,
+    questionJa: r.questionJa,
     optionsEn: r.optionsEn as string[],
     optionsJa: r.optionsJa as string[],
     correctIndex: r.correctIndex,

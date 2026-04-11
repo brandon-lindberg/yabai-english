@@ -39,11 +39,6 @@ function pad3(n: number) {
   return String(n).padStart(3, "0");
 }
 
-/** Appended so no two bank rows share the same surface EN/JA (adaptive runs can mix many items). */
-function uniqueItemTag(band: PlacementBankBand, section: PlacementBankSection, index: number) {
-  return ` — ${band}-${section}-${pad3(index)}`;
-}
-
 function grammarDefault(
   band: PlacementBankBand,
   section: PlacementBankSection,
@@ -60,48 +55,75 @@ function grammarDefault(
     const be = s === "I" ? "am" : s === "He" || s === "She" ? "is" : "are";
     const wrongBe = s === "I" ? ["is", "are"] : s === "He" || s === "She" ? ["are", "am"] : ["is", "am"];
     const mood = pick(["happy", "tired", "ready", "busy", "here"], seq);
-    const tag = uniqueItemTag(band, section, index);
-    const promptEn = `Choose the best option: "${s} ___ ${mood} today."${tag}`;
-    const promptJa = `空所に入る語を選んでください: "${s} ___ ${mood} today."${tag}`;
     const opts = buildOptionsEnJa(be, be, wrongBe, wrongBe, n);
-    return { id, weight, section: "grammar", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "grammar",
+      cefrBand: band,
+      instructionEn: "Choose the best option.",
+      instructionJa: "空所に入る語を選んでください。",
+      questionEn: `"${s} ___ ${mood} today."`,
+      questionJa: `"${s} ___ ${mood} today."`,
+      ...opts,
+    };
   }
 
   if (band === "A2") {
     const v = pick(["visit", "call", "finish", "start", "watch", "clean"], seq);
     const correct = `${v}ed`;
     const wrong = [`${v}s`, `have ${v}ed`];
-    const tag = uniqueItemTag(band, section, index);
-    const promptEn = `Choose the best option: "Yesterday we ___ our manager after lunch."${tag}`;
-    const promptJa = `空所に入る語を選んでください: "Yesterday we ___ our manager after lunch."${tag}`;
     const opts = buildOptionsEnJa(correct, correct, wrong, wrong, n);
-    return { id, weight, section: "grammar", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "grammar",
+      cefrBand: band,
+      instructionEn: "Choose the best option.",
+      instructionJa: "空所に入る語を選んでください。",
+      questionEn: `"Yesterday we ___ our manager after lunch."`,
+      questionJa: `"Yesterday we ___ our manager after lunch."`,
+      ...opts,
+    };
   }
 
   if (band === "B1") {
     const correct = "rains";
     const wrong = ["will rain", "rained"];
     const day = pick(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], seq);
-    const tag = uniqueItemTag(band, section, index);
-    const promptEn = `Choose the best option: "If it ___ on ${day}, we will cancel the outdoor session."${tag}`;
-    const promptJa = `条件文の空所: "If it ___ on ${day}, we will cancel the outdoor session."${tag}`;
     const opts = buildOptionsEnJa(correct, correct, wrong, wrong, n);
-    return { id, weight, section: "grammar", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "grammar",
+      cefrBand: band,
+      instructionEn: "Choose the best option for the conditional.",
+      instructionJa: "条件文の空所に入る語を選んでください。",
+      questionEn: `"If it ___ on ${day}, we will cancel the outdoor session."`,
+      questionJa: `"If it ___ on ${day}, we will cancel the outdoor session."`,
+      ...opts,
+    };
   }
 
   if (band === "B2") {
     const correct = "had the report been submitted";
     const wrong = ["the report had been submitted", "was the report submitted"];
-    const tag = uniqueItemTag(band, section, index);
-    const promptEn = `Choose the best option: "___ before the deadline, the team could relax."${tag}`;
-    const promptJa = `倒置を含む文の空所を選んでください。${tag}`;
     const opts = buildOptionsEnJa(correct, correct, wrong, wrong, n);
-    return { id, weight, section: "grammar", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "grammar",
+      cefrBand: band,
+      instructionEn: "Choose the best option.",
+      instructionJa: "倒置を含む文の空所を選んでください。",
+      questionEn: `"___ before the deadline, the team could relax."`,
+      questionJa: `"___ before the deadline, the team could relax."`,
+      ...opts,
+    };
   }
 
   const correct = "were I in your position";
   const wrong = ["if I would be in your position", "was I in your position"];
-  const tag = uniqueItemTag(band, section, index);
   const consequents = [
     "I would delay the announcement.",
     "I would reject that timeline.",
@@ -113,10 +135,18 @@ function grammarDefault(
     "I would walk away from that deal.",
   ];
   const tail = consequents[(index - 1) % consequents.length]!;
-  const promptEn = `Choose the best option: "___ , ${tail}"${tag}`;
-  const promptJa = `仮定法の自然な形を選んでください（文脈 ${index}）。${tag}`;
   const opts = buildOptionsEnJa(correct, correct, wrong, wrong, n);
-  return { id, weight, section: "grammar", cefrBand: band, promptEn, promptJa, ...opts };
+  return {
+    id,
+    weight,
+    section: "grammar",
+    cefrBand: band,
+    instructionEn: "Choose the best option.",
+    instructionJa: `仮定法の自然な形を選んでください（文脈 ${index}）。`,
+    questionEn: `"___ , ${tail}"`,
+    questionJa: `"___ , ${tail}"`,
+    ...opts,
+  };
 }
 
 const VOCAB_SETS: Record<
@@ -172,14 +202,20 @@ function vocabularyDefault(
   const slot = index - 1;
   const set = pick(sets, slot);
   const n = seq * 13 + band.length;
-  const tag = uniqueItemTag(band, section, index);
-  // 100 slots per band share a short gloss list; disambiguate repeats for the bank + tests.
   const glossEn = slot < sets.length ? set.en : `${set.en} (set ${index})`;
   const glossJa = slot < sets.length ? set.ja : `${set.ja}（セット ${index}）`;
-  const promptEn = `Choose the word or phrase closest in meaning to "${glossEn}".${tag}`;
-  const promptJa = `「${glossJa}」に最も近い語句を選んでください。${tag}`;
   const opts = buildOptionsEnJa(set.correct, set.cj, set.wrongEn, set.wrongJa, n);
-  return { id, weight, section: "vocabulary", cefrBand: band, promptEn, promptJa, ...opts };
+  return {
+    id,
+    weight,
+    section: "vocabulary",
+    cefrBand: band,
+    instructionEn: "Choose the word or phrase closest in meaning to the following.",
+    instructionJa: "次の語句の意味に最も近い英語を選んでください。",
+    questionEn: `"${glossEn}"`,
+    questionJa: `「${glossJa}」`,
+    ...opts,
+  };
 }
 
 function readingDefault(
@@ -191,13 +227,10 @@ function readingDefault(
 ): PlacementBankFile {
   const weight = WEIGHT[band];
   const n = seq + 100;
-  const tag = uniqueItemTag(band, section, index);
 
   if (band === "A1") {
     const open = 10 + (seq % 6);
     const close = open + 8 + (seq % 3);
-    const promptEn = `Read: "The shop opens at ${open}:00 and closes at ${close}:00." What time does it close?${tag}`;
-    const promptJa = `読解: 開店${open}時、閉店は何時？${tag}`;
     const correct = `${close}:00`;
     const opts = buildOptionsEnJa(
       correct,
@@ -206,28 +239,43 @@ function readingDefault(
       [`${close - 1}:00`, `${close + 1}:00`],
       n,
     );
-    return { id, weight, section: "reading", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "reading",
+      cefrBand: band,
+      instructionEn: "Read the passage, then answer the question.",
+      instructionJa: "英文を読んで、質問に答えてください。",
+      questionEn: `"The shop opens at ${open}:00 and closes at ${close}:00." What time does it close?`,
+      questionJa: `開店${open}時、閉店は何時ですか？`,
+      ...opts,
+    };
   }
 
   if (band === "A2") {
     const hour = 3 + (seq % 5);
-    const promptEn = `Read: "Please send the invoice by Monday ${hour} p.m." When is the deadline?${tag}`;
-    const promptJa = `読解: "月曜${hour}時までに請求書を" 締切は？${tag}`;
-    const correct = `Monday ${hour} p.m.`;
     const opts = buildOptionsEnJa(
-      correct,
+      `Monday ${hour} p.m.`,
       `月曜${hour}時`,
       ["Tuesday noon", "Friday 5 p.m."],
       ["火曜正午", "金曜17時"],
       n,
     );
-    return { id, weight, section: "reading", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "reading",
+      cefrBand: band,
+      instructionEn: "Read the passage, then answer the question.",
+      instructionJa: "英文を読んで、質問に答えてください。",
+      questionEn: `"Please send the invoice by Monday ${hour} p.m." When is the deadline?`,
+      questionJa: `"月曜${hour}時までに請求書を送ってください。" 締切はいつですか？`,
+      ...opts,
+    };
   }
 
   if (band === "B1") {
     const pct = 6 + (seq % 8);
-    const promptEn = `Text: "Sales rose ${pct}%, mostly from repeat customers." What mainly drove sales?${tag}`;
-    const promptJa = `文章: 売上${pct}%増、主因は？${tag}`;
     const opts = buildOptionsEnJa(
       "Repeat customers",
       "リピート顧客",
@@ -235,12 +283,20 @@ function readingDefault(
       ["新規広告", "値下げ"],
       n,
     );
-    return { id, weight, section: "reading", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "reading",
+      cefrBand: band,
+      instructionEn: "Read the passage, then answer the question.",
+      instructionJa: "文章を読んで、質問に答えてください。",
+      questionEn: `"Sales rose ${pct}%, mostly from repeat customers." What mainly drove sales?`,
+      questionJa: `売上が${pct}%増えましたが、主な要因は何でしたか？`,
+      ...opts,
+    };
   }
 
   if (band === "B2") {
-    const promptEn = `Text: "The guidance is influential though not legally binding (case ${seq + 1})." Which is true?${tag}`;
-    const promptJa = `文章: 指針は法的拘束力はないが影響大（ケース${seq + 1}）。正しいのは？${tag}`;
     const opts = buildOptionsEnJa(
       "Not binding but influential",
       "拘束力はないが影響は大きい",
@@ -248,7 +304,17 @@ function readingDefault(
       ["法的に拘束", "無関係"],
       n,
     );
-    return { id, weight, section: "reading", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "reading",
+      cefrBand: band,
+      instructionEn: "Read the passage, then answer the question.",
+      instructionJa: "文章を読んで、質問に答えてください。",
+      questionEn: `"The guidance is influential though not legally binding (case ${seq + 1})." Which is true?`,
+      questionJa: `指針は法的拘束力はないが影響大（ケース${seq + 1}）。正しいのはどれですか？`,
+      ...opts,
+    };
   }
 
   const passagesEn = [
@@ -274,8 +340,6 @@ function readingDefault(
   const pi = (index - 1) % passagesEn.length;
   const bodyEn = passagesEn[pi]!;
   const bodyJa = passagesJa[pi]!;
-  const promptEn = `Text: "${bodyEn}" Which inference is best?${tag}`;
-  const promptJa = `文章: ${bodyJa} 最も妥当な推論は？${tag}`;
   const opts = buildOptionsEnJa(
     "Internal outcomes differed by region",
     "地域ごとに実施状況が異なった",
@@ -283,7 +347,17 @@ function readingDefault(
     ["全地域で同程度に成功", "施策は終了済み"],
     n,
   );
-  return { id, weight, section: "reading", cefrBand: band, promptEn, promptJa, ...opts };
+  return {
+    id,
+    weight,
+    section: "reading",
+    cefrBand: band,
+    instructionEn: "Read the passage, then answer the question.",
+    instructionJa: "文章を読んで、質問に答えてください。",
+    questionEn: `"${bodyEn}" Which inference is best?`,
+    questionJa: `${bodyJa} 最も妥当な推論はどれですか？`,
+    ...opts,
+  };
 }
 
 function functionalDefault(
@@ -295,19 +369,25 @@ function functionalDefault(
 ): PlacementBankFile {
   const weight = WEIGHT[band];
   const n = seq * 17 + 3;
-  const tag = uniqueItemTag(band, section, index);
 
   if (band === "A1") {
     const correct = "How much is this, please?";
-    const promptEn = `Which is the most polite way to ask the price in a store (situation ${index})?${tag}`;
-    const promptJa = `店で値段を丁寧に聞く表現として最も自然なのは？（場面 ${index}）${tag}`;
     const opts = buildOptionsEnJa(correct, correct, ["Price?", "Tell me price."], ["値段？", "言って。"], n);
-    return { id, weight, section: "functional", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "functional",
+      cefrBand: band,
+      instructionEn: "Choose the most appropriate option.",
+      instructionJa: "最も適切な表現を選んでください。",
+      questionEn: `Which is the most polite way to ask the price in a store (situation ${index})?`,
+      questionJa: `店で値段を丁寧に聞く表現として最も自然なのは？（場面 ${index}）`,
+      ...opts,
+    };
   }
 
   if (band === "A2") {
     const correct = "Sorry, I'm running five minutes late.";
-    // Avoid 5 minutes on generated rows so curated pb-A2-functional-001 ("5 minutes") stays unique.
     const minutes = 6 + ((index * 2 - 2) % 20);
     const meetingContextsEn = [
       "a client call",
@@ -332,26 +412,50 @@ function functionalDefault(
     const ci = (index - 1) % meetingContextsEn.length;
     const ctxEn = meetingContextsEn[ci]!;
     const ctxJa = meetingContextsJa[ci]!;
-    const promptEn = `Which message is most appropriate if you will be ${minutes} minutes late to ${ctxEn}?${tag}`;
-    const promptJa = `「${ctxJa}」に${minutes}分遅れる連絡として最も適切なのは？${tag}`;
     const opts = buildOptionsEnJa(correct, correct, ["Late me.", "You start."], ["遅れた。", "先に始めて。"], n);
-    return { id, weight, section: "functional", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "functional",
+      cefrBand: band,
+      instructionEn: "Choose the most appropriate option.",
+      instructionJa: "最も適切な表現を選んでください。",
+      questionEn: `Which message is most appropriate if you will be ${minutes} minutes late to ${ctxEn}?`,
+      questionJa: `「${ctxJa}」に${minutes}分遅れる連絡として最も適切なのは？`,
+      ...opts,
+    };
   }
 
   if (band === "B1") {
     const correct = "I see your point, but I have a different view.";
-    const promptEn = `Which is the most appropriate way to disagree politely in a meeting (case ${index})?${tag}`;
-    const promptJa = `会議で丁寧に意見に反対する表現として最も適切なのは？（ケース ${index}）${tag}`;
     const opts = buildOptionsEnJa(correct, correct, ["You're wrong.", "No way."], ["間違い。", "無理。"], n);
-    return { id, weight, section: "functional", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "functional",
+      cefrBand: band,
+      instructionEn: "Choose the most appropriate option.",
+      instructionJa: "最も適切な表現を選んでください。",
+      questionEn: `Which is the most appropriate way to disagree politely in a meeting (case ${index})?`,
+      questionJa: `会議で丁寧に意見に反対する表現として最も適切なのは？（ケース ${index}）`,
+      ...opts,
+    };
   }
 
   if (band === "B2") {
     const correct = "We can extend support, provided timelines align.";
-    const promptEn = `Which sentence best shows concession plus condition in negotiation (scenario ${index})?${tag}`;
-    const promptJa = `交渉で譲歩しつつ条件を示す文として最も適切なのは？（シナリオ ${index}）${tag}`;
     const opts = buildOptionsEnJa(correct, correct, ["Discount now.", "No deal."], ["今すぐ値引き。", "取引なし。"], n);
-    return { id, weight, section: "functional", cefrBand: band, promptEn, promptJa, ...opts };
+    return {
+      id,
+      weight,
+      section: "functional",
+      cefrBand: band,
+      instructionEn: "Choose the most appropriate option.",
+      instructionJa: "最も適切な表現を選んでください。",
+      questionEn: `Which sentence best shows concession plus condition in negotiation (scenario ${index})?`,
+      questionJa: `交渉で譲歩しつつ条件を示す文として最も適切なのは？（シナリオ ${index}）`,
+      ...opts,
+    };
   }
 
   const correct =
@@ -379,10 +483,18 @@ function functionalDefault(
   const ai = (index - 1) % complaintAnglesEn.length;
   const angleEn = complaintAnglesEn[ai]!;
   const angleJa = complaintAnglesJa[ai]!;
-  const promptEn = `Choose the most appropriate response to a customer complaint ${angleEn}.${tag}`;
-  const promptJa = `次の苦情（${angleJa}）に対する返信として最も適切な文を選んでください。${tag}`;
   const opts = buildOptionsEnJa(correct, correct, ["Not our fault.", "Calm down."], ["こちらのせいでは。", "落ち着いて。"], n);
-  return { id, weight, section: "functional", cefrBand: band, promptEn, promptJa, ...opts };
+  return {
+    id,
+    weight,
+    section: "functional",
+    cefrBand: band,
+    instructionEn: "Choose the most appropriate response to a customer complaint.",
+    instructionJa: "顧客の苦情に対する返信として最も適切な文を選んでください。",
+    questionEn: `The customer is complaining ${angleEn}. Which reply is best?`,
+    questionJa: `次の内容の苦情: ${angleJa}。どの返信が最も適切ですか？`,
+    ...opts,
+  };
 }
 
 /**

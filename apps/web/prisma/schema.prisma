@@ -371,16 +371,18 @@ model Notification {
 
 /// Authoritative placement MCQ bank (loaded by API only; never bundled to the browser).
 model PlacementBankQuestion {
-  id           String  @id
-  stemId       String?
-  weight       Int
-  cefrBand     String
-  section      String
-  promptEn     String  @db.Text
-  promptJa     String  @db.Text
-  optionsEn    Json
-  optionsJa    Json
-  correctIndex Int
+  id             String @id
+  stemId         String?
+  weight           Int
+  cefrBand       String
+  section        String
+  instructionEn  String @db.Text
+  instructionJa  String @db.Text
+  questionEn     String @db.Text
+  questionJa     String @db.Text
+  optionsEn      Json
+  optionsJa      Json
+  correctIndex   Int
 
   @@index([cefrBand, section])
 }

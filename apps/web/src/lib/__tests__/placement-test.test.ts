@@ -11,6 +11,12 @@ import {
   type PlacementQuestion,
 } from "@/lib/placement-test";
 
+function placementEnglishSurfaceKey(q: PlacementQuestion) {
+  return `${q.instructionEn.trim()}\n${q.questionEn.trim()}`
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
 let PLACEMENT_QUESTIONS: PlacementQuestion[] = [];
 
 beforeAll(async () => {
@@ -41,7 +47,7 @@ describe("placement test quality", () => {
   test("does not reuse the same English prompt under two different CEFR bands", () => {
     const promptToBands = new Map<string, Set<string>>();
     for (const q of PLACEMENT_QUESTIONS) {
-      const key = q.promptEn.trim();
+      const key = placementEnglishSurfaceKey(q);
       if (!promptToBands.has(key)) promptToBands.set(key, new Set());
       promptToBands.get(key)!.add(q.cefrBand);
     }

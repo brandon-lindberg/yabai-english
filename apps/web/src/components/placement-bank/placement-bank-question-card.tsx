@@ -23,9 +23,17 @@ export function PlacementBankQuestionCard({
       <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
         {question.cefrBand} · {question.section} · {question.id}
       </p>
-      <p className="mt-2 text-base text-neutral-900 dark:text-neutral-100">{question.promptEn}</p>
+      <p className="mt-2 text-sm font-medium text-neutral-600 dark:text-neutral-400">
+        {question.instructionEn}
+      </p>
+      <p className="mt-2 text-base text-neutral-900 dark:text-neutral-100">{question.questionEn}</p>
       {showJapanese ? (
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{question.promptJa}</p>
+        <>
+          <p className="mt-2 text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            {question.instructionJa}
+          </p>
+          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{question.questionJa}</p>
+        </>
       ) : null}
       <ul className="mt-3 list-inside list-decimal space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
         {question.optionsEn.map((opt, i) => (

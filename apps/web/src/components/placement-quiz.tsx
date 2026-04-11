@@ -243,8 +243,11 @@ export function PlacementQuiz() {
       </p>
       {!objectiveComplete && q ? (
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-          <p className="text-base font-medium text-foreground">
-            {isJa ? q.promptJa : q.promptEn}
+          <p className="text-sm font-medium text-muted">
+            {isJa ? q.instructionJa : q.instructionEn}
+          </p>
+          <p className="mt-3 text-base font-semibold text-foreground">
+            {isJa ? q.questionJa : q.questionEn}
           </p>
           <ul className="mt-4 space-y-2">
             {(isJa ? q.optionsJa : q.optionsEn).map((opt, idx) => (

@@ -1,21 +1,37 @@
 import { randomInt } from "crypto";
 import type { PlacementQuestion } from "@/lib/placement-test";
 
-/** Matches disambiguators appended by the placement bank scaffold (` — A1-grammar-001`). */
+/** Legacy: tags were never learner-facing; strip if present in old rows. */
 const ITEM_TAG_EN = /\s+—\s+(A1|A2|B1|B2|C1)-(grammar|vocabulary|reading|functional)-\d{3}$/i;
 
 /**
- * Normalized English prompt for deduplication (what the learner reads, ignoring trailing item tags).
+ * Normalized English **question line** for deduplication (instruction is shared across templates).
  * Used by `chooseNextAdaptiveQuestion` so two bank rows with different ids cannot show the same body twice in one attempt.
  */
 export function placementQuestionPromptDedupeKey(
-  question: Pick<PlacementQuestion, "promptEn">,
+  question: Pick<PlacementQuestion, "questionEn">,
 ): string {
-  return question.promptEn
+  return question.questionEn
     .replace(ITEM_TAG_EN, "")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
+}
+
+function normalizeChoiceLine(s: string) {
+  return s.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/**
+ * Fingerprints the visible MCQ choices (EN + JA). Same multiset of lines = same "answers" to the learner
+ * even when the prompt wording differs — must not appear twice in one attempt.
+ */
+export function placementQuestionChoicesDedupeKey(
+  question: Pick<PlacementQuestion, "optionsEn" | "optionsJa">,
+): string {
+  const en = [...question.optionsEn].map(normalizeChoiceLine).sort().join("\u001f");
+  const ja = [...question.optionsJa].map(normalizeChoiceLine).sort().join("\u001f");
+  return `${en}\u001e${ja}`;
 }
 
 export type SectionKey = PlacementQuestion["section"];
@@ -89,6 +105,16 @@ function askedPromptDedupeKeys(state: PlacementAdaptiveState, pool: PlacementQue
   return keys;
 }
 
+function askedChoicesDedupeKeys(state: PlacementAdaptiveState, pool: PlacementQuestion[]): Set<string> {
+  const byId = new Map(pool.map((q) => [q.id, q]));
+  const keys = new Set<string>();
+  for (const id of state.askedQuestionIds) {
+    const q = byId.get(id);
+    if (q) keys.add(placementQuestionChoicesDedupeKey(q));
+  }
+  return keys;
+}
+
 function chooseSection(state: PlacementAdaptiveState): SectionKey | null {
   const candidates = SECTION_ORDER.filter(
     (section) => state.sectionState[section].asked < state.perSectionMax,
@@ -114,6 +140,7 @@ export function chooseNextAdaptiveQuestion(
   const asked = new Set(state.askedQuestionIds);
   const askedStems = new Set(state.askedStemIds);
   const askedPromptKeys = askedPromptDedupeKeys(state, pool);
+  const askedChoicesKeys = askedChoicesDedupeKeys(state, pool);
   const avoid = new Set(avoidIds);
   const available = pool.filter(
     (q) =>
@@ -121,6 +148,7 @@ export function chooseNextAdaptiveQuestion(
       !asked.has(q.id) &&
       !askedStems.has(placementQuestionStemKey(q)) &&
       !askedPromptKeys.has(placementQuestionPromptDedupeKey(q)) &&
+      !askedChoicesKeys.has(placementQuestionChoicesDedupeKey(q)) &&
       !avoid.has(q.id),
   );
   const fallback = pool.filter(
@@ -128,7 +156,8 @@ export function chooseNextAdaptiveQuestion(
       q.section === section &&
       !asked.has(q.id) &&
       !askedStems.has(placementQuestionStemKey(q)) &&
-      !askedPromptKeys.has(placementQuestionPromptDedupeKey(q)),
+      !askedPromptKeys.has(placementQuestionPromptDedupeKey(q)) &&
+      !askedChoicesKeys.has(placementQuestionChoicesDedupeKey(q)),
   );
   const source = available.length > 0 ? available : fallback;
   if (source.length === 0) return null;

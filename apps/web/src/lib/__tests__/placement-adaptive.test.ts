@@ -4,6 +4,7 @@ import {
   buildInitialAdaptiveState,
   chooseNextAdaptiveQuestion,
   computeNextTargetBand,
+  placementQuestionChoicesDedupeKey,
   placementQuestionPromptDedupeKey,
   placementQuestionStemKey,
 } from "@/lib/placement-adaptive";
@@ -86,6 +87,23 @@ describe("placement adaptive engine", () => {
     expect(state.askedQuestionIds.length).toBe(state.maxQuestions);
   });
 
+  test("never repeats the same MCQ choice set in one attempt (live bank)", () => {
+    let state = buildInitialAdaptiveState();
+    const seenChoices = new Set<string>();
+
+    while (state.askedQuestionIds.length < state.maxQuestions) {
+      const next = chooseNextAdaptiveQuestion(state, PLACEMENT_QUESTIONS);
+      expect(next).toBeTruthy();
+      if (!next) break;
+      const ck = placementQuestionChoicesDedupeKey(next);
+      expect(seenChoices.has(ck)).toBe(false);
+      seenChoices.add(ck);
+      state = applyAdaptiveAnswer(state, next, true);
+    }
+
+    expect(state.askedQuestionIds.length).toBe(state.maxQuestions);
+  });
+
   test("3 correct, 1 incorrect, 1 correct: 6th question is vocabulary at target band B1", () => {
     const bandScore = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5 } as const;
     let state = buildInitialAdaptiveState();
@@ -120,11 +138,13 @@ describe("placement adaptive engine", () => {
 
 function synthQuestion(
   overrides: Partial<PlacementQuestion> &
-    Pick<PlacementQuestion, "id" | "section" | "cefrBand" | "promptEn" | "weight">,
+    Pick<PlacementQuestion, "id" | "section" | "cefrBand" | "questionEn" | "weight">,
 ): PlacementQuestion {
   return {
     stemId: overrides.stemId ?? overrides.id,
-    promptJa: "テスト用",
+    instructionEn: "Choose the best option.",
+    instructionJa: "テスト用の指示",
+    questionJa: "テスト用の質問",
     optionsEn: ["a", "b", "c"],
     optionsJa: ["a", "b", "c"],
     correctIndex: 0,
@@ -133,7 +153,7 @@ function synthQuestion(
 }
 
 describe("English prompt deduplication (synthetic pool)", () => {
-  test("does not return a second grammar item whose body only differs by the item tag", () => {
+  test("does not return a second grammar item with the same question line as an already-asked row", () => {
     const body = "Shared grammar stem text for dedupe test.";
     const pool: PlacementQuestion[] = [
       synthQuestion({
@@ -142,7 +162,9 @@ describe("English prompt deduplication (synthetic pool)", () => {
         section: "grammar",
         cefrBand: "A2",
         weight: 1,
-        promptEn: `${body} — A2-grammar-001`,
+        questionEn: body,
+        optionsEn: ["ga1", "ga2", "ga3"],
+        optionsJa: ["が1", "が2", "が3"],
       }),
       synthQuestion({
         id: "dup-grammar-b",
@@ -150,7 +172,9 @@ describe("English prompt deduplication (synthetic pool)", () => {
         section: "grammar",
         cefrBand: "A2",
         weight: 1,
-        promptEn: `${body} — A2-grammar-002`,
+        questionEn: body,
+        optionsEn: ["gb1", "gb2", "gb3"],
+        optionsJa: ["ぎ1", "ぎ2", "ぎ3"],
       }),
       synthQuestion({
         id: "uniq-grammar-c",
@@ -158,7 +182,9 @@ describe("English prompt deduplication (synthetic pool)", () => {
         section: "grammar",
         cefrBand: "A2",
         weight: 1,
-        promptEn: "Distinct grammar copy for this pool. — A2-grammar-003",
+        questionEn: "Distinct grammar copy for this pool.",
+        optionsEn: ["gc1", "gc2", "gc3"],
+        optionsJa: ["ぐ1", "ぐ2", "ぐ3"],
       }),
       synthQuestion({
         id: "vocab-1",
@@ -166,7 +192,9 @@ describe("English prompt deduplication (synthetic pool)", () => {
         section: "vocabulary",
         cefrBand: "A2",
         weight: 1,
-        promptEn: "Vocabulary pick one. — A2-vocabulary-001",
+        questionEn: "Vocabulary pick one.",
+        optionsEn: ["v1", "v2", "v3"],
+        optionsJa: ["ぶ1", "ぶ2", "ぶ3"],
       }),
       synthQuestion({
         id: "read-1",
@@ -174,7 +202,9 @@ describe("English prompt deduplication (synthetic pool)", () => {
         section: "reading",
         cefrBand: "A2",
         weight: 1,
-        promptEn: "Reading pick one. — A2-reading-001",
+        questionEn: "Reading pick one.",
+        optionsEn: ["r1", "r2", "r3"],
+        optionsJa: ["あ1", "あ2", "あ3"],
       }),
       synthQuestion({
         id: "func-1",
@@ -182,7 +212,9 @@ describe("English prompt deduplication (synthetic pool)", () => {
         section: "functional",
         cefrBand: "A2",
         weight: 1,
-        promptEn: "Functional pick one. — A2-functional-001",
+        questionEn: "Functional pick one.",
+        optionsEn: ["f1", "f2", "f3"],
+        optionsJa: ["ふ1", "ふ2", "ふ3"],
       }),
     ];
 
@@ -198,5 +230,90 @@ describe("English prompt deduplication (synthetic pool)", () => {
     expect(fifth?.section).toBe("grammar");
     expect(fifth?.id).toBe("uniq-grammar-c");
     expect(fifth?.id).not.toBe("dup-grammar-b");
+  });
+});
+
+describe("MCQ choice deduplication (synthetic pool)", () => {
+  test("does not return a second grammar row with the same option lines as an already-asked row", () => {
+    const optsEn = ["Reuse opt A", "Reuse opt B", "Reuse opt C"];
+    const optsJa = ["再利用A", "再利用B", "再利用C"];
+    const pool: PlacementQuestion[] = [
+      synthQuestion({
+        id: "choice-grammar-1",
+        stemId: "stem-c1",
+        section: "grammar",
+        cefrBand: "A2",
+        weight: 1,
+        questionEn: "Wording one for same choices.",
+        optionsEn: optsEn,
+        optionsJa: optsJa,
+        correctIndex: 0,
+      }),
+      synthQuestion({
+        id: "choice-grammar-2",
+        stemId: "stem-c2",
+        section: "grammar",
+        cefrBand: "A2",
+        weight: 1,
+        questionEn: "Different wording but identical answers on screen.",
+        optionsEn: [...optsEn],
+        optionsJa: [...optsJa],
+        correctIndex: 1,
+      }),
+      synthQuestion({
+        id: "choice-grammar-3",
+        stemId: "stem-c3",
+        section: "grammar",
+        cefrBand: "A2",
+        weight: 1,
+        questionEn: "Unique choices wording.",
+        optionsEn: ["Only", "Other", "Strings"],
+        optionsJa: ["だけ", "別", "列"],
+        correctIndex: 0,
+      }),
+      synthQuestion({
+        id: "vocab-choice",
+        stemId: "vc1",
+        section: "vocabulary",
+        cefrBand: "A2",
+        weight: 1,
+        questionEn: "Vocab with unique opts.",
+        optionsEn: ["v1", "v2", "v3"],
+        optionsJa: ["ぶ1", "ぶ2", "ぶ3"],
+      }),
+      synthQuestion({
+        id: "read-choice",
+        stemId: "rc1",
+        section: "reading",
+        cefrBand: "A2",
+        weight: 1,
+        questionEn: "Reading unique opts.",
+        optionsEn: ["r1", "r2", "r3"],
+        optionsJa: ["あ1", "あ2", "あ3"],
+      }),
+      synthQuestion({
+        id: "func-choice",
+        stemId: "fc1",
+        section: "functional",
+        cefrBand: "A2",
+        weight: 1,
+        questionEn: "Functional unique opts.",
+        optionsEn: ["f1", "f2", "f3"],
+        optionsJa: ["ふ1", "ふ2", "ふ3"],
+      }),
+    ];
+
+    const firstGrammar = pool[0]!;
+    let state = applyAdaptiveAnswer(buildInitialAdaptiveState(), firstGrammar, true);
+    for (let i = 0; i < 3; i++) {
+      const next = chooseNextAdaptiveQuestion(state, pool);
+      expect(next, `step ${i + 2}`).toBeTruthy();
+      state = applyAdaptiveAnswer(state, next!, true);
+    }
+
+    const fifth = chooseNextAdaptiveQuestion(state, pool);
+    expect(fifth?.section).toBe("grammar");
+    expect(fifth?.id).toBe("choice-grammar-3");
+    expect(fifth?.id).not.toBe("choice-grammar-2");
   });
 });

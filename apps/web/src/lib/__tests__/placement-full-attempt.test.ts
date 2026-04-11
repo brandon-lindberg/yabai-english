@@ -30,6 +30,7 @@ import {
   applyAdaptiveAnswer,
   buildInitialAdaptiveState,
   chooseNextAdaptiveQuestion,
+  placementQuestionChoicesDedupeKey,
   placementQuestionPromptDedupeKey,
   placementQuestionStemKey,
 } from "@/lib/placement-adaptive";
@@ -42,18 +43,9 @@ beforeAll(async () => {
   pool = await loadPlacementQuestionBankForTests();
 }, 120_000);
 
-/** Strip trailing ` — A1-grammar-001` style disambiguators before comparing prompt bodies. */
-const ITEM_TAG_EN = /\s+—\s+(A1|A2|B1|B2|C1)-(grammar|vocabulary|reading|functional)-\d{3}$/i;
-
-function stripPlacementItemTag(en: string) {
-  return en.replace(ITEM_TAG_EN, "").trim();
-}
-
-/** Gloss inside `... meaning to "X"` for scaffold-style vocabulary prompts. */
-function vocabularyHeadwordGloss(en: string): string | null {
-  const m = stripPlacementItemTag(en).match(
-    /closest in meaning to\s+"((?:\\"|[^"])+)"/i,
-  );
+/** Gloss from vocabulary `questionEn` (quoted headword / phrase). */
+function vocabularyHeadwordGloss(questionEn: string): string | null {
+  const m = questionEn.match(/^"((?:\\"|[^"])+)"$/);
   return m ? m[1]!.replace(/\\"/g, '"').toLowerCase() : null;
 }
 
@@ -72,22 +64,26 @@ function assertNoNearDuplicatePrompts(asked: PlacementQuestion[]) {
         continue;
       }
       if (a.section === "vocabulary" && b.section === "vocabulary") {
-        const ga = vocabularyHeadwordGloss(a.promptEn);
-        const gb = vocabularyHeadwordGloss(b.promptEn);
+        const ga = vocabularyHeadwordGloss(a.questionEn);
+        const gb = vocabularyHeadwordGloss(b.questionEn);
         if (ga && gb && ga === gb) {
           throw new Error(
-            `Same vocabulary gloss in one attempt:\n---\n${a.id}: ${a.promptEn}\n---\n${b.id}: ${b.promptEn}`,
+            `Same vocabulary gloss in one attempt:\n---\n${a.id}: ${a.questionEn}\n---\n${b.id}: ${b.questionEn}`,
           );
         }
         continue;
       }
-      const bodyA = stripPlacementItemTag(a.promptEn);
-      const bodyB = stripPlacementItemTag(b.promptEn);
+      // Functional items share instruction lines by design; dedupe is by `questionEn` + choice set.
+      if (a.section === "functional" && b.section === "functional") {
+        continue;
+      }
+      const bodyA = a.questionEn.trim();
+      const bodyB = b.questionEn.trim();
       const dice = bigramDice(bodyA, bodyB);
-      // 0.90+ catches cloned templates; 0.88 flags distinct C1 functional angles that share a long shared prefix.
+      // 0.90+ catches cloned templates on the question line (instruction is often shared).
       if (dice >= 0.9 && bodyA.length > 35 && bodyB.length > 35) {
         throw new Error(
-          `Similar English prompt bodies (dice=${dice.toFixed(2)}):\n---\n${a.id}: ${a.promptEn}\n---\n${b.id}: ${b.promptEn}`,
+          `Similar English question lines (dice=${dice.toFixed(2)}):\n---\n${a.id}: ${bodyA}\n---\n${b.id}: ${bodyB}`,
         );
       }
     }
@@ -143,10 +139,12 @@ function assertNoDuplicates(asked: PlacementQuestion[]) {
   const ids = asked.map((q) => q.id);
   const stems = asked.map((q) => placementQuestionStemKey(q));
   const promptBodies = asked.map((q) => placementQuestionPromptDedupeKey(q));
+  const choiceSets = asked.map((q) => placementQuestionChoicesDedupeKey(q));
 
   expect(new Set(ids).size).toBe(asked.length);
   expect(new Set(stems).size).toBe(asked.length);
   expect(new Set(promptBodies).size).toBe(asked.length);
+  expect(new Set(choiceSets).size).toBe(asked.length);
   assertNoNearDuplicatePrompts(asked);
 }
 
@@ -161,7 +159,7 @@ describe("full placement attempt (24 adaptive)", () => {
     delete rng.__placementRandomIntN;
   });
 
-  test("all correct: 0 duplicate ids, stems, prompt bodies; no near-duplicate EN bodies", () => {
+  test("all correct: 0 duplicate ids, stems, prompt bodies, choice sets; no near-duplicate EN bodies", () => {
     const asked = simulateFullAttempt(pool, () => true);
     assertNoDuplicates(asked);
   });

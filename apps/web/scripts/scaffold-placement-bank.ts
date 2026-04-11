@@ -11,12 +11,21 @@ import {
   PLACEMENT_QUESTIONS_PER_BAND_SECTION,
 } from "../src/lib/placement-bank/constants";
 import { generateDefaultPlacementQuestion } from "../src/lib/placement-bank/generate-default-question";
+import { splitLegacyPromptsToPresentation } from "../src/lib/placement-bank/presentation-fields";
 
 /** Run from apps/web: `yarn placement-bank:scaffold` */
 const WEB_ROOT = process.cwd();
 const DATA_ROOT = path.join(WEB_ROOT, "data", "placement-bank");
 
-const CURATED: Record<string, PlacementBankFile> = {
+type CuratedLegacyRow = Omit<
+  PlacementBankFile,
+  "instructionEn" | "instructionJa" | "questionEn" | "questionJa"
+> & {
+  promptEn: string;
+  promptJa: string;
+};
+
+const CURATED_LEGACY: Record<string, CuratedLegacyRow> = {
   "A1/grammar/001": {
     id: "pb-A1-grammar-001",
     weight: 1,
@@ -392,23 +401,16 @@ const CURATED: Record<string, PlacementBankFile> = {
   },
 };
 
-function tagSuffixFromId(id: string) {
-  return ` — ${id.replace(/^pb-/, "")}`;
+function curatedToBankFile(row: CuratedLegacyRow): PlacementBankFile {
+  const { promptEn, promptJa, ...rest } = row;
+  return { ...rest, ...splitLegacyPromptsToPresentation(rest.section, promptEn, promptJa) };
 }
 
-/** Match generator: every row gets a unique EN/JA suffix so adaptive runs never show duplicate stems. */
-function ensureCuratedItemTags() {
-  for (const item of Object.values(CURATED)) {
-    const tag = tagSuffixFromId(item.id);
-    if (!item.promptEn.endsWith(tag)) {
-      item.promptEn += tag;
-      item.promptJa += tag;
-    }
-  }
-}
+const CURATED: Record<string, PlacementBankFile> = Object.fromEntries(
+  Object.entries(CURATED_LEGACY).map(([k, v]) => [k, curatedToBankFile(v)]),
+);
 
 function main() {
-  ensureCuratedItemTags();
   const force = process.argv.includes("--force");
   if (!force && fs.existsSync(DATA_ROOT)) {
     console.error(`Refusing to overwrite ${DATA_ROOT} without --force`);
