@@ -1,17 +1,19 @@
 /**
- * Generate Beginner Level 1 flashcard JSON (decks + cards + exit assessment) via OpenAI.
+ * Optional: regenerate Beginner Level 1 JSON via OpenAI (gpt-5.4 by default).
+ * Default workflow in this repo is the curated template: `yarn study:build-beginner1-json`.
  *
- * Requires: OPENAI_API_KEY (e.g. apps/web/.env)
+ * Requires: OPENAI_API_KEY (apps/web/.env)
  * Optional: OPENAI_MODEL (default gpt-5.4)
  *
- * From apps/web:
- *   yarn study:generate-beginner-1 --run --write   # call API and overwrite data/study/beginner-1.json
- *   yarn study:generate-beginner-1               # print plan only
+ * From repo root or apps/web:
+ *   yarn study:generate-beginner-1 --run --write   # overwrite data/study/beginner-1.json
+ *   yarn study:generate-beginner-1                 # print plan only
  */
 import fs from "node:fs";
 import path from "node:path";
 import { StudyLevelCode } from "@prisma/client";
 import { beginnerLevelFileSchema, llmBeginnerLevelResponseSchema } from "../src/lib/study/schemas";
+import { studyPromptAuthoringGuideline } from "../src/lib/study/prompt-locale-policy";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const OUT_FILE = path.join(__dirname, "../data/study/beginner-1.json");
@@ -76,40 +78,74 @@ function assignIds(parsed: ReturnType<typeof llmBeginnerLevelResponseSchema.pars
   });
 }
 
-async function callOpenAI(apiKey: string, model: string) {
-  const system = `You are an expert English teacher for Japanese learners (CEFR A1 / Beginner 1).
+const CURRICULUM_SPEC = `
+Learner goal: "I can understand and say very basic things" (CEFR A1 / Beginner 1).
 
-Return ONE JSON object only (no markdown) with this exact shape:
+Produce exactly 8 to 10 decks in this order (merge or split only if needed to stay within deck count; keep topic focus):
+1. Greetings & Politeness — hello, good morning, thank you, sorry, please, goodbye, etc.
+2. Basic Pronouns — I, you, he, she, we, they (natural Japanese cues → English pronouns).
+3. To Be (am / is / are) — short patterns: I am a student, She is happy, etc. (Japanese prompt → English sentence).
+4. Numbers 1–20 — Japanese readings / forms → English number words.
+5. Basic Nouns (Everyday Objects) — book, pen, phone, water, bag, desk, etc.
+6. Basic Verbs — eat, drink, go, see, like, read, write, etc. (Japanese → English verb).
+7. Simple Sentences — e.g. I eat rice, I like dogs (Japanese → natural English).
+8. Yes / No Questions — e.g. Are you happy? Do you like sushi? (Japanese question → English question).
+9. Classroom English — repeat, listen, write, read, open your book, etc.
+
+Each deck: 10 to 15 flashcards. Total cards across all decks: 100 to 120 (hard cap 125).
+
+Card format:
+- frontJa: Japanese (or number in Japanese style where appropriate). Keep A1-simple; one clear recall target per card.
+- backEn: clear English answer (word, phrase, or short sentence). No romaji-only backs.
+
+Exit assessment:
+- 10 to 14 multiple-choice items drawn from the same vocabulary and patterns (mix of recognition and short production-style choices).
+- passingScore: integer 60–75 (percent correct to pass).
+
+Diversity: avoid duplicate backs; vary situations slightly; distractors in assessment must be plausible for the level.
+
+Track-wide locale policy (this level):
+${studyPromptAuthoringGuideline(StudyLevelCode.BEGINNER_1)}
+`.trim();
+
+async function callOpenAI(apiKey: string, model: string) {
+  const system = `You are an expert curriculum author for Japanese learners studying English (Beginner Level 1 / A1).
+
+Return ONE JSON object only (no markdown, no code fences) with this exact shape:
 {
   "decks": [
     {
       "titleJa": string,
       "titleEn": string,
-      "sortOrder": number (0,1,2,...),
+      "sortOrder": number,
       "cards": [
-        { "frontJa": string (Japanese word or phrase to recall), "backEn": string (English meaning), "sortOrder": number }
+        { "frontJa": string, "backEn": string, "sortOrder": number }
       ]
     }
   ],
   "assessment": {
-    "passingScore": number (60-80 recommended, percent correct to pass),
+    "passingScore": number,
     "items": [
       {
-        "id": string (optional, unique),
+        "id": string (optional),
         "promptJa": string,
         "promptEn": string,
-        "options": string[] (3-4 choices in English),
-        "correctIndex": number (0-based)
+        "options": string[] (exactly 4 English strings),
+        "correctIndex": number (0-3)
       }
     ]
   }
 }
 
-Rules:
-- Exactly 3 decks: greetings; basic words (yes/no, water, food, I/you/this/that); numbers 1-10 in Japanese reading → English number names.
-- Each deck: 8-12 cards. frontJa is Japanese (or Arabic numerals where appropriate for numbers); backEn is clear English.
-- Assessment: exactly 5 MCQ items testing the same vocabulary (no trick questions).
-- Keep vocabulary strictly beginner survival / A1 level.`;
+Hard requirements:
+- decks.length MUST be between 8 and 10 inclusive.
+- Every deck MUST have between 10 and 15 cards inclusive.
+- Sum of all cards MUST be between 100 and 120 inclusive (never above 125).
+- assessment.items.length MUST be between 10 and 14 inclusive.
+- sortOrder for decks: 0,1,2,... in order. sortOrder for cards within each deck: 0,1,2,...
+
+Curriculum specification:
+${CURRICULUM_SPEC}`;
 
   const res = await fetch(OPENAI_URL, {
     method: "POST",
@@ -125,7 +161,8 @@ Rules:
         { role: "system", content: system },
         {
           role: "user",
-          content: "Generate the full JSON for Beginner Level 1 as specified.",
+          content:
+            "Generate the complete Beginner Level 1 JSON now. Meet every numeric constraint exactly.",
         },
       ],
     }),
@@ -152,19 +189,22 @@ Rules:
 }
 
 async function main() {
-  tryLoadEnvFile(path.join(__dirname, "../.env"), false);
+  // Prefer values from apps/web/.env so a stale global OPENAI_API_KEY does not shadow the project file.
+  tryLoadEnvFile(path.join(__dirname, "../.env"), true);
   const { run, write } = parseArgs();
 
   if (!run && !write) {
     console.log(
-      "Plan: with OPENAI_API_KEY set, run: yarn study:generate-beginner-1 --run --write\n" +
+      "Optional OpenAI Beginner L1 generator.\n" +
+        "Curated bank (no API): yarn study:build-beginner1-json\n" +
+        "With OPENAI_API_KEY: yarn study:generate-beginner-1 --run --write\n" +
         `Output: ${OUT_FILE}`,
     );
     return;
   }
 
   if (write && !run) {
-    console.error("Use --run --write together (or --run only to validate without write).");
+    console.error("Use --run --write together (or --run only to print JSON without writing).");
     process.exit(1);
   }
 
@@ -180,7 +220,8 @@ async function main() {
   if (write) {
     fs.mkdirSync(path.dirname(OUT_FILE), { recursive: true });
     fs.writeFileSync(OUT_FILE, `${JSON.stringify(validated, null, 2)}\n`, "utf8");
-    console.log(`Wrote ${OUT_FILE}`);
+    const totalCards = validated.decks.reduce((s, d) => s + d.cards.length, 0);
+    console.log(`Wrote ${OUT_FILE} (${validated.decks.length} decks, ${totalCards} cards)`);
   } else {
     console.log(JSON.stringify(validated, null, 2));
   }

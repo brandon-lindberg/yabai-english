@@ -3,222 +3,945 @@
   "levelCode": "BEGINNER_1",
   "decks": [
     {
-      "id": "study-b1-deck-greetings",
-      "titleJa": "あいさつ",
-      "titleEn": "Greetings",
+      "id": "study-b1-deck-0",
+      "titleJa": "挨拶と丁寧さ",
+      "titleEn": "Greetings & Politeness",
       "sortOrder": 0,
       "cards": [
         {
-          "id": "study-b1-c-hello",
+          "id": "study-b1-d0-c0",
           "frontJa": "こんにちは",
           "backEn": "Hello / Good afternoon",
           "sortOrder": 0
         },
         {
-          "id": "study-b1-c-goodmorning",
+          "id": "study-b1-d0-c1",
           "frontJa": "おはよう",
           "backEn": "Good morning",
           "sortOrder": 1
         },
         {
-          "id": "study-b1-c-goodevening",
+          "id": "study-b1-d0-c2",
           "frontJa": "こんばんは",
           "backEn": "Good evening",
           "sortOrder": 2
         },
         {
-          "id": "study-b1-c-thanks",
+          "id": "study-b1-d0-c3",
           "frontJa": "ありがとう",
           "backEn": "Thank you",
           "sortOrder": 3
         },
         {
-          "id": "study-b1-c-yourewelcome",
-          "frontJa": "どういたしまして",
-          "backEn": "You're welcome",
+          "id": "study-b1-d0-c4",
+          "frontJa": "ありがとうございます",
+          "backEn": "Thank you very much",
           "sortOrder": 4
         },
         {
-          "id": "study-b1-c-sorry",
+          "id": "study-b1-d0-c5",
           "frontJa": "すみません",
           "backEn": "Excuse me / I'm sorry",
           "sortOrder": 5
         },
         {
-          "id": "study-b1-c-bye",
-          "frontJa": "さようなら",
-          "backEn": "Goodbye",
+          "id": "study-b1-d0-c6",
+          "frontJa": "ごめんなさい",
+          "backEn": "I'm sorry",
           "sortOrder": 6
         },
         {
-          "id": "study-b1-c-please",
-          "frontJa": "おねがいします",
-          "backEn": "Please (when asking)",
-          "sortOrder": 7
-        }
-      ]
-    },
-    {
-      "id": "study-b1-deck-basics",
-      "titleJa": "基本の言葉",
-      "titleEn": "Basic words",
-      "sortOrder": 1,
-      "cards": [
-        {
-          "id": "study-b1-c-yes",
-          "frontJa": "はい",
-          "backEn": "Yes",
-          "sortOrder": 0
-        },
-        {
-          "id": "study-b1-c-no",
-          "frontJa": "いいえ",
-          "backEn": "No",
-          "sortOrder": 1
-        },
-        {
-          "id": "study-b1-c-water",
-          "frontJa": "みず",
-          "backEn": "Water",
-          "sortOrder": 2
-        },
-        {
-          "id": "study-b1-c-food",
-          "frontJa": "たべもの",
-          "backEn": "Food",
-          "sortOrder": 3
-        },
-        {
-          "id": "study-b1-c-i",
-          "frontJa": "わたし",
-          "backEn": "I / me",
-          "sortOrder": 4
-        },
-        {
-          "id": "study-b1-c-you",
-          "frontJa": "あなた",
-          "backEn": "You",
-          "sortOrder": 5
-        },
-        {
-          "id": "study-b1-c-this",
-          "frontJa": "これ",
-          "backEn": "This (thing near me)",
-          "sortOrder": 6
-        },
-        {
-          "id": "study-b1-c-that",
-          "frontJa": "それ",
-          "backEn": "That (thing near you)",
-          "sortOrder": 7
-        }
-      ]
-    },
-    {
-      "id": "study-b1-deck-numbers",
-      "titleJa": "数字 1〜10",
-      "titleEn": "Numbers 1–10",
-      "sortOrder": 2,
-      "cards": [
-        {
-          "id": "study-b1-c-n1",
-          "frontJa": "いち",
-          "backEn": "One",
-          "sortOrder": 0
-        },
-        {
-          "id": "study-b1-c-n2",
-          "frontJa": "に",
-          "backEn": "Two",
-          "sortOrder": 1
-        },
-        {
-          "id": "study-b1-c-n3",
-          "frontJa": "さん",
-          "backEn": "Three",
-          "sortOrder": 2
-        },
-        {
-          "id": "study-b1-c-n4",
-          "frontJa": "よん / し",
-          "backEn": "Four",
-          "sortOrder": 3
-        },
-        {
-          "id": "study-b1-c-n5",
-          "frontJa": "ご",
-          "backEn": "Five",
-          "sortOrder": 4
-        },
-        {
-          "id": "study-b1-c-n6",
-          "frontJa": "ろく",
-          "backEn": "Six",
-          "sortOrder": 5
-        },
-        {
-          "id": "study-b1-c-n7",
-          "frontJa": "なな / しち",
-          "backEn": "Seven",
-          "sortOrder": 6
-        },
-        {
-          "id": "study-b1-c-n8",
-          "frontJa": "はち",
-          "backEn": "Eight",
+          "id": "study-b1-d0-c7",
+          "frontJa": "どういたしまして",
+          "backEn": "You're welcome",
           "sortOrder": 7
         },
         {
-          "id": "study-b1-c-n9",
-          "frontJa": "きゅう / く",
-          "backEn": "Nine",
+          "id": "study-b1-d0-c8",
+          "frontJa": "お願いします",
+          "backEn": "Please",
           "sortOrder": 8
         },
         {
-          "id": "study-b1-c-n10",
-          "frontJa": "じゅう",
-          "backEn": "Ten",
+          "id": "study-b1-d0-c9",
+          "frontJa": "初めまして",
+          "backEn": "Nice to meet you",
           "sortOrder": 9
+        },
+        {
+          "id": "study-b1-d0-c10",
+          "frontJa": "さようなら",
+          "backEn": "Goodbye",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b1-d0-c11",
+          "frontJa": "おやすみなさい",
+          "backEn": "Good night",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b1-d0-c12",
+          "frontJa": "助けてください",
+          "backEn": "Please help me.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b1-deck-1",
+      "titleJa": "基本の代名詞",
+      "titleEn": "Basic Pronouns",
+      "sortOrder": 1,
+      "cards": [
+        {
+          "id": "study-b1-d1-c0",
+          "frontJa": "私",
+          "backEn": "I / me",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b1-d1-c1",
+          "frontJa": "あなた",
+          "backEn": "you",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b1-d1-c2",
+          "frontJa": "彼",
+          "backEn": "he / him",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b1-d1-c3",
+          "frontJa": "彼女",
+          "backEn": "she / her",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b1-d1-c4",
+          "frontJa": "私たち",
+          "backEn": "we / us",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b1-d1-c5",
+          "frontJa": "彼ら",
+          "backEn": "they / them (people)",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b1-d1-c6",
+          "frontJa": "これ",
+          "backEn": "this (thing near me)",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b1-d1-c7",
+          "frontJa": "それ",
+          "backEn": "that (thing near you)",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b1-d1-c8",
+          "frontJa": "あれ",
+          "backEn": "that (thing over there)",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b1-d1-c9",
+          "frontJa": "誰",
+          "backEn": "who",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b1-d1-c10",
+          "frontJa": "何",
+          "backEn": "what",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b1-d1-c11",
+          "frontJa": "どこ",
+          "backEn": "where",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-b1-deck-2",
+      "titleJa": "be動詞（am / is / are）",
+      "titleEn": "To Be (am / is / are)",
+      "sortOrder": 2,
+      "cards": [
+        {
+          "id": "study-b1-d2-c0",
+          "frontJa": "私は学生です",
+          "backEn": "I am a student.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b1-d2-c1",
+          "frontJa": "彼女は幸せです",
+          "backEn": "She is happy.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b1-d2-c2",
+          "frontJa": "彼は先生です",
+          "backEn": "He is a teacher.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b1-d2-c3",
+          "frontJa": "これは本です",
+          "backEn": "This is a book.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b1-d2-c4",
+          "frontJa": "私たちは友達です",
+          "backEn": "We are friends.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b1-d2-c5",
+          "frontJa": "それはペンです",
+          "backEn": "That is a pen.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b1-d2-c6",
+          "frontJa": "あなたは元気ですか",
+          "backEn": "Are you okay?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b1-d2-c7",
+          "frontJa": "私は日本人です",
+          "backEn": "I am Japanese.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b1-d2-c8",
+          "frontJa": "彼は忙しいです",
+          "backEn": "He is busy.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b1-d2-c9",
+          "frontJa": "ここは学校です",
+          "backEn": "This is a school.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b1-d2-c10",
+          "frontJa": "時間です",
+          "backEn": "It is time.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b1-d2-c11",
+          "frontJa": "今日は暑いです",
+          "backEn": "It is hot today.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-b1-deck-3",
+      "titleJa": "数字 1〜10",
+      "titleEn": "Numbers 1–10",
+      "sortOrder": 3,
+      "cards": [
+        {
+          "id": "study-b1-d3-c0",
+          "frontJa": "一",
+          "backEn": "one",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b1-d3-c1",
+          "frontJa": "二",
+          "backEn": "two",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b1-d3-c2",
+          "frontJa": "三",
+          "backEn": "three",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b1-d3-c3",
+          "frontJa": "四",
+          "backEn": "four",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b1-d3-c4",
+          "frontJa": "五",
+          "backEn": "five",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b1-d3-c5",
+          "frontJa": "六",
+          "backEn": "six",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b1-d3-c6",
+          "frontJa": "七",
+          "backEn": "seven",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b1-d3-c7",
+          "frontJa": "八",
+          "backEn": "eight",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b1-d3-c8",
+          "frontJa": "九",
+          "backEn": "nine",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b1-d3-c9",
+          "frontJa": "十",
+          "backEn": "ten",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b1-deck-4",
+      "titleJa": "数字 11〜20",
+      "titleEn": "Numbers 11–20",
+      "sortOrder": 4,
+      "cards": [
+        {
+          "id": "study-b1-d4-c0",
+          "frontJa": "十一",
+          "backEn": "eleven",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b1-d4-c1",
+          "frontJa": "十二",
+          "backEn": "twelve",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b1-d4-c2",
+          "frontJa": "十三",
+          "backEn": "thirteen",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b1-d4-c3",
+          "frontJa": "十四",
+          "backEn": "fourteen",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b1-d4-c4",
+          "frontJa": "十五",
+          "backEn": "fifteen",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b1-d4-c5",
+          "frontJa": "十六",
+          "backEn": "sixteen",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b1-d4-c6",
+          "frontJa": "十七",
+          "backEn": "seventeen",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b1-d4-c7",
+          "frontJa": "十八",
+          "backEn": "eighteen",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b1-d4-c8",
+          "frontJa": "十九",
+          "backEn": "nineteen",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b1-d4-c9",
+          "frontJa": "二十",
+          "backEn": "twenty",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b1-deck-5",
+      "titleJa": "身の回りの名詞",
+      "titleEn": "Basic Nouns (Everyday Objects)",
+      "sortOrder": 5,
+      "cards": [
+        {
+          "id": "study-b1-d5-c0",
+          "frontJa": "本",
+          "backEn": "book",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b1-d5-c1",
+          "frontJa": "ペン",
+          "backEn": "pen",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b1-d5-c2",
+          "frontJa": "スマホ",
+          "backEn": "smartphone",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b1-d5-c3",
+          "frontJa": "水",
+          "backEn": "water",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b1-d5-c4",
+          "frontJa": "カバン",
+          "backEn": "bag",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b1-d5-c5",
+          "frontJa": "机",
+          "backEn": "desk",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b1-d5-c6",
+          "frontJa": "椅子",
+          "backEn": "chair",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b1-d5-c7",
+          "frontJa": "鍵",
+          "backEn": "key",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b1-d5-c8",
+          "frontJa": "電話",
+          "backEn": "phone",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b1-d5-c9",
+          "frontJa": "パソコン",
+          "backEn": "computer",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b1-d5-c10",
+          "frontJa": "時計",
+          "backEn": "clock",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b1-d5-c11",
+          "frontJa": "傘",
+          "backEn": "umbrella",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-b1-deck-6",
+      "titleJa": "基本動詞",
+      "titleEn": "Basic Verbs",
+      "sortOrder": 6,
+      "cards": [
+        {
+          "id": "study-b1-d6-c0",
+          "frontJa": "食べる",
+          "backEn": "eat",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b1-d6-c1",
+          "frontJa": "飲む",
+          "backEn": "drink",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b1-d6-c2",
+          "frontJa": "行く",
+          "backEn": "go",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b1-d6-c3",
+          "frontJa": "見る",
+          "backEn": "see / look / watch",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b1-d6-c4",
+          "frontJa": "好き",
+          "backEn": "like",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b1-d6-c5",
+          "frontJa": "読む",
+          "backEn": "read",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b1-d6-c6",
+          "frontJa": "書く",
+          "backEn": "write",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b1-d6-c7",
+          "frontJa": "聞く",
+          "backEn": "listen / hear",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b1-d6-c8",
+          "frontJa": "話す",
+          "backEn": "speak / talk",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b1-d6-c9",
+          "frontJa": "待つ",
+          "backEn": "wait",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b1-d6-c10",
+          "frontJa": "買う",
+          "backEn": "buy",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b1-d6-c11",
+          "frontJa": "する",
+          "backEn": "do",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-b1-deck-7",
+      "titleJa": "簡単な文",
+      "titleEn": "Simple Sentences",
+      "sortOrder": 7,
+      "cards": [
+        {
+          "id": "study-b1-d7-c0",
+          "frontJa": "私はご飯を食べます",
+          "backEn": "I eat rice.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b1-d7-c1",
+          "frontJa": "私は犬が好きです",
+          "backEn": "I like dogs.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b1-d7-c2",
+          "frontJa": "彼はコーヒーを飲みます",
+          "backEn": "He drinks coffee.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b1-d7-c3",
+          "frontJa": "私たちは学校に行きます",
+          "backEn": "We go to school.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b1-d7-c4",
+          "frontJa": "彼女は映画を見ます",
+          "backEn": "She watches a movie.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b1-d7-c5",
+          "frontJa": "私は日本語を勉強します",
+          "backEn": "I study Japanese.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b1-d7-c6",
+          "frontJa": "彼はサッカーが好きです",
+          "backEn": "He likes soccer.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b1-d7-c7",
+          "frontJa": "私はパンを食べます",
+          "backEn": "I eat bread.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b1-d7-c8",
+          "frontJa": "彼女はお茶を飲みます",
+          "backEn": "She drinks tea.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b1-d7-c9",
+          "frontJa": "私は海が好きです",
+          "backEn": "I like the sea.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b1-d7-c10",
+          "frontJa": "彼らは友達です",
+          "backEn": "They are friends.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b1-d7-c11",
+          "frontJa": "私は仕事に行きます",
+          "backEn": "I go to work.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-b1-deck-8",
+      "titleJa": "Yes / No の質問",
+      "titleEn": "Yes / No Questions",
+      "sortOrder": 8,
+      "cards": [
+        {
+          "id": "study-b1-d8-c0",
+          "frontJa": "あなたは幸せですか",
+          "backEn": "Are you happy?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b1-d8-c1",
+          "frontJa": "寿司が好きですか",
+          "backEn": "Do you like sushi?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b1-d8-c2",
+          "frontJa": "日本語を勉強していますか",
+          "backEn": "Do you study Japanese?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b1-d8-c3",
+          "frontJa": "コーヒーを飲みますか",
+          "backEn": "Do you drink coffee?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b1-d8-c4",
+          "frontJa": "学校に行きますか",
+          "backEn": "Do you go to school?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b1-d8-c5",
+          "frontJa": "ペンがありますか",
+          "backEn": "Do you have a pen?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b1-d8-c6",
+          "frontJa": "忙しいですか",
+          "backEn": "Are you busy?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b1-d8-c7",
+          "frontJa": "明日は暇ですか",
+          "backEn": "Are you free tomorrow?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b1-d8-c8",
+          "frontJa": "英語は話せますか",
+          "backEn": "Can you speak English?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b1-d8-c9",
+          "frontJa": "これはあなたのですか",
+          "backEn": "Is this yours?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b1-d8-c10",
+          "frontJa": "彼は先生ですか",
+          "backEn": "Is he a teacher?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b1-d8-c11",
+          "frontJa": "一緒に行きますか",
+          "backEn": "Will you go together?",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b1-d8-c12",
+          "frontJa": "はい",
+          "backEn": "yes",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-b1-d8-c13",
+          "frontJa": "いいえ",
+          "backEn": "no",
+          "sortOrder": 13
+        }
+      ]
+    },
+    {
+      "id": "study-b1-deck-9",
+      "titleJa": "教室の英語",
+      "titleEn": "Classroom English",
+      "sortOrder": 9,
+      "cards": [
+        {
+          "id": "study-b1-d9-c0",
+          "frontJa": "リピートしてください",
+          "backEn": "Please repeat.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b1-d9-c1",
+          "frontJa": "聞いてください",
+          "backEn": "Please listen.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b1-d9-c2",
+          "frontJa": "書いてください",
+          "backEn": "Please write.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b1-d9-c3",
+          "frontJa": "読んでください",
+          "backEn": "Please read.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b1-d9-c4",
+          "frontJa": "見てください",
+          "backEn": "Please look.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b1-d9-c5",
+          "frontJa": "次のページを開いてください",
+          "backEn": "Please open your book to the next page.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b1-d9-c6",
+          "frontJa": "質問がありますか",
+          "backEn": "Do you have a question?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b1-d9-c7",
+          "frontJa": "分かりますか",
+          "backEn": "Do you understand?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b1-d9-c8",
+          "frontJa": "もう一度お願いします",
+          "backEn": "One more time, please.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b1-d9-c9",
+          "frontJa": "ゆっくり話してください",
+          "backEn": "Please speak slowly.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b1-d9-c10",
+          "frontJa": "英語でいいですか",
+          "backEn": "Is English okay?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b1-d9-c11",
+          "frontJa": "静かにしてください",
+          "backEn": "Please be quiet.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b1-d9-c12",
+          "frontJa": "分かりました",
+          "backEn": "I understand.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-b1-d9-c13",
+          "frontJa": "分かりません",
+          "backEn": "I don't understand.",
+          "sortOrder": 13
         }
       ]
     }
   ],
   "assessment": {
-    "passingScore": 60,
+    "passingScore": 65,
     "items": [
       {
-        "id": "study-b1-a1",
-        "promptJa": "「こんにちは」に近い英語はどれ？",
+        "id": "study-b1-a0",
+        "promptJa": "「こんにちは」に近い英語は？",
         "promptEn": "Which English is closest to a general daytime “hello”?",
-        "options": ["Good night", "Hello", "Goodbye"],
+        "options": [
+          "Good night",
+          "Hello",
+          "Goodbye",
+          "Please"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b1-a1",
+        "promptJa": "「私」の英語は？",
+        "promptEn": "Which English means “I / me”?",
+        "options": [
+          "you",
+          "I / me",
+          "they",
+          "we"
+        ],
         "correctIndex": 1
       },
       {
         "id": "study-b1-a2",
-        "promptJa": "「ありがとう」の英語は？",
-        "promptEn": "How do you say ありがとう in English?",
-        "options": ["Please", "Thank you", "Sorry"],
+        "promptJa": "「食べる」は英語で？",
+        "promptEn": "What is 食べる in English?",
+        "options": [
+          "drink",
+          "eat",
+          "go",
+          "see"
+        ],
         "correctIndex": 1
       },
       {
         "id": "study-b1-a3",
-        "promptJa": "「みず」は英語で？",
-        "promptEn": "What is みず in English?",
-        "options": ["Food", "Water", "Book"],
+        "promptJa": "「水」は英語で？",
+        "promptEn": "What is 水 in English?",
+        "options": [
+          "food",
+          "water",
+          "book",
+          "phone"
+        ],
         "correctIndex": 1
       },
       {
         "id": "study-b1-a4",
-        "promptJa": "「はい」は英語で？",
-        "promptEn": "What is はい in English?",
-        "options": ["No", "Yes", "Maybe"],
+        "promptJa": "「十三」は英語で？",
+        "promptEn": "What is 十三 in English?",
+        "options": [
+          "twelve",
+          "thirteen",
+          "fourteen",
+          "thirty"
+        ],
         "correctIndex": 1
       },
       {
         "id": "study-b1-a5",
-        "promptJa": "「さん」は数字の英語で？",
-        "promptEn": "The Japanese さん is which number in English?",
-        "options": ["Two", "Three", "Four"],
+        "promptJa": "「寿司が好きですか」の意味に近い英語は？",
+        "promptEn": "Which question matches “Do you like sushi?”",
+        "options": [
+          "Do you like sushi?",
+          "Do you eat sushi?",
+          "Is this sushi?",
+          "I like sushi."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-b1-a6",
+        "promptJa": "「聞いてください」の意味は？",
+        "promptEn": "What does 聞いてください mean?",
+        "options": [
+          "Please write.",
+          "Please listen.",
+          "Please read.",
+          "Please repeat."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b1-a7",
+        "promptJa": "「彼は先生です」の意味は？",
+        "promptEn": "Which sentence matches “He is a teacher”?",
+        "options": [
+          "She is a teacher.",
+          "He is a teacher.",
+          "I am a teacher.",
+          "They are teachers."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b1-a8",
+        "promptJa": "「いいえ」は英語で？",
+        "promptEn": "What is いいえ in English?",
+        "options": [
+          "yes",
+          "no",
+          "maybe",
+          "please"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b1-a9",
+        "promptJa": "「私はご飯を食べます」の意味は？",
+        "promptEn": "Which English matches this Japanese?",
+        "options": [
+          "I drink rice.",
+          "I eat rice.",
+          "I like rice.",
+          "I buy rice."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b1-a10",
+        "promptJa": "「二十」は英語で？",
+        "promptEn": "What is 二十 in English?",
+        "options": [
+          "twelve",
+          "twenty",
+          "two",
+          "two hundred"
+        ],
         "correctIndex": 1
       }
     ]

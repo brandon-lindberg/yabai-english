@@ -398,7 +398,7 @@ model StudyDeck {
   @@index([levelId, sortOrder])
 }
 
-/// Front = Japanese prompt, back = English answer (typical learner direction).
+/// Front = learner-facing prompt (`frontJa` DB column): Japanese-heavy at Beginner 1, trending to English at higher levels (see `prompt-locale-policy.ts`). Back = English answer.
 model StudyCard {
   id        String    @id @default(cuid())
   deckId    String

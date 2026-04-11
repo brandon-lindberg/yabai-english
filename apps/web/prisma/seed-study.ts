@@ -39,6 +39,7 @@ const LEVEL_META: {
   { code: StudyLevelCode.ADVANCED_3, sortOrder: 8, titleJa: "上級 3", titleEn: "Advanced 3" },
 ];
 
+/** New level banks: taper Japanese on `frontJa` / assessment stems — `src/lib/study/prompt-locale-policy.ts`. */
 function readBeginner1Json() {
   const fp = path.join(__dirname, "../data/study/beginner-1.json");
   const raw = fs.readFileSync(fp, "utf8");

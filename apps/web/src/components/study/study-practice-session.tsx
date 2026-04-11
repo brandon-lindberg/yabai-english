@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { StudyLevelCode } from "@prisma/client";
 
+/** `frontJa` matches API field name; content is Japanese-heavy at Beginner 1 and trends English upward. */
 type QuizCard = { id: string; frontJa: string; options: string[] };
 
 export function StudyPracticeSession({
