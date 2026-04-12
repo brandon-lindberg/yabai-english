@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { StudyLevelCode } from "@prisma/client";
-import { beginnerLevelFileSchema, studyAssessmentItemsJsonSchema } from "../study/schemas";
+import { beginner2LevelFileSchema, beginnerLevelFileSchema, studyAssessmentItemsJsonSchema } from "../study/schemas";
 
 function buildBeginnerL1Fixture() {
   const deckTitles = [
@@ -47,6 +47,36 @@ function buildBeginnerL1Fixture() {
   };
 }
 
+function buildBeginnerL2Fixture() {
+  const decks = Array.from({ length: 15 }, (_, di) => ({
+    id: `study-b2-deck-${di}`,
+    titleJa: `デッキ${di + 1}`,
+    titleEn: `Deck ${di + 1}`,
+    sortOrder: di,
+    cards: Array.from({ length: 12 }, (_, ci) => ({
+      id: `study-b2-d${di}-c${ci}`,
+      frontJa: `例B2-${di + 1}-${ci + 1}`,
+      backEn: `Example B2 EN ${di + 1}-${ci + 1}`,
+      sortOrder: ci,
+    })),
+  }));
+
+  const items = Array.from({ length: 8 }, (_, i) => ({
+    id: `study-b2-a${i}`,
+    promptJa: `質問B2-${i + 1}`,
+    promptEn: `Question B2-${i + 1}`,
+    options: ["A", "B", "C", "D"],
+    correctIndex: i % 4,
+  }));
+
+  return {
+    version: 1 as const,
+    levelCode: StudyLevelCode.BEGINNER_2,
+    decks,
+    assessment: { passingScore: 68, items },
+  };
+}
+
 describe("beginnerLevelFileSchema", () => {
   it("accepts 10 decks × 10 cards (100 total) + 10 assessment items", () => {
     const parsed = beginnerLevelFileSchema.safeParse(buildBeginnerL1Fixture());
@@ -65,6 +95,28 @@ describe("beginnerLevelFileSchema", () => {
     }
     const raw = JSON.parse(fs.readFileSync(fp, "utf8")) as unknown;
     const parsed = beginnerLevelFileSchema.safeParse(raw);
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("beginner2LevelFileSchema", () => {
+  it("accepts 15 decks × 12 cards (180 total) + 8 assessment items", () => {
+    const parsed = beginner2LevelFileSchema.safeParse(buildBeginnerL2Fixture());
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.decks.length).toBe(15);
+      expect(parsed.data.decks.reduce((s, d) => s + d.cards.length, 0)).toBe(180);
+      expect(parsed.data.assessment.items.length).toBe(8);
+    }
+  });
+
+  it("parses committed data/study/beginner-2.json when present", () => {
+    const fp = path.join(__dirname, "../../../data/study/beginner-2.json");
+    if (!fs.existsSync(fp)) {
+      return;
+    }
+    const raw = JSON.parse(fs.readFileSync(fp, "utf8")) as unknown;
+    const parsed = beginner2LevelFileSchema.safeParse(raw);
     expect(parsed.success).toBe(true);
   });
 });

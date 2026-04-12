@@ -2,7 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import type { PrismaClient } from "@prisma/client";
 import { StudyLevelCode } from "@prisma/client";
-import { beginnerLevelFileSchema } from "../src/lib/study/schemas";
+import {
+  beginner2LevelFileSchema,
+  beginnerLevelFileSchema,
+  type StudyAssessmentItem,
+} from "../src/lib/study/schemas";
 
 const TRACK_SLUG = "english-flashcards";
 const TRACK_ID = "seed-study-track-english-flashcards";
@@ -39,12 +43,97 @@ const LEVEL_META: {
   { code: StudyLevelCode.ADVANCED_3, sortOrder: 8, titleJa: "上級 3", titleEn: "Advanced 3" },
 ];
 
+type SeededStudyBank = {
+  decks: Array<{
+    id: string;
+    titleJa: string;
+    titleEn: string;
+    sortOrder: number;
+    cards: Array<{ id: string; frontJa: string; backEn: string; sortOrder: number }>;
+  }>;
+  assessment: { passingScore: number; items: StudyAssessmentItem[] };
+};
+
 /** New level banks: taper Japanese on `frontJa` / assessment stems — `src/lib/study/prompt-locale-policy.ts`. */
 function readBeginner1Json() {
   const fp = path.join(__dirname, "../data/study/beginner-1.json");
   const raw = fs.readFileSync(fp, "utf8");
   const json = JSON.parse(raw) as unknown;
   return beginnerLevelFileSchema.parse(json);
+}
+
+function readBeginner2Json() {
+  const fp = path.join(__dirname, "../data/study/beginner-2.json");
+  const raw = fs.readFileSync(fp, "utf8");
+  const json = JSON.parse(raw) as unknown;
+  return beginner2LevelFileSchema.parse(json);
+}
+
+async function seedStudyLevelBank(
+  prisma: PrismaClient,
+  levelId: string,
+  data: SeededStudyBank,
+  assessmentStableId: string,
+) {
+  for (const deck of data.decks) {
+    await prisma.studyDeck.upsert({
+      where: { id: deck.id },
+      update: {
+        levelId,
+        titleJa: deck.titleJa,
+        titleEn: deck.titleEn,
+        sortOrder: deck.sortOrder,
+        visibility: "SYSTEM",
+        ownerUserId: null,
+      },
+      create: {
+        id: deck.id,
+        levelId,
+        titleJa: deck.titleJa,
+        titleEn: deck.titleEn,
+        sortOrder: deck.sortOrder,
+        visibility: "SYSTEM",
+      },
+    });
+
+    for (const card of deck.cards) {
+      await prisma.studyCard.upsert({
+        where: { id: card.id },
+        update: {
+          deckId: deck.id,
+          frontJa: card.frontJa,
+          backEn: card.backEn,
+          sortOrder: card.sortOrder,
+        },
+        create: {
+          id: card.id,
+          deckId: deck.id,
+          frontJa: card.frontJa,
+          backEn: card.backEn,
+          sortOrder: card.sortOrder,
+        },
+      });
+    }
+  }
+
+  await prisma.studyAssessment.upsert({
+    where: { id: assessmentStableId },
+    update: {
+      levelId,
+      kind: "LEVEL_EXIT",
+      itemsJson: { items: data.assessment.items },
+      passingScore: data.assessment.passingScore,
+      sortOrder: 0,
+    },
+    create: {
+      id: assessmentStableId,
+      levelId,
+      kind: "LEVEL_EXIT",
+      itemsJson: { items: data.assessment.items },
+      passingScore: data.assessment.passingScore,
+      sortOrder: 0,
+    },
+  });
 }
 
 export async function seedStudyTrack(prisma: PrismaClient) {
@@ -92,66 +181,8 @@ export async function seedStudyTrack(prisma: PrismaClient) {
   }
 
   const b1LevelId = levelIdByCode.get(StudyLevelCode.BEGINNER_1)!;
-  const data = readBeginner1Json();
+  await seedStudyLevelBank(prisma, b1LevelId, readBeginner1Json(), "study-b1-assessment-exit");
 
-  for (const deck of data.decks) {
-    await prisma.studyDeck.upsert({
-      where: { id: deck.id },
-      update: {
-        levelId: b1LevelId,
-        titleJa: deck.titleJa,
-        titleEn: deck.titleEn,
-        sortOrder: deck.sortOrder,
-        visibility: "SYSTEM",
-        ownerUserId: null,
-      },
-      create: {
-        id: deck.id,
-        levelId: b1LevelId,
-        titleJa: deck.titleJa,
-        titleEn: deck.titleEn,
-        sortOrder: deck.sortOrder,
-        visibility: "SYSTEM",
-      },
-    });
-
-    for (const card of deck.cards) {
-      await prisma.studyCard.upsert({
-        where: { id: card.id },
-        update: {
-          deckId: deck.id,
-          frontJa: card.frontJa,
-          backEn: card.backEn,
-          sortOrder: card.sortOrder,
-        },
-        create: {
-          id: card.id,
-          deckId: deck.id,
-          frontJa: card.frontJa,
-          backEn: card.backEn,
-          sortOrder: card.sortOrder,
-        },
-      });
-    }
-  }
-
-  const assessmentId = "study-b1-assessment-exit";
-  await prisma.studyAssessment.upsert({
-    where: { id: assessmentId },
-    update: {
-      levelId: b1LevelId,
-      kind: "LEVEL_EXIT",
-      itemsJson: { items: data.assessment.items },
-      passingScore: data.assessment.passingScore,
-      sortOrder: 0,
-    },
-    create: {
-      id: assessmentId,
-      levelId: b1LevelId,
-      kind: "LEVEL_EXIT",
-      itemsJson: { items: data.assessment.items },
-      passingScore: data.assessment.passingScore,
-      sortOrder: 0,
-    },
-  });
+  const b2LevelId = levelIdByCode.get(StudyLevelCode.BEGINNER_2)!;
+  await seedStudyLevelBank(prisma, b2LevelId, readBeginner2Json(), "study-b2-assessment-exit");
 }

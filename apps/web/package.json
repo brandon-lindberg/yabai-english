@@ -24,14 +24,15 @@
     "placement-bank:regenerate-llm": "tsx scripts/regenerate-placement-bank-llm.ts",
     "study:generate-beginner-1": "tsx scripts/generate-study-level-llm.ts",
     "study:build-beginner1-json": "tsx scripts/build-beginner1-json.ts",
+    "study:build-beginner2-json": "tsx scripts/build-beginner2-json.ts",
     "db:seed": "prisma db seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "server-only": "^0.0.1",
     "@auth/prisma-adapter": "^2.7.4",
+    "@mdxeditor/editor": "^3.54.0",
     "@prisma/client": "^6.3.1",
     "googleapis": "^144.0.0",
     "luxon": "^3.7.2",
@@ -40,6 +41,10 @@
     "next-intl": "^4.9.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
+    "server-only": "^0.0.1",
     "socket.io-client": "^4.8.3",
     "zod": "^3.24.2"
   },

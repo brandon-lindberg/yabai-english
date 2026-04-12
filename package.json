@@ -26,7 +26,8 @@
     "placement-bank:llm-fix-bad": "yarn --cwd apps/web placement-bank:llm-fix-bad",
     "placement-bank:regenerate-llm": "yarn --cwd apps/web placement-bank:regenerate-llm",
     "study:generate-beginner-1": "yarn --cwd apps/web study:generate-beginner-1",
-    "study:build-beginner1-json": "yarn --cwd apps/web study:build-beginner1-json"
+    "study:build-beginner1-json": "yarn --cwd apps/web study:build-beginner1-json",
+    "study:build-beginner2-json": "yarn --cwd apps/web study:build-beginner2-json"
   },
   "packageManager": "yarn@1.22.22"
 }

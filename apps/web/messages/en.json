@@ -80,6 +80,68 @@
       "BEGINNER": "Beginner",
       "INTERMEDIATE": "Intermediate",
       "ADVANCED": "Advanced"
+    },
+    "nav": {
+      "ariaLabel": "Dashboard sections",
+      "overview": "Overview",
+      "profile": "Profile",
+      "schedule": "Schedule"
+    },
+    "highlights": {
+      "pageTitle": "Overview",
+      "pageIntro": "Your next lesson, flashcard progress, and a short daily review.",
+      "nextLessonTitle": "Next lesson",
+      "noNextLesson": "No upcoming lesson. Book a slot to keep your routine.",
+      "bookCta": "Book a lesson",
+      "fullSchedule": "Full schedule",
+      "seeFullSchedule": "View full schedule & calendar",
+      "studyTitle": "Flashcards",
+      "studyBrowse": "All levels",
+      "studyResume": "Where you left off",
+      "studyProgress": "{touched} / {total} cards touched",
+      "studyOpen": "Continue practice",
+      "studyNoActivity": "Open Flashcards to start your first practice session.",
+      "studyLocked": "This level is still locked.",
+      "studyLastHint": "Last practice: {when}",
+      "rpgLine": "Study rank {rank} · {into} / {total} XP this rank",
+      "profileCardEmpty": "Add a short introduction so teachers know you better.",
+      "profileCardEdit": "Edit profile",
+      "profileBioSeeMore": "See more",
+      "profileBioSeeLess": "See less"
+    },
+    "profilePage": {
+      "title": "Profile",
+      "intro": "Teachers you book with can see your name, photo (from Google), and introduction.",
+      "displayName": "Display name",
+      "shortBio": "Short introduction",
+      "shortBioHelp": "Up to 300 characters of Markdown — goals, interests, or what you want from lessons.",
+      "shortBioPlaceholder": "Introduce yourself…",
+      "shortBioCharCounter": "{current} / {max}",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "avatarHelp": "Your photo comes from your Google account. Update it in Google to change it here.",
+      "error": "Could not save. Try again."
+    },
+    "schedulePage": {
+      "title": "Schedule",
+      "intro": "See upcoming lessons and add them to your calendar."
+    },
+    "quickReview": {
+      "title": "Quick review",
+      "subtitle": "{count} / {max} cards today · {date}",
+      "deckHint": "Mini flashcards — tap a card to flip between Japanese and English.",
+      "cardFrontLabel": "Front",
+      "cardBackLabel": "Back",
+      "tapToFlip": "Tap to flip",
+      "tapToFlipBack": "Tap to flip back",
+      "tapToReveal": "Tap to show the English answer.",
+      "tapToHide": "Tap again to show the Japanese prompt.",
+      "empty": "Practice a few flashcards first — quick review uses cards you have already answered correctly."
+    },
+    "teacherHome": {
+      "title": "Dashboard",
+      "body": "Lesson booking and classroom tools are here. Student flashcards: Learn → Flashcards."
     }
   },
   "admin": {
@@ -174,14 +236,11 @@
   },
   "learn": {
     "title": "Learn",
-    "courses": "Courses",
-    "intro": "Beginner Level 1 flashcards are ready: Japanese prompts on the front, English on the back. Earn XP, then pass the level test to unlock Beginner Level 2.",
-    "startBeginner1": "Open Beginner Level 1 (flashcards)",
-    "flashcardsLink": "Flashcards & levels"
+    "courses": "Courses"
   },
   "study": {
     "title": "Flashcards",
-    "subtitle": "Beginner Level 1 is open to everyone. Other levels unlock when your placement result reaches that band, or when you pass the previous level’s test.",
+    "subtitle": "All track levels are listed below. Practice any level that is unlocked for you—usually from your placement band upward, or after you pass the previous level’s exit test. Earn XP for your study rank as you go.",
     "mastery": "Mastery",
     "xp": "XP",
     "cards": "Cards",
@@ -190,7 +249,7 @@
     "practice": "Practice",
     "levelTest": "Level test",
     "backToHub": "All levels",
-    "backToLearn": "Back to Learn",
+    "backToDashboard": "Back to dashboard",
     "frontLabel": "Japanese",
     "chooseEnglish": "Choose the correct English:",
     "feedbackCorrect": "Correct!",

@@ -3,22 +3,37 @@ type Props = {
   fractionLabel: string;
   nextHint: string;
   progressPercent: number;
+  /** Default `card` is a bordered panel; `compact` nests inside another card. */
+  variant?: "card" | "compact";
+  className?: string;
 };
 
-export function StudyRpgXpBar({ title, fractionLabel, nextHint, progressPercent }: Props) {
+export function StudyRpgXpBar({
+  title,
+  fractionLabel,
+  nextHint,
+  progressPercent,
+  variant = "card",
+  className,
+}: Props) {
   const pct = Math.min(100, Math.max(0, progressPercent));
+  const isCard = variant === "card";
+  const rootClass = [isCard ? "rounded-2xl border border-border bg-surface p-4 shadow-sm" : "mt-3 space-y-2", className]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <section
-      className="rounded-2xl border border-border bg-surface p-4 shadow-sm"
-      aria-label={title}
-    >
+    <section className={rootClass} aria-label={title}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+        {isCard ? (
+          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+        ) : (
+          <p className="text-xs font-semibold text-foreground">{title}</p>
+        )}
         <span className="text-xs font-medium tabular-nums text-muted">{fractionLabel}</span>
       </div>
       <div
-        className="mt-3 h-3 overflow-hidden rounded-full bg-foreground/10"
+        className={`overflow-hidden rounded-full bg-foreground/10 ${isCard ? "mt-3 h-3" : "mt-1 h-2"}`}
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -30,7 +45,7 @@ export function StudyRpgXpBar({ title, fractionLabel, nextHint, progressPercent 
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="mt-2 text-xs text-muted">{nextHint}</p>
+      <p className={`text-xs text-muted ${isCard ? "mt-2" : "mt-1"}`}>{nextHint}</p>
     </section>
   );
 }

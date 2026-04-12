@@ -1,0 +1,1503 @@
+{
+  "version": 1,
+  "levelCode": "BEGINNER_2",
+  "decks": [
+    {
+      "id": "study-b2-deck-0",
+      "titleJa": "毎日のルーティン（朝）",
+      "titleEn": "Daily Routines — Morning",
+      "sortOrder": 0,
+      "cards": [
+        {
+          "id": "study-b2-d0-c0",
+          "frontJa": "起きる",
+          "backEn": "wake up",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d0-c1",
+          "frontJa": "顔を洗う",
+          "backEn": "wash your face",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d0-c2",
+          "frontJa": "歯を磨く",
+          "backEn": "brush your teeth",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d0-c3",
+          "frontJa": "朝ご飯を食べる",
+          "backEn": "eat breakfast",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d0-c4",
+          "frontJa": "着替える",
+          "backEn": "get dressed",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d0-c5",
+          "frontJa": "コーヒーを飲む",
+          "backEn": "drink coffee",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d0-c6",
+          "frontJa": "家を出る",
+          "backEn": "leave home",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d0-c7",
+          "frontJa": "通勤する",
+          "backEn": "commute",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d0-c8",
+          "frontJa": "会社に着く",
+          "backEn": "arrive at work",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d0-c9",
+          "frontJa": "ストレッチをする",
+          "backEn": "stretch",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-1",
+      "titleJa": "毎日のルーティン（学校・仕事）",
+      "titleEn": "Daily Routines — School & Work",
+      "sortOrder": 1,
+      "cards": [
+        {
+          "id": "study-b2-d1-c0",
+          "frontJa": "仕事に行く",
+          "backEn": "go to work",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d1-c1",
+          "frontJa": "学校に行く",
+          "backEn": "go to school",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d1-c2",
+          "frontJa": "授業がある",
+          "backEn": "have class",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d1-c3",
+          "frontJa": "休憩する",
+          "backEn": "take a break",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d1-c4",
+          "frontJa": "昼ご飯を食べる",
+          "backEn": "eat lunch",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d1-c5",
+          "frontJa": "仕事が終わる",
+          "backEn": "finish work",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d1-c6",
+          "frontJa": "帰宅する",
+          "backEn": "go home",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d1-c7",
+          "frontJa": "夕食を作る",
+          "backEn": "cook dinner",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d1-c8",
+          "frontJa": "シャワーを浴びる",
+          "backEn": "take a shower",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d1-c9",
+          "frontJa": "寝る",
+          "backEn": "go to bed",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-2",
+      "titleJa": "曜日",
+      "titleEn": "Days of the Week",
+      "sortOrder": 2,
+      "cards": [
+        {
+          "id": "study-b2-d2-c0",
+          "frontJa": "月曜日",
+          "backEn": "Monday",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d2-c1",
+          "frontJa": "火曜日",
+          "backEn": "Tuesday",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d2-c2",
+          "frontJa": "水曜日",
+          "backEn": "Wednesday",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d2-c3",
+          "frontJa": "木曜日",
+          "backEn": "Thursday",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d2-c4",
+          "frontJa": "金曜日",
+          "backEn": "Friday",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d2-c5",
+          "frontJa": "土曜日",
+          "backEn": "Saturday",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d2-c6",
+          "frontJa": "日曜日",
+          "backEn": "Sunday",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d2-c7",
+          "frontJa": "週末",
+          "backEn": "weekend",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d2-c8",
+          "frontJa": "平日",
+          "backEn": "weekday",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d2-c9",
+          "frontJa": "今日は金曜日です",
+          "backEn": "Today is Friday.",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-3",
+      "titleJa": "今日・明日・過去",
+      "titleEn": "Time & Days — Today / Tomorrow / Past",
+      "sortOrder": 3,
+      "cards": [
+        {
+          "id": "study-b2-d3-c0",
+          "frontJa": "今日",
+          "backEn": "today",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d3-c1",
+          "frontJa": "明日",
+          "backEn": "tomorrow",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d3-c2",
+          "frontJa": "昨日",
+          "backEn": "yesterday",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d3-c3",
+          "frontJa": "今夜",
+          "backEn": "tonight",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d3-c4",
+          "frontJa": "昨夜",
+          "backEn": "last night",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d3-c5",
+          "frontJa": "先週",
+          "backEn": "last week",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d3-c6",
+          "frontJa": "来週",
+          "backEn": "next week",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d3-c7",
+          "frontJa": "毎日",
+          "backEn": "every day",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d3-c8",
+          "frontJa": "ときどき",
+          "backEn": "sometimes",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d3-c9",
+          "frontJa": "もうすぐ",
+          "backEn": "soon",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-4",
+      "titleJa": "時刻の言い方",
+      "titleEn": "Telling Time",
+      "sortOrder": 4,
+      "cards": [
+        {
+          "id": "study-b2-d4-c0",
+          "frontJa": "3時",
+          "backEn": "three o'clock",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d4-c1",
+          "frontJa": "3時半",
+          "backEn": "half past three",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d4-c2",
+          "frontJa": "4時15分",
+          "backEn": "quarter past four",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d4-c3",
+          "frontJa": "ちょうど6時",
+          "backEn": "six o'clock sharp",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d4-c4",
+          "frontJa": "朝の8時",
+          "backEn": "eight in the morning",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d4-c5",
+          "frontJa": "正午",
+          "backEn": "noon",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d4-c6",
+          "frontJa": "真夜中",
+          "backEn": "midnight",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d4-c7",
+          "frontJa": "約7時",
+          "backEn": "about seven",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d4-c8",
+          "frontJa": "何時ですか",
+          "backEn": "What time is it?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d4-c9",
+          "frontJa": "5時までに",
+          "backEn": "by five o'clock",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-5",
+      "titleJa": "動詞：動き",
+      "titleEn": "Expanded Verbs — Motion",
+      "sortOrder": 5,
+      "cards": [
+        {
+          "id": "study-b2-d5-c0",
+          "frontJa": "走る",
+          "backEn": "run",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d5-c1",
+          "frontJa": "歩く",
+          "backEn": "walk",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d5-c2",
+          "frontJa": "泳ぐ",
+          "backEn": "swim",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d5-c3",
+          "frontJa": "飛ぶ",
+          "backEn": "fly",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d5-c4",
+          "frontJa": "運転する",
+          "backEn": "drive",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d5-c5",
+          "frontJa": "急ぐ",
+          "backEn": "hurry",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d5-c6",
+          "frontJa": "登る",
+          "backEn": "climb",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d5-c7",
+          "frontJa": "ジャンプする",
+          "backEn": "jump",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d5-c8",
+          "frontJa": "踊る",
+          "backEn": "dance",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d5-c9",
+          "frontJa": "止まる",
+          "backEn": "stop",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-6",
+      "titleJa": "動詞：勉強・メディア",
+      "titleEn": "Expanded Verbs — Study & Media",
+      "sortOrder": 6,
+      "cards": [
+        {
+          "id": "study-b2-d6-c0",
+          "frontJa": "勉強する",
+          "backEn": "study",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d6-c1",
+          "frontJa": "テレビを見る",
+          "backEn": "watch TV",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d6-c2",
+          "frontJa": "音楽を聞く",
+          "backEn": "listen to music",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d6-c3",
+          "frontJa": "本を読む",
+          "backEn": "read a book",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d6-c4",
+          "frontJa": "メモを取る",
+          "backEn": "take notes",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d6-c5",
+          "frontJa": "検索する",
+          "backEn": "search online",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d6-c6",
+          "frontJa": "復習する",
+          "backEn": "review",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d6-c7",
+          "frontJa": "練習する",
+          "backEn": "practice",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d6-c8",
+          "frontJa": "映画を見る",
+          "backEn": "watch a movie",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d6-c9",
+          "frontJa": "ニュースを見る",
+          "backEn": "watch the news",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-7",
+      "titleJa": "動詞：買い物",
+      "titleEn": "Expanded Verbs — Shopping",
+      "sortOrder": 7,
+      "cards": [
+        {
+          "id": "study-b2-d7-c0",
+          "frontJa": "買う",
+          "backEn": "buy",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d7-c1",
+          "frontJa": "売る",
+          "backEn": "sell",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d7-c2",
+          "frontJa": "払う",
+          "backEn": "pay",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d7-c3",
+          "frontJa": "返品する",
+          "backEn": "return (an item)",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d7-c4",
+          "frontJa": "注文する",
+          "backEn": "order",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d7-c5",
+          "frontJa": "カードで払う",
+          "backEn": "pay by card",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d7-c6",
+          "frontJa": "お釣り",
+          "backEn": "change (money)",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d7-c7",
+          "frontJa": "レシート",
+          "backEn": "receipt",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d7-c8",
+          "frontJa": "セール",
+          "backEn": "sale",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d7-c9",
+          "frontJa": "値段",
+          "backEn": "price",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-8",
+      "titleJa": "場所：家と学校",
+      "titleEn": "Objects & Places — Home & School",
+      "sortOrder": 8,
+      "cards": [
+        {
+          "id": "study-b2-d8-c0",
+          "frontJa": "家",
+          "backEn": "home",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d8-c1",
+          "frontJa": "リビング",
+          "backEn": "living room",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d8-c2",
+          "frontJa": "寝室",
+          "backEn": "bedroom",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d8-c3",
+          "frontJa": "キッチン",
+          "backEn": "kitchen",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d8-c4",
+          "frontJa": "教室",
+          "backEn": "classroom",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d8-c5",
+          "frontJa": "廊下",
+          "backEn": "hallway",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d8-c6",
+          "frontJa": "屋上",
+          "backEn": "rooftop",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d8-c7",
+          "frontJa": "校門",
+          "backEn": "school gate",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d8-c8",
+          "frontJa": "図書室",
+          "backEn": "school library",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d8-c9",
+          "frontJa": "職員室",
+          "backEn": "teachers' office",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-9",
+      "titleJa": "場所：街・駅・店",
+      "titleEn": "Objects & Places — Town, Station, Store",
+      "sortOrder": 9,
+      "cards": [
+        {
+          "id": "study-b2-d9-c0",
+          "frontJa": "お店",
+          "backEn": "store",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d9-c1",
+          "frontJa": "駅",
+          "backEn": "station",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d9-c2",
+          "frontJa": "公園",
+          "backEn": "park",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d9-c3",
+          "frontJa": "銀行",
+          "backEn": "bank",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d9-c4",
+          "frontJa": "病院",
+          "backEn": "hospital",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d9-c5",
+          "frontJa": "郵便局",
+          "backEn": "post office",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d9-c6",
+          "frontJa": "映画館",
+          "backEn": "movie theater",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d9-c7",
+          "frontJa": "スーパー",
+          "backEn": "supermarket",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d9-c8",
+          "frontJa": "カフェ",
+          "backEn": "cafe",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d9-c9",
+          "frontJa": "交差点",
+          "backEn": "intersection",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-10",
+      "titleJa": "現在形（基本）",
+      "titleEn": "Present Simple — I / You / We / They",
+      "sortOrder": 10,
+      "cards": [
+        {
+          "id": "study-b2-d10-c0",
+          "frontJa": "私は働く",
+          "backEn": "I work",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d10-c1",
+          "frontJa": "あなたは勉強する",
+          "backEn": "you study",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d10-c2",
+          "frontJa": "彼らは遊ぶ",
+          "backEn": "they play",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d10-c3",
+          "frontJa": "私たちは住む",
+          "backEn": "we live",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d10-c4",
+          "frontJa": "私は泳がない",
+          "backEn": "I don't swim",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d10-c5",
+          "frontJa": "彼は来ない",
+          "backEn": "he doesn't come",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d10-c6",
+          "frontJa": "毎日走る",
+          "backEn": "I run every day.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d10-c7",
+          "frontJa": "よく読む",
+          "backEn": "I read often.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d10-c8",
+          "frontJa": "手伝う",
+          "backEn": "I help.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d10-c9",
+          "frontJa": "料理しない",
+          "backEn": "I don't cook.",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-11",
+      "titleJa": "現在形（三人称）",
+      "titleEn": "Present Simple — He / She / It",
+      "sortOrder": 11,
+      "cards": [
+        {
+          "id": "study-b2-d11-c0",
+          "frontJa": "彼は働く",
+          "backEn": "he works",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d11-c1",
+          "frontJa": "彼女は歌う",
+          "backEn": "she sings",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d11-c2",
+          "frontJa": "犬は吠える",
+          "backEn": "the dog barks",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d11-c3",
+          "frontJa": "猫は眠る",
+          "backEn": "the cat sleeps",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d11-c4",
+          "frontJa": "雨が降る",
+          "backEn": "it rains",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d11-c5",
+          "frontJa": "鐘が鳴る",
+          "backEn": "the bell rings",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d11-c6",
+          "frontJa": "子どもが泣く",
+          "backEn": "the baby cries",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d11-c7",
+          "frontJa": "時間がかかる",
+          "backEn": "it takes time",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d11-c8",
+          "frontJa": "電池が切れる",
+          "backEn": "the battery dies",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d11-c9",
+          "frontJa": "彼は英語を話さない",
+          "backEn": "He doesn't speak English.",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-12",
+      "titleJa": "疑問詞：what / who",
+      "titleEn": "Wh- Questions — What & Who",
+      "sortOrder": 12,
+      "cards": [
+        {
+          "id": "study-b2-d12-c0",
+          "frontJa": "これは何ですか",
+          "backEn": "What is this?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d12-c1",
+          "frontJa": "彼は誰ですか",
+          "backEn": "Who is he?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d12-c2",
+          "frontJa": "何時ですか",
+          "backEn": "What time is it?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d12-c3",
+          "frontJa": "お名前は何ですか",
+          "backEn": "What's your name?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d12-c4",
+          "frontJa": "何色ですか",
+          "backEn": "What color is it?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d12-c5",
+          "frontJa": "どれがいいですか",
+          "backEn": "Which one is better?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d12-c6",
+          "frontJa": "これは誰のカバンですか",
+          "backEn": "Whose bag is this?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d12-c7",
+          "frontJa": "何が欲しいですか",
+          "backEn": "What do you want?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d12-c8",
+          "frontJa": "誰が知っていますか",
+          "backEn": "Who knows?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d12-c9",
+          "frontJa": "何のためにですか",
+          "backEn": "What for?",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-13",
+      "titleJa": "疑問詞：where / when / why",
+      "titleEn": "Wh- Questions — Where, When, Why",
+      "sortOrder": 13,
+      "cards": [
+        {
+          "id": "study-b2-d13-c0",
+          "frontJa": "どこ",
+          "backEn": "where",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d13-c1",
+          "frontJa": "いつ",
+          "backEn": "when",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d13-c2",
+          "frontJa": "なぜ",
+          "backEn": "why",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d13-c3",
+          "frontJa": "どのくらいの頻度で",
+          "backEn": "how often",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d13-c4",
+          "frontJa": "どれくらい",
+          "backEn": "how long",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d13-c5",
+          "frontJa": "どうやって",
+          "backEn": "how",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d13-c6",
+          "frontJa": "いつまで",
+          "backEn": "by when",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d13-c7",
+          "frontJa": "どちらへ",
+          "backEn": "which way",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d13-c8",
+          "frontJa": "何時から",
+          "backEn": "from what time",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d13-c9",
+          "frontJa": "どこから来ましたか",
+          "backEn": "Where are you from?",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-14",
+      "titleJa": "前置詞：in / on / at",
+      "titleEn": "Basic Prepositions — In, On, At",
+      "sortOrder": 14,
+      "cards": [
+        {
+          "id": "study-b2-d14-c0",
+          "frontJa": "箱の中に",
+          "backEn": "in the box",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d14-c1",
+          "frontJa": "机の上に",
+          "backEn": "on the desk",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d14-c2",
+          "frontJa": "学校で",
+          "backEn": "at school",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d14-c3",
+          "frontJa": "3時に",
+          "backEn": "at three o'clock",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d14-c4",
+          "frontJa": "月曜日に",
+          "backEn": "on Monday",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d14-c5",
+          "frontJa": "朝",
+          "backEn": "in the morning",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d14-c6",
+          "frontJa": "夜",
+          "backEn": "at night",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d14-c7",
+          "frontJa": "家に",
+          "backEn": "at home",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d14-c8",
+          "frontJa": "バスで",
+          "backEn": "by bus",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d14-c9",
+          "frontJa": "電車で",
+          "backEn": "by train",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-15",
+      "titleJa": "前置詞：位置・近さ",
+      "titleEn": "Prepositions — Position & Distance",
+      "sortOrder": 15,
+      "cards": [
+        {
+          "id": "study-b2-d15-c0",
+          "frontJa": "下に",
+          "backEn": "under",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d15-c1",
+          "frontJa": "後ろに",
+          "backEn": "behind",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d15-c2",
+          "frontJa": "隣に",
+          "backEn": "next to",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d15-c3",
+          "frontJa": "〜の間に",
+          "backEn": "between",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d15-c4",
+          "frontJa": "前に",
+          "backEn": "in front of",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d15-c5",
+          "frontJa": "近くに",
+          "backEn": "near",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d15-c6",
+          "frontJa": "遠くに",
+          "backEn": "far (away)",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d15-c7",
+          "frontJa": "向こうに",
+          "backEn": "across from",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d15-c8",
+          "frontJa": "周りに",
+          "backEn": "around",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d15-c9",
+          "frontJa": "中へ",
+          "backEn": "into",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-16",
+      "titleJa": "形容詞",
+      "titleEn": "Adjectives",
+      "sortOrder": 16,
+      "cards": [
+        {
+          "id": "study-b2-d16-c0",
+          "frontJa": "大きい",
+          "backEn": "big",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d16-c1",
+          "frontJa": "小さい",
+          "backEn": "small",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d16-c2",
+          "frontJa": "高い",
+          "backEn": "tall",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d16-c3",
+          "frontJa": "速い",
+          "backEn": "fast",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d16-c4",
+          "frontJa": "遅い",
+          "backEn": "slow",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d16-c5",
+          "frontJa": "いい",
+          "backEn": "good",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d16-c6",
+          "frontJa": "悪い",
+          "backEn": "bad",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d16-c7",
+          "frontJa": "忙しい",
+          "backEn": "busy",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d16-c8",
+          "frontJa": "簡単な",
+          "backEn": "easy",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d16-c9",
+          "frontJa": "難しい",
+          "backEn": "difficult",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-17",
+      "titleJa": "好き・欲しい",
+      "titleEn": "Likes & Wants",
+      "sortOrder": 17,
+      "cards": [
+        {
+          "id": "study-b2-d17-c0",
+          "frontJa": "コーヒーが欲しい",
+          "backEn": "I want coffee.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d17-c1",
+          "frontJa": "音楽が好き",
+          "backEn": "I like music.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d17-c2",
+          "frontJa": "水が欲しい",
+          "backEn": "I want water.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d17-c3",
+          "frontJa": "この本が欲しい",
+          "backEn": "I want this book.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d17-c4",
+          "frontJa": "映画が好き",
+          "backEn": "I like movies.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d17-c5",
+          "frontJa": "犬が好き",
+          "backEn": "I like dogs.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d17-c6",
+          "frontJa": "旅行したい",
+          "backEn": "I want to travel.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d17-c7",
+          "frontJa": "休みたい",
+          "backEn": "I want to rest.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d17-c8",
+          "frontJa": "会いたい",
+          "backEn": "I want to see you.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d17-c9",
+          "frontJa": "手伝ってほしい",
+          "backEn": "I want (some) help.",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-18",
+      "titleJa": "会話：行き先",
+      "titleEn": "Simple Conversations — Where You're Going",
+      "sortOrder": 18,
+      "cards": [
+        {
+          "id": "study-b2-d18-c0",
+          "frontJa": "どこに行くの？",
+          "backEn": "Where are you going?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d18-c1",
+          "frontJa": "家に帰る",
+          "backEn": "I'm going home.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d18-c2",
+          "frontJa": "学校に行く",
+          "backEn": "I'm going to school.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d18-c3",
+          "frontJa": "買い物に行く",
+          "backEn": "I'm going shopping.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d18-c4",
+          "frontJa": "仕事に行く",
+          "backEn": "I'm going to work.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d18-c5",
+          "frontJa": "友達に会いに行く",
+          "backEn": "I'm going to meet a friend.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d18-c6",
+          "frontJa": "駅まで歩く",
+          "backEn": "I'm walking to the station.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d18-c7",
+          "frontJa": "バスに乗る",
+          "backEn": "I'm taking the bus.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d18-c8",
+          "frontJa": "ちょっと出かける",
+          "backEn": "I'm going out for a bit.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d18-c9",
+          "frontJa": "今出発する",
+          "backEn": "I'm leaving now.",
+          "sortOrder": 9
+        }
+      ]
+    },
+    {
+      "id": "study-b2-deck-19",
+      "titleJa": "会話：短いやりとり",
+      "titleEn": "Simple Conversations — Short Exchanges",
+      "sortOrder": 19,
+      "cards": [
+        {
+          "id": "study-b2-d19-c0",
+          "frontJa": "元気？",
+          "backEn": "How are you?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b2-d19-c1",
+          "frontJa": "元気だよ",
+          "backEn": "I'm fine.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b2-d19-c2",
+          "frontJa": "ありがとう",
+          "backEn": "Thanks.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b2-d19-c3",
+          "frontJa": "どういたしまして",
+          "backEn": "You're welcome.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b2-d19-c4",
+          "frontJa": "失礼します",
+          "backEn": "Excuse me. / Goodbye. (when leaving)",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b2-d19-c5",
+          "frontJa": "久しぶり",
+          "backEn": "Long time no see.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b2-d19-c6",
+          "frontJa": "そうだね",
+          "backEn": "That's right. / I agree.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b2-d19-c7",
+          "frontJa": "わからない",
+          "backEn": "I don't know.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b2-d19-c8",
+          "frontJa": "ちょっと待って",
+          "backEn": "Wait a moment.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b2-d19-c9",
+          "frontJa": "またね",
+          "backEn": "See you.",
+          "sortOrder": 9
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "passingScore": 68,
+    "items": [
+      {
+        "id": "study-b2-a0",
+        "promptJa": "「明日」は英語で？",
+        "promptEn": "What is 明日 in English?",
+        "options": [
+          "today",
+          "tomorrow",
+          "yesterday",
+          "tonight"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b2-a1",
+        "promptJa": "「He works.」に近い文は？",
+        "promptEn": "Which English matches “he works” (habit)?",
+        "options": [
+          "He working.",
+          "He works.",
+          "He work.",
+          "He is work."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b2-a2",
+        "promptJa": "「Where are you going?」の意味は？",
+        "promptEn": "Which Japanese matches “Where are you going?”?",
+        "options": [
+          "どこにいるの？",
+          "どこに行くの？",
+          "いつ行くの？",
+          "なぜ行くの？"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b2-a3",
+        "promptJa": "「under」に近い前置詞は？",
+        "promptEn": "Which Japanese pair is closest to “under”?",
+        "options": [
+          "上に",
+          "下に",
+          "隣に",
+          "前に"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b2-a4",
+        "promptJa": "「I want coffee.」に近い日本語は？",
+        "promptEn": "Which Japanese is closest to “I want coffee.”?",
+        "options": [
+          "コーヒーが好き。",
+          "コーヒーが欲しい。",
+          "コーヒーを飲む。",
+          "コーヒーはいらない。"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b2-a5",
+        "promptJa": "「月曜日」は英語で？",
+        "promptEn": "What is 月曜日 in English?",
+        "options": [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "March"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b2-a6",
+        "promptJa": "「なぜ」は英語で？",
+        "promptEn": "What is なぜ in English?",
+        "options": [
+          "where",
+          "when",
+          "why",
+          "what"
+        ],
+        "correctIndex": 2
+      },
+      {
+        "id": "study-b2-a7",
+        "promptJa": "「busy」の意味に近い形容詞は？",
+        "promptEn": "Which Japanese adjective is closest to “busy”?",
+        "options": [
+          "暇な",
+          "忙しい",
+          "遅い",
+          "簡単な"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b2-a8",
+        "promptJa": "「at three o'clock」に近い表現は？",
+        "promptEn": "Which Japanese is closest to “at three o'clock”?",
+        "options": [
+          "3時から",
+          "3時に",
+          "3時まで",
+          "3時半"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b2-a9",
+        "promptJa": "「I'm going home.」に近い日本語は？",
+        "promptEn": "Which Japanese is closest to “I'm going home.”?",
+        "options": [
+          "家にいる。",
+          "家に帰る。",
+          "家を出る。",
+          "家に着いた。"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b2-a10",
+        "promptJa": "「buy」は日本語で？",
+        "promptEn": "Which Japanese verb means “buy”?",
+        "options": [
+          "売る",
+          "買う",
+          "払う",
+          "返す"
+        ],
+        "correctIndex": 1
+      }
+    ]
+  }
+}

@@ -1,6 +1,9 @@
 import { StudyLevelCode } from "@prisma/client";
 
 /**
+ * Curriculum authoring targets for how much Japanese appears on study prompts by level.
+ * Product spec: `PRODUCT_REQUIREMENTS.md` → **Study Track: English Flashcards (Leveled Practice)**.
+ *
  * Canonical curriculum order for the English flashcard track.
  * Japanese on prompts (card fronts + assessment stems) should trend **down** along this axis.
  */

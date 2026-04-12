@@ -98,6 +98,7 @@ model User {
   studyLevelProgress       UserStudyLevelProgress[]
   studyCardStates          UserStudyCardState[]
   studyAssessmentAttempts  UserStudyAssessmentAttempt[]
+  studyQuickReviewDays     StudyQuickReviewDay[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -168,6 +169,9 @@ model StudentProfile {
   privacyAcceptedAt      DateTime?
   recordingConsentAt     DateTime?
   onboardingCompletedAt  DateTime?
+
+  /// Short self-introduction / goals; visible to teachers with other profile context.
+  shortBio String? @db.VarChar(300)
 }
 
 model TeacherProfile {
@@ -449,6 +453,20 @@ model UserStudyCardState {
 
   @@unique([userId, cardId])
   @@index([userId, dueAt])
+}
+
+/// Fixed set of up to 5 review cards chosen once per UTC calendar day per user (dashboard quick review).
+model StudyQuickReviewDay {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dayKey    String
+  /// JSON string[] of StudyCard ids
+  cardIds   Json
+  createdAt DateTime @default(now())
+
+  @@unique([userId, dayKey])
+  @@index([userId])
 }
 
 model StudyAssessment {

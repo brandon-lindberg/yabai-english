@@ -24,7 +24,7 @@ export function SiteHeader() {
             <>
               <NotificationBell />
               <Link
-                href="/learn"
+                href="/learn/study"
                 className="text-sm font-medium text-muted hover:text-foreground"
               >
                 {t("learn")}

@@ -53,7 +53,6 @@ export default async function StudyHubPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-                  <p className="mt-1 text-xs text-muted">{level.levelCode}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {level.assessmentPassedAt ? (
@@ -114,8 +113,8 @@ export default async function StudyHubPage() {
       </section>
 
       <p className="mt-10">
-        <Link href="/learn" className="text-link text-sm">
-          ← {t("backToLearn")}
+        <Link href="/dashboard" className="text-link text-sm">
+          ← {t("backToDashboard")}
         </Link>
       </p>
     </main>

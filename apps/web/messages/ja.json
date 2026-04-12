@@ -80,6 +80,68 @@
       "BEGINNER": "初級",
       "INTERMEDIATE": "中級",
       "ADVANCED": "上級"
+    },
+    "nav": {
+      "ariaLabel": "ダッシュボードのセクション",
+      "overview": "概要",
+      "profile": "プロフィール",
+      "schedule": "スケジュール"
+    },
+    "highlights": {
+      "pageTitle": "概要",
+      "pageIntro": "次のレッスン、フラッシュカードの進捗、今日の短い復習です。",
+      "nextLessonTitle": "次のレッスン",
+      "noNextLesson": "予定のレッスンはありません。予約して続けましょう。",
+      "bookCta": "レッスンを予約",
+      "fullSchedule": "スケジュール一覧",
+      "seeFullSchedule": "カレンダーと一覧を見る",
+      "studyTitle": "フラッシュカード",
+      "studyBrowse": "レベル一覧",
+      "studyResume": "前回の続き",
+      "studyProgress": "触れたカード {touched} / {total}",
+      "studyOpen": "練習を続ける",
+      "studyNoActivity": "フラッシュカードで最初の練習を始めましょう。",
+      "studyLocked": "このレベルはまだロックされています。",
+      "studyLastHint": "最後の練習: {when}",
+      "rpgLine": "学習ランク {rank} · このランク {into} / {total} XP",
+      "profileCardEmpty": "短い自己紹介を書くと講師があなたを知りやすくなります。",
+      "profileCardEdit": "プロフィールを編集",
+      "profileBioSeeMore": "もっと見る",
+      "profileBioSeeLess": "閉じる"
+    },
+    "profilePage": {
+      "title": "プロフィール",
+      "intro": "予約した講師には、お名前・Google の写真・自己紹介が表示されます。",
+      "displayName": "表示名",
+      "shortBio": "短い自己紹介",
+      "shortBioHelp": "Markdownで最大300文字。目標・趣味・レッスンに望むことなど。",
+      "shortBioPlaceholder": "自己紹介を書いてください…",
+      "shortBioCharCounter": "{current} / {max}",
+      "save": "保存",
+      "saving": "保存中…",
+      "saved": "保存しました",
+      "avatarHelp": "写真は Google アカウントのものです。変更は Google 側で行ってください。",
+      "error": "保存できませんでした。もう一度お試しください。"
+    },
+    "schedulePage": {
+      "title": "スケジュール",
+      "intro": "今後のレッスンを確認し、カレンダーに追加できます。"
+    },
+    "quickReview": {
+      "title": "クイック復習",
+      "subtitle": "今日は {count} / {max} 枚 · {date}",
+      "deckHint": "ミニフラッシュカードです。タップで表面（日本語）と裏（英語）を切り替えられます。",
+      "cardFrontLabel": "表面",
+      "cardBackLabel": "裏",
+      "tapToFlip": "タップで裏返す",
+      "tapToFlipBack": "タップで戻す",
+      "tapToReveal": "タップで英語の答えを表示",
+      "tapToHide": "もう一度タップで日本語に戻す",
+      "empty": "まずフラッシュカードで練習しましょう。一度正解したカードから毎日選ばれます。"
+    },
+    "teacherHome": {
+      "title": "ダッシュボード",
+      "body": "予約やレッスン関連の機能はこちらです。受講生のフラッシュカードは「学習 → フラッシュカード」から。"
     }
   },
   "admin": {
@@ -174,14 +236,11 @@
   },
   "learn": {
     "title": "学習",
-    "courses": "コース",
-    "intro": "初級レベル1のフラッシュカードが利用できます。表面は日本語、裏面は英語です。XPをためてレベルテストに合格すると、初級レベル2が解放されます。",
-    "startBeginner1": "初級レベル1（フラッシュカード）を開く",
-    "flashcardsLink": "フラッシュカード・レベル"
+    "courses": "コース"
   },
   "study": {
     "title": "フラッシュカード",
-    "subtitle": "初級レベル1は全員が利用できます。その他のレベルは、レベルチェックの結果がその帯に達しているか、前のレベルのテストに合格すると解放されます。",
+    "subtitle": "トラック内のレベルが下に並びます。解放されているレベルはいつでも練習できます（多くの場合、レベルチェックの結果に応じた帯から先、または前のレベルの修了テスト合格後）。学習ランク用のXPもたまります。",
     "mastery": "習熟度",
     "xp": "XP",
     "cards": "カード",
@@ -190,7 +249,7 @@
     "practice": "練習する",
     "levelTest": "レベルテスト",
     "backToHub": "レベル一覧へ",
-    "backToLearn": "学習トップへ",
+    "backToDashboard": "ダッシュボードへ",
     "frontLabel": "日本語",
     "chooseEnglish": "正しい英語を選んでください：",
     "feedbackCorrect": "正解！",

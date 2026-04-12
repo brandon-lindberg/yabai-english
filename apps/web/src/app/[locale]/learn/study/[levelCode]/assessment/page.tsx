@@ -66,7 +66,9 @@ export default async function StudyAssessmentPage({ params }: Props) {
         </Link>
       </p>
       <h1 className="text-xl font-bold text-foreground">{t("levelTest")}</h1>
-      <p className="mt-1 text-sm text-muted">{levelCode}</p>
+      <p className="mt-1 text-sm text-muted">
+        {locale === "ja" ? level.titleJa : level.titleEn}
+      </p>
       <div className="mt-8">
         <StudyAssessmentForm assessmentId={level.assessments[0].id} />
       </div>

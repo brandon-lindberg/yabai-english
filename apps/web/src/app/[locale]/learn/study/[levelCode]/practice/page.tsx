@@ -40,6 +40,12 @@ export default async function StudyPracticePage({ params }: Props) {
     redirect({ href: "/learn/study", locale });
   }
 
+  const levelRow = await prisma.studyLevel.findUnique({
+    where: { trackId_levelCode: { trackId: track.id, levelCode } },
+    select: { titleJa: true, titleEn: true },
+  });
+  const levelTitle = levelRow ? (locale === "ja" ? levelRow.titleJa : levelRow.titleEn) : null;
+
   const t = await getTranslations("study");
   const initialRpg = await getStudyRpgSnapshot(prisma, session.user.id, track.id);
 
@@ -51,7 +57,7 @@ export default async function StudyPracticePage({ params }: Props) {
         </Link>
       </p>
       <h1 className="text-xl font-bold text-foreground">{t("practice")}</h1>
-      <p className="mt-1 text-sm text-muted">{levelCode}</p>
+      {levelTitle ? <p className="mt-1 text-sm text-muted">{levelTitle}</p> : null}
       <div className="mt-8">
         <StudyPracticeSession levelCode={levelCode} initialRpg={initialRpg} />
       </div>
