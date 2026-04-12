@@ -139,14 +139,16 @@
     "quickReview": {
       "title": "クイック復習",
       "subtitle": "今日は {count} / {max} 枚 · {date}",
-      "deckHint": "ミニフラッシュカードです。タップで表面（日本語）と裏（英語）を切り替えられます。",
-      "cardFrontLabel": "表面",
-      "cardBackLabel": "裏",
+      "deckHint": "ミニフラッシュカードです。タップでカードを裏返せます。",
+      "statsLine": "今日: 覚えた {learned} 枚 · まだ {notYet} 枚",
+      "learned": "覚えた",
+      "notYet": "まだ",
       "tapToFlip": "タップで裏返す",
       "tapToFlipBack": "タップで戻す",
       "tapToReveal": "タップで英語の答えを表示",
       "tapToHide": "もう一度タップで日本語に戻す",
-      "empty": "まずフラッシュカードで練習しましょう。一度正解したカードから毎日選ばれます。"
+      "empty": "まずフラッシュカードで練習しましょう。一度正解したカードから毎日選ばれます。",
+      "clearedForToday": "今日のクイック復習はすべて完了したか、これ以上表示できるカードがありません。また明日どうぞ。"
     },
     "teacherHome": {
       "title": "ダッシュボード",

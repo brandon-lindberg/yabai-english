@@ -1,5 +1,14 @@
 import { Prisma } from "@prisma/client";
 import type { PrismaClient } from "@prisma/client";
+import {
+  countQuickReviewOutcomeStats,
+  eligibleReplacementCandidates,
+  learnedDismissedIds,
+  parseQuickReviewInteractions,
+  pickRandomId,
+  replaceSlotCardId,
+  type QuickReviewOutcome,
+} from "./quick-review-actions";
 
 /** Max flashcards shown in the dashboard “quick review” panel per UTC day. */
 export const QUICK_REVIEW_DAILY_MAX = 5;
@@ -40,31 +49,55 @@ export function formatQuickReviewDayDisplay(dayKey: string, locale: string): str
 
 export type QuickReviewCard = { id: string; frontJa: string; backEn: string };
 
+export type QuickReviewPanelData = {
+  cards: QuickReviewCard[];
+  dayKey: string;
+  learnedToday: number;
+  notYetToday: number;
+};
+
+function parseCardIdList(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((x): x is string => typeof x === "string" && x.length > 0);
+}
+
+async function queryEligibleQuickReviewPoolIds(prisma: PrismaClient, userId: string): Promise<string[]> {
+  const rows = await prisma.$queryRaw<{ id: string }[]>`
+    SELECT c."id"
+    FROM "UserStudyCardState" s
+    INNER JOIN "StudyCard" c ON c."id" = s."cardId"
+    WHERE s."userId" = ${userId}
+      AND s."correctCount" >= 1
+  `;
+  return rows.map((r) => r.id);
+}
+
 /**
  * Returns up to five cards the learner has answered correctly at least once.
- * The set is chosen once per `dayKey` and stored so refreshes stay stable for the day.
+ * The initial set is chosen once per `dayKey` and stored; “Learned” can swap in new cards the same day.
  */
 export async function getOrCreateQuickReviewCards(
   prisma: PrismaClient,
   userId: string,
-): Promise<{ cards: QuickReviewCard[]; dayKey: string }> {
+): Promise<QuickReviewPanelData> {
   const dayKey = utcCalendarDayKey();
 
   const existing = await prisma.studyQuickReviewDay.findUnique({
     where: { userId_dayKey: { userId, dayKey } },
   });
   if (existing) {
-    const ids = existing.cardIds as unknown;
-    const list = Array.isArray(ids) ? (ids as string[]) : [];
+    const list = parseCardIdList(existing.cardIds);
+    const interactions = parseQuickReviewInteractions(existing.interactions);
+    const stats = countQuickReviewOutcomeStats(interactions);
     if (list.length === 0) {
-      return { cards: [], dayKey };
+      return { cards: [], dayKey, ...stats };
     }
     const cards = await prisma.studyCard.findMany({
       where: { id: { in: list } },
       select: { id: true, frontJa: true, backEn: true },
     });
     sortByIdOrder(cards, list);
-    return { cards, dayKey };
+    return { cards, dayKey, ...stats };
   }
 
   const sampled = await prisma.$queryRaw<{ id: string }[]>`
@@ -79,7 +112,7 @@ export async function getOrCreateQuickReviewCards(
 
   const ids = sampled.map((r) => r.id);
   if (ids.length === 0) {
-    return { cards: [], dayKey };
+    return { cards: [], dayKey, learnedToday: 0, notYetToday: 0 };
   }
 
   await prisma.studyQuickReviewDay.create({
@@ -95,7 +128,79 @@ export async function getOrCreateQuickReviewCards(
     select: { id: true, frontJa: true, backEn: true },
   });
   sortByIdOrder(cards, ids);
-  return { cards, dayKey };
+  return { cards, dayKey, learnedToday: 0, notYetToday: 0 };
+}
+
+export type ApplyQuickReviewResult =
+  | { ok: true; cards: QuickReviewCard[]; learnedToday: number; notYetToday: number }
+  | { ok: false; error: "day_mismatch" | "not_found" | "card_not_in_review" };
+
+/**
+ * Record Learned / Not yet for the current UTC quick-review row and rotate the slot when learned.
+ */
+export async function applyQuickReviewOutcome(
+  prisma: PrismaClient,
+  userId: string,
+  input: { dayKey: string; cardId: string; outcome: QuickReviewOutcome },
+): Promise<ApplyQuickReviewResult> {
+  const today = utcCalendarDayKey();
+  if (input.dayKey !== today) {
+    return { ok: false, error: "day_mismatch" };
+  }
+
+  const row = await prisma.studyQuickReviewDay.findUnique({
+    where: { userId_dayKey: { userId, dayKey: input.dayKey } },
+  });
+  if (!row) {
+    return { ok: false, error: "not_found" };
+  }
+
+  const slotIds = parseCardIdList(row.cardIds);
+  if (!slotIds.includes(input.cardId)) {
+    return { ok: false, error: "card_not_in_review" };
+  }
+
+  const interactions = parseQuickReviewInteractions(row.interactions);
+  interactions.push({
+    cardId: input.cardId,
+    outcome: input.outcome,
+    at: new Date().toISOString(),
+  });
+
+  let nextSlotIds = [...slotIds];
+  if (input.outcome === "learned") {
+    const dismissed = learnedDismissedIds(interactions);
+    const pool = await queryEligibleQuickReviewPoolIds(prisma, userId);
+    const candidates = eligibleReplacementCandidates(
+      pool,
+      nextSlotIds,
+      dismissed,
+      input.cardId,
+    );
+    const replacement = pickRandomId(candidates, Math.random);
+    nextSlotIds = replaceSlotCardId(nextSlotIds, input.cardId, replacement);
+  }
+
+  await prisma.studyQuickReviewDay.update({
+    where: { id: row.id },
+    data: {
+      cardIds: nextSlotIds as unknown as Prisma.InputJsonValue,
+      interactions: interactions as unknown as Prisma.InputJsonValue,
+    },
+  });
+
+  if (nextSlotIds.length === 0) {
+    const stats = countQuickReviewOutcomeStats(interactions);
+    return { ok: true, cards: [], ...stats };
+  }
+
+  const cards = await prisma.studyCard.findMany({
+    where: { id: { in: nextSlotIds } },
+    select: { id: true, frontJa: true, backEn: true },
+  });
+  sortByIdOrder(cards, nextSlotIds);
+  const stats = countQuickReviewOutcomeStats(interactions);
+  return { ok: true, cards, ...stats };
 }
 
 function sortByIdOrder(cards: QuickReviewCard[], order: string[]) {

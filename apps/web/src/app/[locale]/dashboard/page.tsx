@@ -118,7 +118,12 @@ export default async function DashboardPage() {
       {overview ? <DashboardFlashcardStats trackPractice={overview.trackPractice} /> : null}
 
       <section>
-        <DashboardQuickReview cards={quick.cards} dayKey={quick.dayKey} />
+        <DashboardQuickReview
+          initialCards={quick.cards}
+          dayKey={quick.dayKey}
+          initialLearnedToday={quick.learnedToday}
+          initialNotYetToday={quick.notYetToday}
+        />
       </section>
 
       {scheduleItems.length > 0 ? (

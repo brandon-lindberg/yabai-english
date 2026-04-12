@@ -466,6 +466,8 @@ model StudyQuickReviewDay {
   dayKey    String
   /// JSON string[] of StudyCard ids
   cardIds   Json
+  /// JSON [{ cardId, outcome: "learned" | "not_yet", at: ISO string }]
+  interactions Json @default("[]")
   createdAt DateTime @default(now())
 
   @@unique([userId, dayKey])

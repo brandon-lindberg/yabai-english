@@ -139,14 +139,16 @@
     "quickReview": {
       "title": "Quick review",
       "subtitle": "{count} / {max} cards today · {date}",
-      "deckHint": "Mini flashcards — tap a card to flip between Japanese and English.",
-      "cardFrontLabel": "Front",
-      "cardBackLabel": "Back",
+      "deckHint": "Mini flashcards — tap a card to flip.",
+      "statsLine": "Today: {learned} learned · {notYet} not yet",
+      "learned": "Learned",
+      "notYet": "Not yet",
       "tapToFlip": "Tap to flip",
       "tapToFlipBack": "Tap to flip back",
       "tapToReveal": "Tap to show the English answer.",
       "tapToHide": "Tap again to show the Japanese prompt.",
-      "empty": "Practice a few flashcards first — quick review uses cards you have already answered correctly."
+      "empty": "Practice a few flashcards first — quick review uses cards you have already answered correctly.",
+      "clearedForToday": "You have cleared today’s quick review slots (or no more eligible cards are left). Come back tomorrow for a fresh set."
     },
     "teacherHome": {
       "title": "Dashboard",
