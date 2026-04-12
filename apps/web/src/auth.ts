@@ -4,6 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { Adapter } from "next-auth/adapters";
 import { prisma } from "@/lib/prisma";
+import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 import { Role } from "@prisma/client";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
@@ -100,6 +101,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = (token.role as Role) ?? Role.STUDENT;
         session.user.locale = (token.locale as string) ?? "ja";
       }
+
+      const userId = session.user.id;
+      if (session.user.role === Role.STUDENT && userId) {
+        const row = await prisma.studentProfile.findUnique({
+          where: { userId },
+          select: { placementCompletedAt: true },
+        });
+        session.user.canStartPlacement = isPlacementRetakeAllowed(row?.placementCompletedAt ?? null);
+      } else {
+        session.user.canStartPlacement = true;
+      }
+
       return session;
     },
   },
@@ -114,6 +127,8 @@ declare module "next-auth" {
       image?: string | null;
       role: Role;
       locale: string;
+      /** Students: whether `/placement` and retake CTAs should show (false during post-test cooldown). */
+      canStartPlacement: boolean;
     };
   }
 }

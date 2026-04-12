@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { isStudyLevelUnlocked } from "@/lib/study/access";
 import { getTotalStudyXpForTrack } from "@/lib/study/get-overview";
 import { computeLevelMastery } from "@/lib/study/mastery";
+import { notifyStudyRankUpIfNeeded } from "@/lib/study/rpg-rank-notification";
 import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
 import { answersMatch, nextDueAtAfterQuiz, xpForMcq } from "@/lib/study/quiz";
 import { z } from "zod";
@@ -42,6 +43,12 @@ export async function POST(req: Request) {
   const correct = answersMatch(parsed.data.chosenAnswer, card.backEn);
   const xpGain = xpForMcq(correct);
   const now = new Date();
+
+  const previousTotalXp = await getTotalStudyXpForTrack(
+    prisma,
+    session.user.id,
+    level.trackId,
+  );
 
   const existing = await prisma.userStudyCardState.findUnique({
     where: { userId_cardId: { userId: session.user.id, cardId: card.id } },
@@ -100,6 +107,12 @@ export async function POST(req: Request) {
 
   const totalStudyXp = await getTotalStudyXpForTrack(prisma, session.user.id, level.trackId);
   const rpg = studyRpgProgressFromTotalXp(totalStudyXp);
+
+  await notifyStudyRankUpIfNeeded({
+    userId: session.user.id,
+    previousTotalXp,
+    newTotalXp: totalStudyXp,
+  });
 
   return NextResponse.json({
     correct,

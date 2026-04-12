@@ -29,7 +29,7 @@ export function SiteHeader() {
               >
                 {t("learn")}
               </Link>
-              {session.user.role === "STUDENT" && (
+              {session.user.role === "STUDENT" && session.user.canStartPlacement && (
                 <Link
                   href="/placement"
                   className="text-sm font-medium text-muted hover:text-foreground"

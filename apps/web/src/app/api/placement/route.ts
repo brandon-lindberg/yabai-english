@@ -16,6 +16,10 @@ import {
   chooseNextAdaptiveQuestion,
 } from "@/lib/placement-adaptive";
 import type { LoadedPlacementQuestion } from "@/lib/placement-bank/load-placement-bank";
+import {
+  isPlacementRetakeAllowed,
+  placementRetakeEligibleAt,
+} from "@/lib/placement-cooldown";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -34,6 +38,22 @@ export async function GET() {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const profile = await prisma.studentProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { placementCompletedAt: true },
+  });
+  const completedAt = profile?.placementCompletedAt ?? null;
+  if (completedAt && !isPlacementRetakeAllowed(completedAt)) {
+    return NextResponse.json(
+      {
+        error: "cooldown",
+        eligibleAt: placementRetakeEligibleAt(completedAt).toISOString(),
+      },
+      { status: 403 },
+    );
+  }
+
   const bank = await getPlacementBankQuestions();
   const cookieStore = await cookies();
   const recentIds = (cookieStore.get(RECENT_PLACEMENT_IDS_COOKIE)?.value ?? "")

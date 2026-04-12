@@ -10,6 +10,7 @@ import { DashboardNextLesson } from "@/components/dashboard/dashboard-next-lesso
 import { DashboardProfileSummary } from "@/components/dashboard/dashboard-profile-summary";
 import { DashboardStudyHighlight } from "@/components/dashboard/dashboard-study-highlight";
 import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-review";
+import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -53,6 +54,8 @@ export default async function DashboardPage() {
   const overview = await getStudyTrackOverview(prisma, session.user.id, "english-flashcards");
   const resume = await getStudyResumeInfo(prisma, session.user.id);
 
+  const canStartPlacement = isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null);
+
   return (
     <div className="space-y-10">
       <header className="space-y-2">
@@ -78,21 +81,23 @@ export default async function DashboardPage() {
           >
             {tCommon("bookLesson")}
           </Link>
-          {profile.placedLevel === "UNSET" ? (
-            <Link
-              href="/placement"
-              className="rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-foreground hover:bg-accent/20"
-            >
-              {t("placementCta")}
-            </Link>
-          ) : (
-            <Link
-              href="/placement"
-              className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted hover:bg-[var(--app-hover)]"
-            >
-              {t("retakePlacement")}
-            </Link>
-          )}
+          {canStartPlacement ? (
+            profile.placedLevel === "UNSET" ? (
+              <Link
+                href="/placement"
+                className="rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-foreground hover:bg-accent/20"
+              >
+                {t("placementCta")}
+              </Link>
+            ) : (
+              <Link
+                href="/placement"
+                className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted hover:bg-[var(--app-hover)]"
+              >
+                {t("retakePlacement")}
+              </Link>
+            )
+          ) : null}
         </div>
       ) : null}
 

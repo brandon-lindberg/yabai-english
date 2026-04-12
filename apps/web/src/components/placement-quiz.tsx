@@ -3,8 +3,17 @@
 import { placementTextToReact } from "@/lib/placement-question-display";
 import type { PlacementQuestionPublic } from "@/lib/placement-test";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { useSession } from "next-auth/react";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
+
+function formatPlacementEligibleDate(iso: string, locale: string): string {
+  const d = new Date(iso);
+  if (locale.startsWith("ja")) {
+    return new Intl.DateTimeFormat("ja-JP", { dateStyle: "long", timeZone: "UTC" }).format(d);
+  }
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" }).format(d);
+}
 
 type PlacementResult = {
   level: string;
@@ -25,6 +34,7 @@ export function PlacementQuiz() {
   const t = useTranslations("placement");
   const locale = useLocale();
   const router = useRouter();
+  const { update: updateSession } = useSession();
   const [question, setQuestion] = useState<PlacementQuestionPublic | null>(null);
   const [objectiveComplete, setObjectiveComplete] = useState(false);
   const [progressCurrent, setProgressCurrent] = useState(1);
@@ -37,16 +47,27 @@ export function PlacementQuiz() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PlacementResult | null>(null);
+  const [cooldownEligibleAt, setCooldownEligibleAt] = useState<string | null>(null);
 
   useEffect(() => {
     void fetch(`/api/placement?ts=${Date.now()}`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data: {
-        question: PlacementQuestionPublic | null;
-        attemptToken?: string;
-        expiresAt?: number;
-        progress?: { current: number; total: number };
-      }) => {
+      .then(async (r) => {
+        const data = (await r.json()) as {
+          error?: string;
+          eligibleAt?: string;
+          question?: PlacementQuestionPublic | null;
+          attemptToken?: string;
+          expiresAt?: number;
+          progress?: { current: number; total: number };
+        };
+        if (!r.ok) {
+          if (data.error === "cooldown" && typeof data.eligibleAt === "string") {
+            setCooldownEligibleAt(data.eligibleAt);
+            return;
+          }
+          setError(data.error ?? t("loadError"));
+          return;
+        }
         setQuestion(data.question ?? null);
         setObjectiveComplete(false);
         setProgressCurrent(data.progress?.current ?? 1);
@@ -59,7 +80,7 @@ export function PlacementQuiz() {
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!expiresAt) return;
@@ -101,6 +122,7 @@ export function PlacementQuiz() {
       }
       if (data.level) {
         setResult(data);
+        void updateSession();
       }
     } finally {
       setSubmitting(false);
@@ -148,6 +170,22 @@ export function PlacementQuiz() {
 
   if (loading) {
     return <p className="text-muted">{t("loading")}</p>;
+  }
+
+  if (cooldownEligibleAt) {
+    const dateLabel = formatPlacementEligibleDate(cooldownEligibleAt, locale);
+    return (
+      <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+        <p className="text-base font-semibold text-foreground">{t("cooldownTitle")}</p>
+        <p className="mt-2 text-sm text-muted">{t("cooldownBody", { date: dateLabel })}</p>
+        <Link
+          href="/dashboard"
+          className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+        >
+          {t("cooldownBack")}
+        </Link>
+      </div>
+    );
   }
 
   if (!question && !objectiveComplete) {
