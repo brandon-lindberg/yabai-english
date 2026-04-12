@@ -3,19 +3,23 @@
 import { StudyRpgXpBar } from "@/components/study/study-rpg-xp-bar";
 import type { StudyRpgSnapshot } from "@/lib/study/rpg-xp";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { StudyLevelCode } from "@prisma/client";
 
 /** `frontJa` matches API field name; content is Japanese-heavy at Beginner 1 and trends English upward. */
 type QuizCard = { id: string; frontJa: string; options: string[] };
 
+export type StudyQueueFocus = "mixed" | "weak" | "mastered";
+
 export function StudyPracticeSession({
   levelCode,
   initialRpg,
+  queueFocus = "mixed",
 }: {
   levelCode: StudyLevelCode;
   initialRpg: StudyRpgSnapshot;
+  queueFocus?: StudyQueueFocus;
 }) {
   const t = useTranslations("study");
   const [rpg, setRpg] = useState<StudyRpgSnapshot>(initialRpg);
@@ -23,6 +27,7 @@ export function StudyPracticeSession({
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [emptyReason, setEmptyReason] = useState<"no_weak_cards" | "no_mastered_cards" | null>(null);
   const [sessionXp, setSessionXp] = useState(0);
   const [sessionCorrect, setSessionCorrect] = useState(0);
   const [sessionWrong, setSessionWrong] = useState(0);
@@ -30,13 +35,15 @@ export function StudyPracticeSession({
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string | null>(null);
+  const promptShownAtMs = useRef<number>(0);
 
   const loadQueue = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setEmptyReason(null);
     try {
       const res = await fetch(
-        `/api/study/queue?trackSlug=english-flashcards&levelCode=${encodeURIComponent(levelCode)}&limit=24`,
+        `/api/study/queue?trackSlug=english-flashcards&levelCode=${encodeURIComponent(levelCode)}&limit=24&focus=${encodeURIComponent(queueFocus)}`,
       );
       if (!res.ok) {
         const j = (await res.json().catch(() => ({}))) as { error?: string };
@@ -44,8 +51,14 @@ export function StudyPracticeSession({
         setCards([]);
         return;
       }
-      const data = (await res.json()) as { cards: QuizCard[] };
+      const data = (await res.json()) as {
+        cards: QuizCard[];
+        emptyReason?: "no_weak_cards" | "no_mastered_cards";
+      };
       setCards(data.cards);
+      if (data.cards.length === 0 && data.emptyReason) {
+        setEmptyReason(data.emptyReason);
+      }
       setIndex(0);
       setFinished(false);
       setFeedback(null);
@@ -56,7 +69,7 @@ export function StudyPracticeSession({
     } finally {
       setLoading(false);
     }
-  }, [levelCode]);
+  }, [levelCode, queueFocus]);
 
   useEffect(() => {
     void loadQueue();
@@ -68,15 +81,22 @@ export function StudyPracticeSession({
 
   const current = cards[index];
 
+  useEffect(() => {
+    if (current) {
+      promptShownAtMs.current = Date.now();
+    }
+  }, [current?.id]);
+
   const submitAnswer = async (chosenAnswer: string) => {
     if (!current || submitting) return;
     setSubmitting(true);
     setFeedback(null);
+    const answerTimeMs = Math.max(0, Date.now() - promptShownAtMs.current);
     try {
       const res = await fetch("/api/study/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId: current.id, chosenAnswer }),
+        body: JSON.stringify({ cardId: current.id, chosenAnswer, answerTimeMs }),
       });
       if (!res.ok) {
         setSubmitting(false);
@@ -155,9 +175,15 @@ export function StudyPracticeSession({
   }
 
   if (!current || cards.length === 0) {
+    const emptyMsg =
+      emptyReason === "no_weak_cards"
+        ? t("queueEmptyWeak")
+        : emptyReason === "no_mastered_cards"
+          ? t("queueEmptyMastered")
+          : t("sessionEmpty");
     return (
       <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-        <p className="text-muted">{t("sessionEmpty")}</p>
+        <p className="text-muted">{emptyMsg}</p>
         <Link href="/learn/study" className="mt-4 inline-block text-link">
           {t("backToHub")}
         </Link>
@@ -167,6 +193,10 @@ export function StudyPracticeSession({
 
   return (
     <div className="space-y-6">
+      {queueFocus !== "mixed" ? (
+        <p className="text-xs text-muted">{t("practiceFocusHint")}</p>
+      ) : null}
+
       <StudyRpgXpBar
         title={t("rpgRankTitle", { rank: rpg.rank })}
         fractionLabel={t("rpgXpLine", { into: rpg.xpIntoRank, total: rpg.xpForNextRank })}
@@ -209,7 +239,9 @@ export function StudyPracticeSession({
       ) : null}
 
       {!feedback ? (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div
+          className={`grid gap-2 ${current.options.length <= 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"}`}
+        >
           {current.options.map((opt) => (
             <button
               key={`${current.id}-${opt}`}

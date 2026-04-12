@@ -12,14 +12,67 @@ describe("normalizeStudyAnswer / answersMatch", () => {
 describe("buildFourOptions", () => {
   it("includes correct and three distractors", () => {
     const rng = () => 0.42;
-    const opts = buildFourOptions(
-      "Water",
-      ["Food", "Book", "Hello", "Water", "Food"],
+    const opts = buildFourOptions("Water", ["Food", "Book", "Hello", "Water", "Food"], {
       rng,
-    );
+      distractorCount: 3,
+    });
     expect(opts).toHaveLength(4);
     expect(opts).toContain("Water");
     expect(new Set(opts).size).toBe(4);
+  });
+
+  it("supports three-option sets for mastered-style decks", () => {
+    const opts = buildFourOptions("Water", ["Food", "Book", "Hello"], {
+      rng: () => 0.1,
+      distractorCount: 2,
+    });
+    expect(opts).toHaveLength(3);
+    expect(opts).toContain("Water");
+  });
+
+  it("does not always use the same three distractors from pool order (anti-pattern-memorization)", () => {
+    const correct = "unique-correct-answer";
+    const pool = Array.from({ length: 16 }, (_, i) => `distractor-${i}`);
+    const firstThreeInPoolOrder = ["distractor-0", "distractor-1", "distractor-2"].sort().join("|");
+
+    let sawDifferentWrongSet = false;
+    for (let run = 0; run < 80; run++) {
+      let s = (501 * run + 17) >>> 0;
+      const rng = () => {
+        s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+        return s / 0x100000000;
+      };
+      const opts = buildFourOptions(correct, pool, { rng, distractorCount: 3 });
+      const wrongSorted = opts
+        .filter((x) => x !== correct)
+        .sort()
+        .join("|");
+      if (wrongSorted !== firstThreeInPoolOrder) {
+        sawDifferentWrongSet = true;
+        break;
+      }
+    }
+    expect(sawDifferentWrongSet).toBe(true);
+  });
+
+  it("samples many distinct distractor triples over repeated builds with varied RNG", () => {
+    const correct = "target-phrase";
+    const pool = Array.from({ length: 24 }, (_, i) => `option-${i}`);
+    const wrongSets = new Set<string>();
+    for (let run = 0; run < 50; run++) {
+      let s = (run * 1103515245 + 12345) >>> 0;
+      const rng = () => {
+        s = (Math.imul(s, 48271) + 7) >>> 0;
+        return s / 0x100000000;
+      };
+      const opts = buildFourOptions(correct, pool, { rng, distractorCount: 3 });
+      const wrong = opts
+        .filter((x) => x !== correct)
+        .sort()
+        .join("|");
+      wrongSets.add(wrong);
+    }
+    expect(wrongSets.size).toBeGreaterThan(12);
   });
 });
 

@@ -1,3 +1,5 @@
+import { classifyPracticeBand, type StudyCardPerformanceSlice } from "./study-card-analytics";
+
 const MS_SECOND = 1000;
 const MS_MINUTE = 60_000;
 const MS_HOUR = 3_600_000;
@@ -26,39 +28,56 @@ function shuffleInPlace<T>(arr: T[], rng: () => number): void {
   }
 }
 
+export type BuildMcqOptions = {
+  rng?: () => number;
+  /** Number of wrong choices besides the correct answer (2 → 3-option MCQ, 3 → 4-option). */
+  distractorCount?: 2 | 3;
+};
+
 /**
- * Four English choices: one correct + three distractors, shuffled.
+ * English MCQ choices: one correct + `distractorCount` distractors (default 3 → four buttons).
+ * Distractors are drawn from a **shuffled** candidate pool so the same wrong trio does not repeat
+ * every session for the same card (reduces process-of-elimination cheating).
  */
 export function buildFourOptions(
   correctBackEn: string,
   distractorPool: string[],
-  rng: () => number = Math.random,
+  opts?: BuildMcqOptions,
 ): string[] {
+  const rng = opts?.rng ?? Math.random;
+  const distractorCount = opts?.distractorCount ?? 3;
   const correct = correctBackEn.trim();
   const correctNorm = normalizeStudyAnswer(correct);
-  const seen = new Set<string>([correctNorm]);
-  const distractors: string[] = [];
+
+  const seenNorms = new Set<string>([correctNorm]);
+  const candidates: string[] = [];
 
   for (const raw of distractorPool) {
     const t = raw.trim();
     if (!t) continue;
     const n = normalizeStudyAnswer(t);
-    if (n === correctNorm || seen.has(n)) continue;
-    seen.add(n);
-    distractors.push(t);
-    if (distractors.length >= 3) break;
+    if (n === correctNorm || seenNorms.has(n)) continue;
+    seenNorms.add(n);
+    candidates.push(t);
   }
 
-  let fb = 0;
-  while (distractors.length < 3 && fb < FALLBACK_DISTRACTORS_EN.length) {
-    const t = FALLBACK_DISTRACTORS_EN[fb++]!;
-    const n = normalizeStudyAnswer(t);
-    if (seen.has(n)) continue;
-    seen.add(n);
-    distractors.push(t);
+  shuffleInPlace(candidates, rng);
+  const distractors = candidates.slice(0, distractorCount);
+
+  if (distractors.length < distractorCount) {
+    const fallbacks = [...FALLBACK_DISTRACTORS_EN];
+    shuffleInPlace(fallbacks, rng);
+    for (const raw of fallbacks) {
+      if (distractors.length >= distractorCount) break;
+      const t = raw.trim();
+      const n = normalizeStudyAnswer(t);
+      if (seenNorms.has(n)) continue;
+      seenNorms.add(n);
+      distractors.push(t);
+    }
   }
 
-  const four = [correct, ...distractors.slice(0, 3)];
+  const four = [correct, ...distractors.slice(0, distractorCount)];
   shuffleInPlace(four, rng);
   return four;
 }
@@ -67,7 +86,19 @@ export type CardQuizStateSlice = {
   correctCount: number;
   wrongCount: number;
   streakCorrect: number;
+  averageAnswerMs?: number | null;
+  latencySampleCount?: number;
 } | null;
+
+function sliceForBand(state: NonNullable<CardQuizStateSlice>): StudyCardPerformanceSlice {
+  return {
+    correctCount: state.correctCount,
+    wrongCount: state.wrongCount,
+    streakCorrect: state.streakCorrect,
+    averageAnswerMs: state.averageAnswerMs ?? null,
+    latencySampleCount: state.latencySampleCount ?? 0,
+  };
+}
 
 /** Higher weight = more likely in session queue (struggling cards surface more). */
 export function cardQuizWeight(state: CardQuizStateSlice): number {
@@ -76,7 +107,10 @@ export function cardQuizWeight(state: CardQuizStateSlice): number {
   let w = 2;
   w += wrongCount * 8;
   w += Math.max(0, 6 - streakCorrect) * 2;
-  if (correctCount + wrongCount === 0) w += 6;
+  const band = classifyPracticeBand(sliceForBand(state));
+  if (band === "new") w += 6;
+  if (band === "weak") w += 14;
+  if (band === "mastered") w = Math.max(1, w - 5);
   return w;
 }
 
@@ -124,18 +158,41 @@ export function weightedSampleWithoutReplacement<T>(
   return picks;
 }
 
+export type NextDueQuizOpts = {
+  /** Client-measured time from prompt shown to answer submitted (ms). */
+  answerTimeMs?: number | null;
+};
+
 /** After a quiz result, when this card can re-enter the weighted pool as "due". */
-export function nextDueAtAfterQuiz(correct: boolean, streakAfter: number, now: Date): Date {
+export function nextDueAtAfterQuiz(
+  correct: boolean,
+  streakAfter: number,
+  now: Date,
+  opts?: NextDueQuizOpts,
+): Date {
+  const t = opts?.answerTimeMs;
   if (!correct) {
     return new Date(now.getTime() + 45 * MS_SECOND);
   }
   if (streakAfter < 2) {
-    return new Date(now.getTime() + 8 * MS_MINUTE);
+    let ms = 8 * MS_MINUTE;
+    if (t != null && t < 5000) {
+      ms += Math.min(90 * MS_SECOND, (5000 - t) * 10);
+    }
+    return new Date(now.getTime() + ms);
   }
   if (streakAfter < 5) {
-    return new Date(now.getTime() + 3 * MS_HOUR);
+    let ms = 3 * MS_HOUR;
+    if (t != null && t < 8000) {
+      ms += 5 * MS_MINUTE;
+    }
+    return new Date(now.getTime() + ms);
   }
-  return new Date(now.getTime() + MS_DAY);
+  let ms = MS_DAY;
+  if (t != null && t > 55_000) {
+    ms = Math.max(30 * MS_MINUTE, ms - 15 * MS_MINUTE);
+  }
+  return new Date(now.getTime() + ms);
 }
 
 export function xpForMcq(correct: boolean): number {

@@ -2,6 +2,11 @@ import type { PrismaClient } from "@prisma/client";
 import { isStudyLevelUnlocked } from "./access";
 import { computeLevelMastery } from "./mastery";
 import { studyRpgProgressFromTotalXp, type StudyRpgSnapshot } from "./rpg-xp";
+import {
+  combineTrackPracticeRollups,
+  getFlashcardPracticeRollupsByLevelId,
+  type FlashcardLevelPracticeRollup,
+} from "./study-flashcard-stats";
 
 export async function getTotalStudyXpForTrack(
   prisma: PrismaClient,
@@ -40,6 +45,12 @@ export async function getStudyTrackOverview(
   const totalStudyXp = await getTotalStudyXpForTrack(prisma, userId, track.id);
   const rpg = studyRpgProgressFromTotalXp(totalStudyXp);
 
+  const practiceByLevelId = await getFlashcardPracticeRollupsByLevelId(
+    prisma,
+    userId,
+    track.levels.map((l) => l.id),
+  );
+
   const levels = [];
   for (const level of track.levels) {
     const locked = !(await isStudyLevelUnlocked(prisma, userId, track.id, level.levelCode));
@@ -71,8 +82,13 @@ export async function getStudyTrackOverview(
       cardsTotal,
       cardsTouched,
       exitAssessmentId: assessment?.id ?? null,
+      practice: practiceByLevelId.get(level.id)!,
     });
   }
+
+  const trackPractice: FlashcardLevelPracticeRollup = combineTrackPracticeRollups(
+    track.levels.map((l) => practiceByLevelId.get(l.id)!),
+  );
 
   return {
     track: {
@@ -83,5 +99,6 @@ export async function getStudyTrackOverview(
     },
     levels,
     rpg,
+    trackPractice,
   };
 }

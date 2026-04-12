@@ -96,6 +96,22 @@ export default async function StudyHubPage() {
                     >
                       {t("practice")}
                     </Link>
+                    {level.practice.weakCount > 0 ? (
+                      <Link
+                        href={`/learn/study/${level.levelCode}/practice?focus=weak`}
+                        className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-medium text-foreground"
+                      >
+                        {t("practiceWeak")} ({level.practice.weakCount})
+                      </Link>
+                    ) : null}
+                    {level.practice.masteredCount > 0 ? (
+                      <Link
+                        href={`/learn/study/${level.levelCode}/practice?focus=mastered`}
+                        className="rounded-xl border border-green-600/30 bg-green-500/10 px-4 py-2 text-sm font-medium text-foreground"
+                      >
+                        {t("practiceMastered")} ({level.practice.masteredCount})
+                      </Link>
+                    ) : null}
                     {level.exitAssessmentId ? (
                       <Link
                         href={`/learn/study/${level.levelCode}/assessment`}

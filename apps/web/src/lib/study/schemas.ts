@@ -141,8 +141,56 @@ const beginner2LevelFileBaseSchema = z.object({
 
 export const beginner2LevelFileSchema = beginner2LevelFileBaseSchema.superRefine(refineBeginnerL2Decks);
 
+/** Beginner L3: 20–25 decks, 12–14 cards each, ~250–300 total (simple independence). */
+const BEGINNER_L3_DECK_MIN = 20;
+const BEGINNER_L3_DECK_MAX = 25;
+const BEGINNER_L3_CARDS_PER_DECK_MIN = 12;
+const BEGINNER_L3_CARDS_PER_DECK_MAX = 14;
+const BEGINNER_L3_TOTAL_CARDS_MIN = 250;
+const BEGINNER_L3_TOTAL_CARDS_MAX = 300;
+
+function refineBeginnerL3Decks(data: DecksRefinable, ctx: z.RefinementCtx): void {
+  const { decks } = data;
+  if (decks.length < BEGINNER_L3_DECK_MIN || decks.length > BEGINNER_L3_DECK_MAX) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Expected ${BEGINNER_L3_DECK_MIN}–${BEGINNER_L3_DECK_MAX} decks, got ${decks.length}`,
+    });
+  }
+  let total = 0;
+  for (let i = 0; i < decks.length; i++) {
+    const n = decks[i]!.cards.length;
+    if (n < BEGINNER_L3_CARDS_PER_DECK_MIN || n > BEGINNER_L3_CARDS_PER_DECK_MAX) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Deck ${i}: expected ${BEGINNER_L3_CARDS_PER_DECK_MIN}–${BEGINNER_L3_CARDS_PER_DECK_MAX} cards, got ${n}`,
+      });
+    }
+    total += n;
+  }
+  if (total < BEGINNER_L3_TOTAL_CARDS_MIN || total > BEGINNER_L3_TOTAL_CARDS_MAX) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Expected ${BEGINNER_L3_TOTAL_CARDS_MIN}–${BEGINNER_L3_TOTAL_CARDS_MAX} total cards, got ${total}`,
+    });
+  }
+}
+
+const beginner3LevelFileBaseSchema = z.object({
+  version: z.literal(1),
+  levelCode: z.literal("BEGINNER_3"),
+  decks: z.array(studyDeckFileSchema).min(BEGINNER_L3_DECK_MIN).max(BEGINNER_L3_DECK_MAX),
+  assessment: z.object({
+    passingScore: z.number().int().min(0).max(100),
+    items: z.array(studyAssessmentItemSchema).min(8).max(16),
+  }),
+});
+
+export const beginner3LevelFileSchema = beginner3LevelFileBaseSchema.superRefine(refineBeginnerL3Decks);
+
 export type BeginnerLevelFile = z.infer<typeof beginnerLevelFileSchema>;
 export type Beginner2LevelFile = z.infer<typeof beginner2LevelFileSchema>;
+export type Beginner3LevelFile = z.infer<typeof beginner3LevelFileSchema>;
 export type StudyAssessmentItem = z.infer<typeof studyAssessmentItemSchema>;
 
 const llmAssessmentItemSchema = studyAssessmentItemSchema.extend({

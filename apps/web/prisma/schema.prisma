@@ -449,6 +449,9 @@ model UserStudyCardState {
   correctCount Int       @default(0)
   wrongCount   Int       @default(0)
   streakCorrect Int      @default(0)
+  /// Running mean answer latency (ms) for this card; null until first timed submission.
+  averageAnswerMs   Float?
+  latencySampleCount Int @default(0)
   updatedAt    DateTime  @updatedAt
 
   @@unique([userId, cardId])

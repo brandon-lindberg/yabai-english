@@ -109,7 +109,14 @@
       "profileCardEmpty": "Add a short introduction so teachers know you better.",
       "profileCardEdit": "Edit profile",
       "profileBioSeeMore": "See more",
-      "profileBioSeeLess": "See less"
+      "profileBioSeeLess": "See less",
+      "flashcardStatsTitle": "Flashcard analytics",
+      "flashcardStatsIntro": "Across your flashcard track: accuracy, response time, and cards flagged weak or mastered.",
+      "flashcardAccuracy": "Accuracy",
+      "flashcardAvgTime": "Avg. time to answer",
+      "flashcardSeconds": "{sec} s",
+      "flashcardWeak": "Weak cards",
+      "flashcardMastered": "Mastered cards"
     },
     "profilePage": {
       "title": "Profile",
@@ -272,7 +279,13 @@
     "scoreResult": "Score: {score}%",
     "passedUnlock": "You passed! The next level is unlocked.",
     "failedTest": "Not quite. Keep practicing and try again.",
-    "questionOf": "Question {n} of {total}"
+    "questionOf": "Question {n} of {total}",
+    "practiceWeak": "Weak cards",
+    "practiceMastered": "Mastered cards",
+    "practiceMixed": "Mixed queue",
+    "practiceFocusHint": "Target weak cards for extra repeats, or review mastered cards.",
+    "queueEmptyWeak": "No weak cards yet — keep practicing!",
+    "queueEmptyMastered": "No mastered cards yet — answer a few correctly in a row to build mastery."
   },
   "onboarding": {
     "title": "Welcome to English Studio",

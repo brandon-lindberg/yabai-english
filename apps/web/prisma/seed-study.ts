@@ -4,6 +4,7 @@ import type { PrismaClient } from "@prisma/client";
 import { StudyLevelCode } from "@prisma/client";
 import {
   beginner2LevelFileSchema,
+  beginner3LevelFileSchema,
   beginnerLevelFileSchema,
   type StudyAssessmentItem,
 } from "../src/lib/study/schemas";
@@ -67,6 +68,13 @@ function readBeginner2Json() {
   const raw = fs.readFileSync(fp, "utf8");
   const json = JSON.parse(raw) as unknown;
   return beginner2LevelFileSchema.parse(json);
+}
+
+function readBeginner3Json() {
+  const fp = path.join(__dirname, "../data/study/beginner-3.json");
+  const raw = fs.readFileSync(fp, "utf8");
+  const json = JSON.parse(raw) as unknown;
+  return beginner3LevelFileSchema.parse(json);
 }
 
 async function seedStudyLevelBank(
@@ -185,4 +193,7 @@ export async function seedStudyTrack(prisma: PrismaClient) {
 
   const b2LevelId = levelIdByCode.get(StudyLevelCode.BEGINNER_2)!;
   await seedStudyLevelBank(prisma, b2LevelId, readBeginner2Json(), "study-b2-assessment-exit");
+
+  const b3LevelId = levelIdByCode.get(StudyLevelCode.BEGINNER_3)!;
+  await seedStudyLevelBank(prisma, b3LevelId, readBeginner3Json(), "study-b3-assessment-exit");
 }

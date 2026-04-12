@@ -1,0 +1,1961 @@
+{
+  "version": 1,
+  "levelCode": "BEGINNER_3",
+  "decks": [
+    {
+      "id": "study-b3-deck-0",
+      "titleJa": "過去形（基本）— went / ate / saw",
+      "titleEn": "Past Tense — went / ate / saw",
+      "sortOrder": 0,
+      "cards": [
+        {
+          "id": "study-b3-d0-c0",
+          "frontJa": "昨日、学校に行った。",
+          "backEn": "I went to school yesterday.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d0-c1",
+          "frontJa": "朝ご飯にパンを食べた。",
+          "backEn": "I ate bread for breakfast.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d0-c2",
+          "frontJa": "映画を見た。",
+          "backEn": "I saw a movie.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d0-c3",
+          "frontJa": "友達に会った。",
+          "backEn": "I met a friend.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d0-c4",
+          "frontJa": "宿題をした。",
+          "backEn": "I did my homework.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d0-c5",
+          "frontJa": "駅まで歩いた。",
+          "backEn": "I walked to the station.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d0-c6",
+          "frontJa": "たくさん寝た。",
+          "backEn": "I slept a lot.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d0-c7",
+          "frontJa": "コーヒーを飲んだ。",
+          "backEn": "I drank coffee.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d0-c8",
+          "frontJa": "買い物に行った。",
+          "backEn": "I went shopping.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d0-c9",
+          "frontJa": "写真を撮った。",
+          "backEn": "I took a photo.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d0-c10",
+          "frontJa": "手紙を書いた。",
+          "backEn": "I wrote a letter.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d0-c11",
+          "frontJa": "本を読んだ。",
+          "backEn": "I read a book.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d0-c12",
+          "frontJa": "遅刻した。",
+          "backEn": "I was late.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-1",
+      "titleJa": "過去形 — 規則動詞（-ed）",
+      "titleEn": "Past Tense — Regular Verbs (-ed)",
+      "sortOrder": 1,
+      "cards": [
+        {
+          "id": "study-b3-d1-c0",
+          "frontJa": "テレビを見た。",
+          "backEn": "I watched TV.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d1-c1",
+          "frontJa": "掃除をした。",
+          "backEn": "I cleaned.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d1-c2",
+          "frontJa": "料理をした。",
+          "backEn": "I cooked.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d1-c3",
+          "frontJa": "電話をかけた。",
+          "backEn": "I called.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d1-c4",
+          "frontJa": "待った。",
+          "backEn": "I waited.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d1-c5",
+          "frontJa": "笑った。",
+          "backEn": "I laughed.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d1-c6",
+          "frontJa": "練習した。",
+          "backEn": "I practiced.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d1-c7",
+          "frontJa": "質問した。",
+          "backEn": "I asked a question.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d1-c8",
+          "frontJa": "約束した。",
+          "backEn": "I promised.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d1-c9",
+          "frontJa": "予約した。",
+          "backEn": "I made a reservation.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d1-c10",
+          "frontJa": "返事をした。",
+          "backEn": "I replied.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d1-c11",
+          "frontJa": "説明した。",
+          "backEn": "I explained.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d1-c12",
+          "frontJa": "謝った。",
+          "backEn": "I apologized.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-2",
+      "titleJa": "過去形 — 疑問文と否定",
+      "titleEn": "Past Tense — Questions & Negatives",
+      "sortOrder": 2,
+      "cards": [
+        {
+          "id": "study-b3-d2-c0",
+          "frontJa": "昨日、仕事に行きましたか？",
+          "backEn": "Did you go to work yesterday?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d2-c1",
+          "frontJa": "彼は来なかった。",
+          "backEn": "He didn't come.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d2-c2",
+          "frontJa": "何を食べましたか？",
+          "backEn": "What did you eat?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d2-c3",
+          "frontJa": "どこに行ったの？",
+          "backEn": "Where did you go?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d2-c4",
+          "frontJa": "いつ始まった？",
+          "backEn": "When did it start?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d2-c5",
+          "frontJa": "見なかった。",
+          "backEn": "I didn't see it.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d2-c6",
+          "frontJa": "聞こえなかった。",
+          "backEn": "I didn't hear it.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d2-c7",
+          "frontJa": "知らなかった。",
+          "backEn": "I didn't know.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d2-c8",
+          "frontJa": "買わなかった。",
+          "backEn": "I didn't buy it.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d2-c9",
+          "frontJa": "話さなかった。",
+          "backEn": "I didn't speak.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d2-c10",
+          "frontJa": "彼女は来ましたか？",
+          "backEn": "Did she come?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d2-c11",
+          "frontJa": "彼らは泳いだ？",
+          "backEn": "Did they swim?",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d2-c12",
+          "frontJa": "雨は降った？",
+          "backEn": "Did it rain?",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-3",
+      "titleJa": "未来 — be going to（形）",
+      "titleEn": "Future — be going to (forms)",
+      "sortOrder": 3,
+      "cards": [
+        {
+          "id": "study-b3-d3-c0",
+          "frontJa": "旅行するつもりだ。",
+          "backEn": "I'm going to travel.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d3-c1",
+          "frontJa": "勉強するつもりだ。",
+          "backEn": "I'm going to study.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d3-c2",
+          "frontJa": "寝るつもりだ。",
+          "backEn": "I'm going to sleep.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d3-c3",
+          "frontJa": "彼は買うつもりだ。",
+          "backEn": "He's going to buy it.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d3-c4",
+          "frontJa": "私たちは行くつもりだ。",
+          "backEn": "We're going to go.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d3-c5",
+          "frontJa": "彼女は電話するつもりだ。",
+          "backEn": "She's going to call.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d3-c6",
+          "frontJa": "映画を見るつもりだ。",
+          "backEn": "I'm going to watch a movie.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d3-c7",
+          "frontJa": "料理するつもりだ。",
+          "backEn": "I'm going to cook.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d3-c8",
+          "frontJa": "走るつもりだ。",
+          "backEn": "I'm going to run.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d3-c9",
+          "frontJa": "手伝うつもりだ。",
+          "backEn": "I'm going to help.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d3-c10",
+          "frontJa": "始めるつもりだ。",
+          "backEn": "I'm going to start.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d3-c11",
+          "frontJa": "止めるつもりだ。",
+          "backEn": "I'm going to stop.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d3-c12",
+          "frontJa": "続けるつもりだ。",
+          "backEn": "I'm going to continue.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-4",
+      "titleJa": "未来 — 予定とプラン",
+      "titleEn": "Future — Plans & Intentions",
+      "sortOrder": 4,
+      "cards": [
+        {
+          "id": "study-b3-d4-c0",
+          "frontJa": "来週、京都に行くつもりだ。",
+          "backEn": "I'm going to go to Kyoto next week.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d4-c1",
+          "frontJa": "今夜、友達に会うつもりだ。",
+          "backEn": "I'm going to meet a friend tonight.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d4-c2",
+          "frontJa": "週末は休むつもりだ。",
+          "backEn": "I'm going to rest on the weekend.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d4-c3",
+          "frontJa": "新しい仕事を探すつもりだ。",
+          "backEn": "I'm going to look for a new job.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d4-c4",
+          "frontJa": "英語をもっと練習するつもりだ。",
+          "backEn": "I'm going to practice English more.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d4-c5",
+          "frontJa": "早く起きるつもりだ。",
+          "backEn": "I'm going to wake up early.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d4-c6",
+          "frontJa": "水をたくさん飲むつもりだ。",
+          "backEn": "I'm going to drink a lot of water.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d4-c7",
+          "frontJa": "毎日歩くつもりだ。",
+          "backEn": "I'm going to walk every day.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d4-c8",
+          "frontJa": "メールを返すつもりだ。",
+          "backEn": "I'm going to reply to the email.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d4-c9",
+          "frontJa": "部屋を片付けるつもりだ。",
+          "backEn": "I'm going to tidy my room.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d4-c10",
+          "frontJa": "写真を送るつもりだ。",
+          "backEn": "I'm going to send a photo.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d4-c11",
+          "frontJa": "レストランを予約するつもりだ。",
+          "backEn": "I'm going to book a restaurant.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d4-c12",
+          "frontJa": "空港に早く着くつもりだ。",
+          "backEn": "I'm going to arrive at the airport early.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-5",
+      "titleJa": "理由の文 — because",
+      "titleEn": "Complex Sentences — because",
+      "sortOrder": 5,
+      "cards": [
+        {
+          "id": "study-b3-d5-c0",
+          "frontJa": "コーヒーが好きだ。おいしいからだ。",
+          "backEn": "I like coffee because it is good.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d5-c1",
+          "frontJa": "疲れた。今日はたくさん働いたからだ。",
+          "backEn": "I'm tired because I worked a lot today.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d5-c2",
+          "frontJa": "忙しい。会議があるから行けない。",
+          "backEn": "I'm busy because I have a meeting.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d5-c3",
+          "frontJa": "寒い。冬だからだ。",
+          "backEn": "It's cold because it's winter.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d5-c4",
+          "frontJa": "お腹が空いた。昼を抜いたからだ。",
+          "backEn": "I'm hungry because I skipped lunch.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d5-c5",
+          "frontJa": "遅れた。バスに乗り遅れたからだ。",
+          "backEn": "I was late because I missed the bus.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d5-c6",
+          "frontJa": "安かった。だから買った。",
+          "backEn": "I bought it because it was cheap.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d5-c7",
+          "frontJa": "面白い。だからおすすめする。",
+          "backEn": "I recommend it because it's interesting.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d5-c8",
+          "frontJa": "難しい。だから時間がかかる。",
+          "backEn": "It takes time because it's difficult.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d5-c9",
+          "frontJa": "雨だった。だから傘を持った。",
+          "backEn": "I brought an umbrella because it was raining.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d5-c10",
+          "frontJa": "眠い。よく眠れなかったからだ。",
+          "backEn": "I'm sleepy because I didn't sleep well.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d5-c11",
+          "frontJa": "初心者だ。だからゆっくり話してほしい。",
+          "backEn": "I'm a beginner, so please speak slowly.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d5-c12",
+          "frontJa": "初めてだ。だから緊張する。",
+          "backEn": "I'm nervous because it's my first time.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-6",
+      "titleJa": "もっと複雑な文 — like / want / need",
+      "titleEn": "More Complex Patterns — like / want / need",
+      "sortOrder": 6,
+      "cards": [
+        {
+          "id": "study-b3-d6-c0",
+          "frontJa": "泳ぎ方を知りたい。",
+          "backEn": "I want to know how to swim.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d6-c1",
+          "frontJa": "ここに座ってもいい？",
+          "backEn": "Can I sit here?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d6-c2",
+          "frontJa": "手伝ってほしい。",
+          "backEn": "I need you to help me.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d6-c3",
+          "frontJa": "静かにしてほしい。",
+          "backEn": "I need you to be quiet.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d6-c4",
+          "frontJa": "もう一度言ってほしい。",
+          "backEn": "I need you to say it again.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d6-c5",
+          "frontJa": "日本に行きたい。",
+          "backEn": "I want to go to Japan.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d6-c6",
+          "frontJa": "英語が上手になりたい。",
+          "backEn": "I want to get better at English.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d6-c7",
+          "frontJa": "この本が気に入った。",
+          "backEn": "I liked this book.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d6-c8",
+          "frontJa": "その映画を見たい。",
+          "backEn": "I want to see that movie.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d6-c9",
+          "frontJa": "水が必要だ。",
+          "backEn": "I need water.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d6-c10",
+          "frontJa": "休憩が必要だ。",
+          "backEn": "I need a break.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d6-c11",
+          "frontJa": "答えを知りたい。",
+          "backEn": "I want to know the answer.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d6-c12",
+          "frontJa": "説明してほしい。",
+          "backEn": "I want you to explain it.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-7",
+      "titleJa": "頻度 — always / sometimes / never",
+      "titleEn": "Frequency — always / sometimes / never",
+      "sortOrder": 7,
+      "cards": [
+        {
+          "id": "study-b3-d7-c0",
+          "frontJa": "いつも朝コーヒーを飲む。",
+          "backEn": "I always drink coffee in the morning.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d7-c1",
+          "frontJa": "ときどきジムに行く。",
+          "backEn": "I sometimes go to the gym.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d7-c2",
+          "frontJa": "決して嘘をつかない。",
+          "backEn": "I never tell lies.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d7-c3",
+          "frontJa": "よく本を読む。",
+          "backEn": "I often read books.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d7-c4",
+          "frontJa": "めったに遅刻しない。",
+          "backEn": "I'm rarely late.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d7-c5",
+          "frontJa": "たいてい自宅で食べる。",
+          "backEn": "I usually eat at home.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d7-c6",
+          "frontJa": "週に一度泳ぐ。",
+          "backEn": "I swim once a week.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d7-c7",
+          "frontJa": "毎日英語を勉強する。",
+          "backEn": "I study English every day.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d7-c8",
+          "frontJa": "時々外食する。",
+          "backEn": "I eat out sometimes.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d7-c9",
+          "frontJa": "彼はいつも笑顔だ。",
+          "backEn": "He always smiles.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d7-c10",
+          "frontJa": "彼女はめったに怒らない。",
+          "backEn": "She rarely gets angry.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d7-c11",
+          "frontJa": "私たちはよく散歩する。",
+          "backEn": "We often take a walk.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d7-c12",
+          "frontJa": "彼らは決して諦めない。",
+          "backEn": "They never give up.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-8",
+      "titleJa": "比較 — bigger / better / faster",
+      "titleEn": "Comparisons — -er adjectives",
+      "sortOrder": 8,
+      "cards": [
+        {
+          "id": "study-b3-d8-c0",
+          "frontJa": "この方が大きい。",
+          "backEn": "This one is bigger.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d8-c1",
+          "frontJa": "この方がいい。",
+          "backEn": "This one is better.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d8-c2",
+          "frontJa": "彼の方が速い。",
+          "backEn": "He is faster.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d8-c3",
+          "frontJa": "今日は昨日より暖かい。",
+          "backEn": "Today is warmer than yesterday.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d8-c4",
+          "frontJa": "この道の方が近い。",
+          "backEn": "This way is closer.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d8-c5",
+          "frontJa": "新しい方が高い。",
+          "backEn": "The new one is more expensive.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d8-c6",
+          "frontJa": "このケーキの方が甘い。",
+          "backEn": "This cake is sweeter.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d8-c7",
+          "frontJa": "彼女の方が上手だ。",
+          "backEn": "She is better at it.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d8-c8",
+          "frontJa": "朝の方が静かだ。",
+          "backEn": "The morning is quieter.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d8-c9",
+          "frontJa": "電車の方が速い。",
+          "backEn": "The train is faster.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d8-c10",
+          "frontJa": "この席の方が快適だ。",
+          "backEn": "This seat is more comfortable.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d8-c11",
+          "frontJa": "冬の方が寒い。",
+          "backEn": "Winter is colder.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d8-c12",
+          "frontJa": "この問題の方が簡単だ。",
+          "backEn": "This question is easier.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-9",
+      "titleJa": "比較 — more / less / than",
+      "titleEn": "Comparisons — more / less / than",
+      "sortOrder": 9,
+      "cards": [
+        {
+          "id": "study-b3-d9-c0",
+          "frontJa": "コーヒーよりお茶の方が好きだ。",
+          "backEn": "I like tea more than coffee.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d9-c1",
+          "frontJa": "昨日より今日の方が忙しい。",
+          "backEn": "Today is busier than yesterday.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d9-c2",
+          "frontJa": "彼より私の方が背が高い。",
+          "backEn": "I'm taller than him.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d9-c3",
+          "frontJa": "これよりあれの方が安い。",
+          "backEn": "That is cheaper than this.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d9-c4",
+          "frontJa": "仕事より家族の方が大事だ。",
+          "backEn": "Family is more important than work.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d9-c5",
+          "frontJa": "話すより聞く方が好きだ。",
+          "backEn": "I prefer listening to speaking.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d9-c6",
+          "frontJa": "夏より秋の方が好きだ。",
+          "backEn": "I like autumn more than summer.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d9-c7",
+          "frontJa": "彼女の方が経験が多い。",
+          "backEn": "She has more experience than me.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d9-c8",
+          "frontJa": "時間がもっと欲しい。",
+          "backEn": "I need more time.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d9-c9",
+          "frontJa": "もっとゆっくり話して。",
+          "backEn": "Please speak more slowly.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d9-c10",
+          "frontJa": "もっと安いのはありますか？",
+          "backEn": "Do you have something less expensive?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d9-c11",
+          "frontJa": "もっと近い駅はありますか？",
+          "backEn": "Is there a closer station?",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d9-c12",
+          "frontJa": "彼は私より二歳年上だ。",
+          "backEn": "He is two years older than me.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-10",
+      "titleJa": "道順 — turn left / go straight",
+      "titleEn": "Directions — turn left / go straight",
+      "sortOrder": 10,
+      "cards": [
+        {
+          "id": "study-b3-d10-c0",
+          "frontJa": "左に曲がって。",
+          "backEn": "Turn left.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d10-c1",
+          "frontJa": "右に曲がって。",
+          "backEn": "Turn right.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d10-c2",
+          "frontJa": "まっすぐ行って。",
+          "backEn": "Go straight.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d10-c3",
+          "frontJa": "二つ目の角を右へ。",
+          "backEn": "Turn right at the second corner.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d10-c4",
+          "frontJa": "信号を渡って。",
+          "backEn": "Cross at the traffic lights.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d10-c5",
+          "frontJa": "この道をずっと行く。",
+          "backEn": "Go along this street.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d10-c6",
+          "frontJa": "駅はどこですか？",
+          "backEn": "Where is the station?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d10-c7",
+          "frontJa": "地図を見せてください。",
+          "backEn": "Please show me the map.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d10-c8",
+          "frontJa": "ここから遠いですか？",
+          "backEn": "Is it far from here?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d10-c9",
+          "frontJa": "歩いて何分ですか？",
+          "backEn": "How many minutes on foot?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d10-c10",
+          "frontJa": "バス停はどこですか？",
+          "backEn": "Where is the bus stop?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d10-c11",
+          "frontJa": "エレベーターはどこですか？",
+          "backEn": "Where is the elevator?",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d10-c12",
+          "frontJa": "出口はどちらですか？",
+          "backEn": "Which way is the exit?",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-11",
+      "titleJa": "旅行 — 切符・空港・ホテル",
+      "titleEn": "Travel — tickets, airport, hotel",
+      "sortOrder": 11,
+      "cards": [
+        {
+          "id": "study-b3-d11-c0",
+          "frontJa": "片道の切符をください。",
+          "backEn": "A one-way ticket, please.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d11-c1",
+          "frontJa": "往復の切符をください。",
+          "backEn": "A round-trip ticket, please.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d11-c2",
+          "frontJa": "窓口はどこですか？",
+          "backEn": "Where is the ticket counter?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d11-c3",
+          "frontJa": "搭乗口は何番ですか？",
+          "backEn": "What is the gate number?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d11-c4",
+          "frontJa": "手荷物を預けたい。",
+          "backEn": "I want to check my bag.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d11-c5",
+          "frontJa": "チェックインをお願いします。",
+          "backEn": "I'd like to check in, please.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d11-c6",
+          "frontJa": "予約の名前は…です。",
+          "backEn": "The reservation is under …",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d11-c7",
+          "frontJa": "鍵をください。",
+          "backEn": "The key, please.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d11-c8",
+          "frontJa": "朝食はついていますか？",
+          "backEn": "Is breakfast included?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d11-c9",
+          "frontJa": "Wi-Fiのパスワードは？",
+          "backEn": "What is the Wi-Fi password?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d11-c10",
+          "frontJa": "タクシーを呼んでください。",
+          "backEn": "Please call a taxi.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d11-c11",
+          "frontJa": "空港までお願いします。",
+          "backEn": "To the airport, please.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d11-c12",
+          "frontJa": "この席、空いていますか？",
+          "backEn": "Is this seat free?",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-12",
+      "titleJa": "買い物とお金 — how much / expensive / cheap",
+      "titleEn": "Shopping & Money — how much / expensive / cheap",
+      "sortOrder": 12,
+      "cards": [
+        {
+          "id": "study-b3-d12-c0",
+          "frontJa": "いくらですか？",
+          "backEn": "How much is it?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d12-c1",
+          "frontJa": "高すぎます。",
+          "backEn": "It's too expensive.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d12-c2",
+          "frontJa": "安いですね。",
+          "backEn": "It's cheap.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d12-c3",
+          "frontJa": "カードで払えますか？",
+          "backEn": "Can I pay by card?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d12-c4",
+          "frontJa": "現金しか使えませんか？",
+          "backEn": "Is cash only okay?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d12-c5",
+          "frontJa": "お釣りをください。",
+          "backEn": "Could I have my change, please?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d12-c6",
+          "frontJa": "レシートをください。",
+          "backEn": "A receipt, please.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d12-c7",
+          "frontJa": "サイズを変えたい。",
+          "backEn": "I'd like a different size.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d12-c8",
+          "frontJa": "返品できますか？",
+          "backEn": "Can I return this?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d12-c9",
+          "frontJa": "試着室はどこですか？",
+          "backEn": "Where is the fitting room?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d12-c10",
+          "frontJa": "袋はいりますか？",
+          "backEn": "Do you need a bag?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d12-c11",
+          "frontJa": "セールはいつまでですか？",
+          "backEn": "How long is the sale?",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d12-c12",
+          "frontJa": "値引きできますか？",
+          "backEn": "Can you give me a discount?",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-13",
+      "titleJa": "買い物 — 店での会話",
+      "titleEn": "Shopping — in the store",
+      "sortOrder": 13,
+      "cards": [
+        {
+          "id": "study-b3-d13-c0",
+          "frontJa": "何かお手伝いしましょうか？",
+          "backEn": "Can I help you?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d13-c1",
+          "frontJa": "これを見せてください。",
+          "backEn": "Please show me this one.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d13-c2",
+          "frontJa": "他の色はありますか？",
+          "backEn": "Do you have another color?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d13-c3",
+          "frontJa": "在庫はありますか？",
+          "backEn": "Do you have it in stock?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d13-c4",
+          "frontJa": "これをください。",
+          "backEn": "I'll take this one.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d13-c5",
+          "frontJa": "まだ見ます。",
+          "backEn": "I'm just looking.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d13-c6",
+          "frontJa": "おすすめは何ですか？",
+          "backEn": "What do you recommend?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d13-c7",
+          "frontJa": "小さいサイズはありますか？",
+          "backEn": "Do you have a smaller size?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d13-c8",
+          "frontJa": "試着してもいいですか？",
+          "backEn": "May I try it on?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d13-c9",
+          "frontJa": "包装してください。",
+          "backEn": "Please wrap it.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d13-c10",
+          "frontJa": "ギフト用にしてください。",
+          "backEn": "It's a gift, please.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d13-c11",
+          "frontJa": "別のを見せてください。",
+          "backEn": "Please show me another one.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d13-c12",
+          "frontJa": "合計はいくらですか？",
+          "backEn": "What is the total?",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-14",
+      "titleJa": "気持ちと意見 — think / feel / believe",
+      "titleEn": "Feelings & Opinions — think / feel / believe",
+      "sortOrder": 14,
+      "cards": [
+        {
+          "id": "study-b3-d14-c0",
+          "frontJa": "そう思う。",
+          "backEn": "I think so.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d14-c1",
+          "frontJa": "そうは思わない。",
+          "backEn": "I don't think so.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d14-c2",
+          "frontJa": "いいと思う。",
+          "backEn": "I think it's good.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d14-c3",
+          "frontJa": "疲れている気がする。",
+          "backEn": "I feel tired.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d14-c4",
+          "frontJa": "嬉しい気持ちだ。",
+          "backEn": "I feel happy.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d14-c5",
+          "frontJa": "心配だ。",
+          "backEn": "I feel worried.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d14-c6",
+          "frontJa": "それは正しいと信じている。",
+          "backEn": "I believe that's true.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d14-c7",
+          "frontJa": "自分でできると思う。",
+          "backEn": "I believe I can do it.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d14-c8",
+          "frontJa": "難しいと思う。",
+          "backEn": "I think it's difficult.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d14-c9",
+          "frontJa": "簡単だと思う。",
+          "backEn": "I think it's easy.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d14-c10",
+          "frontJa": "意味がわからない。",
+          "backEn": "I don't understand the meaning.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d14-c11",
+          "frontJa": "賛成だ。",
+          "backEn": "I agree.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d14-c12",
+          "frontJa": "反対だ。",
+          "backEn": "I disagree.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-15",
+      "titleJa": "意見を柔らかく言う",
+      "titleEn": "Soft opinions & hedging",
+      "sortOrder": 15,
+      "cards": [
+        {
+          "id": "study-b3-d15-c0",
+          "frontJa": "たぶん大丈夫だと思う。",
+          "backEn": "I think it's probably okay.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d15-c1",
+          "frontJa": "個人的には好きだ。",
+          "backEn": "Personally, I like it.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d15-c2",
+          "frontJa": "私の意見では、公平だ。",
+          "backEn": "In my opinion, it's fair.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d15-c3",
+          "frontJa": "もしかしたら遅れるかもしれない。",
+          "backEn": "I might be late.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d15-c4",
+          "frontJa": "できるかどうかわからない。",
+          "backEn": "I'm not sure if I can.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d15-c5",
+          "frontJa": "それは良い考えだと思う。",
+          "backEn": "I think that's a good idea.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d15-c6",
+          "frontJa": "もう少し時間が欲しい。",
+          "backEn": "I need a little more time.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d15-c7",
+          "frontJa": "ちょっと考えさせて。",
+          "backEn": "Let me think about it.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d15-c8",
+          "frontJa": "その方が安全だと思う。",
+          "backEn": "I think that's safer.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d15-c9",
+          "frontJa": "気分次第だ。",
+          "backEn": "It depends on how I feel.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d15-c10",
+          "frontJa": "場合による。",
+          "backEn": "It depends on the situation.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d15-c11",
+          "frontJa": "君の言う通りかもしれない。",
+          "backEn": "You might be right.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d15-c12",
+          "frontJa": "完全には同意できない。",
+          "backEn": "I can't fully agree.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-16",
+      "titleJa": "依頼 — Can you help me?",
+      "titleEn": "Requests — Can you help me?",
+      "sortOrder": 16,
+      "cards": [
+        {
+          "id": "study-b3-d16-c0",
+          "frontJa": "手伝ってもらえますか？",
+          "backEn": "Can you help me?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d16-c1",
+          "frontJa": "これを持ってもらえますか？",
+          "backEn": "Can you hold this for me?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d16-c2",
+          "frontJa": "写真を撮ってもらえますか？",
+          "backEn": "Can you take a photo for me?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d16-c3",
+          "frontJa": "スペルを教えてもらえますか？",
+          "backEn": "Can you spell that for me?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d16-c4",
+          "frontJa": "もう一度言ってもらえますか？",
+          "backEn": "Can you say that again?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d16-c5",
+          "frontJa": "窓を開けてもらえますか？",
+          "backEn": "Can you open the window?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d16-c6",
+          "frontJa": "ドアを閉めてもらえますか？",
+          "backEn": "Can you close the door?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d16-c7",
+          "frontJa": "ここに名前を書いてもらえますか？",
+          "backEn": "Can you write your name here?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d16-c8",
+          "frontJa": "遅れないで来てもらえますか？",
+          "backEn": "Can you come on time?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d16-c9",
+          "frontJa": "静かにしてもらえますか？",
+          "backEn": "Can you be quiet?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d16-c10",
+          "frontJa": "待ってもらえますか？",
+          "backEn": "Can you wait?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d16-c11",
+          "frontJa": "これを説明してもらえますか？",
+          "backEn": "Can you explain this?",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d16-c12",
+          "frontJa": "道を教えてもらえますか？",
+          "backEn": "Can you tell me the way?",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-17",
+      "titleJa": "依頼 — Please give me water",
+      "titleEn": "Requests — Please give / Could I have",
+      "sortOrder": 17,
+      "cards": [
+        {
+          "id": "study-b3-d17-c0",
+          "frontJa": "水をください。",
+          "backEn": "Please give me water.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d17-c1",
+          "frontJa": "お茶をください。",
+          "backEn": "Tea, please.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d17-c2",
+          "frontJa": "メニューをください。",
+          "backEn": "The menu, please.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d17-c3",
+          "frontJa": "おしぼりをください。",
+          "backEn": "A wet towel, please.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d17-c4",
+          "frontJa": "箸をください。",
+          "backEn": "Chopsticks, please.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d17-c5",
+          "frontJa": "フォークをください。",
+          "backEn": "A fork, please.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d17-c6",
+          "frontJa": "お会計をお願いします。",
+          "backEn": "The check, please.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d17-c7",
+          "frontJa": "袋をください。",
+          "backEn": "A bag, please.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d17-c8",
+          "frontJa": "コーヒーをもう一杯ください。",
+          "backEn": "Another coffee, please.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d17-c9",
+          "frontJa": "砂糖を少しください。",
+          "backEn": "A little sugar, please.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d17-c10",
+          "frontJa": "温かいお茶をいただけますか？",
+          "backEn": "Could I have some hot tea?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d17-c11",
+          "frontJa": "お水をいただけますか？",
+          "backEn": "Could I have some water?",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d17-c12",
+          "frontJa": "こちらにお願いします。",
+          "backEn": "This one, please.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-18",
+      "titleJa": "短い会話 — 店と挨拶",
+      "titleEn": "Short Dialogues — shop & greetings",
+      "sortOrder": 18,
+      "cards": [
+        {
+          "id": "study-b3-d18-c0",
+          "frontJa": "A: いらっしゃいませ。 B: 見ているだけです。",
+          "backEn": "A: Welcome. B: I'm just looking.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d18-c1",
+          "frontJa": "A: 何かお探しですか？ B: はい、帽子を探しています。",
+          "backEn": "A: What are you looking for? B: Yes, I'm looking for a hat.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d18-c2",
+          "frontJa": "A: こちらはいかがですか？ B: 試着してもいいですか？",
+          "backEn": "A: How about this one? B: May I try it on?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d18-c3",
+          "frontJa": "A: お似合いですよ。 B: ありがとうございます。",
+          "backEn": "A: It looks good on you. B: Thank you.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d18-c4",
+          "frontJa": "A: 他の色もあります。 B: 青はありますか？",
+          "backEn": "A: We have other colors. B: Do you have blue?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d18-c5",
+          "frontJa": "A: サイズは？ B: Mをお願いします。",
+          "backEn": "A: What size? B: Medium, please.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d18-c6",
+          "frontJa": "A: 包装しますか？ B: お願いします。",
+          "backEn": "A: Shall I wrap it? B: Yes, please.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d18-c7",
+          "frontJa": "A: カードでよろしいですか？ B: はい、お願いします。",
+          "backEn": "A: Card? B: Yes, please.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d18-c8",
+          "frontJa": "A: ありがとうございました。 B: またどうぞ。",
+          "backEn": "A: Thank you for your purchase. B: Please come again.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d18-c9",
+          "frontJa": "A: すみません、値段は？ B: 二千円です。",
+          "backEn": "A: Excuse me, how much is it? B: It's two thousand yen.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d18-c10",
+          "frontJa": "A: 少し高いです。 B: ではこちらはいかがですか。",
+          "backEn": "A: It's a bit expensive. B: How about this one?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d18-c11",
+          "frontJa": "A: 在庫はありますか？ B: はい、ございます。",
+          "backEn": "A: Do you have it in stock? B: Yes, we do.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d18-c12",
+          "frontJa": "A: 返品はできますか？ B: 一週間以内なら可能です。",
+          "backEn": "A: Can I return it? B: Yes, within one week.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-19",
+      "titleJa": "短い会話 — カフェと食事",
+      "titleEn": "Short Dialogues — café & food",
+      "sortOrder": 19,
+      "cards": [
+        {
+          "id": "study-b3-d19-c0",
+          "frontJa": "A: ご注文は？ B: ラテを一つお願いします。",
+          "backEn": "A: What would you like? B: One latte, please.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d19-c1",
+          "frontJa": "A: サイズは？ B: グランデで。",
+          "backEn": "A: What size? B: Grande, please.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d19-c2",
+          "frontJa": "A: こちらでお召し上がりですか？ B: 持ち帰りで。",
+          "backEn": "A: For here or to go? B: To go, please.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d19-c3",
+          "frontJa": "A: お名前は？ B: ケンです。",
+          "backEn": "A: Your name? B: Ken.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d19-c4",
+          "frontJa": "A: お待たせしました。 B: ありがとう。",
+          "backEn": "A: Here you are. B: Thanks.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d19-c5",
+          "frontJa": "A: 砂糖はいりますか？ B: 少しお願いします。",
+          "backEn": "A: Sugar? B: A little, please.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d19-c6",
+          "frontJa": "A: 温かいものは？ B: スープをください。",
+          "backEn": "A: Something hot? B: Soup, please.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d19-c7",
+          "frontJa": "A: アレルギーはありますか？ B: 卵はだめです。",
+          "backEn": "A: Any allergies? B: I can't have eggs.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d19-c8",
+          "frontJa": "A: おすすめは？ B: 今日のパスタがおすすめです。",
+          "backEn": "A: What do you recommend? B: Today's pasta is good.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d19-c9",
+          "frontJa": "A: お会計お願いします。 B: はい、千二百円です。",
+          "backEn": "A: The check, please. B: That's twelve hundred yen.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d19-c10",
+          "frontJa": "A: カード使えますか？ B: はい、使えます。",
+          "backEn": "A: Do you take cards? B: Yes, we do.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d19-c11",
+          "frontJa": "A: テーブル空いてますか？ B: 二人ですか？",
+          "backEn": "A: Is a table free? B: For two?",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d19-c12",
+          "frontJa": "A: メニューをください。 B: はい、どうぞ。",
+          "backEn": "A: The menu, please. B: Here you are.",
+          "sortOrder": 12
+        }
+      ]
+    },
+    {
+      "id": "study-b3-deck-20",
+      "titleJa": "短い会話 — 道案内と助け",
+      "titleEn": "Short Dialogues — directions & help",
+      "sortOrder": 20,
+      "cards": [
+        {
+          "id": "study-b3-d20-c0",
+          "frontJa": "A: すみません、駅はどこですか？ B: まっすぐで、左です。",
+          "backEn": "A: Excuse me, where is the station? B: Go straight, then left.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-b3-d20-c1",
+          "frontJa": "A: 遠いですか？ B: 歩いて十分です。",
+          "backEn": "A: Is it far? B: About ten minutes on foot.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-b3-d20-c2",
+          "frontJa": "A: 地図を見せてください。 B: はい、ここです。",
+          "backEn": "A: Please show me on the map. B: Yes, here.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-b3-d20-c3",
+          "frontJa": "A: タクシー乗り場は？ B: あそこの角です。",
+          "backEn": "A: Where is the taxi stand? B: Around that corner.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-b3-d20-c4",
+          "frontJa": "A: 助けてください！ B: どうしました？",
+          "backEn": "A: Please help me! B: What's wrong?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-b3-d20-c5",
+          "frontJa": "A: 携帯がないんです。 B: こちらから電話しましょう。",
+          "backEn": "A: I lost my phone. B: You can call from here.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-b3-d20-c6",
+          "frontJa": "A: 道に迷いました。 B: 一緒に地図を見ましょう。",
+          "backEn": "A: I'm lost. B: Let's look at the map together.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-b3-d20-c7",
+          "frontJa": "A: 英語が話せますか？ B: 少しだけです。",
+          "backEn": "A: Do you speak English? B: A little.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-b3-d20-c8",
+          "frontJa": "A: ゆっくり話してください。 B: わかりました。",
+          "backEn": "A: Please speak slowly. B: Okay.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-b3-d20-c9",
+          "frontJa": "A: トイレはどこですか？ B: あちらの階です。",
+          "backEn": "A: Where is the restroom? B: On that floor over there.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-b3-d20-c10",
+          "frontJa": "A: エレベーターは？ B: 右にあります。",
+          "backEn": "A: Where is the elevator? B: It's on the right.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-b3-d20-c11",
+          "frontJa": "A: 危ないですか？ B: いいえ、大丈夫です。",
+          "backEn": "A: Is it dangerous? B: No, it's fine.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-b3-d20-c12",
+          "frontJa": "A: ありがとうございました。 B: どういたしまして。",
+          "backEn": "A: Thank you so much. B: You're welcome.",
+          "sortOrder": 12
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "passingScore": 70,
+    "items": [
+      {
+        "id": "study-b3-a0",
+        "promptJa": "「I went to school yesterday.」に近い日本語は？",
+        "promptEn": "Which Japanese is closest to “I went to school yesterday.”?",
+        "options": [
+          "昨日、学校に行く。",
+          "昨日、学校に行った。",
+          "明日、学校に行く。",
+          "今、学校にいる。"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b3-a1",
+        "promptJa": "「I'm going to travel.」の意味に近いのは？",
+        "promptEn": "Which Japanese matches “I'm going to travel.”?",
+        "options": [
+          "旅行した。",
+          "旅行するつもりだ。",
+          "旅行している。",
+          "旅行したくない。"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b3-a2",
+        "promptJa": "「because」の意味は？",
+        "promptEn": "What does “because” mean?",
+        "options": [
+          "だから／なぜなら",
+          "しかし",
+          "それとも",
+          "そのあと"
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-b3-a3",
+        "promptJa": "「never」に近い意味は？",
+        "promptEn": "Which Japanese is closest to “never”?",
+        "options": [
+          "いつも",
+          "ときどき",
+          "決して〜ない",
+          "よく"
+        ],
+        "correctIndex": 2
+      },
+      {
+        "id": "study-b3-a4",
+        "promptJa": "「This one is bigger.」に近い日本語は？",
+        "promptEn": "Which Japanese matches “This one is bigger.”?",
+        "options": [
+          "これの方が小さい。",
+          "これの方が大きい。",
+          "これは同じだ。",
+          "これは高い。"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b3-a5",
+        "promptJa": "「Turn left.」は日本語で？",
+        "promptEn": "Which Japanese matches “Turn left.”?",
+        "options": [
+          "右に曲がって。",
+          "まっすぐ行って。",
+          "左に曲がって。",
+          "止まって。"
+        ],
+        "correctIndex": 2
+      },
+      {
+        "id": "study-b3-a6",
+        "promptJa": "「How much is it?」は日本語で？",
+        "promptEn": "Which Japanese means “How much is it?”?",
+        "options": [
+          "いつですか？",
+          "どこですか？",
+          "いくらですか？",
+          "何ですか？"
+        ],
+        "correctIndex": 2
+      },
+      {
+        "id": "study-b3-a7",
+        "promptJa": "「I think so.」に近い日本語は？",
+        "promptEn": "Which Japanese matches “I think so.”?",
+        "options": [
+          "そう思う。",
+          "知らない。",
+          "違う。",
+          "忘れた。"
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-b3-a8",
+        "promptJa": "「Can you help me?」は日本語で？",
+        "promptEn": "Which Japanese matches “Can you help me?”?",
+        "options": [
+          "手伝ってもらえますか？",
+          "さようなら。",
+          "すみません、名前は？",
+          "お腹が空いた。"
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-b3-a9",
+        "promptJa": "「Please give me water.」に近い日本語は？",
+        "promptEn": "Which Japanese matches “Please give me water.”?",
+        "options": [
+          "水を飲まない。",
+          "水をください。",
+          "水はいらない。",
+          "水はどこ？"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b3-a10",
+        "promptJa": "「Did you go to work yesterday?」に近い日本語は？",
+        "promptEn": "Which Japanese matches “Did you go to work yesterday?”?",
+        "options": [
+          "明日、仕事に行く？",
+          "昨日、仕事に行きましたか？",
+          "今、仕事にいる？",
+          "仕事は好き？"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-b3-a11",
+        "promptJa": "「I like tea more than coffee.」に近い日本語は？",
+        "promptEn": "Which Japanese matches “I like tea more than coffee.”?",
+        "options": [
+          "コーヒーしか飲まない。",
+          "コーヒーよりお茶の方が好きだ。",
+          "お茶は嫌いだ。",
+          "コーヒーとお茶は同じだ。"
+        ],
+        "correctIndex": 1
+      }
+    ]
+  }
+}

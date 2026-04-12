@@ -109,7 +109,14 @@
       "profileCardEmpty": "短い自己紹介を書くと講師があなたを知りやすくなります。",
       "profileCardEdit": "プロフィールを編集",
       "profileBioSeeMore": "もっと見る",
-      "profileBioSeeLess": "閉じる"
+      "profileBioSeeLess": "閉じる",
+      "flashcardStatsTitle": "フラッシュカードの統計",
+      "flashcardStatsIntro": "トラック全体の正答率・回答時間・苦手／習得カード数です。",
+      "flashcardAccuracy": "正答率",
+      "flashcardAvgTime": "平均回答時間",
+      "flashcardSeconds": "{sec} 秒",
+      "flashcardWeak": "苦手カード",
+      "flashcardMastered": "習得カード"
     },
     "profilePage": {
       "title": "プロフィール",
@@ -272,7 +279,13 @@
     "scoreResult": "スコア: {score}%",
     "passedUnlock": "合格です！次のレベルが解放されました。",
     "failedTest": "あと少しです。練習してからもう一度どうぞ。",
-    "questionOf": "問題 {n} / {total}"
+    "questionOf": "問題 {n} / {total}",
+    "practiceWeak": "苦手を練習",
+    "practiceMastered": "習得を復習",
+    "practiceMixed": "ミックス",
+    "practiceFocusHint": "苦手だけを集中的に、または習得カードだけを復習できます。",
+    "queueEmptyWeak": "まだ苦手カードがありません。練習を続けましょう。",
+    "queueEmptyMastered": "まだ習得カードがありません。連続正解で習得度を上げましょう。"
   },
   "onboarding": {
     "title": "English Studio へようこそ",

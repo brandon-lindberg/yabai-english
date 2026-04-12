@@ -8,6 +8,7 @@ import { getStudyTrackOverview } from "@/lib/study/get-overview";
 import { getStudyResumeInfo } from "@/lib/dashboard/study-resume";
 import { DashboardNextLesson } from "@/components/dashboard/dashboard-next-lesson";
 import { DashboardProfileSummary } from "@/components/dashboard/dashboard-profile-summary";
+import { DashboardFlashcardStats } from "@/components/dashboard/dashboard-flashcard-stats";
 import { DashboardStudyHighlight } from "@/components/dashboard/dashboard-study-highlight";
 import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-review";
 import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
@@ -113,6 +114,8 @@ export default async function DashboardPage() {
       </div>
 
       {overview ? <DashboardStudyHighlight overview={overview} resume={resume} /> : null}
+
+      {overview ? <DashboardFlashcardStats trackPractice={overview.trackPractice} /> : null}
 
       <section>
         <DashboardQuickReview cards={quick.cards} dayKey={quick.dayKey} />

@@ -6,12 +6,20 @@ import { getTotalStudyXpForTrack } from "@/lib/study/get-overview";
 import { computeLevelMastery } from "@/lib/study/mastery";
 import { notifyStudyRankUpIfNeeded } from "@/lib/study/rpg-rank-notification";
 import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
+import {
+  clampAnswerTimeMs,
+  classifyPracticeBand,
+  nextAverageAnswerMs,
+  studyAccuracyPercent,
+  type StudyCardPerformanceSlice,
+} from "@/lib/study/study-card-analytics";
 import { answersMatch, nextDueAtAfterQuiz, xpForMcq } from "@/lib/study/quiz";
 import { z } from "zod";
 
 const bodySchema = z.object({
   cardId: z.string().min(1),
   chosenAnswer: z.string(),
+  answerTimeMs: z.number().int().min(0).max(300_000).optional(),
 });
 
 export async function POST(req: Request) {
@@ -57,7 +65,17 @@ export async function POST(req: Request) {
   const correctCount = (existing?.correctCount ?? 0) + (correct ? 1 : 0);
   const wrongCount = (existing?.wrongCount ?? 0) + (correct ? 0 : 1);
   const streakCorrect = correct ? (existing?.streakCorrect ?? 0) + 1 : 0;
-  const dueAt = nextDueAtAfterQuiz(correct, streakCorrect, now);
+  const clampedLatency = clampAnswerTimeMs(parsed.data.answerTimeMs);
+  let averageAnswerMs = existing?.averageAnswerMs ?? null;
+  let latencySampleCount = existing?.latencySampleCount ?? 0;
+  if (clampedLatency != null) {
+    const next = nextAverageAnswerMs(averageAnswerMs, latencySampleCount, clampedLatency);
+    averageAnswerMs = next.averageAnswerMs;
+    latencySampleCount = next.latencySampleCount;
+  }
+
+  const dueAt = nextDueAtAfterQuiz(correct, streakCorrect, now, { answerTimeMs: clampedLatency });
+  const totalAttempts = correctCount + wrongCount;
 
   const result = await prisma.$transaction(async (tx) => {
     await tx.userStudyCardState.upsert({
@@ -69,14 +87,18 @@ export async function POST(req: Request) {
         wrongCount: correct ? 0 : 1,
         streakCorrect,
         dueAt,
-        reps: correctCount,
+        reps: totalAttempts,
+        averageAnswerMs,
+        latencySampleCount,
       },
       update: {
         correctCount,
         wrongCount,
         streakCorrect,
         dueAt,
-        reps: correctCount,
+        reps: totalAttempts,
+        averageAnswerMs,
+        latencySampleCount,
       },
     });
 
@@ -114,6 +136,14 @@ export async function POST(req: Request) {
     newTotalXp: totalStudyXp,
   });
 
+  const perfSlice: StudyCardPerformanceSlice = {
+    correctCount,
+    wrongCount,
+    streakCorrect,
+    averageAnswerMs,
+    latencySampleCount,
+  };
+
   return NextResponse.json({
     correct,
     correctAnswer: card.backEn,
@@ -124,5 +154,8 @@ export async function POST(req: Request) {
     wrongCount,
     streakCorrect,
     rpg,
+    practiceBand: classifyPracticeBand(perfSlice),
+    accuracyPercent: studyAccuracyPercent(correctCount, wrongCount),
+    averageAnswerMs,
   });
 }

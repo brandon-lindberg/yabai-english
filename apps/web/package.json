@@ -25,6 +25,7 @@
     "study:generate-beginner-1": "tsx scripts/generate-study-level-llm.ts",
     "study:build-beginner1-json": "tsx scripts/build-beginner1-json.ts",
     "study:build-beginner2-json": "tsx scripts/build-beginner2-json.ts",
+    "study:build-beginner3-json": "tsx scripts/build-beginner3-json.ts",
     "db:seed": "prisma db seed"
   },
   "prisma": {

@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isStudyLevelUnlocked } from "@/lib/study/access";
+import {
+  classifyPracticeBand,
+  filterCardIdsByFocus,
+  mcqDistractorCountForBand,
+  type StudyCardPerformanceSlice,
+} from "@/lib/study/study-card-analytics";
 import { buildFourOptions, cardQuizWeight, weightedSampleWithoutReplacement } from "@/lib/study/quiz";
 import { StudyLevelCode } from "@prisma/client";
 import { z } from "zod";
@@ -10,29 +16,43 @@ const querySchema = z.object({
   trackSlug: z.string().min(1).default("english-flashcards"),
   levelCode: z.nativeEnum(StudyLevelCode),
   limit: z.coerce.number().int().min(1).max(50).default(24),
+  focus: z.enum(["mixed", "weak", "mastered"]).default("mixed"),
 });
 
 type CardRow = { id: string; frontJa: string; backEn: string; deckId: string };
 
+type StateRow = {
+  dueAt: Date | null;
+  correctCount: number;
+  wrongCount: number;
+  streakCorrect: number;
+  averageAnswerMs: number | null;
+  latencySampleCount: number;
+};
+
 function buildWeightedSessionQueue(
   cards: CardRow[],
-  stateByCard: Map<string, { dueAt: Date | null } & { correctCount: number; wrongCount: number; streakCorrect: number }>,
+  stateByCard: Map<string, StateRow>,
   limit: number,
   now: Date,
   rng: () => number,
 ): CardRow[] {
   if (cards.length === 0) return [];
 
-  const weightFn = (c: CardRow) =>
-    cardQuizWeight(
-      stateByCard.has(c.id)
+  const weightFn = (c: CardRow) => {
+    const st = stateByCard.get(c.id);
+    return cardQuizWeight(
+      st
         ? {
-            correctCount: stateByCard.get(c.id)!.correctCount,
-            wrongCount: stateByCard.get(c.id)!.wrongCount,
-            streakCorrect: stateByCard.get(c.id)!.streakCorrect,
+            correctCount: st.correctCount,
+            wrongCount: st.wrongCount,
+            streakCorrect: st.streakCorrect,
+            averageAnswerMs: st.averageAnswerMs,
+            latencySampleCount: st.latencySampleCount,
           }
         : null,
     );
+  };
 
   const due = cards.filter((c) => {
     const st = stateByCard.get(c.id);
@@ -54,6 +74,17 @@ function buildWeightedSessionQueue(
   return queue.slice(0, limit);
 }
 
+function toPerformanceSlice(st: StateRow | undefined): StudyCardPerformanceSlice | undefined {
+  if (!st) return undefined;
+  return {
+    correctCount: st.correctCount,
+    wrongCount: st.wrongCount,
+    streakCorrect: st.streakCorrect,
+    averageAnswerMs: st.averageAnswerMs,
+    latencySampleCount: st.latencySampleCount,
+  };
+}
+
 export async function GET(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -65,6 +96,7 @@ export async function GET(req: Request) {
     trackSlug: url.searchParams.get("trackSlug") ?? undefined,
     levelCode: url.searchParams.get("levelCode") ?? undefined,
     limit: url.searchParams.get("limit") ?? undefined,
+    focus: url.searchParams.get("focus") ?? undefined,
   });
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid query" }, { status: 400 });
@@ -106,6 +138,7 @@ export async function GET(req: Request) {
       levelId: level.id,
       levelCode: level.levelCode,
       cards: [],
+      focus: parsed.data.focus,
     });
   }
 
@@ -120,28 +153,59 @@ export async function GET(req: Request) {
         correctCount: s.correctCount,
         wrongCount: s.wrongCount,
         streakCorrect: s.streakCorrect,
-      },
+        averageAnswerMs: s.averageAnswerMs,
+        latencySampleCount: s.latencySampleCount,
+      } satisfies StateRow,
     ]),
   );
 
+  const perfMap = new Map<string, StudyCardPerformanceSlice | undefined>();
+  for (const c of cards) {
+    perfMap.set(c.id, toPerformanceSlice(stateByCard.get(c.id)));
+  }
+
+  const focus = parsed.data.focus;
+  const pool: CardRow[] =
+    focus === "mixed"
+      ? cards
+      : (() => {
+          const ids = new Set(filterCardIdsByFocus(cards, perfMap, focus));
+          return ids.size === 0 ? [] : cards.filter((c) => ids.has(c.id));
+        })();
+
+  if (pool.length === 0) {
+    return NextResponse.json({
+      levelId: level.id,
+      levelCode: level.levelCode,
+      cards: [],
+      focus,
+      emptyReason: focus === "weak" ? "no_weak_cards" : "no_mastered_cards",
+    });
+  }
+
   const now = new Date();
   const rng = Math.random;
-  const pool = cards.map((c) => c.backEn);
-  const weightedQueue = buildWeightedSessionQueue(cards, stateByCard, parsed.data.limit, now, rng);
+  const poolBacks = pool.map((c) => c.backEn);
+  const weightedQueue = buildWeightedSessionQueue(pool, stateByCard, parsed.data.limit, now, rng);
 
-  const out = weightedQueue.map((c) => ({
-    id: c.id,
-    frontJa: c.frontJa,
-    options: buildFourOptions(
-      c.backEn,
-      pool.filter((b) => b !== c.backEn),
-      rng,
-    ),
-  }));
+  const out = weightedQueue.map((c) => {
+    const st = stateByCard.get(c.id);
+    const band = classifyPracticeBand(toPerformanceSlice(st));
+    const distractorCount = mcqDistractorCountForBand(band);
+    return {
+      id: c.id,
+      frontJa: c.frontJa,
+      options: buildFourOptions(c.backEn, poolBacks.filter((b) => b !== c.backEn), {
+        rng,
+        distractorCount,
+      }),
+    };
+  });
 
   return NextResponse.json({
     levelId: level.id,
     levelCode: level.levelCode,
     cards: out,
+    focus,
   });
 }

@@ -1,4 +1,4 @@
-import { StudyPracticeSession } from "@/components/study/study-practice-session";
+import { StudyPracticeSession, type StudyQueueFocus } from "@/components/study/study-practice-session";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getStudyRpgSnapshot } from "@/lib/study/get-overview";
@@ -10,7 +10,10 @@ import { notFound } from "next/navigation";
 
 const TRACK_SLUG = "english-flashcards";
 
-type Props = { params: Promise<{ levelCode: string }> };
+type Props = {
+  params: Promise<{ levelCode: string }>;
+  searchParams: Promise<{ focus?: string }>;
+};
 
 function parseLevelCode(raw: string): StudyLevelCode | null {
   return Object.values(StudyLevelCode).includes(raw as StudyLevelCode)
@@ -18,13 +21,20 @@ function parseLevelCode(raw: string): StudyLevelCode | null {
     : null;
 }
 
-export default async function StudyPracticePage({ params }: Props) {
+function parseQueueFocus(raw: string | undefined): StudyQueueFocus {
+  if (raw === "weak" || raw === "mastered") return raw;
+  return "mixed";
+}
+
+export default async function StudyPracticePage({ params, searchParams }: Props) {
   const session = await auth();
   if (!session?.user?.id) {
     notFound();
   }
 
   const { levelCode: raw } = await params;
+  const sp = await searchParams;
+  const queueFocus = parseQueueFocus(sp.focus);
   const levelCode = parseLevelCode(raw);
   if (!levelCode) {
     notFound();
@@ -59,7 +69,7 @@ export default async function StudyPracticePage({ params }: Props) {
       <h1 className="text-xl font-bold text-foreground">{t("practice")}</h1>
       {levelTitle ? <p className="mt-1 text-sm text-muted">{levelTitle}</p> : null}
       <div className="mt-8">
-        <StudyPracticeSession levelCode={levelCode} initialRpg={initialRpg} />
+        <StudyPracticeSession levelCode={levelCode} initialRpg={initialRpg} queueFocus={queueFocus} />
       </div>
     </main>
   );
