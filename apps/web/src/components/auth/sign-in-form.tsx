@@ -2,7 +2,6 @@
 
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { useLocale } from "next-intl";
 import { useState } from "react";
 
 type Props = {
@@ -12,13 +11,12 @@ type Props = {
 
 export function SignInForm({ hasGoogleOAuth, devEmailSignIn }: Props) {
   const t = useTranslations("auth");
-  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const redirectTo =
-    locale === "ja" ? "/onboarding" : `/${locale}/onboarding`;
+  /** Dashboard layout sends students who still need onboarding to `/onboarding`. */
+  const redirectTo = "/dashboard";
 
   async function onDevSubmit(e: React.FormEvent) {
     e.preventDefault();

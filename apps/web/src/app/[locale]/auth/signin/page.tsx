@@ -1,8 +1,17 @@
 import { Suspense } from "react";
+import { auth } from "@/auth";
 import { SignInForm } from "@/components/auth/sign-in-form";
+import { redirect } from "@/i18n/navigation";
 import { getAuthMode } from "@/lib/auth-mode";
+import { getLocale } from "next-intl/server";
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const session = await auth();
+  if (session) {
+    const locale = await getLocale();
+    redirect({ href: "/dashboard", locale });
+  }
+
   const { hasGoogleOAuth, devEmailSignIn } = getAuthMode();
 
   return (

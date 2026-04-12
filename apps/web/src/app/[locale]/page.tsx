@@ -1,10 +1,14 @@
-import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
 import { auth } from "@/auth";
 
 export default async function HomePage() {
   const t = await getTranslations("home");
   const session = await auth();
+  if (session) {
+    const locale = await getLocale();
+    redirect({ href: "/dashboard", locale });
+  }
 
   return (
     <>
@@ -18,29 +22,12 @@ export default async function HomePage() {
           </h1>
           <p className="max-w-2xl text-lg text-muted">{t("subtitle")}</p>
           <div className="flex flex-wrap gap-3 pt-4">
-            {session ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-                >
-                  {t("ctaDashboard")}
-                </Link>
-                <Link
-                  href="/book"
-                  className="inline-flex rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-                >
-                  {t("ctaBook")}
-                </Link>
-              </>
-            ) : (
-              <Link
-                href="/dashboard"
-                className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-              >
-                {t("ctaDashboard")}
-              </Link>
-            )}
+            <Link
+              href="/auth/signin"
+              className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            >
+              {t("ctaDashboard")}
+            </Link>
           </div>
         </section>
       </main>
