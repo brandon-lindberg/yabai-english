@@ -367,12 +367,149 @@ const intermediate3LevelFileBaseSchema = z.object({
 export const intermediate3LevelFileSchema =
   intermediate3LevelFileBaseSchema.superRefine(refineIntermediate3Decks);
 
+/** Advanced L1: 12–14 decks, 30–35 cards each, ~400–450 total (precision & control). */
+const ADVANCED_1_DECK_MIN = 12;
+const ADVANCED_1_DECK_MAX = 14;
+const ADVANCED_1_CARDS_PER_DECK_MIN = 30;
+const ADVANCED_1_CARDS_PER_DECK_MAX = 35;
+const ADVANCED_1_TOTAL_CARDS_MIN = 400;
+const ADVANCED_1_TOTAL_CARDS_MAX = 450;
+
+const japaneseScriptRegex = /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u;
+
+function addAdvancedEnglishOnlyIssues(
+  data: {
+    decks: Array<{
+      titleJa: string;
+      titleEn: string;
+      cards: Array<{ frontJa: string; backEn: string }>;
+    }>;
+    assessment: { items: Array<{ promptJa: string; promptEn: string; options: string[] }> };
+  },
+  ctx: z.RefinementCtx,
+): void {
+  for (let di = 0; di < data.decks.length; di++) {
+    const deck = data.decks[di]!;
+    if (japaneseScriptRegex.test(deck.titleJa)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Deck ${di}: titleJa must be English-only for advanced levels`,
+      });
+    }
+    if (japaneseScriptRegex.test(deck.titleEn)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Deck ${di}: titleEn must be English-only for advanced levels`,
+      });
+    }
+    for (let ci = 0; ci < deck.cards.length; ci++) {
+      const card = deck.cards[ci]!;
+      if (japaneseScriptRegex.test(card.frontJa)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Deck ${di} card ${ci}: frontJa must be English-only for advanced levels`,
+        });
+      }
+      if (japaneseScriptRegex.test(card.backEn)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Deck ${di} card ${ci}: backEn must be English-only for advanced levels`,
+        });
+      }
+    }
+  }
+  for (let ai = 0; ai < data.assessment.items.length; ai++) {
+    const item = data.assessment.items[ai]!;
+    if (japaneseScriptRegex.test(item.promptJa)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Assessment item ${ai}: promptJa must be English-only for advanced levels`,
+      });
+    }
+    if (japaneseScriptRegex.test(item.promptEn)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Assessment item ${ai}: promptEn must be English-only for advanced levels`,
+      });
+    }
+    for (let oi = 0; oi < item.options.length; oi++) {
+      if (japaneseScriptRegex.test(item.options[oi]!)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Assessment item ${ai} option ${oi}: must be English-only for advanced levels`,
+        });
+      }
+    }
+  }
+}
+
+function refineAdvancedDecks(
+  data: DecksRefinable,
+  ctx: z.RefinementCtx,
+  ranges: {
+    deckMin: number;
+    deckMax: number;
+    cardsPerDeckMin: number;
+    cardsPerDeckMax: number;
+    totalMin: number;
+    totalMax: number;
+  },
+): void {
+  const { decks } = data;
+  if (decks.length < ranges.deckMin || decks.length > ranges.deckMax) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Expected ${ranges.deckMin}–${ranges.deckMax} decks, got ${decks.length}`,
+    });
+  }
+  let total = 0;
+  for (let i = 0; i < decks.length; i++) {
+    const n = decks[i]!.cards.length;
+    if (n < ranges.cardsPerDeckMin || n > ranges.cardsPerDeckMax) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Deck ${i}: expected ${ranges.cardsPerDeckMin}–${ranges.cardsPerDeckMax} cards, got ${n}`,
+      });
+    }
+    total += n;
+  }
+  if (total < ranges.totalMin || total > ranges.totalMax) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Expected ${ranges.totalMin}–${ranges.totalMax} total cards, got ${total}`,
+    });
+  }
+}
+
+const advanced1LevelFileBaseSchema = z.object({
+  version: z.literal(1),
+  levelCode: z.literal("ADVANCED_1"),
+  decks: z.array(studyDeckFileSchema).min(ADVANCED_1_DECK_MIN).max(ADVANCED_1_DECK_MAX),
+  assessment: z.object({
+    passingScore: z.number().int().min(0).max(100),
+    items: z.array(studyAssessmentItemSchema).min(8).max(16),
+  }),
+});
+
+export const advanced1LevelFileSchema = advanced1LevelFileBaseSchema.superRefine((data, ctx) => {
+  refineAdvancedDecks(data, ctx, {
+    deckMin: ADVANCED_1_DECK_MIN,
+    deckMax: ADVANCED_1_DECK_MAX,
+    cardsPerDeckMin: ADVANCED_1_CARDS_PER_DECK_MIN,
+    cardsPerDeckMax: ADVANCED_1_CARDS_PER_DECK_MAX,
+    totalMin: ADVANCED_1_TOTAL_CARDS_MIN,
+    totalMax: ADVANCED_1_TOTAL_CARDS_MAX,
+  });
+  addAdvancedEnglishOnlyIssues(data, ctx);
+});
+
 export type BeginnerLevelFile = z.infer<typeof beginnerLevelFileSchema>;
 export type Beginner2LevelFile = z.infer<typeof beginner2LevelFileSchema>;
 export type Beginner3LevelFile = z.infer<typeof beginner3LevelFileSchema>;
 export type Intermediate1LevelFile = z.infer<typeof intermediate1LevelFileSchema>;
 export type Intermediate2LevelFile = z.infer<typeof intermediate2LevelFileSchema>;
 export type Intermediate3LevelFile = z.infer<typeof intermediate3LevelFileSchema>;
+export type Advanced1LevelFile = z.infer<typeof advanced1LevelFileSchema>;
 export type StudyAssessmentItem = z.infer<typeof studyAssessmentItemSchema>;
 
 const llmAssessmentItemSchema = studyAssessmentItemSchema.extend({

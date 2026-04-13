@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { Prisma, type PrismaClient, StudyLevelCode } from "@prisma/client";
 import {
+  advanced1LevelFileSchema,
   beginner2LevelFileSchema,
   beginner3LevelFileSchema,
   beginnerLevelFileSchema,
@@ -104,6 +105,13 @@ function readIntermediate3Json() {
   const raw = fs.readFileSync(fp, "utf8");
   const json = JSON.parse(raw) as unknown;
   return intermediate3LevelFileSchema.parse(json);
+}
+
+function readAdvanced1Json() {
+  const fp = path.join(__dirname, "../data/study/advanced-1.json");
+  const raw = fs.readFileSync(fp, "utf8");
+  const json = JSON.parse(raw) as unknown;
+  return advanced1LevelFileSchema.parse(json);
 }
 
 async function seedStudyLevelBank(
@@ -238,4 +246,7 @@ export async function seedStudyTrack(prisma: PrismaClient) {
 
   const i3LevelId = levelIdByCode.get(StudyLevelCode.INTERMEDIATE_3)!;
   await seedStudyLevelBank(prisma, i3LevelId, readIntermediate3Json(), "study-i3-assessment-exit");
+
+  const a1LevelId = levelIdByCode.get(StudyLevelCode.ADVANCED_1)!;
+  await seedStudyLevelBank(prisma, a1LevelId, readAdvanced1Json(), "study-a1-assessment-exit");
 }

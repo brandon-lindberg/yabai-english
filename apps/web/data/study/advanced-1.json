@@ -1,0 +1,2771 @@
+{
+  "version": 1,
+  "levelCode": "ADVANCED_1",
+  "decks": [
+    {
+      "id": "study-a1-deck-0",
+      "titleJa": "Nuanced tense usage",
+      "titleEn": "Nuanced tense usage",
+      "sortOrder": 0,
+      "cards": [
+        {
+          "id": "study-a1-d0-c0",
+          "frontJa": "I ___ finished the draft, so we can review it now.",
+          "backEn": "I have finished the draft, so we can review it now.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d0-c1",
+          "frontJa": "I ___ the draft yesterday before dinner.",
+          "backEn": "I finished the draft yesterday before dinner.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d0-c2",
+          "frontJa": "She ___ lived in Berlin for three years now.",
+          "backEn": "She has lived in Berlin for three years now.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d0-c3",
+          "frontJa": "She ___ in Berlin when she was at university.",
+          "backEn": "She lived in Berlin when she was at university.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d0-c4",
+          "frontJa": "We ___ discussed this risk before in planning.",
+          "backEn": "We have discussed this risk before in planning.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d0-c5",
+          "frontJa": "We ___ this risk during Monday's call.",
+          "backEn": "We discussed this risk during Monday's call.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d0-c6",
+          "frontJa": "He ___ already sent the invoice this morning.",
+          "backEn": "He has already sent the invoice this morning.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d0-c7",
+          "frontJa": "I ___ been waiting for your update since 9 a.m.",
+          "backEn": "I have been waiting for your update since 9 a.m.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d0-c8",
+          "frontJa": "I ___ for your update for two hours.",
+          "backEn": "I waited for your update for two hours.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d0-c9",
+          "frontJa": "They ___ built trust through consistent delivery.",
+          "backEn": "They have built trust through consistent delivery.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d0-c10",
+          "frontJa": "They ___ trust during the recovery period.",
+          "backEn": "They built trust during the recovery period.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d0-c11",
+          "frontJa": "I ___ never seen such a fast turnaround.",
+          "backEn": "I have never seen such a fast turnaround.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d0-c12",
+          "frontJa": "I ___ a fast turnaround last quarter.",
+          "backEn": "I saw a fast turnaround last quarter.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d0-c13",
+          "frontJa": "By ___ time we arrived, they had already left.",
+          "backEn": "By the time we arrived, they had already left.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d0-c14",
+          "frontJa": "If ___ had known, she would have prepared earlier.",
+          "backEn": "If she had known, she would have prepared earlier.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d0-c15",
+          "frontJa": "When ___ knew the context, she adapted quickly.",
+          "backEn": "When she knew the context, she adapted quickly.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d0-c16",
+          "frontJa": "I ___ worked here long enough to notice patterns.",
+          "backEn": "I have worked here long enough to notice patterns.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d0-c17",
+          "frontJa": "I ___ here in 2021 as a contractor.",
+          "backEn": "I worked here in 2021 as a contractor.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d0-c18",
+          "frontJa": "We ___ improved quality since introducing checklists.",
+          "backEn": "We have improved quality since introducing checklists.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d0-c19",
+          "frontJa": "We ___ quality after introducing checklists last year.",
+          "backEn": "We improved quality after introducing checklists last year.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d0-c20",
+          "frontJa": "I ___ gone through the brief twice already.",
+          "backEn": "I have gone through the brief twice already.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d0-c21",
+          "frontJa": "He ___ through the brief in detail last night.",
+          "backEn": "He went through the brief in detail last night.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d0-c22",
+          "frontJa": "Th___ is the third time I have explained the issue.",
+          "backEn": "This is the third time I have explained the issue.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d0-c23",
+          "frontJa": "That ___ the third time I explained the issue.",
+          "backEn": "That was the third time I explained the issue.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d0-c24",
+          "frontJa": "They ___ been expanding the team gradually.",
+          "backEn": "They have been expanding the team gradually.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d0-c25",
+          "frontJa": "They ___ the team after funding closed.",
+          "backEn": "They expanded the team after funding closed.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d0-c26",
+          "frontJa": "I ___ just sat down when the fire alarm rang.",
+          "backEn": "I had just sat down when the fire alarm rang.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d0-c27",
+          "frontJa": "I ___ just sent you the revised timeline.",
+          "backEn": "I have just sent you the revised timeline.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d0-c28",
+          "frontJa": "I ___ you the revised timeline ten minutes ago.",
+          "backEn": "I sent you the revised timeline ten minutes ago.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d0-c29",
+          "frontJa": "We ___ had three incidents this month.",
+          "backEn": "We have had three incidents this month.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d0-c30",
+          "frontJa": "We ___ three incidents in January.",
+          "backEn": "We had three incidents in January.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d0-c31",
+          "frontJa": "She ___ already reviewed section four.",
+          "backEn": "She has already reviewed section four.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d0-c32",
+          "frontJa": "She ___ section four during lunch.",
+          "backEn": "She reviewed section four during lunch.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d0-c33",
+          "frontJa": "I ___ not decided yet, but I will soon.",
+          "backEn": "I have not decided yet, but I will soon.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d0-c34",
+          "frontJa": "I ___ not decide then, so we postponed.",
+          "backEn": "I did not decide then, so we postponed.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-1",
+      "titleJa": "Passive voice in natural use",
+      "titleEn": "Passive voice in natural use",
+      "sortOrder": 1,
+      "cards": [
+        {
+          "id": "study-a1-d1-c0",
+          "frontJa": "It ___ decided that the launch would be delayed.",
+          "backEn": "It was decided that the launch would be delayed.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d1-c1",
+          "frontJa": "The contract ___ signed after legal approved it.",
+          "backEn": "The contract was signed after legal approved it.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d1-c2",
+          "frontJa": "The issue ___ raised during the Q and A.",
+          "backEn": "The issue was raised during the Q and A.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d1-c3",
+          "frontJa": "A new timeline ___ shared with stakeholders.",
+          "backEn": "A new timeline was shared with stakeholders.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d1-c4",
+          "frontJa": "The final draft ___ reviewed by compliance.",
+          "backEn": "The final draft was reviewed by compliance.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d1-c5",
+          "frontJa": "The budget ___ approved last Thursday.",
+          "backEn": "The budget was approved last Thursday.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d1-c6",
+          "frontJa": "A compromise ___ reached after two rounds.",
+          "backEn": "A compromise was reached after two rounds.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d1-c7",
+          "frontJa": "The meeting ___ moved to next Wednesday.",
+          "backEn": "The meeting has been moved to next Wednesday.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d1-c8",
+          "frontJa": "The rollout ___ paused until testing ends.",
+          "backEn": "The rollout has been paused until testing ends.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d1-c9",
+          "frontJa": "No action ___ taken on that request.",
+          "backEn": "No action has been taken on that request.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d1-c10",
+          "frontJa": "The proposal ___ revised three times.",
+          "backEn": "The proposal has been revised three times.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d1-c11",
+          "frontJa": "An exception ___ granted in this case.",
+          "backEn": "An exception has been granted in this case.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d1-c12",
+          "frontJa": "The database ___ migrated this weekend.",
+          "backEn": "The database is being migrated this weekend.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d1-c13",
+          "frontJa": "The policy ___ updated for clarity.",
+          "backEn": "The policy is being updated for clarity.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d1-c14",
+          "frontJa": "The report ___ shared by noon tomorrow.",
+          "backEn": "The report will be shared by noon tomorrow.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d1-c15",
+          "frontJa": "The feature ___ released in phases.",
+          "backEn": "The feature will be released in phases.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d1-c16",
+          "frontJa": "The candidates ___ interviewed by two managers.",
+          "backEn": "The candidates were interviewed by two managers.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d1-c17",
+          "frontJa": "The decision ___ communicated too late.",
+          "backEn": "The decision was communicated too late.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d1-c18",
+          "frontJa": "Several options ___ considered before approval.",
+          "backEn": "Several options were considered before approval.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d1-c19",
+          "frontJa": "The clients ___ informed as soon as possible.",
+          "backEn": "The clients were informed as soon as possible.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d1-c20",
+          "frontJa": "Feedback ___ collected from all departments.",
+          "backEn": "Feedback was collected from all departments.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d1-c21",
+          "frontJa": "The warning signs ___ ignored at first.",
+          "backEn": "The warning signs were ignored at first.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d1-c22",
+          "frontJa": "A follow-up call ___ requested by procurement.",
+          "backEn": "A follow-up call was requested by procurement.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d1-c23",
+          "frontJa": "The root cause ___ identified within hours.",
+          "backEn": "The root cause was identified within hours.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d1-c24",
+          "frontJa": "Three alternatives ___ presented to the board.",
+          "backEn": "Three alternatives were presented to the board.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d1-c25",
+          "frontJa": "The issue ___ escalated immediately.",
+          "backEn": "The issue should be escalated immediately.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d1-c26",
+          "frontJa": "All invoices ___ submitted by Friday.",
+          "backEn": "All invoices must be submitted by Friday.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d1-c27",
+          "frontJa": "Nothing ___ changed after publication.",
+          "backEn": "Nothing can be changed after publication.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d1-c28",
+          "frontJa": "The pilot ___ completed ahead of schedule.",
+          "backEn": "The pilot was completed ahead of schedule.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d1-c29",
+          "frontJa": "The final scope ___ narrowed for this release.",
+          "backEn": "The final scope was narrowed for this release.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d1-c30",
+          "frontJa": "A full audit ___ conducted last month.",
+          "backEn": "A full audit was conducted last month.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d1-c31",
+          "frontJa": "A risk register ___ created for transparency.",
+          "backEn": "A risk register was created for transparency.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d1-c32",
+          "frontJa": "The process ___ simplified without losing control.",
+          "backEn": "The process was simplified without losing control.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d1-c33",
+          "frontJa": "The requirement ___ misunderstood by new hires.",
+          "backEn": "The requirement was misunderstood by new hires.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d1-c34",
+          "frontJa": "A decision ___ made to freeze hiring.",
+          "backEn": "A decision was made to freeze hiring.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-2",
+      "titleJa": "Relative clauses for precision",
+      "titleEn": "Relative clauses for precision",
+      "sortOrder": 2,
+      "cards": [
+        {
+          "id": "study-a1-d2-c0",
+          "frontJa": "The analyst ___ provided the clearest rationale.",
+          "backEn": "The analyst who led the pilot provided the clearest rationale.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d2-c1",
+          "frontJa": "The analyst ___ needs one more revision.",
+          "backEn": "The analyst who led the pilot needs one more revision.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d2-c2",
+          "frontJa": "The analyst ___ changed how we prioritize risk.",
+          "backEn": "The analyst who led the pilot changed how we prioritize risk.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d2-c3",
+          "frontJa": "The analyst ___ deserves a closer comparison.",
+          "backEn": "The analyst who led the pilot deserves a closer comparison.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d2-c4",
+          "frontJa": "The analyst ___ should be discussed with legal.",
+          "backEn": "The analyst who led the pilot should be discussed with legal.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d2-c5",
+          "frontJa": "The analyst ___ provided the clearest rationale.",
+          "backEn": "The analyst that we reviewed yesterday provided the clearest rationale.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d2-c6",
+          "frontJa": "The analyst ___ needs one more revision.",
+          "backEn": "The analyst that we reviewed yesterday needs one more revision.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d2-c7",
+          "frontJa": "The analyst ___ changed how we prioritize risk.",
+          "backEn": "The analyst that we reviewed yesterday changed how we prioritize risk.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d2-c8",
+          "frontJa": "The analyst ___ deserves a closer comparison.",
+          "backEn": "The analyst that we reviewed yesterday deserves a closer comparison.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d2-c9",
+          "frontJa": "The analyst ___ should be discussed with legal.",
+          "backEn": "The analyst that we reviewed yesterday should be discussed with legal.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d2-c10",
+          "frontJa": "The analyst ___ provided the clearest rationale.",
+          "backEn": "The analyst which the board rejected provided the clearest rationale.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d2-c11",
+          "frontJa": "The analyst ___ needs one more revision.",
+          "backEn": "The analyst which the board rejected needs one more revision.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d2-c12",
+          "frontJa": "The analyst ___ changed how we prioritize risk.",
+          "backEn": "The analyst which the board rejected changed how we prioritize risk.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d2-c13",
+          "frontJa": "The analyst ___ deserves a closer comparison.",
+          "backEn": "The analyst which the board rejected deserves a closer comparison.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d2-c14",
+          "frontJa": "The analyst ___ should be discussed with legal.",
+          "backEn": "The analyst which the board rejected should be discussed with legal.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d2-c15",
+          "frontJa": "The analyst ___ provided the clearest rationale.",
+          "backEn": "The analyst that solved the bottleneck provided the clearest rationale.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d2-c16",
+          "frontJa": "The analyst ___ needs one more revision.",
+          "backEn": "The analyst that solved the bottleneck needs one more revision.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d2-c17",
+          "frontJa": "The analyst ___ changed how we prioritize risk.",
+          "backEn": "The analyst that solved the bottleneck changed how we prioritize risk.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d2-c18",
+          "frontJa": "The analyst ___ deserves a closer comparison.",
+          "backEn": "The analyst that solved the bottleneck deserves a closer comparison.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d2-c19",
+          "frontJa": "The analyst ___ should be discussed with legal.",
+          "backEn": "The analyst that solved the bottleneck should be discussed with legal.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d2-c20",
+          "frontJa": "The analyst ___ provided the clearest rationale.",
+          "backEn": "The analyst who challenged our assumptions provided the clearest rationale.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d2-c21",
+          "frontJa": "The analyst ___ needs one more revision.",
+          "backEn": "The analyst who challenged our assumptions needs one more revision.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d2-c22",
+          "frontJa": "The analyst ___ changed how we prioritize risk.",
+          "backEn": "The analyst who challenged our assumptions changed how we prioritize risk.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d2-c23",
+          "frontJa": "The analyst ___ deserves a closer comparison.",
+          "backEn": "The analyst who challenged our assumptions deserves a closer comparison.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d2-c24",
+          "frontJa": "The analyst ___ should be discussed with legal.",
+          "backEn": "The analyst who challenged our assumptions should be discussed with legal.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d2-c25",
+          "frontJa": "The proposal ___ provided the clearest rationale.",
+          "backEn": "The proposal who led the pilot provided the clearest rationale.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d2-c26",
+          "frontJa": "The proposal ___ needs one more revision.",
+          "backEn": "The proposal who led the pilot needs one more revision.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d2-c27",
+          "frontJa": "The proposal ___ changed how we prioritize risk.",
+          "backEn": "The proposal who led the pilot changed how we prioritize risk.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d2-c28",
+          "frontJa": "The proposal ___ deserves a closer comparison.",
+          "backEn": "The proposal who led the pilot deserves a closer comparison.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d2-c29",
+          "frontJa": "The proposal ___ should be discussed with legal.",
+          "backEn": "The proposal who led the pilot should be discussed with legal.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d2-c30",
+          "frontJa": "The proposal ___ provided the clearest rationale.",
+          "backEn": "The proposal that we reviewed yesterday provided the clearest rationale.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d2-c31",
+          "frontJa": "The proposal ___ needs one more revision.",
+          "backEn": "The proposal that we reviewed yesterday needs one more revision.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d2-c32",
+          "frontJa": "The proposal ___ changed how we prioritize risk.",
+          "backEn": "The proposal that we reviewed yesterday changed how we prioritize risk.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d2-c33",
+          "frontJa": "The proposal ___ deserves a closer comparison.",
+          "backEn": "The proposal that we reviewed yesterday deserves a closer comparison.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d2-c34",
+          "frontJa": "The proposal ___ should be discussed with legal.",
+          "backEn": "The proposal that we reviewed yesterday should be discussed with legal.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-3",
+      "titleJa": "Advanced connectors",
+      "titleEn": "Advanced connectors",
+      "sortOrder": 3,
+      "cards": [
+        {
+          "id": "study-a1-d3-c0",
+          "frontJa": "The timeline looks aggressive ___ we can still proceed with caution.",
+          "backEn": "The timeline looks aggressive however we can still proceed with caution.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d3-c1",
+          "frontJa": "The timeline looks aggressive ___ we should validate assumptions first.",
+          "backEn": "The timeline looks aggressive however we should validate assumptions first.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d3-c2",
+          "frontJa": "The timeline looks aggressive ___ the long-term risk remains unclear.",
+          "backEn": "The timeline looks aggressive however the long-term risk remains unclear.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d3-c3",
+          "frontJa": "The timeline looks aggressive ___ the recommendation needs context.",
+          "backEn": "The timeline looks aggressive however the recommendation needs context.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d3-c4",
+          "frontJa": "The timeline looks aggressive ___ a phased approach is more realistic.",
+          "backEn": "The timeline looks aggressive however a phased approach is more realistic.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d3-c5",
+          "frontJa": "The timeline looks aggressive ___ we can still proceed with caution.",
+          "backEn": "The timeline looks aggressive therefore we can still proceed with caution.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d3-c6",
+          "frontJa": "The timeline looks aggressive ___ we should validate assumptions first.",
+          "backEn": "The timeline looks aggressive therefore we should validate assumptions first.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d3-c7",
+          "frontJa": "The timeline looks aggressive ___ the long-term risk remains unclear.",
+          "backEn": "The timeline looks aggressive therefore the long-term risk remains unclear.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d3-c8",
+          "frontJa": "The timeline looks aggressive ___ the recommendation needs context.",
+          "backEn": "The timeline looks aggressive therefore the recommendation needs context.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d3-c9",
+          "frontJa": "The timeline looks aggressive ___ a phased approach is more realistic.",
+          "backEn": "The timeline looks aggressive therefore a phased approach is more realistic.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d3-c10",
+          "frontJa": "The timeline looks aggressive ___ we can still proceed with caution.",
+          "backEn": "The timeline looks aggressive whereas we can still proceed with caution.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d3-c11",
+          "frontJa": "The timeline looks aggressive ___ we should validate assumptions first.",
+          "backEn": "The timeline looks aggressive whereas we should validate assumptions first.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d3-c12",
+          "frontJa": "The timeline looks aggressive ___ the long-term risk remains unclear.",
+          "backEn": "The timeline looks aggressive whereas the long-term risk remains unclear.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d3-c13",
+          "frontJa": "The timeline looks aggressive ___ the recommendation needs context.",
+          "backEn": "The timeline looks aggressive whereas the recommendation needs context.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d3-c14",
+          "frontJa": "The timeline looks aggressive ___ a phased approach is more realistic.",
+          "backEn": "The timeline looks aggressive whereas a phased approach is more realistic.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d3-c15",
+          "frontJa": "The timeline looks aggressive ___ we can still proceed with caution.",
+          "backEn": "The timeline looks aggressive although we can still proceed with caution.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d3-c16",
+          "frontJa": "The timeline looks aggressive ___ we should validate assumptions first.",
+          "backEn": "The timeline looks aggressive although we should validate assumptions first.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d3-c17",
+          "frontJa": "The timeline looks aggressive ___ the long-term risk remains unclear.",
+          "backEn": "The timeline looks aggressive although the long-term risk remains unclear.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d3-c18",
+          "frontJa": "The timeline looks aggressive ___ the recommendation needs context.",
+          "backEn": "The timeline looks aggressive although the recommendation needs context.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d3-c19",
+          "frontJa": "The timeline looks aggressive ___ a phased approach is more realistic.",
+          "backEn": "The timeline looks aggressive although a phased approach is more realistic.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d3-c20",
+          "frontJa": "The timeline looks aggressive ___ we can still proceed with caution.",
+          "backEn": "The timeline looks aggressive nevertheless we can still proceed with caution.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d3-c21",
+          "frontJa": "The timeline looks aggressive ___ we should validate assumptions first.",
+          "backEn": "The timeline looks aggressive nevertheless we should validate assumptions first.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d3-c22",
+          "frontJa": "The timeline looks aggressive ___ the long-term risk remains unclear.",
+          "backEn": "The timeline looks aggressive nevertheless the long-term risk remains unclear.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d3-c23",
+          "frontJa": "The timeline looks aggressive ___ the recommendation needs context.",
+          "backEn": "The timeline looks aggressive nevertheless the recommendation needs context.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d3-c24",
+          "frontJa": "The timeline looks aggressive ___ a phased approach is more realistic.",
+          "backEn": "The timeline looks aggressive nevertheless a phased approach is more realistic.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d3-c25",
+          "frontJa": "The pilot delivered value ___ we can still proceed with caution.",
+          "backEn": "The pilot delivered value however we can still proceed with caution.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d3-c26",
+          "frontJa": "The pilot delivered value ___ we should validate assumptions first.",
+          "backEn": "The pilot delivered value however we should validate assumptions first.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d3-c27",
+          "frontJa": "The pilot delivered value ___ the long-term risk remains unclear.",
+          "backEn": "The pilot delivered value however the long-term risk remains unclear.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d3-c28",
+          "frontJa": "The pilot delivered value ___ the recommendation needs context.",
+          "backEn": "The pilot delivered value however the recommendation needs context.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d3-c29",
+          "frontJa": "The pilot delivered value ___ a phased approach is more realistic.",
+          "backEn": "The pilot delivered value however a phased approach is more realistic.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d3-c30",
+          "frontJa": "The pilot delivered value ___ we can still proceed with caution.",
+          "backEn": "The pilot delivered value therefore we can still proceed with caution.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d3-c31",
+          "frontJa": "The pilot delivered value ___ we should validate assumptions first.",
+          "backEn": "The pilot delivered value therefore we should validate assumptions first.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d3-c32",
+          "frontJa": "The pilot delivered value ___ the long-term risk remains unclear.",
+          "backEn": "The pilot delivered value therefore the long-term risk remains unclear.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d3-c33",
+          "frontJa": "The pilot delivered value ___ the recommendation needs context.",
+          "backEn": "The pilot delivered value therefore the recommendation needs context.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d3-c34",
+          "frontJa": "The pilot delivered value ___ a phased approach is more realistic.",
+          "backEn": "The pilot delivered value therefore a phased approach is more realistic.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-4",
+      "titleJa": "High-frequency phrasal verbs",
+      "titleEn": "High-frequency phrasal verbs",
+      "sortOrder": 4,
+      "cards": [
+        {
+          "id": "study-a1-d4-c0",
+          "frontJa": "We need to ___ the unresolved dependency in today's review.",
+          "backEn": "We need to bring up the unresolved dependency in today's review.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d4-c1",
+          "frontJa": "We need to ___ unexpected resistance from procurement.",
+          "backEn": "We need to bring up unexpected resistance from procurement.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d4-c2",
+          "frontJa": "We need to ___ the experiment before making commitments.",
+          "backEn": "We need to bring up the experiment before making commitments.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d4-c3",
+          "frontJa": "We need to ___ the open action items by tomorrow morning.",
+          "backEn": "We need to bring up the open action items by tomorrow morning.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d4-c4",
+          "frontJa": "We need to ___ a rushed fix that harms reliability.",
+          "backEn": "We need to bring up a rushed fix that harms reliability.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d4-c5",
+          "frontJa": "We need to ___ the unresolved dependency in today's review.",
+          "backEn": "We need to run into the unresolved dependency in today's review.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d4-c6",
+          "frontJa": "We need to ___ unexpected resistance from procurement.",
+          "backEn": "We need to run into unexpected resistance from procurement.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d4-c7",
+          "frontJa": "We need to ___ the experiment before making commitments.",
+          "backEn": "We need to run into the experiment before making commitments.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d4-c8",
+          "frontJa": "We need to ___ the open action items by tomorrow morning.",
+          "backEn": "We need to run into the open action items by tomorrow morning.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d4-c9",
+          "frontJa": "We need to ___ a rushed fix that harms reliability.",
+          "backEn": "We need to run into a rushed fix that harms reliability.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d4-c10",
+          "frontJa": "We need to ___ the unresolved dependency in today's review.",
+          "backEn": "We need to carry out the unresolved dependency in today's review.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d4-c11",
+          "frontJa": "We need to ___ unexpected resistance from procurement.",
+          "backEn": "We need to carry out unexpected resistance from procurement.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d4-c12",
+          "frontJa": "We need to ___ the experiment before making commitments.",
+          "backEn": "We need to carry out the experiment before making commitments.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d4-c13",
+          "frontJa": "We need to ___ the open action items by tomorrow morning.",
+          "backEn": "We need to carry out the open action items by tomorrow morning.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d4-c14",
+          "frontJa": "We need to ___ a rushed fix that harms reliability.",
+          "backEn": "We need to carry out a rushed fix that harms reliability.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d4-c15",
+          "frontJa": "We need to ___ the unresolved dependency in today's review.",
+          "backEn": "We need to follow up the unresolved dependency in today's review.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d4-c16",
+          "frontJa": "We need to ___ unexpected resistance from procurement.",
+          "backEn": "We need to follow up unexpected resistance from procurement.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d4-c17",
+          "frontJa": "We need to ___ the experiment before making commitments.",
+          "backEn": "We need to follow up the experiment before making commitments.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d4-c18",
+          "frontJa": "We need to ___ the open action items by tomorrow morning.",
+          "backEn": "We need to follow up the open action items by tomorrow morning.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d4-c19",
+          "frontJa": "We need to ___ a rushed fix that harms reliability.",
+          "backEn": "We need to follow up a rushed fix that harms reliability.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d4-c20",
+          "frontJa": "We need to ___ the unresolved dependency in today's review.",
+          "backEn": "We need to rule out the unresolved dependency in today's review.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d4-c21",
+          "frontJa": "We need to ___ unexpected resistance from procurement.",
+          "backEn": "We need to rule out unexpected resistance from procurement.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d4-c22",
+          "frontJa": "We need to ___ the experiment before making commitments.",
+          "backEn": "We need to rule out the experiment before making commitments.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d4-c23",
+          "frontJa": "We need to ___ the open action items by tomorrow morning.",
+          "backEn": "We need to rule out the open action items by tomorrow morning.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d4-c24",
+          "frontJa": "We need to ___ a rushed fix that harms reliability.",
+          "backEn": "We need to rule out a rushed fix that harms reliability.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d4-c25",
+          "frontJa": "We need to ___ the unresolved dependency in today's review.",
+          "backEn": "We need to figure out the unresolved dependency in today's review.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d4-c26",
+          "frontJa": "We need to ___ unexpected resistance from procurement.",
+          "backEn": "We need to figure out unexpected resistance from procurement.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d4-c27",
+          "frontJa": "We need to ___ the experiment before making commitments.",
+          "backEn": "We need to figure out the experiment before making commitments.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d4-c28",
+          "frontJa": "We need to ___ the open action items by tomorrow morning.",
+          "backEn": "We need to figure out the open action items by tomorrow morning.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d4-c29",
+          "frontJa": "We need to ___ a rushed fix that harms reliability.",
+          "backEn": "We need to figure out a rushed fix that harms reliability.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d4-c30",
+          "frontJa": "We need to ___ the unresolved dependency in today's review.",
+          "backEn": "We need to break down the unresolved dependency in today's review.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d4-c31",
+          "frontJa": "We need to ___ unexpected resistance from procurement.",
+          "backEn": "We need to break down unexpected resistance from procurement.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d4-c32",
+          "frontJa": "We need to ___ the experiment before making commitments.",
+          "backEn": "We need to break down the experiment before making commitments.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d4-c33",
+          "frontJa": "We need to ___ the open action items by tomorrow morning.",
+          "backEn": "We need to break down the open action items by tomorrow morning.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d4-c34",
+          "frontJa": "We need to ___ a rushed fix that harms reliability.",
+          "backEn": "We need to break down a rushed fix that harms reliability.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-5",
+      "titleJa": "Critical collocations",
+      "titleEn": "Critical collocations",
+      "sortOrder": 5,
+      "cards": [
+        {
+          "id": "study-a1-d5-c0",
+          "frontJa": "We should ___ before the steering committee meets.",
+          "backEn": "We should make a decision before the steering committee meets.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d5-c1",
+          "frontJa": "We should ___ without delaying implementation.",
+          "backEn": "We should make a decision without delaying implementation.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d5-c2",
+          "frontJa": "We should ___ while the context is still fresh.",
+          "backEn": "We should make a decision while the context is still fresh.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d5-c3",
+          "frontJa": "We should ___ in language that stays neutral.",
+          "backEn": "We should make a decision in language that stays neutral.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d5-c4",
+          "frontJa": "We should ___ so accountability is explicit.",
+          "backEn": "We should make a decision so accountability is explicit.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d5-c5",
+          "frontJa": "We should ___ before the steering committee meets.",
+          "backEn": "We should reach a conclusion before the steering committee meets.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d5-c6",
+          "frontJa": "We should ___ without delaying implementation.",
+          "backEn": "We should reach a conclusion without delaying implementation.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d5-c7",
+          "frontJa": "We should ___ while the context is still fresh.",
+          "backEn": "We should reach a conclusion while the context is still fresh.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d5-c8",
+          "frontJa": "We should ___ in language that stays neutral.",
+          "backEn": "We should reach a conclusion in language that stays neutral.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d5-c9",
+          "frontJa": "We should ___ so accountability is explicit.",
+          "backEn": "We should reach a conclusion so accountability is explicit.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d5-c10",
+          "frontJa": "We should ___ before the steering committee meets.",
+          "backEn": "We should raise a concern before the steering committee meets.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d5-c11",
+          "frontJa": "We should ___ without delaying implementation.",
+          "backEn": "We should raise a concern without delaying implementation.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d5-c12",
+          "frontJa": "We should ___ while the context is still fresh.",
+          "backEn": "We should raise a concern while the context is still fresh.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d5-c13",
+          "frontJa": "We should ___ in language that stays neutral.",
+          "backEn": "We should raise a concern in language that stays neutral.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d5-c14",
+          "frontJa": "We should ___ so accountability is explicit.",
+          "backEn": "We should raise a concern so accountability is explicit.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d5-c15",
+          "frontJa": "We should ___ before the steering committee meets.",
+          "backEn": "We should meet a deadline before the steering committee meets.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d5-c16",
+          "frontJa": "We should ___ without delaying implementation.",
+          "backEn": "We should meet a deadline without delaying implementation.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d5-c17",
+          "frontJa": "We should ___ while the context is still fresh.",
+          "backEn": "We should meet a deadline while the context is still fresh.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d5-c18",
+          "frontJa": "We should ___ in language that stays neutral.",
+          "backEn": "We should meet a deadline in language that stays neutral.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d5-c19",
+          "frontJa": "We should ___ so accountability is explicit.",
+          "backEn": "We should meet a deadline so accountability is explicit.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d5-c20",
+          "frontJa": "We should ___ before the steering committee meets.",
+          "backEn": "We should take responsibility before the steering committee meets.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d5-c21",
+          "frontJa": "We should ___ without delaying implementation.",
+          "backEn": "We should take responsibility without delaying implementation.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d5-c22",
+          "frontJa": "We should ___ while the context is still fresh.",
+          "backEn": "We should take responsibility while the context is still fresh.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d5-c23",
+          "frontJa": "We should ___ in language that stays neutral.",
+          "backEn": "We should take responsibility in language that stays neutral.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d5-c24",
+          "frontJa": "We should ___ so accountability is explicit.",
+          "backEn": "We should take responsibility so accountability is explicit.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d5-c25",
+          "frontJa": "We should ___ before the steering committee meets.",
+          "backEn": "We should draw attention before the steering committee meets.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d5-c26",
+          "frontJa": "We should ___ without delaying implementation.",
+          "backEn": "We should draw attention without delaying implementation.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d5-c27",
+          "frontJa": "We should ___ while the context is still fresh.",
+          "backEn": "We should draw attention while the context is still fresh.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d5-c28",
+          "frontJa": "We should ___ in language that stays neutral.",
+          "backEn": "We should draw attention in language that stays neutral.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d5-c29",
+          "frontJa": "We should ___ so accountability is explicit.",
+          "backEn": "We should draw attention so accountability is explicit.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d5-c30",
+          "frontJa": "They must ___ before the steering committee meets.",
+          "backEn": "They must make a decision before the steering committee meets.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d5-c31",
+          "frontJa": "They must ___ without delaying implementation.",
+          "backEn": "They must make a decision without delaying implementation.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d5-c32",
+          "frontJa": "They must ___ while the context is still fresh.",
+          "backEn": "They must make a decision while the context is still fresh.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d5-c33",
+          "frontJa": "They must ___ in language that stays neutral.",
+          "backEn": "They must make a decision in language that stays neutral.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d5-c34",
+          "frontJa": "They must ___ so accountability is explicit.",
+          "backEn": "They must make a decision so accountability is explicit.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-6",
+      "titleJa": "Formality level shifts",
+      "titleEn": "Formality level shifts",
+      "sortOrder": 6,
+      "cards": [
+        {
+          "id": "study-a1-d6-c0",
+          "frontJa": "In this email ___ confirm the scope before we proceed.",
+          "backEn": "In this email I'd like to confirm the scope before we proceed.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d6-c1",
+          "frontJa": "In this email ___ clarify ownership for each deliverable.",
+          "backEn": "In this email I'd like to clarify ownership for each deliverable.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d6-c2",
+          "frontJa": "In this email ___ review the assumptions with finance.",
+          "backEn": "In this email I'd like to review the assumptions with finance.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d6-c3",
+          "frontJa": "In this email ___ share any concerns by end of day.",
+          "backEn": "In this email I'd like to share any concerns by end of day.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d6-c4",
+          "frontJa": "In this email ___ escalate blockers through the right channel.",
+          "backEn": "In this email I'd like to escalate blockers through the right channel.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d6-c5",
+          "frontJa": "In this email ___ confirm the scope before we proceed.",
+          "backEn": "In this email I want to confirm the scope before we proceed.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d6-c6",
+          "frontJa": "In this email ___ clarify ownership for each deliverable.",
+          "backEn": "In this email I want to clarify ownership for each deliverable.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d6-c7",
+          "frontJa": "In this email ___ review the assumptions with finance.",
+          "backEn": "In this email I want to review the assumptions with finance.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d6-c8",
+          "frontJa": "In this email ___ share any concerns by end of day.",
+          "backEn": "In this email I want to share any concerns by end of day.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d6-c9",
+          "frontJa": "In this email ___ escalate blockers through the right channel.",
+          "backEn": "In this email I want to escalate blockers through the right channel.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d6-c10",
+          "frontJa": "In this email ___ confirm the scope before we proceed.",
+          "backEn": "In this email I would appreciate confirm the scope before we proceed.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d6-c11",
+          "frontJa": "In this email ___ clarify ownership for each deliverable.",
+          "backEn": "In this email I would appreciate clarify ownership for each deliverable.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d6-c12",
+          "frontJa": "In this email ___ review the assumptions with finance.",
+          "backEn": "In this email I would appreciate review the assumptions with finance.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d6-c13",
+          "frontJa": "In this email ___ share any concerns by end of day.",
+          "backEn": "In this email I would appreciate share any concerns by end of day.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d6-c14",
+          "frontJa": "In this email ___ escalate blockers through the right channel.",
+          "backEn": "In this email I would appreciate escalate blockers through the right channel.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d6-c15",
+          "frontJa": "In this email ___ confirm the scope before we proceed.",
+          "backEn": "In this email Could you confirm the scope before we proceed.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d6-c16",
+          "frontJa": "In this email ___ clarify ownership for each deliverable.",
+          "backEn": "In this email Could you clarify ownership for each deliverable.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d6-c17",
+          "frontJa": "In this email ___ review the assumptions with finance.",
+          "backEn": "In this email Could you review the assumptions with finance.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d6-c18",
+          "frontJa": "In this email ___ share any concerns by end of day.",
+          "backEn": "In this email Could you share any concerns by end of day.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d6-c19",
+          "frontJa": "In this email ___ escalate blockers through the right channel.",
+          "backEn": "In this email Could you escalate blockers through the right channel.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d6-c20",
+          "frontJa": "In this email ___ confirm the scope before we proceed.",
+          "backEn": "In this email Please confirm the scope before we proceed.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d6-c21",
+          "frontJa": "In this email ___ clarify ownership for each deliverable.",
+          "backEn": "In this email Please clarify ownership for each deliverable.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d6-c22",
+          "frontJa": "In this email ___ review the assumptions with finance.",
+          "backEn": "In this email Please review the assumptions with finance.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d6-c23",
+          "frontJa": "In this email ___ share any concerns by end of day.",
+          "backEn": "In this email Please share any concerns by end of day.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d6-c24",
+          "frontJa": "In this email ___ escalate blockers through the right channel.",
+          "backEn": "In this email Please escalate blockers through the right channel.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d6-c25",
+          "frontJa": "During the meeting ___ confirm the scope before we proceed.",
+          "backEn": "During the meeting I'd like to confirm the scope before we proceed.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d6-c26",
+          "frontJa": "During the meeting ___ clarify ownership for each deliverable.",
+          "backEn": "During the meeting I'd like to clarify ownership for each deliverable.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d6-c27",
+          "frontJa": "During the meeting ___ review the assumptions with finance.",
+          "backEn": "During the meeting I'd like to review the assumptions with finance.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d6-c28",
+          "frontJa": "During the meeting ___ share any concerns by end of day.",
+          "backEn": "During the meeting I'd like to share any concerns by end of day.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d6-c29",
+          "frontJa": "During the meeting ___ escalate blockers through the right channel.",
+          "backEn": "During the meeting I'd like to escalate blockers through the right channel.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d6-c30",
+          "frontJa": "During the meeting ___ confirm the scope before we proceed.",
+          "backEn": "During the meeting I want to confirm the scope before we proceed.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d6-c31",
+          "frontJa": "During the meeting ___ clarify ownership for each deliverable.",
+          "backEn": "During the meeting I want to clarify ownership for each deliverable.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d6-c32",
+          "frontJa": "During the meeting ___ review the assumptions with finance.",
+          "backEn": "During the meeting I want to review the assumptions with finance.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d6-c33",
+          "frontJa": "During the meeting ___ share any concerns by end of day.",
+          "backEn": "During the meeting I want to share any concerns by end of day.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d6-c34",
+          "frontJa": "During the meeting ___ escalate blockers through the right channel.",
+          "backEn": "During the meeting I want to escalate blockers through the right channel.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-7",
+      "titleJa": "Paraphrasing with control",
+      "titleEn": "Paraphrasing with control",
+      "sortOrder": 7,
+      "cards": [
+        {
+          "id": "study-a1-d7-c0",
+          "frontJa": "In other words ___ for the next release cycle.",
+          "backEn": "In other words we need tighter controls for the next release cycle.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d7-c1",
+          "frontJa": "In other words ___ unless dependencies are reduced.",
+          "backEn": "In other words we need tighter controls unless dependencies are reduced.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d7-c2",
+          "frontJa": "In other words ___ if mitigation steps are funded.",
+          "backEn": "In other words we need tighter controls if mitigation steps are funded.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d7-c3",
+          "frontJa": "In other words ___ from an operational perspective.",
+          "backEn": "In other words we need tighter controls from an operational perspective.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d7-c4",
+          "frontJa": "In other words ___ for teams handling execution.",
+          "backEn": "In other words we need tighter controls for teams handling execution.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d7-c5",
+          "frontJa": "In other words ___ for the next release cycle.",
+          "backEn": "In other words the rollout was premature for the next release cycle.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d7-c6",
+          "frontJa": "In other words ___ unless dependencies are reduced.",
+          "backEn": "In other words the rollout was premature unless dependencies are reduced.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d7-c7",
+          "frontJa": "In other words ___ if mitigation steps are funded.",
+          "backEn": "In other words the rollout was premature if mitigation steps are funded.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d7-c8",
+          "frontJa": "In other words ___ from an operational perspective.",
+          "backEn": "In other words the rollout was premature from an operational perspective.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d7-c9",
+          "frontJa": "In other words ___ for teams handling execution.",
+          "backEn": "In other words the rollout was premature for teams handling execution.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d7-c10",
+          "frontJa": "In other words ___ for the next release cycle.",
+          "backEn": "In other words the risk is acceptable for the next release cycle.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d7-c11",
+          "frontJa": "In other words ___ unless dependencies are reduced.",
+          "backEn": "In other words the risk is acceptable unless dependencies are reduced.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d7-c12",
+          "frontJa": "In other words ___ if mitigation steps are funded.",
+          "backEn": "In other words the risk is acceptable if mitigation steps are funded.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d7-c13",
+          "frontJa": "In other words ___ from an operational perspective.",
+          "backEn": "In other words the risk is acceptable from an operational perspective.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d7-c14",
+          "frontJa": "In other words ___ for teams handling execution.",
+          "backEn": "In other words the risk is acceptable for teams handling execution.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d7-c15",
+          "frontJa": "In other words ___ for the next release cycle.",
+          "backEn": "In other words the evidence is mixed for the next release cycle.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d7-c16",
+          "frontJa": "In other words ___ unless dependencies are reduced.",
+          "backEn": "In other words the evidence is mixed unless dependencies are reduced.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d7-c17",
+          "frontJa": "In other words ___ if mitigation steps are funded.",
+          "backEn": "In other words the evidence is mixed if mitigation steps are funded.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d7-c18",
+          "frontJa": "In other words ___ from an operational perspective.",
+          "backEn": "In other words the evidence is mixed from an operational perspective.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d7-c19",
+          "frontJa": "In other words ___ for teams handling execution.",
+          "backEn": "In other words the evidence is mixed for teams handling execution.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d7-c20",
+          "frontJa": "In other words ___ for the next release cycle.",
+          "backEn": "In other words the plan lacks ownership for the next release cycle.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d7-c21",
+          "frontJa": "In other words ___ unless dependencies are reduced.",
+          "backEn": "In other words the plan lacks ownership unless dependencies are reduced.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d7-c22",
+          "frontJa": "In other words ___ if mitigation steps are funded.",
+          "backEn": "In other words the plan lacks ownership if mitigation steps are funded.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d7-c23",
+          "frontJa": "In other words ___ from an operational perspective.",
+          "backEn": "In other words the plan lacks ownership from an operational perspective.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d7-c24",
+          "frontJa": "In other words ___ for teams handling execution.",
+          "backEn": "In other words the plan lacks ownership for teams handling execution.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d7-c25",
+          "frontJa": "Put differently ___ for the next release cycle.",
+          "backEn": "Put differently we need tighter controls for the next release cycle.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d7-c26",
+          "frontJa": "Put differently ___ unless dependencies are reduced.",
+          "backEn": "Put differently we need tighter controls unless dependencies are reduced.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d7-c27",
+          "frontJa": "Put differently ___ if mitigation steps are funded.",
+          "backEn": "Put differently we need tighter controls if mitigation steps are funded.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d7-c28",
+          "frontJa": "Put differently ___ from an operational perspective.",
+          "backEn": "Put differently we need tighter controls from an operational perspective.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d7-c29",
+          "frontJa": "Put differently ___ for teams handling execution.",
+          "backEn": "Put differently we need tighter controls for teams handling execution.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d7-c30",
+          "frontJa": "Put differently ___ for the next release cycle.",
+          "backEn": "Put differently the rollout was premature for the next release cycle.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d7-c31",
+          "frontJa": "Put differently ___ unless dependencies are reduced.",
+          "backEn": "Put differently the rollout was premature unless dependencies are reduced.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d7-c32",
+          "frontJa": "Put differently ___ if mitigation steps are funded.",
+          "backEn": "Put differently the rollout was premature if mitigation steps are funded.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d7-c33",
+          "frontJa": "Put differently ___ from an operational perspective.",
+          "backEn": "Put differently the rollout was premature from an operational perspective.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d7-c34",
+          "frontJa": "Put differently ___ for teams handling execution.",
+          "backEn": "Put differently the rollout was premature for teams handling execution.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-8",
+      "titleJa": "Describing processes clearly",
+      "titleEn": "Describing processes clearly",
+      "sortOrder": 8,
+      "cards": [
+        {
+          "id": "study-a1-d8-c0",
+          "frontJa": "First ___ so every stakeholder has context.",
+          "backEn": "First we gather inputs so every stakeholder has context.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d8-c1",
+          "frontJa": "First ___ before any scope changes are approved.",
+          "backEn": "First we gather inputs before any scope changes are approved.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d8-c2",
+          "frontJa": "First ___ to prevent rework across teams.",
+          "backEn": "First we gather inputs to prevent rework across teams.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d8-c3",
+          "frontJa": "First ___ while maintaining delivery speed.",
+          "backEn": "First we gather inputs while maintaining delivery speed.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d8-c4",
+          "frontJa": "First ___ with evidence recorded in writing.",
+          "backEn": "First we gather inputs with evidence recorded in writing.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d8-c5",
+          "frontJa": "First ___ so every stakeholder has context.",
+          "backEn": "First we verify assumptions so every stakeholder has context.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d8-c6",
+          "frontJa": "First ___ before any scope changes are approved.",
+          "backEn": "First we verify assumptions before any scope changes are approved.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d8-c7",
+          "frontJa": "First ___ to prevent rework across teams.",
+          "backEn": "First we verify assumptions to prevent rework across teams.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d8-c8",
+          "frontJa": "First ___ while maintaining delivery speed.",
+          "backEn": "First we verify assumptions while maintaining delivery speed.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d8-c9",
+          "frontJa": "First ___ with evidence recorded in writing.",
+          "backEn": "First we verify assumptions with evidence recorded in writing.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d8-c10",
+          "frontJa": "First ___ so every stakeholder has context.",
+          "backEn": "First we assign owners so every stakeholder has context.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d8-c11",
+          "frontJa": "First ___ before any scope changes are approved.",
+          "backEn": "First we assign owners before any scope changes are approved.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d8-c12",
+          "frontJa": "First ___ to prevent rework across teams.",
+          "backEn": "First we assign owners to prevent rework across teams.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d8-c13",
+          "frontJa": "First ___ while maintaining delivery speed.",
+          "backEn": "First we assign owners while maintaining delivery speed.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d8-c14",
+          "frontJa": "First ___ with evidence recorded in writing.",
+          "backEn": "First we assign owners with evidence recorded in writing.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d8-c15",
+          "frontJa": "First ___ so every stakeholder has context.",
+          "backEn": "First we document decisions so every stakeholder has context.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d8-c16",
+          "frontJa": "First ___ before any scope changes are approved.",
+          "backEn": "First we document decisions before any scope changes are approved.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d8-c17",
+          "frontJa": "First ___ to prevent rework across teams.",
+          "backEn": "First we document decisions to prevent rework across teams.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d8-c18",
+          "frontJa": "First ___ while maintaining delivery speed.",
+          "backEn": "First we document decisions while maintaining delivery speed.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d8-c19",
+          "frontJa": "First ___ with evidence recorded in writing.",
+          "backEn": "First we document decisions with evidence recorded in writing.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d8-c20",
+          "frontJa": "First ___ so every stakeholder has context.",
+          "backEn": "First we test edge cases so every stakeholder has context.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d8-c21",
+          "frontJa": "First ___ before any scope changes are approved.",
+          "backEn": "First we test edge cases before any scope changes are approved.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d8-c22",
+          "frontJa": "First ___ to prevent rework across teams.",
+          "backEn": "First we test edge cases to prevent rework across teams.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d8-c23",
+          "frontJa": "First ___ while maintaining delivery speed.",
+          "backEn": "First we test edge cases while maintaining delivery speed.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d8-c24",
+          "frontJa": "First ___ with evidence recorded in writing.",
+          "backEn": "First we test edge cases with evidence recorded in writing.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d8-c25",
+          "frontJa": "Second ___ so every stakeholder has context.",
+          "backEn": "Second we gather inputs so every stakeholder has context.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d8-c26",
+          "frontJa": "Second ___ before any scope changes are approved.",
+          "backEn": "Second we gather inputs before any scope changes are approved.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d8-c27",
+          "frontJa": "Second ___ to prevent rework across teams.",
+          "backEn": "Second we gather inputs to prevent rework across teams.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d8-c28",
+          "frontJa": "Second ___ while maintaining delivery speed.",
+          "backEn": "Second we gather inputs while maintaining delivery speed.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d8-c29",
+          "frontJa": "Second ___ with evidence recorded in writing.",
+          "backEn": "Second we gather inputs with evidence recorded in writing.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d8-c30",
+          "frontJa": "Second ___ so every stakeholder has context.",
+          "backEn": "Second we verify assumptions so every stakeholder has context.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d8-c31",
+          "frontJa": "Second ___ before any scope changes are approved.",
+          "backEn": "Second we verify assumptions before any scope changes are approved.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d8-c32",
+          "frontJa": "Second ___ to prevent rework across teams.",
+          "backEn": "Second we verify assumptions to prevent rework across teams.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d8-c33",
+          "frontJa": "Second ___ while maintaining delivery speed.",
+          "backEn": "Second we verify assumptions while maintaining delivery speed.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d8-c34",
+          "frontJa": "Second ___ with evidence recorded in writing.",
+          "backEn": "Second we verify assumptions with evidence recorded in writing.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-9",
+      "titleJa": "Clarifying and rephrasing",
+      "titleEn": "Clarifying and rephrasing",
+      "sortOrder": 9,
+      "cards": [
+        {
+          "id": "study-a1-d9-c0",
+          "frontJa": "What I mean is ___ until legal approval is complete.",
+          "backEn": "What I mean is the deadline is conditional until legal approval is complete.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d9-c1",
+          "frontJa": "What I mean is ___ unless a critical risk appears.",
+          "backEn": "What I mean is the deadline is conditional unless a critical risk appears.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d9-c2",
+          "frontJa": "What I mean is ___ while discovery continues.",
+          "backEn": "What I mean is the deadline is conditional while discovery continues.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d9-c3",
+          "frontJa": "What I mean is ___ for this quarter's objectives.",
+          "backEn": "What I mean is the deadline is conditional for this quarter's objectives.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d9-c4",
+          "frontJa": "What I mean is ___ before implementation starts.",
+          "backEn": "What I mean is the deadline is conditional before implementation starts.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d9-c5",
+          "frontJa": "What I mean is ___ until legal approval is complete.",
+          "backEn": "What I mean is the scope remains fixed until legal approval is complete.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d9-c6",
+          "frontJa": "What I mean is ___ unless a critical risk appears.",
+          "backEn": "What I mean is the scope remains fixed unless a critical risk appears.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d9-c7",
+          "frontJa": "What I mean is ___ while discovery continues.",
+          "backEn": "What I mean is the scope remains fixed while discovery continues.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d9-c8",
+          "frontJa": "What I mean is ___ for this quarter's objectives.",
+          "backEn": "What I mean is the scope remains fixed for this quarter's objectives.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d9-c9",
+          "frontJa": "What I mean is ___ before implementation starts.",
+          "backEn": "What I mean is the scope remains fixed before implementation starts.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d9-c10",
+          "frontJa": "What I mean is ___ until legal approval is complete.",
+          "backEn": "What I mean is the decision is provisional until legal approval is complete.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d9-c11",
+          "frontJa": "What I mean is ___ unless a critical risk appears.",
+          "backEn": "What I mean is the decision is provisional unless a critical risk appears.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d9-c12",
+          "frontJa": "What I mean is ___ while discovery continues.",
+          "backEn": "What I mean is the decision is provisional while discovery continues.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d9-c13",
+          "frontJa": "What I mean is ___ for this quarter's objectives.",
+          "backEn": "What I mean is the decision is provisional for this quarter's objectives.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d9-c14",
+          "frontJa": "What I mean is ___ before implementation starts.",
+          "backEn": "What I mean is the decision is provisional before implementation starts.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d9-c15",
+          "frontJa": "What I mean is ___ until legal approval is complete.",
+          "backEn": "What I mean is we are not blocking progress until legal approval is complete.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d9-c16",
+          "frontJa": "What I mean is ___ unless a critical risk appears.",
+          "backEn": "What I mean is we are not blocking progress unless a critical risk appears.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d9-c17",
+          "frontJa": "What I mean is ___ while discovery continues.",
+          "backEn": "What I mean is we are not blocking progress while discovery continues.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d9-c18",
+          "frontJa": "What I mean is ___ for this quarter's objectives.",
+          "backEn": "What I mean is we are not blocking progress for this quarter's objectives.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d9-c19",
+          "frontJa": "What I mean is ___ before implementation starts.",
+          "backEn": "What I mean is we are not blocking progress before implementation starts.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d9-c20",
+          "frontJa": "What I mean is ___ until legal approval is complete.",
+          "backEn": "What I mean is ownership needs to be explicit until legal approval is complete.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d9-c21",
+          "frontJa": "What I mean is ___ unless a critical risk appears.",
+          "backEn": "What I mean is ownership needs to be explicit unless a critical risk appears.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d9-c22",
+          "frontJa": "What I mean is ___ while discovery continues.",
+          "backEn": "What I mean is ownership needs to be explicit while discovery continues.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d9-c23",
+          "frontJa": "What I mean is ___ for this quarter's objectives.",
+          "backEn": "What I mean is ownership needs to be explicit for this quarter's objectives.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d9-c24",
+          "frontJa": "What I mean is ___ before implementation starts.",
+          "backEn": "What I mean is ownership needs to be explicit before implementation starts.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d9-c25",
+          "frontJa": "Let me put it another way ___ until legal approval is complete.",
+          "backEn": "Let me put it another way the deadline is conditional until legal approval is complete.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d9-c26",
+          "frontJa": "Let me put it another way ___ unless a critical risk appears.",
+          "backEn": "Let me put it another way the deadline is conditional unless a critical risk appears.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d9-c27",
+          "frontJa": "Let me put it another way ___ while discovery continues.",
+          "backEn": "Let me put it another way the deadline is conditional while discovery continues.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d9-c28",
+          "frontJa": "Let me put it another way ___ for this quarter's objectives.",
+          "backEn": "Let me put it another way the deadline is conditional for this quarter's objectives.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d9-c29",
+          "frontJa": "Let me put it another way ___ before implementation starts.",
+          "backEn": "Let me put it another way the deadline is conditional before implementation starts.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d9-c30",
+          "frontJa": "Let me put it another way ___ until legal approval is complete.",
+          "backEn": "Let me put it another way the scope remains fixed until legal approval is complete.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d9-c31",
+          "frontJa": "Let me put it another way ___ unless a critical risk appears.",
+          "backEn": "Let me put it another way the scope remains fixed unless a critical risk appears.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d9-c32",
+          "frontJa": "Let me put it another way ___ while discovery continues.",
+          "backEn": "Let me put it another way the scope remains fixed while discovery continues.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d9-c33",
+          "frontJa": "Let me put it another way ___ for this quarter's objectives.",
+          "backEn": "Let me put it another way the scope remains fixed for this quarter's objectives.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d9-c34",
+          "frontJa": "Let me put it another way ___ before implementation starts.",
+          "backEn": "Let me put it another way the scope remains fixed before implementation starts.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-10",
+      "titleJa": "Error-correction awareness",
+      "titleEn": "Error-correction awareness",
+      "sortOrder": 10,
+      "cards": [
+        {
+          "id": "study-a1-d10-c0",
+          "frontJa": "The corrected version is ___ instead of the awkward alternative.",
+          "backEn": "The corrected version is we discussed this yesterday instead of the awkward alternative.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d10-c1",
+          "frontJa": "The corrected version is ___ to avoid tense inconsistency.",
+          "backEn": "The corrected version is we discussed this yesterday to avoid tense inconsistency.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d10-c2",
+          "frontJa": "The corrected version is ___ because register matters here.",
+          "backEn": "The corrected version is we discussed this yesterday because register matters here.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d10-c3",
+          "frontJa": "The corrected version is ___ when accuracy and nuance both matter.",
+          "backEn": "The corrected version is we discussed this yesterday when accuracy and nuance both matter.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d10-c4",
+          "frontJa": "The corrected version is ___ in high-stakes communication.",
+          "backEn": "The corrected version is we discussed this yesterday in high-stakes communication.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d10-c5",
+          "frontJa": "The corrected version is ___ instead of the awkward alternative.",
+          "backEn": "The corrected version is she has already sent it instead of the awkward alternative.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d10-c6",
+          "frontJa": "The corrected version is ___ to avoid tense inconsistency.",
+          "backEn": "The corrected version is she has already sent it to avoid tense inconsistency.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d10-c7",
+          "frontJa": "The corrected version is ___ because register matters here.",
+          "backEn": "The corrected version is she has already sent it because register matters here.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d10-c8",
+          "frontJa": "The corrected version is ___ when accuracy and nuance both matter.",
+          "backEn": "The corrected version is she has already sent it when accuracy and nuance both matter.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d10-c9",
+          "frontJa": "The corrected version is ___ in high-stakes communication.",
+          "backEn": "The corrected version is she has already sent it in high-stakes communication.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d10-c10",
+          "frontJa": "The corrected version is ___ instead of the awkward alternative.",
+          "backEn": "The corrected version is if I were you instead of the awkward alternative.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d10-c11",
+          "frontJa": "The corrected version is ___ to avoid tense inconsistency.",
+          "backEn": "The corrected version is if I were you to avoid tense inconsistency.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d10-c12",
+          "frontJa": "The corrected version is ___ because register matters here.",
+          "backEn": "The corrected version is if I were you because register matters here.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d10-c13",
+          "frontJa": "The corrected version is ___ when accuracy and nuance both matter.",
+          "backEn": "The corrected version is if I were you when accuracy and nuance both matter.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d10-c14",
+          "frontJa": "The corrected version is ___ in high-stakes communication.",
+          "backEn": "The corrected version is if I were you in high-stakes communication.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d10-c15",
+          "frontJa": "The corrected version is ___ instead of the awkward alternative.",
+          "backEn": "The corrected version is it was decided that instead of the awkward alternative.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d10-c16",
+          "frontJa": "The corrected version is ___ to avoid tense inconsistency.",
+          "backEn": "The corrected version is it was decided that to avoid tense inconsistency.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d10-c17",
+          "frontJa": "The corrected version is ___ because register matters here.",
+          "backEn": "The corrected version is it was decided that because register matters here.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d10-c18",
+          "frontJa": "The corrected version is ___ when accuracy and nuance both matter.",
+          "backEn": "The corrected version is it was decided that when accuracy and nuance both matter.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d10-c19",
+          "frontJa": "The corrected version is ___ in high-stakes communication.",
+          "backEn": "The corrected version is it was decided that in high-stakes communication.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d10-c20",
+          "frontJa": "The corrected version is ___ instead of the awkward alternative.",
+          "backEn": "The corrected version is I am not sure I agree instead of the awkward alternative.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d10-c21",
+          "frontJa": "The corrected version is ___ to avoid tense inconsistency.",
+          "backEn": "The corrected version is I am not sure I agree to avoid tense inconsistency.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d10-c22",
+          "frontJa": "The corrected version is ___ because register matters here.",
+          "backEn": "The corrected version is I am not sure I agree because register matters here.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d10-c23",
+          "frontJa": "The corrected version is ___ when accuracy and nuance both matter.",
+          "backEn": "The corrected version is I am not sure I agree when accuracy and nuance both matter.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d10-c24",
+          "frontJa": "The corrected version is ___ in high-stakes communication.",
+          "backEn": "The corrected version is I am not sure I agree in high-stakes communication.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d10-c25",
+          "frontJa": "A more natural phrasing is ___ instead of the awkward alternative.",
+          "backEn": "A more natural phrasing is we discussed this yesterday instead of the awkward alternative.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d10-c26",
+          "frontJa": "A more natural phrasing is ___ to avoid tense inconsistency.",
+          "backEn": "A more natural phrasing is we discussed this yesterday to avoid tense inconsistency.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d10-c27",
+          "frontJa": "A more natural phrasing is ___ because register matters here.",
+          "backEn": "A more natural phrasing is we discussed this yesterday because register matters here.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d10-c28",
+          "frontJa": "A more natural phrasing is ___ when accuracy and nuance both matter.",
+          "backEn": "A more natural phrasing is we discussed this yesterday when accuracy and nuance both matter.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d10-c29",
+          "frontJa": "A more natural phrasing is ___ in high-stakes communication.",
+          "backEn": "A more natural phrasing is we discussed this yesterday in high-stakes communication.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d10-c30",
+          "frontJa": "A more natural phrasing is ___ instead of the awkward alternative.",
+          "backEn": "A more natural phrasing is she has already sent it instead of the awkward alternative.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d10-c31",
+          "frontJa": "A more natural phrasing is ___ to avoid tense inconsistency.",
+          "backEn": "A more natural phrasing is she has already sent it to avoid tense inconsistency.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d10-c32",
+          "frontJa": "A more natural phrasing is ___ because register matters here.",
+          "backEn": "A more natural phrasing is she has already sent it because register matters here.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d10-c33",
+          "frontJa": "A more natural phrasing is ___ when accuracy and nuance both matter.",
+          "backEn": "A more natural phrasing is she has already sent it when accuracy and nuance both matter.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d10-c34",
+          "frontJa": "A more natural phrasing is ___ in high-stakes communication.",
+          "backEn": "A more natural phrasing is she has already sent it in high-stakes communication.",
+          "sortOrder": 34
+        }
+      ]
+    },
+    {
+      "id": "study-a1-deck-11",
+      "titleJa": "Tone and intent control",
+      "titleEn": "Tone and intent control",
+      "sortOrder": 11,
+      "cards": [
+        {
+          "id": "study-a1-d11-c0",
+          "frontJa": "To sound diplomatic ___ before we lock commitments.",
+          "backEn": "To sound diplomatic I suggest we revisit the timeline before we lock commitments.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a1-d11-c1",
+          "frontJa": "To sound diplomatic ___ while keeping trust intact.",
+          "backEn": "To sound diplomatic I suggest we revisit the timeline while keeping trust intact.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a1-d11-c2",
+          "frontJa": "To sound diplomatic ___ so the decision stays evidence-based.",
+          "backEn": "To sound diplomatic I suggest we revisit the timeline so the decision stays evidence-based.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a1-d11-c3",
+          "frontJa": "To sound diplomatic ___ without escalating unnecessary tension.",
+          "backEn": "To sound diplomatic I suggest we revisit the timeline without escalating unnecessary tension.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a1-d11-c4",
+          "frontJa": "To sound diplomatic ___ to balance speed and quality.",
+          "backEn": "To sound diplomatic I suggest we revisit the timeline to balance speed and quality.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a1-d11-c5",
+          "frontJa": "To sound diplomatic ___ before we lock commitments.",
+          "backEn": "To sound diplomatic I need a clear answer today before we lock commitments.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a1-d11-c6",
+          "frontJa": "To sound diplomatic ___ while keeping trust intact.",
+          "backEn": "To sound diplomatic I need a clear answer today while keeping trust intact.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a1-d11-c7",
+          "frontJa": "To sound diplomatic ___ so the decision stays evidence-based.",
+          "backEn": "To sound diplomatic I need a clear answer today so the decision stays evidence-based.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a1-d11-c8",
+          "frontJa": "To sound diplomatic ___ without escalating unnecessary tension.",
+          "backEn": "To sound diplomatic I need a clear answer today without escalating unnecessary tension.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a1-d11-c9",
+          "frontJa": "To sound diplomatic ___ to balance speed and quality.",
+          "backEn": "To sound diplomatic I need a clear answer today to balance speed and quality.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a1-d11-c10",
+          "frontJa": "To sound diplomatic ___ before we lock commitments.",
+          "backEn": "To sound diplomatic I understand your concern before we lock commitments.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a1-d11-c11",
+          "frontJa": "To sound diplomatic ___ while keeping trust intact.",
+          "backEn": "To sound diplomatic I understand your concern while keeping trust intact.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a1-d11-c12",
+          "frontJa": "To sound diplomatic ___ so the decision stays evidence-based.",
+          "backEn": "To sound diplomatic I understand your concern so the decision stays evidence-based.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a1-d11-c13",
+          "frontJa": "To sound diplomatic ___ without escalating unnecessary tension.",
+          "backEn": "To sound diplomatic I understand your concern without escalating unnecessary tension.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a1-d11-c14",
+          "frontJa": "To sound diplomatic ___ to balance speed and quality.",
+          "backEn": "To sound diplomatic I understand your concern to balance speed and quality.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a1-d11-c15",
+          "frontJa": "To sound diplomatic ___ before we lock commitments.",
+          "backEn": "To sound diplomatic I cannot approve this version before we lock commitments.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a1-d11-c16",
+          "frontJa": "To sound diplomatic ___ while keeping trust intact.",
+          "backEn": "To sound diplomatic I cannot approve this version while keeping trust intact.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a1-d11-c17",
+          "frontJa": "To sound diplomatic ___ so the decision stays evidence-based.",
+          "backEn": "To sound diplomatic I cannot approve this version so the decision stays evidence-based.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a1-d11-c18",
+          "frontJa": "To sound diplomatic ___ without escalating unnecessary tension.",
+          "backEn": "To sound diplomatic I cannot approve this version without escalating unnecessary tension.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a1-d11-c19",
+          "frontJa": "To sound diplomatic ___ to balance speed and quality.",
+          "backEn": "To sound diplomatic I cannot approve this version to balance speed and quality.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a1-d11-c20",
+          "frontJa": "To sound diplomatic ___ before we lock commitments.",
+          "backEn": "To sound diplomatic I recommend a smaller pilot first before we lock commitments.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a1-d11-c21",
+          "frontJa": "To sound diplomatic ___ while keeping trust intact.",
+          "backEn": "To sound diplomatic I recommend a smaller pilot first while keeping trust intact.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a1-d11-c22",
+          "frontJa": "To sound diplomatic ___ so the decision stays evidence-based.",
+          "backEn": "To sound diplomatic I recommend a smaller pilot first so the decision stays evidence-based.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a1-d11-c23",
+          "frontJa": "To sound diplomatic ___ without escalating unnecessary tension.",
+          "backEn": "To sound diplomatic I recommend a smaller pilot first without escalating unnecessary tension.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a1-d11-c24",
+          "frontJa": "To sound diplomatic ___ to balance speed and quality.",
+          "backEn": "To sound diplomatic I recommend a smaller pilot first to balance speed and quality.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a1-d11-c25",
+          "frontJa": "To sound assertive ___ before we lock commitments.",
+          "backEn": "To sound assertive I suggest we revisit the timeline before we lock commitments.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a1-d11-c26",
+          "frontJa": "To sound assertive ___ while keeping trust intact.",
+          "backEn": "To sound assertive I suggest we revisit the timeline while keeping trust intact.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a1-d11-c27",
+          "frontJa": "To sound assertive ___ so the decision stays evidence-based.",
+          "backEn": "To sound assertive I suggest we revisit the timeline so the decision stays evidence-based.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a1-d11-c28",
+          "frontJa": "To sound assertive ___ without escalating unnecessary tension.",
+          "backEn": "To sound assertive I suggest we revisit the timeline without escalating unnecessary tension.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a1-d11-c29",
+          "frontJa": "To sound assertive ___ to balance speed and quality.",
+          "backEn": "To sound assertive I suggest we revisit the timeline to balance speed and quality.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a1-d11-c30",
+          "frontJa": "To sound assertive ___ before we lock commitments.",
+          "backEn": "To sound assertive I need a clear answer today before we lock commitments.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a1-d11-c31",
+          "frontJa": "To sound assertive ___ while keeping trust intact.",
+          "backEn": "To sound assertive I need a clear answer today while keeping trust intact.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a1-d11-c32",
+          "frontJa": "To sound assertive ___ so the decision stays evidence-based.",
+          "backEn": "To sound assertive I need a clear answer today so the decision stays evidence-based.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a1-d11-c33",
+          "frontJa": "To sound assertive ___ without escalating unnecessary tension.",
+          "backEn": "To sound assertive I need a clear answer today without escalating unnecessary tension.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a1-d11-c34",
+          "frontJa": "To sound assertive ___ to balance speed and quality.",
+          "backEn": "To sound assertive I need a clear answer today to balance speed and quality.",
+          "sortOrder": 34
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "passingScore": 78,
+    "items": [
+      {
+        "id": "study-a1-a0",
+        "promptJa": "Choose the most natural advanced phrasing for item 1.",
+        "promptEn": "Choose the most natural advanced phrasing for item 1.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a1",
+        "promptJa": "Choose the most natural advanced phrasing for item 2.",
+        "promptEn": "Choose the most natural advanced phrasing for item 2.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a2",
+        "promptJa": "Choose the most natural advanced phrasing for item 3.",
+        "promptEn": "Choose the most natural advanced phrasing for item 3.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a3",
+        "promptJa": "Choose the most natural advanced phrasing for item 4.",
+        "promptEn": "Choose the most natural advanced phrasing for item 4.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a4",
+        "promptJa": "Choose the most natural advanced phrasing for item 5.",
+        "promptEn": "Choose the most natural advanced phrasing for item 5.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a5",
+        "promptJa": "Choose the most natural advanced phrasing for item 6.",
+        "promptEn": "Choose the most natural advanced phrasing for item 6.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a6",
+        "promptJa": "Choose the most natural advanced phrasing for item 7.",
+        "promptEn": "Choose the most natural advanced phrasing for item 7.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a7",
+        "promptJa": "Choose the most natural advanced phrasing for item 8.",
+        "promptEn": "Choose the most natural advanced phrasing for item 8.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a8",
+        "promptJa": "Choose the most natural advanced phrasing for item 9.",
+        "promptEn": "Choose the most natural advanced phrasing for item 9.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a9",
+        "promptJa": "Choose the most natural advanced phrasing for item 10.",
+        "promptEn": "Choose the most natural advanced phrasing for item 10.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a10",
+        "promptJa": "Choose the most natural advanced phrasing for item 11.",
+        "promptEn": "Choose the most natural advanced phrasing for item 11.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a1-a11",
+        "promptJa": "Choose the most natural advanced phrasing for item 12.",
+        "promptEn": "Choose the most natural advanced phrasing for item 12.",
+        "options": [
+          "I have reviewed the issue and proposed a clear next step.",
+          "I reviewed issue and propose clear next step yesterday now.",
+          "Issue reviewed by me and next step maybe clear maybe not.",
+          "I am reviewing yesterday and will had propose soon."
+        ],
+        "correctIndex": 0
+      }
+    ]
+  }
+}
