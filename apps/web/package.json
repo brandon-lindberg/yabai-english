@@ -28,6 +28,7 @@
     "study:build-beginner3-json": "tsx scripts/build-beginner3-json.ts",
     "study:build-intermediate1-json": "tsx scripts/build-intermediate1-json.ts",
     "study:build-intermediate2-json": "tsx scripts/build-intermediate2-json.ts",
+    "study:build-intermediate3-json": "tsx scripts/build-intermediate3-json.ts",
     "db:seed": "prisma db seed"
   },
   "prisma": {

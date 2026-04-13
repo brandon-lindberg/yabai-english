@@ -1,0 +1,3291 @@
+{
+  "version": 1,
+  "levelCode": "INTERMEDIATE_3",
+  "decks": [
+    {
+      "id": "study-i3-deck-0",
+      "titleJa": "複文① although",
+      "titleEn": "Complex sentences — although (1)",
+      "sortOrder": 0,
+      "cards": [
+        {
+          "id": "study-i3-d0-c0",
+          "frontJa": "___ it was cold, we still sat on the terrace.",
+          "backEn": "Although it was cold, we still sat on the terrace.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d0-c1",
+          "frontJa": "___ the ticket was expensive, the show was worth it.",
+          "backEn": "Although the ticket was expensive, the show was worth it.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d0-c2",
+          "frontJa": "___ she was nervous, her presentation was clear.",
+          "backEn": "Although she was nervous, her presentation was clear.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d0-c3",
+          "frontJa": "___ traffic was heavy, we arrived on time.",
+          "backEn": "Although traffic was heavy, we arrived on time.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d0-c4",
+          "frontJa": "___ I disagree with the plan, I will support the team.",
+          "backEn": "Although I disagree with the plan, I will support the team.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d0-c5",
+          "frontJa": "Translate: 疲れていたが、最後まで参加した。",
+          "backEn": "Although I was tired, I stayed until the end.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d0-c6",
+          "frontJa": "___ the data is incomplete, the trend looks positive.",
+          "backEn": "Although the data is incomplete, the trend looks positive.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d0-c7",
+          "frontJa": "___ he apologized, some colleagues remain upset.",
+          "backEn": "Although he apologized, some colleagues remain upset.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d0-c8",
+          "frontJa": "___ it's a small detail, it affects the whole design.",
+          "backEn": "Although it's a small detail, it affects the whole design.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d0-c9",
+          "frontJa": "Translate: 予算は限られているが、質は落としたくない。",
+          "backEn": "Although the budget is tight, we don't want to cut quality.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d0-c10",
+          "frontJa": "___ we had practiced, the first question surprised us.",
+          "backEn": "Although we had practiced, the first question surprised us.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d0-c11",
+          "frontJa": "___ the restaurant was busy, the service stayed friendly.",
+          "backEn": "Although the restaurant was busy, the service stayed friendly.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d0-c12",
+          "frontJa": "___ I had sent a reminder, a few people forgot.",
+          "backEn": "Although I had sent a reminder, a few people forgot.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d0-c13",
+          "frontJa": "___ the risk is low, we should document it.",
+          "backEn": "Although the risk is low, we should document it.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d0-c14",
+          "frontJa": "Translate: 年齢は若いが、とても責任感がある。",
+          "backEn": "Although she is young, she is very responsible.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-1",
+      "titleJa": "複文② although",
+      "titleEn": "Complex sentences — although (2)",
+      "sortOrder": 1,
+      "cards": [
+        {
+          "id": "study-i3-d1-c0",
+          "frontJa": "___ it sounds simple, implementation will take weeks.",
+          "backEn": "Although it sounds simple, implementation will take weeks.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d1-c1",
+          "frontJa": "___ we lost the first game, we reached the final.",
+          "backEn": "Although we lost the first game, we reached the final.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d1-c2",
+          "frontJa": "___ the museum was crowded, we enjoyed the exhibit.",
+          "backEn": "Although the museum was crowded, we enjoyed the exhibit.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d1-c3",
+          "frontJa": "___ I had doubts, the results convinced me.",
+          "backEn": "Although I had doubts, the results convinced me.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d1-c4",
+          "frontJa": "___ the flight was delayed, we made our connection.",
+          "backEn": "Although the flight was delayed, we made our connection.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d1-c5",
+          "frontJa": "Translate: 反対は多かったが、案は可決された。",
+          "backEn": "Although there was a lot of opposition, the proposal was approved.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d1-c6",
+          "frontJa": "___ the software is old, it rarely crashes.",
+          "backEn": "Although the software is old, it rarely crashes.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d1-c7",
+          "frontJa": "___ he works remotely, he attends every stand-up.",
+          "backEn": "Although he works remotely, he attends every stand-up.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d1-c8",
+          "frontJa": "___ winter here is mild, we still get snow.",
+          "backEn": "Although winter here is mild, we still get snow.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d1-c9",
+          "frontJa": "___ the sample is small, the pattern is clear.",
+          "backEn": "Although the sample is small, the pattern is clear.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d1-c10",
+          "frontJa": "Translate: 経験は浅いが、学ぶ意欲は高い。",
+          "backEn": "Although his experience is limited, he is eager to learn.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d1-c11",
+          "frontJa": "___ the deadline moved, the scope did not shrink.",
+          "backEn": "Although the deadline moved, the scope did not shrink.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d1-c12",
+          "frontJa": "___ she speaks softly, people listen carefully.",
+          "backEn": "Although she speaks softly, people listen carefully.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d1-c13",
+          "frontJa": "___ costs rose, we stayed within the cap.",
+          "backEn": "Although costs rose, we stayed within the cap.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d1-c14",
+          "frontJa": "___ I had warned them, they tried the shortcut.",
+          "backEn": "Although I had warned them, they tried the shortcut.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-2",
+      "titleJa": "複文③ even though",
+      "titleEn": "Complex sentences — even though (1)",
+      "sortOrder": 2,
+      "cards": [
+        {
+          "id": "study-i3-d2-c0",
+          "frontJa": "___ I set two alarms, I overslept.",
+          "backEn": "Even though I set two alarms, I overslept.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d2-c1",
+          "frontJa": "___ we rehearsed, I forgot my line on stage.",
+          "backEn": "Even though we rehearsed, I forgot my line on stage.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d2-c2",
+          "frontJa": "___ it was a weekday, the beach was packed.",
+          "backEn": "Even though it was a weekday, the beach was packed.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d2-c3",
+          "frontJa": "___ he studied hard, the exam felt unfair.",
+          "backEn": "Even though he studied hard, the exam felt unfair.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d2-c4",
+          "frontJa": "___ she saved money, she couldn't afford the repair.",
+          "backEn": "Even though she saved money, she couldn't afford the repair.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d2-c5",
+          "frontJa": "Translate: 注意されたのに、同じミスをした。",
+          "backEn": "Even though I had been warned, I made the same mistake.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d2-c6",
+          "frontJa": "___ we left early, traffic was still awful.",
+          "backEn": "Even though we left early, traffic was still awful.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d2-c7",
+          "frontJa": "___ the instructions were clear, I assembled it wrong.",
+          "backEn": "Even though the instructions were clear, I assembled it wrong.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d2-c8",
+          "frontJa": "___ they offered a discount, I didn't buy it.",
+          "backEn": "Even though they offered a discount, I didn't buy it.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d2-c9",
+          "frontJa": "___ I locked the door, I worried all night.",
+          "backEn": "Even though I locked the door, I worried all night.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d2-c10",
+          "frontJa": "Translate: 証拠があったのに、信じてもらえなかった。",
+          "backEn": "Even though there was evidence, they didn't believe me.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d2-c11",
+          "frontJa": "___ the path was steep, we reached the summit.",
+          "backEn": "Even though the path was steep, we reached the summit.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d2-c12",
+          "frontJa": "___ I muted my mic, background noise leaked in.",
+          "backEn": "Even though I muted my mic, background noise leaked in.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d2-c13",
+          "frontJa": "___ we doubled the staff, queues remained long.",
+          "backEn": "Even though we doubled the staff, queues remained long.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d2-c14",
+          "frontJa": "___ he had a visa, border control questioned him.",
+          "backEn": "Even though he had a visa, border control questioned him.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-3",
+      "titleJa": "複文④ even though",
+      "titleEn": "Complex sentences — even though (2)",
+      "sortOrder": 3,
+      "cards": [
+        {
+          "id": "study-i3-d3-c0",
+          "frontJa": "___ I don't drink coffee, I love the smell.",
+          "backEn": "Even though I don't drink coffee, I love the smell.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d3-c1",
+          "frontJa": "___ the forecast was sunny, we packed rain gear.",
+          "backEn": "Even though the forecast was sunny, we packed rain gear.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d3-c2",
+          "frontJa": "___ she had retired, she mentored new hires.",
+          "backEn": "Even though she had retired, she mentored new hires.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d3-c3",
+          "frontJa": "___ the room was small, the acoustics were great.",
+          "backEn": "Even though the room was small, the acoustics were great.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d3-c4",
+          "frontJa": "___ I had eaten, I was still hungry.",
+          "backEn": "Even though I had eaten, I was still hungry.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d3-c5",
+          "frontJa": "Translate: 忙しかったのに、手伝ってくれた。",
+          "backEn": "Even though she was busy, she helped me.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d3-c6",
+          "frontJa": "___ we signed a contract, they changed the terms.",
+          "backEn": "Even though we signed a contract, they changed the terms.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d3-c7",
+          "frontJa": "___ the movie got bad reviews, I enjoyed it.",
+          "backEn": "Even though the movie got bad reviews, I enjoyed it.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d3-c8",
+          "frontJa": "___ he trains daily, injuries slowed him down.",
+          "backEn": "Even though he trains daily, injuries slowed him down.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d3-c9",
+          "frontJa": "___ I explained twice, he looked confused.",
+          "backEn": "Even though I explained twice, he looked confused.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d3-c10",
+          "frontJa": "___ the laptop is old, it runs smoothly.",
+          "backEn": "Even though the laptop is old, it runs smoothly.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d3-c11",
+          "frontJa": "___ we lowered the price, sales stayed flat.",
+          "backEn": "Even though we lowered the price, sales stayed flat.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d3-c12",
+          "frontJa": "___ she was a beginner, she finished the race.",
+          "backEn": "Even though she was a beginner, she finished the race.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d3-c13",
+          "frontJa": "___ I turned notifications off, I checked my phone.",
+          "backEn": "Even though I turned notifications off, I checked my phone.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d3-c14",
+          "frontJa": "___ winter had ended, snow fell in April.",
+          "backEn": "Even though winter had ended, snow fell in April.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-4",
+      "titleJa": "複文⑤ while（対比）",
+      "titleEn": "Complex sentences — while (contrast)",
+      "sortOrder": 4,
+      "cards": [
+        {
+          "id": "study-i3-d4-c0",
+          "frontJa": "___ I respect his work, I can't agree with this decision.",
+          "backEn": "While I respect his work, I can't agree with this decision.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d4-c1",
+          "frontJa": "___ the idea is creative, it isn't practical yet.",
+          "backEn": "While the idea is creative, it isn't practical yet.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d4-c2",
+          "frontJa": "___ costs have fallen, quality has improved.",
+          "backEn": "While costs have fallen, quality has improved.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d4-c3",
+          "frontJa": "___ some regions grew fast, others stagnated.",
+          "backEn": "While some regions grew fast, others stagnated.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d4-c4",
+          "frontJa": "___ I understand the urgency, we need more data.",
+          "backEn": "While I understand the urgency, we need more data.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d4-c5",
+          "frontJa": "Translate: 彼は慎重だが、チームはスピードを求めている。",
+          "backEn": "While he is cautious, the team wants to move faster.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d4-c6",
+          "frontJa": "___ the app is popular, support tickets keep rising.",
+          "backEn": "While the app is popular, support tickets keep rising.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d4-c7",
+          "frontJa": "___ exports rose, domestic sales slipped.",
+          "backEn": "While exports rose, domestic sales slipped.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d4-c8",
+          "frontJa": "___ I sympathize with them, policy won't change.",
+          "backEn": "While I sympathize with them, policy won't change.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d4-c9",
+          "frontJa": "___ the headline looks scary, the risk is contained.",
+          "backEn": "While the headline looks scary, the risk is contained.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d4-c10",
+          "frontJa": "Translate: 若者は増えている一方で、高齢者も増えている。",
+          "backEn": "While the youth population is growing, the elderly population is growing too.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d4-c11",
+          "frontJa": "___ we celebrate the win, we should review mistakes.",
+          "backEn": "While we celebrate the win, we should review mistakes.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d4-c12",
+          "frontJa": "___ demand is strong, supply chains remain fragile.",
+          "backEn": "While demand is strong, supply chains remain fragile.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d4-c13",
+          "frontJa": "___ she prefers text, clients want calls.",
+          "backEn": "While she prefers text, clients want calls.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d4-c14",
+          "frontJa": "___ the city is expensive, it offers opportunities.",
+          "backEn": "While the city is expensive, it offers opportunities.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-5",
+      "titleJa": "複文⑥ while（同時）",
+      "titleEn": "Complex sentences — while (simultaneous)",
+      "sortOrder": 5,
+      "cards": [
+        {
+          "id": "study-i3-d5-c0",
+          "frontJa": "___ I was cooking, the phone rang.",
+          "backEn": "While I was cooking, the phone rang.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d5-c1",
+          "frontJa": "___ they were debating, I took notes.",
+          "backEn": "While they were debating, I took notes.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d5-c2",
+          "frontJa": "___ we waited, the line barely moved.",
+          "backEn": "While we waited, the line barely moved.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d5-c3",
+          "frontJa": "___ she presented, the slides advanced automatically.",
+          "backEn": "While she presented, the slides advanced automatically.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d5-c4",
+          "frontJa": "___ I commuted, I listened to a podcast.",
+          "backEn": "While I commuted, I listened to a podcast.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d5-c5",
+          "frontJa": "Translate: 彼が話している間、皆が静かに聞いていた。",
+          "backEn": "While he was speaking, everyone listened quietly.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d5-c6",
+          "frontJa": "___ the backup ran, we couldn't edit the file.",
+          "backEn": "While the backup ran, we couldn't edit the file.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d5-c7",
+          "frontJa": "___ it was raining, joggers kept circling the park.",
+          "backEn": "While it was raining, joggers kept circling the park.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d5-c8",
+          "frontJa": "___ you review this section, I'll handle the intro.",
+          "backEn": "While you review this section, I'll handle the intro.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d5-c9",
+          "frontJa": "___ the band tuned, the crowd cheered.",
+          "backEn": "While the band tuned, the crowd cheered.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d5-c10",
+          "frontJa": "Translate: 工事が進む間、騒音が続いた。",
+          "backEn": "While construction continued, the noise went on.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d5-c11",
+          "frontJa": "___ he slept, his phone charged.",
+          "backEn": "While he slept, his phone charged.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d5-c12",
+          "frontJa": "___ we hiked, clouds rolled in.",
+          "backEn": "While we hiked, clouds rolled in.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d5-c13",
+          "frontJa": "___ the video rendered, I grabbed lunch.",
+          "backEn": "While the video rendered, I grabbed lunch.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d5-c14",
+          "frontJa": "___ they negotiated, lawyers reviewed the draft.",
+          "backEn": "While they negotiated, lawyers reviewed the draft.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-6",
+      "titleJa": "第二条件①",
+      "titleEn": "Second conditional — basics",
+      "sortOrder": 6,
+      "cards": [
+        {
+          "id": "study-i3-d6-c0",
+          "frontJa": "If I ___ more free time, I would travel more.",
+          "backEn": "If I had more free time, I would travel more.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d6-c1",
+          "frontJa": "If she ___ here, she would love this neighborhood.",
+          "backEn": "If she lived here, she would love this neighborhood.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d6-c2",
+          "frontJa": "If we ___ a bigger budget, we could hire two designers.",
+          "backEn": "If we had a bigger budget, we could hire two designers.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d6-c3",
+          "frontJa": "If it ___ warmer, we could eat outside tonight.",
+          "backEn": "If it were warmer, we could eat outside tonight.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d6-c4",
+          "frontJa": "If I ___ you, I would ask for a second opinion.",
+          "backEn": "If I were you, I would ask for a second opinion.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d6-c5",
+          "frontJa": "Translate: もし私が社長なら、方針を変えるだろう。",
+          "backEn": "If I were the CEO, I would change the strategy.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d6-c6",
+          "frontJa": "If the server ___ faster, the app would feel smoother.",
+          "backEn": "If the server were faster, the app would feel smoother.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d6-c7",
+          "frontJa": "If he ___ the truth, he would feel relieved.",
+          "backEn": "If he knew the truth, he would feel relieved.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d6-c8",
+          "frontJa": "If we ___ another week, we could polish the report.",
+          "backEn": "If we had another week, we could polish the report.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d6-c9",
+          "frontJa": "If this ___ my project, I would simplify the scope.",
+          "backEn": "If this were my project, I would simplify the scope.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d6-c10",
+          "frontJa": "Translate: もし時間が逆戻りできるなら、あの日に戻りたい。",
+          "backEn": "If I could turn back time, I would return to that day.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d6-c11",
+          "frontJa": "If they ___ stricter rules, fewer mistakes would happen.",
+          "backEn": "If they had stricter rules, fewer mistakes would happen.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d6-c12",
+          "frontJa": "If I ___ fluent, I would apply for that role.",
+          "backEn": "If I were fluent, I would apply for that role.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d6-c13",
+          "frontJa": "If the venue ___ larger, we could invite everyone.",
+          "backEn": "If the venue were larger, we could invite everyone.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d6-c14",
+          "frontJa": "If we ___ unlimited storage, we wouldn't delete files.",
+          "backEn": "If we had unlimited storage, we wouldn't delete files.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-7",
+      "titleJa": "第二条件②",
+      "titleEn": "Second conditional — wishes & hypotheticals",
+      "sortOrder": 7,
+      "cards": [
+        {
+          "id": "study-i3-d7-c0",
+          "frontJa": "If I ___ speak French, I could work in Montreal.",
+          "backEn": "If I could speak French, I could work in Montreal.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d7-c1",
+          "frontJa": "If she ___ join us, the discussion would be richer.",
+          "backEn": "If she could join us, the discussion would be richer.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d7-c2",
+          "frontJa": "If we ___ meet in person, I'd explain it better.",
+          "backEn": "If we could meet in person, I'd explain it better.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d7-c3",
+          "frontJa": "If nothing ___ in the way, we would launch in June.",
+          "backEn": "If nothing stood in the way, we would launch in June.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d7-c4",
+          "frontJa": "If I ___ one wish, I'd choose better work-life balance.",
+          "backEn": "If I had one wish, I'd choose better work-life balance.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d7-c5",
+          "frontJa": "Translate: もし雨が止めば、散歩に行くだろう。",
+          "backEn": "If the rain stopped, I would go for a walk.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d7-c6",
+          "frontJa": "If he ___ less shy, he would network more.",
+          "backEn": "If he were less shy, he would network more.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d7-c7",
+          "frontJa": "If the policy ___ different, morale might improve.",
+          "backEn": "If the policy were different, morale might improve.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d7-c8",
+          "frontJa": "If I ___ access to those logs, I could prove it.",
+          "backEn": "If I had access to those logs, I could prove it.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d7-c9",
+          "frontJa": "If it ___ not so late, I'd call her now.",
+          "backEn": "If it were not so late, I'd call her now.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d7-c10",
+          "frontJa": "Translate: もし君の立場なら、どうする？",
+          "backEn": "What would you do if you were in my position?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d7-c11",
+          "frontJa": "If we ___ a mentor, we would avoid these pitfalls.",
+          "backEn": "If we had a mentor, we would avoid these pitfalls.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d7-c12",
+          "frontJa": "If the data ___ public, trust would erode.",
+          "backEn": "If the data were public, trust would erode.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d7-c13",
+          "frontJa": "If I ___ younger, I'd learn the piano.",
+          "backEn": "If I were younger, I'd learn the piano.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d7-c14",
+          "frontJa": "If the board ___ fully aligned, decisions would be faster.",
+          "backEn": "If the board were fully aligned, decisions would be faster.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-8",
+      "titleJa": "第二条件③",
+      "titleEn": "Second conditional — advice & critique",
+      "sortOrder": 8,
+      "cards": [
+        {
+          "id": "study-i3-d8-c0",
+          "frontJa": "If I ___ managing this team, I would reset expectations.",
+          "backEn": "If I were managing this team, I would reset expectations.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d8-c1",
+          "frontJa": "If this ___ a client-facing bug, we would patch it tonight.",
+          "backEn": "If this were a client-facing bug, we would patch it tonight.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d8-c2",
+          "frontJa": "If we ___ starting over, I would pick a simpler stack.",
+          "backEn": "If we were starting over, I would pick a simpler stack.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d8-c3",
+          "frontJa": "If I ___ the customer, I would want clearer pricing.",
+          "backEn": "If I were the customer, I would want clearer pricing.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d8-c4",
+          "frontJa": "If ethics ___ optional, we would lose credibility.",
+          "backEn": "If ethics were optional, we would lose credibility.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d8-c5",
+          "frontJa": "Translate: もし私が裁判官なら、もっと厳しく罰する。",
+          "backEn": "If I were the judge, I would impose a stricter penalty.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d8-c6",
+          "frontJa": "If funding ___ guaranteed, we would expand the lab.",
+          "backEn": "If funding were guaranteed, we would expand the lab.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d8-c7",
+          "frontJa": "If silence ___ agreement, we would have a problem.",
+          "backEn": "If silence were agreement, we would have a problem.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d8-c8",
+          "frontJa": "If I ___ designing this flow, I would add a confirmation step.",
+          "backEn": "If I were designing this flow, I would add a confirmation step.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d8-c9",
+          "frontJa": "If reputation ___ currency, every reply would matter.",
+          "backEn": "If reputation were currency, every reply would matter.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d8-c10",
+          "frontJa": "Translate: もし資源が無限なら、実験をもっと重ねられる。",
+          "backEn": "If resources were unlimited, we could run more experiments.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d8-c11",
+          "frontJa": "If I ___ on the board, I would ask tougher questions.",
+          "backEn": "If I were on the board, I would ask tougher questions.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d8-c12",
+          "frontJa": "If empathy ___ standard here, feedback would sting less.",
+          "backEn": "If empathy were standard here, feedback would sting less.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d8-c13",
+          "frontJa": "If speed ___ the only metric, quality would suffer.",
+          "backEn": "If speed were the only metric, quality would suffer.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d8-c14",
+          "frontJa": "If I ___ rewriting this email, I would shorten the opening.",
+          "backEn": "If I were rewriting this email, I would shorten the opening.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-9",
+      "titleJa": "意見を述べる①",
+      "titleEn": "Explaining opinions — I believe that…",
+      "sortOrder": 9,
+      "cards": [
+        {
+          "id": "study-i3-d9-c0",
+          "frontJa": "I ___ that remote work boosts productivity for many roles.",
+          "backEn": "I believe that remote work boosts productivity for many roles.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d9-c1",
+          "frontJa": "I ___ that early feedback saves money later.",
+          "backEn": "I believe that early feedback saves money later.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d9-c2",
+          "frontJa": "I ___ that everyone deserves a clear career path.",
+          "backEn": "I believe that everyone deserves a clear career path.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d9-c3",
+          "frontJa": "I ___ that small habits shape long-term health.",
+          "backEn": "I believe that small habits shape long-term health.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d9-c4",
+          "frontJa": "I ___ that transparency builds trust on teams.",
+          "backEn": "I believe that transparency builds trust on teams.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d9-c5",
+          "frontJa": "Translate: 公平な手続きが正義だと信じている。",
+          "backEn": "I believe that fair procedures are what justice means.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d9-c6",
+          "frontJa": "I ___ that we should measure outcomes, not hours.",
+          "backEn": "I believe that we should measure outcomes, not hours.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d9-c7",
+          "frontJa": "I ___ that language learning takes patient practice.",
+          "backEn": "I believe that language learning takes patient practice.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d9-c8",
+          "frontJa": "I ___ that cities need greener public spaces.",
+          "backEn": "I believe that cities need greener public spaces.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d9-c9",
+          "frontJa": "I ___ that good design is invisible until it breaks.",
+          "backEn": "I believe that good design is invisible until it breaks.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d9-c10",
+          "frontJa": "Translate: 多様性は創造性を高めると信じている。",
+          "backEn": "I believe that diversity strengthens creativity.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d9-c11",
+          "frontJa": "I ___ that we owe users honest release notes.",
+          "backEn": "I believe that we owe users honest release notes.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d9-c12",
+          "frontJa": "I ___ that sleep is undervalued in startup culture.",
+          "backEn": "I believe that sleep is undervalued in startup culture.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d9-c13",
+          "frontJa": "I ___ that mentors accelerate growth.",
+          "backEn": "I believe that mentors accelerate growth.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d9-c14",
+          "frontJa": "I ___ that curiosity matters more than raw talent.",
+          "backEn": "I believe that curiosity matters more than raw talent.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-10",
+      "titleJa": "意見を述べる②",
+      "titleEn": "Explaining opinions — framing & hedging",
+      "sortOrder": 10,
+      "cards": [
+        {
+          "id": "study-i3-d10-c0",
+          "frontJa": "___ my view, the benefits outweigh the risks.",
+          "backEn": "In my view, the benefits outweigh the risks.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d10-c1",
+          "frontJa": "Personally, I ___ we should delay the launch.",
+          "backEn": "Personally, I think we should delay the launch.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d10-c2",
+          "frontJa": "___ speaking, the timeline looks unrealistic.",
+          "backEn": "Frankly speaking, the timeline looks unrealistic.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d10-c3",
+          "frontJa": "___ I'm concerned about scope creep.",
+          "backEn": "To be honest, I'm concerned about scope creep.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d10-c4",
+          "frontJa": "___ the evidence suggests we should wait.",
+          "backEn": "From my perspective, the evidence suggests we should wait.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d10-c5",
+          "frontJa": "Translate: 私の経験では、早すぎる最適化は危険だ。",
+          "backEn": "In my experience, premature optimization is risky.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d10-c6",
+          "frontJa": "___ I would argue that consistency beats novelty here.",
+          "backEn": "Broadly, I would argue that consistency beats novelty here.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d10-c7",
+          "frontJa": "___ it seems to me that we lack a single owner.",
+          "backEn": "It seems to me that we lack a single owner.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d10-c8",
+          "frontJa": "___ I tend to think smaller teams ship faster.",
+          "backEn": "I tend to think smaller teams ship faster.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d10-c9",
+          "frontJa": "___ I'm inclined to support the pilot project.",
+          "backEn": "I'm inclined to support the pilot project.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d10-c10",
+          "frontJa": "Translate: どちらかというと、慎重な方がいい。",
+          "backEn": "If anything, I'd rather be cautious.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d10-c11",
+          "frontJa": "___ on balance, I'd choose the safer option.",
+          "backEn": "On balance, I'd choose the safer option.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d10-c12",
+          "frontJa": "___ as I see it, communication is the bottleneck.",
+          "backEn": "As I see it, communication is the bottleneck.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d10-c13",
+          "frontJa": "___ my impression is that morale has improved.",
+          "backEn": "My impression is that morale has improved.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d10-c14",
+          "frontJa": "___ , we should pause the rollout until QA signs off.",
+          "backEn": "In my opinion, we should pause the rollout until QA signs off.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-11",
+      "titleJa": "意見を述べる③",
+      "titleEn": "Explaining opinions — clarity & strength",
+      "sortOrder": 11,
+      "cards": [
+        {
+          "id": "study-i3-d11-c0",
+          "frontJa": "My ___ position is that we need written criteria.",
+          "backEn": "My firm position is that we need written criteria.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d11-c1",
+          "frontJa": "The ___ point I'm making is that cost isn't the only factor.",
+          "backEn": "The key point I'm making is that cost isn't the only factor.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d11-c2",
+          "frontJa": "Let me ___ my reasoning in three short bullets.",
+          "backEn": "Let me outline my reasoning in three short bullets.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d11-c3",
+          "frontJa": "I want to ___ this clearly: we can't accept further delay.",
+          "backEn": "I want to state this clearly: we can't accept further delay.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d11-c4",
+          "frontJa": "To ___ my argument, consider what happened last quarter.",
+          "backEn": "To strengthen my argument, consider what happened last quarter.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d11-c5",
+          "frontJa": "Translate: 結論として、反対せざるを得ない。",
+          "backEn": "In conclusion, I feel compelled to disagree.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d11-c6",
+          "frontJa": "What I'm ___ is that trust takes years to rebuild.",
+          "backEn": "What I'm driving at is that trust takes years to rebuild.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d11-c7",
+          "frontJa": "I should ___ that I don't speak for the whole department.",
+          "backEn": "I should stress that I don't speak for the whole department.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d11-c8",
+          "frontJa": "Another ___ worth highlighting is data privacy.",
+          "backEn": "Another angle worth highlighting is data privacy.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d11-c9",
+          "frontJa": "I am ___ convinced that this vendor is the right fit.",
+          "backEn": "I am strongly convinced that this vendor is the right fit.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d11-c10",
+          "frontJa": "Translate: 簡単に言えば、今はリスクが高すぎる。",
+          "backEn": "Put simply, the risk is too high right now.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d11-c11",
+          "frontJa": "If I may ___, this plan ignores frontline feedback.",
+          "backEn": "If I may be blunt, this plan ignores frontline feedback.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d11-c12",
+          "frontJa": "The ___ I want to leave you with is urgency.",
+          "backEn": "The takeaway I want to leave you with is urgency.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d11-c13",
+          "frontJa": "I am ___ opposed to cutting training first.",
+          "backEn": "I am firmly opposed to cutting training first.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d11-c14",
+          "frontJa": "Let me ___ one last example from our pilot.",
+          "backEn": "Let me cite one last example from our pilot.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-12",
+      "titleJa": "同意・不同意①",
+      "titleEn": "Agreeing & partial agreement",
+      "sortOrder": 12,
+      "cards": [
+        {
+          "id": "study-i3-d12-c0",
+          "frontJa": "I ___ with you that the first draft was weak.",
+          "backEn": "I agree with you that the first draft was weak.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d12-c1",
+          "frontJa": "I ___ — the timeline does look tight.",
+          "backEn": "I agree — the timeline does look tight.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d12-c2",
+          "frontJa": "I'm ___ on board with the safety checklist idea.",
+          "backEn": "I'm completely on board with the safety checklist idea.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d12-c3",
+          "frontJa": "I ___ partly: the design is elegant, but it's hard to maintain.",
+          "backEn": "I agree partly: the design is elegant, but it's hard to maintain.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d12-c4",
+          "frontJa": "You have a ___ there about vendor lock-in.",
+          "backEn": "You have a point there about vendor lock-in.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d12-c5",
+          "frontJa": "Translate: その通りだと思う。特にコストの面で。",
+          "backEn": "I think you're right, especially about the cost.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d12-c6",
+          "frontJa": "I couldn't ___ more about the need for documentation.",
+          "backEn": "I couldn't agree more about the need for documentation.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d12-c7",
+          "frontJa": "That's a ___ observation about user fatigue.",
+          "backEn": "That's a fair observation about user fatigue.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d12-c8",
+          "frontJa": "I'm ___ to agree if we add a rollback plan.",
+          "backEn": "I'm willing to agree if we add a rollback plan.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d12-c9",
+          "frontJa": "I see ___ you're coming from on staffing.",
+          "backEn": "I see where you're coming from on staffing.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d12-c10",
+          "frontJa": "Translate: 基本的には賛成だが、細部は詰めたい。",
+          "backEn": "I agree in principle, but I'd like to nail down the details.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d12-c11",
+          "frontJa": "I share your ___ about long-term sustainability.",
+          "backEn": "I share your concern about long-term sustainability.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d12-c12",
+          "frontJa": "I'm ___ with the direction, not every tactic.",
+          "backEn": "I'm aligned with the direction, not every tactic.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d12-c13",
+          "frontJa": "True, ___ we should still test edge cases.",
+          "backEn": "True, though we should still test edge cases.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d12-c14",
+          "frontJa": "I accept that ___ if we cap the budget.",
+          "backEn": "I accept that proposal if we cap the budget.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-13",
+      "titleJa": "同意・不同意②",
+      "titleEn": "Disagreeing & uncertainty",
+      "sortOrder": 13,
+      "cards": [
+        {
+          "id": "study-i3-d13-c0",
+          "frontJa": "I'm ___ sure I agree with that conclusion.",
+          "backEn": "I'm not sure I agree with that conclusion.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d13-c1",
+          "frontJa": "I see it ___ — the risk profile looks different to me.",
+          "backEn": "I see it differently — the risk profile looks different to me.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d13-c2",
+          "frontJa": "I have ___ about relying on a single supplier.",
+          "backEn": "I have reservations about relying on a single supplier.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d13-c3",
+          "frontJa": "I'd ___ to push back gently on that assumption.",
+          "backEn": "I'd like to push back gently on that assumption.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d13-c4",
+          "frontJa": "I'm ___ I can't support cutting QA hours.",
+          "backEn": "I'm afraid I can't support cutting QA hours.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d13-c5",
+          "frontJa": "Translate: 完全には同意できない。",
+          "backEn": "I don't entirely agree with that.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d13-c6",
+          "frontJa": "With respect, I ___ that the data supports the claim.",
+          "backEn": "With respect, I don't think the data supports the claim.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d13-c7",
+          "frontJa": "I may be ___, but this feels rushed.",
+          "backEn": "I may be wrong, but this feels rushed.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d13-c8",
+          "frontJa": "I'm ___ on the fence until we see the prototype.",
+          "backEn": "I'm still on the fence until we see the prototype.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d13-c9",
+          "frontJa": "I wouldn't go ___ far as to call it a failure.",
+          "backEn": "I wouldn't go so far as to call it a failure.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d13-c10",
+          "frontJa": "Translate: その解釈には疑問がある。",
+          "backEn": "I'm skeptical of that interpretation.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d13-c11",
+          "frontJa": "I hear you, ___ I'm not fully convinced yet.",
+          "backEn": "I hear you, but I'm not fully convinced yet.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d13-c12",
+          "frontJa": "Could we ___ that from another angle?",
+          "backEn": "Could we look at that from another angle?",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d13-c13",
+          "frontJa": "I need more ___ before I can endorse this.",
+          "backEn": "I need more evidence before I can endorse this.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d13-c14",
+          "frontJa": "Let's agree to ___ — we'll test both hypotheses.",
+          "backEn": "Let's agree to disagree — we'll test both hypotheses.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-14",
+      "titleJa": "原因と結果① because",
+      "titleEn": "Cause & effect — because (complex)",
+      "sortOrder": 14,
+      "cards": [
+        {
+          "id": "study-i3-d14-c0",
+          "frontJa": "We postponed the release ___ several critical bugs remained.",
+          "backEn": "We postponed the release because several critical bugs remained.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d14-c1",
+          "frontJa": "Morale improved ___ managers started listening in one-on-ones.",
+          "backEn": "Morale improved because managers started listening in one-on-ones.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d14-c2",
+          "frontJa": "Sales rose ___ the campaign targeted a younger audience.",
+          "backEn": "Sales rose because the campaign targeted a younger audience.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d14-c3",
+          "frontJa": "I was late ___ a signal failure stopped the trains.",
+          "backEn": "I was late because a signal failure stopped the trains.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d14-c4",
+          "frontJa": "We chose this vendor ___ their support response time is fast.",
+          "backEn": "We chose this vendor because their support response time is fast.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d14-c5",
+          "frontJa": "Translate: 彼は辞めた。待遇に不満があったからだ。",
+          "backEn": "He quit because he was unhappy with the compensation.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d14-c6",
+          "frontJa": "The event succeeded ___ volunteers coordinated every detail.",
+          "backEn": "The event succeeded because volunteers coordinated every detail.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d14-c7",
+          "frontJa": "I trust her ___ she admits mistakes quickly.",
+          "backEn": "I trust her because she admits mistakes quickly.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d14-c8",
+          "frontJa": "Traffic was awful ___ three lanes were closed for repair.",
+          "backEn": "Traffic was awful because three lanes were closed for repair.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d14-c9",
+          "frontJa": "We invested ___ we believed the market would mature.",
+          "backEn": "We invested because we believed the market would mature.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d14-c10",
+          "frontJa": "Translate: 結果が良かったのは、準備が徹底していたからだ。",
+          "backEn": "The outcome was good because preparation was thorough.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d14-c11",
+          "frontJa": "I declined ___ I already committed to another project.",
+          "backEn": "I declined because I already committed to another project.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d14-c12",
+          "frontJa": "The app crashed ___ memory usage spiked unexpectedly.",
+          "backEn": "The app crashed because memory usage spiked unexpectedly.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d14-c13",
+          "frontJa": "She stayed calm ___ she had rehearsed worst-case scenarios.",
+          "backEn": "She stayed calm because she had rehearsed worst-case scenarios.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d14-c14",
+          "frontJa": "We expanded ___ customer demand exceeded forecasts.",
+          "backEn": "We expanded because customer demand exceeded forecasts.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-15",
+      "titleJa": "原因と結果② therefore / as a result",
+      "titleEn": "Cause & effect — therefore & as a result",
+      "sortOrder": 15,
+      "cards": [
+        {
+          "id": "study-i3-d15-c0",
+          "frontJa": "Costs rose sharply. ___, we froze hiring.",
+          "backEn": "Costs rose sharply. Therefore, we froze hiring.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d15-c1",
+          "frontJa": "The trial failed. ___, we pivoted to a new model.",
+          "backEn": "The trial failed. As a result, we pivoted to a new model.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d15-c2",
+          "frontJa": "Demand doubled. ___, lead times stretched.",
+          "backEn": "Demand doubled. Consequently, lead times stretched.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d15-c3",
+          "frontJa": "We missed two milestones. ___, stakeholders lost confidence.",
+          "backEn": "We missed two milestones. As a result, stakeholders lost confidence.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d15-c4",
+          "frontJa": "The policy changed. ___, we updated the handbook.",
+          "backEn": "The policy changed. Therefore, we updated the handbook.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d15-c5",
+          "frontJa": "Translate: 品質が上がった。その結果、返品が減った。",
+          "backEn": "Quality improved. As a result, returns decreased.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d15-c6",
+          "frontJa": "The server overheated. ___, we added cooling fans.",
+          "backEn": "The server overheated. Therefore, we added cooling fans.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d15-c7",
+          "frontJa": "Users complained about clutter. ___, we simplified the UI.",
+          "backEn": "Users complained about clutter. Consequently, we simplified the UI.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d15-c8",
+          "frontJa": "Funding arrived early. ___, we accelerated the roadmap.",
+          "backEn": "Funding arrived early. As a result, we accelerated the roadmap.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d15-c9",
+          "frontJa": "The keynote ran long. ___, lunch started late.",
+          "backEn": "The keynote ran long. Therefore, lunch started late.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d15-c10",
+          "frontJa": "Translate: 交渉が決裂した。その結果、訴訟になった。",
+          "backEn": "Negotiations collapsed. As a result, it went to court.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d15-c11",
+          "frontJa": "We lacked data. ___, the report stayed qualitative.",
+          "backEn": "We lacked data. Therefore, the report stayed qualitative.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d15-c12",
+          "frontJa": "Attendance dropped. ___, we merged two sessions.",
+          "backEn": "Attendance dropped. As a result, we merged two sessions.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d15-c13",
+          "frontJa": "The storm passed. ___, flights resumed by evening.",
+          "backEn": "The storm passed. Consequently, flights resumed by evening.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d15-c14",
+          "frontJa": "Trust eroded. ___, turnover increased.",
+          "backEn": "Trust eroded. As a result, turnover increased.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-16",
+      "titleJa": "原因と結果③ つなぎ",
+      "titleEn": "Cause & effect — linking chains",
+      "sortOrder": 16,
+      "cards": [
+        {
+          "id": "study-i3-d16-c0",
+          "frontJa": "Because we ___ early, we caught the mistake before launch.",
+          "backEn": "Because we tested early, we caught the mistake before launch.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d16-c1",
+          "frontJa": "Since the ___ was unclear, two teams duplicated work.",
+          "backEn": "Since the ownership was unclear, two teams duplicated work.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d16-c2",
+          "frontJa": "Given the ___, we recommended a phased rollout.",
+          "backEn": "Given the uncertainty, we recommended a phased rollout.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d16-c3",
+          "frontJa": "Owing to ___ cuts, the library reduced its hours.",
+          "backEn": "Owing to budget cuts, the library reduced its hours.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d16-c4",
+          "frontJa": "Due to ___ weather, the outdoor class moved online.",
+          "backEn": "Due to severe weather, the outdoor class moved online.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d16-c5",
+          "frontJa": "Translate: 人手不足のため、営業時間を短縮した。",
+          "backEn": "Because of a staff shortage, we shortened opening hours.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d16-c6",
+          "frontJa": "Thanks to ___ coaching, her confidence grew.",
+          "backEn": "Thanks to patient coaching, her confidence grew.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d16-c7",
+          "frontJa": "The delay stemmed ___ a mislabeled shipment.",
+          "backEn": "The delay stemmed from a mislabeled shipment.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d16-c8",
+          "frontJa": "The outage was ___ human error, not a cyberattack.",
+          "backEn": "The outage was caused by human error, not a cyberattack.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d16-c9",
+          "frontJa": "One slip led ___ another, and the deadline slipped.",
+          "backEn": "One slip led to another, and the deadline slipped.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d16-c10",
+          "frontJa": "Translate: 連鎖的に、コストが膨らんだ。",
+          "backEn": "Costs ballooned in a chain reaction.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d16-c11",
+          "frontJa": "Poor sleep contributed ___ several mistakes that week.",
+          "backEn": "Poor sleep contributed to several mistakes that week.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d16-c12",
+          "frontJa": "The spike in demand triggered ___ hiring freeze to lift.",
+          "backEn": "The spike in demand triggered the hiring freeze to lift.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d16-c13",
+          "frontJa": "A single bug cascaded ___ multiple customer complaints.",
+          "backEn": "A single bug cascaded into multiple customer complaints.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d16-c14",
+          "frontJa": "Their silence implied ___ they disagreed with the plan.",
+          "backEn": "Their silence implied that they disagreed with the plan.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-17",
+      "titleJa": "体験を詳しく①",
+      "titleEn": "Describing experiences — emotion",
+      "sortOrder": 17,
+      "cards": [
+        {
+          "id": "study-i3-d17-c0",
+          "frontJa": "I felt ___ when they announced my name.",
+          "backEn": "I felt overwhelmed when they announced my name.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d17-c1",
+          "frontJa": "I was ___ relieved once the results came back negative.",
+          "backEn": "I was incredibly relieved once the results came back negative.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d17-c2",
+          "frontJa": "The news left me ___ for days.",
+          "backEn": "The news left me anxious for days.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d17-c3",
+          "frontJa": "I was ___ proud watching my teammate present.",
+          "backEn": "I was genuinely proud watching my teammate present.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d17-c4",
+          "frontJa": "The crowd's energy made me ___ alive.",
+          "backEn": "The crowd's energy made me feel alive.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d17-c5",
+          "frontJa": "Translate: 寂しさと安堵が入り混じった。",
+          "backEn": "I felt a mix of loneliness and relief.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d17-c6",
+          "frontJa": "I walked out feeling ___ about the whole process.",
+          "backEn": "I walked out feeling bitter about the whole process.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d17-c7",
+          "frontJa": "Her kindness touched me ___ than I expected.",
+          "backEn": "Her kindness touched me more deeply than I expected.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d17-c8",
+          "frontJa": "I was ___ embarrassed when I mispronounced his name.",
+          "backEn": "I was slightly embarrassed when I mispronounced his name.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d17-c9",
+          "frontJa": "The silence in the room felt ___ .",
+          "backEn": "The silence in the room felt awkward.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d17-c10",
+          "frontJa": "Translate: 達成感で胸がいっぱいだった。",
+          "backEn": "I felt a huge sense of accomplishment.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d17-c11",
+          "frontJa": "I stayed calm, ___ I was shaking inside.",
+          "backEn": "I stayed calm, though I was shaking inside.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d17-c12",
+          "frontJa": "The ending moved me ___ I cried in the theater.",
+          "backEn": "The ending moved me so much that I cried in the theater.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d17-c13",
+          "frontJa": "I felt ___ out after three weeks of night shifts.",
+          "backEn": "I felt burned out after three weeks of night shifts.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d17-c14",
+          "frontJa": "Hearing their laughter made the trip ___ worthwhile.",
+          "backEn": "Hearing their laughter made the trip feel worthwhile.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-18",
+      "titleJa": "体験を詳しく②",
+      "titleEn": "Describing experiences — detail & reflection",
+      "sortOrder": 18,
+      "cards": [
+        {
+          "id": "study-i3-d18-c0",
+          "frontJa": "The alley smelled ___ rain and fried garlic.",
+          "backEn": "The alley smelled of rain and fried garlic.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d18-c1",
+          "frontJa": "We heard distant ___ until midnight.",
+          "backEn": "We heard distant drums until midnight.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d18-c2",
+          "frontJa": "Sunlight hit the water ___ it looked like glass.",
+          "backEn": "Sunlight hit the water so that it looked like glass.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d18-c3",
+          "frontJa": "I remember how ___ the stone steps felt under my shoes.",
+          "backEn": "I remember how uneven the stone steps felt under my shoes.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d18-c4",
+          "frontJa": "Looking back, I ___ how naive I was.",
+          "backEn": "Looking back, I realize how naive I was.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d18-c5",
+          "frontJa": "Translate: あの瞬間、時間が止まったように感じた。",
+          "backEn": "In that moment, it felt as if time had stopped.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d18-c6",
+          "frontJa": "What stuck ___ me was the guide's patience.",
+          "backEn": "What stuck with me was the guide's patience.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d18-c7",
+          "frontJa": "In hindsight, we ___ have booked earlier.",
+          "backEn": "In hindsight, we should have booked earlier.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d18-c8",
+          "frontJa": "The market was ___ that we could barely move.",
+          "backEn": "The market was so crowded that we could barely move.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d18-c9",
+          "frontJa": "I noticed ___ detail: every window was a different color.",
+          "backEn": "I noticed a strange detail: every window was a different color.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d18-c10",
+          "frontJa": "Translate: 写真では伝わらない空気があった。",
+          "backEn": "There was an atmosphere that photos couldn't capture.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d18-c11",
+          "frontJa": "We stayed long enough ___ the lights dimmed.",
+          "backEn": "We stayed long enough to watch the lights dim.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d18-c12",
+          "frontJa": "The hike was harder ___ we imagined.",
+          "backEn": "The hike was harder than we imagined.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d18-c13",
+          "frontJa": "I can still ___ the taste of that soup.",
+          "backEn": "I can still recall the taste of that soup.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d18-c14",
+          "frontJa": "That trip changed ___ I think about travel.",
+          "backEn": "That trip changed how I think about travel.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-19",
+      "titleJa": "ディベート①",
+      "titleEn": "Debate basics — pros and cons",
+      "sortOrder": 19,
+      "cards": [
+        {
+          "id": "study-i3-d19-c0",
+          "frontJa": "On the ___ hand, remote work saves commute time.",
+          "backEn": "On the one hand, remote work saves commute time.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d19-c1",
+          "frontJa": "On the ___ hand, collaboration can suffer.",
+          "backEn": "On the other hand, collaboration can suffer.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d19-c2",
+          "frontJa": "One ___ is lower office rent.",
+          "backEn": "One advantage is lower office rent.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d19-c3",
+          "frontJa": "One ___ is weaker team bonding.",
+          "backEn": "One drawback is weaker team bonding.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d19-c4",
+          "frontJa": "Let's ___ the pros and cons before we decide.",
+          "backEn": "Let's weigh the pros and cons before we decide.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d19-c5",
+          "frontJa": "Translate: 賛成派と反対派の両方を聞こう。",
+          "backEn": "Let's hear both sides of the argument.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d19-c6",
+          "frontJa": "A ___ argument for the merger is scale.",
+          "backEn": "A strong argument for the merger is scale.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d19-c7",
+          "frontJa": "A ___ argument against it is cultural clash.",
+          "backEn": "A common argument against it is cultural clash.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d19-c8",
+          "frontJa": "We should ___ counterarguments in the appendix.",
+          "backEn": "We should list counterarguments in the appendix.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d19-c9",
+          "frontJa": "I'm playing ___ advocate for a moment.",
+          "backEn": "I'm playing devil's advocate for a moment.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d19-c10",
+          "frontJa": "Translate: 反対意見も真剣に検討すべきだ。",
+          "backEn": "We should take opposing views seriously.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d19-c11",
+          "frontJa": "The trade-off ___ speed versus quality is real.",
+          "backEn": "The trade-off between speed versus quality is real.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d19-c12",
+          "frontJa": "If we ___ only upside, we'll be blindsided.",
+          "backEn": "If we consider only upside, we'll be blindsided.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d19-c13",
+          "frontJa": "Let's ___ the discussion to three key risks.",
+          "backEn": "Let's narrow the discussion to three key risks.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d19-c14",
+          "frontJa": "We need a ___ summary for leadership.",
+          "backEn": "We need a balanced summary for leadership.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-20",
+      "titleJa": "ディベート②",
+      "titleEn": "Debate — weighing & rebuttal",
+      "sortOrder": 20,
+      "cards": [
+        {
+          "id": "study-i3-d20-c0",
+          "frontJa": "That objection ___ some weight, but it isn't decisive.",
+          "backEn": "That objection carries some weight, but it isn't decisive.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d20-c1",
+          "frontJa": "I grant you that ___, yet the trend still worries me.",
+          "backEn": "I grant you that profits rose, yet the trend still worries me.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d20-c2",
+          "frontJa": "Even if we accept ___, the conclusion doesn't follow.",
+          "backEn": "Even if we accept their premise, the conclusion doesn't follow.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d20-c3",
+          "frontJa": "That rebuttal ___ the weakest part of their case.",
+          "backEn": "That rebuttal targets the weakest part of their case.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d20-c4",
+          "frontJa": "We should ___ their assumptions, not just their conclusions.",
+          "backEn": "We should challenge their assumptions, not just their conclusions.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d20-c5",
+          "frontJa": "Translate: データの解釈が争点だ。",
+          "backEn": "The dispute is over how to interpret the data.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d20-c6",
+          "frontJa": "Their analogy ___ because the contexts differ.",
+          "backEn": "Their analogy breaks down because the contexts differ.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d20-c7",
+          "frontJa": "I'd ___ that with data from our own pilot.",
+          "backEn": "I'd counter that with data from our own pilot.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d20-c8",
+          "frontJa": "Let's not ___ the ethical dimension.",
+          "backEn": "Let's not overlook the ethical dimension.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d20-c9",
+          "frontJa": "The burden of ___ should be on whoever proposes change.",
+          "backEn": "The burden of proof should be on whoever proposes change.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d20-c10",
+          "frontJa": "Translate: 感情的な論点に逃げないでほしい。",
+          "backEn": "Please don't retreat into emotional arguments.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d20-c11",
+          "frontJa": "We can ___ their claim without attacking them personally.",
+          "backEn": "We can refute their claim without attacking them personally.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d20-c12",
+          "frontJa": "A cooler ___ would be to run a controlled experiment.",
+          "backEn": "A cooler response would be to run a controlled experiment.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d20-c13",
+          "frontJa": "Let's ___ where we agree before we fight over details.",
+          "backEn": "Let's map where we agree before we fight over details.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d20-c14",
+          "frontJa": "I'm trying to ___ the strongest version of their view.",
+          "backEn": "I'm trying to steelman the strongest version of their view.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-21",
+      "titleJa": "職場① アイデア提示",
+      "titleEn": "Workplace — presenting ideas",
+      "sortOrder": 21,
+      "cards": [
+        {
+          "id": "study-i3-d21-c0",
+          "frontJa": "I'd ___ to frame the problem in three layers.",
+          "backEn": "I'd like to frame the problem in three layers.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d21-c1",
+          "frontJa": "___ I'd suggest we pilot this in one region first.",
+          "backEn": "Broadly, I'd suggest we pilot this in one region first.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d21-c2",
+          "frontJa": "The ___ I'd like to make is about scalability.",
+          "backEn": "The core point I'd like to make is about scalability.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d21-c3",
+          "frontJa": "Let me ___ this with a simple diagram.",
+          "backEn": "Let me illustrate this with a simple diagram.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d21-c4",
+          "frontJa": "If we ___ the question, we avoid scope creep.",
+          "backEn": "If we narrow the question, we avoid scope creep.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d21-c5",
+          "frontJa": "Translate: 結論から言うと、今は投資の時だ。",
+          "backEn": "Bottom line: now is the time to invest.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d21-c6",
+          "frontJa": "I'd ___ the floor to our analyst for the numbers.",
+          "backEn": "I'd yield the floor to our analyst for the numbers.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d21-c7",
+          "frontJa": "Could I get two ___ on this slide?",
+          "backEn": "Could I get two minutes on this slide?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d21-c8",
+          "frontJa": "I'll ___ my case in four bullets.",
+          "backEn": "I'll state my case in four bullets.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d21-c9",
+          "frontJa": "What I'm ___ is a phased rollout, not a big bang.",
+          "backEn": "What I'm proposing is a phased rollout, not a big bang.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d21-c10",
+          "frontJa": "Translate: 前提を共有してもいいですか。",
+          "backEn": "May I share a few assumptions up front?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d21-c11",
+          "frontJa": "Let me ___ why this matters to finance.",
+          "backEn": "Let me spell out why this matters to finance.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d21-c12",
+          "frontJa": "I'd welcome ___ on whether this timeline is sane.",
+          "backEn": "I'd welcome pushback on whether this timeline is sane.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d21-c13",
+          "frontJa": "To ___ expectations, this won't fix everything overnight.",
+          "backEn": "To set expectations, this won't fix everything overnight.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d21-c14",
+          "frontJa": "I'll close ___ a single ask of the leadership team.",
+          "backEn": "I'll close with a single ask of the leadership team.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-22",
+      "titleJa": "職場② 発表のつなぎ",
+      "titleEn": "Workplace — signposting a talk",
+      "sortOrder": 22,
+      "cards": [
+        {
+          "id": "study-i3-d22-c0",
+          "frontJa": "___ I'll outline the background.",
+          "backEn": "First, I'll outline the background.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d22-c1",
+          "frontJa": "___ I'll walk through the methodology.",
+          "backEn": "Next, I'll walk through the methodology.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d22-c2",
+          "frontJa": "___ I'll share results and limitations.",
+          "backEn": "Then I'll share results and limitations.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d22-c3",
+          "frontJa": "___ I'll open the floor for questions.",
+          "backEn": "Finally, I'll open the floor for questions.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d22-c4",
+          "frontJa": "___ another angle, consider the regulatory view.",
+          "backEn": "From another angle, consider the regulatory view.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d22-c5",
+          "frontJa": "Translate: 話を戻すが、先ほどの数字についてだ。",
+          "backEn": "To return to an earlier point about those figures.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d22-c6",
+          "frontJa": "___ deeper, the root cause is coordination.",
+          "backEn": "Digging deeper, the root cause is coordination.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d22-c7",
+          "frontJa": "___ briefly, we underestimated integration work.",
+          "backEn": "To recap briefly, we underestimated integration work.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d22-c8",
+          "frontJa": "___ forward, we will publish weekly metrics.",
+          "backEn": "Going forward, we will publish weekly metrics.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d22-c9",
+          "frontJa": "___ contrast, last year's curve was flat.",
+          "backEn": "By contrast, last year's curve was flat.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d22-c10",
+          "frontJa": "Translate: 具体例を一つ挙げると…",
+          "backEn": "To give one concrete example…",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d22-c11",
+          "frontJa": "___ aside, the culture fit looks strong.",
+          "backEn": "Joking aside, the culture fit looks strong.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d22-c12",
+          "frontJa": "___ up, three teams need clearer owners.",
+          "backEn": "Wrapping up, three teams need clearer owners.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d22-c13",
+          "frontJa": "___ the interest of time, I'll skip the appendix.",
+          "backEn": "In the interest of time, I'll skip the appendix.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d22-c14",
+          "frontJa": "___ the record, I support the recommendation.",
+          "backEn": "For the record, I support the recommendation.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-23",
+      "titleJa": "職場③ アップデート",
+      "titleEn": "Workplace — giving updates (1)",
+      "sortOrder": 23,
+      "cards": [
+        {
+          "id": "study-i3-d23-c0",
+          "frontJa": "Quick ___ : we shipped the hotfix last night.",
+          "backEn": "Quick update: we shipped the hotfix last night.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d23-c1",
+          "frontJa": "We're ___ track to finish the redesign by Friday.",
+          "backEn": "We're on track to finish the redesign by Friday.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d23-c2",
+          "frontJa": "We're slightly ___ because of a vendor delay.",
+          "backEn": "We're slightly behind because of a vendor delay.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d23-c3",
+          "frontJa": "No ___ this week — same blockers as last week.",
+          "backEn": "No major changes this week — same blockers as last week.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d23-c4",
+          "frontJa": "Risk ___ : medium, mainly integration.",
+          "backEn": "Risk level: medium, mainly integration.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d23-c5",
+          "frontJa": "Translate: 進捗は順調だが、人手が足りない。",
+          "backEn": "Progress is good, but we're short on people.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d23-c6",
+          "frontJa": "I'll ___ the dashboard link after this call.",
+          "backEn": "I'll paste the dashboard link after this call.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d23-c7",
+          "frontJa": "Next ___ : finalize copy and run A/B tests.",
+          "backEn": "Next steps: finalize copy and run A/B tests.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d23-c8",
+          "frontJa": "ETA for the beta is ___, barring surprises.",
+          "backEn": "ETA for the beta is March 3, barring surprises.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d23-c9",
+          "frontJa": "We ___ a dependency on the legal review.",
+          "backEn": "We hit a dependency on the legal review.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d23-c10",
+          "frontJa": "Translate: 顧客からのフィードバックをまとめた。",
+          "backEn": "I've summarized feedback from customers.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d23-c11",
+          "frontJa": "I'll ___ the team by email with the new timeline.",
+          "backEn": "I'll brief the team by email with the new timeline.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d23-c12",
+          "frontJa": "Nothing ___ to report on security incidents.",
+          "backEn": "Nothing new to report on security incidents.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d23-c13",
+          "frontJa": "We're green ___ performance; yellow on staffing.",
+          "backEn": "We're green on performance; yellow on staffing.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d23-c14",
+          "frontJa": "I'll ___ a written summary to the channel.",
+          "backEn": "I'll post a written summary to the channel.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-24",
+      "titleJa": "職場④ アップデート②",
+      "titleEn": "Workplace — giving updates (2)",
+      "sortOrder": 24,
+      "cards": [
+        {
+          "id": "study-i3-d24-c0",
+          "frontJa": "Since we last met, we ___ two critical bugs.",
+          "backEn": "Since we last met, we closed two critical bugs.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d24-c1",
+          "frontJa": "We ___ scope slightly to protect the deadline.",
+          "backEn": "We reduced scope slightly to protect the deadline.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d24-c2",
+          "frontJa": "Adoption is up ___ week over week.",
+          "backEn": "Adoption is up 8% week over week.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d24-c3",
+          "frontJa": "Churn ticked ___ after the price change.",
+          "backEn": "Churn ticked upward after the price change.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d24-c4",
+          "frontJa": "We ___ a hiring freeze until Q3.",
+          "backEn": "We instituted a hiring freeze until Q3.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d24-c5",
+          "frontJa": "Translate: 予算は計画の92%まで消化した。",
+          "backEn": "We've used 92% of the planned budget.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d24-c6",
+          "frontJa": "Partnerships: one LOI ___, two in negotiation.",
+          "backEn": "Partnerships: one LOI signed, two in negotiation.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d24-c7",
+          "frontJa": "I'll ___ a risk register by EOD.",
+          "backEn": "I'll circulate a risk register by EOD.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d24-c8",
+          "frontJa": "We need a ___ on the API outage root cause.",
+          "backEn": "We need a decision on the API outage root cause.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d24-c9",
+          "frontJa": "Support backlog ___ from 40 to 22 tickets.",
+          "backEn": "Support backlog dropped from 40 to 22 tickets.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d24-c10",
+          "frontJa": "Translate: 来週はデモとレビューに集中する。",
+          "backEn": "Next week we'll focus on demos and reviews.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d24-c11",
+          "frontJa": "I'll ___ stakeholders once finance signs off.",
+          "backEn": "I'll notify stakeholders once finance signs off.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d24-c12",
+          "frontJa": "We ___ the launch by one sprint to harden security.",
+          "backEn": "We delayed the launch by one sprint to harden security.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d24-c13",
+          "frontJa": "Quality metrics are ___ except for mobile Safari.",
+          "backEn": "Quality metrics are stable except for mobile Safari.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d24-c14",
+          "frontJa": "I'll ___ a live demo in tomorrow's stand-up.",
+          "backEn": "I'll schedule a live demo in tomorrow's stand-up.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-25",
+      "titleJa": "問題の議論①",
+      "titleEn": "Problem discussion — identifying issues",
+      "sortOrder": 25,
+      "cards": [
+        {
+          "id": "study-i3-d25-c0",
+          "frontJa": "The ___ issue is inconsistent handoffs between teams.",
+          "backEn": "The core issue is inconsistent handoffs between teams.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d25-c1",
+          "frontJa": "We're seeing a ___ in communication after the reorg.",
+          "backEn": "We're seeing a pattern in communication after the reorg.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d25-c2",
+          "frontJa": "The ___ cause looks like a race condition.",
+          "backEn": "The probable cause looks like a race condition.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d25-c3",
+          "frontJa": "Symptoms ___ slow sync and duplicate records.",
+          "backEn": "Symptoms include slow sync and duplicate records.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d25-c4",
+          "frontJa": "We should ___ whether incentives are misaligned.",
+          "backEn": "We should examine whether incentives are misaligned.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d25-c5",
+          "frontJa": "Translate: 根本原因はプロセスの欠陥だと思う。",
+          "backEn": "I think the root cause is a flawed process.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d25-c6",
+          "frontJa": "Let's ___ the problem statement before we brainstorm fixes.",
+          "backEn": "Let's align on the problem statement before we brainstorm fixes.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d25-c7",
+          "frontJa": "The pain ___ mostly affects enterprise customers.",
+          "backEn": "The pain point mostly affects enterprise customers.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d25-c8",
+          "frontJa": "We lack ___ visibility into partner SLAs.",
+          "backEn": "We lack clear visibility into partner SLAs.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d25-c9",
+          "frontJa": "This isn't a one-off; it's a ___ failure.",
+          "backEn": "This isn't a one-off; it's a systemic failure.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d25-c10",
+          "frontJa": "Translate: リスクを過小評価してきた。",
+          "backEn": "We've been underestimating the risk.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d25-c11",
+          "frontJa": "The bottleneck ___ between design and engineering.",
+          "backEn": "The bottleneck sits between design and engineering.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d25-c12",
+          "frontJa": "We should ___ how often this error reproduces.",
+          "backEn": "We should quantify how often this error reproduces.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d25-c13",
+          "frontJa": "Stakeholders ___ frustrated with opaque status updates.",
+          "backEn": "Stakeholders feel frustrated with opaque status updates.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d25-c14",
+          "frontJa": "Let's ___ the scope of 'done' for this milestone.",
+          "backEn": "Let's define the scope of 'done' for this milestone.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-26",
+      "titleJa": "問題の議論②",
+      "titleEn": "Problem discussion — solutions",
+      "sortOrder": 26,
+      "cards": [
+        {
+          "id": "study-i3-d26-c0",
+          "frontJa": "One option ___ to split the monolith gradually.",
+          "backEn": "One option is to split the monolith gradually.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d26-c1",
+          "frontJa": "We could ___ a rotating on-call roster.",
+          "backEn": "We could pilot a rotating on-call roster.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d26-c2",
+          "frontJa": "I recommend we ___ a single source of truth for specs.",
+          "backEn": "I recommend we establish a single source of truth for specs.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d26-c3",
+          "frontJa": "Let's ___ owners for each workstream by Friday.",
+          "backEn": "Let's assign owners for each workstream by Friday.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d26-c4",
+          "frontJa": "We should ___ a blameless postmortem next week.",
+          "backEn": "We should schedule a blameless postmortem next week.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d26-c5",
+          "frontJa": "Translate: 短期的にはワークラウンドを、中長期では修正を。",
+          "backEn": "Short term: a workaround; long term: a proper fix.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d26-c6",
+          "frontJa": "Mitigation ___ include rate limits and caching.",
+          "backEn": "Mitigation could include rate limits and caching.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d26-c7",
+          "frontJa": "We might ___ external auditors if trust is low.",
+          "backEn": "We might bring in external auditors if trust is low.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d26-c8",
+          "frontJa": "Let's ___ a rollback plan before we flip the flag.",
+          "backEn": "Let's document a rollback plan before we flip the flag.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d26-c9",
+          "frontJa": "I'd ___ weekly syncs until the metrics stabilize.",
+          "backEn": "I'd propose weekly syncs until the metrics stabilize.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d26-c10",
+          "frontJa": "Translate: 成功指標を合意してから進めよう。",
+          "backEn": "Let's agree on success metrics before we proceed.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d26-c11",
+          "frontJa": "We should ___ user research before redesigning checkout.",
+          "backEn": "We should fund user research before redesigning checkout.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d26-c12",
+          "frontJa": "A quick win ___ to fix the broken signup link.",
+          "backEn": "A quick win is to fix the broken signup link.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d26-c13",
+          "frontJa": "Longer term, we should ___ toward modular services.",
+          "backEn": "Longer term, we should migrate toward modular services.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d26-c14",
+          "frontJa": "Let's ___ progress against these three KPIs.",
+          "backEn": "Let's track progress against these three KPIs.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-27",
+      "titleJa": "文化・社会①",
+      "titleEn": "Cultural & social topics (1)",
+      "sortOrder": 27,
+      "cards": [
+        {
+          "id": "study-i3-d27-c0",
+          "frontJa": "___ cultures, direct feedback can sound rude.",
+          "backEn": "Across cultures, direct feedback can sound rude.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d27-c1",
+          "frontJa": "In some places, ___ late is more acceptable than elsewhere.",
+          "backEn": "In some places, arriving late is more acceptable than elsewhere.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d27-c2",
+          "frontJa": "Food rituals often ___ family bonds.",
+          "backEn": "Food rituals often reflect family bonds.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d27-c3",
+          "frontJa": "___ habits like bowing or handshakes carry social meaning.",
+          "backEn": "Small habits like bowing or handshakes carry social meaning.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d27-c4",
+          "frontJa": "Lifestyle ___ in cities versus countryside are widening.",
+          "backEn": "Lifestyle gaps in cities versus countryside are widening.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d27-c5",
+          "frontJa": "Translate: 宗教的な配慮を忘れないでほしい。",
+          "backEn": "Please remember to respect religious considerations.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d27-c6",
+          "frontJa": "Public ___ expectations differ from private norms.",
+          "backEn": "Public behavior expectations differ from private norms.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d27-c7",
+          "frontJa": "Gift-giving rules can ___ surprisingly formal.",
+          "backEn": "Gift-giving rules can feel surprisingly formal.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d27-c8",
+          "frontJa": "___ media shapes how teens see body image.",
+          "backEn": "Social media shapes how teens see body image.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d27-c9",
+          "frontJa": "Work-life ___ means different things in different countries.",
+          "backEn": "Work-life balance means different things in different countries.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d27-c10",
+          "frontJa": "Translate: 「個人主義」は単純化しすぎだ。",
+          "backEn": "Calling it individualism is an oversimplification.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d27-c11",
+          "frontJa": "Festivals reveal ___ values a community celebrates.",
+          "backEn": "Festivals reveal which values a community celebrates.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d27-c12",
+          "frontJa": "Immigration debates often ___ fears about identity.",
+          "backEn": "Immigration debates often touch fears about identity.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d27-c13",
+          "frontJa": "___ etiquette around shoes indoors trips visitors up.",
+          "backEn": "Simple etiquette around shoes indoors trips visitors up.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d27-c14",
+          "frontJa": "Cultural ___ isn't the same as stereotyping.",
+          "backEn": "Cultural awareness isn't the same as stereotyping.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-28",
+      "titleJa": "文化・社会②",
+      "titleEn": "Cultural & social topics (2)",
+      "sortOrder": 28,
+      "cards": [
+        {
+          "id": "study-i3-d28-c0",
+          "frontJa": "___ abroad taught me to question my defaults.",
+          "backEn": "Living abroad taught me to question my defaults.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d28-c1",
+          "frontJa": "I learned not to ___ silence as agreement.",
+          "backEn": "I learned not to read silence as agreement.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d28-c2",
+          "frontJa": "Humor doesn't always ___ borders cleanly.",
+          "backEn": "Humor doesn't always translate across borders cleanly.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d28-c3",
+          "frontJa": "Different generations ___ privacy online differently.",
+          "backEn": "Different generations view privacy online differently.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d28-c4",
+          "frontJa": "School lunches ___ class and health inequalities.",
+          "backEn": "School lunches mirror class and health inequalities.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d28-c5",
+          "frontJa": "Translate: 外食文化は都市と地方で違う。",
+          "backEn": "Eating-out culture differs between urban and rural areas.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d28-c6",
+          "frontJa": "___ norms around tipping confuse many travelers.",
+          "backEn": "Unwritten norms around tipping confuse many travelers.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d28-c7",
+          "frontJa": "Public ___ varies widely on trains between countries.",
+          "backEn": "Public etiquette varies widely on trains between countries.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d28-c8",
+          "frontJa": "___ identity can feel fluid in multicultural cities.",
+          "backEn": "Cultural identity can feel fluid in multicultural cities.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d28-c9",
+          "frontJa": "Holidays ___ how a society marks time and loss.",
+          "backEn": "Holidays reveal how a society marks time and loss.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d28-c10",
+          "frontJa": "Translate: 偏見を減らすには対話が必要だ。",
+          "backEn": "Dialogue is needed to reduce prejudice.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d28-c11",
+          "frontJa": "___ curiosity beats snap judgments about strangers.",
+          "backEn": "Honest curiosity beats snap judgments about strangers.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d28-c12",
+          "frontJa": "Some ___ prefer consensus before a public decision.",
+          "backEn": "Some cultures prefer consensus before a public decision.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d28-c13",
+          "frontJa": "___ media literacy is now a civic skill.",
+          "backEn": "Basic media literacy is now a civic skill.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d28-c14",
+          "frontJa": "___ listening helps more than giving quick advice.",
+          "backEn": "Patient listening helps more than giving quick advice.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-29",
+      "titleJa": "叙述①",
+      "titleEn": "Narrative skills — longer stories (1)",
+      "sortOrder": 29,
+      "cards": [
+        {
+          "id": "study-i3-d29-c0",
+          "frontJa": "It started ___ a misunderstanding about the deadline.",
+          "backEn": "It started with a misunderstanding about the deadline.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d29-c1",
+          "frontJa": "___ morning, everything still felt normal.",
+          "backEn": "That morning, everything still felt normal.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d29-c2",
+          "frontJa": "___ noon, rumors had spread across the office.",
+          "backEn": "By noon, rumors had spread across the office.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d29-c3",
+          "frontJa": "___ evening, leadership called an emergency meeting.",
+          "backEn": "By evening, leadership called an emergency meeting.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d29-c4",
+          "frontJa": "___ the end of the week, we had a new plan.",
+          "backEn": "By the end of the week, we had a new plan.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d29-c5",
+          "frontJa": "Translate: 振り返ると、あの一言が転機だった。",
+          "backEn": "In hindsight, that one sentence was the turning point.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d29-c6",
+          "frontJa": "___ the crisis, the team actually grew closer.",
+          "backEn": "During the crisis, the team actually grew closer.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d29-c7",
+          "frontJa": "___ a while, I wasn't sure we'd recover.",
+          "backEn": "For a while, I wasn't sure we'd recover.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d29-c8",
+          "frontJa": "___ then, we've documented every decision.",
+          "backEn": "Since then, we've documented every decision.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d29-c9",
+          "frontJa": "___ story matters because trust was on the line.",
+          "backEn": "The story matters because trust was on the line.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d29-c10",
+          "frontJa": "Translate: クライマックスは金曜の夜の会議だった。",
+          "backEn": "The climax was the meeting on Friday night.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d29-c11",
+          "frontJa": "___ back, I'd call it a painful lesson.",
+          "backEn": "Looking back, I'd call it a painful lesson.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d29-c12",
+          "frontJa": "The ___: two people resigned anyway.",
+          "backEn": "The epilogue: two people resigned anyway.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d29-c13",
+          "frontJa": "___ the narrator, I still wonder what we missed.",
+          "backEn": "As the narrator, I still wonder what we missed.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d29-c14",
+          "frontJa": "___ tension built slowly, then broke all at once.",
+          "backEn": "The tension built slowly, then broke all at once.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-30",
+      "titleJa": "叙述②",
+      "titleEn": "Narrative skills — longer stories (2)",
+      "sortOrder": 30,
+      "cards": [
+        {
+          "id": "study-i3-d30-c0",
+          "frontJa": "___ set the scene: it was raining in Osaka.",
+          "backEn": "Let me set the scene: it was raining in Osaka.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d30-c1",
+          "frontJa": "___ character who mattered most was the quiet intern.",
+          "backEn": "The character who mattered most was the quiet intern.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d30-c2",
+          "frontJa": "___ subplot involved a missing expense receipt.",
+          "backEn": "A subplot involved a missing expense receipt.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d30-c3",
+          "frontJa": "___ turning point came when she spoke up.",
+          "backEn": "The turning point came when she spoke up.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d30-c4",
+          "frontJa": "___ falling action, we renegotiated the contract.",
+          "backEn": "During the falling action, we renegotiated the contract.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d30-c5",
+          "frontJa": "Translate: 結末は bittersweet だった。",
+          "backEn": "The ending was bittersweet.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d30-c6",
+          "frontJa": "___ on it, I should have asked more questions sooner.",
+          "backEn": "Reflecting on it, I should have asked more questions sooner.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d30-c7",
+          "frontJa": "___ pace quickened once the investors arrived.",
+          "backEn": "The pace quickened once the investors arrived.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d30-c8",
+          "frontJa": "___ flashback explains why he distrusts banks.",
+          "backEn": "A short flashback explains why he distrusts banks.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d30-c9",
+          "frontJa": "___ foreshadowing was subtle, but it was there.",
+          "backEn": "The foreshadowing was subtle, but it was there.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d30-c10",
+          "frontJa": "Translate: 聞き手を飽きさせないには？",
+          "backEn": "How do we keep the listener engaged?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d30-c11",
+          "frontJa": "___ hook I used was a single surprising statistic.",
+          "backEn": "The hook I used was a single surprising statistic.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d30-c12",
+          "frontJa": "___ resolution wasn't perfect, but it was honest.",
+          "backEn": "The resolution wasn't perfect, but it was honest.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d30-c13",
+          "frontJa": "___ coda: we still send that intern holiday cards.",
+          "backEn": "The coda: we still send that intern holiday cards.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d30-c14",
+          "frontJa": "___ throughline was integrity, not profit.",
+          "backEn": "The throughline was integrity, not profit.",
+          "sortOrder": 14
+        }
+      ]
+    },
+    {
+      "id": "study-i3-deck-31",
+      "titleJa": "明確化の戦略",
+      "titleEn": "Clarification strategies",
+      "sortOrder": 31,
+      "cards": [
+        {
+          "id": "study-i3-d31-c0",
+          "frontJa": "___ do you mean by 'soon' — this week or this month?",
+          "backEn": "What do you mean by 'soon' — this week or this month?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i3-d31-c1",
+          "frontJa": "Could you ___ that in simpler terms?",
+          "backEn": "Could you explain that in simpler terms?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i3-d31-c2",
+          "frontJa": "Let me ___ what I meant — I wasn't blaming you.",
+          "backEn": "Let me clarify what I meant — I wasn't blaming you.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i3-d31-c3",
+          "frontJa": "I want to make sure we're ___ about the same metric.",
+          "backEn": "I want to make sure we're talking about the same metric.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i3-d31-c4",
+          "frontJa": "When you say 'stable,' do you ___ uptime or error rate?",
+          "backEn": "When you say 'stable,' do you mean uptime or error rate?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i3-d31-c5",
+          "frontJa": "Translate: 言い換えると、コスト削減が目的か？",
+          "backEn": "In other words, is the goal to cut costs?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i3-d31-c6",
+          "frontJa": "Sorry, I ___ you — could you repeat the last sentence?",
+          "backEn": "Sorry, I lost you — could you repeat the last sentence?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i3-d31-c7",
+          "frontJa": "Can we ___ an example so I'm sure I follow?",
+          "backEn": "Can we walk through an example so I'm sure I follow?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i3-d31-c8",
+          "frontJa": "I'm not ___ I understand the trade-offs yet.",
+          "backEn": "I'm not sure I understand the trade-offs yet.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i3-d31-c9",
+          "frontJa": "Just to ___, you're proposing we skip QA?",
+          "backEn": "Just to confirm, you're proposing we skip QA?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i3-d31-c10",
+          "frontJa": "Translate: 要点を三行でまとめてもらえる？",
+          "backEn": "Could you summarize the gist in three lines?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i3-d31-c11",
+          "frontJa": "Let me ___ my point another way.",
+          "backEn": "Let me restate my point another way.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i3-d31-c12",
+          "frontJa": "Which part feels ___ to you?",
+          "backEn": "Which part feels unclear to you?",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i3-d31-c13",
+          "frontJa": "I'll ___ my screen so we can annotate together.",
+          "backEn": "I'll share my screen so we can annotate together.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i3-d31-c14",
+          "frontJa": "Before we move on, ___ we align on definitions?",
+          "backEn": "Before we move on, can we align on definitions?",
+          "sortOrder": 14
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "passingScore": 72,
+    "items": [
+      {
+        "id": "study-i3-a0",
+        "promptJa": "「Although it was late, we stayed.」に近い文法は？",
+        "promptEn": "Which sentence uses although correctly?",
+        "options": [
+          "Although it was late, we stayed.",
+          "Although it was late, but we stayed.",
+          "It was although late, we stayed.",
+          "Although late was it, we stayed."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-i3-a1",
+        "promptJa": "第二条件として自然なのは？",
+        "promptEn": "Which is a natural second conditional?",
+        "options": [
+          "If I have time, I would travel.",
+          "If I had time, I would travel.",
+          "If I had time, I will travel.",
+          "If I have time, I had traveled."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i3-a2",
+        "promptJa": "丁寧に反対を示す表現は？",
+        "promptEn": "Which politely signals disagreement?",
+        "options": [
+          "You're completely wrong.",
+          "I'm not sure I agree with that conclusion.",
+          "Nobody agrees with you.",
+          "That is stupid idea."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i3-a3",
+        "promptJa": "原因と結果のつなぎとして自然なのは？",
+        "promptEn": "Which links cause and result naturally?",
+        "options": [
+          "It rained. Therefore, we canceled the picnic.",
+          "It rained. Because, we canceled the picnic.",
+          "It rained. Although, we canceled the picnic.",
+          "It rained. While, we canceled the picnic."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-i3-a4",
+        "promptJa": "意見を述べる導入として自然なのは？",
+        "promptEn": "Which opens an opinion clearly?",
+        "options": [
+          "I believe that transparency builds trust.",
+          "I believing that transparency builds trust.",
+          "Believe I that transparency builds trust.",
+          "I believe transparency that builds trust."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-i3-a5",
+        "promptJa": "ディベートで両面を示す表現は？",
+        "promptEn": "Which phrase presents both sides?",
+        "options": [
+          "Only one hand.",
+          "On the one hand … on the other hand …",
+          "On the one side … on the same side …",
+          "One hand other hand no."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i3-a6",
+        "promptJa": "アップデートの書き出しとして自然なのは？",
+        "promptEn": "Which is a natural update opener?",
+        "options": [
+          "Quick update: we shipped the hotfix last night.",
+          "Quickly updating: ship hotfix night.",
+          "Update quick we ship hotfix.",
+          "Hotfix shipped quick update."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-i3-a7",
+        "promptJa": "意味を確認する表現は？",
+        "promptEn": "Which asks for clarification?",
+        "options": [
+          "What do you mean by that term?",
+          "What you mean is?",
+          "Mean what you?",
+          "You mean what term?"
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-i3-a8",
+        "promptJa": "「Let me clarify…」に最も近いのは？",
+        "promptEn": "Which is closest to “Let me clarify…”?",
+        "options": [
+          "Let me confuse what I meant.",
+          "Let me clarify what I meant.",
+          "Let me clarifyment my meant.",
+          "Clarify let me not."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i3-a9",
+        "promptJa": "while（対比）として自然なのは？",
+        "promptEn": "Which uses while for contrast?",
+        "options": [
+          "While I respect his work, I disagree with this decision.",
+          "While I respecting his work, I disagree.",
+          "While respect I his work, disagree.",
+          "While I respect his work, but I disagree."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-i3-a10",
+        "promptJa": "叙述で場面を置く表現は？",
+        "promptEn": "Which sets the scene in a story?",
+        "options": [
+          "Let me set the scene: it was raining in Osaka.",
+          "Set me let scene raining Osaka.",
+          "Scene set let raining me.",
+          "Let scene me set Osaka raining."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-i3-a11",
+        "promptJa": "文化的配慮を示す表現として自然なのは？",
+        "promptEn": "Which shows cultural awareness?",
+        "options": [
+          "Everyone thinks the same everywhere.",
+          "Across cultures, direct feedback can sound rude.",
+          "Cultures no difference feedback.",
+          "Across culture feedback rude always."
+        ],
+        "correctIndex": 1
+      }
+    ]
+  }
+}

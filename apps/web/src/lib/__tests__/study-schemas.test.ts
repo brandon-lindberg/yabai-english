@@ -8,6 +8,7 @@ import {
   beginnerLevelFileSchema,
   intermediate1LevelFileSchema,
   intermediate2LevelFileSchema,
+  intermediate3LevelFileSchema,
   studyAssessmentItemsJsonSchema,
 } from "../study/schemas";
 
@@ -223,6 +224,25 @@ describe("intermediate2LevelFileSchema", () => {
       const total = parsed.data.decks.reduce((s, d) => s + d.cards.length, 0);
       expect(parsed.data.decks.length).toBeGreaterThanOrEqual(25);
       expect(total).toBeGreaterThanOrEqual(300);
+    }
+  });
+});
+
+describe("intermediate3LevelFileSchema", () => {
+  it("parses committed data/study/intermediate-3.json when present", () => {
+    const fp = path.join(__dirname, "../../../data/study/intermediate-3.json");
+    if (!fs.existsSync(fp)) {
+      return;
+    }
+    const raw = JSON.parse(fs.readFileSync(fp, "utf8")) as unknown;
+    const parsed = intermediate3LevelFileSchema.safeParse(raw);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const total = parsed.data.decks.reduce((s, d) => s + d.cards.length, 0);
+      expect(parsed.data.decks.length).toBeGreaterThanOrEqual(30);
+      expect(parsed.data.decks.length).toBeLessThanOrEqual(35);
+      expect(total).toBeGreaterThanOrEqual(400);
+      expect(total).toBeLessThanOrEqual(500);
     }
   });
 });

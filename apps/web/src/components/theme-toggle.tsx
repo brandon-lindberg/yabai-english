@@ -30,28 +30,45 @@ export function ThemeToggle() {
     setTheme(next);
   }
 
-  function toggle() {
-    setMode(theme === "dark" ? "light" : "dark");
-  }
-
   if (theme === null) {
     return (
       <span
-        className="inline-block h-8 min-w-[4.5rem] rounded-full bg-border"
+        className="inline-block h-9 w-full rounded-full bg-border"
         aria-hidden
       />
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:bg-[var(--app-hover)]"
-      aria-pressed={theme === "dark"}
-      title={t("themeToggle")}
+    <div
+      className="grid w-full grid-cols-2 items-center rounded-full border border-border bg-surface p-0.5"
+      role="group"
+      aria-label={t("themeToggle")}
     >
-      {theme === "dark" ? t("themeDark") : t("themeLight")}
-    </button>
+      <button
+        type="button"
+        onClick={() => setMode("light")}
+        aria-pressed={theme === "light"}
+        className={`rounded-full px-3 py-1 text-center text-xs font-semibold transition ${
+          theme === "light"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted hover:text-foreground"
+        }`}
+      >
+        {t("themeLight")}
+      </button>
+      <button
+        type="button"
+        onClick={() => setMode("dark")}
+        aria-pressed={theme === "dark"}
+        className={`rounded-full px-3 py-1 text-center text-xs font-semibold transition ${
+          theme === "dark"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted hover:text-foreground"
+        }`}
+      >
+        {t("themeDark")}
+      </button>
+    </div>
   );
 }
