@@ -271,10 +271,59 @@ const intermediate1LevelFileBaseSchema = z.object({
 export const intermediate1LevelFileSchema =
   intermediate1LevelFileBaseSchema.superRefine(refineIntermediate1Decks);
 
+/** Intermediate L2: 25–30 decks, 12–14 cards each, ~300–360 total (real-world interaction). */
+const INTERMEDIATE_2_DECK_MIN = 25;
+const INTERMEDIATE_2_DECK_MAX = 30;
+const INTERMEDIATE_2_CARDS_PER_DECK_MIN = 12;
+const INTERMEDIATE_2_CARDS_PER_DECK_MAX = 14;
+const INTERMEDIATE_2_TOTAL_CARDS_MIN = 300;
+const INTERMEDIATE_2_TOTAL_CARDS_MAX = 360;
+
+function refineIntermediate2Decks(data: DecksRefinable, ctx: z.RefinementCtx): void {
+  const { decks } = data;
+  if (decks.length < INTERMEDIATE_2_DECK_MIN || decks.length > INTERMEDIATE_2_DECK_MAX) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Expected ${INTERMEDIATE_2_DECK_MIN}–${INTERMEDIATE_2_DECK_MAX} decks, got ${decks.length}`,
+    });
+  }
+  let total = 0;
+  for (let i = 0; i < decks.length; i++) {
+    const n = decks[i]!.cards.length;
+    if (n < INTERMEDIATE_2_CARDS_PER_DECK_MIN || n > INTERMEDIATE_2_CARDS_PER_DECK_MAX) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Deck ${i}: expected ${INTERMEDIATE_2_CARDS_PER_DECK_MIN}–${INTERMEDIATE_2_CARDS_PER_DECK_MAX} cards, got ${n}`,
+      });
+    }
+    total += n;
+  }
+  if (total < INTERMEDIATE_2_TOTAL_CARDS_MIN || total > INTERMEDIATE_2_TOTAL_CARDS_MAX) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Expected ${INTERMEDIATE_2_TOTAL_CARDS_MIN}–${INTERMEDIATE_2_TOTAL_CARDS_MAX} total cards, got ${total}`,
+    });
+  }
+}
+
+const intermediate2LevelFileBaseSchema = z.object({
+  version: z.literal(1),
+  levelCode: z.literal("INTERMEDIATE_2"),
+  decks: z.array(studyDeckFileSchema).min(INTERMEDIATE_2_DECK_MIN).max(INTERMEDIATE_2_DECK_MAX),
+  assessment: z.object({
+    passingScore: z.number().int().min(0).max(100),
+    items: z.array(studyAssessmentItemSchema).min(8).max(16),
+  }),
+});
+
+export const intermediate2LevelFileSchema =
+  intermediate2LevelFileBaseSchema.superRefine(refineIntermediate2Decks);
+
 export type BeginnerLevelFile = z.infer<typeof beginnerLevelFileSchema>;
 export type Beginner2LevelFile = z.infer<typeof beginner2LevelFileSchema>;
 export type Beginner3LevelFile = z.infer<typeof beginner3LevelFileSchema>;
 export type Intermediate1LevelFile = z.infer<typeof intermediate1LevelFileSchema>;
+export type Intermediate2LevelFile = z.infer<typeof intermediate2LevelFileSchema>;
 export type StudyAssessmentItem = z.infer<typeof studyAssessmentItemSchema>;
 
 const llmAssessmentItemSchema = studyAssessmentItemSchema.extend({

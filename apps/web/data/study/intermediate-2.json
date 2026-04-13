@@ -1,0 +1,2395 @@
+{
+  "version": 1,
+  "levelCode": "INTERMEDIATE_2",
+  "decks": [
+    {
+      "id": "study-i2-deck-0",
+      "titleJa": "条件文①（if + 現在形）",
+      "titleEn": "Conditionals (1) — if + present",
+      "sortOrder": 0,
+      "cards": [
+        {
+          "id": "study-i2-d0-c0",
+          "frontJa": "If it ___ tomorrow, I will stay home.",
+          "backEn": "If it rains tomorrow, I will stay home.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d0-c1",
+          "frontJa": "If the train ___ late, we'll miss the connection.",
+          "backEn": "If the train is late, we'll miss the connection.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d0-c2",
+          "frontJa": "If you ___ the file now, I'll review it tonight.",
+          "backEn": "If you send the file now, I'll review it tonight.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d0-c3",
+          "frontJa": "If you heat the soup, ___ it so it doesn't burn.",
+          "backEn": "If you heat the soup, stir it so it doesn't burn.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d0-c4",
+          "frontJa": "If there isn't enough room, we ___ use the other room.",
+          "backEn": "If there isn't enough room, we'll use the other room.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d0-c5",
+          "frontJa": "Translate: もし時間があれば、コーヒーでもどうですか。",
+          "backEn": "If you have time, how about a coffee?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d0-c6",
+          "frontJa": "Unless it stops raining, we can't ___ the match on time.",
+          "backEn": "Unless it stops raining, we can't start the match on time.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d0-c7",
+          "frontJa": "I'll call you if anything ___ .",
+          "backEn": "I'll call you if anything changes.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d0-c8",
+          "frontJa": "Translate: 彼が来なければ、始めましょう。",
+          "backEn": "If he doesn't come, let's start.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d0-c9",
+          "frontJa": "If you're not sure, ___ ask the staff.",
+          "backEn": "If you're not sure, just ask the staff.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d0-c10",
+          "frontJa": "We'll postpone the picnic if the wind ___ too strong.",
+          "backEn": "We'll postpone the picnic if the wind is too strong.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d0-c11",
+          "frontJa": "Translate: もし迷ったら、地図アプリを見てください。",
+          "backEn": "If you get lost, check the map app.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-1",
+      "titleJa": "条件文②（will / 提案）",
+      "titleEn": "Conditionals (2) — plans & offers",
+      "sortOrder": 1,
+      "cards": [
+        {
+          "id": "study-i2-d1-c0",
+          "frontJa": "If you wait here, I ___ get the manager.",
+          "backEn": "If you wait here, I'll get the manager.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d1-c1",
+          "frontJa": "If you need a receipt, I ___ print one for you.",
+          "backEn": "If you need a receipt, I'll print one for you.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d1-c2",
+          "frontJa": "If it's cheaper online, we ___ order there.",
+          "backEn": "If it's cheaper online, we'll order there.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d1-c3",
+          "frontJa": "Translate: もしよければ、席をご案内します。",
+          "backEn": "If you like, I can show you to your seat.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d1-c4",
+          "frontJa": "If the meeting runs long, ___ take a taxi home.",
+          "backEn": "If the meeting runs long, I'll take a taxi home.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d1-c5",
+          "frontJa": "If you see Yuki, ___ her I'm running five minutes late.",
+          "backEn": "If you see Yuki, tell her I'm running five minutes late.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d1-c6",
+          "frontJa": "Translate: 雨が降ったら、室内でやりましょう。",
+          "backEn": "If it rains, let's do it indoors.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d1-c7",
+          "frontJa": "If there's no reply by Friday, ___ follow up by email.",
+          "backEn": "If there's no reply by Friday, I'll follow up by email.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d1-c8",
+          "frontJa": "If you ___ uncomfortable, say something right away.",
+          "backEn": "If you feel uncomfortable, say something right away.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d1-c9",
+          "frontJa": "Translate: 都合が悪ければ、別の日にしましょう。",
+          "backEn": "If it's not convenient, let's pick another day.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d1-c10",
+          "frontJa": "If we leave now, we ___ catch the last train.",
+          "backEn": "If we leave now, we'll catch the last train.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d1-c11",
+          "frontJa": "If the package arrives damaged, ___ contact support.",
+          "backEn": "If the package arrives damaged, please contact support.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-2",
+      "titleJa": "条件文③（unless / provided）",
+      "titleEn": "Conditionals (3) — unless & provided",
+      "sortOrder": 2,
+      "cards": [
+        {
+          "id": "study-i2-d2-c0",
+          "frontJa": "___ you finish the checklist, you can't board early.",
+          "backEn": "Unless you finish the checklist, you can't board early.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d2-c1",
+          "frontJa": "I'll attend ___ something urgent comes up.",
+          "backEn": "I'll attend unless something urgent comes up.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d2-c2",
+          "frontJa": "Translate: 彼が謝らない限り、許しません。",
+          "backEn": "I won't forgive him unless he apologizes.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d2-c3",
+          "frontJa": "You can use the lounge ___ you show your membership card.",
+          "backEn": "You can use the lounge provided you show your membership card.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d2-c4",
+          "frontJa": "We can ship today ___ the payment clears this afternoon.",
+          "backEn": "We can ship today provided the payment clears this afternoon.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d2-c5",
+          "frontJa": "Translate: 招待されない限り、パーティーには行きません。",
+          "backEn": "I won't go to the party unless I'm invited.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d2-c6",
+          "frontJa": "Unless we hear otherwise, we'll ___ at 9 a.m.",
+          "backEn": "Unless we hear otherwise, we'll start at 9 a.m.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d2-c7",
+          "frontJa": "I'll keep the seat ___ someone needs it more.",
+          "backEn": "I'll keep the seat unless someone needs it more.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d2-c8",
+          "frontJa": "Translate: 天気が良ければ、ハイキングに行きます。",
+          "backEn": "We'll go hiking as long as the weather is good.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d2-c9",
+          "frontJa": "You may leave early ___ your supervisor approves it.",
+          "backEn": "You may leave early provided your supervisor approves it.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d2-c10",
+          "frontJa": "Unless it's an emergency, ___ call after 10 p.m.",
+          "backEn": "Unless it's an emergency, don't call after 10 p.m.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d2-c11",
+          "frontJa": "Translate: 問題がなければ、明日発送します。",
+          "backEn": "We'll ship tomorrow as long as there are no issues.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-3",
+      "titleJa": "丁寧な依頼①（Could you…）",
+      "titleEn": "Polite requests (1) — Could you…",
+      "sortOrder": 3,
+      "cards": [
+        {
+          "id": "study-i2-d3-c0",
+          "frontJa": "___ you repeat that more slowly?",
+          "backEn": "Could you repeat that more slowly?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d3-c1",
+          "frontJa": "___ you send me the agenda by noon?",
+          "backEn": "Could you send me the agenda by noon?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d3-c2",
+          "frontJa": "___ you hold the door for a second?",
+          "backEn": "Could you hold the door for a second?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d3-c3",
+          "frontJa": "Translate: 窓を少し開けていただけますか。",
+          "backEn": "Could you open the window a little?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d3-c4",
+          "frontJa": "___ you check whether my name is on the list?",
+          "backEn": "Could you check whether my name is on the list?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d3-c5",
+          "frontJa": "___ you tell me which line goes to the airport?",
+          "backEn": "Could you tell me which line goes to the airport?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d3-c6",
+          "frontJa": "Translate: こちらにお水をいただけますか。",
+          "backEn": "Could you bring us some water, please?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d3-c7",
+          "frontJa": "___ you turn your microphone off when you're not speaking?",
+          "backEn": "Could you turn your microphone off when you're not speaking?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d3-c8",
+          "frontJa": "___ you confirm the spelling of your surname?",
+          "backEn": "Could you confirm the spelling of your surname?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d3-c9",
+          "frontJa": "Translate: 写真を撮っていただけますか。",
+          "backEn": "Could you take a photo for us?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d3-c10",
+          "frontJa": "___ you let me know if the schedule changes?",
+          "backEn": "Could you let me know if the schedule changes?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d3-c11",
+          "frontJa": "___ you move your bag off the seat?",
+          "backEn": "Could you move your bag off the seat?",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-4",
+      "titleJa": "丁寧な依頼②（Would you mind…）",
+      "titleEn": "Polite requests (2) — Would you mind…",
+      "sortOrder": 4,
+      "cards": [
+        {
+          "id": "study-i2-d4-c0",
+          "frontJa": "___ you mind closing the window? It's a bit cold.",
+          "backEn": "Would you mind closing the window? It's a bit cold.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d4-c1",
+          "frontJa": "___ you mind waiting for a few minutes?",
+          "backEn": "Would you mind waiting for a few minutes?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d4-c2",
+          "frontJa": "___ if I sat here?",
+          "backEn": "Would you mind if I sat here?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d4-c3",
+          "frontJa": "Translate: 少し前に出ていただけますか。",
+          "backEn": "Would you mind stepping forward a little?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d4-c4",
+          "frontJa": "___ you mind switching to the other line?",
+          "backEn": "Would you mind switching to the other line?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d4-c5",
+          "frontJa": "___ if I used your charger?",
+          "backEn": "Would you mind if I used your charger?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d4-c6",
+          "frontJa": "Translate: 署名をこちらにお願いできますか。",
+          "backEn": "Would you mind signing here?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d4-c7",
+          "frontJa": "___ you mind keeping your voice down?",
+          "backEn": "Would you mind keeping your voice down?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d4-c8",
+          "frontJa": "___ if we started five minutes late?",
+          "backEn": "Would you mind if we started five minutes late?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d4-c9",
+          "frontJa": "Translate: 後ろのドアから降りていただけますか。",
+          "backEn": "Would you mind getting off through the rear door?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d4-c10",
+          "frontJa": "___ you mind forwarding that email to me?",
+          "backEn": "Would you mind forwarding that email to me?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d4-c11",
+          "frontJa": "___ if I took this chair?",
+          "backEn": "Would you mind if I took this chair?",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-5",
+      "titleJa": "依頼の和らげ方",
+      "titleEn": "Softening requests",
+      "sortOrder": 5,
+      "cards": [
+        {
+          "id": "study-i2-d5-c0",
+          "frontJa": "I was ___ if you could review this tonight.",
+          "backEn": "I was wondering if you could review this tonight.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d5-c1",
+          "frontJa": "Would it be ___ to reschedule to Thursday?",
+          "backEn": "Would it be possible to reschedule to Thursday?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d5-c2",
+          "frontJa": "I'm sorry to ___, but could you help me with this form?",
+          "backEn": "I'm sorry to bother you, but could you help me with this form?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d5-c3",
+          "frontJa": "Translate: お忙しいところ恐れ入りますが、少しお時間よろしいでしょうか。",
+          "backEn": "Sorry to interrupt — do you have a moment?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d5-c4",
+          "frontJa": "Do you ___ if I join you for lunch?",
+          "backEn": "Do you mind if I join you for lunch?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d5-c5",
+          "frontJa": "Could I possibly ___ an extension until Monday?",
+          "backEn": "Could I possibly get an extension until Monday?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d5-c6",
+          "frontJa": "Translate: 差し支えなければ、お名前を教えていただけますか。",
+          "backEn": "If you don't mind, could I have your name?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d5-c7",
+          "frontJa": "I don't want to ___, but this doesn't look right.",
+          "backEn": "I don't want to sound rude, but this doesn't look right.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d5-c8",
+          "frontJa": "Would you be ___ to share the link again?",
+          "backEn": "Would you be willing to share the link again?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d5-c9",
+          "frontJa": "Translate: 恐縮ですが、もう一度説明していただけますか。",
+          "backEn": "I'm embarrassed to ask, but could you explain that again?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d5-c10",
+          "frontJa": "If it's not too much ___, could you double-check the total?",
+          "backEn": "If it's not too much trouble, could you double-check the total?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d5-c11",
+          "frontJa": "I would ___ appreciate a quick reply when you can.",
+          "backEn": "I would really appreciate a quick reply when you can.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-6",
+      "titleJa": "比較①（-er / more … than）",
+      "titleEn": "Comparisons (1) — than",
+      "sortOrder": 6,
+      "cards": [
+        {
+          "id": "study-i2-d6-c0",
+          "frontJa": "This route is ___ than the one we took yesterday.",
+          "backEn": "This route is faster than the one we took yesterday.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d6-c1",
+          "frontJa": "The sequel was ___ interesting than the first film.",
+          "backEn": "The sequel was more interesting than the first film.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d6-c2",
+          "frontJa": "Living downtown is ___ expensive than I expected.",
+          "backEn": "Living downtown is more expensive than I expected.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d6-c3",
+          "frontJa": "Translate: この店の方が駅の近くにあります。",
+          "backEn": "This shop is closer to the station than that one.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d6-c4",
+          "frontJa": "She speaks more confidently ___ she did last year.",
+          "backEn": "She speaks more confidently than she did last year.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d6-c5",
+          "frontJa": "I like this laptop ___ it's lighter than my old one.",
+          "backEn": "I like this laptop because it's lighter than my old one.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d6-c6",
+          "frontJa": "Translate: 今日の方が昨日より暖かいです。",
+          "backEn": "Today is warmer than yesterday.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d6-c7",
+          "frontJa": "The new app is ___ complicated than the old version.",
+          "backEn": "The new app is less complicated than the old version.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d6-c8",
+          "frontJa": "He earns ___ than his colleague, but he works longer hours.",
+          "backEn": "He earns more than his colleague, but he works longer hours.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d6-c9",
+          "frontJa": "Translate: 飛行機の方がバスより速いです。",
+          "backEn": "The plane is faster than the bus.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d6-c10",
+          "frontJa": "This coffee tastes ___ than the one I usually buy.",
+          "backEn": "This coffee tastes better than the one I usually buy.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d6-c11",
+          "frontJa": "The meeting was ___ than we thought it would be.",
+          "backEn": "The meeting was shorter than we thought it would be.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-7",
+      "titleJa": "比較②（最上級・意見）",
+      "titleEn": "Comparisons (2) — superlatives & opinions",
+      "sortOrder": 7,
+      "cards": [
+        {
+          "id": "study-i2-d7-c0",
+          "frontJa": "That's ___ idea I've heard all week.",
+          "backEn": "That's the worst idea I've heard all week.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d7-c1",
+          "frontJa": "It was one of ___ concerts I've ever been to.",
+          "backEn": "It was one of the best concerts I've ever been to.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d7-c2",
+          "frontJa": "This is ___ option if you want to save money.",
+          "backEn": "This is the cheapest option if you want to save money.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d7-c3",
+          "frontJa": "Translate: この地域で一番静かな公園はどこですか。",
+          "backEn": "Where's the quietest park in this area?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d7-c4",
+          "frontJa": "She's ___ person on the team right now.",
+          "backEn": "She's the busiest person on the team right now.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d7-c5",
+          "frontJa": "I think Tuesday works ___ for everyone.",
+          "backEn": "I think Tuesday works best for everyone.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d7-c6",
+          "frontJa": "Translate: これは今月で最も重要な締め切りです。",
+          "backEn": "This is the most important deadline this month.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d7-c7",
+          "frontJa": "That's ___ polite way to say no.",
+          "backEn": "That's a polite way to say no.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d7-c8",
+          "frontJa": "Of the three, I found the middle one ___ useful.",
+          "backEn": "Of the three, I found the middle one the most useful.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d7-c9",
+          "frontJa": "Translate: その中で一番好きなのはどれですか。",
+          "backEn": "Which one do you like the most?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d7-c10",
+          "frontJa": "It's not ___ difficult topic we've covered.",
+          "backEn": "It's not the most difficult topic we've covered.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d7-c11",
+          "frontJa": "This hotel has ___ pool in town.",
+          "backEn": "This hotel has the nicest pool in town.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-8",
+      "titleJa": "比較③（as … as / 同程度）",
+      "titleEn": "Comparisons (3) — as … as",
+      "sortOrder": 8,
+      "cards": [
+        {
+          "id": "study-i2-d8-c0",
+          "frontJa": "This bag is ___ heavy as it looks.",
+          "backEn": "This bag is as heavy as it looks.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d8-c1",
+          "frontJa": "The copy isn't ___ clear as the original.",
+          "backEn": "The copy isn't as clear as the original.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d8-c2",
+          "frontJa": "Try to arrive ___ early as you can.",
+          "backEn": "Try to arrive as early as you can.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d8-c3",
+          "frontJa": "Translate: 彼は兄と同じくらい背が高いです。",
+          "backEn": "He's as tall as his older brother.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d8-c4",
+          "frontJa": "The second sample is ___ as expensive.",
+          "backEn": "The second sample is nearly twice as expensive.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d8-c5",
+          "frontJa": "She doesn't talk ___ much as she used to.",
+          "backEn": "She doesn't talk as much as she used to.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d8-c6",
+          "frontJa": "Translate: 想像していたほど難しくありませんでした。",
+          "backEn": "It wasn't as difficult as I imagined.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d8-c7",
+          "frontJa": "I'll stay ___ long as you need me.",
+          "backEn": "I'll stay as long as you need me.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d8-c8",
+          "frontJa": "The room was ___ big as we hoped.",
+          "backEn": "The room was as big as we hoped.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d8-c9",
+          "frontJa": "Translate: 昨日と同じくらい混んでいます。",
+          "backEn": "It's as crowded as it was yesterday.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d8-c10",
+          "frontJa": "He's not ___ patient as his manager.",
+          "backEn": "He's not as patient as his manager.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d8-c11",
+          "frontJa": "Please pack ___ carefully as you can.",
+          "backEn": "Please pack as carefully as you can.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-9",
+      "titleJa": "問題を伝える",
+      "titleEn": "Problem-solving language",
+      "sortOrder": 9,
+      "cards": [
+        {
+          "id": "study-i2-d9-c0",
+          "frontJa": "I have ___ with my reservation — it's under the wrong name.",
+          "backEn": "I have an issue with my reservation — it's under the wrong name.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d9-c1",
+          "frontJa": "Something is ___ with the Wi‑Fi; I can't connect.",
+          "backEn": "Something is wrong with the Wi‑Fi; I can't connect.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d9-c2",
+          "frontJa": "I'm having ___ getting the file to upload.",
+          "backEn": "I'm having trouble getting the file to upload.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d9-c3",
+          "frontJa": "Translate: お会計に誤りがあるようです。",
+          "backEn": "There seems to be a mistake on the bill.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d9-c4",
+          "frontJa": "The screen keeps ___ — could someone take a look?",
+          "backEn": "The screen keeps freezing — could someone take a look?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d9-c5",
+          "frontJa": "This isn't ___ I ordered.",
+          "backEn": "This isn't what I ordered.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d9-c6",
+          "frontJa": "Translate: 部屋のエアコンが動きません。",
+          "backEn": "The air conditioner in my room isn't working.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d9-c7",
+          "frontJa": "I'd like to ___ a complaint about the noise last night.",
+          "backEn": "I'd like to make a complaint about the noise last night.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d9-c8",
+          "frontJa": "We're running ___ a small problem with the delivery.",
+          "backEn": "We're running into a small problem with the delivery.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d9-c9",
+          "frontJa": "Translate: 鍵が部屋で開きません。",
+          "backEn": "The key won't open the door to my room.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d9-c10",
+          "frontJa": "Could you help me ___ this out?",
+          "backEn": "Could you help me sort this out?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d9-c11",
+          "frontJa": "I'm not sure what's ___, but the alarm won't stop.",
+          "backEn": "I'm not sure what's going on, but the alarm won't stop.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-10",
+      "titleJa": "解決・フォロー",
+      "titleEn": "Solutions & follow-up",
+      "sortOrder": 10,
+      "cards": [
+        {
+          "id": "study-i2-d10-c0",
+          "frontJa": "Let me ___ what we can do about this.",
+          "backEn": "Let me see what we can do about this.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d10-c1",
+          "frontJa": "I'll ___ this to the maintenance team right away.",
+          "backEn": "I'll report this to the maintenance team right away.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d10-c2",
+          "frontJa": "We can ___ you a replacement by tomorrow.",
+          "backEn": "We can send you a replacement by tomorrow.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d10-c3",
+          "frontJa": "Translate: 申し訳ございません。すぐに確認します。",
+          "backEn": "I'm sorry — I'll check that right away.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d10-c4",
+          "frontJa": "If that doesn't work, ___ try restarting the router.",
+          "backEn": "If that doesn't work, let's try restarting the router.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d10-c5",
+          "frontJa": "I'll ___ you posted as soon as I hear back.",
+          "backEn": "I'll keep you posted as soon as I hear back.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d10-c6",
+          "frontJa": "Translate: 別の部屋に移していただけますか。",
+          "backEn": "Could we move to a different room?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d10-c7",
+          "frontJa": "Would a ___ be okay instead?",
+          "backEn": "Would a refund be okay instead?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d10-c8",
+          "frontJa": "I'll ___ a note so it doesn't happen again.",
+          "backEn": "I'll leave a note so it doesn't happen again.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d10-c9",
+          "frontJa": "Translate: 再発防止のため、記録を残します。",
+          "backEn": "I'll log this so we can prevent it from happening again.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d10-c10",
+          "frontJa": "Can we ___ on this tomorrow morning?",
+          "backEn": "Can we follow up on this tomorrow morning?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d10-c11",
+          "frontJa": "Thanks for ___ — I appreciate your patience.",
+          "backEn": "Thanks for letting us know — I appreciate your patience.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-11",
+      "titleJa": "仕事①（会議）",
+      "titleEn": "Work (1) — meetings",
+      "sortOrder": 11,
+      "cards": [
+        {
+          "id": "study-i2-d11-c0",
+          "frontJa": "Sorry, I need to ___ — I have another call.",
+          "backEn": "Sorry, I need to go — I have another call.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d11-c1",
+          "frontJa": "Could we ___ the next slide?",
+          "backEn": "Could we move to the next slide?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d11-c2",
+          "frontJa": "I'll ___ the action items at the end.",
+          "backEn": "I'll summarize the action items at the end.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d11-c3",
+          "frontJa": "Translate: 本日の議題を確認してもよろしいでしょうか。",
+          "backEn": "Shall we go over today's agenda?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d11-c4",
+          "frontJa": "___ we take a five-minute break?",
+          "backEn": "Can we take a five-minute break?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d11-c5",
+          "frontJa": "I'm not sure I ___ that last point — could you clarify?",
+          "backEn": "I'm not sure I followed that last point — could you clarify?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d11-c6",
+          "frontJa": "Translate: 次回の会議は金曜の午後でよいですか。",
+          "backEn": "Is Friday afternoon okay for the next meeting?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d11-c7",
+          "frontJa": "Let me ___ that back to you to check I understood.",
+          "backEn": "Let me feed that back to you to check I understood.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d11-c8",
+          "frontJa": "I'll ___ the minutes after the call.",
+          "backEn": "I'll circulate the minutes after the call.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d11-c9",
+          "frontJa": "Translate: 発言したい方は挙手をお願いします。",
+          "backEn": "Please raise your hand if you'd like to speak.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d11-c10",
+          "frontJa": "We're slightly ___ schedule, so let's stay focused.",
+          "backEn": "We're slightly behind schedule, so let's stay focused.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d11-c11",
+          "frontJa": "Could everyone ___ their mics on mute unless speaking?",
+          "backEn": "Could everyone keep their mics on mute unless speaking?",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-12",
+      "titleJa": "仕事②（メール・連絡）",
+      "titleEn": "Work (2) — email & messages",
+      "sortOrder": 12,
+      "cards": [
+        {
+          "id": "study-i2-d12-c0",
+          "frontJa": "I'm writing to ___ about tomorrow's deadline.",
+          "backEn": "I'm writing to follow up about tomorrow's deadline.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d12-c1",
+          "frontJa": "Please find the report ___ .",
+          "backEn": "Please find the report attached.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d12-c2",
+          "frontJa": "Let me know if you need any ___ information.",
+          "backEn": "Let me know if you need any further information.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d12-c3",
+          "frontJa": "Translate: ご確認のほどよろしくお願いいたします。",
+          "backEn": "Thank you in advance for your review.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d12-c4",
+          "frontJa": "I'll ___ you a calendar invite this afternoon.",
+          "backEn": "I'll send you a calendar invite this afternoon.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d12-c5",
+          "frontJa": "Could you ___ me in copy on that thread?",
+          "backEn": "Could you add me in copy on that thread?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d12-c6",
+          "frontJa": "Translate: 返信が遅れて申し訳ありません。",
+          "backEn": "Sorry for the delayed reply.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d12-c7",
+          "frontJa": "I'm ___ of the office until Thursday.",
+          "backEn": "I'm out of the office until Thursday.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d12-c8",
+          "frontJa": "Just a quick ___ to confirm we received your payment.",
+          "backEn": "Just a quick note to confirm we received your payment.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d12-c9",
+          "frontJa": "Translate: 添付ファイルが開けないのですが。",
+          "backEn": "I'm having trouble opening the attachment.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d12-c10",
+          "frontJa": "I'll ___ back to you by end of day.",
+          "backEn": "I'll get back to you by end of day.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d12-c11",
+          "frontJa": "Thanks ___ your patience while we investigate.",
+          "backEn": "Thanks for your patience while we investigate.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-13",
+      "titleJa": "仕事③（締切・優先）",
+      "titleEn": "Work (3) — deadlines & priorities",
+      "sortOrder": 13,
+      "cards": [
+        {
+          "id": "study-i2-d13-c0",
+          "frontJa": "We're ___ against a tight deadline this week.",
+          "backEn": "We're up against a tight deadline this week.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d13-c1",
+          "frontJa": "Could we ___ the due date by one day?",
+          "backEn": "Could we extend the due date by one day?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d13-c2",
+          "frontJa": "I'll ___ this task first thing tomorrow.",
+          "backEn": "I'll tackle this task first thing tomorrow.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d13-c3",
+          "frontJa": "Translate: 最優先で対応してください。",
+          "backEn": "Please treat this as top priority.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d13-c4",
+          "frontJa": "If we can't finish today, we should ___ stakeholders early.",
+          "backEn": "If we can't finish today, we should flag stakeholders early.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d13-c5",
+          "frontJa": "Let's ___ what must be done today vs. next week.",
+          "backEn": "Let's break down what must be done today vs. next week.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d13-c6",
+          "frontJa": "Translate: スケジュールに余裕はありますか。",
+          "backEn": "Do we have any slack in the schedule?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d13-c7",
+          "frontJa": "I'm blocked ___ I get approval from finance.",
+          "backEn": "I'm blocked until I get approval from finance.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d13-c8",
+          "frontJa": "Can we ___ resources for the launch next month?",
+          "backEn": "Can we allocate resources for the launch next month?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d13-c9",
+          "frontJa": "Translate: この部分は後回しにしても大丈夫ですか。",
+          "backEn": "Is it okay to deprioritize this part?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d13-c10",
+          "frontJa": "I'll ___ you a realistic timeline by noon.",
+          "backEn": "I'll give you a realistic timeline by noon.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d13-c11",
+          "frontJa": "We need to ___ expectations if the scope grows.",
+          "backEn": "We need to manage expectations if the scope grows.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-14",
+      "titleJa": "手順を説明①",
+      "titleEn": "Explaining processes (1)",
+      "sortOrder": 14,
+      "cards": [
+        {
+          "id": "study-i2-d14-c0",
+          "frontJa": "___, log in with your work email.",
+          "backEn": "First, log in with your work email.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d14-c1",
+          "frontJa": "___, open the settings tab.",
+          "backEn": "Then, open the settings tab.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d14-c2",
+          "frontJa": "___, click save and restart the app.",
+          "backEn": "Finally, click save and restart the app.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d14-c3",
+          "frontJa": "Translate: 最初に袋から中身を全部出してください。",
+          "backEn": "First, take everything out of the bag.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d14-c4",
+          "frontJa": "After that, you should ___ a backup copy.",
+          "backEn": "After that, you should make a backup copy.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d14-c5",
+          "frontJa": "Before you start, ___ sure the device is charged.",
+          "backEn": "Before you start, make sure the device is charged.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d14-c6",
+          "frontJa": "Translate: 次に、電源ボタンを長押しします。",
+          "backEn": "Next, hold the power button down.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d14-c7",
+          "frontJa": "Once the light turns green, you can ___ the cable.",
+          "backEn": "Once the light turns green, you can unplug the cable.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d14-c8",
+          "frontJa": "If anything looks odd, ___ the process and call us.",
+          "backEn": "If anything looks odd, stop the process and call us.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d14-c9",
+          "frontJa": "Translate: 最後に、蓋をしっかり閉めてください。",
+          "backEn": "Lastly, close the lid tightly.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d14-c10",
+          "frontJa": "The next ___ is to verify your identity.",
+          "backEn": "The next step is to verify your identity.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d14-c11",
+          "frontJa": "At this point, you ___ wait about two minutes.",
+          "backEn": "At this point, you should wait about two minutes.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-15",
+      "titleJa": "手順を説明②",
+      "titleEn": "Explaining processes (2)",
+      "sortOrder": 15,
+      "cards": [
+        {
+          "id": "study-i2-d15-c0",
+          "frontJa": "___, rinse the rice until the water runs clear.",
+          "backEn": "First, rinse the rice until the water runs clear.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d15-c1",
+          "frontJa": "___, add water up to the line inside the pot.",
+          "backEn": "Next, add water up to the line inside the pot.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d15-c2",
+          "frontJa": "___, let it rest for ten minutes before opening.",
+          "backEn": "Finally, let it rest for ten minutes before opening.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d15-c3",
+          "frontJa": "Translate: その後、よく混ぜてください。",
+          "backEn": "After that, mix it well.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d15-c4",
+          "frontJa": "When you're done, ___ the tools in the sink.",
+          "backEn": "When you're done, leave the tools in the sink.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d15-c5",
+          "frontJa": "Until the beep sounds, don't ___ the lid.",
+          "backEn": "Until the beep sounds, don't open the lid.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d15-c6",
+          "frontJa": "Translate: 準備ができたら知らせてください。",
+          "backEn": "Let me know when you're ready.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d15-c7",
+          "frontJa": "Meanwhile, ___ the vegetables on the side.",
+          "backEn": "Meanwhile, chop the vegetables on the side.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d15-c8",
+          "frontJa": "By the time it boils, the sauce ___ be ready.",
+          "backEn": "By the time it boils, the sauce should be ready.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d15-c9",
+          "frontJa": "Translate: 問題があれば途中で止めてください。",
+          "backEn": "If there's a problem, stop halfway.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d15-c10",
+          "frontJa": "Afterward, we can ___ the results together.",
+          "backEn": "Afterward, we can review the results together.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d15-c11",
+          "frontJa": "In the meantime, feel ___ to grab coffee.",
+          "backEn": "In the meantime, feel free to grab coffee.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-16",
+      "titleJa": "過去の経験①",
+      "titleEn": "Past experiences (1)",
+      "sortOrder": 16,
+      "cards": [
+        {
+          "id": "study-i2-d16-c0",
+          "frontJa": "I went to Kyoto last spring, and it ___ amazing.",
+          "backEn": "I went to Kyoto last spring, and it was amazing.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d16-c1",
+          "frontJa": "We tried that new café, but it ___ too crowded.",
+          "backEn": "We tried that new café, but it was too crowded.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d16-c2",
+          "frontJa": "I ___ there once on business.",
+          "backEn": "I've been there once on business.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d16-c3",
+          "frontJa": "Translate: 週末に友達とキャンプに行きました。",
+          "backEn": "I went camping with friends over the weekend.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d16-c4",
+          "frontJa": "It was the first time I ___ sushi in Japan.",
+          "backEn": "It was the first time I ate sushi in Japan.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d16-c5",
+          "frontJa": "After the concert, we ___ for a walk by the river.",
+          "backEn": "After the concert, we went for a walk by the river.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d16-c6",
+          "frontJa": "Translate: 子供の頃、毎年海に行っていました。",
+          "backEn": "When I was a child, we went to the beach every year.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d16-c7",
+          "frontJa": "I didn't expect the hike to be ___ tiring.",
+          "backEn": "I didn't expect the hike to be this tiring.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d16-c8",
+          "frontJa": "Last year I ___ a short course online.",
+          "backEn": "Last year I took a short course online.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d16-c9",
+          "frontJa": "Translate: その時、とても緊張していました。",
+          "backEn": "At that time, I was really nervous.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d16-c10",
+          "frontJa": "We got ___ late because of traffic.",
+          "backEn": "We got home late because of traffic.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d16-c11",
+          "frontJa": "I ___ a lot of photos, but I lost my phone.",
+          "backEn": "I took a lot of photos, but I lost my phone.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-17",
+      "titleJa": "過去の経験②",
+      "titleEn": "Past experiences (2)",
+      "sortOrder": 17,
+      "cards": [
+        {
+          "id": "study-i2-d17-c0",
+          "frontJa": "When I arrived, the store ___ already closed.",
+          "backEn": "When I arrived, the store was already closed.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d17-c1",
+          "frontJa": "While we were waiting, it ___ to rain.",
+          "backEn": "While we were waiting, it started to rain.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d17-c2",
+          "frontJa": "After I finished work, I ___ straight home.",
+          "backEn": "After I finished work, I went straight home.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d17-c3",
+          "frontJa": "Translate: 会議が終わった後、食事に行きました。",
+          "backEn": "After the meeting, we went out for dinner.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d17-c4",
+          "frontJa": "I was about to leave ___ someone called my name.",
+          "backEn": "I was about to leave when someone called my name.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d17-c5",
+          "frontJa": "By the time we got there, the show ___ sold out.",
+          "backEn": "By the time we got there, the show was sold out.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d17-c6",
+          "frontJa": "Translate: その日はとても忙しい一日でした。",
+          "backEn": "It was a really busy day.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d17-c7",
+          "frontJa": "I ___ never seen snow before that trip.",
+          "backEn": "I had never seen snow before that trip.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d17-c8",
+          "frontJa": "We ___ lost for an hour near the station.",
+          "backEn": "We got lost for an hour near the station.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d17-c9",
+          "frontJa": "Translate: 楽しかったですが、疲れました。",
+          "backEn": "It was fun, but I was exhausted.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d17-c10",
+          "frontJa": "I ___ I'd booked a window seat.",
+          "backEn": "I wish I'd booked a window seat.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d17-c11",
+          "frontJa": "In the end, we ___ a taxi because we were late.",
+          "backEn": "In the end, we took a taxi because we were late.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-18",
+      "titleJa": "ストーリーをつなぐ",
+      "titleEn": "Storytelling connectors",
+      "sortOrder": 18,
+      "cards": [
+        {
+          "id": "study-i2-d18-c0",
+          "frontJa": "___ we left the house, we realized we'd forgotten tickets.",
+          "backEn": "As soon as we left the house, we realized we'd forgotten the tickets.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d18-c1",
+          "frontJa": "___ the train arrived, everyone rushed to the doors.",
+          "backEn": "When the train arrived, everyone rushed to the doors.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d18-c2",
+          "frontJa": "___ that, we decided to walk instead.",
+          "backEn": "After that, we decided to walk instead.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d18-c3",
+          "frontJa": "Translate: 突然、雨が降り始めました。",
+          "backEn": "Suddenly, it started to rain.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d18-c4",
+          "frontJa": "___ we were chatting, the lights went out.",
+          "backEn": "While we were chatting, the lights went out.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d18-c5",
+          "frontJa": "___ the end, everything worked out fine.",
+          "backEn": "In the end, everything worked out fine.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d18-c6",
+          "frontJa": "Translate: 幸いなことに、誰も怪我をしませんでした。",
+          "backEn": "Luckily, nobody was hurt.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d18-c7",
+          "frontJa": "___ a result, we missed the opening act.",
+          "backEn": "As a result, we missed the opening act.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d18-c8",
+          "frontJa": "___ first I was nervous, but then I relaxed.",
+          "backEn": "At first I was nervous, but then I relaxed.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d18-c9",
+          "frontJa": "Translate: 結局、自分でやってみることにしました。",
+          "backEn": "Eventually, I decided to try it myself.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d18-c10",
+          "frontJa": "___ moment we sat down, the show began.",
+          "backEn": "The moment we sat down, the show began.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d18-c11",
+          "frontJa": "___ hearing the news, she called her parents.",
+          "backEn": "On hearing the news, she called her parents.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-19",
+      "titleJa": "助言①（should / ought）",
+      "titleEn": "Advice (1) — should / ought to",
+      "sortOrder": 19,
+      "cards": [
+        {
+          "id": "study-i2-d19-c0",
+          "frontJa": "You ___ get some rest — you sound exhausted.",
+          "backEn": "You should get some rest — you sound exhausted.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d19-c1",
+          "frontJa": "He ought to ___ a doctor about that cough.",
+          "backEn": "He ought to see a doctor about that cough.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d19-c2",
+          "frontJa": "We should probably ___ earlier if we want good seats.",
+          "backEn": "We should probably leave earlier if we want good seats.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d19-c3",
+          "frontJa": "Translate: その前にもう一度確認した方がいいです。",
+          "backEn": "You should double-check that beforehand.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d19-c4",
+          "frontJa": "You shouldn't ___ passwords in chat.",
+          "backEn": "You shouldn't share passwords in chat.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d19-c5",
+          "frontJa": "I think you ___ talk to HR about the schedule.",
+          "backEn": "I think you should talk to HR about the schedule.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d19-c6",
+          "frontJa": "Translate: そんなに無理をしない方がいいですよ。",
+          "backEn": "You ought not to push yourself so hard.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d19-c7",
+          "frontJa": "They should ___ notified us about the closure.",
+          "backEn": "They should have notified us about the closure.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d19-c8",
+          "frontJa": "You might want to ___ a jacket — it's cold outside.",
+          "backEn": "You might want to bring a jacket — it's cold outside.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d19-c9",
+          "frontJa": "Translate: 正直に言った方がいいと思います。",
+          "backEn": "I think you should be honest about it.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d19-c10",
+          "frontJa": "We ought to ___ thank the host before we leave.",
+          "backEn": "We ought to thank the host before we leave.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d19-c11",
+          "frontJa": "If I were you, I'd ___ a backup plan.",
+          "backEn": "If I were you, I'd keep a backup plan.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-20",
+      "titleJa": "助言②（Why don't you / How about）",
+      "titleEn": "Advice (2) — suggestions",
+      "sortOrder": 20,
+      "cards": [
+        {
+          "id": "study-i2-d20-c0",
+          "frontJa": "___ you try the vegetarian option?",
+          "backEn": "Why don't you try the vegetarian option?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d20-c1",
+          "frontJa": "___ meeting on Zoom instead of in person?",
+          "backEn": "How about meeting on Zoom instead of in person?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d20-c2",
+          "frontJa": "___ we split the bill evenly?",
+          "backEn": "Why don't we split the bill evenly?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d20-c3",
+          "frontJa": "Translate: 一度相談してみたらどうですか。",
+          "backEn": "How about talking to them once?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d20-c4",
+          "frontJa": "___ taking a short walk before dinner?",
+          "backEn": "How about taking a short walk before dinner?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d20-c5",
+          "frontJa": "___ you ask at the information desk?",
+          "backEn": "Why don't you ask at the information desk?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d20-c6",
+          "frontJa": "Translate: 明日の午後はどうですか。",
+          "backEn": "How about tomorrow afternoon?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d20-c7",
+          "frontJa": "___ we grab coffee after this?",
+          "backEn": "Shall we grab coffee after this?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d20-c8",
+          "frontJa": "Maybe you could ___ a day off social media.",
+          "backEn": "Maybe you could take a day off social media.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d20-c9",
+          "frontJa": "Translate: 別の店を試してみませんか。",
+          "backEn": "Why not try another shop?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d20-c10",
+          "frontJa": "I'd suggest ___ the train if traffic is bad.",
+          "backEn": "I'd suggest taking the train if traffic is bad.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d20-c11",
+          "frontJa": "Have you thought ___ joining the weekend workshop?",
+          "backEn": "Have you thought about joining the weekend workshop?",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-21",
+      "titleJa": "助言③（提案の言い方）",
+      "titleEn": "Advice (3) — framing suggestions",
+      "sortOrder": 21,
+      "cards": [
+        {
+          "id": "study-i2-d21-c0",
+          "frontJa": "One option ___ be to postpone the launch.",
+          "backEn": "One option might be to postpone the launch.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d21-c1",
+          "frontJa": "It ___ be worth comparing prices online.",
+          "backEn": "It might be worth comparing prices online.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d21-c2",
+          "frontJa": "I'd ___ keeping a copy on a USB drive.",
+          "backEn": "I'd recommend keeping a copy on a USB drive.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d21-c3",
+          "frontJa": "Translate: 個人的には、もう少し待つべきだと思います。",
+          "backEn": "Personally, I think we should wait a bit longer.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d21-c4",
+          "frontJa": "If you ask me, we ___ focus on quality first.",
+          "backEn": "If you ask me, we should focus on quality first.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d21-c5",
+          "frontJa": "My ___ would be to start with the basics.",
+          "backEn": "My advice would be to start with the basics.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d21-c6",
+          "frontJa": "Translate: 試しにやってみる価値はあると思います。",
+          "backEn": "I think it's worth giving it a try.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d21-c7",
+          "frontJa": "You could always ___ for help if you get stuck.",
+          "backEn": "You could always ask for help if you get stuck.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d21-c8",
+          "frontJa": "Perhaps we should ___ the scope smaller.",
+          "backEn": "Perhaps we should keep the scope smaller.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d21-c9",
+          "frontJa": "Translate: 急がず、一つずつ進めましょう。",
+          "backEn": "Let's take it step by step without rushing.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d21-c10",
+          "frontJa": "I wouldn't ___ skipping the safety check.",
+          "backEn": "I wouldn't recommend skipping the safety check.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d21-c11",
+          "frontJa": "Let's ___ it simple for the first version.",
+          "backEn": "Let's keep it simple for the first version.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-22",
+      "titleJa": "抽象語彙①",
+      "titleEn": "Abstract vocabulary (1)",
+      "sortOrder": 22,
+      "cards": [
+        {
+          "id": "study-i2-d22-c0",
+          "frontJa": "We need a clear ___ before we spend more money.",
+          "backEn": "We need a clear plan before we spend more money.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d22-c1",
+          "frontJa": "That was a tough ___, but I'm glad we made it.",
+          "backEn": "That was a tough decision, but I'm glad we made it.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d22-c2",
+          "frontJa": "The ___ of the project exceeded our expectations.",
+          "backEn": "The result of the project exceeded our expectations.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d22-c3",
+          "frontJa": "Translate: そのアイデアは実現可能だと思います。",
+          "backEn": "I think that idea is feasible.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d22-c4",
+          "frontJa": "She explained the ___ behind the change.",
+          "backEn": "She explained the reason behind the change.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d22-c5",
+          "frontJa": "Let's discuss the ___ and cons calmly.",
+          "backEn": "Let's discuss the pros and cons calmly.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d22-c6",
+          "frontJa": "Translate: 結果を踏まえて方針を変えましょう。",
+          "backEn": "Let's adjust our approach based on the outcome.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d22-c7",
+          "frontJa": "We don't have enough ___ to hire two people.",
+          "backEn": "We don't have enough budget to hire two people.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d22-c8",
+          "frontJa": "His ___ attitude helped the team stay calm.",
+          "backEn": "His positive attitude helped the team stay calm.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d22-c9",
+          "frontJa": "Translate: 優先順位をはっきりさせましょう。",
+          "backEn": "Let's clarify our priorities.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d22-c10",
+          "frontJa": "The main ___ is whether we can meet the deadline.",
+          "backEn": "The main issue is whether we can meet the deadline.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d22-c11",
+          "frontJa": "We reached ___ after a long discussion.",
+          "backEn": "We reached an agreement after a long discussion.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-23",
+      "titleJa": "抽象語彙②",
+      "titleEn": "Abstract vocabulary (2)",
+      "sortOrder": 23,
+      "cards": [
+        {
+          "id": "study-i2-d23-c0",
+          "frontJa": "There's been a change ___ schedule.",
+          "backEn": "There's been a change of schedule.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d23-c1",
+          "frontJa": "We need your ___ on the new policy.",
+          "backEn": "We need your feedback on the new policy.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d23-c2",
+          "frontJa": "The team showed great ___ under pressure.",
+          "backEn": "The team showed great cooperation under pressure.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d23-c3",
+          "frontJa": "Translate: 進捗を共有していただけますか。",
+          "backEn": "Could you share the progress with us?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d23-c4",
+          "frontJa": "Let's set realistic ___ for this quarter.",
+          "backEn": "Let's set realistic goals for this quarter.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d23-c5",
+          "frontJa": "We should document the ___ so nothing is forgotten.",
+          "backEn": "We should document the process so nothing is forgotten.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d23-c6",
+          "frontJa": "Translate: リスクを最小限に抑えましょう。",
+          "backEn": "Let's minimize the risk.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d23-c7",
+          "frontJa": "The ___ of this tool is to save time.",
+          "backEn": "The purpose of this tool is to save time.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d23-c8",
+          "frontJa": "We learned a valuable ___ from that mistake.",
+          "backEn": "We learned a valuable lesson from that mistake.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d23-c9",
+          "frontJa": "Translate: 期待値をそろえましょう。",
+          "backEn": "Let's align our expectations.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d23-c10",
+          "frontJa": "There's no simple ___ to this problem.",
+          "backEn": "There's no simple solution to this problem.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d23-c11",
+          "frontJa": "We need more ___ before we decide.",
+          "backEn": "We need more information before we decide.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-24",
+      "titleJa": "電話・通話",
+      "titleEn": "Telephone & calls",
+      "sortOrder": 24,
+      "cards": [
+        {
+          "id": "study-i2-d24-c0",
+          "frontJa": "___ you hear me okay?",
+          "backEn": "Can you hear me okay?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d24-c1",
+          "frontJa": "Sorry, you're ___ — could you say that again?",
+          "backEn": "Sorry, you're breaking up — could you say that again?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d24-c2",
+          "frontJa": "I'll ___ it to you by email right after this call.",
+          "backEn": "I'll send it to you by email right after this call.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d24-c3",
+          "frontJa": "Translate: お電話ありがとうございます。田中と申します。",
+          "backEn": "Thank you for calling. This is Tanaka speaking.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d24-c4",
+          "frontJa": "Could I speak to someone ___ billing?",
+          "backEn": "Could I speak to someone in billing?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d24-c5",
+          "frontJa": "I'll ___ you through to the right department.",
+          "backEn": "I'll transfer you through to the right department.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d24-c6",
+          "frontJa": "Translate: 今ちょっと手が離せないので、後でかけ直します。",
+          "backEn": "I can't talk right now — I'll call you back later.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d24-c7",
+          "frontJa": "The line went ___ for a second.",
+          "backEn": "The line went dead for a second.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d24-c8",
+          "frontJa": "Let me ___ you back in five minutes.",
+          "backEn": "Let me call you back in five minutes.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d24-c9",
+          "frontJa": "Translate: お待ちください。つなぎます。",
+          "backEn": "Please hold — I'll connect you.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d24-c10",
+          "frontJa": "I didn't ___ your name — could you spell it?",
+          "backEn": "I didn't catch your name — could you spell it?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d24-c11",
+          "frontJa": "We're having ___ issues with the audio today.",
+          "backEn": "We're having technical issues with the audio today.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-25",
+      "titleJa": "オンライン会議・チャット",
+      "titleEn": "Online meetings & chat",
+      "sortOrder": 25,
+      "cards": [
+        {
+          "id": "study-i2-d25-c0",
+          "frontJa": "I think you're still ___ — we can't see your slides.",
+          "backEn": "I think you're still muted — we can't see your slides.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d25-c1",
+          "frontJa": "Could you ___ your camera on?",
+          "backEn": "Could you turn your camera on?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d25-c2",
+          "frontJa": "I'll ___ the link in the chat.",
+          "backEn": "I'll paste the link in the chat.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d25-c3",
+          "frontJa": "Translate: 画面共有をお願いできますか。",
+          "backEn": "Could you share your screen?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d25-c4",
+          "frontJa": "Sorry, I had to ___ off video — bad signal.",
+          "backEn": "Sorry, I had to turn off video — bad signal.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d25-c5",
+          "frontJa": "Let's ___ the recording for people who missed it.",
+          "backEn": "Let's save the recording for people who missed it.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d25-c6",
+          "frontJa": "Translate: チャットに質問を書いてください。",
+          "backEn": "Please type your question in the chat.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d25-c7",
+          "frontJa": "I'll follow up ___ the thread after the call.",
+          "backEn": "I'll follow up in the thread after the call.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d25-c8",
+          "frontJa": "Can everyone see the ___ I'm sharing?",
+          "backEn": "Can everyone see the document I'm sharing?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d25-c9",
+          "frontJa": "Translate: 回線が不安定なので、音声のみで参加します。",
+          "backEn": "My connection is unstable, so I'll join audio only.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d25-c10",
+          "frontJa": "I'll ___ the meeting now — thanks everyone.",
+          "backEn": "I'll leave the meeting now — thanks everyone.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d25-c11",
+          "frontJa": "Could you ___ that message one more time?",
+          "backEn": "Could you resend that message one more time?",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-26",
+      "titleJa": "旅行①（空港・移動）",
+      "titleEn": "Travel (1) — airport & transit",
+      "sortOrder": 26,
+      "cards": [
+        {
+          "id": "study-i2-d26-c0",
+          "frontJa": "Where do I ___ in for an international flight?",
+          "backEn": "Where do I check in for an international flight?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d26-c1",
+          "frontJa": "My flight was ___ — what are my options?",
+          "backEn": "My flight was canceled — what are my options?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d26-c2",
+          "frontJa": "Is this the ___ gate for the flight to Seattle?",
+          "backEn": "Is this the correct gate for the flight to Seattle?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d26-c3",
+          "frontJa": "Translate: 手荷物はどこで受け取りますか。",
+          "backEn": "Where do I pick up my luggage?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d26-c4",
+          "frontJa": "How early should I ___ at the airport?",
+          "backEn": "How early should I arrive at the airport?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d26-c5",
+          "frontJa": "I'd like an ___ seat, please.",
+          "backEn": "I'd like an aisle seat, please.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d26-c6",
+          "frontJa": "Translate: このバスは空港に行きますか。",
+          "backEn": "Does this bus go to the airport?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d26-c7",
+          "frontJa": "Could you help me ___ this ticket machine?",
+          "backEn": "Could you help me with this ticket machine?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d26-c8",
+          "frontJa": "I ___ my passport at the hotel.",
+          "backEn": "I left my passport at the hotel.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d26-c9",
+          "frontJa": "Translate: 乗り換えはどの番線ですか。",
+          "backEn": "Which platform is my connection from?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d26-c10",
+          "frontJa": "The security line is ___ than I expected.",
+          "backEn": "The security line is longer than I expected.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d26-c11",
+          "frontJa": "We need to ___ terminals before the next flight.",
+          "backEn": "We need to change terminals before the next flight.",
+          "sortOrder": 11
+        }
+      ]
+    },
+    {
+      "id": "study-i2-deck-27",
+      "titleJa": "旅行②（ホテル・道順）",
+      "titleEn": "Travel (2) — hotel & directions",
+      "sortOrder": 27,
+      "cards": [
+        {
+          "id": "study-i2-d27-c0",
+          "frontJa": "I have a reservation ___ Tanaka.",
+          "backEn": "I have a reservation under Tanaka.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i2-d27-c1",
+          "frontJa": "Could we ___ a late checkout?",
+          "backEn": "Could we get a late checkout?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i2-d27-c2",
+          "frontJa": "Is breakfast ___ in the rate?",
+          "backEn": "Is breakfast included in the rate?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i2-d27-c3",
+          "frontJa": "Translate: 駅まで歩いてどのくらいですか。",
+          "backEn": "How far is it to walk to the station?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i2-d27-c4",
+          "frontJa": "___ me, how do I get to the museum from here?",
+          "backEn": "Excuse me, how do I get to the museum from here?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i2-d27-c5",
+          "frontJa": "Is it ___ to walk at night in this area?",
+          "backEn": "Is it safe to walk at night in this area?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i2-d27-c6",
+          "frontJa": "Translate: この道をまっすぐ行って、二つ目を右です。",
+          "backEn": "Go straight on this road and turn right at the second light.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i2-d27-c7",
+          "frontJa": "Turn ___ at the corner and you'll see the sign.",
+          "backEn": "Turn left at the corner and you'll see the sign.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i2-d27-c8",
+          "frontJa": "It's about a ten-minute ___ from here.",
+          "backEn": "It's about a ten-minute walk from here.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i2-d27-c9",
+          "frontJa": "Translate: 地図アプリではここが目的地と違います。",
+          "backEn": "The map app says this isn't the right place.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i2-d27-c10",
+          "frontJa": "Could you ___ a taxi for two people?",
+          "backEn": "Could you call a taxi for two people?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i2-d27-c11",
+          "frontJa": "I think we're ___ — we passed this shop already.",
+          "backEn": "I think we're lost — we passed this shop already.",
+          "sortOrder": 11
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "passingScore": 72,
+    "items": [
+      {
+        "id": "study-i2-a0",
+        "promptJa": "「If it rains tomorrow, I will stay home.」に最も近い文は？",
+        "promptEn": "Which sentence is closest to a first conditional about rain and staying home?",
+        "options": [
+          "If it will rain tomorrow, I stay home.",
+          "If it rains tomorrow, I will stay home.",
+          "If it rained tomorrow, I will stay home.",
+          "If it rains tomorrow, I would stay home."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i2-a1",
+        "promptJa": "丁寧な依頼として自然なのは？",
+        "promptEn": "Which is a natural polite request?",
+        "options": [
+          "You close the window now.",
+          "Could you close the window, please?",
+          "Close window please immediate.",
+          "Window close you."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i2-a2",
+        "promptJa": "比較として正しいのは？",
+        "promptEn": "Which comparison is grammatically correct?",
+        "options": [
+          "This book is more better than that one.",
+          "This book is better than that one.",
+          "This book is gooder than that one.",
+          "This book is more good than that one."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i2-a3",
+        "promptJa": "問題を伝える表現として自然なのは？",
+        "promptEn": "Which line naturally reports a problem?",
+        "options": [
+          "I have wrong with my room.",
+          "Something is wrong with my room.",
+          "My room is something wrong.",
+          "Wrong is my room something."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i2-a4",
+        "promptJa": "会議で使える表現はどれ？",
+        "promptEn": "Which phrase fits a work meeting?",
+        "options": [
+          "Could we move to the next slide?",
+          "Next slide now force.",
+          "Slide go next must.",
+          "We nexting slide."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-i2-a5",
+        "promptJa": "手順の並びとして自然なのは？",
+        "promptEn": "Which sequence sounds natural for instructions?",
+        "options": [
+          "Finally, first, then restart.",
+          "First log in, then open settings, finally save.",
+          "Then first finally settings.",
+          "Save first finally then."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i2-a6",
+        "promptJa": "過去の体験を述べる文として自然なのは？",
+        "promptEn": "Which sentence naturally describes a past experience?",
+        "options": [
+          "I go to Kyoto and it amazing.",
+          "I went to Kyoto, and it was amazing.",
+          "I going Kyoto amazing was.",
+          "Kyoto I went amazing it."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i2-a7",
+        "promptJa": "助言として自然なのは？",
+        "promptEn": "Which is natural advice?",
+        "options": [
+          "You must to see a doctor.",
+          "You should see a doctor.",
+          "You should seeing a doctor.",
+          "Should you doctor see."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i2-a8",
+        "promptJa": "電話で聞こえにくいとき、自然なのは？",
+        "promptEn": "Which line is natural on a bad phone line?",
+        "options": [
+          "Can you hear me okay?",
+          "You hear can me?",
+          "Hear me you can okay?",
+          "Me hear can okay you?"
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-i2-a9",
+        "promptJa": "空港でチェックインを尋ねる表現は？",
+        "promptEn": "Which asks where to check in at the airport?",
+        "options": [
+          "Where I check in international?",
+          "Where do I check in for an international flight?",
+          "Check in where international I?",
+          "International where check?"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i2-a10",
+        "promptJa": "「Would you mind closing the window?」に近い丁寧さは？",
+        "promptEn": "Which request is similarly polite?",
+        "options": [
+          "Close the window now.",
+          "Would you mind closing the window?",
+          "You mind window close.",
+          "Window close mind you."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i2-a11",
+        "promptJa": "抽象名詞の使い方として自然なのは？",
+        "promptEn": "Which uses abstract nouns naturally?",
+        "options": [
+          "We need a clear idea before a decision.",
+          "We need clear idea before decision without article.",
+          "We need idea clear a decision.",
+          "Decision idea we need clear."
+        ],
+        "correctIndex": 0
+      }
+    ]
+  }
+}
