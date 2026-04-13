@@ -1,11 +1,73 @@
 import { describe, expect, it } from "vitest";
-import { answersMatch, buildFourOptions, cardQuizWeight, nextDueAtAfterQuiz, xpForMcq } from "../study/quiz";
+import {
+  answersMatch,
+  buildFourOptions,
+  cardQuizWeight,
+  extractFillBlankAnswer,
+  mcqCanonicalAnswer,
+  nextDueAtAfterQuiz,
+  xpForMcq,
+} from "../study/quiz";
 
 describe("normalizeStudyAnswer / answersMatch", () => {
   it("matches case and spacing loosely", () => {
     expect(answersMatch("  Hello ", "hello")).toBe(true);
     expect(answersMatch("Good morning", "good  morning")).toBe(true);
     expect(answersMatch("Yes", "No")).toBe(false);
+  });
+});
+
+describe("extractFillBlankAnswer / mcqCanonicalAnswer", () => {
+  it("extracts the phrase between labeled blank context and trailing hint", () => {
+    const frontJa = "Ability: She ___ three languages fluently. (speak — can)";
+    const backEn = "She can speak three languages fluently.";
+    expect(extractFillBlankAnswer(frontJa, backEn)).toBe("can speak");
+    expect(mcqCanonicalAnswer(frontJa, backEn)).toBe("can speak");
+  });
+
+  it("returns null when there is no blank", () => {
+    expect(extractFillBlankAnswer("Hello", "Hello there.")).toBeNull();
+    expect(mcqCanonicalAnswer("Hello", "Hello there.")).toBe("Hello there.");
+  });
+
+  it("returns null when the blank cannot be aligned to the English back", () => {
+    expect(extractFillBlankAnswer("She ___ home.", "They went home.")).toBeNull();
+  });
+
+  it("handles a prompt line with only the blank and trailing question text", () => {
+    expect(
+      extractFillBlankAnswer(
+        "They live in Sapporo. Ask how long:\n___ have you lived in Sapporo?",
+        "How long have you lived in Sapporo?",
+      ),
+    ).toBe("How long");
+  });
+
+  it("strips only the leading speaker label before the blank", () => {
+    expect(
+      extractFillBlankAnswer(
+        "A: Your sister is really creative.\nB: I agree — she ___ really creative.",
+        "I agree — she is really creative.",
+      ),
+    ).toBe("is");
+  });
+
+  it("extracts multi-word fragments for \"I don't think …\" blanks", () => {
+    expect(
+      extractFillBlankAnswer(
+        "I don't think + positive verb (expect a negative meaning).\nI ___ he will come.",
+        "I don't think he will come.",
+      ),
+    ).toBe("don't think");
+  });
+
+  it("extracts the first word when the blank is at the start of a frequency phrase", () => {
+    expect(
+      extractFillBlankAnswer(
+        'Short answer to "How often…?" (gym, swimming, etc.)\n___ or four times a month.',
+        "Three or four times a month.",
+      ),
+    ).toBe("Three");
   });
 });
 

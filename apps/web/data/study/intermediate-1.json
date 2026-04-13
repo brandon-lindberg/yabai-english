@@ -157,7 +157,7 @@
       "cards": [
         {
           "id": "study-i1-d1-c0",
-          "frontJa": "Make a natural sentence: experience + place\n(you / ever / be / to / Osaka?)",
+          "frontJa": "Experience question about a place (Osaka).\n___ you ever been to Osaka?",
           "backEn": "Have you ever been to Osaka?",
           "sortOrder": 0
         },
@@ -291,19 +291,19 @@
       "cards": [
         {
           "id": "study-i1-d2-c0",
-          "frontJa": "Join with \"but\": It was raining. We still went hiking.",
+          "frontJa": "Choose the connector.\nIt was raining, ___ we still went hiking.",
           "backEn": "It was raining, but we still went hiking.",
           "sortOrder": 0
         },
         {
           "id": "study-i1-d2-c1",
-          "frontJa": "Join with \"so\": I was tired. I went to bed early.",
+          "frontJa": "Choose the connector.\nI was tired, ___ I went to bed early.",
           "backEn": "I was tired, so I went to bed early.",
           "sortOrder": 1
         },
         {
           "id": "study-i1-d2-c2",
-          "frontJa": "Join with \"because\": She stayed home. She felt sick.",
+          "frontJa": "Choose the connector.\nShe stayed home ___ she felt sick.",
           "backEn": "She stayed home because she felt sick.",
           "sortOrder": 2
         },
@@ -315,7 +315,7 @@
         },
         {
           "id": "study-i1-d2-c4",
-          "frontJa": "Use \"and\" naturally: I bought milk. I bought eggs.",
+          "frontJa": "Choose the connector.\nI bought milk ___ eggs.",
           "backEn": "I bought milk and eggs.",
           "sortOrder": 4
         },
@@ -339,7 +339,7 @@
         },
         {
           "id": "study-i1-d2-c8",
-          "frontJa": "Because vs so: I left early. There was heavy traffic.\nUse \"because\" in one sentence.",
+          "frontJa": "Reason vs result: pick the right connector (not \"so\" here).\nI left early ___ there was heavy traffic.",
           "backEn": "I left early because there was heavy traffic.",
           "sortOrder": 8
         },
@@ -351,7 +351,7 @@
         },
         {
           "id": "study-i1-d2-c10",
-          "frontJa": "Fix the logic with a better connector.\nI was hungry, because I ate a sandwich. (rewrite)",
+          "frontJa": "Fix the logic: hunger is the reason, eating is the result.\nI was hungry, ___ I ate a sandwich.",
           "backEn": "I was hungry, so I ate a sandwich.",
           "sortOrder": 10
         },
@@ -363,7 +363,7 @@
         },
         {
           "id": "study-i1-d2-c12",
-          "frontJa": "Combine: She speaks quietly. Everyone listens carefully.",
+          "frontJa": "Choose the connector.\nShe speaks quietly, ___ everyone listens carefully.",
           "backEn": "She speaks quietly, so everyone listens carefully.",
           "sortOrder": 12
         },
@@ -375,7 +375,7 @@
         },
         {
           "id": "study-i1-d2-c14",
-          "frontJa": "Use two clauses: I like this cafe. The staff are friendly.",
+          "frontJa": "Add a reason with the right connector.\nI like this cafe ___ the staff are friendly.",
           "backEn": "I like this cafe because the staff are friendly.",
           "sortOrder": 14
         },
@@ -425,13 +425,13 @@
       "cards": [
         {
           "id": "study-i1-d3-c0",
-          "frontJa": "Ask about duration: You live in Sapporo.\nStart with \"How long...\"",
+          "frontJa": "They live in Sapporo. Ask how long:\n___ have you lived in Sapporo?",
           "backEn": "How long have you lived in Sapporo?",
           "sortOrder": 0
         },
         {
           "id": "study-i1-d3-c1",
-          "frontJa": "Ask about frequency: I go to the gym on Mondays and Thursdays.\nStart with \"How often...\"",
+          "frontJa": "They go to the gym on Mondays and Thursdays. Ask how often:\n___ do you go to the gym?",
           "backEn": "How often do you go to the gym?",
           "sortOrder": 1
         },
@@ -491,7 +491,7 @@
         },
         {
           "id": "study-i1-d3-c11",
-          "frontJa": "Ask politely: You look tired.\nAsk how long they slept.",
+          "frontJa": "They look tired. Ask politely:\n___ did you sleep?",
           "backEn": "How long did you sleep?",
           "sortOrder": 11
         },
@@ -559,7 +559,7 @@
       "cards": [
         {
           "id": "study-i1-d4-c0",
-          "frontJa": "Describe personality: She always helps new coworkers.\nOne sentence with \"kind\" or \"helpful\".",
+          "frontJa": "She always helps new coworkers. Complete the sentence.\nShe is very ___. (helpful)",
           "backEn": "She is very helpful.",
           "sortOrder": 0
         },
@@ -571,7 +571,7 @@
         },
         {
           "id": "study-i1-d4-c2",
-          "frontJa": "Appearance: tall, short dark hair, glasses\nWrite one sentence.",
+          "frontJa": "Describe his appearance in one sentence.\nHe ___ tall and has short dark hair and glasses.",
           "backEn": "He is tall and has short dark hair and glasses.",
           "sortOrder": 2
         },
@@ -607,7 +607,7 @@
         },
         {
           "id": "study-i1-d4-c8",
-          "frontJa": "Describe a friend: loyal + funny\nOne sentence with \"and\".",
+          "frontJa": "Describe a friend (loyal + funny).\nMy friend is ___ and funny.",
           "backEn": "My friend is loyal and funny.",
           "sortOrder": 8
         },
@@ -643,7 +643,7 @@
         },
         {
           "id": "study-i1-d4-c14",
-          "frontJa": "Compliment: Your sister is really creative.\nReply with a short agreement + detail.",
+          "frontJa": "A: Your sister is really creative.\nB: I agree — she ___ really creative.",
           "backEn": "I agree — she is really creative.",
           "sortOrder": 14
         },
@@ -655,7 +655,7 @@
         },
         {
           "id": "study-i1-d4-c16",
-          "frontJa": "Describe someone you admire: hard-working\nOne sentence.",
+          "frontJa": "Someone you admire is hard-working.\nMy boss is extremely ___.",
           "backEn": "My boss is extremely hard-working.",
           "sortOrder": 16
         },
@@ -679,7 +679,7 @@
         },
         {
           "id": "study-i1-d4-c20",
-          "frontJa": "Compare two friends: One is calm; the other is energetic.\nOne sentence with \"while\" or \"but\".",
+          "frontJa": "Compare two friends (one calm, one energetic).\nOne friend is calm, ___ the other is energetic.",
           "backEn": "One friend is calm, while the other is energetic.",
           "sortOrder": 20
         }
@@ -693,7 +693,7 @@
       "cards": [
         {
           "id": "study-i1-d5-c0",
-          "frontJa": "At a café: You want a medium hot latte to go.\nOne natural sentence.",
+          "frontJa": "At a café: you want a medium hot latte to go.\n___ get a medium hot latte to go, please?",
           "backEn": "Can I get a medium hot latte to go, please?",
           "sortOrder": 0
         },
@@ -711,7 +711,7 @@
         },
         {
           "id": "study-i1-d5-c3",
-          "frontJa": "Making plans: Suggest Saturday afternoon for a museum.\nOne sentence.",
+          "frontJa": "Suggest Saturday afternoon for a museum visit.\n___ you free Saturday afternoon to go to the museum?",
           "backEn": "Are you free Saturday afternoon to go to the museum?",
           "sortOrder": 3
         },
@@ -723,7 +723,7 @@
         },
         {
           "id": "study-i1-d5-c5",
-          "frontJa": "Phone call: You answer and identify yourself.\nWrite what you say.",
+          "frontJa": "Phone call: you answer and give your name (Ken).\nHello, ___ Ken speaking.",
           "backEn": "Hello, this is Ken speaking.",
           "sortOrder": 5
         },
@@ -735,7 +735,7 @@
         },
         {
           "id": "study-i1-d5-c7",
-          "frontJa": "At a store: Ask if they have this shirt in a larger size.",
+          "frontJa": "At a store: ask about a larger size for this shirt.\n___ you have this shirt in a larger size?",
           "backEn": "Do you have this shirt in a larger size?",
           "sortOrder": 7
         },
@@ -747,7 +747,7 @@
         },
         {
           "id": "study-i1-d5-c9",
-          "frontJa": "Train station: Ask which platform for the express to Osaka.",
+          "frontJa": "Train station: ask about the express to Osaka.\n___ platform is the express train to Osaka?",
           "backEn": "Which platform is the express train to Osaka?",
           "sortOrder": 9
         },
@@ -759,7 +759,7 @@
         },
         {
           "id": "study-i1-d5-c11",
-          "frontJa": "Apartment issue: Tell the manager your AC is not working.",
+          "frontJa": "Apartment issue: tell the manager the AC is not working.\nThe ___ in my apartment isn't working.",
           "backEn": "The air conditioner in my apartment isn't working.",
           "sortOrder": 11
         },
@@ -771,7 +771,7 @@
         },
         {
           "id": "study-i1-d5-c13",
-          "frontJa": "Invite politely: movie + Friday evening\nOne sentence.",
+          "frontJa": "Invite someone to a movie on Friday evening.\n___ you like to see a movie on Friday evening?",
           "backEn": "Would you like to see a movie on Friday evening?",
           "sortOrder": 13
         },
@@ -783,7 +783,7 @@
         },
         {
           "id": "study-i1-d5-c15",
-          "frontJa": "Doctor: Describe mild symptom + duration\nOne sentence.",
+          "frontJa": "Doctor visit: mild symptom + how long.\nI've had ___ for two days.",
           "backEn": "I've had a sore throat for two days.",
           "sortOrder": 15
         },
@@ -795,7 +795,7 @@
         },
         {
           "id": "study-i1-d5-c17",
-          "frontJa": "Hotel: Ask for a wake-up call at 6:30 a.m.",
+          "frontJa": "Hotel: request a wake-up call at 6:30 a.m.\n___ I have a wake-up call at 6:30 a.m., please?",
           "backEn": "Could I have a wake-up call at 6:30 a.m., please?",
           "sortOrder": 17
         },
@@ -807,13 +807,13 @@
         },
         {
           "id": "study-i1-d5-c19",
-          "frontJa": "Friend running late: Ask how long they will be.\nOne message sentence.",
+          "frontJa": "Friend is running late. Text them:\n___ will you be?",
           "backEn": "How long will you be?",
           "sortOrder": 19
         },
         {
           "id": "study-i1-d5-c20",
-          "frontJa": "Return item: The shoes hurt your feet; you want a refund.\nOne polite sentence.",
+          "frontJa": "The shoes hurt your feet; you want a refund.\nI'd ___ to return these shoes for a refund, please.",
           "backEn": "I'd like to return these shoes for a refund, please.",
           "sortOrder": 20
         }
@@ -827,7 +827,7 @@
       "cards": [
         {
           "id": "study-i1-d6-c0",
-          "frontJa": "Advice: Your friend is stressed before an exam.\nOne sentence with \"should\".",
+          "frontJa": "Your friend is stressed before an exam.\nYou ___ take a short break and breathe.",
           "backEn": "You should take a short break and breathe.",
           "sortOrder": 0
         },
@@ -863,7 +863,7 @@
         },
         {
           "id": "study-i1-d6-c6",
-          "frontJa": "Polite request: open the window (can/could)\nOne sentence.",
+          "frontJa": "Polite request: open the window (can/could).\n___ you open the window, please?",
           "backEn": "Could you open the window, please?",
           "sortOrder": 6
         },
@@ -875,7 +875,7 @@
         },
         {
           "id": "study-i1-d6-c8",
-          "frontJa": "Soft advice: You look sick.\nUse \"should\".",
+          "frontJa": "Soft advice: you look sick.\nYou ___ see a doctor.",
           "backEn": "You should see a doctor.",
           "sortOrder": 8
         },
@@ -935,7 +935,7 @@
         },
         {
           "id": "study-i1-d6-c18",
-          "frontJa": "Suggestion: It's raining hard.\nOne sentence with \"should\".",
+          "frontJa": "It's raining hard.\nYou ___ take an umbrella.",
           "backEn": "You should take an umbrella.",
           "sortOrder": 18
         },
@@ -973,7 +973,7 @@
         },
         {
           "id": "study-i1-d7-c2",
-          "frontJa": "Polite excuse: You can't attend a party.\nMention work + one clause with because",
+          "frontJa": "You can't go to a party (work is the reason).\nI can't come ___ I have to work late.",
           "backEn": "I can't come because I have to work late.",
           "sortOrder": 2
         },
@@ -1057,7 +1057,7 @@
         },
         {
           "id": "study-i1-d7-c16",
-          "frontJa": "Give a reason for being late (one sentence): missed the bus",
+          "frontJa": "You missed the bus. Give the reason in a short sentence.\nI'm late ___ I missed the bus.",
           "backEn": "I'm late because I missed the bus.",
           "sortOrder": 16
         },
@@ -1095,7 +1095,7 @@
       "cards": [
         {
           "id": "study-i1-d8-c0",
-          "frontJa": "Soft opinion: This movie is too long.\nStart with \"I think\".",
+          "frontJa": "Soft opinion: this movie is too long.\nI think ___ movie is too long.",
           "backEn": "I think this movie is too long.",
           "sortOrder": 0
         },
@@ -1155,7 +1155,7 @@
         },
         {
           "id": "study-i1-d8-c10",
-          "frontJa": "I don't think + positive verb trick: I ___ he will come. (expect negative)\nWrite a natural sentence.",
+          "frontJa": "I don't think + positive verb (expect a negative meaning).\nI ___ he will come.",
           "backEn": "I don't think he will come.",
           "sortOrder": 10
         },
@@ -1167,7 +1167,7 @@
         },
         {
           "id": "study-i1-d8-c12",
-          "frontJa": "In my opinion: commuting by bike is healthy.\nStart with \"In my opinion,\"",
+          "frontJa": "Commuting by bike is healthy. Give your view.\n___ my opinion, commuting by bike is healthy.",
           "backEn": "In my opinion, commuting by bike is healthy.",
           "sortOrder": 12
         },
@@ -1241,7 +1241,7 @@
         },
         {
           "id": "study-i1-d9-c2",
-          "frontJa": "Frequency question answer: How often do you read?\nWrite: \"About twice a week.\"",
+          "frontJa": "Short answer to \"How often do you read?\"\nAbout ___ a week.",
           "backEn": "About twice a week.",
           "sortOrder": 2
         },
@@ -1313,7 +1313,7 @@
         },
         {
           "id": "study-i1-d9-c14",
-          "frontJa": "How often + short answer: \"Three or four times a month.\" (prompt asks you to produce this line)",
+          "frontJa": "Short answer to \"How often…?\" (gym, swimming, etc.)\n___ or four times a month.",
           "backEn": "Three or four times a month.",
           "sortOrder": 14
         },

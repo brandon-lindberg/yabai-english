@@ -77,7 +77,11 @@ export async function POST(req: Request) {
   if (!payload) {
     return NextResponse.json({ error: "Invalid review payload for this card" }, { status: 400 });
   }
-  const correct = gradeStudyCardReview(card.backEn, exercise, payload);
+  const correct = gradeStudyCardReview(
+    { backEn: card.backEn, frontJa: card.frontJa },
+    exercise,
+    payload,
+  );
   const xpGain = xpForMcq(correct);
   const now = new Date();
 
@@ -175,7 +179,7 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     correct,
-    correctAnswer: correctAnswerForDisplay(card.backEn, exercise),
+    correctAnswer: correctAnswerForDisplay(card.frontJa, card.backEn, exercise),
     xpGained: xpGain,
     levelXp: result.xp,
     masteryScore,

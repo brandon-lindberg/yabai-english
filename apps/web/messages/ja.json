@@ -134,7 +134,14 @@
     },
     "schedulePage": {
       "title": "スケジュール",
-      "intro": "今後のレッスンを確認し、カレンダーに追加できます。"
+      "intro": "今後のレッスンを確認し、カレンダーに追加できます。",
+      "subNavUpcoming": "予定",
+      "subNavCompleted": "受講済み",
+      "ariaScheduleSections": "スケジュールの区分",
+      "completedSectionTitle": "受講済みレッスン",
+      "completedIntro": "すでに受講したレッスンを一覧できます。今後、各回のメモや書き起こし、教材などもここに表示できるようにします。",
+      "completedEmpty": "まだ受講済みのレッスンはありません。",
+      "lessonAttachmentsPlaceholder": "メモ・書き起こし・教材などは、利用可能になり次第ここに表示されます。"
     },
     "quickReview": {
       "title": "クイック復習",

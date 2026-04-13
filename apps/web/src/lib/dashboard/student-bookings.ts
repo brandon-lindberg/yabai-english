@@ -1,4 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
+import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
 
 export async function getStudentBookingsForDashboard(prisma: PrismaClient, studentId: string) {
   const bookings = await prisma.booking.findMany({
@@ -12,7 +13,7 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
   });
 
   const now = new Date();
-  const upcoming = bookings.filter((b) => b.endsAt >= now);
+  const { upcoming, completed } = groupBookingsForDashboard(bookings, now);
   const scheduleItems = upcoming.map((b) => ({
     id: b.id,
     startsAtIso: b.startsAt.toISOString(),
@@ -21,5 +22,5 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
     teacherName: b.teacher.user.name ?? b.teacher.user.email ?? "",
   }));
 
-  return { bookings, upcoming, scheduleItems };
+  return { bookings, upcoming, completed, scheduleItems };
 }

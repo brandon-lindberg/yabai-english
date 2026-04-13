@@ -34,13 +34,23 @@ export function dayKeyFromIso(iso: string) {
   return toDayKey(new Date(iso));
 }
 
-export function groupSlotsByDay(slots: SlotOption[]) {
+/** Monday → Sunday short weekday names for column headers (locale-aware). */
+export function buildWeekdayColumnHeaders(locale: string): string[] {
+  const mondayNoon = new Date(2026, 0, 5, 12, 0, 0);
+  return Array.from({ length: 7 }, (_, index) => {
+    const d = new Date(mondayNoon);
+    d.setDate(mondayNoon.getDate() + index);
+    return d.toLocaleDateString(locale, { weekday: "short" });
+  });
+}
+
+export function groupSlotsByDay(slots: SlotOption[], locale: string) {
   const map = new Map<string, SlotDayGroup>();
 
   for (const slot of slots) {
     const dt = new Date(slot.startsAtIso);
     const dayKey = toDayKey(dt);
-    const dayLabel = dt.toLocaleDateString(undefined, {
+    const dayLabel = dt.toLocaleDateString(locale, {
       weekday: "short",
       month: "short",
       day: "numeric",
@@ -56,7 +66,7 @@ export function groupSlotsByDay(slots: SlotOption[]) {
   return [...map.values()].sort((a, b) => a.dayKey.localeCompare(b.dayKey));
 }
 
-export function buildWeekDays(anchorIso: string): CalendarDay[] {
+export function buildWeekDays(anchorIso: string, locale: string): CalendarDay[] {
   const anchor = startOfDay(new Date(anchorIso));
   const offsetToMonday = (anchor.getDay() + 6) % 7;
   const monday = new Date(anchor);
@@ -67,19 +77,19 @@ export function buildWeekDays(anchorIso: string): CalendarDay[] {
     day.setDate(monday.getDate() + index);
     return {
       dayKey: toDayKey(day),
-      dayLabel: day.toLocaleDateString(undefined, {
+      dayLabel: day.toLocaleDateString(locale, {
         weekday: "short",
         month: "short",
         day: "numeric",
       }),
-      shortLabel: day.toLocaleDateString(undefined, {
+      shortLabel: day.toLocaleDateString(locale, {
         weekday: "short",
       }),
     };
   });
 }
 
-export function buildMonthCells(anchorIso: string): CalendarMonthCell[] {
+export function buildMonthCells(anchorIso: string, locale: string): CalendarMonthCell[] {
   const anchor = startOfDay(new Date(anchorIso));
   const firstOfMonth = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
   const offsetToMonday = (firstOfMonth.getDay() + 6) % 7;
@@ -91,7 +101,7 @@ export function buildMonthCells(anchorIso: string): CalendarMonthCell[] {
     day.setDate(gridStart.getDate() + index);
     return {
       dayKey: toDayKey(day),
-      dayLabel: day.toLocaleDateString(undefined, {
+      dayLabel: day.toLocaleDateString(locale, {
         weekday: "short",
         month: "short",
         day: "numeric",

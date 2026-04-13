@@ -1,14 +1,22 @@
 import { describe, expect, test } from "vitest";
-import { buildMonthCells, buildWeekDays, groupSlotsByDay } from "@/lib/slot-calendar";
+import {
+  buildMonthCells,
+  buildWeekDays,
+  buildWeekdayColumnHeaders,
+  groupSlotsByDay,
+} from "@/lib/slot-calendar";
 import { shiftCalendarAnchor } from "@/lib/calendar-view";
 
 describe("groupSlotsByDay", () => {
   test("groups slot options by local day key", () => {
-    const groups = groupSlotsByDay([
+    const groups = groupSlotsByDay(
+      [
       { startsAtIso: "2026-04-20T01:00:00.000Z", label: "Mon 10:00" },
       { startsAtIso: "2026-04-20T03:00:00.000Z", label: "Mon 12:00" },
       { startsAtIso: "2026-04-21T01:00:00.000Z", label: "Tue 10:00" },
-    ]);
+    ],
+      "en-US",
+    );
 
     expect(groups.length).toBe(2);
     expect(groups[0].slots).toHaveLength(2);
@@ -18,19 +26,25 @@ describe("groupSlotsByDay", () => {
 
 describe("calendar helpers", () => {
   test("buildWeekDays returns 7 contiguous days", () => {
-    const days = buildWeekDays("2026-04-22T09:00:00.000Z");
+    const days = buildWeekDays("2026-04-22T09:00:00.000Z", "en-US");
     expect(days).toHaveLength(7);
     expect(days[0].dayKey <= days[6].dayKey).toBe(true);
   });
 
   test("buildWeekDays starts weeks on Monday", () => {
-    const days = buildWeekDays("2026-04-22T09:00:00.000Z");
+    const days = buildWeekDays("2026-04-22T09:00:00.000Z", "en-US");
     expect(days[0].dayKey).toBe("2026-04-20");
   });
 
   test("buildMonthCells returns full 6-week grid", () => {
-    const cells = buildMonthCells("2026-04-22T09:00:00.000Z");
+    const cells = buildMonthCells("2026-04-22T09:00:00.000Z", "en-US");
     expect(cells).toHaveLength(42);
+  });
+
+  test("buildWeekdayColumnHeaders uses app locale (Japanese weekdays)", () => {
+    const ja = buildWeekdayColumnHeaders("ja");
+    expect(ja).toHaveLength(7);
+    expect(ja[0]).toBe("月");
   });
 });
 

@@ -10,7 +10,15 @@ import {
 } from "@/lib/study/study-card-analytics";
 import { parseStudyCardExercise, shuffleTokensForQueue } from "@/lib/study/card-exercise";
 import type { StudyQueueCard } from "@/lib/study/practice-queue-card";
-import { buildFourOptions, cardQuizWeight, weightedSampleWithoutReplacement } from "@/lib/study/quiz";
+import {
+  buildFourOptions,
+  cardQuizWeight,
+  extractFillBlankAnswer,
+  MCQ_SHORT_FALLBACK_PHRASES,
+  mcqCanonicalAnswer,
+  mcqPoolPhraseWhenFragmentMode,
+  weightedSampleWithoutReplacement,
+} from "@/lib/study/quiz";
 import { StudyLevelCode } from "@prisma/client";
 import { z } from "zod";
 
@@ -187,7 +195,6 @@ export async function GET(req: Request) {
 
   const now = new Date();
   const rng = Math.random;
-  const poolBacks = pool.map((c) => c.backEn);
   const weightedQueue = buildWeightedSessionQueue(pool, stateByCard, parsed.data.limit, now, rng);
 
   const out: StudyQueueCard[] = weightedQueue.map((c) => {
@@ -211,13 +218,21 @@ export async function GET(req: Request) {
     const st = stateByCard.get(c.id);
     const band = classifyPracticeBand(toPerformanceSlice(st));
     const distractorCount = mcqDistractorCountForBand(band);
+    const fragmentMode = extractFillBlankAnswer(c.frontJa, c.backEn) != null;
+    const correctPhrase = mcqCanonicalAnswer(c.frontJa, c.backEn);
+    const distractorPool = pool
+      .filter((o) => o.id !== c.id)
+      .map((o) =>
+        fragmentMode ? mcqPoolPhraseWhenFragmentMode(o.frontJa, o.backEn) : o.backEn.trim(),
+      );
     return {
       id: c.id,
       kind: "mcq" as const,
       frontJa: c.frontJa,
-      options: buildFourOptions(c.backEn, poolBacks.filter((b) => b !== c.backEn), {
+      options: buildFourOptions(correctPhrase, distractorPool, {
         rng,
         distractorCount,
+        shortFallbackPool: fragmentMode ? MCQ_SHORT_FALLBACK_PHRASES : undefined,
       }),
     };
   });

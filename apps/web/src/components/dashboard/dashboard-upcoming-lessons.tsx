@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { bookingStatusKey } from "@/lib/booking-status";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
@@ -7,6 +7,7 @@ import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-boo
 type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
 
 export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcoming }) {
+  const locale = await getLocale();
   const t = await getTranslations("dashboard");
 
   if (upcoming.length === 0) {
@@ -31,7 +32,8 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
                 {b.lessonProduct.nameJa} / {b.lessonProduct.nameEn}
               </p>
               <p className="text-sm text-muted">
-                {b.startsAt.toLocaleString()} — {b.endsAt.toLocaleString()}
+                {b.startsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })} —{" "}
+                {b.endsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })}
               </p>
               <p className="text-sm text-muted">
                 {t("teacher")}: {b.teacher.user.name ?? b.teacher.user.email}

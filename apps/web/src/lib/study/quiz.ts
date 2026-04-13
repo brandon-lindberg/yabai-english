@@ -13,12 +13,91 @@ const FALLBACK_DISTRACTORS_EN = [
   "The answer is not listed here.",
 ] as const;
 
+/** Short phrases used when building blank-fill MCQs and the distractor pool is thin. */
+export const MCQ_SHORT_FALLBACK_PHRASES = [
+  "might have been",
+  "should have gone",
+  "could try again",
+  "would rather not",
+  "may have left",
+  "must be kidding",
+] as const;
+
+function squeezeWhitespace(s: string): string {
+  return s.trim().replace(/\s+/g, " ");
+}
+
 export function normalizeStudyAnswer(s: string): string {
   return s.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
 export function answersMatch(chosen: string, canonical: string): boolean {
   return normalizeStudyAnswer(chosen) === normalizeStudyAnswer(canonical);
+}
+
+/**
+ * When `frontJa` contains a single `___` blank, returns the matching substring of `backEn`.
+ * Strips a trailing parenthetical hint on the prompt (e.g. "(speak — can)") and a leading
+ * "Label:" prefix before the blank. Returns null if the blank cannot be aligned reliably.
+ */
+export function extractFillBlankAnswer(frontJa: string, backEn: string): string | null {
+  const normalizedFront = frontJa.replace(/\r\n/g, "\n");
+  if (!normalizedFront.includes("___")) return null;
+  const line = (normalizedFront.split("\n").find((l) => l.includes("___")) ?? normalizedFront).trim();
+  const parts = line.split("___");
+  if (parts.length !== 2) return null;
+
+  let left = squeezeWhitespace(parts[0]!);
+  let right = squeezeWhitespace(parts[1]!);
+  right = right.replace(/\s*\([^)]*\)\s*$/, "").trim();
+  left = left.replace(/^[^:]+:\s*/, "").trim();
+
+  const back = squeezeWhitespace(backEn);
+  if (!left && !right) return null;
+
+  let start = 0;
+  if (left) {
+    const idx = back.indexOf(left);
+    if (idx < 0) return null;
+    start = idx + left.length;
+    if (back[start] === " ") start += 1;
+  }
+
+  let end = back.length;
+  if (right) {
+    const ri = back.indexOf(right, start);
+    if (ri < 0 || ri < start) return null;
+    end = ri;
+    while (end > start && back[end - 1] === " ") end -= 1;
+  }
+
+  const frag = back.slice(start, end).trim();
+  if (!frag) return null;
+  if (normalizeStudyAnswer(frag) === normalizeStudyAnswer(back)) return null;
+  return frag;
+}
+
+/** First `maxWords` words of `backEn` (for fragment-style distractors when the card has no blank). */
+export function mcqLeadWordsPhrase(backEn: string, maxWords: number): string {
+  const w = squeezeWhitespace(backEn).split(/\s+/);
+  if (w.length === 0) return backEn.trim();
+  return w.slice(0, maxWords).join(" ");
+}
+
+/**
+ * English text the learner must pick for classic MCQ (full sentence) or blank-fill MCQ (fragment only).
+ */
+export function mcqCanonicalAnswer(frontJa: string, backEn: string): string {
+  return extractFillBlankAnswer(frontJa, backEn) ?? backEn.trim();
+}
+
+/**
+ * Phrase from another card for the MCQ distractor pool when the active card uses blank-fill mode.
+ */
+export function mcqPoolPhraseWhenFragmentMode(frontJa: string, backEn: string): string {
+  const frag = extractFillBlankAnswer(frontJa, backEn);
+  if (frag != null) return frag;
+  return mcqLeadWordsPhrase(backEn, 6);
 }
 
 function shuffleInPlace<T>(arr: T[], rng: () => number): void {
@@ -32,6 +111,11 @@ export type BuildMcqOptions = {
   rng?: () => number;
   /** Number of wrong choices besides the correct answer (2 → 3-option MCQ, 3 → 4-option). */
   distractorCount?: 2 | 3;
+  /**
+   * When the distractor pool runs dry, try these short phrases before the long sentence fallbacks
+   * (used for blank-fill MCQs so wrong options stay comparable in length).
+   */
+  shortFallbackPool?: readonly string[];
 };
 
 /**
@@ -63,6 +147,19 @@ export function buildFourOptions(
 
   shuffleInPlace(candidates, rng);
   const distractors = candidates.slice(0, distractorCount);
+
+  if (distractors.length < distractorCount && opts?.shortFallbackPool?.length) {
+    const shortPool = [...opts.shortFallbackPool];
+    shuffleInPlace(shortPool, rng);
+    for (const raw of shortPool) {
+      if (distractors.length >= distractorCount) break;
+      const t = raw.trim();
+      const n = normalizeStudyAnswer(t);
+      if (seenNorms.has(n)) continue;
+      seenNorms.add(n);
+      distractors.push(t);
+    }
+  }
 
   if (distractors.length < distractorCount) {
     const fallbacks = [...FALLBACK_DISTRACTORS_EN];

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { answersMatch } from "./quiz";
+import { answersMatch, mcqCanonicalAnswer } from "./quiz";
 
 const reorderTokenSchema = z.object({
   id: z.string().min(1),
@@ -80,13 +80,13 @@ export type StudyReviewPayload =
   | { mode: "multi_step"; multiStepAnswers: string[] };
 
 export function gradeStudyCardReview(
-  backEn: string,
+  ctx: { backEn: string; frontJa: string },
   exercise: StudyCardExercise | null,
   payload: StudyReviewPayload,
 ): boolean {
   if (!exercise) {
     if (payload.mode !== "mcq") return false;
-    return answersMatch(payload.chosenAnswer, backEn);
+    return answersMatch(payload.chosenAnswer, mcqCanonicalAnswer(ctx.frontJa, ctx.backEn));
   }
   if (exercise.kind === "reorder") {
     if (payload.mode !== "reorder") return false;
@@ -103,11 +103,15 @@ export function gradeStudyCardReview(
   return false;
 }
 
-export function correctAnswerForDisplay(backEn: string, exercise: StudyCardExercise | null): string {
+export function correctAnswerForDisplay(
+  frontJa: string,
+  backEn: string,
+  exercise: StudyCardExercise | null,
+): string {
   if (exercise?.kind === "multi_step") {
     return exercise.steps.map((s) => s.canonical).join("\n→ ");
   }
-  return backEn;
+  return mcqCanonicalAnswer(frontJa, backEn);
 }
 
 /** Split a sentence into comparable word tokens (punctuation stripped). */

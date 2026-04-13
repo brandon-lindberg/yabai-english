@@ -105,7 +105,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
     titleEn: "Experience (have / has done)",
     cards: rows("Experience", [
       [
-        "Make a natural sentence: experience + place\n(you / ever / be / to / Osaka?)",
+        "Experience question about a place (Osaka).\n___ you ever been to Osaka?",
         "Have you ever been to Osaka?",
       ],
       ["Translate: 寿司を食べたことがありません。", "I have never tried sushi."],
@@ -165,20 +165,20 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
     titleEn: "Basic connectors (and, but, so, because)",
     cards: rows("Connectors", [
       [
-        "Join with \"but\": It was raining. We still went hiking.",
+        "Choose the connector.\nIt was raining, ___ we still went hiking.",
         "It was raining, but we still went hiking.",
       ],
       [
-        "Join with \"so\": I was tired. I went to bed early.",
+        "Choose the connector.\nI was tired, ___ I went to bed early.",
         "I was tired, so I went to bed early.",
       ],
       [
-        "Join with \"because\": She stayed home. She felt sick.",
+        "Choose the connector.\nShe stayed home ___ she felt sick.",
         "She stayed home because she felt sick.",
       ],
       ["Translate: コーヒーが欲しいです。とても眠いです。", "I want coffee because I'm very sleepy."],
       [
-        "Use \"and\" naturally: I bought milk. I bought eggs.",
+        "Choose the connector.\nI bought milk ___ eggs.",
         "I bought milk and eggs.",
       ],
       ["Translate: 安かったので、二つ買いました。", "It was cheap, so I bought two."],
@@ -188,22 +188,22 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 遅刻しました。バスが来なかったので。", "I was late because the bus didn't come."],
       [
-        "Because vs so: I left early. There was heavy traffic.\nUse \"because\" in one sentence.",
+        "Reason vs result: pick the right connector (not \"so\" here).\nI left early ___ there was heavy traffic.",
         "I left early because there was heavy traffic.",
       ],
       ["Translate: 彼は勉強しました。そして試験に合格しました。", "He studied, and he passed the exam."],
       [
-        "Fix the logic with a better connector.\nI was hungry, because I ate a sandwich. (rewrite)",
+        "Fix the logic: hunger is the reason, eating is the result.\nI was hungry, ___ I ate a sandwich.",
         "I was hungry, so I ate a sandwich.",
       ],
       ["Translate: 雨が降っていたが、試合は続いた。", "It was raining, but the game continued."],
       [
-        "Combine: She speaks quietly. Everyone listens carefully.",
+        "Choose the connector.\nShe speaks quietly, ___ everyone listens carefully.",
         "She speaks quietly, so everyone listens carefully.",
       ],
       ["Translate: 彼は忙しいので、今夜は来られません。", "He's busy, so he can't come tonight."],
       [
-        "Use two clauses: I like this cafe. The staff are friendly.",
+        "Add a reason with the right connector.\nI like this cafe ___ the staff are friendly.",
         "I like this cafe because the staff are friendly.",
       ],
       ["Translate: 私は泳げます。しかし、深い水は怖いです。", "I can swim, but I'm afraid of deep water."],
@@ -228,11 +228,11 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
     titleEn: "Expanded questions (How long…?, How often…?)",
     cards: rows("Questions", [
       [
-        "Ask about duration: You live in Sapporo.\nStart with \"How long...\"",
+        "They live in Sapporo. Ask how long:\n___ have you lived in Sapporo?",
         "How long have you lived in Sapporo?",
       ],
       [
-        "Ask about frequency: I go to the gym on Mondays and Thursdays.\nStart with \"How often...\"",
+        "They go to the gym on Mondays and Thursdays. Ask how often:\n___ do you go to the gym?",
         "How often do you go to the gym?",
       ],
       ["Translate: どのくらいの間、英語を勉強していますか？", "How long have you been studying English?"],
@@ -257,7 +257,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 会議はどのくらい続きますか？", "How long will the meeting last?"],
       [
-        "Ask politely: You look tired.\nAsk how long they slept.",
+        "They look tired. Ask politely:\n___ did you sleep?",
         "How long did you sleep?",
       ],
       ["Translate: 週に何回走りますか？", "How many times a week do you run?"],
@@ -288,12 +288,12 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
     titleEn: "Describing people",
     cards: rows("People", [
       [
-        "Describe personality: She always helps new coworkers.\nOne sentence with \"kind\" or \"helpful\".",
+        "She always helps new coworkers. Complete the sentence.\nShe is very ___. (helpful)",
         "She is very helpful.",
       ],
       ["Translate: 彼はとても社交的で、すぐに友達を作ります。", "He is very outgoing and makes friends easily."],
       [
-        "Appearance: tall, short dark hair, glasses\nWrite one sentence.",
+        "Describe his appearance in one sentence.\nHe ___ tall and has short dark hair and glasses.",
         "He is tall and has short dark hair and glasses.",
       ],
       ["Translate: 彼女は静かだけど、とても頭がいい。", "She is quiet, but very smart."],
@@ -308,7 +308,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 彼女は背が高くて、モデルのようだ。", "She is tall and looks like a model."],
       [
-        "Describe a friend: loyal + funny\nOne sentence with \"and\".",
+        "Describe a friend (loyal + funny).\nMy friend is ___ and funny.",
         "My friend is loyal and funny.",
       ],
       ["Translate: 彼は少し恥ずかしがり屋だが、優しい。", "He is a little shy, but kind."],
@@ -323,12 +323,12 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 彼は真剣な顔つきをしているが、冗談が好きだ。", "He looks serious, but he likes jokes."],
       [
-        "Compliment: Your sister is really creative.\nReply with a short agreement + detail.",
+        "A: Your sister is really creative.\nB: I agree — she ___ really creative.",
         "I agree — she is really creative.",
       ],
       ["Translate: 彼女はとても忍耐強い母親だ。", "She is a very patient mother."],
       [
-        "Describe someone you admire: hard-working\nOne sentence.",
+        "Someone you admire is hard-working.\nMy boss is extremely ___.",
         "My boss is extremely hard-working.",
       ],
       ["Translate: 彼は細身で、走るのが速い。", "He is slim and runs fast."],
@@ -338,7 +338,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: その店員さんは丁寧で親切だった。", "The clerk was polite and kind."],
       [
-        "Compare two friends: One is calm; the other is energetic.\nOne sentence with \"while\" or \"but\".",
+        "Compare two friends (one calm, one energetic).\nOne friend is calm, ___ the other is energetic.",
         "One friend is calm, while the other is energetic.",
       ],
     ]),
@@ -348,7 +348,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
     titleEn: "Daily situations",
     cards: rows("Daily", [
       [
-        "At a café: You want a medium hot latte to go.\nOne natural sentence.",
+        "At a café: you want a medium hot latte to go.\n___ get a medium hot latte to go, please?",
         "Can I get a medium hot latte to go, please?",
       ],
       [
@@ -357,51 +357,51 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: お会計をお願いします。", "The check, please."],
       [
-        "Making plans: Suggest Saturday afternoon for a museum.\nOne sentence.",
+        "Suggest Saturday afternoon for a museum visit.\n___ you free Saturday afternoon to go to the museum?",
         "Are you free Saturday afternoon to go to the museum?",
       ],
       ["Translate: 今夜、一緒に夕食を食べませんか？", "Would you like to have dinner together tonight?"],
       [
-        "Phone call: You answer and identify yourself.\nWrite what you say.",
+        "Phone call: you answer and give your name (Ken).\nHello, ___ Ken speaking.",
         "Hello, this is Ken speaking.",
       ],
       ["Translate: すみません、メニューを見せてください。", "Excuse me, could I see the menu, please?"],
       [
-        "At a store: Ask if they have this shirt in a larger size.",
+        "At a store: ask about a larger size for this shirt.\n___ you have this shirt in a larger size?",
         "Do you have this shirt in a larger size?",
       ],
       ["Translate: 予約はできますか？", "Can I make a reservation?"],
       [
-        "Train station: Ask which platform for the express to Osaka.",
+        "Train station: ask about the express to Osaka.\n___ platform is the express train to Osaka?",
         "Which platform is the express train to Osaka?",
       ],
       ["Translate: 荷物を預けられますか？", "Can I leave my luggage here?"],
       [
-        "Apartment issue: Tell the manager your AC is not working.",
+        "Apartment issue: tell the manager the AC is not working.\nThe ___ in my apartment isn't working.",
         "The air conditioner in my apartment isn't working.",
       ],
       ["Translate: すみません、道に迷いました。", "Excuse me, I'm lost."],
       [
-        "Invite politely: movie + Friday evening\nOne sentence.",
+        "Invite someone to a movie on Friday evening.\n___ you like to see a movie on Friday evening?",
         "Would you like to see a movie on Friday evening?",
       ],
       ["Translate: テーブルは二人です。", "A table for two, please."],
       [
-        "Doctor: Describe mild symptom + duration\nOne sentence.",
+        "Doctor visit: mild symptom + how long.\nI've had ___ for two days.",
         "I've had a sore throat for two days.",
       ],
       ["Translate: もう少し待っていただけますか？", "Could you wait a little longer, please?"],
       [
-        "Hotel: Ask for a wake-up call at 6:30 a.m.",
+        "Hotel: request a wake-up call at 6:30 a.m.\n___ I have a wake-up call at 6:30 a.m., please?",
         "Could I have a wake-up call at 6:30 a.m., please?",
       ],
       ["Translate: この席、空いていますか？", "Is this seat taken?"],
       [
-        "Friend running late: Ask how long they will be.\nOne message sentence.",
+        "Friend is running late. Text them:\n___ will you be?",
         "How long will you be?",
       ],
       [
-        "Return item: The shoes hurt your feet; you want a refund.\nOne polite sentence.",
+        "The shoes hurt your feet; you want a refund.\nI'd ___ to return these shoes for a refund, please.",
         "I'd like to return these shoes for a refund, please.",
       ],
     ]),
@@ -411,7 +411,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
     titleEn: "Modal verbs (can, must, should)",
     cards: rows("Modals", [
       [
-        "Advice: Your friend is stressed before an exam.\nOne sentence with \"should\".",
+        "Your friend is stressed before an exam.\nYou ___ take a short break and breathe.",
         "You should take a short break and breathe.",
       ],
       ["Translate: ここでは写真を撮ってはいけません。", "You must not take photos here."],
@@ -426,12 +426,12 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 明日までにこれを終えなければなりません。", "I must finish this by tomorrow."],
       [
-        "Polite request: open the window (can/could)\nOne sentence.",
+        "Polite request: open the window (can/could).\n___ you open the window, please?",
         "Could you open the window, please?",
       ],
       ["Translate: 彼は泳げますが、深いプールは苦手です。", "He can swim, but he doesn't like deep pools."],
       [
-        "Soft advice: You look sick.\nUse \"should\".",
+        "Soft advice: you look sick.\nYou ___ see a doctor.",
         "You should see a doctor.",
       ],
       ["Translate: ここでタバコを吸ってはいけません。", "You can't smoke here."],
@@ -456,7 +456,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 試験では電卓を使ってはいけません。", "You must not use a calculator on the exam."],
       [
-        "Suggestion: It's raining hard.\nOne sentence with \"should\".",
+        "It's raining hard.\nYou ___ take an umbrella.",
         "You should take an umbrella.",
       ],
       ["Translate: 彼女はピアノを弾けます。", "She can play the piano."],
@@ -476,7 +476,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 遅れたのは、電車が止まったからです。", "I'm late because the train stopped."],
       [
-        "Polite excuse: You can't attend a party.\nMention work + one clause with because",
+        "You can't go to a party (work is the reason).\nI can't come ___ I have to work late.",
         "I can't come because I have to work late.",
       ],
       ["Translate: 彼は疲れているので、家で休みたいと言った。", "He said he wants to rest at home because he's tired."],
@@ -511,7 +511,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 私が早退したのは、子供が病気だったからです。", "I left early because my child was sick."],
       [
-        "Give a reason for being late (one sentence): missed the bus",
+        "You missed the bus. Give the reason in a short sentence.\nI'm late ___ I missed the bus.",
         "I'm late because I missed the bus.",
       ],
       ["Translate: 彼は練習したので、上手になった。", "He improved because he practiced."],
@@ -531,7 +531,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
     titleEn: "Basic opinions (I think / I don't think)",
     cards: rows("Opinions", [
       [
-        "Soft opinion: This movie is too long.\nStart with \"I think\".",
+        "Soft opinion: this movie is too long.\nI think ___ movie is too long.",
         "I think this movie is too long.",
       ],
       ["Translate: 私はそれが良いアイデアだとは思いません。", "I don't think that's a good idea."],
@@ -556,12 +556,12 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 彼女の方が正しいと思います。", "I think she's right."],
       [
-        "I don't think + positive verb trick: I ___ he will come. (expect negative)\nWrite a natural sentence.",
+        "I don't think + positive verb (expect a negative meaning).\nI ___ he will come.",
         "I don't think he will come.",
       ],
       ["Translate: それは公平だと思います。", "I think that's fair."],
       [
-        "In my opinion: commuting by bike is healthy.\nStart with \"In my opinion,\"",
+        "Commuting by bike is healthy. Give your view.\n___ my opinion, commuting by bike is healthy.",
         "In my opinion, commuting by bike is healthy.",
       ],
       ["Translate: それは必要ないと思います。", "I don't think it's necessary."],
@@ -596,7 +596,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 私はたいてい自宅で仕事をします。", "I usually work from home."],
       [
-        "Frequency question answer: How often do you read?\nWrite: \"About twice a week.\"",
+        "Short answer to \"How often do you read?\"\nAbout ___ a week.",
         "About twice a week.",
       ],
       ["Translate: 彼はめったに遅刻しません。", "He is rarely late."],
@@ -626,7 +626,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 彼女はたいてい徒歩で通勤します。", "She usually commutes on foot."],
       [
-        "How often + short answer: \"Three or four times a month.\" (prompt asks you to produce this line)",
+        "Short answer to \"How often…?\" (gym, swimming, etc.)\n___ or four times a month.",
         "Three or four times a month.",
       ],
       ["Translate: 私は朝はいつもコーヒーを飲みます。", "I always drink coffee in the morning."],

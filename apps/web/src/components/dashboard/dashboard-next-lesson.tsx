@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { bookingStatusKey } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
@@ -6,6 +6,7 @@ import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-boo
 type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
 
 export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) {
+  const locale = await getLocale();
   const t = await getTranslations("dashboard");
   const th = await getTranslations("dashboard.highlights");
   const next = upcoming[0];
@@ -32,7 +33,8 @@ export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) 
         {next.lessonProduct.nameJa} / {next.lessonProduct.nameEn}
       </p>
       <p className="mt-1 text-sm text-muted">
-        {next.startsAt.toLocaleString()} — {next.endsAt.toLocaleString()}
+        {next.startsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })} —{" "}
+        {next.endsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })}
       </p>
       <p className="mt-1 text-sm text-muted">
         {t("teacher")}: {next.teacher.user.name ?? next.teacher.user.email}

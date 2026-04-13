@@ -22,8 +22,26 @@ describe("inferReorderExerciseFromSlashLines", () => {
 describe("gradeStudyCardReview", () => {
   it("grades mcq with answersMatch", () => {
     expect(
-      gradeStudyCardReview("Hello world.", null, { mode: "mcq", chosenAnswer: "  hello world. " }),
+      gradeStudyCardReview(
+        { frontJa: "", backEn: "Hello world." },
+        null,
+        { mode: "mcq", chosenAnswer: "  hello world. " },
+      ),
     ).toBe(true);
+  });
+
+  it("grades blank-fill mcq against the fragment only", () => {
+    const frontJa = "Ability: She ___ three languages fluently. (speak — can)";
+    const backEn = "She can speak three languages fluently.";
+    expect(
+      gradeStudyCardReview({ frontJa, backEn }, null, { mode: "mcq", chosenAnswer: "can speak" }),
+    ).toBe(true);
+    expect(
+      gradeStudyCardReview({ frontJa, backEn }, null, {
+        mode: "mcq",
+        chosenAnswer: "She can speak three languages fluently.",
+      }),
+    ).toBe(false);
   });
 
   it("grades reorder by token id sequence", () => {
@@ -35,8 +53,18 @@ describe("gradeStudyCardReview", () => {
       ],
       correctTokenIds: ["b", "a"],
     })!;
-    expect(gradeStudyCardReview("ignored", ex, { mode: "reorder", reorderTokenIds: ["b", "a"] })).toBe(true);
-    expect(gradeStudyCardReview("ignored", ex, { mode: "reorder", reorderTokenIds: ["a", "b"] })).toBe(false);
+    expect(
+      gradeStudyCardReview({ frontJa: "", backEn: "ignored" }, ex, {
+        mode: "reorder",
+        reorderTokenIds: ["b", "a"],
+      }),
+    ).toBe(true);
+    expect(
+      gradeStudyCardReview({ frontJa: "", backEn: "ignored" }, ex, {
+        mode: "reorder",
+        reorderTokenIds: ["a", "b"],
+      }),
+    ).toBe(false);
   });
 
   it("grades multi-step with per-step canonical", () => {
@@ -48,7 +76,7 @@ describe("gradeStudyCardReview", () => {
       ],
     })!;
     expect(
-      gradeStudyCardReview("ignored", ex, {
+      gradeStudyCardReview({ frontJa: "", backEn: "ignored" }, ex, {
         mode: "multi_step",
         multiStepAnswers: ["Short answer.", "Longer expanded answer."],
       }),

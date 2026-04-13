@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { mapBookingApiError } from "@/lib/booking-errors";
 import { useRouter } from "@/i18n/navigation";
 import { canShowManualOverrideToggle } from "@/lib/manual-override";
-import { buildMonthCells, buildWeekDays, dayKeyFromIso, groupSlotsByDay } from "@/lib/slot-calendar";
+import {
+  buildMonthCells,
+  buildWeekDays,
+  buildWeekdayColumnHeaders,
+  dayKeyFromIso,
+  groupSlotsByDay,
+} from "@/lib/slot-calendar";
 import { CalendarViewControls } from "@/components/calendar-view-controls";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
 type LessonProductOption = {
@@ -30,6 +36,7 @@ export function BookingForm({
   currentUserRole = "STUDENT",
   presetSlots,
 }: Props) {
+  const locale = useLocale();
   const t = useTranslations("booking");
   const router = useRouter();
   const [products, setProducts] = useState<LessonProductOption[]>([]);
@@ -43,11 +50,12 @@ export function BookingForm({
   );
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const groupedSlots = groupSlotsByDay(presetSlots ?? []);
+  const groupedSlots = groupSlotsByDay(presetSlots ?? [], locale);
   const slotMap = new Map(groupedSlots.map((group) => [group.dayKey, group.slots]));
   const selectedDayKey = startsAt ? dayKeyFromIso(startsAt) : "";
-  const weekDays = buildWeekDays(calendarAnchor);
-  const monthCells = buildMonthCells(calendarAnchor);
+  const weekDays = buildWeekDays(calendarAnchor, locale);
+  const monthCells = buildMonthCells(calendarAnchor, locale);
+  const monthWeekdayHeaders = useMemo(() => buildWeekdayColumnHeaders(locale), [locale]);
 
   useEffect(() => {
     void fetch("/api/lesson-products")
@@ -68,15 +76,15 @@ export function BookingForm({
   function dayLabel() {
     const d = new Date(calendarAnchor);
     if (calendarView === "month") {
-      return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+      return d.toLocaleDateString(locale, { month: "long", year: "numeric" });
     }
     if (calendarView === "week") {
       const from = weekDays[0]?.dayKey ? new Date(`${weekDays[0].dayKey}T00:00:00`) : null;
       const to = weekDays[6]?.dayKey ? new Date(`${weekDays[6].dayKey}T00:00:00`) : null;
       if (!from || !to) return "";
-      return `${from.toLocaleDateString(undefined, { month: "short", day: "numeric" })} - ${to.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`;
+      return `${from.toLocaleDateString(locale, { month: "short", day: "numeric" })} - ${to.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`;
     }
-    return d.toLocaleDateString(undefined, {
+    return d.toLocaleDateString(locale, {
       weekday: "long",
       month: "short",
       day: "numeric",
@@ -171,7 +179,7 @@ export function BookingForm({
               </div>
               <div className="mb-3 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700">
                 {startsAt
-                  ? `${t("selectedSlot")}: ${new Date(startsAt).toLocaleString(undefined, {
+                  ? `${t("selectedSlot")}: ${new Date(startsAt).toLocaleString(locale, {
                       weekday: "short",
                       month: "short",
                       day: "numeric",
@@ -202,7 +210,7 @@ export function BookingForm({
                             }`}
                           >
                             <span className="font-medium">
-                              {new Date(slot.startsAtIso).toLocaleTimeString([], {
+                              {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
@@ -233,7 +241,7 @@ export function BookingForm({
                           }`}
                         >
                           <p className="mb-2 border-b border-zinc-200 pb-1 text-xs font-semibold text-zinc-500">
-                            {day.shortLabel.toUpperCase()} {dayDate.getDate()}
+                            {day.shortLabel} {dayDate.getDate()}
                           </p>
                           <div className="space-y-1">
                             {daySlots.slice(0, 5).map((slot) => {
@@ -254,7 +262,7 @@ export function BookingForm({
                                   aria-pressed={selected}
                                 >
                                   <span className="whitespace-nowrap font-medium">
-                                    {new Date(slot.startsAtIso).toLocaleTimeString([], {
+                                    {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                                       hour: "2-digit",
                                       minute: "2-digit",
                                     })}
@@ -277,10 +285,10 @@ export function BookingForm({
               {calendarView === "month" && (
                 <>
                   <div className="mb-2 grid grid-cols-7 gap-1">
-                    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+                    {monthWeekdayHeaders.map((day, index) => (
                       <p
-                        key={day}
-                        className="text-center text-[11px] font-semibold uppercase tracking-wide text-zinc-500"
+                        key={`${day}-${index}`}
+                        className="text-center text-[11px] font-semibold text-zinc-500"
                       >
                         {day}
                       </p>

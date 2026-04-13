@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { CalendarViewControls } from "@/components/calendar-view-controls";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
-import { buildMonthCells, buildWeekDays, dayKeyFromIso } from "@/lib/slot-calendar";
+import { buildMonthCells, buildWeekDays, buildWeekdayColumnHeaders, dayKeyFromIso } from "@/lib/slot-calendar";
 
 type DashboardScheduleItem = {
   id: string;
@@ -19,6 +19,7 @@ type Props = {
 };
 
 export function DashboardScheduleCalendar({ items }: Props) {
+  const locale = useLocale();
   const t = useTranslations("dashboard");
   const [view, setView] = useState<CalendarViewMode>("week");
   const [anchorIso, setAnchorIso] = useState(items[0]?.startsAtIso ?? new Date().toISOString());
@@ -39,15 +40,16 @@ export function DashboardScheduleCalendar({ items }: Props) {
 
   const anchor = new Date(anchorIso);
   const anchorKey = dayKeyFromIso(anchorIso);
-  const weekDays = buildWeekDays(anchorIso);
-  const monthCells = buildMonthCells(anchorIso);
+  const weekDays = buildWeekDays(anchorIso, locale);
+  const monthCells = buildMonthCells(anchorIso, locale);
+  const monthWeekdayHeaders = useMemo(() => buildWeekdayColumnHeaders(locale), [locale]);
 
   const label =
     view === "month"
-      ? anchor.toLocaleDateString(undefined, { month: "long", year: "numeric" })
+      ? anchor.toLocaleDateString(locale, { month: "long", year: "numeric" })
       : view === "week"
-        ? `${new Date(`${weekDays[0].dayKey}T00:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" })} - ${new Date(`${weekDays[6].dayKey}T00:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`
-        : anchor.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", year: "numeric" });
+        ? `${new Date(`${weekDays[0].dayKey}T00:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric" })} - ${new Date(`${weekDays[6].dayKey}T00:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`
+        : anchor.toLocaleDateString(locale, { weekday: "long", month: "short", day: "numeric", year: "numeric" });
 
   return (
     <section className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
@@ -78,8 +80,8 @@ export function DashboardScheduleCalendar({ items }: Props) {
             >
               <p className="text-sm font-semibold text-zinc-900">{item.title}</p>
               <p className="text-xs text-zinc-600">
-                {new Date(item.startsAtIso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} -{" "}
-                {new Date(item.endsAtIso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} ·{" "}
+                {new Date(item.startsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })} -{" "}
+                {new Date(item.endsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })} ·{" "}
                 {item.teacherName}
               </p>
             </a>
@@ -102,7 +104,7 @@ export function DashboardScheduleCalendar({ items }: Props) {
               return (
                 <div key={key} className="min-w-[100px] rounded-lg border border-zinc-200 bg-white p-2">
                   <p className="mb-2 border-b border-zinc-200 pb-1 text-xs font-semibold text-zinc-500">
-                    {day.shortLabel.toUpperCase()} {date.getDate()}
+                    {day.shortLabel} {date.getDate()}
                   </p>
                   <div className="space-y-1">
                     {dayItems.slice(0, 4).map((item) => (
@@ -111,7 +113,7 @@ export function DashboardScheduleCalendar({ items }: Props) {
                         href={`#booking-${item.id}`}
                         className="block rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs text-zinc-800 hover:bg-zinc-100"
                       >
-                        {new Date(item.startsAtIso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(item.startsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
                       </a>
                     ))}
                     {dayItems.length === 0 && (
@@ -130,8 +132,8 @@ export function DashboardScheduleCalendar({ items }: Props) {
       {view === "month" && (
         <>
           <div className="mb-2 grid grid-cols-7 gap-1">
-            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-              <p key={d} className="text-center text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+            {monthWeekdayHeaders.map((d, index) => (
+              <p key={`${d}-${index}`} className="text-center text-[11px] font-semibold text-zinc-500">
                 {d}
               </p>
             ))}
