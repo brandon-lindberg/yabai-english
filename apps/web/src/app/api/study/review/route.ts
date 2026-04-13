@@ -13,14 +13,38 @@ import {
   studyAccuracyPercent,
   type StudyCardPerformanceSlice,
 } from "@/lib/study/study-card-analytics";
-import { answersMatch, nextDueAtAfterQuiz, xpForMcq } from "@/lib/study/quiz";
+import {
+  correctAnswerForDisplay,
+  gradeStudyCardReview,
+  parseStudyCardExercise,
+  type StudyReviewPayload,
+} from "@/lib/study/card-exercise";
+import { nextDueAtAfterQuiz, xpForMcq } from "@/lib/study/quiz";
 import { z } from "zod";
 
 const bodySchema = z.object({
   cardId: z.string().min(1),
-  chosenAnswer: z.string(),
+  chosenAnswer: z.string().optional(),
+  reorderTokenIds: z.array(z.string()).optional(),
+  multiStepAnswers: z.array(z.string()).optional(),
   answerTimeMs: z.number().int().min(0).max(300_000).optional(),
 });
+
+function buildReviewPayload(
+  exercise: ReturnType<typeof parseStudyCardExercise>,
+  body: z.infer<typeof bodySchema>,
+): StudyReviewPayload | null {
+  if (!exercise) {
+    if (body.chosenAnswer == null || body.chosenAnswer.trim() === "") return null;
+    return { mode: "mcq", chosenAnswer: body.chosenAnswer };
+  }
+  if (exercise.kind === "reorder") {
+    if (!body.reorderTokenIds?.length) return null;
+    return { mode: "reorder", reorderTokenIds: body.reorderTokenIds };
+  }
+  if (!body.multiStepAnswers || body.multiStepAnswers.length !== exercise.steps.length) return null;
+  return { mode: "multi_step", multiStepAnswers: body.multiStepAnswers };
+}
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -48,7 +72,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Level locked" }, { status: 403 });
   }
 
-  const correct = answersMatch(parsed.data.chosenAnswer, card.backEn);
+  const exercise = parseStudyCardExercise(card.exerciseJson);
+  const payload = buildReviewPayload(exercise, parsed.data);
+  if (!payload) {
+    return NextResponse.json({ error: "Invalid review payload for this card" }, { status: 400 });
+  }
+  const correct = gradeStudyCardReview(card.backEn, exercise, payload);
   const xpGain = xpForMcq(correct);
   const now = new Date();
 
@@ -146,7 +175,7 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     correct,
-    correctAnswer: card.backEn,
+    correctAnswer: correctAnswerForDisplay(card.backEn, exercise),
     xpGained: xpGain,
     levelXp: result.xp,
     masteryScore,

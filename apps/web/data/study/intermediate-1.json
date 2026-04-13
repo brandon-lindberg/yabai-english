@@ -1,0 +1,2549 @@
+{
+  "version": 1,
+  "levelCode": "INTERMEDIATE_1",
+  "decks": [
+    {
+      "id": "study-i1-deck-0",
+      "titleJa": "現在・過去・未来",
+      "titleEn": "Present, Past & Future",
+      "sortOrder": 0,
+      "cards": [
+        {
+          "id": "study-i1-d0-c0",
+          "frontJa": "Complete B (present habit). A: Do you walk to work?\nB: Yes, ___",
+          "backEn": "I walk to work every day.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d0-c1",
+          "frontJa": "Past: Last night I ___ (not finish) my homework.\nChoose the best sentence.",
+          "backEn": "I didn't finish my homework last night.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d0-c2",
+          "frontJa": "Future: Choose the best plan sentence.\nWe're ___ dinner at my place on Saturday.",
+          "backEn": "We're going to have dinner at my place on Saturday.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d0-c3",
+          "frontJa": "Translate: 毎朝シャワーを浴びます。",
+          "backEn": "I take a shower every morning.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d0-c4",
+          "frontJa": "Choose the best past sentence.\nShe ___ in London for two years. (live — past)",
+          "backEn": "She lived in London for two years.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d0-c5",
+          "frontJa": "Present vs future: I ___ my aunt tomorrow afternoon. (visit — plan with \"going to\")",
+          "backEn": "I'm going to visit my aunt tomorrow afternoon.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d0-c6",
+          "frontJa": "Translate: 昨日は忙しかった。",
+          "backEn": "I was busy yesterday.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d0-c7",
+          "frontJa": "Pick the natural present simple line.\nWater ___ at 100°C at sea level.",
+          "backEn": "Water boils at 100°C at sea level.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d0-c8",
+          "frontJa": "Complete: By 2030, many cities ___ more electric buses. (use — future with will)",
+          "backEn": "By 2030, many cities will use more electric buses.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d0-c9",
+          "frontJa": "Translate: 今週末、映画を見るつもりです。",
+          "backEn": "I'm going to watch a movie this weekend.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d0-c10",
+          "frontJa": "Past question: ___ you ___ the email yesterday? (send)\nAnswer as a full question.",
+          "backEn": "Did you send the email yesterday?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d0-c11",
+          "frontJa": "Present continuous for arrangement: I ___ my dentist on Tuesday at 3. (see)",
+          "backEn": "I'm seeing my dentist on Tuesday at 3.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d0-c12",
+          "frontJa": "Translate: 彼はもう昼ご飯を食べました。",
+          "backEn": "He has already eaten lunch.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d0-c13",
+          "frontJa": "Simple future (will) for instant decision: A: I'm cold.\nB: I ___ you my jacket.",
+          "backEn": "I'll lend you my jacket.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d0-c14",
+          "frontJa": "Past habit (used to): When I was a child, I ___ afraid of dogs.",
+          "backEn": "When I was a child, I was afraid of dogs.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d0-c15",
+          "frontJa": "Translate: 来月から新しい仕事を始めます。",
+          "backEn": "I'm starting a new job next month.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d0-c16",
+          "frontJa": "Choose the best sentence.\nThey ___ to Japan three times so far. (travel — present perfect)",
+          "backEn": "They have traveled to Japan three times so far.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d0-c17",
+          "frontJa": "Future with time clause: After I ___ dinner, I'll call you. (finish — present after \"After I\")",
+          "backEn": "After I finish dinner, I'll call you.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d0-c18",
+          "frontJa": "Translate: 彼女は昨夜遅くまで働いていました。",
+          "backEn": "She was working late last night.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d0-c19",
+          "frontJa": "Mixed: I ___ English since 2020, and I still practice every week. (study)",
+          "backEn": "I have studied English since 2020, and I still practice every week.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d0-c20",
+          "frontJa": "Two-step practice (English only).\n\nComplete both steps — you will submit after step 2.",
+          "backEn": "I'm planning to see my mother next Friday evening.",
+          "sortOrder": 20,
+          "exercise": {
+            "kind": "multi_step",
+            "steps": [
+              {
+                "prompt": "Step 1 — translate into natural English:\n来週の金曜日、母に会う予定です。",
+                "canonical": "I'm going to see my mother next Friday."
+              },
+              {
+                "prompt": "Step 2 — add a time of day (\"evening\") and keep the sentence natural.\nWrite your final English sentence.",
+                "canonical": "I'm planning to see my mother next Friday evening."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-1",
+      "titleJa": "経験（have done）",
+      "titleEn": "Experience (have / has done)",
+      "sortOrder": 1,
+      "cards": [
+        {
+          "id": "study-i1-d1-c0",
+          "frontJa": "Make a natural sentence: experience + place\n(you / ever / be / to / Osaka?)",
+          "backEn": "Have you ever been to Osaka?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d1-c1",
+          "frontJa": "Translate: 寿司を食べたことがありません。",
+          "backEn": "I have never tried sushi.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d1-c2",
+          "frontJa": "Experience with \"already\": She ___ her ticket. (buy — present perfect)",
+          "backEn": "She has already bought her ticket.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d1-c3",
+          "frontJa": "Translate: その映画をもう見ましたか？",
+          "backEn": "Have you seen that movie yet?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d1-c4",
+          "frontJa": "Negative experience: I ___ that app before. (not use — present perfect)",
+          "backEn": "I haven't used that app before.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d1-c5",
+          "frontJa": "Translate: 彼は海外に行ったことがあります。",
+          "backEn": "He has been abroad before.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d1-c6",
+          "frontJa": "Question: How many countries ___ you ___? (visit — present perfect)",
+          "backEn": "How many countries have you visited?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d1-c7",
+          "frontJa": "Translate: 私は一度もスキーをしたことがありません。",
+          "backEn": "I have never been skiing.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d1-c8",
+          "frontJa": "Since + point in time: We ___ here since Monday. (wait — present perfect continuous acceptable; use present perfect)",
+          "backEn": "We have waited here since Monday.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d1-c9",
+          "frontJa": "Translate: 彼女はその本を読み終えています。",
+          "backEn": "She has finished reading that book.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d1-c10",
+          "frontJa": "Have you ever ___ Japanese curry at home? (make)",
+          "backEn": "Have you ever made Japanese curry at home?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d1-c11",
+          "frontJa": "Translate: まだ昼食を食べていません。",
+          "backEn": "I haven't eaten lunch yet.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d1-c12",
+          "frontJa": "Experience + superlative: This is the best ramen I ___ . (ever / taste)",
+          "backEn": "This is the best ramen I have ever tasted.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d1-c13",
+          "frontJa": "Translate: 彼らは富士山に登ったことがあります。",
+          "backEn": "They have climbed Mount Fuji before.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d1-c14",
+          "frontJa": "Short answer style: A: Have you tried matcha?\nB: Yes, ___ . (I / try / it)",
+          "backEn": "Yes, I have tried it.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d1-c15",
+          "frontJa": "Translate: そのニュースを聞いたことがありますか？",
+          "backEn": "Have you heard that news before?",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d1-c16",
+          "frontJa": "Present perfect result: I ___ my keys. I can't open the door. (lose)",
+          "backEn": "I have lost my keys. I can't open the door.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d1-c17",
+          "frontJa": "Translate: 私は東京に住んだことがあります。",
+          "backEn": "I have lived in Tokyo before.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d1-c18",
+          "frontJa": "Ever + present perfect: ___ you ever ___ a speech in public? (give)",
+          "backEn": "Have you ever given a speech in public?",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d1-c19",
+          "frontJa": "Translate: 彼はまだ返事を書いていません。",
+          "backEn": "He hasn't written a reply yet.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d1-c20",
+          "frontJa": "Experience paragraph starter: I've ___ a lot of interesting people at work. (meet)",
+          "backEn": "I've met a lot of interesting people at work.",
+          "sortOrder": 20
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-2",
+      "titleJa": "つなぎ言葉（and / but / so / because）",
+      "titleEn": "Basic connectors (and, but, so, because)",
+      "sortOrder": 2,
+      "cards": [
+        {
+          "id": "study-i1-d2-c0",
+          "frontJa": "Join with \"but\": It was raining. We still went hiking.",
+          "backEn": "It was raining, but we still went hiking.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d2-c1",
+          "frontJa": "Join with \"so\": I was tired. I went to bed early.",
+          "backEn": "I was tired, so I went to bed early.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d2-c2",
+          "frontJa": "Join with \"because\": She stayed home. She felt sick.",
+          "backEn": "She stayed home because she felt sick.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d2-c3",
+          "frontJa": "Translate: コーヒーが欲しいです。とても眠いです。",
+          "backEn": "I want coffee because I'm very sleepy.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d2-c4",
+          "frontJa": "Use \"and\" naturally: I bought milk. I bought eggs.",
+          "backEn": "I bought milk and eggs.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d2-c5",
+          "frontJa": "Translate: 安かったので、二つ買いました。",
+          "backEn": "It was cheap, so I bought two.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d2-c6",
+          "frontJa": "Choose the best sentence.\nHe likes sports, ___ he doesn't like running.",
+          "backEn": "He likes sports, but he doesn't like running.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d2-c7",
+          "frontJa": "Translate: 遅刻しました。バスが来なかったので。",
+          "backEn": "I was late because the bus didn't come.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d2-c8",
+          "frontJa": "Because vs so: I left early. There was heavy traffic.\nUse \"because\" in one sentence.",
+          "backEn": "I left early because there was heavy traffic.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d2-c9",
+          "frontJa": "Translate: 彼は勉強しました。そして試験に合格しました。",
+          "backEn": "He studied, and he passed the exam.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d2-c10",
+          "frontJa": "Fix the logic with a better connector.\nI was hungry, because I ate a sandwich. (rewrite)",
+          "backEn": "I was hungry, so I ate a sandwich.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d2-c11",
+          "frontJa": "Translate: 雨が降っていたが、試合は続いた。",
+          "backEn": "It was raining, but the game continued.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d2-c12",
+          "frontJa": "Combine: She speaks quietly. Everyone listens carefully.",
+          "backEn": "She speaks quietly, so everyone listens carefully.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d2-c13",
+          "frontJa": "Translate: 彼は忙しいので、今夜は来られません。",
+          "backEn": "He's busy, so he can't come tonight.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d2-c14",
+          "frontJa": "Use two clauses: I like this cafe. The staff are friendly.",
+          "backEn": "I like this cafe because the staff are friendly.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d2-c15",
+          "frontJa": "Translate: 私は泳げます。しかし、深い水は怖いです。",
+          "backEn": "I can swim, but I'm afraid of deep water.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d2-c16",
+          "frontJa": "Choose: I forgot my umbrella, ___ I bought a cheap one at the store.",
+          "backEn": "I forgot my umbrella, so I bought a cheap one at the store.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d2-c17",
+          "frontJa": "Translate: 彼女は疲れていたので、早く寝ました。",
+          "backEn": "She was tired, so she went to bed early.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d2-c18",
+          "frontJa": "Polite short reply: A: Want to grab lunch?\nB: I'd love to, ___ I'm in a meeting until 1.",
+          "backEn": "I'd love to, but I'm in a meeting until 1.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d2-c19",
+          "frontJa": "Translate: 彼は親切だ。そしてとても頼りになる。",
+          "backEn": "He is kind, and he is very reliable.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d2-c20",
+          "frontJa": "Because-clause first: ___ I left my charger at home, my phone died.",
+          "backEn": "Because I left my charger at home, my phone died.",
+          "sortOrder": 20
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-3",
+      "titleJa": "質問の形（How long… / How often…）",
+      "titleEn": "Expanded questions (How long…?, How often…?)",
+      "sortOrder": 3,
+      "cards": [
+        {
+          "id": "study-i1-d3-c0",
+          "frontJa": "Ask about duration: You live in Sapporo.\nStart with \"How long...\"",
+          "backEn": "How long have you lived in Sapporo?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d3-c1",
+          "frontJa": "Ask about frequency: I go to the gym on Mondays and Thursdays.\nStart with \"How often...\"",
+          "backEn": "How often do you go to the gym?",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d3-c2",
+          "frontJa": "Translate: どのくらいの間、英語を勉強していますか？",
+          "backEn": "How long have you been studying English?",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d3-c3",
+          "frontJa": "Natural follow-up: A: I started yoga last month.\nB: ___ do you practice each week?",
+          "backEn": "How often do you practice each week?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d3-c4",
+          "frontJa": "Translate: ここに来てからどのくらいですか？",
+          "backEn": "How long have you been here?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d3-c5",
+          "frontJa": "Choose the best question.\n___ does it take to get to the airport by train?",
+          "backEn": "How long does it take to get to the airport by train?",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d3-c6",
+          "frontJa": "Translate: どのくらいの頻度でニュースを見ますか？",
+          "backEn": "How often do you watch the news?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d3-c7",
+          "frontJa": "How long + present perfect continuous: ___ you ___ this book? (read — question)",
+          "backEn": "How long have you been reading this book?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d3-c8",
+          "frontJa": "Translate: その仕事を始めてからどれくらいですか？",
+          "backEn": "How long have you had that job?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d3-c9",
+          "frontJa": "How often + simple present: ___ you ___ your grandparents? (visit)",
+          "backEn": "How often do you visit your grandparents?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d3-c10",
+          "frontJa": "Translate: 会議はどのくらい続きますか？",
+          "backEn": "How long will the meeting last?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d3-c11",
+          "frontJa": "Ask politely: You look tired.\nAsk how long they slept.",
+          "backEn": "How long did you sleep?",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d3-c12",
+          "frontJa": "Translate: 週に何回走りますか？",
+          "backEn": "How many times a week do you run?",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d3-c13",
+          "frontJa": "How long for future wait: ___ will we have to wait?",
+          "backEn": "How long will we have to wait?",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d3-c14",
+          "frontJa": "Translate: どのくらいの間、その痛みがありますか？",
+          "backEn": "How long have you had that pain?",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d3-c15",
+          "frontJa": "Ask about frequency of being late: ___ are you late to class?",
+          "backEn": "How often are you late to class?",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d3-c16",
+          "frontJa": "Translate: どのくらいの間、彼を知っていますか？",
+          "backEn": "How long have you known him?",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d3-c17",
+          "frontJa": "Choose: ___ do you clean your room — every day or once a week?",
+          "backEn": "How often do you clean your room — every day or once a week?",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d3-c18",
+          "frontJa": "Translate: その列に並んでからどれくらいですか？",
+          "backEn": "How long have you been standing in this line?",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d3-c19",
+          "frontJa": "Small talk: A: I commute by bike.\nB: ___ is your commute?",
+          "backEn": "How long is your commute?",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d3-c20",
+          "frontJa": "Translate: 月に何回映画を見ますか？",
+          "backEn": "How many times a month do you watch movies?",
+          "sortOrder": 20
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-4",
+      "titleJa": "人の描写",
+      "titleEn": "Describing people",
+      "sortOrder": 4,
+      "cards": [
+        {
+          "id": "study-i1-d4-c0",
+          "frontJa": "Describe personality: She always helps new coworkers.\nOne sentence with \"kind\" or \"helpful\".",
+          "backEn": "She is very helpful.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d4-c1",
+          "frontJa": "Translate: 彼はとても社交的で、すぐに友達を作ります。",
+          "backEn": "He is very outgoing and makes friends easily.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d4-c2",
+          "frontJa": "Appearance: tall, short dark hair, glasses\nWrite one sentence.",
+          "backEn": "He is tall and has short dark hair and glasses.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d4-c3",
+          "frontJa": "Translate: 彼女は静かだけど、とても頭がいい。",
+          "backEn": "She is quiet, but very smart.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d4-c4",
+          "frontJa": "Polite description for a teacher: strict ___ fair",
+          "backEn": "Our teacher is strict but fair.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d4-c5",
+          "frontJa": "Translate: 彼はいつも笑顔で、ポジティブな人だ。",
+          "backEn": "He always smiles; he is a positive person.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d4-c6",
+          "frontJa": "Use \"looks\": She ___ tired today.",
+          "backEn": "She looks tired today.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d4-c7",
+          "frontJa": "Translate: 彼女は背が高くて、モデルのようだ。",
+          "backEn": "She is tall and looks like a model.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d4-c8",
+          "frontJa": "Describe a friend: loyal + funny\nOne sentence with \"and\".",
+          "backEn": "My friend is loyal and funny.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d4-c9",
+          "frontJa": "Translate: 彼は少し恥ずかしがり屋だが、優しい。",
+          "backEn": "He is a little shy, but kind.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d4-c10",
+          "frontJa": "Adjective order (simple): a ___ ___ coat (small / warm)",
+          "backEn": "a small warm coat",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d4-c11",
+          "frontJa": "Translate: 彼女は声が大きくて、リーダー向きだ。",
+          "backEn": "She has a loud voice; she is good at leading.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d4-c12",
+          "frontJa": "Personality vs mood: He isn't rude; he ___ just stressed today.",
+          "backEn": "He isn't rude; he is just stressed today.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d4-c13",
+          "frontJa": "Translate: 彼は真剣な顔つきをしているが、冗談が好きだ。",
+          "backEn": "He looks serious, but he likes jokes.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d4-c14",
+          "frontJa": "Compliment: Your sister is really creative.\nReply with a short agreement + detail.",
+          "backEn": "I agree — she is really creative.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d4-c15",
+          "frontJa": "Translate: 彼女はとても忍耐強い母親だ。",
+          "backEn": "She is a very patient mother.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d4-c16",
+          "frontJa": "Describe someone you admire: hard-working\nOne sentence.",
+          "backEn": "My boss is extremely hard-working.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d4-c17",
+          "frontJa": "Translate: 彼は細身で、走るのが速い。",
+          "backEn": "He is slim and runs fast.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d4-c18",
+          "frontJa": "Use \"seems\": He ___ a bit nervous before presentations.",
+          "backEn": "He seems a bit nervous before presentations.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d4-c19",
+          "frontJa": "Translate: その店員さんは丁寧で親切だった。",
+          "backEn": "The clerk was polite and kind.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d4-c20",
+          "frontJa": "Compare two friends: One is calm; the other is energetic.\nOne sentence with \"while\" or \"but\".",
+          "backEn": "One friend is calm, while the other is energetic.",
+          "sortOrder": 20
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-5",
+      "titleJa": "日常の場面",
+      "titleEn": "Daily situations",
+      "sortOrder": 5,
+      "cards": [
+        {
+          "id": "study-i1-d5-c0",
+          "frontJa": "At a café: You want a medium hot latte to go.\nOne natural sentence.",
+          "backEn": "Can I get a medium hot latte to go, please?",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d5-c1",
+          "frontJa": "A: What would you like to drink?\nB: ___ (water / please)",
+          "backEn": "Water, please.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d5-c2",
+          "frontJa": "Translate: お会計をお願いします。",
+          "backEn": "The check, please.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d5-c3",
+          "frontJa": "Making plans: Suggest Saturday afternoon for a museum.\nOne sentence.",
+          "backEn": "Are you free Saturday afternoon to go to the museum?",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d5-c4",
+          "frontJa": "Translate: 今夜、一緒に夕食を食べませんか？",
+          "backEn": "Would you like to have dinner together tonight?",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d5-c5",
+          "frontJa": "Phone call: You answer and identify yourself.\nWrite what you say.",
+          "backEn": "Hello, this is Ken speaking.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d5-c6",
+          "frontJa": "Translate: すみません、メニューを見せてください。",
+          "backEn": "Excuse me, could I see the menu, please?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d5-c7",
+          "frontJa": "At a store: Ask if they have this shirt in a larger size.",
+          "backEn": "Do you have this shirt in a larger size?",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d5-c8",
+          "frontJa": "Translate: 予約はできますか？",
+          "backEn": "Can I make a reservation?",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d5-c9",
+          "frontJa": "Train station: Ask which platform for the express to Osaka.",
+          "backEn": "Which platform is the express train to Osaka?",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d5-c10",
+          "frontJa": "Translate: 荷物を預けられますか？",
+          "backEn": "Can I leave my luggage here?",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d5-c11",
+          "frontJa": "Apartment issue: Tell the manager your AC is not working.",
+          "backEn": "The air conditioner in my apartment isn't working.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d5-c12",
+          "frontJa": "Translate: すみません、道に迷いました。",
+          "backEn": "Excuse me, I'm lost.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d5-c13",
+          "frontJa": "Invite politely: movie + Friday evening\nOne sentence.",
+          "backEn": "Would you like to see a movie on Friday evening?",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d5-c14",
+          "frontJa": "Translate: テーブルは二人です。",
+          "backEn": "A table for two, please.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d5-c15",
+          "frontJa": "Doctor: Describe mild symptom + duration\nOne sentence.",
+          "backEn": "I've had a sore throat for two days.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d5-c16",
+          "frontJa": "Translate: もう少し待っていただけますか？",
+          "backEn": "Could you wait a little longer, please?",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d5-c17",
+          "frontJa": "Hotel: Ask for a wake-up call at 6:30 a.m.",
+          "backEn": "Could I have a wake-up call at 6:30 a.m., please?",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d5-c18",
+          "frontJa": "Translate: この席、空いていますか？",
+          "backEn": "Is this seat taken?",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d5-c19",
+          "frontJa": "Friend running late: Ask how long they will be.\nOne message sentence.",
+          "backEn": "How long will you be?",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d5-c20",
+          "frontJa": "Return item: The shoes hurt your feet; you want a refund.\nOne polite sentence.",
+          "backEn": "I'd like to return these shoes for a refund, please.",
+          "sortOrder": 20
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-6",
+      "titleJa": "助動詞（can / must / should）",
+      "titleEn": "Modal verbs (can, must, should)",
+      "sortOrder": 6,
+      "cards": [
+        {
+          "id": "study-i1-d6-c0",
+          "frontJa": "Advice: Your friend is stressed before an exam.\nOne sentence with \"should\".",
+          "backEn": "You should take a short break and breathe.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d6-c1",
+          "frontJa": "Translate: ここでは写真を撮ってはいけません。",
+          "backEn": "You must not take photos here.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d6-c2",
+          "frontJa": "Ability: She ___ three languages fluently. (speak — can)",
+          "backEn": "She can speak three languages fluently.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d6-c3",
+          "frontJa": "Translate: もっと水を飲むべきです。",
+          "backEn": "You should drink more water.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d6-c4",
+          "frontJa": "Strong obligation: Visitors ___ their IDs at the gate.",
+          "backEn": "Visitors must show their IDs at the gate.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d6-c5",
+          "frontJa": "Translate: 明日までにこれを終えなければなりません。",
+          "backEn": "I must finish this by tomorrow.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d6-c6",
+          "frontJa": "Polite request: open the window (can/could)\nOne sentence.",
+          "backEn": "Could you open the window, please?",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d6-c7",
+          "frontJa": "Translate: 彼は泳げますが、深いプールは苦手です。",
+          "backEn": "He can swim, but he doesn't like deep pools.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d6-c8",
+          "frontJa": "Soft advice: You look sick.\nUse \"should\".",
+          "backEn": "You should see a doctor.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d6-c9",
+          "frontJa": "Translate: ここでタバコを吸ってはいけません。",
+          "backEn": "You can't smoke here.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d6-c10",
+          "frontJa": "Prohibition sign meaning: Employees ___ food in the lab.",
+          "backEn": "Employees must not eat food in the lab.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d6-c11",
+          "frontJa": "Translate: 早めに出発した方がいいですよ。",
+          "backEn": "You should leave earlier.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d6-c12",
+          "frontJa": "Ability question: ___ you ___ me tomorrow? (help)",
+          "backEn": "Can you help me tomorrow?",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d6-c13",
+          "frontJa": "Translate: その書類に署名しなければなりません。",
+          "backEn": "You must sign that document.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d6-c14",
+          "frontJa": "Should vs must (nuance): For health, you ___ brush your teeth twice a day. (strong habit rule)",
+          "backEn": "You should brush your teeth twice a day.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d6-c15",
+          "frontJa": "Translate: そのドアは開かないかもしれません。",
+          "backEn": "That door might not open.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d6-c16",
+          "frontJa": "Permission: ___ I sit here?",
+          "backEn": "May I sit here?",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d6-c17",
+          "frontJa": "Translate: 試験では電卓を使ってはいけません。",
+          "backEn": "You must not use a calculator on the exam.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d6-c18",
+          "frontJa": "Suggestion: It's raining hard.\nOne sentence with \"should\".",
+          "backEn": "You should take an umbrella.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d6-c19",
+          "frontJa": "Translate: 彼女はピアノを弾けます。",
+          "backEn": "She can play the piano.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d6-c20",
+          "frontJa": "Obligation past: I ___ leave early yesterday. (have to)",
+          "backEn": "I had to leave early yesterday.",
+          "sortOrder": 20
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-7",
+      "titleJa": "理由を言う",
+      "titleEn": "Giving reasons",
+      "sortOrder": 7,
+      "cards": [
+        {
+          "id": "study-i1-d7-c0",
+          "frontJa": "Opinion + reason: I like this neighborhood ___ it's quiet.",
+          "backEn": "I like this neighborhood because it's quiet.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d7-c1",
+          "frontJa": "Translate: 遅れたのは、電車が止まったからです。",
+          "backEn": "I'm late because the train stopped.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d7-c2",
+          "frontJa": "Polite excuse: You can't attend a party.\nMention work + one clause with because",
+          "backEn": "I can't come because I have to work late.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d7-c3",
+          "frontJa": "Translate: 彼は疲れているので、家で休みたいと言った。",
+          "backEn": "He said he wants to rest at home because he's tired.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d7-c4",
+          "frontJa": "Reason with \"so\": It was noisy, ___ I closed the window.",
+          "backEn": "It was noisy, so I closed the window.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d7-c5",
+          "frontJa": "Translate: 私がその仕事を引き受けたのは、経験を積みたいからです。",
+          "backEn": "I took the job because I want to gain experience.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d7-c6",
+          "frontJa": "Because + noun phrase: I'm learning English ___ my career.",
+          "backEn": "I'm learning English for my career.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d7-c7",
+          "frontJa": "Translate: 彼女はお金を節約したいので、外食を減らした。",
+          "backEn": "She cut down on eating out because she wants to save money.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d7-c8",
+          "frontJa": "Answer why: A: Why did you choose this hotel?\nB: ___ (good reviews)",
+          "backEn": "Because it had good reviews.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d7-c9",
+          "frontJa": "Translate: 雨が降っていたので、試合は中止になった。",
+          "backEn": "The game was canceled because it was raining.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d7-c10",
+          "frontJa": "Two reasons: I'm tired ___ I didn't sleep well ___ I worked a double shift.",
+          "backEn": "I'm tired because I didn't sleep well and I worked a double shift.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d7-c11",
+          "frontJa": "Translate: そのレストランが好きなのは、料理が新鮮だからです。",
+          "backEn": "I like that restaurant because the food is fresh.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d7-c12",
+          "frontJa": "Explain preference: I prefer tea ___ it helps me relax.",
+          "backEn": "I prefer tea because it helps me relax.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d7-c13",
+          "frontJa": "Translate: 彼は忙しかったので、メールにすぐ返信できなかった。",
+          "backEn": "He couldn't reply to the email quickly because he was busy.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d7-c14",
+          "frontJa": "Because-clause first: ___ the traffic was bad, we missed the start.",
+          "backEn": "Because the traffic was bad, we missed the start.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d7-c15",
+          "frontJa": "Translate: 私が早退したのは、子供が病気だったからです。",
+          "backEn": "I left early because my child was sick.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d7-c16",
+          "frontJa": "Give a reason for being late (one sentence): missed the bus",
+          "backEn": "I'm late because I missed the bus.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d7-c17",
+          "frontJa": "Translate: 彼は練習したので、上手になった。",
+          "backEn": "He improved because he practiced.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d7-c18",
+          "frontJa": "Reason with \"since\": Since it's your first day, ___ . (be gentle — use \"we\" or \"I'll\")",
+          "backEn": "Since it's your first day, I'll show you around.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d7-c19",
+          "frontJa": "Translate: そのアプリが便利なのは、無料だからです。",
+          "backEn": "That app is convenient because it's free.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d7-c20",
+          "frontJa": "Polite: I can't eat nuts ___ I'm allergic.",
+          "backEn": "I can't eat nuts because I'm allergic.",
+          "sortOrder": 20
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-8",
+      "titleJa": "簡単な意見",
+      "titleEn": "Basic opinions (I think / I don't think)",
+      "sortOrder": 8,
+      "cards": [
+        {
+          "id": "study-i1-d8-c0",
+          "frontJa": "Soft opinion: This movie is too long.\nStart with \"I think\".",
+          "backEn": "I think this movie is too long.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d8-c1",
+          "frontJa": "Translate: 私はそれが良いアイデアだとは思いません。",
+          "backEn": "I don't think that's a good idea.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d8-c2",
+          "frontJa": "Agree politely: A: The test was fair.\nB: ___",
+          "backEn": "I think so, too.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d8-c3",
+          "frontJa": "Translate: 彼はもっと休むべきだと思います。",
+          "backEn": "I think he should rest more.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d8-c4",
+          "frontJa": "Disagree gently: A: We should leave now.\nB: ___ (not ready)",
+          "backEn": "I don't think we're ready to leave yet.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d8-c5",
+          "frontJa": "Translate: その計画は現実的ではないと思います。",
+          "backEn": "I don't think that plan is realistic.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d8-c6",
+          "frontJa": "Opinion + reason: ___ online classes are convenient because you save commute time.",
+          "backEn": "I think online classes are convenient because you save commute time.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d8-c7",
+          "frontJa": "Translate: 私には難しすぎると思います。",
+          "backEn": "I think it's too difficult for me.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d8-c8",
+          "frontJa": "Hedging: ___ it might rain later, but I'm not sure.",
+          "backEn": "I think it might rain later, but I'm not sure.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d8-c9",
+          "frontJa": "Translate: 彼女の方が正しいと思います。",
+          "backEn": "I think she's right.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d8-c10",
+          "frontJa": "I don't think + positive verb trick: I ___ he will come. (expect negative)\nWrite a natural sentence.",
+          "backEn": "I don't think he will come.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d8-c11",
+          "frontJa": "Translate: それは公平だと思います。",
+          "backEn": "I think that's fair.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d8-c12",
+          "frontJa": "In my opinion: commuting by bike is healthy.\nStart with \"In my opinion,\"",
+          "backEn": "In my opinion, commuting by bike is healthy.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d8-c13",
+          "frontJa": "Translate: それは必要ないと思います。",
+          "backEn": "I don't think it's necessary.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d8-c14",
+          "frontJa": "Compare opinions: ___ Team A will win, but it's hard to predict.",
+          "backEn": "I think Team A will win, but it's hard to predict.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d8-c15",
+          "frontJa": "Translate: この本は面白いと思います。",
+          "backEn": "I think this book is interesting.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d8-c16",
+          "frontJa": "Politely disagree: A: This is the best ramen in town.\nB: ___ (good / not sure best)",
+          "backEn": "I think it's good, but I'm not sure it's the best.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d8-c17",
+          "frontJa": "Translate: 彼は来ないと思います。",
+          "backEn": "I don't think he'll come.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d8-c18",
+          "frontJa": "I feel like: ___ we should wait five more minutes.",
+          "backEn": "I feel like we should wait five more minutes.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d8-c19",
+          "frontJa": "Translate: その色の方が似合うと思います。",
+          "backEn": "I think that color suits you better.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d8-c20",
+          "frontJa": "Stronger (still polite): I'm not an expert, but ___ this answer is wrong.",
+          "backEn": "I'm not an expert, but I think this answer is wrong.",
+          "sortOrder": 20
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-9",
+      "titleJa": "頻度と習慣",
+      "titleEn": "Frequency & habits",
+      "sortOrder": 9,
+      "cards": [
+        {
+          "id": "study-i1-d9-c0",
+          "frontJa": "Habit: I ___ eat breakfast at home on weekdays. (frequency adverb: usually / often / rarely)",
+          "backEn": "I usually eat breakfast at home on weekdays.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d9-c1",
+          "frontJa": "Translate: 私はたいてい自宅で仕事をします。",
+          "backEn": "I usually work from home.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d9-c2",
+          "frontJa": "Frequency question answer: How often do you read?\nWrite: \"About twice a week.\"",
+          "backEn": "About twice a week.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d9-c3",
+          "frontJa": "Translate: 彼はめったに遅刻しません。",
+          "backEn": "He is rarely late.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d9-c4",
+          "frontJa": "Sentence with \"often\": She ___ forgets her keys.",
+          "backEn": "She often forgets her keys.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d9-c5",
+          "frontJa": "Translate: 私は時々寿司を食べます。",
+          "backEn": "I sometimes eat sushi.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d9-c6",
+          "frontJa": "Never + present simple: I ___ sugar in my coffee.",
+          "backEn": "I never put sugar in my coffee.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d9-c7",
+          "frontJa": "Translate: 彼はいつも朝早く起きます。",
+          "backEn": "He always wakes up early in the morning.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d9-c8",
+          "frontJa": "Hardly ever: I ___ stay out past midnight.",
+          "backEn": "I hardly ever stay out past midnight.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d9-c9",
+          "frontJa": "Translate: 週末はよくハイキングに行きます。",
+          "backEn": "I often go hiking on weekends.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d9-c10",
+          "frontJa": "Usually vs used to (careful): I ___ drink soda every day, but now I don't.\nChoose the best opening.",
+          "backEn": "I used to drink soda every day, but now I don't.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d9-c11",
+          "frontJa": "Translate: 私はめったにテレビを見ません。",
+          "backEn": "I rarely watch TV.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d9-c12",
+          "frontJa": "Adverb placement: I have been to that museum ___ . (only once)",
+          "backEn": "I have been to that museum only once.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d9-c13",
+          "frontJa": "Translate: 彼女はたいてい徒歩で通勤します。",
+          "backEn": "She usually commutes on foot.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d9-c14",
+          "frontJa": "How often + short answer: \"Three or four times a month.\" (prompt asks you to produce this line)",
+          "backEn": "Three or four times a month.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d9-c15",
+          "frontJa": "Translate: 私は朝はいつもコーヒーを飲みます。",
+          "backEn": "I always drink coffee in the morning.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d9-c16",
+          "frontJa": "Frequency with \"once\": We meet ___ a month for lunch.",
+          "backEn": "We meet once a month for lunch.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d9-c17",
+          "frontJa": "Translate: 彼は時々仕事で出張します。",
+          "backEn": "He sometimes travels for work.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d9-c18",
+          "frontJa": "Seldom: I ___ eat fast food nowadays.",
+          "backEn": "I seldom eat fast food nowadays.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d9-c19",
+          "frontJa": "Translate: 私は週に三回ジムに行きます。",
+          "backEn": "I go to the gym three times a week.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d9-c20",
+          "frontJa": "Often + position: My phone ___ dies before bedtime.",
+          "backEn": "My phone often dies before bedtime.",
+          "sortOrder": 20
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-10",
+      "titleJa": "語順（並べ替え）",
+      "titleEn": "Word order (reordering)",
+      "sortOrder": 10,
+      "cards": [
+        {
+          "id": "study-i1-d10-c0",
+          "frontJa": "Reorder into one correct sentence:\nwant / I / to / go / to / the / store",
+          "backEn": "I want to go to the store.",
+          "sortOrder": 0,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c0-w0",
+                "text": "want"
+              },
+              {
+                "id": "study-i1-d10-c0-w1",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c0-w2",
+                "text": "to"
+              },
+              {
+                "id": "study-i1-d10-c0-w3",
+                "text": "go"
+              },
+              {
+                "id": "study-i1-d10-c0-w4",
+                "text": "to"
+              },
+              {
+                "id": "study-i1-d10-c0-w5",
+                "text": "the"
+              },
+              {
+                "id": "study-i1-d10-c0-w6",
+                "text": "store"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c0-w1",
+              "study-i1-d10-c0-w0",
+              "study-i1-d10-c0-w2",
+              "study-i1-d10-c0-w3",
+              "study-i1-d10-c0-w4",
+              "study-i1-d10-c0-w5",
+              "study-i1-d10-c0-w6"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c1",
+          "frontJa": "Reorder:\ndid / you / where / last / summer / go",
+          "backEn": "Where did you go last summer?",
+          "sortOrder": 1,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c1-w0",
+                "text": "did"
+              },
+              {
+                "id": "study-i1-d10-c1-w1",
+                "text": "you"
+              },
+              {
+                "id": "study-i1-d10-c1-w2",
+                "text": "where"
+              },
+              {
+                "id": "study-i1-d10-c1-w3",
+                "text": "last"
+              },
+              {
+                "id": "study-i1-d10-c1-w4",
+                "text": "summer"
+              },
+              {
+                "id": "study-i1-d10-c1-w5",
+                "text": "go"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c1-w2",
+              "study-i1-d10-c1-w0",
+              "study-i1-d10-c1-w1",
+              "study-i1-d10-c1-w5",
+              "study-i1-d10-c1-w3",
+              "study-i1-d10-c1-w4"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c2",
+          "frontJa": "Reorder:\nnever / I / have / tried / sushi",
+          "backEn": "I have never tried sushi.",
+          "sortOrder": 2,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c2-w0",
+                "text": "never"
+              },
+              {
+                "id": "study-i1-d10-c2-w1",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c2-w2",
+                "text": "have"
+              },
+              {
+                "id": "study-i1-d10-c2-w3",
+                "text": "tried"
+              },
+              {
+                "id": "study-i1-d10-c2-w4",
+                "text": "sushi"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c2-w1",
+              "study-i1-d10-c2-w2",
+              "study-i1-d10-c2-w0",
+              "study-i1-d10-c2-w3",
+              "study-i1-d10-c2-w4"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c3",
+          "frontJa": "Reorder:\nbecause / tired / I / was / I / early / left",
+          "backEn": "I left early because I was tired.",
+          "sortOrder": 3,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c3-w0",
+                "text": "because"
+              },
+              {
+                "id": "study-i1-d10-c3-w1",
+                "text": "tired"
+              },
+              {
+                "id": "study-i1-d10-c3-w2",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c3-w3",
+                "text": "was"
+              },
+              {
+                "id": "study-i1-d10-c3-w4",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c3-w5",
+                "text": "early"
+              },
+              {
+                "id": "study-i1-d10-c3-w6",
+                "text": "left"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c3-w2",
+              "study-i1-d10-c3-w6",
+              "study-i1-d10-c3-w5",
+              "study-i1-d10-c3-w0",
+              "study-i1-d10-c3-w4",
+              "study-i1-d10-c3-w3",
+              "study-i1-d10-c3-w1"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c4",
+          "frontJa": "Reorder:\nshould / you / more / vegetables / eat",
+          "backEn": "You should eat more vegetables.",
+          "sortOrder": 4,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c4-w0",
+                "text": "should"
+              },
+              {
+                "id": "study-i1-d10-c4-w1",
+                "text": "you"
+              },
+              {
+                "id": "study-i1-d10-c4-w2",
+                "text": "more"
+              },
+              {
+                "id": "study-i1-d10-c4-w3",
+                "text": "vegetables"
+              },
+              {
+                "id": "study-i1-d10-c4-w4",
+                "text": "eat"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c4-w1",
+              "study-i1-d10-c4-w0",
+              "study-i1-d10-c4-w4",
+              "study-i1-d10-c4-w2",
+              "study-i1-d10-c4-w3"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c5",
+          "frontJa": "Reorder:\nme / can / you / help / with / this",
+          "backEn": "Can you help me with this?",
+          "sortOrder": 5,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c5-w0",
+                "text": "me"
+              },
+              {
+                "id": "study-i1-d10-c5-w1",
+                "text": "can"
+              },
+              {
+                "id": "study-i1-d10-c5-w2",
+                "text": "you"
+              },
+              {
+                "id": "study-i1-d10-c5-w3",
+                "text": "help"
+              },
+              {
+                "id": "study-i1-d10-c5-w4",
+                "text": "with"
+              },
+              {
+                "id": "study-i1-d10-c5-w5",
+                "text": "this"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c5-w1",
+              "study-i1-d10-c5-w2",
+              "study-i1-d10-c5-w3",
+              "study-i1-d10-c5-w0",
+              "study-i1-d10-c5-w4",
+              "study-i1-d10-c5-w5"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c6",
+          "frontJa": "Reorder:\nthink / I / this / is / too / expensive",
+          "backEn": "I think this is too expensive.",
+          "sortOrder": 6,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c6-w0",
+                "text": "think"
+              },
+              {
+                "id": "study-i1-d10-c6-w1",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c6-w2",
+                "text": "this"
+              },
+              {
+                "id": "study-i1-d10-c6-w3",
+                "text": "is"
+              },
+              {
+                "id": "study-i1-d10-c6-w4",
+                "text": "too"
+              },
+              {
+                "id": "study-i1-d10-c6-w5",
+                "text": "expensive"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c6-w1",
+              "study-i1-d10-c6-w0",
+              "study-i1-d10-c6-w2",
+              "study-i1-d10-c6-w3",
+              "study-i1-d10-c6-w4",
+              "study-i1-d10-c6-w5"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c7",
+          "frontJa": "Reorder:\noften / how / do / you / exercise",
+          "backEn": "How often do you exercise?",
+          "sortOrder": 7,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c7-w0",
+                "text": "often"
+              },
+              {
+                "id": "study-i1-d10-c7-w1",
+                "text": "how"
+              },
+              {
+                "id": "study-i1-d10-c7-w2",
+                "text": "do"
+              },
+              {
+                "id": "study-i1-d10-c7-w3",
+                "text": "you"
+              },
+              {
+                "id": "study-i1-d10-c7-w4",
+                "text": "exercise"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c7-w1",
+              "study-i1-d10-c7-w0",
+              "study-i1-d10-c7-w2",
+              "study-i1-d10-c7-w3",
+              "study-i1-d10-c7-w4"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c8",
+          "frontJa": "Reorder:\nhas / she / lived / here / long / how",
+          "backEn": "How long has she lived here?",
+          "sortOrder": 8,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c8-w0",
+                "text": "has"
+              },
+              {
+                "id": "study-i1-d10-c8-w1",
+                "text": "she"
+              },
+              {
+                "id": "study-i1-d10-c8-w2",
+                "text": "lived"
+              },
+              {
+                "id": "study-i1-d10-c8-w3",
+                "text": "here"
+              },
+              {
+                "id": "study-i1-d10-c8-w4",
+                "text": "long"
+              },
+              {
+                "id": "study-i1-d10-c8-w5",
+                "text": "how"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c8-w5",
+              "study-i1-d10-c8-w4",
+              "study-i1-d10-c8-w0",
+              "study-i1-d10-c8-w1",
+              "study-i1-d10-c8-w2",
+              "study-i1-d10-c8-w3"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c9",
+          "frontJa": "Reorder:\ngoing / am / to / visit / I / my / friend",
+          "backEn": "I am going to visit my friend.",
+          "sortOrder": 9,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c9-w0",
+                "text": "going"
+              },
+              {
+                "id": "study-i1-d10-c9-w1",
+                "text": "am"
+              },
+              {
+                "id": "study-i1-d10-c9-w2",
+                "text": "to"
+              },
+              {
+                "id": "study-i1-d10-c9-w3",
+                "text": "visit"
+              },
+              {
+                "id": "study-i1-d10-c9-w4",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c9-w5",
+                "text": "my"
+              },
+              {
+                "id": "study-i1-d10-c9-w6",
+                "text": "friend"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c9-w4",
+              "study-i1-d10-c9-w1",
+              "study-i1-d10-c9-w0",
+              "study-i1-d10-c9-w2",
+              "study-i1-d10-c9-w3",
+              "study-i1-d10-c9-w5",
+              "study-i1-d10-c9-w6"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c10",
+          "frontJa": "Reorder:\nthe / check / please / may / have / I",
+          "backEn": "May I have the check, please?",
+          "sortOrder": 10,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c10-w0",
+                "text": "the"
+              },
+              {
+                "id": "study-i1-d10-c10-w1",
+                "text": "check"
+              },
+              {
+                "id": "study-i1-d10-c10-w2",
+                "text": "please"
+              },
+              {
+                "id": "study-i1-d10-c10-w3",
+                "text": "may"
+              },
+              {
+                "id": "study-i1-d10-c10-w4",
+                "text": "have"
+              },
+              {
+                "id": "study-i1-d10-c10-w5",
+                "text": "I"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c10-w3",
+              "study-i1-d10-c10-w5",
+              "study-i1-d10-c10-w4",
+              "study-i1-d10-c10-w0",
+              "study-i1-d10-c10-w1",
+              "study-i1-d10-c10-w2"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c11",
+          "frontJa": "Reorder:\nusually / breakfast / I / at / 7 / have",
+          "backEn": "I usually have breakfast at 7.",
+          "sortOrder": 11,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c11-w0",
+                "text": "usually"
+              },
+              {
+                "id": "study-i1-d10-c11-w1",
+                "text": "breakfast"
+              },
+              {
+                "id": "study-i1-d10-c11-w2",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c11-w3",
+                "text": "at"
+              },
+              {
+                "id": "study-i1-d10-c11-w4",
+                "text": "7"
+              },
+              {
+                "id": "study-i1-d10-c11-w5",
+                "text": "have"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c11-w2",
+              "study-i1-d10-c11-w0",
+              "study-i1-d10-c11-w5",
+              "study-i1-d10-c11-w1",
+              "study-i1-d10-c11-w3",
+              "study-i1-d10-c11-w4"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c12",
+          "frontJa": "Reorder:\nbut / it / was / raining / we / still / went",
+          "backEn": "It was raining, but we still went.",
+          "sortOrder": 12,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c12-w0",
+                "text": "but"
+              },
+              {
+                "id": "study-i1-d10-c12-w1",
+                "text": "it"
+              },
+              {
+                "id": "study-i1-d10-c12-w2",
+                "text": "was"
+              },
+              {
+                "id": "study-i1-d10-c12-w3",
+                "text": "raining"
+              },
+              {
+                "id": "study-i1-d10-c12-w4",
+                "text": "we"
+              },
+              {
+                "id": "study-i1-d10-c12-w5",
+                "text": "still"
+              },
+              {
+                "id": "study-i1-d10-c12-w6",
+                "text": "went"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c12-w1",
+              "study-i1-d10-c12-w2",
+              "study-i1-d10-c12-w3",
+              "study-i1-d10-c12-w0",
+              "study-i1-d10-c12-w4",
+              "study-i1-d10-c12-w5",
+              "study-i1-d10-c12-w6"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c13",
+          "frontJa": "Reorder:\nmust / you / your / seatbelt / fasten",
+          "backEn": "You must fasten your seatbelt.",
+          "sortOrder": 13,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c13-w0",
+                "text": "must"
+              },
+              {
+                "id": "study-i1-d10-c13-w1",
+                "text": "you"
+              },
+              {
+                "id": "study-i1-d10-c13-w2",
+                "text": "your"
+              },
+              {
+                "id": "study-i1-d10-c13-w3",
+                "text": "seatbelt"
+              },
+              {
+                "id": "study-i1-d10-c13-w4",
+                "text": "fasten"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c13-w1",
+              "study-i1-d10-c13-w0",
+              "study-i1-d10-c13-w4",
+              "study-i1-d10-c13-w2",
+              "study-i1-d10-c13-w3"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c14",
+          "frontJa": "Reorder:\nso / I / bought / one / umbrella / I / forgot / my",
+          "backEn": "I forgot my umbrella, so I bought one.",
+          "sortOrder": 14,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c14-w0",
+                "text": "so"
+              },
+              {
+                "id": "study-i1-d10-c14-w1",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c14-w2",
+                "text": "bought"
+              },
+              {
+                "id": "study-i1-d10-c14-w3",
+                "text": "one"
+              },
+              {
+                "id": "study-i1-d10-c14-w4",
+                "text": "umbrella"
+              },
+              {
+                "id": "study-i1-d10-c14-w5",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c14-w6",
+                "text": "forgot"
+              },
+              {
+                "id": "study-i1-d10-c14-w7",
+                "text": "my"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c14-w1",
+              "study-i1-d10-c14-w6",
+              "study-i1-d10-c14-w7",
+              "study-i1-d10-c14-w4",
+              "study-i1-d10-c14-w0",
+              "study-i1-d10-c14-w5",
+              "study-i1-d10-c14-w2",
+              "study-i1-d10-c14-w3"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c15",
+          "frontJa": "Reorder:\nthink / don't / I / that / is / safe",
+          "backEn": "I don't think that is safe.",
+          "sortOrder": 15,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c15-w0",
+                "text": "think"
+              },
+              {
+                "id": "study-i1-d10-c15-w1",
+                "text": "don't"
+              },
+              {
+                "id": "study-i1-d10-c15-w2",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c15-w3",
+                "text": "that"
+              },
+              {
+                "id": "study-i1-d10-c15-w4",
+                "text": "is"
+              },
+              {
+                "id": "study-i1-d10-c15-w5",
+                "text": "safe"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c15-w2",
+              "study-i1-d10-c15-w1",
+              "study-i1-d10-c15-w0",
+              "study-i1-d10-c15-w3",
+              "study-i1-d10-c15-w4",
+              "study-i1-d10-c15-w5"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c16",
+          "frontJa": "Reorder:\nbeen / have / you / ever / to / Canada",
+          "backEn": "Have you ever been to Canada?",
+          "sortOrder": 16,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c16-w0",
+                "text": "been"
+              },
+              {
+                "id": "study-i1-d10-c16-w1",
+                "text": "have"
+              },
+              {
+                "id": "study-i1-d10-c16-w2",
+                "text": "you"
+              },
+              {
+                "id": "study-i1-d10-c16-w3",
+                "text": "ever"
+              },
+              {
+                "id": "study-i1-d10-c16-w4",
+                "text": "to"
+              },
+              {
+                "id": "study-i1-d10-c16-w5",
+                "text": "Canada"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c16-w1",
+              "study-i1-d10-c16-w2",
+              "study-i1-d10-c16-w3",
+              "study-i1-d10-c16-w0",
+              "study-i1-d10-c16-w4",
+              "study-i1-d10-c16-w5"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c17",
+          "frontJa": "Reorder:\nkind / very / she / is / and / patient",
+          "backEn": "She is very kind and patient.",
+          "sortOrder": 17,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c17-w0",
+                "text": "kind"
+              },
+              {
+                "id": "study-i1-d10-c17-w1",
+                "text": "very"
+              },
+              {
+                "id": "study-i1-d10-c17-w2",
+                "text": "she"
+              },
+              {
+                "id": "study-i1-d10-c17-w3",
+                "text": "is"
+              },
+              {
+                "id": "study-i1-d10-c17-w4",
+                "text": "and"
+              },
+              {
+                "id": "study-i1-d10-c17-w5",
+                "text": "patient"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c17-w2",
+              "study-i1-d10-c17-w3",
+              "study-i1-d10-c17-w1",
+              "study-i1-d10-c17-w0",
+              "study-i1-d10-c17-w4",
+              "study-i1-d10-c17-w5"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c18",
+          "frontJa": "Reorder:\nwill / we / meet / at / the / station / tomorrow",
+          "backEn": "We will meet at the station tomorrow.",
+          "sortOrder": 18,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c18-w0",
+                "text": "will"
+              },
+              {
+                "id": "study-i1-d10-c18-w1",
+                "text": "we"
+              },
+              {
+                "id": "study-i1-d10-c18-w2",
+                "text": "meet"
+              },
+              {
+                "id": "study-i1-d10-c18-w3",
+                "text": "at"
+              },
+              {
+                "id": "study-i1-d10-c18-w4",
+                "text": "the"
+              },
+              {
+                "id": "study-i1-d10-c18-w5",
+                "text": "station"
+              },
+              {
+                "id": "study-i1-d10-c18-w6",
+                "text": "tomorrow"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c18-w1",
+              "study-i1-d10-c18-w0",
+              "study-i1-d10-c18-w2",
+              "study-i1-d10-c18-w3",
+              "study-i1-d10-c18-w4",
+              "study-i1-d10-c18-w5",
+              "study-i1-d10-c18-w6"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c19",
+          "frontJa": "Reorder:\nbecause / stayed / she / home / felt / she / sick",
+          "backEn": "She stayed home because she felt sick.",
+          "sortOrder": 19,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c19-w0",
+                "text": "because"
+              },
+              {
+                "id": "study-i1-d10-c19-w1",
+                "text": "stayed"
+              },
+              {
+                "id": "study-i1-d10-c19-w2",
+                "text": "she"
+              },
+              {
+                "id": "study-i1-d10-c19-w3",
+                "text": "home"
+              },
+              {
+                "id": "study-i1-d10-c19-w4",
+                "text": "felt"
+              },
+              {
+                "id": "study-i1-d10-c19-w5",
+                "text": "she"
+              },
+              {
+                "id": "study-i1-d10-c19-w6",
+                "text": "sick"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c19-w2",
+              "study-i1-d10-c19-w1",
+              "study-i1-d10-c19-w3",
+              "study-i1-d10-c19-w0",
+              "study-i1-d10-c19-w5",
+              "study-i1-d10-c19-w4",
+              "study-i1-d10-c19-w6"
+            ]
+          }
+        },
+        {
+          "id": "study-i1-d10-c20",
+          "frontJa": "Reorder:\nshould / we / leave / now / I / think",
+          "backEn": "I think we should leave now.",
+          "sortOrder": 20,
+          "exercise": {
+            "kind": "reorder",
+            "tokens": [
+              {
+                "id": "study-i1-d10-c20-w0",
+                "text": "should"
+              },
+              {
+                "id": "study-i1-d10-c20-w1",
+                "text": "we"
+              },
+              {
+                "id": "study-i1-d10-c20-w2",
+                "text": "leave"
+              },
+              {
+                "id": "study-i1-d10-c20-w3",
+                "text": "now"
+              },
+              {
+                "id": "study-i1-d10-c20-w4",
+                "text": "I"
+              },
+              {
+                "id": "study-i1-d10-c20-w5",
+                "text": "think"
+              }
+            ],
+            "correctTokenIds": [
+              "study-i1-d10-c20-w4",
+              "study-i1-d10-c20-w5",
+              "study-i1-d10-c20-w1",
+              "study-i1-d10-c20-w0",
+              "study-i1-d10-c20-w2",
+              "study-i1-d10-c20-w3"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "study-i1-deck-11",
+      "titleJa": "まとめ：短い会話",
+      "titleEn": "Putting it together (short conversations)",
+      "sortOrder": 11,
+      "cards": [
+        {
+          "id": "study-i1-d11-c0",
+          "frontJa": "A: What are you doing this weekend?\nB: ___ (visit a friend — natural)",
+          "backEn": "I'm going to visit my friend.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-i1-d11-c1",
+          "frontJa": "A: How was the interview?\nB: ___ (stressful / but okay — one sentence)",
+          "backEn": "It was stressful, but I think it went okay.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-i1-d11-c2",
+          "frontJa": "A: Why are you late?\nB: ___ (missed the bus)",
+          "backEn": "I'm late because I missed the bus.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-i1-d11-c3",
+          "frontJa": "A: Can you help me move on Saturday?\nB: ___ (sorry / work — polite decline + reason)",
+          "backEn": "I'm sorry, I can't because I have to work.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-i1-d11-c4",
+          "frontJa": "A: How often do you study English?\nB: ___",
+          "backEn": "I study English almost every day.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-i1-d11-c5",
+          "frontJa": "A: You look tired.\nB: ___ (didn't sleep well)",
+          "backEn": "I didn't sleep well last night.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-i1-d11-c6",
+          "frontJa": "A: Should we take a taxi?\nB: ___ (save money / take the train)",
+          "backEn": "We should take the train to save money.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-i1-d11-c7",
+          "frontJa": "A: Have you been to Kyoto?\nB: ___ (once / spring)",
+          "backEn": "I've been there once, in spring.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-i1-d11-c8",
+          "frontJa": "A: I think this café is too loud.\nB: ___ (agree / suggest leaving)",
+          "backEn": "I agree — maybe we should find another place.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-i1-d11-c9",
+          "frontJa": "A: May I sit here?\nB: ___ (yes / please)",
+          "backEn": "Yes, please do.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-i1-d11-c10",
+          "frontJa": "A: What do you think of the new teacher?\nB: ___ (strict / fair)",
+          "backEn": "She seems strict, but fair.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-i1-d11-c11",
+          "frontJa": "A: I'm nervous about the presentation.\nB: ___ (should / breathe — advice)",
+          "backEn": "You should take a deep breath and speak slowly.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-i1-d11-c12",
+          "frontJa": "A: How long have you lived here?\nB: ___ (two years)",
+          "backEn": "I've lived here for two years.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-i1-d11-c13",
+          "frontJa": "A: Do you want dessert?\nB: ___ (full / tea only)",
+          "backEn": "I'm full, so I'll just have tea.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-i1-d11-c14",
+          "frontJa": "A: Can I get the bill?\nB: ___ (sure / moment)",
+          "backEn": "Sure — I'll bring it in a moment.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-i1-d11-c15",
+          "frontJa": "A: Why do you like this neighborhood?\nB: ___ (quiet / close to park)",
+          "backEn": "Because it's quiet and close to a park.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-i1-d11-c16",
+          "frontJa": "A: I don't think he'll come.\nB: ___ (maybe / traffic)",
+          "backEn": "Maybe he's stuck in traffic.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-i1-d11-c17",
+          "frontJa": "A: We should leave soon.\nB: ___ (five more minutes — request)",
+          "backEn": "Can we wait five more minutes?",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-i1-d11-c18",
+          "frontJa": "A: Is this seat taken?\nB: ___ (no / free)",
+          "backEn": "No, it's free.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-i1-d11-c19",
+          "frontJa": "A: What would you like to drink?\nB: ___ (hot green tea)",
+          "backEn": "Hot green tea, please.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-i1-d11-c20",
+          "frontJa": "A: I'm sorry I'm late.\nB: ___ (no problem / sit)",
+          "backEn": "No problem — please have a seat.",
+          "sortOrder": 20
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "passingScore": 72,
+    "items": [
+      {
+        "id": "study-i1-a0",
+        "promptJa": "「I have never tried sushi.」に最も近い文は？",
+        "promptEn": "Which sentence is closest to “I have never tried sushi.”?",
+        "options": [
+          "I have tried sushi many times.",
+          "I have never tried sushi.",
+          "I will try sushi tomorrow.",
+          "I don't like fish, so I never eat."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i1-a1",
+        "promptJa": "丁寧に断るのに自然なのは？",
+        "promptEn": "Which is a natural polite decline with a reason?",
+        "options": [
+          "No.",
+          "I'm sorry, I can't because I have to work late.",
+          "Don't ask me.",
+          "Maybe not never."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i1-a2",
+        "promptJa": "「How often do you exercise?」の意味に近いのは？",
+        "promptEn": "Which question asks about frequency of exercise?",
+        "options": [
+          "How long do you exercise?",
+          "How often do you exercise?",
+          "How much do you exercise?",
+          "How far do you exercise?"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i1-a3",
+        "promptJa": "助言として自然なのは？",
+        "promptEn": "Which sentence gives natural advice before an exam?",
+        "options": [
+          "You must be the boss.",
+          "You should take a short break and breathe.",
+          "You never should study.",
+          "You can to sleep in class."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i1-a4",
+        "promptJa": "理由をつなぐのに最も適切なのは？",
+        "promptEn": "Which connector best expresses a reason?",
+        "options": [
+          "but",
+          "because",
+          "so",
+          "and"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i1-a5",
+        "promptJa": "「I don't think that's a good idea.」に近い意味は？",
+        "promptEn": "Which sentence is closest to “I don't think that's a good idea.”?",
+        "options": [
+          "I think that's a great idea.",
+          "I don't think that's a good idea.",
+          "I know that's a good idea.",
+          "I will think that's idea."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i1-a6",
+        "promptJa": "カフェで注文として自然なのは？",
+        "promptEn": "Which is a natural café order?",
+        "options": [
+          "Give me coffee now.",
+          "Can I get a medium hot latte to go, please?",
+          "I want coffee medium hot go.",
+          "Coffee! Medium! Go!"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i1-a7",
+        "promptJa": "並べ替えの正しい文はどれ？\nwords: want / I / to / go / to / the / store",
+        "promptEn": "Which sentence correctly orders: want / I / to / go / to / the / store?",
+        "options": [
+          "I go want to the store to.",
+          "I want to go to the store.",
+          "To store the I want go to.",
+          "Want I to store go the to."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i1-a8",
+        "promptJa": "「How long have you lived here?」に対する自然な答えは？",
+        "promptEn": "Which is a natural answer to “How long have you lived here?”?",
+        "options": [
+          "I live here always.",
+          "I've lived here for two years.",
+          "I live here tomorrow.",
+          "I have lived here never."
+        ],
+        "correctIndex": 1
+      },
+      {
+        "id": "study-i1-a9",
+        "promptJa": "会話の続きとして自然な B は？\nA: What are you doing this weekend?",
+        "promptEn": "Which is a natural B line?\nA: What are you doing this weekend?",
+        "options": [
+          "I'm going to visit my friend.",
+          "Yes, I am weekend.",
+          "I doing this.",
+          "Weekend is Saturday."
+        ],
+        "correctIndex": 0
+      }
+    ]
+  }
+}

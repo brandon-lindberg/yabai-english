@@ -103,7 +103,7 @@ function sliceForBand(state: NonNullable<CardQuizStateSlice>): StudyCardPerforma
 /** Higher weight = more likely in session queue (struggling cards surface more). */
 export function cardQuizWeight(state: CardQuizStateSlice): number {
   if (!state) return 12;
-  const { correctCount, wrongCount, streakCorrect } = state;
+  const { wrongCount, streakCorrect } = state;
   let w = 2;
   w += wrongCount * 8;
   w += Math.max(0, 6 - streakCorrect) * 2;

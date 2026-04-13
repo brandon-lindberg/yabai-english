@@ -44,7 +44,9 @@ function QuickReviewFlipCard({
           }`}
         >
           <span className="flex min-h-0 flex-1 items-center justify-center px-1">
-            <span className="line-clamp-6 text-sm font-medium leading-snug text-foreground">{card.frontJa}</span>
+            <span className="line-clamp-6 whitespace-pre-line text-sm font-medium leading-snug text-foreground">
+              {card.frontJa}
+            </span>
           </span>
           <span className="shrink-0 pt-1 text-center text-[0.65rem] text-muted">{t("tapToFlip")}</span>
         </button>

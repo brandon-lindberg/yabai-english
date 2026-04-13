@@ -28,7 +28,7 @@ const JAPANESE_PROMPT_WEIGHT_PERCENT: Record<StudyLevelCode, number> = {
   [StudyLevelCode.BEGINNER_1]: 88,
   [StudyLevelCode.BEGINNER_2]: 70,
   [StudyLevelCode.BEGINNER_3]: 50,
-  [StudyLevelCode.INTERMEDIATE_1]: 35,
+  [StudyLevelCode.INTERMEDIATE_1]: 25,
   [StudyLevelCode.INTERMEDIATE_2]: 22,
   [StudyLevelCode.INTERMEDIATE_3]: 12,
   [StudyLevelCode.ADVANCED_1]: 6,

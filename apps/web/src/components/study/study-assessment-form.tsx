@@ -109,7 +109,7 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
           <legend className="px-1 text-xs font-medium text-muted">
             {t("questionOf", { n: idx + 1, total: items.length })}
           </legend>
-          <p className="mt-2 text-base font-medium text-foreground">
+          <p className="mt-2 whitespace-pre-line text-base font-medium text-foreground">
             {locale === "ja" ? item.promptJa : item.promptEn}
           </p>
           <div className="mt-4 space-y-2">

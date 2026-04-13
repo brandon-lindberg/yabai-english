@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { PrismaClient } from "@prisma/client";
-import { StudyLevelCode } from "@prisma/client";
+import { Prisma, type PrismaClient, StudyLevelCode } from "@prisma/client";
 import {
   beginner2LevelFileSchema,
   beginner3LevelFileSchema,
   beginnerLevelFileSchema,
+  intermediate1LevelFileSchema,
   type StudyAssessmentItem,
 } from "../src/lib/study/schemas";
 
@@ -50,7 +50,13 @@ type SeededStudyBank = {
     titleJa: string;
     titleEn: string;
     sortOrder: number;
-    cards: Array<{ id: string; frontJa: string; backEn: string; sortOrder: number }>;
+    cards: Array<{
+      id: string;
+      frontJa: string;
+      backEn: string;
+      sortOrder: number;
+      exercise?: unknown;
+    }>;
   }>;
   assessment: { passingScore: number; items: StudyAssessmentItem[] };
 };
@@ -75,6 +81,13 @@ function readBeginner3Json() {
   const raw = fs.readFileSync(fp, "utf8");
   const json = JSON.parse(raw) as unknown;
   return beginner3LevelFileSchema.parse(json);
+}
+
+function readIntermediate1Json() {
+  const fp = path.join(__dirname, "../data/study/intermediate-1.json");
+  const raw = fs.readFileSync(fp, "utf8");
+  const json = JSON.parse(raw) as unknown;
+  return intermediate1LevelFileSchema.parse(json);
 }
 
 async function seedStudyLevelBank(
@@ -105,6 +118,8 @@ async function seedStudyLevelBank(
     });
 
     for (const card of deck.cards) {
+      const exerciseJson =
+        card.exercise != null ? (card.exercise as Prisma.InputJsonValue) : Prisma.DbNull;
       await prisma.studyCard.upsert({
         where: { id: card.id },
         update: {
@@ -112,6 +127,7 @@ async function seedStudyLevelBank(
           frontJa: card.frontJa,
           backEn: card.backEn,
           sortOrder: card.sortOrder,
+          exerciseJson,
         },
         create: {
           id: card.id,
@@ -119,6 +135,7 @@ async function seedStudyLevelBank(
           frontJa: card.frontJa,
           backEn: card.backEn,
           sortOrder: card.sortOrder,
+          exerciseJson,
         },
       });
     }
@@ -196,4 +213,7 @@ export async function seedStudyTrack(prisma: PrismaClient) {
 
   const b3LevelId = levelIdByCode.get(StudyLevelCode.BEGINNER_3)!;
   await seedStudyLevelBank(prisma, b3LevelId, readBeginner3Json(), "study-b3-assessment-exit");
+
+  const i1LevelId = levelIdByCode.get(StudyLevelCode.INTERMEDIATE_1)!;
+  await seedStudyLevelBank(prisma, i1LevelId, readIntermediate1Json(), "study-i1-assessment-exit");
 }

@@ -8,6 +8,8 @@ import {
   mcqDistractorCountForBand,
   type StudyCardPerformanceSlice,
 } from "@/lib/study/study-card-analytics";
+import { parseStudyCardExercise, shuffleTokensForQueue } from "@/lib/study/card-exercise";
+import type { StudyQueueCard } from "@/lib/study/practice-queue-card";
 import { buildFourOptions, cardQuizWeight, weightedSampleWithoutReplacement } from "@/lib/study/quiz";
 import { StudyLevelCode } from "@prisma/client";
 import { z } from "zod";
@@ -19,7 +21,7 @@ const querySchema = z.object({
   focus: z.enum(["mixed", "weak", "mastered"]).default("mixed"),
 });
 
-type CardRow = { id: string; frontJa: string; backEn: string; deckId: string };
+type CardRow = { id: string; frontJa: string; backEn: string; deckId: string; exerciseJson: unknown };
 
 type StateRow = {
   dueAt: Date | null;
@@ -130,7 +132,7 @@ export async function GET(req: Request) {
   const cards: CardRow[] = await prisma.studyCard.findMany({
     where: { deck: { levelId: level.id } },
     orderBy: [{ deck: { sortOrder: "asc" } }, { sortOrder: "asc" }],
-    select: { id: true, frontJa: true, backEn: true, deckId: true },
+    select: { id: true, frontJa: true, backEn: true, deckId: true, exerciseJson: true },
   });
 
   if (cards.length === 0) {
@@ -188,12 +190,30 @@ export async function GET(req: Request) {
   const poolBacks = pool.map((c) => c.backEn);
   const weightedQueue = buildWeightedSessionQueue(pool, stateByCard, parsed.data.limit, now, rng);
 
-  const out = weightedQueue.map((c) => {
+  const out: StudyQueueCard[] = weightedQueue.map((c) => {
+    const ex = parseStudyCardExercise(c.exerciseJson);
+    if (ex?.kind === "reorder") {
+      return {
+        id: c.id,
+        kind: "reorder" as const,
+        frontJa: c.frontJa,
+        tokens: shuffleTokensForQueue(ex.tokens, c.id),
+      };
+    }
+    if (ex?.kind === "multi_step") {
+      return {
+        id: c.id,
+        kind: "multi_step" as const,
+        frontJa: c.frontJa,
+        steps: ex.steps.map((s) => ({ prompt: s.prompt })),
+      };
+    }
     const st = stateByCard.get(c.id);
     const band = classifyPracticeBand(toPerformanceSlice(st));
     const distractorCount = mcqDistractorCountForBand(band);
     return {
       id: c.id,
+      kind: "mcq" as const,
       frontJa: c.frontJa,
       options: buildFourOptions(c.backEn, poolBacks.filter((b) => b !== c.backEn), {
         rng,

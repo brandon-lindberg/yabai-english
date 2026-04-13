@@ -1,14 +1,14 @@
 "use client";
 
+import { StudyMultiStepExercise } from "@/components/study/study-multi-step-exercise";
+import { StudyReorderExercise } from "@/components/study/study-reorder-exercise";
 import { StudyRpgXpBar } from "@/components/study/study-rpg-xp-bar";
 import type { StudyRpgSnapshot } from "@/lib/study/rpg-xp";
+import type { StudyQueueCard } from "@/lib/study/practice-queue-card";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { StudyLevelCode } from "@prisma/client";
-
-/** `frontJa` matches API field name; content is Japanese-heavy at Beginner 1 and trends English upward. */
-type QuizCard = { id: string; frontJa: string; options: string[] };
 
 export type StudyQueueFocus = "mixed" | "weak" | "mastered";
 
@@ -23,7 +23,7 @@ export function StudyPracticeSession({
 }) {
   const t = useTranslations("study");
   const [rpg, setRpg] = useState<StudyRpgSnapshot>(initialRpg);
-  const [cards, setCards] = useState<QuizCard[]>([]);
+  const [cards, setCards] = useState<StudyQueueCard[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +52,7 @@ export function StudyPracticeSession({
         return;
       }
       const data = (await res.json()) as {
-        cards: QuizCard[];
+        cards: StudyQueueCard[];
         emptyReason?: "no_weak_cards" | "no_mastered_cards";
       };
       setCards(data.cards);
@@ -85,9 +85,37 @@ export function StudyPracticeSession({
     if (current) {
       promptShownAtMs.current = Date.now();
     }
-  }, [current?.id]);
+  }, [current]);
 
-  const submitAnswer = async (chosenAnswer: string) => {
+  const advanceAfterResult = async (data: {
+    correct: boolean;
+    correctAnswer: string;
+    xpGained?: number;
+    rpg?: StudyRpgSnapshot;
+  }) => {
+    setSessionXp((x) => x + (data.xpGained ?? 0));
+    if (data.rpg) setRpg(data.rpg);
+    if (data.correct) {
+      setSessionCorrect((c) => c + 1);
+      setFeedback("correct");
+    } else {
+      setSessionWrong((w) => w + 1);
+      setFeedback("wrong");
+      setLastCorrectAnswer(data.correctAnswer);
+    }
+
+    await new Promise((r) => setTimeout(r, 900));
+
+    setFeedback(null);
+    setLastCorrectAnswer(null);
+    if (index + 1 >= cards.length) {
+      setFinished(true);
+    } else {
+      setIndex((i) => i + 1);
+    }
+  };
+
+  const postReview = async (body: Record<string, unknown>) => {
     if (!current || submitting) return;
     setSubmitting(true);
     setFeedback(null);
@@ -96,7 +124,7 @@ export function StudyPracticeSession({
       const res = await fetch("/api/study/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId: current.id, chosenAnswer, answerTimeMs }),
+        body: JSON.stringify({ cardId: current.id, answerTimeMs, ...body }),
       });
       if (!res.ok) {
         setSubmitting(false);
@@ -108,32 +136,19 @@ export function StudyPracticeSession({
         xpGained?: number;
         rpg?: StudyRpgSnapshot;
       };
-      setSessionXp((x) => x + (data.xpGained ?? 0));
-      if (data.rpg) setRpg(data.rpg);
-      if (data.correct) {
-        setSessionCorrect((c) => c + 1);
-        setFeedback("correct");
-      } else {
-        setSessionWrong((w) => w + 1);
-        setFeedback("wrong");
-        setLastCorrectAnswer(data.correctAnswer);
-      }
-
-      await new Promise((r) => setTimeout(r, 900));
-
-      setFeedback(null);
-      setLastCorrectAnswer(null);
-      if (index + 1 >= cards.length) {
-        setFinished(true);
-      } else {
-        setIndex((i) => i + 1);
-      }
+      await advanceAfterResult(data);
     } catch {
       setError("Network error");
     } finally {
       setSubmitting(false);
     }
   };
+
+  const submitMcq = (chosenAnswer: string) => void postReview({ chosenAnswer });
+
+  const submitReorder = (reorderTokenIds: string[]) => void postReview({ reorderTokenIds });
+
+  const submitMultiStep = (multiStepAnswers: string[]) => void postReview({ multiStepAnswers });
 
   if (loading) {
     return (
@@ -191,6 +206,16 @@ export function StudyPracticeSession({
     );
   }
 
+  const promptLabel =
+    current.kind === "mcq" ? t("frontLabel") : t("promptLabel");
+
+  const taskHint =
+    current.kind === "mcq"
+      ? t("chooseEnglish")
+      : current.kind === "reorder"
+        ? t("reorderInstructions")
+        : t("multiStepInstructions");
+
   return (
     <div className="space-y-6">
       {queueFocus !== "mixed" ? (
@@ -217,9 +242,30 @@ export function StudyPracticeSession({
       </div>
 
       <div className="rounded-2xl border border-border bg-surface p-8 shadow-sm">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">{t("frontLabel")}</p>
-        <p className="mt-3 text-2xl font-semibold text-foreground">{current.frontJa}</p>
-        <p className="mt-6 text-sm font-medium text-foreground">{t("chooseEnglish")}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted">{promptLabel}</p>
+        <p className="mt-3 whitespace-pre-line text-2xl font-semibold text-foreground">{current.frontJa}</p>
+        <p className="mt-6 text-sm font-medium text-foreground">{taskHint}</p>
+        {current.kind === "reorder" ? (
+          <div className="mt-6">
+            <StudyReorderExercise
+              key={current.id}
+              tokens={current.tokens}
+              disabled={submitting}
+              onCheck={(ids) => void submitReorder(ids)}
+            />
+          </div>
+        ) : null}
+        {current.kind === "multi_step" ? (
+          <div className="mt-6">
+            <StudyMultiStepExercise
+              key={current.id}
+              cardId={current.id}
+              steps={current.steps}
+              disabled={submitting}
+              onSubmit={(answers) => void submitMultiStep(answers)}
+            />
+          </div>
+        ) : null}
       </div>
 
       {feedback === "correct" ? (
@@ -231,14 +277,14 @@ export function StudyPracticeSession({
         <div className="rounded-xl bg-red-500/15 px-4 py-3 text-center text-sm text-red-900 dark:text-red-200">
           <p className="font-medium">{t("feedbackWrong")}</p>
           {lastCorrectAnswer ? (
-            <p className="mt-1 text-muted-foreground">
+            <p className="mt-1 whitespace-pre-line text-muted-foreground">
               {t("correctWas", { answer: lastCorrectAnswer })}
             </p>
           ) : null}
         </div>
       ) : null}
 
-      {!feedback ? (
+      {!feedback && current.kind === "mcq" ? (
         <div
           className={`grid gap-2 ${current.options.length <= 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"}`}
         >
@@ -247,7 +293,7 @@ export function StudyPracticeSession({
               key={`${current.id}-${opt}`}
               type="button"
               disabled={submitting}
-              onClick={() => void submitAnswer(opt)}
+              onClick={() => void submitMcq(opt)}
               className="rounded-xl border border-border bg-surface px-4 py-4 text-left text-sm font-medium text-foreground transition hover:bg-foreground/5 disabled:opacity-50"
             >
               {opt}

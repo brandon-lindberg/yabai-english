@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { studyCardExerciseSchema } from "./card-exercise";
 
 /** Matches Prisma `StudyLevelCode` (`schema.prisma`); defined here so Zod schemas do not depend on generated client order. */
 const STUDY_LEVEL_CODES = [
@@ -15,13 +16,47 @@ const STUDY_LEVEL_CODES = [
 
 export const studyLevelCodeSchema = z.enum(STUDY_LEVEL_CODES);
 
-const studyCardFileSchema = z.object({
-  id: z.string().min(1),
-  /** Question side; Japanese-dominant at low levels, English-dominant at high levels (see `prompt-locale-policy.ts`). */
-  frontJa: z.string().min(1),
-  backEn: z.string().min(1),
-  sortOrder: z.number().int().min(0),
-});
+const studyCardFileSchema = z
+  .object({
+    id: z.string().min(1),
+    /** Question side; Japanese-dominant at low levels, English-dominant at high levels (see `prompt-locale-policy.ts`). */
+    frontJa: z.string().min(1),
+    backEn: z.string().min(1),
+    sortOrder: z.number().int().min(0),
+    /** Structured exercise (reorder / multi-step). Omitted = classic MCQ. */
+    exercise: studyCardExerciseSchema.optional(),
+  })
+  .superRefine((card, ctx) => {
+    if (!card.exercise || card.exercise.kind !== "reorder") return;
+    const ex = card.exercise;
+    const idSet = new Set(ex.tokens.map((t) => t.id));
+    if (idSet.size !== ex.tokens.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Card ${card.id}: reorder token ids must be unique`,
+      });
+    }
+    if (ex.correctTokenIds.length !== ex.tokens.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Card ${card.id}: reorder correctTokenIds length must match tokens`,
+      });
+    }
+    for (const id of ex.correctTokenIds) {
+      if (!idSet.has(id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Card ${card.id}: unknown reorder token id ${id}`,
+        });
+      }
+    }
+    if (new Set(ex.correctTokenIds).size !== ex.tokens.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Card ${card.id}: correctTokenIds must be a permutation of token ids`,
+      });
+    }
+  });
 
 const studyDeckFileSchema = z.object({
   id: z.string().min(1),
@@ -188,9 +223,58 @@ const beginner3LevelFileBaseSchema = z.object({
 
 export const beginner3LevelFileSchema = beginner3LevelFileBaseSchema.superRefine(refineBeginnerL3Decks);
 
+/** Intermediate L1: 10–12 decks, 20–25 cards each, ~220–260 total (controlled conversation). */
+const INTERMEDIATE_1_DECK_MIN = 10;
+const INTERMEDIATE_1_DECK_MAX = 12;
+const INTERMEDIATE_1_CARDS_PER_DECK_MIN = 20;
+const INTERMEDIATE_1_CARDS_PER_DECK_MAX = 25;
+const INTERMEDIATE_1_TOTAL_CARDS_MIN = 220;
+const INTERMEDIATE_1_TOTAL_CARDS_MAX = 260;
+
+function refineIntermediate1Decks(data: DecksRefinable, ctx: z.RefinementCtx): void {
+  const { decks } = data;
+  if (decks.length < INTERMEDIATE_1_DECK_MIN || decks.length > INTERMEDIATE_1_DECK_MAX) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Expected ${INTERMEDIATE_1_DECK_MIN}–${INTERMEDIATE_1_DECK_MAX} decks, got ${decks.length}`,
+    });
+  }
+  let total = 0;
+  for (let i = 0; i < decks.length; i++) {
+    const n = decks[i]!.cards.length;
+    if (n < INTERMEDIATE_1_CARDS_PER_DECK_MIN || n > INTERMEDIATE_1_CARDS_PER_DECK_MAX) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Deck ${i}: expected ${INTERMEDIATE_1_CARDS_PER_DECK_MIN}–${INTERMEDIATE_1_CARDS_PER_DECK_MAX} cards, got ${n}`,
+      });
+    }
+    total += n;
+  }
+  if (total < INTERMEDIATE_1_TOTAL_CARDS_MIN || total > INTERMEDIATE_1_TOTAL_CARDS_MAX) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Expected ${INTERMEDIATE_1_TOTAL_CARDS_MIN}–${INTERMEDIATE_1_TOTAL_CARDS_MAX} total cards, got ${total}`,
+    });
+  }
+}
+
+const intermediate1LevelFileBaseSchema = z.object({
+  version: z.literal(1),
+  levelCode: z.literal("INTERMEDIATE_1"),
+  decks: z.array(studyDeckFileSchema).min(INTERMEDIATE_1_DECK_MIN).max(INTERMEDIATE_1_DECK_MAX),
+  assessment: z.object({
+    passingScore: z.number().int().min(0).max(100),
+    items: z.array(studyAssessmentItemSchema).min(8).max(16),
+  }),
+});
+
+export const intermediate1LevelFileSchema =
+  intermediate1LevelFileBaseSchema.superRefine(refineIntermediate1Decks);
+
 export type BeginnerLevelFile = z.infer<typeof beginnerLevelFileSchema>;
 export type Beginner2LevelFile = z.infer<typeof beginner2LevelFileSchema>;
 export type Beginner3LevelFile = z.infer<typeof beginner3LevelFileSchema>;
+export type Intermediate1LevelFile = z.infer<typeof intermediate1LevelFileSchema>;
 export type StudyAssessmentItem = z.infer<typeof studyAssessmentItemSchema>;
 
 const llmAssessmentItemSchema = studyAssessmentItemSchema.extend({

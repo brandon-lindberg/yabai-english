@@ -6,6 +6,7 @@ import {
   beginner2LevelFileSchema,
   beginner3LevelFileSchema,
   beginnerLevelFileSchema,
+  intermediate1LevelFileSchema,
   studyAssessmentItemsJsonSchema,
 } from "../study/schemas";
 
@@ -152,6 +153,58 @@ describe("beginner2LevelFileSchema", () => {
     }
     const raw = JSON.parse(fs.readFileSync(fp, "utf8")) as unknown;
     const parsed = beginner2LevelFileSchema.safeParse(raw);
+    expect(parsed.success).toBe(true);
+  });
+});
+
+function buildIntermediate1Fixture() {
+  const decks = Array.from({ length: 12 }, (_, di) => ({
+    id: `study-i1-deck-${di}`,
+    titleJa: `中級デッキ${di + 1}`,
+    titleEn: `Int1 deck ${di + 1}`,
+    sortOrder: di,
+    cards: Array.from({ length: 21 }, (_, ci) => ({
+      id: `study-i1-d${di}-c${ci}`,
+      frontJa: `Prompt ${di + 1}-${ci + 1}`,
+      backEn: `Answer EN ${di + 1}-${ci + 1}`,
+      sortOrder: ci,
+    })),
+  }));
+
+  const items = Array.from({ length: 10 }, (_, i) => ({
+    id: `study-i1-a${i}`,
+    promptJa: `質問I1-${i + 1}`,
+    promptEn: `Question I1-${i + 1}`,
+    options: ["A", "B", "C", "D"],
+    correctIndex: i % 4,
+  }));
+
+  return {
+    version: 1 as const,
+    levelCode: StudyLevelCode.INTERMEDIATE_1,
+    decks,
+    assessment: { passingScore: 72, items },
+  };
+}
+
+describe("intermediate1LevelFileSchema", () => {
+  it("accepts 12 decks × 21 cards (252 total) + 10 assessment items", () => {
+    const parsed = intermediate1LevelFileSchema.safeParse(buildIntermediate1Fixture());
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.decks.length).toBe(12);
+      expect(parsed.data.decks.reduce((s, d) => s + d.cards.length, 0)).toBe(252);
+      expect(parsed.data.assessment.items.length).toBe(10);
+    }
+  });
+
+  it("parses committed data/study/intermediate-1.json when present", () => {
+    const fp = path.join(__dirname, "../../../data/study/intermediate-1.json");
+    if (!fs.existsSync(fp)) {
+      return;
+    }
+    const raw = JSON.parse(fs.readFileSync(fp, "utf8")) as unknown;
+    const parsed = intermediate1LevelFileSchema.safeParse(raw);
     expect(parsed.success).toBe(true);
   });
 });

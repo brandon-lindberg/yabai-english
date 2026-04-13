@@ -409,6 +409,8 @@ model StudyCard {
   deck      StudyDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
   frontJa   String    @db.Text
   backEn    String    @db.Text
+  /// Optional structured exercise (reorder tokens, multi-step prompts). Null = classic MCQ from `frontJa` + `backEn`.
+  exerciseJson Json?
   sortOrder Int       @default(0)
 
   userStates UserStudyCardState[]

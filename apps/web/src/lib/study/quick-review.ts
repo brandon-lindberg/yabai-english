@@ -68,6 +68,7 @@ async function queryEligibleQuickReviewPoolIds(prisma: PrismaClient, userId: str
     INNER JOIN "StudyCard" c ON c."id" = s."cardId"
     WHERE s."userId" = ${userId}
       AND s."correctCount" >= 1
+      AND c."exerciseJson" IS NULL
   `;
   return rows.map((r) => r.id);
 }
@@ -106,6 +107,7 @@ export async function getOrCreateQuickReviewCards(
     INNER JOIN "StudyCard" c ON c."id" = s."cardId"
     WHERE s."userId" = ${userId}
       AND s."correctCount" >= 1
+      AND c."exerciseJson" IS NULL
     ORDER BY RANDOM()
     LIMIT ${QUICK_REVIEW_DAILY_MAX}
   `;
