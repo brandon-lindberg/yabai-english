@@ -12,6 +12,8 @@ import { DashboardFlashcardStats } from "@/components/dashboard/dashboard-flashc
 import { DashboardStudyHighlight } from "@/components/dashboard/dashboard-study-highlight";
 import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-review";
 import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
+import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
+import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -22,16 +24,64 @@ export default async function DashboardPage() {
   const th = await getTranslations("dashboard.highlights");
 
   if (session.user.role !== "STUDENT") {
+    const teacherProfile = await prisma.teacherProfile.findUnique({
+      where: { userId: session.user.id },
+      include: {
+        user: true,
+        availabilitySlots: { where: { active: true } },
+      },
+    });
+    const teacherBookings = teacherProfile
+      ? await getTeacherBookingsForDashboard(prisma, teacherProfile.id)
+      : { bookings: [], upcoming: [], completed: [], scheduleItems: [] };
+
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <h1 className="text-2xl font-bold text-foreground">{t("teacherHome.title")}</h1>
         <p className="text-muted">{t("teacherHome.body")}</p>
-        <Link
-          href="/book"
-          className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-        >
-          {tCommon("bookLesson")}
-        </Link>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <article className="rounded-2xl border border-border bg-surface p-4">
+            <p className="text-xs uppercase tracking-wide text-muted">Upcoming lessons</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{teacherBookings.upcoming.length}</p>
+          </article>
+          <article className="rounded-2xl border border-border bg-surface p-4">
+            <p className="text-xs uppercase tracking-wide text-muted">Completed lessons</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{teacherBookings.completed.length}</p>
+          </article>
+          <article className="rounded-2xl border border-border bg-surface p-4">
+            <p className="text-xs uppercase tracking-wide text-muted">Active availability slots</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">
+              {teacherProfile?.availabilitySlots.length ?? 0}
+            </p>
+          </article>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/dashboard/profile"
+            className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+          >
+            Edit profile
+          </Link>
+          <Link
+            href="/dashboard/schedule"
+            className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Open schedule
+          </Link>
+          <Link
+            href="/book"
+            className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+          >
+            {tCommon("bookLesson")}
+          </Link>
+        </div>
+
+        <section>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">{t("upcoming")}</h2>
+          <ul className="space-y-4">
+            <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
+          </ul>
+        </section>
       </div>
     );
   }

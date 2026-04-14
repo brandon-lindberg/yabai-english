@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { DashboardScheduleCalendar } from "@/components/dashboard-schedule-calendar";
 import { DashboardUpcomingLessons } from "@/components/dashboard/dashboard-upcoming-lessons";
+import { TeacherAvailabilityForm } from "@/components/dashboard/teacher-availability-form";
+import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
+import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
 
 export default async function DashboardSchedulePage() {
   const session = await auth();
@@ -11,6 +14,47 @@ export default async function DashboardSchedulePage() {
 
   const t = await getTranslations("dashboard.schedulePage");
   const td = await getTranslations("dashboard");
+
+  if (session.user.role === "TEACHER") {
+    const profile = await prisma.teacherProfile.findUnique({
+      where: { userId: session.user.id },
+      include: {
+        availabilitySlots: {
+          where: { active: true },
+          orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
+        },
+      },
+    });
+
+    const teacherBookings = profile
+      ? await getTeacherBookingsForDashboard(prisma, profile.id)
+      : { bookings: [], upcoming: [], completed: [], scheduleItems: [] };
+
+    return (
+      <div className="space-y-8">
+        <p className="text-muted">Set your availability and manage upcoming sessions.</p>
+
+        <TeacherAvailabilityForm
+          initialSlots={(profile?.availabilitySlots ?? []).map((slot) => ({
+            dayOfWeek: slot.dayOfWeek,
+            startMin: slot.startMin,
+            endMin: slot.endMin,
+            timezone: slot.timezone,
+          }))}
+        />
+
+        <section>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">{td("upcoming")}</h2>
+          {teacherBookings.scheduleItems.length > 0 ? (
+            <DashboardScheduleCalendar items={teacherBookings.scheduleItems} />
+          ) : null}
+          <ul className="mt-4 space-y-4">
+            <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
+          </ul>
+        </section>
+      </div>
+    );
+  }
 
   const { upcoming, scheduleItems } = await getStudentBookingsForDashboard(prisma, session.user.id);
 

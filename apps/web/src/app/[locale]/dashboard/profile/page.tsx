@@ -4,14 +4,46 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { DashboardProfileForm } from "@/components/dashboard/dashboard-profile-form";
+import { TeacherProfileForm } from "@/components/dashboard/teacher-profile-form";
 
 export default async function DashboardProfilePage() {
   const session = await auth();
   if (!session?.user?.id) return null;
 
   const locale = await getLocale();
-  if (session.user.role !== "STUDENT") {
+  if (session.user.role === "ADMIN") {
     redirect({ href: "/dashboard", locale });
+  }
+
+  if (session.user.role === "TEACHER") {
+    const profile = await prisma.teacherProfile.findUnique({
+      where: { userId: session.user.id },
+      select: {
+        displayName: true,
+        bio: true,
+        countryOfOrigin: true,
+        credentials: true,
+        instructionLanguages: true,
+        specialties: true,
+      },
+    });
+
+    return (
+      <div className="space-y-6">
+        <header>
+          <h1 className="text-2xl font-bold text-foreground">Teacher profile</h1>
+          <p className="mt-2 text-muted">Update what students see on your public booking page.</p>
+        </header>
+        <TeacherProfileForm
+          initialDisplayName={profile?.displayName ?? null}
+          initialBio={profile?.bio ?? null}
+          initialCountryOfOrigin={profile?.countryOfOrigin ?? null}
+          initialCredentials={profile?.credentials ?? null}
+          initialInstructionLanguages={profile?.instructionLanguages ?? ["EN"]}
+          initialSpecialties={profile?.specialties ?? []}
+        />
+      </div>
+    );
   }
 
   const user = await prisma.user.findUnique({
