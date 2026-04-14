@@ -156,3 +156,22 @@ export function inferReorderExerciseFromSlashLines(
   if (used.size !== tokens.length) return null;
   return { kind: "reorder", tokens, correctTokenIds };
 }
+
+/**
+ * Build a reorder exercise for single-blank cloze prompts (`___`) using `backEn` as the canonical sentence.
+ * This converts brittle "fill the exact missing token" cards into sentence arrangement tasks.
+ */
+export function inferReorderExerciseFromBlankPrompt(
+  frontJa: string,
+  backEn: string,
+  idPrefix: string,
+): StudyCardReorderExercise | null {
+  const firstBlank = frontJa.indexOf("___");
+  if (firstBlank < 0) return null;
+  if (frontJa.indexOf("___", firstBlank + 3) >= 0) return null;
+  const words = wordsFromSentence(backEn);
+  if (words.length < 3) return null;
+  const tokens = words.map((w, i) => ({ id: `${idPrefix}-w${i}`, text: w }));
+  const correctTokenIds = tokens.map((t) => t.id);
+  return { kind: "reorder", tokens, correctTokenIds };
+}

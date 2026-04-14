@@ -20,6 +20,19 @@ export function extractQuickReviewBlankAnswer(frontText: string, backText: strin
 }
 
 /**
+ * Removes leading instruction labels for cloze prompts so legacy cards don't leak answers.
+ * Example: `Use "seems": He ___ ...` -> `He ___ ...`
+ */
+export function resolveQuickReviewFrontText(frontText: string): string {
+  if (!frontText.includes(BLANK_TOKEN)) return frontText;
+  const colonIdx = frontText.indexOf(":");
+  if (colonIdx < 0) return frontText;
+  const after = frontText.slice(colonIdx + 1).trim();
+  if (!after.includes(BLANK_TOKEN)) return frontText;
+  return after;
+}
+
+/**
  * For cloze-style quick-review prompts, show only the missing answer to reduce noise.
  */
 export function resolveQuickReviewBackText(frontText: string, backText: string): string {

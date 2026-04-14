@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractQuickReviewBlankAnswer,
   resolveQuickReviewBackText,
+  resolveQuickReviewFrontText,
 } from "../study/quick-review-display";
 
 describe("extractQuickReviewBlankAnswer", () => {
@@ -35,6 +36,20 @@ describe("resolveQuickReviewBackText", () => {
   it("falls back to full back text when blank extraction fails", () => {
     expect(resolveQuickReviewBackText("Translate: 彼は少し緊張している", "He seems a bit nervous.")).toBe(
       "He seems a bit nervous.",
+    );
+  });
+});
+
+describe("resolveQuickReviewFrontText", () => {
+  it("strips instruction labels that precede cloze prompts", () => {
+    expect(resolveQuickReviewFrontText('Use "seems": He ___ a bit nervous before presentations.')).toBe(
+      "He ___ a bit nervous before presentations.",
+    );
+  });
+
+  it("keeps non-cloze prompts unchanged", () => {
+    expect(resolveQuickReviewFrontText("Translate: 彼は少し緊張している")).toBe(
+      "Translate: 彼は少し緊張している",
     );
   });
 });

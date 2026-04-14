@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import type { QuickReviewCard } from "@/lib/study/quick-review";
 import { formatQuickReviewDayDisplay, QUICK_REVIEW_DAILY_MAX } from "@/lib/study/quick-review";
-import { resolveQuickReviewBackText } from "@/lib/study/quick-review-display";
+import { resolveQuickReviewBackText, resolveQuickReviewFrontText } from "@/lib/study/quick-review-display";
 
 type Props = {
   initialCards: QuickReviewCard[];
@@ -46,7 +46,7 @@ function QuickReviewFlipCard({
         >
           <span className="flex min-h-0 flex-1 items-center justify-center px-1">
             <span className="line-clamp-6 whitespace-pre-line text-sm font-medium leading-snug text-foreground">
-              {card.frontJa}
+              {resolveQuickReviewFrontText(card.frontJa)}
             </span>
           </span>
           <span className="shrink-0 pt-1 text-center text-[0.65rem] text-muted">{t("tapToFlip")}</span>

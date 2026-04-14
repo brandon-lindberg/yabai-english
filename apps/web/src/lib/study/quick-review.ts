@@ -56,6 +56,10 @@ export type QuickReviewPanelData = {
   notYetToday: number;
 };
 
+export function isQuickReviewCardFrontEligible(frontJa: string): boolean {
+  return !frontJa.includes("___");
+}
+
 function parseCardIdList(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
   return raw.filter((x): x is string => typeof x === "string" && x.length > 0);
@@ -69,6 +73,7 @@ async function queryEligibleQuickReviewPoolIds(prisma: PrismaClient, userId: str
     WHERE s."userId" = ${userId}
       AND s."correctCount" >= 1
       AND c."exerciseJson" IS NULL
+      AND c."frontJa" NOT LIKE ${"%___%"}
   `;
   return rows.map((r) => r.id);
 }
@@ -97,8 +102,9 @@ export async function getOrCreateQuickReviewCards(
       where: { id: { in: list } },
       select: { id: true, frontJa: true, backEn: true },
     });
-    sortByIdOrder(cards, list);
-    return { cards, dayKey, ...stats };
+    const filteredCards = cards.filter((c) => isQuickReviewCardFrontEligible(c.frontJa));
+    sortByIdOrder(filteredCards, list);
+    return { cards: filteredCards, dayKey, ...stats };
   }
 
   const sampled = await prisma.$queryRaw<{ id: string }[]>`
@@ -108,6 +114,7 @@ export async function getOrCreateQuickReviewCards(
     WHERE s."userId" = ${userId}
       AND s."correctCount" >= 1
       AND c."exerciseJson" IS NULL
+      AND c."frontJa" NOT LIKE ${"%___%"}
     ORDER BY RANDOM()
     LIMIT ${QUICK_REVIEW_DAILY_MAX}
   `;
@@ -129,8 +136,9 @@ export async function getOrCreateQuickReviewCards(
     where: { id: { in: ids } },
     select: { id: true, frontJa: true, backEn: true },
   });
-  sortByIdOrder(cards, ids);
-  return { cards, dayKey, learnedToday: 0, notYetToday: 0 };
+  const filteredCards = cards.filter((c) => isQuickReviewCardFrontEligible(c.frontJa));
+  sortByIdOrder(filteredCards, ids);
+  return { cards: filteredCards, dayKey, learnedToday: 0, notYetToday: 0 };
 }
 
 export type ApplyQuickReviewResult =
@@ -200,9 +208,10 @@ export async function applyQuickReviewOutcome(
     where: { id: { in: nextSlotIds } },
     select: { id: true, frontJa: true, backEn: true },
   });
-  sortByIdOrder(cards, nextSlotIds);
+  const filteredCards = cards.filter((c) => isQuickReviewCardFrontEligible(c.frontJa));
+  sortByIdOrder(filteredCards, nextSlotIds);
   const stats = countQuickReviewOutcomeStats(interactions);
-  return { ok: true, cards, ...stats };
+  return { ok: true, cards: filteredCards, ...stats };
 }
 
 function sortByIdOrder(cards: QuickReviewCard[], order: string[]) {

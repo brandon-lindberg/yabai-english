@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   gradeStudyCardReview,
+  inferReorderExerciseFromBlankPrompt,
   inferReorderExerciseFromSlashLines,
   parseStudyCardExercise,
 } from "../study/card-exercise";
@@ -16,6 +17,29 @@ describe("inferReorderExerciseFromSlashLines", () => {
     expect(ex!.kind).toBe("reorder");
     expect(ex!.tokens.length).toBe(7);
     expect(ex!.correctTokenIds.length).toBe(7);
+  });
+});
+
+describe("inferReorderExerciseFromBlankPrompt", () => {
+  it("builds reorder exercise for single blank prompts", () => {
+    const ex = inferReorderExerciseFromBlankPrompt(
+      "Fill in the blank: He ___ a bit nervous before presentations.",
+      "He seems a bit nervous before presentations.",
+      "test-blank",
+    );
+    expect(ex).not.toBeNull();
+    expect(ex!.kind).toBe("reorder");
+    expect(ex!.tokens.length).toBeGreaterThan(2);
+    expect(ex!.correctTokenIds.length).toBe(ex!.tokens.length);
+  });
+
+  it("returns null when no blank token exists", () => {
+    const ex = inferReorderExerciseFromBlankPrompt(
+      "Translate: 彼は少し緊張している",
+      "He seems a bit nervous.",
+      "test-blank",
+    );
+    expect(ex).toBeNull();
   });
 });
 

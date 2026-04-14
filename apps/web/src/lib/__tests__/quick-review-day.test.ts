@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { formatQuickReviewDayDisplay, utcCalendarDayKey } from "../study/quick-review";
+import {
+  formatQuickReviewDayDisplay,
+  isQuickReviewCardFrontEligible,
+  utcCalendarDayKey,
+} from "../study/quick-review";
 
 describe("utcCalendarDayKey", () => {
   it("formats YYYY-MM-DD in UTC", () => {
@@ -26,5 +30,15 @@ describe("formatQuickReviewDayDisplay", () => {
 
   it("returns the raw string when not YYYY-MM-DD", () => {
     expect(formatQuickReviewDayDisplay("bad", "en")).toBe("bad");
+  });
+});
+
+describe("isQuickReviewCardFrontEligible", () => {
+  it("excludes cloze prompts with blanks", () => {
+    expect(isQuickReviewCardFrontEligible("Choose the best sentence. He likes sports, ___ he doesn't like running.")).toBe(false);
+  });
+
+  it("keeps non-cloze prompts", () => {
+    expect(isQuickReviewCardFrontEligible("Translate: 彼は少し恥ずかしがり屋だが、優しい。")).toBe(true);
   });
 });

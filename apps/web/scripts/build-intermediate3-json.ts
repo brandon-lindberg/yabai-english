@@ -6,6 +6,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { inferReorderExerciseFromBlankPrompt } from "../src/lib/study/card-exercise";
 import { intermediate3LevelFileSchema } from "../src/lib/study/schemas";
 
 const OUT = path.join(__dirname, "../data/study/intermediate-3.json");
@@ -593,6 +594,11 @@ function build() {
       frontJa,
       backEn,
       sortOrder: ci,
+      exercise: inferReorderExerciseFromBlankPrompt(
+        frontJa,
+        backEn,
+        `study-i3-d${di}-c${ci}`,
+      ) ?? undefined,
     })),
   }));
 

@@ -7,7 +7,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { StudyLevelCode } from "@prisma/client";
-import { inferReorderExerciseFromSlashLines } from "../src/lib/study/card-exercise";
+import {
+  inferReorderExerciseFromBlankPrompt,
+  inferReorderExerciseFromSlashLines,
+} from "../src/lib/study/card-exercise";
 import { intermediate1LevelFileSchema } from "../src/lib/study/schemas";
 
 const OUT = path.join(__dirname, "../data/study/intermediate-1.json");
@@ -333,7 +336,7 @@ const DECKS: { titleJa: string; titleEn: string; cards: Pair[] }[] = [
       ],
       ["Translate: 彼は細身で、走るのが速い。", "He is slim and runs fast."],
       [
-        "Use \"seems\": He ___ a bit nervous before presentations.",
+        "Fill in the blank: He ___ a bit nervous before presentations.",
         "He seems a bit nervous before presentations.",
       ],
       ["Translate: その店員さんは丁寧で親切だった。", "The clerk was polite and kind."],
@@ -762,6 +765,14 @@ function build() {
       }),
     ),
   }));
+
+  // Convert cloze cards (`___`) into reorder exercises to avoid answer-leak prompts.
+  for (const deck of decks) {
+    deck.cards = deck.cards.map((c) => ({
+      ...c,
+      exercise: inferReorderExerciseFromBlankPrompt(c.frontJa, c.backEn, c.id) ?? c.exercise,
+    }));
+  }
 
   const reorderDeck = decks[10];
   if (!reorderDeck || reorderDeck.titleEn !== "Word order (reordering)") {
