@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import type { QuickReviewCard } from "@/lib/study/quick-review";
 import { formatQuickReviewDayDisplay, QUICK_REVIEW_DAILY_MAX } from "@/lib/study/quick-review";
+import { resolveQuickReviewBackText } from "@/lib/study/quick-review-display";
 
 type Props = {
   initialCards: QuickReviewCard[];
@@ -60,13 +61,18 @@ function QuickReviewFlipCard({
         >
           <span className="shrink-0 py-1 text-[0.65rem] text-muted">{t("tapToFlipBack")}</span>
           <div className="flex min-h-0 flex-1 items-center justify-center px-1 py-1">
-            <span className="line-clamp-4 text-sm font-medium leading-snug text-foreground">{card.backEn}</span>
+            <span className="line-clamp-4 text-sm font-medium leading-snug text-foreground">
+              {resolveQuickReviewBackText(card.frontJa, card.backEn)}
+            </span>
           </div>
           <div className="flex shrink-0 flex-col gap-1 pb-1 pt-0.5" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               disabled={disabled}
-              onClick={onLearned}
+              onClick={() => {
+                setFlipped(false);
+                onLearned();
+              }}
               className="cursor-pointer rounded-lg bg-green-600/90 px-2 py-1.5 text-[0.7rem] font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {t("learned")}
@@ -74,7 +80,10 @@ function QuickReviewFlipCard({
             <button
               type="button"
               disabled={disabled}
-              onClick={onNotYet}
+              onClick={() => {
+                setFlipped(false);
+                onNotYet();
+              }}
               className="cursor-pointer rounded-lg border border-border bg-surface px-2 py-1.5 text-[0.7rem] font-medium text-foreground hover:bg-[var(--app-hover)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {t("notYet")}
