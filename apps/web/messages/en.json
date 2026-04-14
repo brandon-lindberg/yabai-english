@@ -346,6 +346,15 @@
     "send": "Send",
     "sendFailed": "Could not send message.",
     "readOnlyHint": "Read-only until teacher/admin enables two-way chat.",
+    "blockUser": "Block user",
+    "unblockUser": "Unblock",
+    "reportUser": "Block & report",
+    "reportPrompt": "Please share what happened. This report will be reviewed.",
+    "reportReasonRequired": "A report reason is required.",
+    "reportSubmitted": "Report submitted.",
+    "moderationFailed": "Could not update chat moderation.",
+    "blockedHint": "This conversation is blocked. Messaging is disabled.",
+    "blockedComposerHint": "You cannot send messages while this conversation is blocked.",
     "delivered": "Delivered",
     "read": "Read"
   }

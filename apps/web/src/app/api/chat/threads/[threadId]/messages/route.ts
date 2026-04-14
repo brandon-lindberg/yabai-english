@@ -3,7 +3,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canSendChatMessage } from "@/lib/chat-permissions";
-import { createUserNotification } from "@/lib/notifications";
+import { isConversationBlocked, isViewerBlockedByCounterpart } from "@/lib/chat-blocking";
 import { emitChatUpdate } from "@/lib/realtime-server";
 
 const postSchema = z.object({
@@ -30,6 +30,9 @@ export async function GET(_req: Request, { params }: Props) {
     thread.studentId === session.user.id || thread.teacherId === session.user.id;
   if (!isParticipant && session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (isViewerBlockedByCounterpart(thread, session.user.id)) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   const markRead = await prisma.chatMessage.updateMany({
@@ -77,6 +80,24 @@ export async function POST(req: Request, { params }: Props) {
   });
   if (!thread) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  const isStudentSender = session.user.id === thread.studentId;
+  const isTeacherSender = session.user.id === thread.teacherId;
+  const isAdminSender = session.user.role === "ADMIN";
+  if (!isStudentSender && !isTeacherSender && !isAdminSender) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (isViewerBlockedByCounterpart(thread, session.user.id)) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  if (isConversationBlocked(thread)) {
+    return NextResponse.json(
+      { error: "Messaging is blocked for this conversation." },
+      { status: 403 },
+    );
+  }
+
   const teacherProfile = await prisma.teacherProfile.findFirst({
     where: { userId: thread.teacherId },
     select: { id: true },
@@ -114,13 +135,6 @@ export async function POST(req: Request, { params }: Props) {
     },
   });
 
-  await createUserNotification({
-    userId: recipientId,
-    titleJa: "新しいメッセージ",
-    titleEn: "New message",
-    bodyJa: "チャットに新しいメッセージがあります。",
-    bodyEn: "You have a new chat message.",
-  });
   await Promise.all([
     emitChatUpdate(session.user.id, threadId),
     emitChatUpdate(recipientId, threadId),

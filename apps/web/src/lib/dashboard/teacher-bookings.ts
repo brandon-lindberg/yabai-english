@@ -26,8 +26,26 @@ export function buildTeacherScheduleItems(bookings: TeacherScheduleBooking[]) {
 }
 
 export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teacherProfileId: string) {
+  const teacherProfile = await prisma.teacherProfile.findUnique({
+    where: { id: teacherProfileId },
+    select: { userId: true },
+  });
+  if (!teacherProfile) {
+    return { bookings: [], upcoming: [], completed: [], scheduleItems: [] };
+  }
+
   const bookings = await prisma.booking.findMany({
-    where: { teacherId: teacherProfileId },
+    where: {
+      teacherId: teacherProfileId,
+      student: {
+        chatThreadsAsStudent: {
+          none: {
+            teacherId: teacherProfile.userId,
+            studentBlockedAt: { not: null },
+          },
+        },
+      },
+    },
     orderBy: { startsAt: "asc" },
     include: {
       lessonProduct: true,

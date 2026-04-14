@@ -94,6 +94,25 @@ export async function POST(req: Request) {
     );
   }
 
+  const blockedThread = await prisma.chatThread.findUnique({
+    where: {
+      studentId_teacherId: {
+        studentId: session.user.id,
+        teacherId: teacher.userId,
+      },
+    },
+    select: {
+      studentBlockedAt: true,
+      teacherBlockedAt: true,
+    },
+  });
+  if (blockedThread?.studentBlockedAt || blockedThread?.teacherBlockedAt) {
+    return NextResponse.json(
+      { error: "This teacher is not available for booking." },
+      { status: 403 },
+    );
+  }
+
   const endsAt = new Date(start.getTime() + product.durationMin * 60_000);
 
   const conflict = await prisma.booking.findFirst({
@@ -296,9 +315,22 @@ export async function GET() {
   if (session.user.role === "TEACHER" || session.user.role === "ADMIN") {
     const teacher = await prisma.teacherProfile.findFirst({
       where: { userId: session.user.id },
+      select: { id: true, userId: true },
     });
     const list = await prisma.booking.findMany({
-      where: teacher ? { teacherId: teacher.id } : {},
+      where: teacher
+        ? {
+            teacherId: teacher.id,
+            student: {
+              chatThreadsAsStudent: {
+                none: {
+                  teacherId: teacher.userId,
+                  studentBlockedAt: { not: null },
+                },
+              },
+            },
+          }
+        : {},
       orderBy: { startsAt: "asc" },
       include: {
         lessonProduct: true,

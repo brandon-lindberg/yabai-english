@@ -12,6 +12,12 @@ type ThreadItem = {
   studentId: string;
   teacherId: string;
   twoWayEnabled: boolean;
+  studentBlockedAt: string | null;
+  teacherBlockedAt: string | null;
+  studentReportedAt: string | null;
+  teacherReportedAt: string | null;
+  studentReportReason: string | null;
+  teacherReportReason: string | null;
   unreadCount: number;
   counterpartName: string | null;
   latestMessage: string | null;
@@ -36,11 +42,16 @@ export function ChatPanel() {
   const [draft, setDraft] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [mobilePane, setMobilePane] = useState<"threads" | "chat">("threads");
+  const [moderationBusy, setModerationBusy] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const activeThread = useMemo(
     () => threads.find((thread) => thread.id === activeThreadId) ?? null,
     [threads, activeThreadId],
+  );
+  const totalUnreadCount = useMemo(
+    () => threads.reduce((sum, thread) => sum + thread.unreadCount, 0),
+    [threads],
   );
 
   async function loadThreads() {
@@ -59,6 +70,7 @@ export function ChatPanel() {
     if (!res.ok) return;
     const data = (await res.json()) as MessageItem[];
     setMessages(data);
+    await loadThreads();
   }
 
   useEffect(() => {
@@ -142,11 +154,56 @@ export function ChatPanel() {
     }
   }
 
+  async function moderateThread(action: "block" | "unblock" | "report") {
+    if (!activeThreadId || !activeThread || moderationBusy) return;
+    let reason: string | undefined;
+    if (action === "report") {
+      const value = window.prompt(t("reportPrompt"), "");
+      if (value === null) return;
+      reason = value.trim();
+      if (!reason) {
+        setStatus(t("reportReasonRequired"));
+        return;
+      }
+    }
+    setModerationBusy(true);
+    setStatus(null);
+    try {
+      const res = await fetch(`/api/chat/threads/${activeThreadId}/moderation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, reason }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setStatus(data.error ?? t("moderationFailed"));
+        return;
+      }
+      await loadThreads();
+      if (action === "report") {
+        setStatus(t("reportSubmitted"));
+      }
+    } finally {
+      setModerationBusy(false);
+    }
+  }
+
   const isTeacherOrAdmin =
     session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN";
   const canSend =
     (session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN") ||
     Boolean(activeThread?.twoWayEnabled);
+  const isBlocked = Boolean(
+    activeThread?.studentBlockedAt || activeThread?.teacherBlockedAt,
+  );
+  const myUserId = session?.user?.id;
+  const isStudentInThread = Boolean(activeThread && myUserId === activeThread.studentId);
+  const isTeacherInThread = Boolean(activeThread && myUserId === activeThread.teacherId);
+  const myBlockedAt = isStudentInThread
+    ? activeThread?.studentBlockedAt
+    : isTeacherInThread
+      ? activeThread?.teacherBlockedAt
+      : null;
 
   if (!session?.user?.id) return null;
 
@@ -161,6 +218,11 @@ export function ChatPanel() {
         aria-label={open ? t("close") : t("open")}
       >
         💬
+        {totalUnreadCount > 0 && (
+          <span className="absolute -right-1 -top-1 inline-flex min-w-5 justify-center rounded-full border border-red-300 bg-red-500 px-1.5 text-[10px] font-semibold leading-5 text-white">
+            {totalUnreadCount}
+          </span>
+        )}
       </button>
 
       {open && (
@@ -252,6 +314,39 @@ export function ChatPanel() {
                   {t("enableTwoWay")}
                 </label>
               )}
+              {activeThread && (
+                <div className="mb-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={moderationBusy || Boolean(myBlockedAt)}
+                    onClick={() => void moderateThread("block")}
+                    className="rounded-full border border-red-300 bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-40"
+                  >
+                    {t("blockUser")}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={moderationBusy || !myBlockedAt}
+                    onClick={() => void moderateThread("unblock")}
+                    className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted hover:bg-[var(--app-hover)] disabled:opacity-40"
+                  >
+                    {t("unblockUser")}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={moderationBusy}
+                    onClick={() => void moderateThread("report")}
+                    className="rounded-full border border-orange-300 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700 hover:bg-orange-100 disabled:opacity-40"
+                  >
+                    {t("reportUser")}
+                  </button>
+                </div>
+              )}
+              {isBlocked && (
+                <p className="mb-2 rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700">
+                  {t("blockedHint")}
+                </p>
+              )}
               <div className="flex-1 space-y-2 overflow-auto">
                 {messages.length === 0 ? (
                   <p className="text-sm text-muted">{t("noMessagesYet")}</p>
@@ -311,14 +406,14 @@ export function ChatPanel() {
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  disabled={!canSend}
+                  disabled={!canSend || isBlocked}
                   className="flex-1 rounded-full border border-border bg-surface px-3 py-2 text-sm text-foreground"
                   placeholder={t("messagePlaceholder")}
                 />
                 <button
                   type="button"
                   onClick={() => void send()}
-                  disabled={!canSend}
+                  disabled={!canSend || isBlocked}
                   className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
                 >
                   {t("send")}
@@ -326,6 +421,9 @@ export function ChatPanel() {
               </div>
               {!canSend && (
                 <p className="mt-2 text-xs text-muted">{t("readOnlyHint")}</p>
+              )}
+              {isBlocked && (
+                <p className="mt-2 text-xs text-muted">{t("blockedComposerHint")}</p>
               )}
               {status && <p className="mt-2 text-xs text-muted">{status}</p>}
             </div>

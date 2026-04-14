@@ -346,6 +346,15 @@
     "send": "送信",
     "sendFailed": "メッセージ送信に失敗しました。",
     "readOnlyHint": "講師/管理者が双方向チャットを有効にするまで閲覧専用です。",
+    "blockUser": "ユーザーをブロック",
+    "unblockUser": "ブロック解除",
+    "reportUser": "ブロックして報告",
+    "reportPrompt": "何が起きたか入力してください。この報告は確認されます。",
+    "reportReasonRequired": "報告理由を入力してください。",
+    "reportSubmitted": "報告を送信しました。",
+    "moderationFailed": "チャット設定を更新できませんでした。",
+    "blockedHint": "この会話はブロックされています。メッセージ送信は無効です。",
+    "blockedComposerHint": "この会話がブロック中のためメッセージを送信できません。",
     "delivered": "送信済み",
     "read": "既読"
   }

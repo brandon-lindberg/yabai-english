@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { TeacherCard } from "@/components/teacher-card";
 import { TeacherFilterBar } from "@/components/teacher-filter-bar";
 import { filterTeacherCards } from "@/lib/teacher-discovery";
+import { auth } from "@/auth";
 
 type Props = {
   searchParams: Promise<{
@@ -14,11 +15,25 @@ type Props = {
 export default async function BookPage({ searchParams }: Props) {
   const t = await getTranslations("booking");
   const params = await searchParams;
+  const session = await auth();
 
   const specialty = params.specialty?.trim() ?? "";
   const language = params.language?.trim().toUpperCase() ?? "";
 
   const teacherProfiles = await prisma.teacherProfile.findMany({
+    where:
+      session?.user?.id && session.user.role === "STUDENT"
+        ? {
+            user: {
+              chatThreadsAsTeacher: {
+                none: {
+                  studentId: session.user.id,
+                  teacherBlockedAt: { not: null },
+                },
+              },
+            },
+          }
+        : undefined,
     include: {
       user: true,
       availabilitySlots: {

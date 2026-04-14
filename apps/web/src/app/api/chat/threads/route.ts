@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { isViewerBlockedByCounterpart } from "@/lib/chat-blocking";
 
 export async function GET() {
   const session = await auth();
@@ -29,8 +30,12 @@ export async function GET() {
     take: 50,
   });
 
+  const visibleThreads = threads.filter(
+    (thread) => !isViewerBlockedByCounterpart(thread, session.user.id),
+  );
+
   const withUnread = await Promise.all(
-    threads.map(async (thread) => {
+    visibleThreads.map(async (thread) => {
       const unreadCount = await prisma.chatMessage.count({
         where: {
           threadId: thread.id,
@@ -43,6 +48,12 @@ export async function GET() {
         studentId: thread.studentId,
         teacherId: thread.teacherId,
         twoWayEnabled: thread.twoWayEnabled,
+        studentBlockedAt: thread.studentBlockedAt,
+        teacherBlockedAt: thread.teacherBlockedAt,
+        studentReportedAt: thread.studentReportedAt,
+        teacherReportedAt: thread.teacherReportedAt,
+        studentReportReason: thread.studentReportReason,
+        teacherReportReason: thread.teacherReportReason,
         counterpartName:
           session.user.id === thread.studentId
             ? thread.teacher.name ?? thread.teacher.email

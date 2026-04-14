@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { isViewerBlockedByCounterpart } from "@/lib/chat-blocking";
 import { emitChatUpdate } from "@/lib/realtime-server";
 
 const bodySchema = z.object({
@@ -27,6 +28,9 @@ export async function POST(req: Request, { params }: Props) {
   const { threadId } = await params;
   const thread = await prisma.chatThread.findUnique({ where: { id: threadId } });
   if (!thread) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (isViewerBlockedByCounterpart(thread, session.user.id)) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
 
   const canUpdate =
     session.user.role === "ADMIN" ||

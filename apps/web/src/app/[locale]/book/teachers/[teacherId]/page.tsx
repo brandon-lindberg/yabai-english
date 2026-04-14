@@ -31,6 +31,19 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
 
   const displayName = teacher.displayName ?? teacher.user.name ?? "Teacher";
   const session = await auth();
+  if (session?.user?.id && session.user.role === "STUDENT") {
+    const hiddenByTeacher = await prisma.chatThread.findFirst({
+      where: {
+        studentId: session.user.id,
+        teacherId: teacher.userId,
+        teacherBlockedAt: { not: null },
+      },
+      select: { id: true },
+    });
+    if (hiddenByTeacher) {
+      notFound();
+    }
+  }
   const studentProfile = session?.user?.id
     ? await prisma.studentProfile.findUnique({
         where: { userId: session.user.id },

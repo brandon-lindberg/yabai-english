@@ -514,6 +514,12 @@ model ChatThread {
   teacher   User     @relation("ThreadTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
   twoWayEnabled Boolean @default(false)
   twoWayEnabledByRole Role?
+  studentBlockedAt DateTime?
+  teacherBlockedAt DateTime?
+  studentReportedAt DateTime?
+  teacherReportedAt DateTime?
+  studentReportReason String? @db.Text
+  teacherReportReason String? @db.Text
   updatedAt DateTime @updatedAt
 
   messages ChatMessage[]
