@@ -14,6 +14,8 @@ type BuildOptions = {
   now?: string | Date;
   horizonDays?: number;
   minimumLeadHours?: number;
+  /** When true, include instances that start in the past (for teacher availability editor). */
+  allowPastInstances?: boolean;
 };
 
 export type SlotOption = {
@@ -33,6 +35,7 @@ export function buildUpcomingSlotOptions({
   now = new Date(),
   horizonDays = 21,
   minimumLeadHours = 0,
+  allowPastInstances = false,
 }: BuildOptions): SlotOption[] {
   const nowUtc =
     typeof now === "string"
@@ -67,7 +70,7 @@ export function buildUpcomingSlotOptions({
       const startUtc = startTeacher.toUTC();
       const endUtc = endTeacher.toUTC();
       const leadMs = minimumLeadHours * 60 * 60 * 1000;
-      if (startUtc <= nowUtc.plus({ milliseconds: leadMs })) continue;
+      if (!allowPastInstances && startUtc <= nowUtc.plus({ milliseconds: leadMs })) continue;
 
       const startViewer = startUtc.setZone(viewerTimezone);
       const endViewer = endUtc.setZone(viewerTimezone);

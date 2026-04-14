@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { DashboardScheduleCalendar } from "@/components/dashboard-schedule-calendar";
 import { DashboardUpcomingLessons } from "@/components/dashboard/dashboard-upcoming-lessons";
-import { TeacherAvailabilityForm } from "@/components/dashboard/teacher-availability-form";
+import { TeacherAvailabilityCalendar } from "@/components/dashboard/teacher-availability-calendar";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
 import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
 
@@ -34,13 +34,15 @@ export default async function DashboardSchedulePage() {
       <div className="space-y-8">
         <p className="text-muted">Set your availability and manage upcoming sessions.</p>
 
-        <TeacherAvailabilityForm
+        <TeacherAvailabilityCalendar
           initialSlots={(profile?.availabilitySlots ?? []).map((slot) => ({
+            id: slot.id,
             dayOfWeek: slot.dayOfWeek,
             startMin: slot.startMin,
             endMin: slot.endMin,
             timezone: slot.timezone,
           }))}
+          defaultTimezone={profile?.availabilitySlots?.[0]?.timezone ?? "Asia/Tokyo"}
         />
 
         <section>

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { getReceiptKey } from "@/lib/chat-receipts";
 import { getRealtimeSocket } from "@/lib/realtime-client";
 import { REALTIME_EVENTS } from "@/lib/realtime-events";
+import { ChatModerationMenu } from "@/components/chat-moderation-menu";
 
 type ThreadItem = {
   id: string;
@@ -229,13 +230,29 @@ export function ChatPanel() {
         <div className="fixed bottom-0 left-0 right-0 z-40 h-[78vh] rounded-t-2xl border border-border bg-surface shadow-xl md:bottom-5 md:left-auto md:right-5 md:top-20 md:h-auto md:w-[760px] md:rounded-2xl">
           <div className="mb-2 flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-full border border-border px-2 py-1 text-xs text-muted hover:bg-[var(--app-hover)]"
-            >
-              {t("close")}
-            </button>
+            <div className="flex items-center gap-2">
+              {activeThread && (
+                <ChatModerationMenu
+                  menuAriaLabel={t("moreActions")}
+                  blockLabel={t("blockUser")}
+                  unblockLabel={t("unblockUser")}
+                  reportLabel={t("reportUser")}
+                  blockDisabled={moderationBusy || Boolean(myBlockedAt)}
+                  unblockDisabled={moderationBusy || !myBlockedAt}
+                  reportDisabled={moderationBusy}
+                  onBlock={() => void moderateThread("block")}
+                  onUnblock={() => void moderateThread("unblock")}
+                  onReport={() => void moderateThread("report")}
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-full border border-border px-2 py-1 text-xs text-muted hover:bg-[var(--app-hover)]"
+              >
+                {t("close")}
+              </button>
+            </div>
           </div>
           <div className="grid h-[calc(100%-56px)] grid-cols-1 gap-3 p-3 md:grid-cols-[260px_1fr]">
             <aside
@@ -313,34 +330,6 @@ export function ChatPanel() {
                   />
                   {t("enableTwoWay")}
                 </label>
-              )}
-              {activeThread && (
-                <div className="mb-2 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    disabled={moderationBusy || Boolean(myBlockedAt)}
-                    onClick={() => void moderateThread("block")}
-                    className="rounded-full border border-red-300 bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-40"
-                  >
-                    {t("blockUser")}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={moderationBusy || !myBlockedAt}
-                    onClick={() => void moderateThread("unblock")}
-                    className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted hover:bg-[var(--app-hover)] disabled:opacity-40"
-                  >
-                    {t("unblockUser")}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={moderationBusy}
-                    onClick={() => void moderateThread("report")}
-                    className="rounded-full border border-orange-300 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700 hover:bg-orange-100 disabled:opacity-40"
-                  >
-                    {t("reportUser")}
-                  </button>
-                </div>
               )}
               {isBlocked && (
                 <p className="mb-2 rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700">

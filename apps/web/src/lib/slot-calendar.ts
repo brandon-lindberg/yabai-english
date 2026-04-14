@@ -1,6 +1,8 @@
 export type SlotOption = {
   startsAtIso: string;
   label: string;
+  /** Optional stable id for recurring rules (teacher availability editor). */
+  groupKey?: string;
 };
 
 export type SlotDayGroup = {
