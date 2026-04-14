@@ -4,6 +4,8 @@ import path from "node:path";
 import { StudyLevelCode } from "@prisma/client";
 import {
   advanced1LevelFileSchema,
+  advanced2LevelFileSchema,
+  advanced3LevelFileSchema,
   beginner2LevelFileSchema,
   beginner3LevelFileSchema,
   beginnerLevelFileSchema,
@@ -273,6 +275,44 @@ describe("advanced1LevelFileSchema", () => {
           expect(japaneseScriptRegex.test(card.backEn)).toBe(false);
         }
       }
+    }
+  });
+});
+
+describe("advanced2LevelFileSchema", () => {
+  it("parses committed data/study/advanced-2.json when present", () => {
+    const fp = path.join(__dirname, "../../../data/study/advanced-2.json");
+    if (!fs.existsSync(fp)) {
+      return;
+    }
+    const raw = JSON.parse(fs.readFileSync(fp, "utf8")) as unknown;
+    const parsed = advanced2LevelFileSchema.safeParse(raw);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const total = parsed.data.decks.reduce((s, d) => s + d.cards.length, 0);
+      expect(parsed.data.decks.length).toBeGreaterThanOrEqual(14);
+      expect(parsed.data.decks.length).toBeLessThanOrEqual(16);
+      expect(total).toBeGreaterThanOrEqual(500);
+      expect(total).toBeLessThanOrEqual(600);
+    }
+  });
+});
+
+describe("advanced3LevelFileSchema", () => {
+  it("parses committed data/study/advanced-3.json when present", () => {
+    const fp = path.join(__dirname, "../../../data/study/advanced-3.json");
+    if (!fs.existsSync(fp)) {
+      return;
+    }
+    const raw = JSON.parse(fs.readFileSync(fp, "utf8")) as unknown;
+    const parsed = advanced3LevelFileSchema.safeParse(raw);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const total = parsed.data.decks.reduce((s, d) => s + d.cards.length, 0);
+      expect(parsed.data.decks.length).toBeGreaterThanOrEqual(16);
+      expect(parsed.data.decks.length).toBeLessThanOrEqual(18);
+      expect(total).toBeGreaterThanOrEqual(650);
+      expect(total).toBeLessThanOrEqual(800);
     }
   });
 });

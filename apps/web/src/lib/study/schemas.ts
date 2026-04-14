@@ -375,6 +375,22 @@ const ADVANCED_1_CARDS_PER_DECK_MAX = 35;
 const ADVANCED_1_TOTAL_CARDS_MIN = 400;
 const ADVANCED_1_TOTAL_CARDS_MAX = 450;
 
+/** Advanced L2: 14–16 decks, 35–40 cards each, ~500–600 total (professional & abstract). */
+const ADVANCED_2_DECK_MIN = 14;
+const ADVANCED_2_DECK_MAX = 16;
+const ADVANCED_2_CARDS_PER_DECK_MIN = 35;
+const ADVANCED_2_CARDS_PER_DECK_MAX = 40;
+const ADVANCED_2_TOTAL_CARDS_MIN = 500;
+const ADVANCED_2_TOTAL_CARDS_MAX = 600;
+
+/** Advanced L3: 16–18 decks, 40–50 cards each, ~650–800 total (persuasion & fluency under pressure). */
+const ADVANCED_3_DECK_MIN = 16;
+const ADVANCED_3_DECK_MAX = 18;
+const ADVANCED_3_CARDS_PER_DECK_MIN = 40;
+const ADVANCED_3_CARDS_PER_DECK_MAX = 50;
+const ADVANCED_3_TOTAL_CARDS_MIN = 650;
+const ADVANCED_3_TOTAL_CARDS_MAX = 800;
+
 const japaneseScriptRegex = /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u;
 
 function addAdvancedEnglishOnlyIssues(
@@ -503,6 +519,50 @@ export const advanced1LevelFileSchema = advanced1LevelFileBaseSchema.superRefine
   addAdvancedEnglishOnlyIssues(data, ctx);
 });
 
+const advanced2LevelFileBaseSchema = z.object({
+  version: z.literal(1),
+  levelCode: z.literal("ADVANCED_2"),
+  decks: z.array(studyDeckFileSchema).min(ADVANCED_2_DECK_MIN).max(ADVANCED_2_DECK_MAX),
+  assessment: z.object({
+    passingScore: z.number().int().min(0).max(100),
+    items: z.array(studyAssessmentItemSchema).min(8).max(16),
+  }),
+});
+
+export const advanced2LevelFileSchema = advanced2LevelFileBaseSchema.superRefine((data, ctx) => {
+  refineAdvancedDecks(data, ctx, {
+    deckMin: ADVANCED_2_DECK_MIN,
+    deckMax: ADVANCED_2_DECK_MAX,
+    cardsPerDeckMin: ADVANCED_2_CARDS_PER_DECK_MIN,
+    cardsPerDeckMax: ADVANCED_2_CARDS_PER_DECK_MAX,
+    totalMin: ADVANCED_2_TOTAL_CARDS_MIN,
+    totalMax: ADVANCED_2_TOTAL_CARDS_MAX,
+  });
+  addAdvancedEnglishOnlyIssues(data, ctx);
+});
+
+const advanced3LevelFileBaseSchema = z.object({
+  version: z.literal(1),
+  levelCode: z.literal("ADVANCED_3"),
+  decks: z.array(studyDeckFileSchema).min(ADVANCED_3_DECK_MIN).max(ADVANCED_3_DECK_MAX),
+  assessment: z.object({
+    passingScore: z.number().int().min(0).max(100),
+    items: z.array(studyAssessmentItemSchema).min(8).max(16),
+  }),
+});
+
+export const advanced3LevelFileSchema = advanced3LevelFileBaseSchema.superRefine((data, ctx) => {
+  refineAdvancedDecks(data, ctx, {
+    deckMin: ADVANCED_3_DECK_MIN,
+    deckMax: ADVANCED_3_DECK_MAX,
+    cardsPerDeckMin: ADVANCED_3_CARDS_PER_DECK_MIN,
+    cardsPerDeckMax: ADVANCED_3_CARDS_PER_DECK_MAX,
+    totalMin: ADVANCED_3_TOTAL_CARDS_MIN,
+    totalMax: ADVANCED_3_TOTAL_CARDS_MAX,
+  });
+  addAdvancedEnglishOnlyIssues(data, ctx);
+});
+
 export type BeginnerLevelFile = z.infer<typeof beginnerLevelFileSchema>;
 export type Beginner2LevelFile = z.infer<typeof beginner2LevelFileSchema>;
 export type Beginner3LevelFile = z.infer<typeof beginner3LevelFileSchema>;
@@ -510,6 +570,8 @@ export type Intermediate1LevelFile = z.infer<typeof intermediate1LevelFileSchema
 export type Intermediate2LevelFile = z.infer<typeof intermediate2LevelFileSchema>;
 export type Intermediate3LevelFile = z.infer<typeof intermediate3LevelFileSchema>;
 export type Advanced1LevelFile = z.infer<typeof advanced1LevelFileSchema>;
+export type Advanced2LevelFile = z.infer<typeof advanced2LevelFileSchema>;
+export type Advanced3LevelFile = z.infer<typeof advanced3LevelFileSchema>;
 export type StudyAssessmentItem = z.infer<typeof studyAssessmentItemSchema>;
 
 const llmAssessmentItemSchema = studyAssessmentItemSchema.extend({

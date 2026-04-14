@@ -3,6 +3,8 @@ import path from "node:path";
 import { Prisma, type PrismaClient, StudyLevelCode } from "@prisma/client";
 import {
   advanced1LevelFileSchema,
+  advanced2LevelFileSchema,
+  advanced3LevelFileSchema,
   beginner2LevelFileSchema,
   beginner3LevelFileSchema,
   beginnerLevelFileSchema,
@@ -112,6 +114,20 @@ function readAdvanced1Json() {
   const raw = fs.readFileSync(fp, "utf8");
   const json = JSON.parse(raw) as unknown;
   return advanced1LevelFileSchema.parse(json);
+}
+
+function readAdvanced2Json() {
+  const fp = path.join(__dirname, "../data/study/advanced-2.json");
+  const raw = fs.readFileSync(fp, "utf8");
+  const json = JSON.parse(raw) as unknown;
+  return advanced2LevelFileSchema.parse(json);
+}
+
+function readAdvanced3Json() {
+  const fp = path.join(__dirname, "../data/study/advanced-3.json");
+  const raw = fs.readFileSync(fp, "utf8");
+  const json = JSON.parse(raw) as unknown;
+  return advanced3LevelFileSchema.parse(json);
 }
 
 async function seedStudyLevelBank(
@@ -249,4 +265,10 @@ export async function seedStudyTrack(prisma: PrismaClient) {
 
   const a1LevelId = levelIdByCode.get(StudyLevelCode.ADVANCED_1)!;
   await seedStudyLevelBank(prisma, a1LevelId, readAdvanced1Json(), "study-a1-assessment-exit");
+
+  const a2LevelId = levelIdByCode.get(StudyLevelCode.ADVANCED_2)!;
+  await seedStudyLevelBank(prisma, a2LevelId, readAdvanced2Json(), "study-a2-assessment-exit");
+
+  const a3LevelId = levelIdByCode.get(StudyLevelCode.ADVANCED_3)!;
+  await seedStudyLevelBank(prisma, a3LevelId, readAdvanced3Json(), "study-a3-assessment-exit");
 }

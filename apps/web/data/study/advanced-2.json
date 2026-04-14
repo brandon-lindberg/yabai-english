@@ -1,0 +1,3267 @@
+{
+  "version": 1,
+  "levelCode": "ADVANCED_2",
+  "decks": [
+    {
+      "id": "study-a2-deck-0",
+      "titleJa": "Formal writing and email language",
+      "titleEn": "Formal writing and email language",
+      "sortOrder": 0,
+      "cards": [
+        {
+          "id": "study-a2-d0-c0",
+          "frontJa": "In Monday's steering-committee review, I would like to inform you that ___ timeline has shifted before the close of business.",
+          "backEn": "In Monday's steering-committee review, I would like to inform you that the timeline has shifted before the close of business.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d0-c1",
+          "frontJa": "During the vendor renewal call, Please be advised that ___ revised draft is attached to avoid further delay.",
+          "backEn": "During the vendor renewal call, Please be advised that the revised draft is attached to avoid further delay.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d0-c2",
+          "frontJa": "In a cross-functional planning workshop, I am writing to confirm that ___ require final approval before the close of business.",
+          "backEn": "In a cross-functional planning workshop, I am writing to confirm that we require final approval before the close of business.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d0-c3",
+          "frontJa": "While drafting the quarterly board memo, For your reference ___ issue has been resolved to avoid further delay.",
+          "backEn": "While drafting the quarterly board memo, For your reference the issue has been resolved to avoid further delay.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d0-c4",
+          "frontJa": "At the end of a client escalation meeting, To keep you updated ___ payment is now overdue before the close of business.",
+          "backEn": "At the end of a client escalation meeting, To keep you updated the payment is now overdue before the close of business.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d0-c5",
+          "frontJa": "In a follow-up email to legal counsel, Further to our discussion ___ will proceed as agreed to avoid further delay.",
+          "backEn": "In a follow-up email to legal counsel, Further to our discussion we will proceed as agreed to avoid further delay.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d0-c6",
+          "frontJa": "When summarizing risks for finance, I would like to inform you that ___ timeline has shifted before the close of business.",
+          "backEn": "When summarizing risks for finance, I would like to inform you that the timeline has shifted before the close of business.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d0-c7",
+          "frontJa": "During a product and engineering sync, Please be advised that ___ revised draft is attached to avoid further delay.",
+          "backEn": "During a product and engineering sync, Please be advised that the revised draft is attached to avoid further delay.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d0-c8",
+          "frontJa": "In a retrospective after missed targets, I am writing to confirm that ___ require final approval before the close of business.",
+          "backEn": "In a retrospective after missed targets, I am writing to confirm that we require final approval before the close of business.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d0-c9",
+          "frontJa": "When briefing a newly assigned manager, For your reference ___ issue has been resolved to avoid further delay.",
+          "backEn": "When briefing a newly assigned manager, For your reference the issue has been resolved to avoid further delay.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d0-c10",
+          "frontJa": "In a negotiation with a procurement team, To keep you updated ___ payment is now overdue before the close of business.",
+          "backEn": "In a negotiation with a procurement team, To keep you updated the payment is now overdue before the close of business.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d0-c11",
+          "frontJa": "During an incident-response handover, Further to our discussion ___ will proceed as agreed to avoid further delay.",
+          "backEn": "During an incident-response handover, Further to our discussion we will proceed as agreed to avoid further delay.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d0-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, I would like to inform you that ___ timeline has shifted before the close of business.",
+          "backEn": "In a pre-launch go/no-go discussion, I would like to inform you that the timeline has shifted before the close of business.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d0-c13",
+          "frontJa": "When documenting assumptions in Notion, Please be advised that ___ revised draft is attached to avoid further delay.",
+          "backEn": "When documenting assumptions in Notion, Please be advised that the revised draft is attached to avoid further delay.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d0-c14",
+          "frontJa": "During a weekly executive update, I am writing to confirm that ___ require final approval before the close of business.",
+          "backEn": "During a weekly executive update, I am writing to confirm that we require final approval before the close of business.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d0-c15",
+          "frontJa": "In a one-on-one with a direct report, For your reference ___ issue has been resolved to avoid further delay.",
+          "backEn": "In a one-on-one with a direct report, For your reference the issue has been resolved to avoid further delay.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d0-c16",
+          "frontJa": "When moderating a tense design review, To keep you updated ___ payment is now overdue before the close of business.",
+          "backEn": "When moderating a tense design review, To keep you updated the payment is now overdue before the close of business.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d0-c17",
+          "frontJa": "In a customer-facing roadmap presentation, Further to our discussion ___ will proceed as agreed to avoid further delay.",
+          "backEn": "In a customer-facing roadmap presentation, Further to our discussion we will proceed as agreed to avoid further delay.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d0-c18",
+          "frontJa": "During a strategy offsite debate, I would like to inform you that ___ timeline has shifted before the close of business.",
+          "backEn": "During a strategy offsite debate, I would like to inform you that the timeline has shifted before the close of business.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d0-c19",
+          "frontJa": "When escalating a blocker to leadership, Please be advised that ___ revised draft is attached to avoid further delay.",
+          "backEn": "When escalating a blocker to leadership, Please be advised that the revised draft is attached to avoid further delay.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d0-c20",
+          "frontJa": "In the opening of a webinar Q&A, I am writing to confirm that ___ require final approval before the close of business.",
+          "backEn": "In the opening of a webinar Q&A, I am writing to confirm that we require final approval before the close of business.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d0-c21",
+          "frontJa": "While writing postmortem action items, For your reference ___ issue has been resolved to avoid further delay.",
+          "backEn": "While writing postmortem action items, For your reference the issue has been resolved to avoid further delay.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d0-c22",
+          "frontJa": "During a budget reforecast meeting, To keep you updated ___ payment is now overdue before the close of business.",
+          "backEn": "During a budget reforecast meeting, To keep you updated the payment is now overdue before the close of business.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d0-c23",
+          "frontJa": "In a kickoff session with external partners, Further to our discussion ___ will proceed as agreed to avoid further delay.",
+          "backEn": "In a kickoff session with external partners, Further to our discussion we will proceed as agreed to avoid further delay.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d0-c24",
+          "frontJa": "When aligning stakeholders before launch, I would like to inform you that ___ timeline has shifted before the close of business.",
+          "backEn": "When aligning stakeholders before launch, I would like to inform you that the timeline has shifted before the close of business.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d0-c25",
+          "frontJa": "During a data-quality review with analytics, Please be advised that ___ revised draft is attached to avoid further delay.",
+          "backEn": "During a data-quality review with analytics, Please be advised that the revised draft is attached to avoid further delay.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d0-c26",
+          "frontJa": "In a hiring panel debrief, I am writing to confirm that ___ require final approval before the close of business.",
+          "backEn": "In a hiring panel debrief, I am writing to confirm that we require final approval before the close of business.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d0-c27",
+          "frontJa": "When preparing a compliance audit response, For your reference ___ issue has been resolved to avoid further delay.",
+          "backEn": "When preparing a compliance audit response, For your reference the issue has been resolved to avoid further delay.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d0-c28",
+          "frontJa": "During a migration readiness checkpoint, To keep you updated ___ payment is now overdue before the close of business.",
+          "backEn": "During a migration readiness checkpoint, To keep you updated the payment is now overdue before the close of business.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d0-c29",
+          "frontJa": "In an internal announcement to all teams, Further to our discussion ___ will proceed as agreed to avoid further delay.",
+          "backEn": "In an internal announcement to all teams, Further to our discussion we will proceed as agreed to avoid further delay.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d0-c30",
+          "frontJa": "When clarifying scope with operations, I would like to inform you that ___ timeline has shifted before the close of business.",
+          "backEn": "When clarifying scope with operations, I would like to inform you that the timeline has shifted before the close of business.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d0-c31",
+          "frontJa": "During a customer advisory board session, Please be advised that ___ revised draft is attached to avoid further delay.",
+          "backEn": "During a customer advisory board session, Please be advised that the revised draft is attached to avoid further delay.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d0-c32",
+          "frontJa": "In a policy exception request thread, I am writing to confirm that ___ require final approval before the close of business.",
+          "backEn": "In a policy exception request thread, I am writing to confirm that we require final approval before the close of business.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d0-c33",
+          "frontJa": "When presenting trade-offs to executives, For your reference ___ issue has been resolved to avoid further delay.",
+          "backEn": "When presenting trade-offs to executives, For your reference the issue has been resolved to avoid further delay.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d0-c34",
+          "frontJa": "During a conflict-resolution conversation, To keep you updated ___ payment is now overdue before the close of business.",
+          "backEn": "During a conflict-resolution conversation, To keep you updated the payment is now overdue before the close of business.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d0-c35",
+          "frontJa": "In a final decision memo before sign-off, Further to our discussion ___ will proceed as agreed to avoid further delay.",
+          "backEn": "In a final decision memo before sign-off, Further to our discussion we will proceed as agreed to avoid further delay.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-1",
+      "titleJa": "Meetings and workplace communication",
+      "titleEn": "Meetings and workplace communication",
+      "sortOrder": 1,
+      "cards": [
+        {
+          "id": "study-a2-d1-c0",
+          "frontJa": "In Monday's steering-committee review, Before we move on ___ want to clarify ownership before this meeting closes.",
+          "backEn": "In Monday's steering-committee review, Before we move on I want to clarify ownership before this meeting closes.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d1-c1",
+          "frontJa": "During the vendor renewal call, If I may add ___ need a decision today to protect the deadline.",
+          "backEn": "During the vendor renewal call, If I may add we need a decision today to protect the deadline.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d1-c2",
+          "frontJa": "In a cross-functional planning workshop, Could I briefly jump in ___ blocker remains unresolved before this meeting closes.",
+          "backEn": "In a cross-functional planning workshop, Could I briefly jump in the blocker remains unresolved before this meeting closes.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d1-c3",
+          "frontJa": "While drafting the quarterly board memo, To build on that point ___ suggest we time-box this to protect the deadline.",
+          "backEn": "While drafting the quarterly board memo, To build on that point I suggest we time-box this to protect the deadline.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d1-c4",
+          "frontJa": "At the end of a client escalation meeting, With your permission ___ should capture next steps before this meeting closes.",
+          "backEn": "At the end of a client escalation meeting, With your permission we should capture next steps before this meeting closes.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d1-c5",
+          "frontJa": "In a follow-up email to legal counsel, Just to keep us on track ___ are drifting from the agenda to protect the deadline.",
+          "backEn": "In a follow-up email to legal counsel, Just to keep us on track we are drifting from the agenda to protect the deadline.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d1-c6",
+          "frontJa": "When summarizing risks for finance, Before we move on ___ want to clarify ownership before this meeting closes.",
+          "backEn": "When summarizing risks for finance, Before we move on I want to clarify ownership before this meeting closes.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d1-c7",
+          "frontJa": "During a product and engineering sync, If I may add ___ need a decision today to protect the deadline.",
+          "backEn": "During a product and engineering sync, If I may add we need a decision today to protect the deadline.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d1-c8",
+          "frontJa": "In a retrospective after missed targets, Could I briefly jump in ___ blocker remains unresolved before this meeting closes.",
+          "backEn": "In a retrospective after missed targets, Could I briefly jump in the blocker remains unresolved before this meeting closes.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d1-c9",
+          "frontJa": "When briefing a newly assigned manager, To build on that point ___ suggest we time-box this to protect the deadline.",
+          "backEn": "When briefing a newly assigned manager, To build on that point I suggest we time-box this to protect the deadline.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d1-c10",
+          "frontJa": "In a negotiation with a procurement team, With your permission ___ should capture next steps before this meeting closes.",
+          "backEn": "In a negotiation with a procurement team, With your permission we should capture next steps before this meeting closes.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d1-c11",
+          "frontJa": "During an incident-response handover, Just to keep us on track ___ are drifting from the agenda to protect the deadline.",
+          "backEn": "During an incident-response handover, Just to keep us on track we are drifting from the agenda to protect the deadline.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d1-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, Before we move on ___ want to clarify ownership before this meeting closes.",
+          "backEn": "In a pre-launch go/no-go discussion, Before we move on I want to clarify ownership before this meeting closes.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d1-c13",
+          "frontJa": "When documenting assumptions in Notion, If I may add ___ need a decision today to protect the deadline.",
+          "backEn": "When documenting assumptions in Notion, If I may add we need a decision today to protect the deadline.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d1-c14",
+          "frontJa": "During a weekly executive update, Could I briefly jump in ___ blocker remains unresolved before this meeting closes.",
+          "backEn": "During a weekly executive update, Could I briefly jump in the blocker remains unresolved before this meeting closes.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d1-c15",
+          "frontJa": "In a one-on-one with a direct report, To build on that point ___ suggest we time-box this to protect the deadline.",
+          "backEn": "In a one-on-one with a direct report, To build on that point I suggest we time-box this to protect the deadline.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d1-c16",
+          "frontJa": "When moderating a tense design review, With your permission ___ should capture next steps before this meeting closes.",
+          "backEn": "When moderating a tense design review, With your permission we should capture next steps before this meeting closes.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d1-c17",
+          "frontJa": "In a customer-facing roadmap presentation, Just to keep us on track ___ are drifting from the agenda to protect the deadline.",
+          "backEn": "In a customer-facing roadmap presentation, Just to keep us on track we are drifting from the agenda to protect the deadline.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d1-c18",
+          "frontJa": "During a strategy offsite debate, Before we move on ___ want to clarify ownership before this meeting closes.",
+          "backEn": "During a strategy offsite debate, Before we move on I want to clarify ownership before this meeting closes.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d1-c19",
+          "frontJa": "When escalating a blocker to leadership, If I may add ___ need a decision today to protect the deadline.",
+          "backEn": "When escalating a blocker to leadership, If I may add we need a decision today to protect the deadline.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d1-c20",
+          "frontJa": "In the opening of a webinar Q&A, Could I briefly jump in ___ blocker remains unresolved before this meeting closes.",
+          "backEn": "In the opening of a webinar Q&A, Could I briefly jump in the blocker remains unresolved before this meeting closes.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d1-c21",
+          "frontJa": "While writing postmortem action items, To build on that point ___ suggest we time-box this to protect the deadline.",
+          "backEn": "While writing postmortem action items, To build on that point I suggest we time-box this to protect the deadline.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d1-c22",
+          "frontJa": "During a budget reforecast meeting, With your permission ___ should capture next steps before this meeting closes.",
+          "backEn": "During a budget reforecast meeting, With your permission we should capture next steps before this meeting closes.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d1-c23",
+          "frontJa": "In a kickoff session with external partners, Just to keep us on track ___ are drifting from the agenda to protect the deadline.",
+          "backEn": "In a kickoff session with external partners, Just to keep us on track we are drifting from the agenda to protect the deadline.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d1-c24",
+          "frontJa": "When aligning stakeholders before launch, Before we move on ___ want to clarify ownership before this meeting closes.",
+          "backEn": "When aligning stakeholders before launch, Before we move on I want to clarify ownership before this meeting closes.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d1-c25",
+          "frontJa": "During a data-quality review with analytics, If I may add ___ need a decision today to protect the deadline.",
+          "backEn": "During a data-quality review with analytics, If I may add we need a decision today to protect the deadline.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d1-c26",
+          "frontJa": "In a hiring panel debrief, Could I briefly jump in ___ blocker remains unresolved before this meeting closes.",
+          "backEn": "In a hiring panel debrief, Could I briefly jump in the blocker remains unresolved before this meeting closes.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d1-c27",
+          "frontJa": "When preparing a compliance audit response, To build on that point ___ suggest we time-box this to protect the deadline.",
+          "backEn": "When preparing a compliance audit response, To build on that point I suggest we time-box this to protect the deadline.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d1-c28",
+          "frontJa": "During a migration readiness checkpoint, With your permission ___ should capture next steps before this meeting closes.",
+          "backEn": "During a migration readiness checkpoint, With your permission we should capture next steps before this meeting closes.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d1-c29",
+          "frontJa": "In an internal announcement to all teams, Just to keep us on track ___ are drifting from the agenda to protect the deadline.",
+          "backEn": "In an internal announcement to all teams, Just to keep us on track we are drifting from the agenda to protect the deadline.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d1-c30",
+          "frontJa": "When clarifying scope with operations, Before we move on ___ want to clarify ownership before this meeting closes.",
+          "backEn": "When clarifying scope with operations, Before we move on I want to clarify ownership before this meeting closes.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d1-c31",
+          "frontJa": "During a customer advisory board session, If I may add ___ need a decision today to protect the deadline.",
+          "backEn": "During a customer advisory board session, If I may add we need a decision today to protect the deadline.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d1-c32",
+          "frontJa": "In a policy exception request thread, Could I briefly jump in ___ blocker remains unresolved before this meeting closes.",
+          "backEn": "In a policy exception request thread, Could I briefly jump in the blocker remains unresolved before this meeting closes.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d1-c33",
+          "frontJa": "When presenting trade-offs to executives, To build on that point ___ suggest we time-box this to protect the deadline.",
+          "backEn": "When presenting trade-offs to executives, To build on that point I suggest we time-box this to protect the deadline.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d1-c34",
+          "frontJa": "During a conflict-resolution conversation, With your permission ___ should capture next steps before this meeting closes.",
+          "backEn": "During a conflict-resolution conversation, With your permission we should capture next steps before this meeting closes.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d1-c35",
+          "frontJa": "In a final decision memo before sign-off, Just to keep us on track ___ are drifting from the agenda to protect the deadline.",
+          "backEn": "In a final decision memo before sign-off, Just to keep us on track we are drifting from the agenda to protect the deadline.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-2",
+      "titleJa": "Meetings giving updates",
+      "titleEn": "Meetings giving updates",
+      "sortOrder": 2,
+      "cards": [
+        {
+          "id": "study-a2-d2-c0",
+          "frontJa": "In Monday's steering-committee review, Quick update ___ closed two major risks so leadership can plan accordingly.",
+          "backEn": "In Monday's steering-committee review, Quick update we closed two major risks so leadership can plan accordingly.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d2-c1",
+          "frontJa": "During the vendor renewal call, Since our last meeting ___ timeline remains on track for the next review cycle.",
+          "backEn": "During the vendor renewal call, Since our last meeting the timeline remains on track for the next review cycle.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d2-c2",
+          "frontJa": "In a cross-functional planning workshop, Status-wise ___ dependency is still pending so leadership can plan accordingly.",
+          "backEn": "In a cross-functional planning workshop, Status-wise one dependency is still pending so leadership can plan accordingly.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d2-c3",
+          "frontJa": "While drafting the quarterly board memo, At this point ___ utilization is stable for the next review cycle.",
+          "backEn": "While drafting the quarterly board memo, At this point budget utilization is stable for the next review cycle.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d2-c4",
+          "frontJa": "At the end of a client escalation meeting, For this week ___ feedback is trending positive so leadership can plan accordingly.",
+          "backEn": "At the end of a client escalation meeting, For this week customer feedback is trending positive so leadership can plan accordingly.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d2-c5",
+          "frontJa": "In a follow-up email to legal counsel, In summary ___ need one escalation decision for the next review cycle.",
+          "backEn": "In a follow-up email to legal counsel, In summary we need one escalation decision for the next review cycle.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d2-c6",
+          "frontJa": "When summarizing risks for finance, Quick update ___ closed two major risks so leadership can plan accordingly.",
+          "backEn": "When summarizing risks for finance, Quick update we closed two major risks so leadership can plan accordingly.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d2-c7",
+          "frontJa": "During a product and engineering sync, Since our last meeting ___ timeline remains on track for the next review cycle.",
+          "backEn": "During a product and engineering sync, Since our last meeting the timeline remains on track for the next review cycle.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d2-c8",
+          "frontJa": "In a retrospective after missed targets, Status-wise ___ dependency is still pending so leadership can plan accordingly.",
+          "backEn": "In a retrospective after missed targets, Status-wise one dependency is still pending so leadership can plan accordingly.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d2-c9",
+          "frontJa": "When briefing a newly assigned manager, At this point ___ utilization is stable for the next review cycle.",
+          "backEn": "When briefing a newly assigned manager, At this point budget utilization is stable for the next review cycle.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d2-c10",
+          "frontJa": "In a negotiation with a procurement team, For this week ___ feedback is trending positive so leadership can plan accordingly.",
+          "backEn": "In a negotiation with a procurement team, For this week customer feedback is trending positive so leadership can plan accordingly.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d2-c11",
+          "frontJa": "During an incident-response handover, In summary ___ need one escalation decision for the next review cycle.",
+          "backEn": "During an incident-response handover, In summary we need one escalation decision for the next review cycle.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d2-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, Quick update ___ closed two major risks so leadership can plan accordingly.",
+          "backEn": "In a pre-launch go/no-go discussion, Quick update we closed two major risks so leadership can plan accordingly.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d2-c13",
+          "frontJa": "When documenting assumptions in Notion, Since our last meeting ___ timeline remains on track for the next review cycle.",
+          "backEn": "When documenting assumptions in Notion, Since our last meeting the timeline remains on track for the next review cycle.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d2-c14",
+          "frontJa": "During a weekly executive update, Status-wise ___ dependency is still pending so leadership can plan accordingly.",
+          "backEn": "During a weekly executive update, Status-wise one dependency is still pending so leadership can plan accordingly.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d2-c15",
+          "frontJa": "In a one-on-one with a direct report, At this point ___ utilization is stable for the next review cycle.",
+          "backEn": "In a one-on-one with a direct report, At this point budget utilization is stable for the next review cycle.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d2-c16",
+          "frontJa": "When moderating a tense design review, For this week ___ feedback is trending positive so leadership can plan accordingly.",
+          "backEn": "When moderating a tense design review, For this week customer feedback is trending positive so leadership can plan accordingly.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d2-c17",
+          "frontJa": "In a customer-facing roadmap presentation, In summary ___ need one escalation decision for the next review cycle.",
+          "backEn": "In a customer-facing roadmap presentation, In summary we need one escalation decision for the next review cycle.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d2-c18",
+          "frontJa": "During a strategy offsite debate, Quick update ___ closed two major risks so leadership can plan accordingly.",
+          "backEn": "During a strategy offsite debate, Quick update we closed two major risks so leadership can plan accordingly.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d2-c19",
+          "frontJa": "When escalating a blocker to leadership, Since our last meeting ___ timeline remains on track for the next review cycle.",
+          "backEn": "When escalating a blocker to leadership, Since our last meeting the timeline remains on track for the next review cycle.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d2-c20",
+          "frontJa": "In the opening of a webinar Q&A, Status-wise ___ dependency is still pending so leadership can plan accordingly.",
+          "backEn": "In the opening of a webinar Q&A, Status-wise one dependency is still pending so leadership can plan accordingly.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d2-c21",
+          "frontJa": "While writing postmortem action items, At this point ___ utilization is stable for the next review cycle.",
+          "backEn": "While writing postmortem action items, At this point budget utilization is stable for the next review cycle.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d2-c22",
+          "frontJa": "During a budget reforecast meeting, For this week ___ feedback is trending positive so leadership can plan accordingly.",
+          "backEn": "During a budget reforecast meeting, For this week customer feedback is trending positive so leadership can plan accordingly.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d2-c23",
+          "frontJa": "In a kickoff session with external partners, In summary ___ need one escalation decision for the next review cycle.",
+          "backEn": "In a kickoff session with external partners, In summary we need one escalation decision for the next review cycle.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d2-c24",
+          "frontJa": "When aligning stakeholders before launch, Quick update ___ closed two major risks so leadership can plan accordingly.",
+          "backEn": "When aligning stakeholders before launch, Quick update we closed two major risks so leadership can plan accordingly.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d2-c25",
+          "frontJa": "During a data-quality review with analytics, Since our last meeting ___ timeline remains on track for the next review cycle.",
+          "backEn": "During a data-quality review with analytics, Since our last meeting the timeline remains on track for the next review cycle.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d2-c26",
+          "frontJa": "In a hiring panel debrief, Status-wise ___ dependency is still pending so leadership can plan accordingly.",
+          "backEn": "In a hiring panel debrief, Status-wise one dependency is still pending so leadership can plan accordingly.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d2-c27",
+          "frontJa": "When preparing a compliance audit response, At this point ___ utilization is stable for the next review cycle.",
+          "backEn": "When preparing a compliance audit response, At this point budget utilization is stable for the next review cycle.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d2-c28",
+          "frontJa": "During a migration readiness checkpoint, For this week ___ feedback is trending positive so leadership can plan accordingly.",
+          "backEn": "During a migration readiness checkpoint, For this week customer feedback is trending positive so leadership can plan accordingly.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d2-c29",
+          "frontJa": "In an internal announcement to all teams, In summary ___ need one escalation decision for the next review cycle.",
+          "backEn": "In an internal announcement to all teams, In summary we need one escalation decision for the next review cycle.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d2-c30",
+          "frontJa": "When clarifying scope with operations, Quick update ___ closed two major risks so leadership can plan accordingly.",
+          "backEn": "When clarifying scope with operations, Quick update we closed two major risks so leadership can plan accordingly.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d2-c31",
+          "frontJa": "During a customer advisory board session, Since our last meeting ___ timeline remains on track for the next review cycle.",
+          "backEn": "During a customer advisory board session, Since our last meeting the timeline remains on track for the next review cycle.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d2-c32",
+          "frontJa": "In a policy exception request thread, Status-wise ___ dependency is still pending so leadership can plan accordingly.",
+          "backEn": "In a policy exception request thread, Status-wise one dependency is still pending so leadership can plan accordingly.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d2-c33",
+          "frontJa": "When presenting trade-offs to executives, At this point ___ utilization is stable for the next review cycle.",
+          "backEn": "When presenting trade-offs to executives, At this point budget utilization is stable for the next review cycle.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d2-c34",
+          "frontJa": "During a conflict-resolution conversation, For this week ___ feedback is trending positive so leadership can plan accordingly.",
+          "backEn": "During a conflict-resolution conversation, For this week customer feedback is trending positive so leadership can plan accordingly.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d2-c35",
+          "frontJa": "In a final decision memo before sign-off, In summary ___ need one escalation decision for the next review cycle.",
+          "backEn": "In a final decision memo before sign-off, In summary we need one escalation decision for the next review cycle.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-3",
+      "titleJa": "Explaining complex ideas",
+      "titleEn": "Explaining complex ideas",
+      "sortOrder": 3,
+      "cards": [
+        {
+          "id": "study-a2-d3-c0",
+          "frontJa": "In Monday's steering-committee review, At a high level ___ model separates signal from noise without sacrificing reliability.",
+          "backEn": "In Monday's steering-committee review, At a high level the model separates signal from noise without sacrificing reliability.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d3-c1",
+          "frontJa": "During the vendor renewal call, In practical terms ___ framework reduces decision friction for both technical and non-technical audiences.",
+          "backEn": "During the vendor renewal call, In practical terms the framework reduces decision friction for both technical and non-technical audiences.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d3-c2",
+          "frontJa": "In a cross-functional planning workshop, From a systems perspective ___ architecture favors resilience without sacrificing reliability.",
+          "backEn": "In a cross-functional planning workshop, From a systems perspective the architecture favors resilience without sacrificing reliability.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d3-c3",
+          "frontJa": "While drafting the quarterly board memo, Put simply ___ mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "backEn": "While drafting the quarterly board memo, Put simply the mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d3-c4",
+          "frontJa": "At the end of a client escalation meeting, To break this down ___ trade-off is intentional without sacrificing reliability.",
+          "backEn": "At the end of a client escalation meeting, To break this down the trade-off is intentional without sacrificing reliability.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d3-c5",
+          "frontJa": "In a follow-up email to legal counsel, Conceptually ___ abstraction hides implementation details for both technical and non-technical audiences.",
+          "backEn": "In a follow-up email to legal counsel, Conceptually the abstraction hides implementation details for both technical and non-technical audiences.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d3-c6",
+          "frontJa": "When summarizing risks for finance, At a high level ___ model separates signal from noise without sacrificing reliability.",
+          "backEn": "When summarizing risks for finance, At a high level the model separates signal from noise without sacrificing reliability.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d3-c7",
+          "frontJa": "During a product and engineering sync, In practical terms ___ framework reduces decision friction for both technical and non-technical audiences.",
+          "backEn": "During a product and engineering sync, In practical terms the framework reduces decision friction for both technical and non-technical audiences.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d3-c8",
+          "frontJa": "In a retrospective after missed targets, From a systems perspective ___ architecture favors resilience without sacrificing reliability.",
+          "backEn": "In a retrospective after missed targets, From a systems perspective the architecture favors resilience without sacrificing reliability.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d3-c9",
+          "frontJa": "When briefing a newly assigned manager, Put simply ___ mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "backEn": "When briefing a newly assigned manager, Put simply the mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d3-c10",
+          "frontJa": "In a negotiation with a procurement team, To break this down ___ trade-off is intentional without sacrificing reliability.",
+          "backEn": "In a negotiation with a procurement team, To break this down the trade-off is intentional without sacrificing reliability.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d3-c11",
+          "frontJa": "During an incident-response handover, Conceptually ___ abstraction hides implementation details for both technical and non-technical audiences.",
+          "backEn": "During an incident-response handover, Conceptually the abstraction hides implementation details for both technical and non-technical audiences.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d3-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, At a high level ___ model separates signal from noise without sacrificing reliability.",
+          "backEn": "In a pre-launch go/no-go discussion, At a high level the model separates signal from noise without sacrificing reliability.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d3-c13",
+          "frontJa": "When documenting assumptions in Notion, In practical terms ___ framework reduces decision friction for both technical and non-technical audiences.",
+          "backEn": "When documenting assumptions in Notion, In practical terms the framework reduces decision friction for both technical and non-technical audiences.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d3-c14",
+          "frontJa": "During a weekly executive update, From a systems perspective ___ architecture favors resilience without sacrificing reliability.",
+          "backEn": "During a weekly executive update, From a systems perspective the architecture favors resilience without sacrificing reliability.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d3-c15",
+          "frontJa": "In a one-on-one with a direct report, Put simply ___ mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "backEn": "In a one-on-one with a direct report, Put simply the mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d3-c16",
+          "frontJa": "When moderating a tense design review, To break this down ___ trade-off is intentional without sacrificing reliability.",
+          "backEn": "When moderating a tense design review, To break this down the trade-off is intentional without sacrificing reliability.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d3-c17",
+          "frontJa": "In a customer-facing roadmap presentation, Conceptually ___ abstraction hides implementation details for both technical and non-technical audiences.",
+          "backEn": "In a customer-facing roadmap presentation, Conceptually the abstraction hides implementation details for both technical and non-technical audiences.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d3-c18",
+          "frontJa": "During a strategy offsite debate, At a high level ___ model separates signal from noise without sacrificing reliability.",
+          "backEn": "During a strategy offsite debate, At a high level the model separates signal from noise without sacrificing reliability.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d3-c19",
+          "frontJa": "When escalating a blocker to leadership, In practical terms ___ framework reduces decision friction for both technical and non-technical audiences.",
+          "backEn": "When escalating a blocker to leadership, In practical terms the framework reduces decision friction for both technical and non-technical audiences.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d3-c20",
+          "frontJa": "In the opening of a webinar Q&A, From a systems perspective ___ architecture favors resilience without sacrificing reliability.",
+          "backEn": "In the opening of a webinar Q&A, From a systems perspective the architecture favors resilience without sacrificing reliability.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d3-c21",
+          "frontJa": "While writing postmortem action items, Put simply ___ mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "backEn": "While writing postmortem action items, Put simply the mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d3-c22",
+          "frontJa": "During a budget reforecast meeting, To break this down ___ trade-off is intentional without sacrificing reliability.",
+          "backEn": "During a budget reforecast meeting, To break this down the trade-off is intentional without sacrificing reliability.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d3-c23",
+          "frontJa": "In a kickoff session with external partners, Conceptually ___ abstraction hides implementation details for both technical and non-technical audiences.",
+          "backEn": "In a kickoff session with external partners, Conceptually the abstraction hides implementation details for both technical and non-technical audiences.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d3-c24",
+          "frontJa": "When aligning stakeholders before launch, At a high level ___ model separates signal from noise without sacrificing reliability.",
+          "backEn": "When aligning stakeholders before launch, At a high level the model separates signal from noise without sacrificing reliability.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d3-c25",
+          "frontJa": "During a data-quality review with analytics, In practical terms ___ framework reduces decision friction for both technical and non-technical audiences.",
+          "backEn": "During a data-quality review with analytics, In practical terms the framework reduces decision friction for both technical and non-technical audiences.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d3-c26",
+          "frontJa": "In a hiring panel debrief, From a systems perspective ___ architecture favors resilience without sacrificing reliability.",
+          "backEn": "In a hiring panel debrief, From a systems perspective the architecture favors resilience without sacrificing reliability.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d3-c27",
+          "frontJa": "When preparing a compliance audit response, Put simply ___ mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "backEn": "When preparing a compliance audit response, Put simply the mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d3-c28",
+          "frontJa": "During a migration readiness checkpoint, To break this down ___ trade-off is intentional without sacrificing reliability.",
+          "backEn": "During a migration readiness checkpoint, To break this down the trade-off is intentional without sacrificing reliability.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d3-c29",
+          "frontJa": "In an internal announcement to all teams, Conceptually ___ abstraction hides implementation details for both technical and non-technical audiences.",
+          "backEn": "In an internal announcement to all teams, Conceptually the abstraction hides implementation details for both technical and non-technical audiences.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d3-c30",
+          "frontJa": "When clarifying scope with operations, At a high level ___ model separates signal from noise without sacrificing reliability.",
+          "backEn": "When clarifying scope with operations, At a high level the model separates signal from noise without sacrificing reliability.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d3-c31",
+          "frontJa": "During a customer advisory board session, In practical terms ___ framework reduces decision friction for both technical and non-technical audiences.",
+          "backEn": "During a customer advisory board session, In practical terms the framework reduces decision friction for both technical and non-technical audiences.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d3-c32",
+          "frontJa": "In a policy exception request thread, From a systems perspective ___ architecture favors resilience without sacrificing reliability.",
+          "backEn": "In a policy exception request thread, From a systems perspective the architecture favors resilience without sacrificing reliability.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d3-c33",
+          "frontJa": "When presenting trade-offs to executives, Put simply ___ mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "backEn": "When presenting trade-offs to executives, Put simply the mechanism relies on feedback loops for both technical and non-technical audiences.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d3-c34",
+          "frontJa": "During a conflict-resolution conversation, To break this down ___ trade-off is intentional without sacrificing reliability.",
+          "backEn": "During a conflict-resolution conversation, To break this down the trade-off is intentional without sacrificing reliability.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d3-c35",
+          "frontJa": "In a final decision memo before sign-off, Conceptually ___ abstraction hides implementation details for both technical and non-technical audiences.",
+          "backEn": "In a final decision memo before sign-off, Conceptually the abstraction hides implementation details for both technical and non-technical audiences.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-4",
+      "titleJa": "Argument structure",
+      "titleEn": "Argument structure",
+      "sortOrder": 4,
+      "cards": [
+        {
+          "id": "study-a2-d4-c0",
+          "frontJa": "In Monday's steering-committee review, My claim is that ___ current plan is under-scoped as shown by last quarter's metrics.",
+          "backEn": "In Monday's steering-committee review, My claim is that the current plan is under-scoped as shown by last quarter's metrics.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d4-c1",
+          "frontJa": "During the vendor renewal call, The evidence suggests that ___ assumptions are inconsistent if we apply the same criteria.",
+          "backEn": "During the vendor renewal call, The evidence suggests that the assumptions are inconsistent if we apply the same criteria.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d4-c2",
+          "frontJa": "In a cross-functional planning workshop, A stronger interpretation is that ___ data supports phased rollout as shown by last quarter's metrics.",
+          "backEn": "In a cross-functional planning workshop, A stronger interpretation is that the data supports phased rollout as shown by last quarter's metrics.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d4-c3",
+          "frontJa": "While drafting the quarterly board memo, To support this claim ___ risk is concentrated upstream if we apply the same criteria.",
+          "backEn": "While drafting the quarterly board memo, To support this claim the risk is concentrated upstream if we apply the same criteria.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d4-c4",
+          "frontJa": "At the end of a client escalation meeting, In conclusion ___ proposal needs stronger controls as shown by last quarter's metrics.",
+          "backEn": "At the end of a client escalation meeting, In conclusion the proposal needs stronger controls as shown by last quarter's metrics.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d4-c5",
+          "frontJa": "In a follow-up email to legal counsel, Following this logic ___ conclusion still holds if we apply the same criteria.",
+          "backEn": "In a follow-up email to legal counsel, Following this logic the conclusion still holds if we apply the same criteria.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d4-c6",
+          "frontJa": "When summarizing risks for finance, My claim is that ___ current plan is under-scoped as shown by last quarter's metrics.",
+          "backEn": "When summarizing risks for finance, My claim is that the current plan is under-scoped as shown by last quarter's metrics.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d4-c7",
+          "frontJa": "During a product and engineering sync, The evidence suggests that ___ assumptions are inconsistent if we apply the same criteria.",
+          "backEn": "During a product and engineering sync, The evidence suggests that the assumptions are inconsistent if we apply the same criteria.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d4-c8",
+          "frontJa": "In a retrospective after missed targets, A stronger interpretation is that ___ data supports phased rollout as shown by last quarter's metrics.",
+          "backEn": "In a retrospective after missed targets, A stronger interpretation is that the data supports phased rollout as shown by last quarter's metrics.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d4-c9",
+          "frontJa": "When briefing a newly assigned manager, To support this claim ___ risk is concentrated upstream if we apply the same criteria.",
+          "backEn": "When briefing a newly assigned manager, To support this claim the risk is concentrated upstream if we apply the same criteria.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d4-c10",
+          "frontJa": "In a negotiation with a procurement team, In conclusion ___ proposal needs stronger controls as shown by last quarter's metrics.",
+          "backEn": "In a negotiation with a procurement team, In conclusion the proposal needs stronger controls as shown by last quarter's metrics.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d4-c11",
+          "frontJa": "During an incident-response handover, Following this logic ___ conclusion still holds if we apply the same criteria.",
+          "backEn": "During an incident-response handover, Following this logic the conclusion still holds if we apply the same criteria.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d4-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, My claim is that ___ current plan is under-scoped as shown by last quarter's metrics.",
+          "backEn": "In a pre-launch go/no-go discussion, My claim is that the current plan is under-scoped as shown by last quarter's metrics.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d4-c13",
+          "frontJa": "When documenting assumptions in Notion, The evidence suggests that ___ assumptions are inconsistent if we apply the same criteria.",
+          "backEn": "When documenting assumptions in Notion, The evidence suggests that the assumptions are inconsistent if we apply the same criteria.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d4-c14",
+          "frontJa": "During a weekly executive update, A stronger interpretation is that ___ data supports phased rollout as shown by last quarter's metrics.",
+          "backEn": "During a weekly executive update, A stronger interpretation is that the data supports phased rollout as shown by last quarter's metrics.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d4-c15",
+          "frontJa": "In a one-on-one with a direct report, To support this claim ___ risk is concentrated upstream if we apply the same criteria.",
+          "backEn": "In a one-on-one with a direct report, To support this claim the risk is concentrated upstream if we apply the same criteria.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d4-c16",
+          "frontJa": "When moderating a tense design review, In conclusion ___ proposal needs stronger controls as shown by last quarter's metrics.",
+          "backEn": "When moderating a tense design review, In conclusion the proposal needs stronger controls as shown by last quarter's metrics.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d4-c17",
+          "frontJa": "In a customer-facing roadmap presentation, Following this logic ___ conclusion still holds if we apply the same criteria.",
+          "backEn": "In a customer-facing roadmap presentation, Following this logic the conclusion still holds if we apply the same criteria.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d4-c18",
+          "frontJa": "During a strategy offsite debate, My claim is that ___ current plan is under-scoped as shown by last quarter's metrics.",
+          "backEn": "During a strategy offsite debate, My claim is that the current plan is under-scoped as shown by last quarter's metrics.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d4-c19",
+          "frontJa": "When escalating a blocker to leadership, The evidence suggests that ___ assumptions are inconsistent if we apply the same criteria.",
+          "backEn": "When escalating a blocker to leadership, The evidence suggests that the assumptions are inconsistent if we apply the same criteria.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d4-c20",
+          "frontJa": "In the opening of a webinar Q&A, A stronger interpretation is that ___ data supports phased rollout as shown by last quarter's metrics.",
+          "backEn": "In the opening of a webinar Q&A, A stronger interpretation is that the data supports phased rollout as shown by last quarter's metrics.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d4-c21",
+          "frontJa": "While writing postmortem action items, To support this claim ___ risk is concentrated upstream if we apply the same criteria.",
+          "backEn": "While writing postmortem action items, To support this claim the risk is concentrated upstream if we apply the same criteria.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d4-c22",
+          "frontJa": "During a budget reforecast meeting, In conclusion ___ proposal needs stronger controls as shown by last quarter's metrics.",
+          "backEn": "During a budget reforecast meeting, In conclusion the proposal needs stronger controls as shown by last quarter's metrics.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d4-c23",
+          "frontJa": "In a kickoff session with external partners, Following this logic ___ conclusion still holds if we apply the same criteria.",
+          "backEn": "In a kickoff session with external partners, Following this logic the conclusion still holds if we apply the same criteria.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d4-c24",
+          "frontJa": "When aligning stakeholders before launch, My claim is that ___ current plan is under-scoped as shown by last quarter's metrics.",
+          "backEn": "When aligning stakeholders before launch, My claim is that the current plan is under-scoped as shown by last quarter's metrics.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d4-c25",
+          "frontJa": "During a data-quality review with analytics, The evidence suggests that ___ assumptions are inconsistent if we apply the same criteria.",
+          "backEn": "During a data-quality review with analytics, The evidence suggests that the assumptions are inconsistent if we apply the same criteria.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d4-c26",
+          "frontJa": "In a hiring panel debrief, A stronger interpretation is that ___ data supports phased rollout as shown by last quarter's metrics.",
+          "backEn": "In a hiring panel debrief, A stronger interpretation is that the data supports phased rollout as shown by last quarter's metrics.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d4-c27",
+          "frontJa": "When preparing a compliance audit response, To support this claim ___ risk is concentrated upstream if we apply the same criteria.",
+          "backEn": "When preparing a compliance audit response, To support this claim the risk is concentrated upstream if we apply the same criteria.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d4-c28",
+          "frontJa": "During a migration readiness checkpoint, In conclusion ___ proposal needs stronger controls as shown by last quarter's metrics.",
+          "backEn": "During a migration readiness checkpoint, In conclusion the proposal needs stronger controls as shown by last quarter's metrics.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d4-c29",
+          "frontJa": "In an internal announcement to all teams, Following this logic ___ conclusion still holds if we apply the same criteria.",
+          "backEn": "In an internal announcement to all teams, Following this logic the conclusion still holds if we apply the same criteria.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d4-c30",
+          "frontJa": "When clarifying scope with operations, My claim is that ___ current plan is under-scoped as shown by last quarter's metrics.",
+          "backEn": "When clarifying scope with operations, My claim is that the current plan is under-scoped as shown by last quarter's metrics.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d4-c31",
+          "frontJa": "During a customer advisory board session, The evidence suggests that ___ assumptions are inconsistent if we apply the same criteria.",
+          "backEn": "During a customer advisory board session, The evidence suggests that the assumptions are inconsistent if we apply the same criteria.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d4-c32",
+          "frontJa": "In a policy exception request thread, A stronger interpretation is that ___ data supports phased rollout as shown by last quarter's metrics.",
+          "backEn": "In a policy exception request thread, A stronger interpretation is that the data supports phased rollout as shown by last quarter's metrics.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d4-c33",
+          "frontJa": "When presenting trade-offs to executives, To support this claim ___ risk is concentrated upstream if we apply the same criteria.",
+          "backEn": "When presenting trade-offs to executives, To support this claim the risk is concentrated upstream if we apply the same criteria.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d4-c34",
+          "frontJa": "During a conflict-resolution conversation, In conclusion ___ proposal needs stronger controls as shown by last quarter's metrics.",
+          "backEn": "During a conflict-resolution conversation, In conclusion the proposal needs stronger controls as shown by last quarter's metrics.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d4-c35",
+          "frontJa": "In a final decision memo before sign-off, Following this logic ___ conclusion still holds if we apply the same criteria.",
+          "backEn": "In a final decision memo before sign-off, Following this logic the conclusion still holds if we apply the same criteria.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-5",
+      "titleJa": "Hedging language",
+      "titleEn": "Hedging language",
+      "sortOrder": 5,
+      "cards": [
+        {
+          "id": "study-a2-d5-c0",
+          "frontJa": "In Monday's steering-committee review, It seems that ___ sample is too narrow until we validate externally.",
+          "backEn": "In Monday's steering-committee review, It seems that the sample is too narrow until we validate externally.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d5-c1",
+          "frontJa": "During the vendor renewal call, It might be the case that ___ are underestimating demand unless assumptions change.",
+          "backEn": "During the vendor renewal call, It might be the case that we are underestimating demand unless assumptions change.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d5-c2",
+          "frontJa": "In a cross-functional planning workshop, I would cautiously suggest that ___ signal may be temporary until we validate externally.",
+          "backEn": "In a cross-functional planning workshop, I would cautiously suggest that the signal may be temporary until we validate externally.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d5-c3",
+          "frontJa": "While drafting the quarterly board memo, There appears to be ___ issue could be structural unless assumptions change.",
+          "backEn": "While drafting the quarterly board memo, There appears to be the issue could be structural unless assumptions change.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d5-c4",
+          "frontJa": "At the end of a client escalation meeting, One possible explanation is that ___ current framing is incomplete until we validate externally.",
+          "backEn": "At the end of a client escalation meeting, One possible explanation is that the current framing is incomplete until we validate externally.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d5-c5",
+          "frontJa": "In a follow-up email to legal counsel, I am not entirely convinced that ___ forecast is overly optimistic unless assumptions change.",
+          "backEn": "In a follow-up email to legal counsel, I am not entirely convinced that the forecast is overly optimistic unless assumptions change.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d5-c6",
+          "frontJa": "When summarizing risks for finance, It seems that ___ sample is too narrow until we validate externally.",
+          "backEn": "When summarizing risks for finance, It seems that the sample is too narrow until we validate externally.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d5-c7",
+          "frontJa": "During a product and engineering sync, It might be the case that ___ are underestimating demand unless assumptions change.",
+          "backEn": "During a product and engineering sync, It might be the case that we are underestimating demand unless assumptions change.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d5-c8",
+          "frontJa": "In a retrospective after missed targets, I would cautiously suggest that ___ signal may be temporary until we validate externally.",
+          "backEn": "In a retrospective after missed targets, I would cautiously suggest that the signal may be temporary until we validate externally.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d5-c9",
+          "frontJa": "When briefing a newly assigned manager, There appears to be ___ issue could be structural unless assumptions change.",
+          "backEn": "When briefing a newly assigned manager, There appears to be the issue could be structural unless assumptions change.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d5-c10",
+          "frontJa": "In a negotiation with a procurement team, One possible explanation is that ___ current framing is incomplete until we validate externally.",
+          "backEn": "In a negotiation with a procurement team, One possible explanation is that the current framing is incomplete until we validate externally.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d5-c11",
+          "frontJa": "During an incident-response handover, I am not entirely convinced that ___ forecast is overly optimistic unless assumptions change.",
+          "backEn": "During an incident-response handover, I am not entirely convinced that the forecast is overly optimistic unless assumptions change.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d5-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, It seems that ___ sample is too narrow until we validate externally.",
+          "backEn": "In a pre-launch go/no-go discussion, It seems that the sample is too narrow until we validate externally.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d5-c13",
+          "frontJa": "When documenting assumptions in Notion, It might be the case that ___ are underestimating demand unless assumptions change.",
+          "backEn": "When documenting assumptions in Notion, It might be the case that we are underestimating demand unless assumptions change.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d5-c14",
+          "frontJa": "During a weekly executive update, I would cautiously suggest that ___ signal may be temporary until we validate externally.",
+          "backEn": "During a weekly executive update, I would cautiously suggest that the signal may be temporary until we validate externally.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d5-c15",
+          "frontJa": "In a one-on-one with a direct report, There appears to be ___ issue could be structural unless assumptions change.",
+          "backEn": "In a one-on-one with a direct report, There appears to be the issue could be structural unless assumptions change.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d5-c16",
+          "frontJa": "When moderating a tense design review, One possible explanation is that ___ current framing is incomplete until we validate externally.",
+          "backEn": "When moderating a tense design review, One possible explanation is that the current framing is incomplete until we validate externally.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d5-c17",
+          "frontJa": "In a customer-facing roadmap presentation, I am not entirely convinced that ___ forecast is overly optimistic unless assumptions change.",
+          "backEn": "In a customer-facing roadmap presentation, I am not entirely convinced that the forecast is overly optimistic unless assumptions change.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d5-c18",
+          "frontJa": "During a strategy offsite debate, It seems that ___ sample is too narrow until we validate externally.",
+          "backEn": "During a strategy offsite debate, It seems that the sample is too narrow until we validate externally.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d5-c19",
+          "frontJa": "When escalating a blocker to leadership, It might be the case that ___ are underestimating demand unless assumptions change.",
+          "backEn": "When escalating a blocker to leadership, It might be the case that we are underestimating demand unless assumptions change.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d5-c20",
+          "frontJa": "In the opening of a webinar Q&A, I would cautiously suggest that ___ signal may be temporary until we validate externally.",
+          "backEn": "In the opening of a webinar Q&A, I would cautiously suggest that the signal may be temporary until we validate externally.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d5-c21",
+          "frontJa": "While writing postmortem action items, There appears to be ___ issue could be structural unless assumptions change.",
+          "backEn": "While writing postmortem action items, There appears to be the issue could be structural unless assumptions change.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d5-c22",
+          "frontJa": "During a budget reforecast meeting, One possible explanation is that ___ current framing is incomplete until we validate externally.",
+          "backEn": "During a budget reforecast meeting, One possible explanation is that the current framing is incomplete until we validate externally.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d5-c23",
+          "frontJa": "In a kickoff session with external partners, I am not entirely convinced that ___ forecast is overly optimistic unless assumptions change.",
+          "backEn": "In a kickoff session with external partners, I am not entirely convinced that the forecast is overly optimistic unless assumptions change.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d5-c24",
+          "frontJa": "When aligning stakeholders before launch, It seems that ___ sample is too narrow until we validate externally.",
+          "backEn": "When aligning stakeholders before launch, It seems that the sample is too narrow until we validate externally.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d5-c25",
+          "frontJa": "During a data-quality review with analytics, It might be the case that ___ are underestimating demand unless assumptions change.",
+          "backEn": "During a data-quality review with analytics, It might be the case that we are underestimating demand unless assumptions change.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d5-c26",
+          "frontJa": "In a hiring panel debrief, I would cautiously suggest that ___ signal may be temporary until we validate externally.",
+          "backEn": "In a hiring panel debrief, I would cautiously suggest that the signal may be temporary until we validate externally.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d5-c27",
+          "frontJa": "When preparing a compliance audit response, There appears to be ___ issue could be structural unless assumptions change.",
+          "backEn": "When preparing a compliance audit response, There appears to be the issue could be structural unless assumptions change.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d5-c28",
+          "frontJa": "During a migration readiness checkpoint, One possible explanation is that ___ current framing is incomplete until we validate externally.",
+          "backEn": "During a migration readiness checkpoint, One possible explanation is that the current framing is incomplete until we validate externally.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d5-c29",
+          "frontJa": "In an internal announcement to all teams, I am not entirely convinced that ___ forecast is overly optimistic unless assumptions change.",
+          "backEn": "In an internal announcement to all teams, I am not entirely convinced that the forecast is overly optimistic unless assumptions change.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d5-c30",
+          "frontJa": "When clarifying scope with operations, It seems that ___ sample is too narrow until we validate externally.",
+          "backEn": "When clarifying scope with operations, It seems that the sample is too narrow until we validate externally.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d5-c31",
+          "frontJa": "During a customer advisory board session, It might be the case that ___ are underestimating demand unless assumptions change.",
+          "backEn": "During a customer advisory board session, It might be the case that we are underestimating demand unless assumptions change.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d5-c32",
+          "frontJa": "In a policy exception request thread, I would cautiously suggest that ___ signal may be temporary until we validate externally.",
+          "backEn": "In a policy exception request thread, I would cautiously suggest that the signal may be temporary until we validate externally.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d5-c33",
+          "frontJa": "When presenting trade-offs to executives, There appears to be ___ issue could be structural unless assumptions change.",
+          "backEn": "When presenting trade-offs to executives, There appears to be the issue could be structural unless assumptions change.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d5-c34",
+          "frontJa": "During a conflict-resolution conversation, One possible explanation is that ___ current framing is incomplete until we validate externally.",
+          "backEn": "During a conflict-resolution conversation, One possible explanation is that the current framing is incomplete until we validate externally.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d5-c35",
+          "frontJa": "In a final decision memo before sign-off, I am not entirely convinced that ___ forecast is overly optimistic unless assumptions change.",
+          "backEn": "In a final decision memo before sign-off, I am not entirely convinced that the forecast is overly optimistic unless assumptions change.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-6",
+      "titleJa": "Negotiation language",
+      "titleEn": "Negotiation language",
+      "sortOrder": 6,
+      "cards": [
+        {
+          "id": "study-a2-d6-c0",
+          "frontJa": "In Monday's steering-committee review, We could consider ___ phased commitment if governance is explicit.",
+          "backEn": "In Monday's steering-committee review, We could consider a phased commitment if governance is explicit.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d6-c1",
+          "frontJa": "During the vendor renewal call, Would you be open to ___ narrower initial scope with clear review checkpoints.",
+          "backEn": "During the vendor renewal call, Would you be open to a narrower initial scope with clear review checkpoints.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d6-c2",
+          "frontJa": "In a cross-functional planning workshop, A workable middle ground is ___ performance-based clause if governance is explicit.",
+          "backEn": "In a cross-functional planning workshop, A workable middle ground is a performance-based clause if governance is explicit.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d6-c3",
+          "frontJa": "While drafting the quarterly board memo, If flexibility exists ___ implementation milestones with clear review checkpoints.",
+          "backEn": "While drafting the quarterly board memo, If flexibility exists shared implementation milestones with clear review checkpoints.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d6-c4",
+          "frontJa": "At the end of a client escalation meeting, On our side, we can ___ temporary discount structure if governance is explicit.",
+          "backEn": "At the end of a client escalation meeting, On our side, we can a temporary discount structure if governance is explicit.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d6-c5",
+          "frontJa": "In a follow-up email to legal counsel, To move this forward ___ revised service-level target with clear review checkpoints.",
+          "backEn": "In a follow-up email to legal counsel, To move this forward a revised service-level target with clear review checkpoints.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d6-c6",
+          "frontJa": "When summarizing risks for finance, We could consider ___ phased commitment if governance is explicit.",
+          "backEn": "When summarizing risks for finance, We could consider a phased commitment if governance is explicit.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d6-c7",
+          "frontJa": "During a product and engineering sync, Would you be open to ___ narrower initial scope with clear review checkpoints.",
+          "backEn": "During a product and engineering sync, Would you be open to a narrower initial scope with clear review checkpoints.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d6-c8",
+          "frontJa": "In a retrospective after missed targets, A workable middle ground is ___ performance-based clause if governance is explicit.",
+          "backEn": "In a retrospective after missed targets, A workable middle ground is a performance-based clause if governance is explicit.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d6-c9",
+          "frontJa": "When briefing a newly assigned manager, If flexibility exists ___ implementation milestones with clear review checkpoints.",
+          "backEn": "When briefing a newly assigned manager, If flexibility exists shared implementation milestones with clear review checkpoints.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d6-c10",
+          "frontJa": "In a negotiation with a procurement team, On our side, we can ___ temporary discount structure if governance is explicit.",
+          "backEn": "In a negotiation with a procurement team, On our side, we can a temporary discount structure if governance is explicit.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d6-c11",
+          "frontJa": "During an incident-response handover, To move this forward ___ revised service-level target with clear review checkpoints.",
+          "backEn": "During an incident-response handover, To move this forward a revised service-level target with clear review checkpoints.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d6-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, We could consider ___ phased commitment if governance is explicit.",
+          "backEn": "In a pre-launch go/no-go discussion, We could consider a phased commitment if governance is explicit.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d6-c13",
+          "frontJa": "When documenting assumptions in Notion, Would you be open to ___ narrower initial scope with clear review checkpoints.",
+          "backEn": "When documenting assumptions in Notion, Would you be open to a narrower initial scope with clear review checkpoints.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d6-c14",
+          "frontJa": "During a weekly executive update, A workable middle ground is ___ performance-based clause if governance is explicit.",
+          "backEn": "During a weekly executive update, A workable middle ground is a performance-based clause if governance is explicit.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d6-c15",
+          "frontJa": "In a one-on-one with a direct report, If flexibility exists ___ implementation milestones with clear review checkpoints.",
+          "backEn": "In a one-on-one with a direct report, If flexibility exists shared implementation milestones with clear review checkpoints.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d6-c16",
+          "frontJa": "When moderating a tense design review, On our side, we can ___ temporary discount structure if governance is explicit.",
+          "backEn": "When moderating a tense design review, On our side, we can a temporary discount structure if governance is explicit.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d6-c17",
+          "frontJa": "In a customer-facing roadmap presentation, To move this forward ___ revised service-level target with clear review checkpoints.",
+          "backEn": "In a customer-facing roadmap presentation, To move this forward a revised service-level target with clear review checkpoints.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d6-c18",
+          "frontJa": "During a strategy offsite debate, We could consider ___ phased commitment if governance is explicit.",
+          "backEn": "During a strategy offsite debate, We could consider a phased commitment if governance is explicit.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d6-c19",
+          "frontJa": "When escalating a blocker to leadership, Would you be open to ___ narrower initial scope with clear review checkpoints.",
+          "backEn": "When escalating a blocker to leadership, Would you be open to a narrower initial scope with clear review checkpoints.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d6-c20",
+          "frontJa": "In the opening of a webinar Q&A, A workable middle ground is ___ performance-based clause if governance is explicit.",
+          "backEn": "In the opening of a webinar Q&A, A workable middle ground is a performance-based clause if governance is explicit.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d6-c21",
+          "frontJa": "While writing postmortem action items, If flexibility exists ___ implementation milestones with clear review checkpoints.",
+          "backEn": "While writing postmortem action items, If flexibility exists shared implementation milestones with clear review checkpoints.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d6-c22",
+          "frontJa": "During a budget reforecast meeting, On our side, we can ___ temporary discount structure if governance is explicit.",
+          "backEn": "During a budget reforecast meeting, On our side, we can a temporary discount structure if governance is explicit.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d6-c23",
+          "frontJa": "In a kickoff session with external partners, To move this forward ___ revised service-level target with clear review checkpoints.",
+          "backEn": "In a kickoff session with external partners, To move this forward a revised service-level target with clear review checkpoints.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d6-c24",
+          "frontJa": "When aligning stakeholders before launch, We could consider ___ phased commitment if governance is explicit.",
+          "backEn": "When aligning stakeholders before launch, We could consider a phased commitment if governance is explicit.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d6-c25",
+          "frontJa": "During a data-quality review with analytics, Would you be open to ___ narrower initial scope with clear review checkpoints.",
+          "backEn": "During a data-quality review with analytics, Would you be open to a narrower initial scope with clear review checkpoints.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d6-c26",
+          "frontJa": "In a hiring panel debrief, A workable middle ground is ___ performance-based clause if governance is explicit.",
+          "backEn": "In a hiring panel debrief, A workable middle ground is a performance-based clause if governance is explicit.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d6-c27",
+          "frontJa": "When preparing a compliance audit response, If flexibility exists ___ implementation milestones with clear review checkpoints.",
+          "backEn": "When preparing a compliance audit response, If flexibility exists shared implementation milestones with clear review checkpoints.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d6-c28",
+          "frontJa": "During a migration readiness checkpoint, On our side, we can ___ temporary discount structure if governance is explicit.",
+          "backEn": "During a migration readiness checkpoint, On our side, we can a temporary discount structure if governance is explicit.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d6-c29",
+          "frontJa": "In an internal announcement to all teams, To move this forward ___ revised service-level target with clear review checkpoints.",
+          "backEn": "In an internal announcement to all teams, To move this forward a revised service-level target with clear review checkpoints.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d6-c30",
+          "frontJa": "When clarifying scope with operations, We could consider ___ phased commitment if governance is explicit.",
+          "backEn": "When clarifying scope with operations, We could consider a phased commitment if governance is explicit.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d6-c31",
+          "frontJa": "During a customer advisory board session, Would you be open to ___ narrower initial scope with clear review checkpoints.",
+          "backEn": "During a customer advisory board session, Would you be open to a narrower initial scope with clear review checkpoints.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d6-c32",
+          "frontJa": "In a policy exception request thread, A workable middle ground is ___ performance-based clause if governance is explicit.",
+          "backEn": "In a policy exception request thread, A workable middle ground is a performance-based clause if governance is explicit.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d6-c33",
+          "frontJa": "When presenting trade-offs to executives, If flexibility exists ___ implementation milestones with clear review checkpoints.",
+          "backEn": "When presenting trade-offs to executives, If flexibility exists shared implementation milestones with clear review checkpoints.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d6-c34",
+          "frontJa": "During a conflict-resolution conversation, On our side, we can ___ temporary discount structure if governance is explicit.",
+          "backEn": "During a conflict-resolution conversation, On our side, we can a temporary discount structure if governance is explicit.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d6-c35",
+          "frontJa": "In a final decision memo before sign-off, To move this forward ___ revised service-level target with clear review checkpoints.",
+          "backEn": "In a final decision memo before sign-off, To move this forward a revised service-level target with clear review checkpoints.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-7",
+      "titleJa": "Data and trend language",
+      "titleEn": "Data and trend language",
+      "sortOrder": 7,
+      "cards": [
+        {
+          "id": "study-a2-d7-c0",
+          "frontJa": "In Monday's steering-committee review, The latest trend shows ___ increased steadily after the process update.",
+          "backEn": "In Monday's steering-committee review, The latest trend shows adoption increased steadily after the process update.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d7-c1",
+          "frontJa": "During the vendor renewal call, Quarter over quarter ___ decreased after onboarding changes once seasonality is removed.",
+          "backEn": "During the vendor renewal call, Quarter over quarter churn decreased after onboarding changes once seasonality is removed.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d7-c2",
+          "frontJa": "In a cross-functional planning workshop, Over the same period ___ fluctuated across regions after the process update.",
+          "backEn": "In a cross-functional planning workshop, Over the same period costs fluctuated across regions after the process update.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d7-c3",
+          "frontJa": "While drafting the quarterly board memo, The data indicates ___ remained flat once seasonality is removed.",
+          "backEn": "While drafting the quarterly board memo, The data indicates conversion remained flat once seasonality is removed.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d7-c4",
+          "frontJa": "At the end of a client escalation meeting, We observed that ___ widened in enterprise accounts after the process update.",
+          "backEn": "At the end of a client escalation meeting, We observed that variance widened in enterprise accounts after the process update.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d7-c5",
+          "frontJa": "In a follow-up email to legal counsel, Historically ___ time improved significantly once seasonality is removed.",
+          "backEn": "In a follow-up email to legal counsel, Historically response time improved significantly once seasonality is removed.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d7-c6",
+          "frontJa": "When summarizing risks for finance, The latest trend shows ___ increased steadily after the process update.",
+          "backEn": "When summarizing risks for finance, The latest trend shows adoption increased steadily after the process update.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d7-c7",
+          "frontJa": "During a product and engineering sync, Quarter over quarter ___ decreased after onboarding changes once seasonality is removed.",
+          "backEn": "During a product and engineering sync, Quarter over quarter churn decreased after onboarding changes once seasonality is removed.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d7-c8",
+          "frontJa": "In a retrospective after missed targets, Over the same period ___ fluctuated across regions after the process update.",
+          "backEn": "In a retrospective after missed targets, Over the same period costs fluctuated across regions after the process update.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d7-c9",
+          "frontJa": "When briefing a newly assigned manager, The data indicates ___ remained flat once seasonality is removed.",
+          "backEn": "When briefing a newly assigned manager, The data indicates conversion remained flat once seasonality is removed.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d7-c10",
+          "frontJa": "In a negotiation with a procurement team, We observed that ___ widened in enterprise accounts after the process update.",
+          "backEn": "In a negotiation with a procurement team, We observed that variance widened in enterprise accounts after the process update.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d7-c11",
+          "frontJa": "During an incident-response handover, Historically ___ time improved significantly once seasonality is removed.",
+          "backEn": "During an incident-response handover, Historically response time improved significantly once seasonality is removed.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d7-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, The latest trend shows ___ increased steadily after the process update.",
+          "backEn": "In a pre-launch go/no-go discussion, The latest trend shows adoption increased steadily after the process update.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d7-c13",
+          "frontJa": "When documenting assumptions in Notion, Quarter over quarter ___ decreased after onboarding changes once seasonality is removed.",
+          "backEn": "When documenting assumptions in Notion, Quarter over quarter churn decreased after onboarding changes once seasonality is removed.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d7-c14",
+          "frontJa": "During a weekly executive update, Over the same period ___ fluctuated across regions after the process update.",
+          "backEn": "During a weekly executive update, Over the same period costs fluctuated across regions after the process update.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d7-c15",
+          "frontJa": "In a one-on-one with a direct report, The data indicates ___ remained flat once seasonality is removed.",
+          "backEn": "In a one-on-one with a direct report, The data indicates conversion remained flat once seasonality is removed.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d7-c16",
+          "frontJa": "When moderating a tense design review, We observed that ___ widened in enterprise accounts after the process update.",
+          "backEn": "When moderating a tense design review, We observed that variance widened in enterprise accounts after the process update.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d7-c17",
+          "frontJa": "In a customer-facing roadmap presentation, Historically ___ time improved significantly once seasonality is removed.",
+          "backEn": "In a customer-facing roadmap presentation, Historically response time improved significantly once seasonality is removed.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d7-c18",
+          "frontJa": "During a strategy offsite debate, The latest trend shows ___ increased steadily after the process update.",
+          "backEn": "During a strategy offsite debate, The latest trend shows adoption increased steadily after the process update.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d7-c19",
+          "frontJa": "When escalating a blocker to leadership, Quarter over quarter ___ decreased after onboarding changes once seasonality is removed.",
+          "backEn": "When escalating a blocker to leadership, Quarter over quarter churn decreased after onboarding changes once seasonality is removed.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d7-c20",
+          "frontJa": "In the opening of a webinar Q&A, Over the same period ___ fluctuated across regions after the process update.",
+          "backEn": "In the opening of a webinar Q&A, Over the same period costs fluctuated across regions after the process update.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d7-c21",
+          "frontJa": "While writing postmortem action items, The data indicates ___ remained flat once seasonality is removed.",
+          "backEn": "While writing postmortem action items, The data indicates conversion remained flat once seasonality is removed.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d7-c22",
+          "frontJa": "During a budget reforecast meeting, We observed that ___ widened in enterprise accounts after the process update.",
+          "backEn": "During a budget reforecast meeting, We observed that variance widened in enterprise accounts after the process update.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d7-c23",
+          "frontJa": "In a kickoff session with external partners, Historically ___ time improved significantly once seasonality is removed.",
+          "backEn": "In a kickoff session with external partners, Historically response time improved significantly once seasonality is removed.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d7-c24",
+          "frontJa": "When aligning stakeholders before launch, The latest trend shows ___ increased steadily after the process update.",
+          "backEn": "When aligning stakeholders before launch, The latest trend shows adoption increased steadily after the process update.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d7-c25",
+          "frontJa": "During a data-quality review with analytics, Quarter over quarter ___ decreased after onboarding changes once seasonality is removed.",
+          "backEn": "During a data-quality review with analytics, Quarter over quarter churn decreased after onboarding changes once seasonality is removed.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d7-c26",
+          "frontJa": "In a hiring panel debrief, Over the same period ___ fluctuated across regions after the process update.",
+          "backEn": "In a hiring panel debrief, Over the same period costs fluctuated across regions after the process update.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d7-c27",
+          "frontJa": "When preparing a compliance audit response, The data indicates ___ remained flat once seasonality is removed.",
+          "backEn": "When preparing a compliance audit response, The data indicates conversion remained flat once seasonality is removed.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d7-c28",
+          "frontJa": "During a migration readiness checkpoint, We observed that ___ widened in enterprise accounts after the process update.",
+          "backEn": "During a migration readiness checkpoint, We observed that variance widened in enterprise accounts after the process update.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d7-c29",
+          "frontJa": "In an internal announcement to all teams, Historically ___ time improved significantly once seasonality is removed.",
+          "backEn": "In an internal announcement to all teams, Historically response time improved significantly once seasonality is removed.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d7-c30",
+          "frontJa": "When clarifying scope with operations, The latest trend shows ___ increased steadily after the process update.",
+          "backEn": "When clarifying scope with operations, The latest trend shows adoption increased steadily after the process update.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d7-c31",
+          "frontJa": "During a customer advisory board session, Quarter over quarter ___ decreased after onboarding changes once seasonality is removed.",
+          "backEn": "During a customer advisory board session, Quarter over quarter churn decreased after onboarding changes once seasonality is removed.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d7-c32",
+          "frontJa": "In a policy exception request thread, Over the same period ___ fluctuated across regions after the process update.",
+          "backEn": "In a policy exception request thread, Over the same period costs fluctuated across regions after the process update.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d7-c33",
+          "frontJa": "When presenting trade-offs to executives, The data indicates ___ remained flat once seasonality is removed.",
+          "backEn": "When presenting trade-offs to executives, The data indicates conversion remained flat once seasonality is removed.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d7-c34",
+          "frontJa": "During a conflict-resolution conversation, We observed that ___ widened in enterprise accounts after the process update.",
+          "backEn": "During a conflict-resolution conversation, We observed that variance widened in enterprise accounts after the process update.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d7-c35",
+          "frontJa": "In a final decision memo before sign-off, Historically ___ time improved significantly once seasonality is removed.",
+          "backEn": "In a final decision memo before sign-off, Historically response time improved significantly once seasonality is removed.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-8",
+      "titleJa": "Cause and effect advanced",
+      "titleEn": "Cause and effect advanced",
+      "sortOrder": 8,
+      "cards": [
+        {
+          "id": "study-a2-d8-c0",
+          "frontJa": "In Monday's steering-committee review, Due to ___ handoffs stakeholder confidence declined.",
+          "backEn": "In Monday's steering-committee review, Due to incomplete handoffs stakeholder confidence declined.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d8-c1",
+          "frontJa": "During the vendor renewal call, As a result of ___ legal review the budget buffer was consumed.",
+          "backEn": "During the vendor renewal call, As a result of delayed legal review the budget buffer was consumed.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d8-c2",
+          "frontJa": "In a cross-functional planning workshop, Because of ___ accountability stakeholder confidence declined.",
+          "backEn": "In a cross-functional planning workshop, Because of unclear accountability stakeholder confidence declined.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d8-c3",
+          "frontJa": "While drafting the quarterly board memo, This led to ___ requirements the budget buffer was consumed.",
+          "backEn": "While drafting the quarterly board memo, This led to shifting requirements the budget buffer was consumed.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d8-c4",
+          "frontJa": "At the end of a client escalation meeting, Consequently ___ vendor constraints stakeholder confidence declined.",
+          "backEn": "At the end of a client escalation meeting, Consequently unexpected vendor constraints stakeholder confidence declined.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d8-c5",
+          "frontJa": "In a follow-up email to legal counsel, Owing to ___ initial assumptions the budget buffer was consumed.",
+          "backEn": "In a follow-up email to legal counsel, Owing to weak initial assumptions the budget buffer was consumed.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d8-c6",
+          "frontJa": "When summarizing risks for finance, Due to ___ handoffs stakeholder confidence declined.",
+          "backEn": "When summarizing risks for finance, Due to incomplete handoffs stakeholder confidence declined.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d8-c7",
+          "frontJa": "During a product and engineering sync, As a result of ___ legal review the budget buffer was consumed.",
+          "backEn": "During a product and engineering sync, As a result of delayed legal review the budget buffer was consumed.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d8-c8",
+          "frontJa": "In a retrospective after missed targets, Because of ___ accountability stakeholder confidence declined.",
+          "backEn": "In a retrospective after missed targets, Because of unclear accountability stakeholder confidence declined.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d8-c9",
+          "frontJa": "When briefing a newly assigned manager, This led to ___ requirements the budget buffer was consumed.",
+          "backEn": "When briefing a newly assigned manager, This led to shifting requirements the budget buffer was consumed.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d8-c10",
+          "frontJa": "In a negotiation with a procurement team, Consequently ___ vendor constraints stakeholder confidence declined.",
+          "backEn": "In a negotiation with a procurement team, Consequently unexpected vendor constraints stakeholder confidence declined.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d8-c11",
+          "frontJa": "During an incident-response handover, Owing to ___ initial assumptions the budget buffer was consumed.",
+          "backEn": "During an incident-response handover, Owing to weak initial assumptions the budget buffer was consumed.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d8-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, Due to ___ handoffs stakeholder confidence declined.",
+          "backEn": "In a pre-launch go/no-go discussion, Due to incomplete handoffs stakeholder confidence declined.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d8-c13",
+          "frontJa": "When documenting assumptions in Notion, As a result of ___ legal review the budget buffer was consumed.",
+          "backEn": "When documenting assumptions in Notion, As a result of delayed legal review the budget buffer was consumed.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d8-c14",
+          "frontJa": "During a weekly executive update, Because of ___ accountability stakeholder confidence declined.",
+          "backEn": "During a weekly executive update, Because of unclear accountability stakeholder confidence declined.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d8-c15",
+          "frontJa": "In a one-on-one with a direct report, This led to ___ requirements the budget buffer was consumed.",
+          "backEn": "In a one-on-one with a direct report, This led to shifting requirements the budget buffer was consumed.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d8-c16",
+          "frontJa": "When moderating a tense design review, Consequently ___ vendor constraints stakeholder confidence declined.",
+          "backEn": "When moderating a tense design review, Consequently unexpected vendor constraints stakeholder confidence declined.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d8-c17",
+          "frontJa": "In a customer-facing roadmap presentation, Owing to ___ initial assumptions the budget buffer was consumed.",
+          "backEn": "In a customer-facing roadmap presentation, Owing to weak initial assumptions the budget buffer was consumed.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d8-c18",
+          "frontJa": "During a strategy offsite debate, Due to ___ handoffs stakeholder confidence declined.",
+          "backEn": "During a strategy offsite debate, Due to incomplete handoffs stakeholder confidence declined.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d8-c19",
+          "frontJa": "When escalating a blocker to leadership, As a result of ___ legal review the budget buffer was consumed.",
+          "backEn": "When escalating a blocker to leadership, As a result of delayed legal review the budget buffer was consumed.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d8-c20",
+          "frontJa": "In the opening of a webinar Q&A, Because of ___ accountability stakeholder confidence declined.",
+          "backEn": "In the opening of a webinar Q&A, Because of unclear accountability stakeholder confidence declined.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d8-c21",
+          "frontJa": "While writing postmortem action items, This led to ___ requirements the budget buffer was consumed.",
+          "backEn": "While writing postmortem action items, This led to shifting requirements the budget buffer was consumed.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d8-c22",
+          "frontJa": "During a budget reforecast meeting, Consequently ___ vendor constraints stakeholder confidence declined.",
+          "backEn": "During a budget reforecast meeting, Consequently unexpected vendor constraints stakeholder confidence declined.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d8-c23",
+          "frontJa": "In a kickoff session with external partners, Owing to ___ initial assumptions the budget buffer was consumed.",
+          "backEn": "In a kickoff session with external partners, Owing to weak initial assumptions the budget buffer was consumed.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d8-c24",
+          "frontJa": "When aligning stakeholders before launch, Due to ___ handoffs stakeholder confidence declined.",
+          "backEn": "When aligning stakeholders before launch, Due to incomplete handoffs stakeholder confidence declined.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d8-c25",
+          "frontJa": "During a data-quality review with analytics, As a result of ___ legal review the budget buffer was consumed.",
+          "backEn": "During a data-quality review with analytics, As a result of delayed legal review the budget buffer was consumed.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d8-c26",
+          "frontJa": "In a hiring panel debrief, Because of ___ accountability stakeholder confidence declined.",
+          "backEn": "In a hiring panel debrief, Because of unclear accountability stakeholder confidence declined.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d8-c27",
+          "frontJa": "When preparing a compliance audit response, This led to ___ requirements the budget buffer was consumed.",
+          "backEn": "When preparing a compliance audit response, This led to shifting requirements the budget buffer was consumed.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d8-c28",
+          "frontJa": "During a migration readiness checkpoint, Consequently ___ vendor constraints stakeholder confidence declined.",
+          "backEn": "During a migration readiness checkpoint, Consequently unexpected vendor constraints stakeholder confidence declined.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d8-c29",
+          "frontJa": "In an internal announcement to all teams, Owing to ___ initial assumptions the budget buffer was consumed.",
+          "backEn": "In an internal announcement to all teams, Owing to weak initial assumptions the budget buffer was consumed.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d8-c30",
+          "frontJa": "When clarifying scope with operations, Due to ___ handoffs stakeholder confidence declined.",
+          "backEn": "When clarifying scope with operations, Due to incomplete handoffs stakeholder confidence declined.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d8-c31",
+          "frontJa": "During a customer advisory board session, As a result of ___ legal review the budget buffer was consumed.",
+          "backEn": "During a customer advisory board session, As a result of delayed legal review the budget buffer was consumed.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d8-c32",
+          "frontJa": "In a policy exception request thread, Because of ___ accountability stakeholder confidence declined.",
+          "backEn": "In a policy exception request thread, Because of unclear accountability stakeholder confidence declined.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d8-c33",
+          "frontJa": "When presenting trade-offs to executives, This led to ___ requirements the budget buffer was consumed.",
+          "backEn": "When presenting trade-offs to executives, This led to shifting requirements the budget buffer was consumed.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d8-c34",
+          "frontJa": "During a conflict-resolution conversation, Consequently ___ vendor constraints stakeholder confidence declined.",
+          "backEn": "During a conflict-resolution conversation, Consequently unexpected vendor constraints stakeholder confidence declined.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d8-c35",
+          "frontJa": "In a final decision memo before sign-off, Owing to ___ initial assumptions the budget buffer was consumed.",
+          "backEn": "In a final decision memo before sign-off, Owing to weak initial assumptions the budget buffer was consumed.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-9",
+      "titleJa": "Abstract topics technology society education",
+      "titleEn": "Abstract topics technology society education",
+      "sortOrder": 9,
+      "cards": [
+        {
+          "id": "study-a2-d9-c0",
+          "frontJa": "In Monday's steering-committee review, In technology policy ___ reshapes labor incentives when regulation lags innovation.",
+          "backEn": "In Monday's steering-committee review, In technology policy automation reshapes labor incentives when regulation lags innovation.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d9-c1",
+          "frontJa": "During the vendor renewal call, From a societal perspective ___ norms are evolving in both urban and rural settings.",
+          "backEn": "During the vendor renewal call, From a societal perspective privacy norms are evolving in both urban and rural settings.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d9-c2",
+          "frontJa": "In a cross-functional planning workshop, In higher education ___ remains uneven when regulation lags innovation.",
+          "backEn": "In a cross-functional planning workshop, In higher education access remains uneven when regulation lags innovation.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d9-c3",
+          "frontJa": "While drafting the quarterly board memo, Across digital platforms ___ bias requires oversight in both urban and rural settings.",
+          "backEn": "While drafting the quarterly board memo, Across digital platforms algorithmic bias requires oversight in both urban and rural settings.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d9-c4",
+          "frontJa": "At the end of a client escalation meeting, In public discourse ___ literacy is increasingly essential when regulation lags innovation.",
+          "backEn": "At the end of a client escalation meeting, In public discourse media literacy is increasingly essential when regulation lags innovation.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d9-c5",
+          "frontJa": "In a follow-up email to legal counsel, At institutional level ___ value is being redefined in both urban and rural settings.",
+          "backEn": "In a follow-up email to legal counsel, At institutional level credential value is being redefined in both urban and rural settings.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d9-c6",
+          "frontJa": "When summarizing risks for finance, In technology policy ___ reshapes labor incentives when regulation lags innovation.",
+          "backEn": "When summarizing risks for finance, In technology policy automation reshapes labor incentives when regulation lags innovation.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d9-c7",
+          "frontJa": "During a product and engineering sync, From a societal perspective ___ norms are evolving in both urban and rural settings.",
+          "backEn": "During a product and engineering sync, From a societal perspective privacy norms are evolving in both urban and rural settings.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d9-c8",
+          "frontJa": "In a retrospective after missed targets, In higher education ___ remains uneven when regulation lags innovation.",
+          "backEn": "In a retrospective after missed targets, In higher education access remains uneven when regulation lags innovation.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d9-c9",
+          "frontJa": "When briefing a newly assigned manager, Across digital platforms ___ bias requires oversight in both urban and rural settings.",
+          "backEn": "When briefing a newly assigned manager, Across digital platforms algorithmic bias requires oversight in both urban and rural settings.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d9-c10",
+          "frontJa": "In a negotiation with a procurement team, In public discourse ___ literacy is increasingly essential when regulation lags innovation.",
+          "backEn": "In a negotiation with a procurement team, In public discourse media literacy is increasingly essential when regulation lags innovation.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d9-c11",
+          "frontJa": "During an incident-response handover, At institutional level ___ value is being redefined in both urban and rural settings.",
+          "backEn": "During an incident-response handover, At institutional level credential value is being redefined in both urban and rural settings.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d9-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, In technology policy ___ reshapes labor incentives when regulation lags innovation.",
+          "backEn": "In a pre-launch go/no-go discussion, In technology policy automation reshapes labor incentives when regulation lags innovation.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d9-c13",
+          "frontJa": "When documenting assumptions in Notion, From a societal perspective ___ norms are evolving in both urban and rural settings.",
+          "backEn": "When documenting assumptions in Notion, From a societal perspective privacy norms are evolving in both urban and rural settings.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d9-c14",
+          "frontJa": "During a weekly executive update, In higher education ___ remains uneven when regulation lags innovation.",
+          "backEn": "During a weekly executive update, In higher education access remains uneven when regulation lags innovation.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d9-c15",
+          "frontJa": "In a one-on-one with a direct report, Across digital platforms ___ bias requires oversight in both urban and rural settings.",
+          "backEn": "In a one-on-one with a direct report, Across digital platforms algorithmic bias requires oversight in both urban and rural settings.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d9-c16",
+          "frontJa": "When moderating a tense design review, In public discourse ___ literacy is increasingly essential when regulation lags innovation.",
+          "backEn": "When moderating a tense design review, In public discourse media literacy is increasingly essential when regulation lags innovation.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d9-c17",
+          "frontJa": "In a customer-facing roadmap presentation, At institutional level ___ value is being redefined in both urban and rural settings.",
+          "backEn": "In a customer-facing roadmap presentation, At institutional level credential value is being redefined in both urban and rural settings.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d9-c18",
+          "frontJa": "During a strategy offsite debate, In technology policy ___ reshapes labor incentives when regulation lags innovation.",
+          "backEn": "During a strategy offsite debate, In technology policy automation reshapes labor incentives when regulation lags innovation.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d9-c19",
+          "frontJa": "When escalating a blocker to leadership, From a societal perspective ___ norms are evolving in both urban and rural settings.",
+          "backEn": "When escalating a blocker to leadership, From a societal perspective privacy norms are evolving in both urban and rural settings.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d9-c20",
+          "frontJa": "In the opening of a webinar Q&A, In higher education ___ remains uneven when regulation lags innovation.",
+          "backEn": "In the opening of a webinar Q&A, In higher education access remains uneven when regulation lags innovation.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d9-c21",
+          "frontJa": "While writing postmortem action items, Across digital platforms ___ bias requires oversight in both urban and rural settings.",
+          "backEn": "While writing postmortem action items, Across digital platforms algorithmic bias requires oversight in both urban and rural settings.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d9-c22",
+          "frontJa": "During a budget reforecast meeting, In public discourse ___ literacy is increasingly essential when regulation lags innovation.",
+          "backEn": "During a budget reforecast meeting, In public discourse media literacy is increasingly essential when regulation lags innovation.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d9-c23",
+          "frontJa": "In a kickoff session with external partners, At institutional level ___ value is being redefined in both urban and rural settings.",
+          "backEn": "In a kickoff session with external partners, At institutional level credential value is being redefined in both urban and rural settings.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d9-c24",
+          "frontJa": "When aligning stakeholders before launch, In technology policy ___ reshapes labor incentives when regulation lags innovation.",
+          "backEn": "When aligning stakeholders before launch, In technology policy automation reshapes labor incentives when regulation lags innovation.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d9-c25",
+          "frontJa": "During a data-quality review with analytics, From a societal perspective ___ norms are evolving in both urban and rural settings.",
+          "backEn": "During a data-quality review with analytics, From a societal perspective privacy norms are evolving in both urban and rural settings.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d9-c26",
+          "frontJa": "In a hiring panel debrief, In higher education ___ remains uneven when regulation lags innovation.",
+          "backEn": "In a hiring panel debrief, In higher education access remains uneven when regulation lags innovation.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d9-c27",
+          "frontJa": "When preparing a compliance audit response, Across digital platforms ___ bias requires oversight in both urban and rural settings.",
+          "backEn": "When preparing a compliance audit response, Across digital platforms algorithmic bias requires oversight in both urban and rural settings.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d9-c28",
+          "frontJa": "During a migration readiness checkpoint, In public discourse ___ literacy is increasingly essential when regulation lags innovation.",
+          "backEn": "During a migration readiness checkpoint, In public discourse media literacy is increasingly essential when regulation lags innovation.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d9-c29",
+          "frontJa": "In an internal announcement to all teams, At institutional level ___ value is being redefined in both urban and rural settings.",
+          "backEn": "In an internal announcement to all teams, At institutional level credential value is being redefined in both urban and rural settings.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d9-c30",
+          "frontJa": "When clarifying scope with operations, In technology policy ___ reshapes labor incentives when regulation lags innovation.",
+          "backEn": "When clarifying scope with operations, In technology policy automation reshapes labor incentives when regulation lags innovation.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d9-c31",
+          "frontJa": "During a customer advisory board session, From a societal perspective ___ norms are evolving in both urban and rural settings.",
+          "backEn": "During a customer advisory board session, From a societal perspective privacy norms are evolving in both urban and rural settings.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d9-c32",
+          "frontJa": "In a policy exception request thread, In higher education ___ remains uneven when regulation lags innovation.",
+          "backEn": "In a policy exception request thread, In higher education access remains uneven when regulation lags innovation.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d9-c33",
+          "frontJa": "When presenting trade-offs to executives, Across digital platforms ___ bias requires oversight in both urban and rural settings.",
+          "backEn": "When presenting trade-offs to executives, Across digital platforms algorithmic bias requires oversight in both urban and rural settings.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d9-c34",
+          "frontJa": "During a conflict-resolution conversation, In public discourse ___ literacy is increasingly essential when regulation lags innovation.",
+          "backEn": "During a conflict-resolution conversation, In public discourse media literacy is increasingly essential when regulation lags innovation.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d9-c35",
+          "frontJa": "In a final decision memo before sign-off, At institutional level ___ value is being redefined in both urban and rural settings.",
+          "backEn": "In a final decision memo before sign-off, At institutional level credential value is being redefined in both urban and rural settings.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-10",
+      "titleJa": "Comparative analysis",
+      "titleEn": "Comparative analysis",
+      "sortOrder": 10,
+      "cards": [
+        {
+          "id": "study-a2-d10-c0",
+          "frontJa": "In Monday's steering-committee review, Compared with option A ___ approach scales better under staffing constraints.",
+          "backEn": "In Monday's steering-committee review, Compared with option A this approach scales better under staffing constraints.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d10-c1",
+          "frontJa": "During the vendor renewal call, Relative to the current model ___ risk profile is lower for long-term maintainability.",
+          "backEn": "During the vendor renewal call, Relative to the current model the risk profile is lower for long-term maintainability.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d10-c2",
+          "frontJa": "In a cross-functional planning workshop, In contrast with last year ___ cost is higher under staffing constraints.",
+          "backEn": "In a cross-functional planning workshop, In contrast with last year execution cost is higher under staffing constraints.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d10-c3",
+          "frontJa": "While drafting the quarterly board memo, On balance ___ burden is lighter for long-term maintainability.",
+          "backEn": "While drafting the quarterly board memo, On balance coordination burden is lighter for long-term maintainability.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d10-c4",
+          "frontJa": "At the end of a client escalation meeting, From a trade-off standpoint ___ outcomes are stronger under staffing constraints.",
+          "backEn": "At the end of a client escalation meeting, From a trade-off standpoint quality outcomes are stronger under staffing constraints.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d10-c5",
+          "frontJa": "In a follow-up email to legal counsel, Against the alternative ___ is slower for long-term maintainability.",
+          "backEn": "In a follow-up email to legal counsel, Against the alternative time-to-value is slower for long-term maintainability.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d10-c6",
+          "frontJa": "When summarizing risks for finance, Compared with option A ___ approach scales better under staffing constraints.",
+          "backEn": "When summarizing risks for finance, Compared with option A this approach scales better under staffing constraints.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d10-c7",
+          "frontJa": "During a product and engineering sync, Relative to the current model ___ risk profile is lower for long-term maintainability.",
+          "backEn": "During a product and engineering sync, Relative to the current model the risk profile is lower for long-term maintainability.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d10-c8",
+          "frontJa": "In a retrospective after missed targets, In contrast with last year ___ cost is higher under staffing constraints.",
+          "backEn": "In a retrospective after missed targets, In contrast with last year execution cost is higher under staffing constraints.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d10-c9",
+          "frontJa": "When briefing a newly assigned manager, On balance ___ burden is lighter for long-term maintainability.",
+          "backEn": "When briefing a newly assigned manager, On balance coordination burden is lighter for long-term maintainability.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d10-c10",
+          "frontJa": "In a negotiation with a procurement team, From a trade-off standpoint ___ outcomes are stronger under staffing constraints.",
+          "backEn": "In a negotiation with a procurement team, From a trade-off standpoint quality outcomes are stronger under staffing constraints.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d10-c11",
+          "frontJa": "During an incident-response handover, Against the alternative ___ is slower for long-term maintainability.",
+          "backEn": "During an incident-response handover, Against the alternative time-to-value is slower for long-term maintainability.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d10-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, Compared with option A ___ approach scales better under staffing constraints.",
+          "backEn": "In a pre-launch go/no-go discussion, Compared with option A this approach scales better under staffing constraints.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d10-c13",
+          "frontJa": "When documenting assumptions in Notion, Relative to the current model ___ risk profile is lower for long-term maintainability.",
+          "backEn": "When documenting assumptions in Notion, Relative to the current model the risk profile is lower for long-term maintainability.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d10-c14",
+          "frontJa": "During a weekly executive update, In contrast with last year ___ cost is higher under staffing constraints.",
+          "backEn": "During a weekly executive update, In contrast with last year execution cost is higher under staffing constraints.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d10-c15",
+          "frontJa": "In a one-on-one with a direct report, On balance ___ burden is lighter for long-term maintainability.",
+          "backEn": "In a one-on-one with a direct report, On balance coordination burden is lighter for long-term maintainability.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d10-c16",
+          "frontJa": "When moderating a tense design review, From a trade-off standpoint ___ outcomes are stronger under staffing constraints.",
+          "backEn": "When moderating a tense design review, From a trade-off standpoint quality outcomes are stronger under staffing constraints.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d10-c17",
+          "frontJa": "In a customer-facing roadmap presentation, Against the alternative ___ is slower for long-term maintainability.",
+          "backEn": "In a customer-facing roadmap presentation, Against the alternative time-to-value is slower for long-term maintainability.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d10-c18",
+          "frontJa": "During a strategy offsite debate, Compared with option A ___ approach scales better under staffing constraints.",
+          "backEn": "During a strategy offsite debate, Compared with option A this approach scales better under staffing constraints.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d10-c19",
+          "frontJa": "When escalating a blocker to leadership, Relative to the current model ___ risk profile is lower for long-term maintainability.",
+          "backEn": "When escalating a blocker to leadership, Relative to the current model the risk profile is lower for long-term maintainability.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d10-c20",
+          "frontJa": "In the opening of a webinar Q&A, In contrast with last year ___ cost is higher under staffing constraints.",
+          "backEn": "In the opening of a webinar Q&A, In contrast with last year execution cost is higher under staffing constraints.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d10-c21",
+          "frontJa": "While writing postmortem action items, On balance ___ burden is lighter for long-term maintainability.",
+          "backEn": "While writing postmortem action items, On balance coordination burden is lighter for long-term maintainability.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d10-c22",
+          "frontJa": "During a budget reforecast meeting, From a trade-off standpoint ___ outcomes are stronger under staffing constraints.",
+          "backEn": "During a budget reforecast meeting, From a trade-off standpoint quality outcomes are stronger under staffing constraints.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d10-c23",
+          "frontJa": "In a kickoff session with external partners, Against the alternative ___ is slower for long-term maintainability.",
+          "backEn": "In a kickoff session with external partners, Against the alternative time-to-value is slower for long-term maintainability.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d10-c24",
+          "frontJa": "When aligning stakeholders before launch, Compared with option A ___ approach scales better under staffing constraints.",
+          "backEn": "When aligning stakeholders before launch, Compared with option A this approach scales better under staffing constraints.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d10-c25",
+          "frontJa": "During a data-quality review with analytics, Relative to the current model ___ risk profile is lower for long-term maintainability.",
+          "backEn": "During a data-quality review with analytics, Relative to the current model the risk profile is lower for long-term maintainability.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d10-c26",
+          "frontJa": "In a hiring panel debrief, In contrast with last year ___ cost is higher under staffing constraints.",
+          "backEn": "In a hiring panel debrief, In contrast with last year execution cost is higher under staffing constraints.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d10-c27",
+          "frontJa": "When preparing a compliance audit response, On balance ___ burden is lighter for long-term maintainability.",
+          "backEn": "When preparing a compliance audit response, On balance coordination burden is lighter for long-term maintainability.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d10-c28",
+          "frontJa": "During a migration readiness checkpoint, From a trade-off standpoint ___ outcomes are stronger under staffing constraints.",
+          "backEn": "During a migration readiness checkpoint, From a trade-off standpoint quality outcomes are stronger under staffing constraints.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d10-c29",
+          "frontJa": "In an internal announcement to all teams, Against the alternative ___ is slower for long-term maintainability.",
+          "backEn": "In an internal announcement to all teams, Against the alternative time-to-value is slower for long-term maintainability.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d10-c30",
+          "frontJa": "When clarifying scope with operations, Compared with option A ___ approach scales better under staffing constraints.",
+          "backEn": "When clarifying scope with operations, Compared with option A this approach scales better under staffing constraints.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d10-c31",
+          "frontJa": "During a customer advisory board session, Relative to the current model ___ risk profile is lower for long-term maintainability.",
+          "backEn": "During a customer advisory board session, Relative to the current model the risk profile is lower for long-term maintainability.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d10-c32",
+          "frontJa": "In a policy exception request thread, In contrast with last year ___ cost is higher under staffing constraints.",
+          "backEn": "In a policy exception request thread, In contrast with last year execution cost is higher under staffing constraints.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d10-c33",
+          "frontJa": "When presenting trade-offs to executives, On balance ___ burden is lighter for long-term maintainability.",
+          "backEn": "When presenting trade-offs to executives, On balance coordination burden is lighter for long-term maintainability.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d10-c34",
+          "frontJa": "During a conflict-resolution conversation, From a trade-off standpoint ___ outcomes are stronger under staffing constraints.",
+          "backEn": "During a conflict-resolution conversation, From a trade-off standpoint quality outcomes are stronger under staffing constraints.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d10-c35",
+          "frontJa": "In a final decision memo before sign-off, Against the alternative ___ is slower for long-term maintainability.",
+          "backEn": "In a final decision memo before sign-off, Against the alternative time-to-value is slower for long-term maintainability.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-11",
+      "titleJa": "Storytelling structured setup conflict resolution",
+      "titleEn": "Storytelling structured setup conflict resolution",
+      "sortOrder": 11,
+      "cards": [
+        {
+          "id": "study-a2-d11-c0",
+          "frontJa": "In Monday's steering-committee review, At the start ___ were aligned despite initial resistance.",
+          "backEn": "In Monday's steering-committee review, At the start expectations were aligned despite initial resistance.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d11-c1",
+          "frontJa": "During the vendor renewal call, The conflict emerged when ___ began to diverge with measurable outcomes.",
+          "backEn": "During the vendor renewal call, The conflict emerged when requirements began to diverge with measurable outcomes.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d11-c2",
+          "frontJa": "In a cross-functional planning workshop, By the midpoint ___ had started to erode despite initial resistance.",
+          "backEn": "In a cross-functional planning workshop, By the midpoint trust had started to erode despite initial resistance.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d11-c3",
+          "frontJa": "While drafting the quarterly board memo, The turning point came after ___ clarified priorities with measurable outcomes.",
+          "backEn": "While drafting the quarterly board memo, The turning point came after leadership clarified priorities with measurable outcomes.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d11-c4",
+          "frontJa": "At the end of a client escalation meeting, In the final phase ___ committed to one plan despite initial resistance.",
+          "backEn": "At the end of a client escalation meeting, In the final phase teams committed to one plan despite initial resistance.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d11-c5",
+          "frontJa": "In a follow-up email to legal counsel, The resolution worked because ___ became explicit with measurable outcomes.",
+          "backEn": "In a follow-up email to legal counsel, The resolution worked because ownership became explicit with measurable outcomes.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d11-c6",
+          "frontJa": "When summarizing risks for finance, At the start ___ were aligned despite initial resistance.",
+          "backEn": "When summarizing risks for finance, At the start expectations were aligned despite initial resistance.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d11-c7",
+          "frontJa": "During a product and engineering sync, The conflict emerged when ___ began to diverge with measurable outcomes.",
+          "backEn": "During a product and engineering sync, The conflict emerged when requirements began to diverge with measurable outcomes.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d11-c8",
+          "frontJa": "In a retrospective after missed targets, By the midpoint ___ had started to erode despite initial resistance.",
+          "backEn": "In a retrospective after missed targets, By the midpoint trust had started to erode despite initial resistance.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d11-c9",
+          "frontJa": "When briefing a newly assigned manager, The turning point came after ___ clarified priorities with measurable outcomes.",
+          "backEn": "When briefing a newly assigned manager, The turning point came after leadership clarified priorities with measurable outcomes.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d11-c10",
+          "frontJa": "In a negotiation with a procurement team, In the final phase ___ committed to one plan despite initial resistance.",
+          "backEn": "In a negotiation with a procurement team, In the final phase teams committed to one plan despite initial resistance.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d11-c11",
+          "frontJa": "During an incident-response handover, The resolution worked because ___ became explicit with measurable outcomes.",
+          "backEn": "During an incident-response handover, The resolution worked because ownership became explicit with measurable outcomes.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d11-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, At the start ___ were aligned despite initial resistance.",
+          "backEn": "In a pre-launch go/no-go discussion, At the start expectations were aligned despite initial resistance.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d11-c13",
+          "frontJa": "When documenting assumptions in Notion, The conflict emerged when ___ began to diverge with measurable outcomes.",
+          "backEn": "When documenting assumptions in Notion, The conflict emerged when requirements began to diverge with measurable outcomes.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d11-c14",
+          "frontJa": "During a weekly executive update, By the midpoint ___ had started to erode despite initial resistance.",
+          "backEn": "During a weekly executive update, By the midpoint trust had started to erode despite initial resistance.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d11-c15",
+          "frontJa": "In a one-on-one with a direct report, The turning point came after ___ clarified priorities with measurable outcomes.",
+          "backEn": "In a one-on-one with a direct report, The turning point came after leadership clarified priorities with measurable outcomes.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d11-c16",
+          "frontJa": "When moderating a tense design review, In the final phase ___ committed to one plan despite initial resistance.",
+          "backEn": "When moderating a tense design review, In the final phase teams committed to one plan despite initial resistance.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d11-c17",
+          "frontJa": "In a customer-facing roadmap presentation, The resolution worked because ___ became explicit with measurable outcomes.",
+          "backEn": "In a customer-facing roadmap presentation, The resolution worked because ownership became explicit with measurable outcomes.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d11-c18",
+          "frontJa": "During a strategy offsite debate, At the start ___ were aligned despite initial resistance.",
+          "backEn": "During a strategy offsite debate, At the start expectations were aligned despite initial resistance.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d11-c19",
+          "frontJa": "When escalating a blocker to leadership, The conflict emerged when ___ began to diverge with measurable outcomes.",
+          "backEn": "When escalating a blocker to leadership, The conflict emerged when requirements began to diverge with measurable outcomes.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d11-c20",
+          "frontJa": "In the opening of a webinar Q&A, By the midpoint ___ had started to erode despite initial resistance.",
+          "backEn": "In the opening of a webinar Q&A, By the midpoint trust had started to erode despite initial resistance.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d11-c21",
+          "frontJa": "While writing postmortem action items, The turning point came after ___ clarified priorities with measurable outcomes.",
+          "backEn": "While writing postmortem action items, The turning point came after leadership clarified priorities with measurable outcomes.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d11-c22",
+          "frontJa": "During a budget reforecast meeting, In the final phase ___ committed to one plan despite initial resistance.",
+          "backEn": "During a budget reforecast meeting, In the final phase teams committed to one plan despite initial resistance.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d11-c23",
+          "frontJa": "In a kickoff session with external partners, The resolution worked because ___ became explicit with measurable outcomes.",
+          "backEn": "In a kickoff session with external partners, The resolution worked because ownership became explicit with measurable outcomes.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d11-c24",
+          "frontJa": "When aligning stakeholders before launch, At the start ___ were aligned despite initial resistance.",
+          "backEn": "When aligning stakeholders before launch, At the start expectations were aligned despite initial resistance.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d11-c25",
+          "frontJa": "During a data-quality review with analytics, The conflict emerged when ___ began to diverge with measurable outcomes.",
+          "backEn": "During a data-quality review with analytics, The conflict emerged when requirements began to diverge with measurable outcomes.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d11-c26",
+          "frontJa": "In a hiring panel debrief, By the midpoint ___ had started to erode despite initial resistance.",
+          "backEn": "In a hiring panel debrief, By the midpoint trust had started to erode despite initial resistance.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d11-c27",
+          "frontJa": "When preparing a compliance audit response, The turning point came after ___ clarified priorities with measurable outcomes.",
+          "backEn": "When preparing a compliance audit response, The turning point came after leadership clarified priorities with measurable outcomes.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d11-c28",
+          "frontJa": "During a migration readiness checkpoint, In the final phase ___ committed to one plan despite initial resistance.",
+          "backEn": "During a migration readiness checkpoint, In the final phase teams committed to one plan despite initial resistance.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d11-c29",
+          "frontJa": "In an internal announcement to all teams, The resolution worked because ___ became explicit with measurable outcomes.",
+          "backEn": "In an internal announcement to all teams, The resolution worked because ownership became explicit with measurable outcomes.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d11-c30",
+          "frontJa": "When clarifying scope with operations, At the start ___ were aligned despite initial resistance.",
+          "backEn": "When clarifying scope with operations, At the start expectations were aligned despite initial resistance.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d11-c31",
+          "frontJa": "During a customer advisory board session, The conflict emerged when ___ began to diverge with measurable outcomes.",
+          "backEn": "During a customer advisory board session, The conflict emerged when requirements began to diverge with measurable outcomes.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d11-c32",
+          "frontJa": "In a policy exception request thread, By the midpoint ___ had started to erode despite initial resistance.",
+          "backEn": "In a policy exception request thread, By the midpoint trust had started to erode despite initial resistance.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d11-c33",
+          "frontJa": "When presenting trade-offs to executives, The turning point came after ___ clarified priorities with measurable outcomes.",
+          "backEn": "When presenting trade-offs to executives, The turning point came after leadership clarified priorities with measurable outcomes.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d11-c34",
+          "frontJa": "During a conflict-resolution conversation, In the final phase ___ committed to one plan despite initial resistance.",
+          "backEn": "During a conflict-resolution conversation, In the final phase teams committed to one plan despite initial resistance.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d11-c35",
+          "frontJa": "In a final decision memo before sign-off, The resolution worked because ___ became explicit with measurable outcomes.",
+          "backEn": "In a final decision memo before sign-off, The resolution worked because ownership became explicit with measurable outcomes.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-12",
+      "titleJa": "Idioms useful not random",
+      "titleEn": "Idioms useful not random",
+      "sortOrder": 12,
+      "cards": [
+        {
+          "id": "study-a2-d12-c0",
+          "frontJa": "In Monday's steering-committee review, To get the ball rolling ___ need an immediate owner during implementation.",
+          "backEn": "In Monday's steering-committee review, To get the ball rolling we need an immediate owner during implementation.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d12-c1",
+          "frontJa": "During the vendor renewal call, We hit a wall when ___ remained unclear while pressure increases.",
+          "backEn": "During the vendor renewal call, We hit a wall when dependencies remained unclear while pressure increases.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d12-c2",
+          "frontJa": "In a cross-functional planning workshop, To keep things on track ___ should agree on milestones during implementation.",
+          "backEn": "In a cross-functional planning workshop, To keep things on track we should agree on milestones during implementation.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d12-c3",
+          "frontJa": "While drafting the quarterly board memo, Before we drop the ball ___ must validate assumptions while pressure increases.",
+          "backEn": "While drafting the quarterly board memo, Before we drop the ball we must validate assumptions while pressure increases.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d12-c4",
+          "frontJa": "At the end of a client escalation meeting, To be on the same page ___ should clarify definitions during implementation.",
+          "backEn": "At the end of a client escalation meeting, To be on the same page we should clarify definitions during implementation.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d12-c5",
+          "frontJa": "In a follow-up email to legal counsel, When we need to raise the bar ___ need stronger execution discipline while pressure increases.",
+          "backEn": "In a follow-up email to legal counsel, When we need to raise the bar we need stronger execution discipline while pressure increases.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d12-c6",
+          "frontJa": "When summarizing risks for finance, To get the ball rolling ___ need an immediate owner during implementation.",
+          "backEn": "When summarizing risks for finance, To get the ball rolling we need an immediate owner during implementation.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d12-c7",
+          "frontJa": "During a product and engineering sync, We hit a wall when ___ remained unclear while pressure increases.",
+          "backEn": "During a product and engineering sync, We hit a wall when dependencies remained unclear while pressure increases.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d12-c8",
+          "frontJa": "In a retrospective after missed targets, To keep things on track ___ should agree on milestones during implementation.",
+          "backEn": "In a retrospective after missed targets, To keep things on track we should agree on milestones during implementation.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d12-c9",
+          "frontJa": "When briefing a newly assigned manager, Before we drop the ball ___ must validate assumptions while pressure increases.",
+          "backEn": "When briefing a newly assigned manager, Before we drop the ball we must validate assumptions while pressure increases.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d12-c10",
+          "frontJa": "In a negotiation with a procurement team, To be on the same page ___ should clarify definitions during implementation.",
+          "backEn": "In a negotiation with a procurement team, To be on the same page we should clarify definitions during implementation.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d12-c11",
+          "frontJa": "During an incident-response handover, When we need to raise the bar ___ need stronger execution discipline while pressure increases.",
+          "backEn": "During an incident-response handover, When we need to raise the bar we need stronger execution discipline while pressure increases.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d12-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, To get the ball rolling ___ need an immediate owner during implementation.",
+          "backEn": "In a pre-launch go/no-go discussion, To get the ball rolling we need an immediate owner during implementation.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d12-c13",
+          "frontJa": "When documenting assumptions in Notion, We hit a wall when ___ remained unclear while pressure increases.",
+          "backEn": "When documenting assumptions in Notion, We hit a wall when dependencies remained unclear while pressure increases.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d12-c14",
+          "frontJa": "During a weekly executive update, To keep things on track ___ should agree on milestones during implementation.",
+          "backEn": "During a weekly executive update, To keep things on track we should agree on milestones during implementation.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d12-c15",
+          "frontJa": "In a one-on-one with a direct report, Before we drop the ball ___ must validate assumptions while pressure increases.",
+          "backEn": "In a one-on-one with a direct report, Before we drop the ball we must validate assumptions while pressure increases.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d12-c16",
+          "frontJa": "When moderating a tense design review, To be on the same page ___ should clarify definitions during implementation.",
+          "backEn": "When moderating a tense design review, To be on the same page we should clarify definitions during implementation.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d12-c17",
+          "frontJa": "In a customer-facing roadmap presentation, When we need to raise the bar ___ need stronger execution discipline while pressure increases.",
+          "backEn": "In a customer-facing roadmap presentation, When we need to raise the bar we need stronger execution discipline while pressure increases.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d12-c18",
+          "frontJa": "During a strategy offsite debate, To get the ball rolling ___ need an immediate owner during implementation.",
+          "backEn": "During a strategy offsite debate, To get the ball rolling we need an immediate owner during implementation.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d12-c19",
+          "frontJa": "When escalating a blocker to leadership, We hit a wall when ___ remained unclear while pressure increases.",
+          "backEn": "When escalating a blocker to leadership, We hit a wall when dependencies remained unclear while pressure increases.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d12-c20",
+          "frontJa": "In the opening of a webinar Q&A, To keep things on track ___ should agree on milestones during implementation.",
+          "backEn": "In the opening of a webinar Q&A, To keep things on track we should agree on milestones during implementation.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d12-c21",
+          "frontJa": "While writing postmortem action items, Before we drop the ball ___ must validate assumptions while pressure increases.",
+          "backEn": "While writing postmortem action items, Before we drop the ball we must validate assumptions while pressure increases.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d12-c22",
+          "frontJa": "During a budget reforecast meeting, To be on the same page ___ should clarify definitions during implementation.",
+          "backEn": "During a budget reforecast meeting, To be on the same page we should clarify definitions during implementation.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d12-c23",
+          "frontJa": "In a kickoff session with external partners, When we need to raise the bar ___ need stronger execution discipline while pressure increases.",
+          "backEn": "In a kickoff session with external partners, When we need to raise the bar we need stronger execution discipline while pressure increases.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d12-c24",
+          "frontJa": "When aligning stakeholders before launch, To get the ball rolling ___ need an immediate owner during implementation.",
+          "backEn": "When aligning stakeholders before launch, To get the ball rolling we need an immediate owner during implementation.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d12-c25",
+          "frontJa": "During a data-quality review with analytics, We hit a wall when ___ remained unclear while pressure increases.",
+          "backEn": "During a data-quality review with analytics, We hit a wall when dependencies remained unclear while pressure increases.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d12-c26",
+          "frontJa": "In a hiring panel debrief, To keep things on track ___ should agree on milestones during implementation.",
+          "backEn": "In a hiring panel debrief, To keep things on track we should agree on milestones during implementation.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d12-c27",
+          "frontJa": "When preparing a compliance audit response, Before we drop the ball ___ must validate assumptions while pressure increases.",
+          "backEn": "When preparing a compliance audit response, Before we drop the ball we must validate assumptions while pressure increases.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d12-c28",
+          "frontJa": "During a migration readiness checkpoint, To be on the same page ___ should clarify definitions during implementation.",
+          "backEn": "During a migration readiness checkpoint, To be on the same page we should clarify definitions during implementation.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d12-c29",
+          "frontJa": "In an internal announcement to all teams, When we need to raise the bar ___ need stronger execution discipline while pressure increases.",
+          "backEn": "In an internal announcement to all teams, When we need to raise the bar we need stronger execution discipline while pressure increases.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d12-c30",
+          "frontJa": "When clarifying scope with operations, To get the ball rolling ___ need an immediate owner during implementation.",
+          "backEn": "When clarifying scope with operations, To get the ball rolling we need an immediate owner during implementation.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d12-c31",
+          "frontJa": "During a customer advisory board session, We hit a wall when ___ remained unclear while pressure increases.",
+          "backEn": "During a customer advisory board session, We hit a wall when dependencies remained unclear while pressure increases.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d12-c32",
+          "frontJa": "In a policy exception request thread, To keep things on track ___ should agree on milestones during implementation.",
+          "backEn": "In a policy exception request thread, To keep things on track we should agree on milestones during implementation.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d12-c33",
+          "frontJa": "When presenting trade-offs to executives, Before we drop the ball ___ must validate assumptions while pressure increases.",
+          "backEn": "When presenting trade-offs to executives, Before we drop the ball we must validate assumptions while pressure increases.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d12-c34",
+          "frontJa": "During a conflict-resolution conversation, To be on the same page ___ should clarify definitions during implementation.",
+          "backEn": "During a conflict-resolution conversation, To be on the same page we should clarify definitions during implementation.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d12-c35",
+          "frontJa": "In a final decision memo before sign-off, When we need to raise the bar ___ need stronger execution discipline while pressure increases.",
+          "backEn": "In a final decision memo before sign-off, When we need to raise the bar we need stronger execution discipline while pressure increases.",
+          "sortOrder": 35
+        }
+      ]
+    },
+    {
+      "id": "study-a2-deck-13",
+      "titleJa": "Focus shift and reframing",
+      "titleEn": "Focus shift and reframing",
+      "sortOrder": 13,
+      "cards": [
+        {
+          "id": "study-a2-d13-c0",
+          "frontJa": "In Monday's steering-committee review, Instead of debating details ___ quality over speed under current constraints.",
+          "backEn": "In Monday's steering-committee review, Instead of debating details decision quality over speed under current constraints.",
+          "sortOrder": 0
+        },
+        {
+          "id": "study-a2-d13-c1",
+          "frontJa": "During the vendor renewal call, Let's shift the focus to ___ reliability in a measurable way.",
+          "backEn": "During the vendor renewal call, Let's shift the focus to long-term reliability in a measurable way.",
+          "sortOrder": 1
+        },
+        {
+          "id": "study-a2-d13-c2",
+          "frontJa": "In a cross-functional planning workshop, Before we optimize further ___ impact first under current constraints.",
+          "backEn": "In a cross-functional planning workshop, Before we optimize further customer impact first under current constraints.",
+          "sortOrder": 2
+        },
+        {
+          "id": "study-a2-d13-c3",
+          "frontJa": "While drafting the quarterly board memo, The bigger question is ___ ownership in a measurable way.",
+          "backEn": "While drafting the quarterly board memo, The bigger question is clear ownership in a measurable way.",
+          "sortOrder": 3
+        },
+        {
+          "id": "study-a2-d13-c4",
+          "frontJa": "At the end of a client escalation meeting, To reframe this issue ___ before opinion under current constraints.",
+          "backEn": "At the end of a client escalation meeting, To reframe this issue evidence before opinion under current constraints.",
+          "sortOrder": 4
+        },
+        {
+          "id": "study-a2-d13-c5",
+          "frontJa": "In a follow-up email to legal counsel, What matters most now is ___ outcomes in a measurable way.",
+          "backEn": "In a follow-up email to legal counsel, What matters most now is risk-adjusted outcomes in a measurable way.",
+          "sortOrder": 5
+        },
+        {
+          "id": "study-a2-d13-c6",
+          "frontJa": "When summarizing risks for finance, Instead of debating details ___ quality over speed under current constraints.",
+          "backEn": "When summarizing risks for finance, Instead of debating details decision quality over speed under current constraints.",
+          "sortOrder": 6
+        },
+        {
+          "id": "study-a2-d13-c7",
+          "frontJa": "During a product and engineering sync, Let's shift the focus to ___ reliability in a measurable way.",
+          "backEn": "During a product and engineering sync, Let's shift the focus to long-term reliability in a measurable way.",
+          "sortOrder": 7
+        },
+        {
+          "id": "study-a2-d13-c8",
+          "frontJa": "In a retrospective after missed targets, Before we optimize further ___ impact first under current constraints.",
+          "backEn": "In a retrospective after missed targets, Before we optimize further customer impact first under current constraints.",
+          "sortOrder": 8
+        },
+        {
+          "id": "study-a2-d13-c9",
+          "frontJa": "When briefing a newly assigned manager, The bigger question is ___ ownership in a measurable way.",
+          "backEn": "When briefing a newly assigned manager, The bigger question is clear ownership in a measurable way.",
+          "sortOrder": 9
+        },
+        {
+          "id": "study-a2-d13-c10",
+          "frontJa": "In a negotiation with a procurement team, To reframe this issue ___ before opinion under current constraints.",
+          "backEn": "In a negotiation with a procurement team, To reframe this issue evidence before opinion under current constraints.",
+          "sortOrder": 10
+        },
+        {
+          "id": "study-a2-d13-c11",
+          "frontJa": "During an incident-response handover, What matters most now is ___ outcomes in a measurable way.",
+          "backEn": "During an incident-response handover, What matters most now is risk-adjusted outcomes in a measurable way.",
+          "sortOrder": 11
+        },
+        {
+          "id": "study-a2-d13-c12",
+          "frontJa": "In a pre-launch go/no-go discussion, Instead of debating details ___ quality over speed under current constraints.",
+          "backEn": "In a pre-launch go/no-go discussion, Instead of debating details decision quality over speed under current constraints.",
+          "sortOrder": 12
+        },
+        {
+          "id": "study-a2-d13-c13",
+          "frontJa": "When documenting assumptions in Notion, Let's shift the focus to ___ reliability in a measurable way.",
+          "backEn": "When documenting assumptions in Notion, Let's shift the focus to long-term reliability in a measurable way.",
+          "sortOrder": 13
+        },
+        {
+          "id": "study-a2-d13-c14",
+          "frontJa": "During a weekly executive update, Before we optimize further ___ impact first under current constraints.",
+          "backEn": "During a weekly executive update, Before we optimize further customer impact first under current constraints.",
+          "sortOrder": 14
+        },
+        {
+          "id": "study-a2-d13-c15",
+          "frontJa": "In a one-on-one with a direct report, The bigger question is ___ ownership in a measurable way.",
+          "backEn": "In a one-on-one with a direct report, The bigger question is clear ownership in a measurable way.",
+          "sortOrder": 15
+        },
+        {
+          "id": "study-a2-d13-c16",
+          "frontJa": "When moderating a tense design review, To reframe this issue ___ before opinion under current constraints.",
+          "backEn": "When moderating a tense design review, To reframe this issue evidence before opinion under current constraints.",
+          "sortOrder": 16
+        },
+        {
+          "id": "study-a2-d13-c17",
+          "frontJa": "In a customer-facing roadmap presentation, What matters most now is ___ outcomes in a measurable way.",
+          "backEn": "In a customer-facing roadmap presentation, What matters most now is risk-adjusted outcomes in a measurable way.",
+          "sortOrder": 17
+        },
+        {
+          "id": "study-a2-d13-c18",
+          "frontJa": "During a strategy offsite debate, Instead of debating details ___ quality over speed under current constraints.",
+          "backEn": "During a strategy offsite debate, Instead of debating details decision quality over speed under current constraints.",
+          "sortOrder": 18
+        },
+        {
+          "id": "study-a2-d13-c19",
+          "frontJa": "When escalating a blocker to leadership, Let's shift the focus to ___ reliability in a measurable way.",
+          "backEn": "When escalating a blocker to leadership, Let's shift the focus to long-term reliability in a measurable way.",
+          "sortOrder": 19
+        },
+        {
+          "id": "study-a2-d13-c20",
+          "frontJa": "In the opening of a webinar Q&A, Before we optimize further ___ impact first under current constraints.",
+          "backEn": "In the opening of a webinar Q&A, Before we optimize further customer impact first under current constraints.",
+          "sortOrder": 20
+        },
+        {
+          "id": "study-a2-d13-c21",
+          "frontJa": "While writing postmortem action items, The bigger question is ___ ownership in a measurable way.",
+          "backEn": "While writing postmortem action items, The bigger question is clear ownership in a measurable way.",
+          "sortOrder": 21
+        },
+        {
+          "id": "study-a2-d13-c22",
+          "frontJa": "During a budget reforecast meeting, To reframe this issue ___ before opinion under current constraints.",
+          "backEn": "During a budget reforecast meeting, To reframe this issue evidence before opinion under current constraints.",
+          "sortOrder": 22
+        },
+        {
+          "id": "study-a2-d13-c23",
+          "frontJa": "In a kickoff session with external partners, What matters most now is ___ outcomes in a measurable way.",
+          "backEn": "In a kickoff session with external partners, What matters most now is risk-adjusted outcomes in a measurable way.",
+          "sortOrder": 23
+        },
+        {
+          "id": "study-a2-d13-c24",
+          "frontJa": "When aligning stakeholders before launch, Instead of debating details ___ quality over speed under current constraints.",
+          "backEn": "When aligning stakeholders before launch, Instead of debating details decision quality over speed under current constraints.",
+          "sortOrder": 24
+        },
+        {
+          "id": "study-a2-d13-c25",
+          "frontJa": "During a data-quality review with analytics, Let's shift the focus to ___ reliability in a measurable way.",
+          "backEn": "During a data-quality review with analytics, Let's shift the focus to long-term reliability in a measurable way.",
+          "sortOrder": 25
+        },
+        {
+          "id": "study-a2-d13-c26",
+          "frontJa": "In a hiring panel debrief, Before we optimize further ___ impact first under current constraints.",
+          "backEn": "In a hiring panel debrief, Before we optimize further customer impact first under current constraints.",
+          "sortOrder": 26
+        },
+        {
+          "id": "study-a2-d13-c27",
+          "frontJa": "When preparing a compliance audit response, The bigger question is ___ ownership in a measurable way.",
+          "backEn": "When preparing a compliance audit response, The bigger question is clear ownership in a measurable way.",
+          "sortOrder": 27
+        },
+        {
+          "id": "study-a2-d13-c28",
+          "frontJa": "During a migration readiness checkpoint, To reframe this issue ___ before opinion under current constraints.",
+          "backEn": "During a migration readiness checkpoint, To reframe this issue evidence before opinion under current constraints.",
+          "sortOrder": 28
+        },
+        {
+          "id": "study-a2-d13-c29",
+          "frontJa": "In an internal announcement to all teams, What matters most now is ___ outcomes in a measurable way.",
+          "backEn": "In an internal announcement to all teams, What matters most now is risk-adjusted outcomes in a measurable way.",
+          "sortOrder": 29
+        },
+        {
+          "id": "study-a2-d13-c30",
+          "frontJa": "When clarifying scope with operations, Instead of debating details ___ quality over speed under current constraints.",
+          "backEn": "When clarifying scope with operations, Instead of debating details decision quality over speed under current constraints.",
+          "sortOrder": 30
+        },
+        {
+          "id": "study-a2-d13-c31",
+          "frontJa": "During a customer advisory board session, Let's shift the focus to ___ reliability in a measurable way.",
+          "backEn": "During a customer advisory board session, Let's shift the focus to long-term reliability in a measurable way.",
+          "sortOrder": 31
+        },
+        {
+          "id": "study-a2-d13-c32",
+          "frontJa": "In a policy exception request thread, Before we optimize further ___ impact first under current constraints.",
+          "backEn": "In a policy exception request thread, Before we optimize further customer impact first under current constraints.",
+          "sortOrder": 32
+        },
+        {
+          "id": "study-a2-d13-c33",
+          "frontJa": "When presenting trade-offs to executives, The bigger question is ___ ownership in a measurable way.",
+          "backEn": "When presenting trade-offs to executives, The bigger question is clear ownership in a measurable way.",
+          "sortOrder": 33
+        },
+        {
+          "id": "study-a2-d13-c34",
+          "frontJa": "During a conflict-resolution conversation, To reframe this issue ___ before opinion under current constraints.",
+          "backEn": "During a conflict-resolution conversation, To reframe this issue evidence before opinion under current constraints.",
+          "sortOrder": 34
+        },
+        {
+          "id": "study-a2-d13-c35",
+          "frontJa": "In a final decision memo before sign-off, What matters most now is ___ outcomes in a measurable way.",
+          "backEn": "In a final decision memo before sign-off, What matters most now is risk-adjusted outcomes in a measurable way.",
+          "sortOrder": 35
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "passingScore": 80,
+    "items": [
+      {
+        "id": "study-a2-a0",
+        "promptJa": "Which line sounds most appropriate in a formal update email?",
+        "promptEn": "Which line sounds most appropriate in a formal update email?",
+        "options": [
+          "Please be advised that the revised timeline is attached for your review.",
+          "Hey, we changed dates, check the file when you can.",
+          "Timeline changed somehow, see attachment maybe.",
+          "I changed it because reasons; let's move on."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a2-a1",
+        "promptJa": "Which sentence uses hedging language naturally?",
+        "promptEn": "Which sentence uses hedging language naturally?",
+        "options": [
+          "It might be the case that our current sample is too narrow.",
+          "It is absolute that our sample is always wrong.",
+          "Our sample wrong surely forever.",
+          "This is 100% certain with no doubt."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a2-a2",
+        "promptJa": "Which is the strongest negotiation phrase?",
+        "promptEn": "Which is the strongest negotiation phrase?",
+        "options": [
+          "Would you be open to a phased commitment with review checkpoints?",
+          "Take this offer now or we walk.",
+          "We want everything our way immediately.",
+          "You decide, we do not care."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a2-a3",
+        "promptJa": "Which sentence correctly expresses cause and effect?",
+        "promptEn": "Which sentence correctly expresses cause and effect?",
+        "options": [
+          "Due to delayed legal review, the launch slipped by two weeks.",
+          "Due to we delayed legal, launch slipped two weeks.",
+          "Launch slipped because of due to legal delayed it.",
+          "Legal delayed and launch maybe slip somehow."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a2-a4",
+        "promptJa": "Which line best shows comparative analysis?",
+        "promptEn": "Which line best shows comparative analysis?",
+        "options": [
+          "Compared with option A, this approach scales better but costs more upfront.",
+          "This option is best because I feel so.",
+          "Everything is better and worse at same time.",
+          "Option A bad, this one good, done."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a2-a5",
+        "promptJa": "Which line has clear claim-support-conclusion structure?",
+        "promptEn": "Which line has clear claim-support-conclusion structure?",
+        "options": [
+          "My claim is that we should phase rollout; pilot data supports this, so phased launch is safer.",
+          "I claim things and data and conclusion maybe yes.",
+          "Data exists and claim exists and maybe done.",
+          "We should launch fast because fast is fast."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a2-a6",
+        "promptJa": "Which is a professional way to interrupt politely in a meeting?",
+        "promptEn": "Which is a professional way to interrupt politely in a meeting?",
+        "options": [
+          "Could I briefly jump in to clarify ownership before we continue?",
+          "Stop, you are wrong.",
+          "Let me talk now; enough.",
+          "No, that is nonsense."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a2-a7",
+        "promptJa": "Which sentence best explains a trend?",
+        "promptEn": "Which sentence best explains a trend?",
+        "options": [
+          "Quarter over quarter, churn decreased after onboarding changes.",
+          "Churn down because things happened.",
+          "Numbers move up and down randomly forever.",
+          "Trend is trend so nothing to explain."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a2-a8",
+        "promptJa": "Which idiom usage is natural in a workplace context?",
+        "promptEn": "Which idiom usage is natural in a workplace context?",
+        "options": [
+          "To get the ball rolling, we need an immediate owner for discovery.",
+          "We kicked the wall rolling the ball to legal.",
+          "Let's hit the ball over the deadline.",
+          "I dropped the page to raise the ball."
+        ],
+        "correctIndex": 0
+      },
+      {
+        "id": "study-a2-a9",
+        "promptJa": "Which sentence effectively reframes focus?",
+        "promptEn": "Which sentence effectively reframes focus?",
+        "options": [
+          "Instead of debating details, let's shift the focus to long-term reliability.",
+          "Forget details because details are useless always.",
+          "No focus needed; we will improvise.",
+          "I do not like this, next topic."
+        ],
+        "correctIndex": 0
+      }
+    ]
+  }
+}

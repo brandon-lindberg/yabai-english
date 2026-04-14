@@ -16,6 +16,17 @@ function cloze(sentence: string, target: string): Card {
   return { f: sentence.replace(target, "___"), b: sentence };
 }
 
+function clozePivot(sentence: string, pivot: string): Card {
+  if (!sentence.includes(pivot)) {
+    throw new Error(`Target "${pivot}" missing from sentence "${sentence}"`);
+  }
+  const words = pivot.split(" ");
+  if (words.length < 2) {
+    return { f: sentence.replace(pivot, "___"), b: sentence };
+  }
+  return { f: sentence.replace(pivot, `___ ${words.slice(1).join(" ")}`), b: sentence };
+}
+
 function deck(title: string, titleEn: string, cards: Card[]) {
   if (cards.length !== CARDS_PER_DECK) {
     throw new Error(`${titleEn}: expected ${CARDS_PER_DECK} cards, got ${cards.length}`);
@@ -24,17 +35,56 @@ function deck(title: string, titleEn: string, cards: Card[]) {
 }
 
 function buildTopicDeck(topic: string, openings: string[], pivots: string[], endings: string[]) {
+  const scenarios = [
+    "In Monday's steering review",
+    "During a vendor check-in",
+    "In the postmortem debrief",
+    "During a finance alignment meeting",
+    "In a cross-functional planning session",
+    "When writing a project update email",
+    "During a roadmap presentation",
+    "In a one-on-one coaching conversation",
+    "At the end of a design review",
+    "During a risk register walkthrough",
+    "In a product and engineering sync",
+    "When escalating a blocker",
+    "In a decision memo for leadership",
+    "During a retrospective",
+    "In a client status meeting",
+    "When clarifying deliverables",
+    "In a weekly operations standup",
+    "During launch-readiness review",
+    "When discussing timeline pressure",
+    "In a governance checkpoint",
+    "During a quality-review call",
+    "In stakeholder Q&A",
+    "When documenting next steps",
+    "In a contract renewal discussion",
+    "During incident follow-up",
+    "In an implementation workshop",
+    "When aligning on priorities",
+    "In a go/no-go decision meeting",
+    "During a handoff to support",
+    "In a change-management update",
+    "When validating assumptions",
+    "In a compliance discussion",
+    "During a planning reset",
+    "In an executive summary briefing",
+    "When reviewing trade-offs",
+  ] as const;
+
   const cards: Card[] = [];
-  for (const opening of openings) {
-    for (const pivot of pivots) {
-      for (const ending of endings) {
-        if (cards.length === CARDS_PER_DECK) break;
-        const sentence = `${opening} ${pivot} ${ending}.`;
-        cards.push(cloze(sentence, pivot));
-      }
-      if (cards.length === CARDS_PER_DECK) break;
-    }
-    if (cards.length === CARDS_PER_DECK) break;
+  for (let i = 0; i < CARDS_PER_DECK; i++) {
+    const scenario = scenarios[i]!;
+    const opening = openings[i % openings.length]!;
+    const pivot = pivots[i % pivots.length]!;
+    const ending = endings[(i * 3 + 1) % endings.length]!;
+    const sentence = `${scenario}, ${opening} ${pivot} ${ending}.`;
+    cards.push(clozePivot(sentence, pivot));
+  }
+  const fronts = new Set(cards.map((c) => c.f));
+  if (fronts.size !== cards.length) {
+    throw new Error(`${topic}: duplicate fronts detected`);
   }
   return deck(topic, topic, cards);
 }
