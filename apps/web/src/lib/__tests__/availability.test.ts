@@ -61,6 +61,29 @@ describe("buildUpcomingSlotOptions", () => {
     expect(slots.some((s) => s.startsAtIso === "2026-04-13T01:00:00.000Z")).toBe(false);
   });
 
+  test("skippedStartsAtIso omits matching occurrences", () => {
+    const skip = new Set(["2026-04-13T01:00:00.000Z"]);
+    const slots = buildUpcomingSlotOptions({
+      availabilitySlots: [
+        {
+          id: "a1",
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          timezone: "Asia/Tokyo",
+        },
+      ],
+      viewerTimezone: "Asia/Tokyo",
+      now: "2026-04-10T00:00:00.000Z",
+      horizonDays: 14,
+      allowPastInstances: true,
+      skippedStartsAtIso: skip,
+    });
+
+    expect(slots.some((s) => s.startsAtIso === "2026-04-13T01:00:00.000Z")).toBe(false);
+    expect(slots.length).toBeGreaterThan(0);
+  });
+
   test("allowPastInstances includes slots that already started within horizon", () => {
     const slots = buildUpcomingSlotOptions({
       availabilitySlots: [

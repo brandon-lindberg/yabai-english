@@ -24,6 +24,9 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
       },
+      availabilityOccurrenceSkips: {
+        select: { startsAtIso: true },
+      },
     },
   });
 
@@ -51,6 +54,9 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
       })
     : null;
   const viewerTimezone = studentProfile?.timezone ?? "Asia/Tokyo";
+  const skippedStartsAtIso = new Set(
+    teacher.availabilityOccurrenceSkips.map((s) => s.startsAtIso),
+  );
   const slotOptions = buildUpcomingSlotOptions({
     availabilitySlots: teacher.availabilitySlots.map((slot) => ({
       id: slot.id,
@@ -61,6 +67,7 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
     })),
     viewerTimezone,
     minimumLeadHours: 48,
+    skippedStartsAtIso,
   });
 
   return (

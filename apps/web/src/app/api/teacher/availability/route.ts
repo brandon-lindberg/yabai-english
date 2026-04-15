@@ -25,10 +25,17 @@ export async function GET() {
           active: true,
         },
       },
+      availabilityOccurrenceSkips: {
+        select: { startsAtIso: true },
+      },
     },
   });
 
-  return NextResponse.json({ teacherProfileId: profile?.id ?? null, slots: profile?.availabilitySlots ?? [] });
+  return NextResponse.json({
+    teacherProfileId: profile?.id ?? null,
+    slots: profile?.availabilitySlots ?? [],
+    occurrenceSkips: profile?.availabilityOccurrenceSkips?.map((s) => s.startsAtIso) ?? [],
+  });
 }
 
 export async function PATCH(req: Request) {

@@ -190,8 +190,9 @@ model TeacherProfile {
   specialties                String[] @default([])
   rateYen                    Int?
 
-  availabilitySlots AvailabilitySlot[]
-  bookingsTeaching  Booking[]          @relation("TeacherBookings")
+  availabilitySlots        AvailabilitySlot[]
+  availabilityOccurrenceSkips AvailabilityOccurrenceSkip[]
+  bookingsTeaching         Booking[]          @relation("TeacherBookings")
 }
 
 model AvailabilitySlot {
@@ -203,6 +204,18 @@ model AvailabilitySlot {
   endMin     Int
   timezone   String   @default("Asia/Tokyo")
   active     Boolean  @default(true)
+}
+
+/// Single UTC start hidden for one weekly series occurrence (teacher "this event only" delete).
+model AvailabilityOccurrenceSkip {
+  id               String         @id @default(cuid())
+  teacherProfileId String
+  teacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id], onDelete: Cascade)
+  startsAtIso      String
+  createdAt        DateTime       @default(now())
+
+  @@unique([teacherProfileId, startsAtIso])
+  @@index([teacherProfileId])
 }
 
 model LessonProduct {

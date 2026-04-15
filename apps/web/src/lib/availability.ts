@@ -16,6 +16,8 @@ type BuildOptions = {
   minimumLeadHours?: number;
   /** When true, include instances that start in the past (for teacher availability editor). */
   allowPastInstances?: boolean;
+  /** UTC startsAtIso values to omit (single-occurrence removals). */
+  skippedStartsAtIso?: ReadonlySet<string>;
 };
 
 export type SlotOption = {
@@ -36,6 +38,7 @@ export function buildUpcomingSlotOptions({
   horizonDays = 21,
   minimumLeadHours = 0,
   allowPastInstances = false,
+  skippedStartsAtIso,
 }: BuildOptions): SlotOption[] {
   const nowUtc =
     typeof now === "string"
@@ -69,6 +72,9 @@ export function buildUpcomingSlotOptions({
 
       const startUtc = startTeacher.toUTC();
       const endUtc = endTeacher.toUTC();
+      const startsAtIso = startUtc.toISO({ suppressMilliseconds: false }) ?? "";
+      if (skippedStartsAtIso?.has(startsAtIso)) continue;
+
       const leadMs = minimumLeadHours * 60 * 60 * 1000;
       if (!allowPastInstances && startUtc <= nowUtc.plus({ milliseconds: leadMs })) continue;
 
@@ -80,7 +86,7 @@ export function buildUpcomingSlotOptions({
 
       options.push({
         slotId: slot.id,
-        startsAtIso: startUtc.toISO({ suppressMilliseconds: false }) ?? "",
+        startsAtIso,
         endsAtIso: endUtc.toISO({ suppressMilliseconds: false }) ?? "",
         label,
       });

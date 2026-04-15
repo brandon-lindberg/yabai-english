@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const availabilitySlotSchema = z
+export const teacherAvailabilitySlotSchema = z
   .object({
     dayOfWeek: z.number().int().min(0).max(6),
     startMin: z.number().int().min(0).max(1439),
@@ -12,9 +12,9 @@ const availabilitySlotSchema = z
     path: ["endMin"],
   });
 
-export const teacherAvailabilitySchema = z.array(availabilitySlotSchema).max(100);
+export const teacherAvailabilitySchema = z.array(teacherAvailabilitySlotSchema).max(100);
 
-export type TeacherAvailabilitySlotInput = z.infer<typeof availabilitySlotSchema>;
+export type TeacherAvailabilitySlotInput = z.infer<typeof teacherAvailabilitySlotSchema>;
 
 export function normalizeAvailabilitySlotsInput(input: unknown) {
   return teacherAvailabilitySchema.safeParse(input);

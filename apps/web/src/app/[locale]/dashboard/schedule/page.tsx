@@ -23,6 +23,9 @@ export default async function DashboardSchedulePage() {
           where: { active: true },
           orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
         },
+        availabilityOccurrenceSkips: {
+          select: { startsAtIso: true },
+        },
       },
     });
 
@@ -42,6 +45,9 @@ export default async function DashboardSchedulePage() {
             endMin: slot.endMin,
             timezone: slot.timezone,
           }))}
+          initialOccurrenceSkips={
+            profile?.availabilityOccurrenceSkips?.map((s) => s.startsAtIso) ?? []
+          }
           defaultTimezone={profile?.availabilitySlots?.[0]?.timezone ?? "Asia/Tokyo"}
         />
 

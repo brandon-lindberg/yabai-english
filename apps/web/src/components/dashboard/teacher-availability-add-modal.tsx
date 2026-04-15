@@ -182,10 +182,16 @@ export function TeacherAvailabilityAddModal({
                 onChange={(e) =>
                   setDraft((d) => ({ ...d, endMin: parseTime(e.target.value) }))
                 }
-                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
+                className={`mt-1 w-full rounded-lg border bg-background px-2 py-2 text-sm text-foreground ${
+                  draft.endMin <= draft.startMin ? "border-destructive" : "border-border"
+                }`}
               />
             </label>
           </div>
+          <p className="text-xs text-muted">{tModal("endTimeHint")}</p>
+          {draft.endMin <= draft.startMin ? (
+            <p className="text-sm text-destructive">{tModal("invalidTimeRange")}</p>
+          ) : null}
           <label className="block text-xs text-muted">
             {timezoneLabel}
             <input

@@ -36,6 +36,15 @@ export function dayKeyFromIso(iso: string) {
   return toDayKey(new Date(iso));
 }
 
+/** True if any slot falls on the same local calendar day as `calendarAnchorIso`. */
+export function hasSlotMatchingAnchorDay(
+  slots: { startsAtIso: string }[],
+  calendarAnchorIso: string,
+): boolean {
+  const anchorDayKey = dayKeyFromIso(calendarAnchorIso);
+  return slots.some((s) => dayKeyFromIso(s.startsAtIso) === anchorDayKey);
+}
+
 /** Monday → Sunday short weekday names for column headers (locale-aware). */
 export function buildWeekdayColumnHeaders(locale: string): string[] {
   const mondayNoon = new Date(2026, 0, 5, 12, 0, 0);

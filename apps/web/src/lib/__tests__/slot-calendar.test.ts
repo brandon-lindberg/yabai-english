@@ -3,9 +3,35 @@ import {
   buildMonthCells,
   buildWeekDays,
   buildWeekdayColumnHeaders,
+  dayKeyFromIso,
   groupSlotsByDay,
+  hasSlotMatchingAnchorDay,
 } from "@/lib/slot-calendar";
 import { shiftCalendarAnchor } from "@/lib/calendar-view";
+
+describe("hasSlotMatchingAnchorDay", () => {
+  test("is true when a slot shares the anchor's local calendar day", () => {
+    const slotIso = "2026-04-20T01:00:00.000Z";
+    const key = dayKeyFromIso(slotIso);
+    expect(hasSlotMatchingAnchorDay([{ startsAtIso: slotIso }], `${key}T15:00:00`)).toBe(
+      true,
+    );
+  });
+
+  test("is false when no slot falls on the anchor day", () => {
+    const slotIso = "2026-04-20T01:00:00.000Z";
+    const key = dayKeyFromIso(slotIso);
+    const d = new Date(`${key}T12:00:00`);
+    d.setDate(d.getDate() + 1);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const nextKey = `${y}-${m}-${day}`;
+    expect(hasSlotMatchingAnchorDay([{ startsAtIso: slotIso }], `${nextKey}T12:00:00`)).toBe(
+      false,
+    );
+  });
+});
 
 describe("groupSlotsByDay", () => {
   test("groups slot options by local day key", () => {

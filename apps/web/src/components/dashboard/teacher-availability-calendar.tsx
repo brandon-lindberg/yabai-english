@@ -1,11 +1,27 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 import { weekdayLabel } from "@/lib/weekdays";
 import { TeacherAvailabilityAddModal } from "@/components/dashboard/teacher-availability-add-modal";
+import { TeacherAvailabilityRemoveModal } from "@/components/dashboard/teacher-availability-remove-modal";
+import {
+  TeacherAvailabilityGoogleMonth,
+  type MonthDaySlotChip,
+} from "@/components/dashboard/teacher-availability-google-month";
+import { TeacherAvailabilityTimeGridDay } from "@/components/dashboard/teacher-availability-time-grid-day";
+import { TeacherAvailabilityTimeGridWeek } from "@/components/dashboard/teacher-availability-time-grid-week";
 import { SlotSelectionCalendar } from "@/components/slot-selection-calendar";
+import {
+  buildMonthCells,
+  buildWeekdayColumnHeaders,
+  buildWeekDays,
+  dayKeyFromIso,
+  hasSlotMatchingAnchorDay,
+} from "@/lib/slot-calendar";
+import { placeSlotsOnDayColumn, placeSlotsOnWeekGrid } from "@/lib/time-grid-week";
+import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 
 export type InitialTeacherAvailabilitySlot = {
@@ -18,6 +34,7 @@ export type InitialTeacherAvailabilitySlot = {
 
 type Props = {
   initialSlots: InitialTeacherAvailabilitySlot[];
+  initialOccurrenceSkips: string[];
   defaultTimezone: string;
 };
 
@@ -37,19 +54,38 @@ function newRuleId() {
   return `new_${Math.random().toString(36).slice(2, 11)}`;
 }
 
-export function TeacherAvailabilityCalendar({ initialSlots, defaultTimezone }: Props) {
+export function TeacherAvailabilityCalendar({
+  initialSlots,
+  initialOccurrenceSkips,
+  defaultTimezone,
+}: Props) {
   const locale = useLocale();
   const t = useTranslations("dashboard.teacherAvailability");
   const td = useTranslations("dashboard");
   const [rules, setRules] = useState<InitialTeacherAvailabilitySlot[]>(initialSlots);
-  const [calendarView, setCalendarView] = useState<CalendarViewMode>("week");
+  const [occurrenceSkips, setOccurrenceSkips] = useState<string[]>(initialOccurrenceSkips);
+  const [calendarView, setCalendarView] = useState<CalendarViewMode>("month");
   const [calendarAnchor, setCalendarAnchor] = useState(new Date().toISOString());
   const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
   const [selectedStartsAtIso, setSelectedStartsAtIso] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [monthAddDayKey, setMonthAddDayKey] = useState<string | null>(null);
+  const [removeOpen, setRemoveOpen] = useState(false);
+  const [removeBusy, setRemoveBusy] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setOccurrenceSkips(initialOccurrenceSkips);
+  }, [initialOccurrenceSkips]);
 
   const teacherTz = rules[0]?.timezone ?? defaultTimezone;
+
+  const skipSet = useMemo(() => new Set(occurrenceSkips), [occurrenceSkips]);
+
+  const addForDayKey = useCallback((dayKey: string) => {
+    setMonthAddDayKey(dayKey);
+  }, []);
 
   const calendarSlots = useMemo(() => {
     const expanded = buildUpcomingSlotOptions({
@@ -64,15 +100,187 @@ export function TeacherAvailabilityCalendar({ initialSlots, defaultTimezone }: P
       horizonDays: 365,
       minimumLeadHours: 0,
       allowPastInstances: true,
+      skippedStartsAtIso: skipSet,
     });
     return expanded.map((s) => ({
       startsAtIso: s.startsAtIso,
+      endsAtIso: s.endsAtIso,
       label: s.label,
       groupKey: s.slotId,
     }));
-  }, [rules, teacherTz]);
+  }, [rules, teacherTz, skipSet]);
+
+  const anchorDayKey = useMemo(() => dayKeyFromIso(calendarAnchor), [calendarAnchor]);
+
+  const dayBlocks = useMemo(
+    () => placeSlotsOnDayColumn(anchorDayKey, calendarSlots),
+    [anchorDayKey, calendarSlots],
+  );
+
+  const monthCells = useMemo(() => buildMonthCells(calendarAnchor, locale), [calendarAnchor, locale]);
+  const monthWeekdayHeaders = useMemo(() => buildWeekdayColumnHeaders(locale), [locale]);
+
+  const slotsByDayForMonth = useMemo(() => {
+    const m = new Map<string, MonthDaySlotChip[]>();
+    for (const s of calendarSlots) {
+      const dk = dayKeyFromIso(s.startsAtIso);
+      const chip: MonthDaySlotChip = {
+        startsAtIso: s.startsAtIso,
+        endsAtIso: s.endsAtIso,
+        label: s.label,
+        groupKey: s.groupKey,
+      };
+      const list = m.get(dk);
+      if (list) list.push(chip);
+      else m.set(dk, [chip]);
+    }
+    for (const list of m.values()) {
+      list.sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
+    }
+    return m;
+  }, [calendarSlots]);
+
+  const weekDays = useMemo(() => buildWeekDays(calendarAnchor, locale), [calendarAnchor, locale]);
+
+  const blocksByDay = useMemo(
+    () => placeSlotsOnWeekGrid(weekDays.map((d) => d.dayKey), calendarSlots),
+    [weekDays, calendarSlots],
+  );
+
+  const weekTimeGrid = useMemo(
+    () => (
+      <TeacherAvailabilityTimeGridWeek
+        locale={locale}
+        weekDays={weekDays}
+        blocksByDay={blocksByDay}
+        selectedStartsAtIso={selectedStartsAtIso}
+        selectedGroupKey={selectedRuleId}
+        onSelectSlot={(iso, groupKey) => {
+          setSelectedStartsAtIso(iso);
+          setSelectedRuleId(groupKey ?? null);
+        }}
+        onCalendarAnchorChange={setCalendarAnchor}
+        weekColumnAddLabel={t("addForDay")}
+        onAddForDayKey={addForDayKey}
+        selectionStyle="neutral"
+      />
+    ),
+    [
+      locale,
+      weekDays,
+      blocksByDay,
+      selectedStartsAtIso,
+      selectedRuleId,
+      t,
+      addForDayKey,
+    ],
+  );
 
   const selectedRule = selectedRuleId ? rules.find((r) => r.id === selectedRuleId) : undefined;
+
+  const invalidSlotRanges = useMemo(
+    () => rules.some((r) => r.endMin <= r.startMin),
+    [rules],
+  );
+
+  const hasSlotsOnFocusDay = useMemo(
+    () => hasSlotMatchingAnchorDay(calendarSlots, calendarAnchor),
+    [calendarSlots, calendarAnchor],
+  );
+
+  const focusDateLabel = useMemo(() => {
+    const dk = dayKeyFromIso(calendarAnchor);
+    return new Date(`${dk}T12:00:00`).toLocaleDateString(locale, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }, [calendarAnchor, locale]);
+
+  const focusedMonthDayKey = useMemo(
+    () =>
+      selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso) : dayKeyFromIso(calendarAnchor),
+    [selectedStartsAtIso, calendarAnchor],
+  );
+
+  const dayTimeGrid = useMemo(
+    () => (
+      <TeacherAvailabilityTimeGridDay
+        locale={locale}
+        dayKey={anchorDayKey}
+        dayHeading={focusDateLabel}
+        blocks={dayBlocks}
+        selectedStartsAtIso={selectedStartsAtIso}
+        selectedGroupKey={selectedRuleId}
+        onSelectSlot={(iso, groupKey) => {
+          setSelectedStartsAtIso(iso);
+          setSelectedRuleId(groupKey ?? null);
+        }}
+        onCalendarAnchorChange={setCalendarAnchor}
+        weekColumnAddLabel={t("addForDay")}
+        onAddForDayKey={addForDayKey}
+        selectionStyle="neutral"
+        emptyLabel={t("noAvailabilityYet")}
+        footer={
+          <button
+            type="button"
+            onClick={() => setMonthAddDayKey(anchorDayKey)}
+            className="w-full rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground hover:bg-zinc-100"
+          >
+            {t("addForThisDay")}
+          </button>
+        }
+      />
+    ),
+    [
+      locale,
+      anchorDayKey,
+      focusDateLabel,
+      dayBlocks,
+      selectedStartsAtIso,
+      selectedRuleId,
+      t,
+      addForDayKey,
+    ],
+  );
+
+  const monthGoogle = useMemo(
+    () => (
+      <TeacherAvailabilityGoogleMonth
+        locale={locale}
+        monthWeekdayHeaders={monthWeekdayHeaders}
+        monthCells={monthCells}
+        slotsByDay={slotsByDayForMonth}
+        focusedDayKey={focusedMonthDayKey}
+        selectedStartsAtIso={selectedStartsAtIso}
+        selectedGroupKey={selectedRuleId}
+        onOpenDay={(dk) => {
+          setCalendarAnchor(`${dk}T00:00:00.000Z`);
+          setCalendarView("day");
+        }}
+        onAddForDayKey={addForDayKey}
+        addLabel={t("addForDay")}
+        onSelectSlot={(iso, groupKey) => {
+          setSelectedStartsAtIso(iso);
+          setSelectedRuleId(groupKey ?? null);
+        }}
+        onCalendarAnchorChange={setCalendarAnchor}
+        selectionStyle="neutral"
+      />
+    ),
+    [
+      locale,
+      monthWeekdayHeaders,
+      monthCells,
+      slotsByDayForMonth,
+      focusedMonthDayKey,
+      selectedStartsAtIso,
+      selectedRuleId,
+      t,
+      addForDayKey,
+    ],
+  );
 
   function patchSelected(
     patch: Partial<Pick<InitialTeacherAvailabilitySlot, "dayOfWeek" | "startMin" | "endMin" | "timezone">>,
@@ -81,59 +289,99 @@ export function TeacherAvailabilityCalendar({ initialSlots, defaultTimezone }: P
     setRules((prev) => prev.map((r) => (r.id === selectedRuleId ? { ...r, ...patch } : r)));
   }
 
-  function addForDayKey(dayKey: string) {
-    setMonthAddDayKey(dayKey);
-  }
-
-  function removeSelected() {
+  function removeEntireWeeklyRule() {
     if (!selectedRuleId) return;
     setRules((prev) => prev.filter((r) => r.id !== selectedRuleId));
     setSelectedRuleId(null);
     setSelectedStartsAtIso(null);
   }
 
+  async function removeThisOccurrenceOnly() {
+    if (!selectedRuleId || !selectedStartsAtIso) return;
+    setRemoveBusy(true);
+    setRemoveError(null);
+    try {
+      const res = await fetch("/api/teacher/availability/occurrence-skips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slotId: selectedRuleId, startsAtIso: selectedStartsAtIso }),
+      });
+      if (!res.ok) {
+        setRemoveError(t("removeOccurrenceFailed"));
+        return;
+      }
+      setOccurrenceSkips((prev) =>
+        prev.includes(selectedStartsAtIso) ? prev : [...prev, selectedStartsAtIso],
+      );
+      setRemoveOpen(false);
+      setSelectedRuleId(null);
+      setSelectedStartsAtIso(null);
+    } finally {
+      setRemoveBusy(false);
+    }
+  }
+
   async function save() {
+    setSaveErrorMessage(null);
+    const payload = rules.map((r) => ({
+      dayOfWeek: r.dayOfWeek,
+      startMin: r.startMin,
+      endMin: r.endMin,
+      timezone: r.timezone,
+    }));
+    const parsed = teacherAvailabilitySchema.safeParse(payload);
+    if (!parsed.success) {
+      setStatus("error");
+      setSaveErrorMessage(t("invalidTimeRange"));
+      return;
+    }
+
     setStatus("saving");
     const response = await fetch("/api/teacher/availability", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        rules.map((r) => ({
-          dayOfWeek: r.dayOfWeek,
-          startMin: r.startMin,
-          endMin: r.endMin,
-          timezone: r.timezone,
-        })),
-      ),
+      body: JSON.stringify(payload),
     });
     if (!response.ok) {
       setStatus("error");
+      setSaveErrorMessage(t("error"));
       return;
     }
     setStatus("saved");
+    setSaveErrorMessage(null);
     setTimeout(() => setStatus("idle"), 2000);
   }
 
   return (
     <section className="space-y-4 rounded-2xl border border-border bg-surface p-4">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">{t("sectionTitle")}</h2>
-        <p className="mt-1 text-sm text-muted">{t("intro")}</p>
-      </div>
+      <h2 className="text-lg font-semibold text-foreground">{t("sectionTitle")}</h2>
 
-      <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700">
-        {selectedRule
-          ? `${t("selectedRecurringSlot")}: ${new Date(selectedStartsAtIso ?? calendarAnchor).toLocaleString(locale, {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}`
-          : t("noSlotSelected")}
-      </div>
+      {hasSlotsOnFocusDay ? (
+        <div className="rounded-lg border border-border bg-muted/20 px-3 py-3">
+          <h3 className="text-sm font-semibold text-foreground">
+            {t("currentAvailabilityForDate", { date: focusDateLabel })}
+          </h3>
+          <p className="mt-1 text-sm text-muted">
+            {selectedRule && selectedStartsAtIso
+              ? t("editingOccurrence", {
+                  time: new Date(selectedStartsAtIso).toLocaleString(locale, {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }),
+                })
+              : t("currentAvailabilityPickHint")}
+          </p>
+        </div>
+      ) : null}
 
       <SlotSelectionCalendar
+        variant="embedded"
+        weekViewReplacement={weekTimeGrid}
+        dayViewReplacement={dayTimeGrid}
+        monthViewReplacement={monthGoogle}
         locale={locale}
         copy={{
           noAvailabilityYet: t("noAvailabilityYet"),
@@ -155,9 +403,9 @@ export function TeacherAvailabilityCalendar({ initialSlots, defaultTimezone }: P
           setSelectedStartsAtIso(iso);
           setSelectedRuleId(groupKey ?? null);
         }}
+        selectionStyle="neutral"
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
-        onMonthDayClick={(dayKey) => setMonthAddDayKey(dayKey)}
       />
 
       <TeacherAvailabilityAddModal
@@ -224,7 +472,11 @@ export function TeacherAvailabilityCalendar({ initialSlots, defaultTimezone }: P
               type="time"
               value={toTime(selectedRule.endMin)}
               onChange={(e) => patchSelected({ endMin: parseTime(e.target.value) })}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
+              className={`mt-1 w-full rounded-lg border bg-background px-2 py-1 text-sm text-foreground ${
+                selectedRule.endMin <= selectedRule.startMin
+                  ? "border-destructive"
+                  : "border-border"
+              }`}
             />
           </label>
           <label className="text-xs text-muted">
@@ -236,13 +488,19 @@ export function TeacherAvailabilityCalendar({ initialSlots, defaultTimezone }: P
             />
           </label>
           </div>
+          {selectedRule.endMin <= selectedRule.startMin ? (
+            <p className="text-sm text-destructive">{t("invalidTimeRange")}</p>
+          ) : null}
         </div>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
-          onClick={removeSelected}
+          onClick={() => {
+            setRemoveError(null);
+            setRemoveOpen(true);
+          }}
           disabled={!selectedRuleId}
           className="rounded-full border border-destructive/40 px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive/5 disabled:opacity-40"
         >
@@ -251,7 +509,7 @@ export function TeacherAvailabilityCalendar({ initialSlots, defaultTimezone }: P
         <button
           type="button"
           onClick={() => void save()}
-          disabled={status === "saving"}
+          disabled={status === "saving" || invalidSlotRanges}
           className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-50"
         >
           {status === "saving" ? t("saving") : t("save")}
@@ -259,8 +517,28 @@ export function TeacherAvailabilityCalendar({ initialSlots, defaultTimezone }: P
         {status === "saved" ? (
           <span className="text-sm text-green-600 dark:text-green-400">{t("saved")}</span>
         ) : null}
-        {status === "error" ? <span className="text-sm text-destructive">{t("error")}</span> : null}
+        {status === "error" ? (
+          <span className="text-sm text-destructive">{saveErrorMessage ?? t("error")}</span>
+        ) : null}
       </div>
+
+      <TeacherAvailabilityRemoveModal
+        open={removeOpen}
+        onClose={() => {
+          setRemoveOpen(false);
+          setRemoveError(null);
+        }}
+        canRemoveThisOccurrence={Boolean(selectedRuleId && selectedStartsAtIso)}
+        busy={removeBusy}
+        error={removeError}
+        title={t("removeDialogTitle")}
+        description={t("removeDialogDescription")}
+        thisOccurrenceLabel={t("removeThisOccurrence")}
+        allSeriesLabel={t("removeAllSeries")}
+        cancelLabel={t("removeDialogCancel")}
+        onThisOccurrence={() => void removeThisOccurrenceOnly()}
+        onAllSeries={removeEntireWeeklyRule}
+      />
     </section>
   );
 }

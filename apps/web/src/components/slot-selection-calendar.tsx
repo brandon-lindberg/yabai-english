@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode, type ReactElement } from "react";
 import {
   buildMonthCells,
   buildWeekDays,
@@ -44,6 +44,21 @@ type Props = {
    * (e.g. teacher availability opens an add modal).
    */
   onMonthDayClick?: (dayKey: string) => void;
+  /** Rendered below the day view slot list (e.g. “Add” for that calendar day). */
+  dayViewExtra?: (ctx: { dayKey: string }) => ReactNode;
+  /** "neutral" avoids strong primary/red selection styling (e.g. teacher availability). */
+  selectionStyle?: "accent" | "neutral";
+  /**
+   * Use inside an outer card (e.g. teacher dashboard) to avoid double border/padding
+   * that shrinks the grid.
+   */
+  variant?: "default" | "embedded";
+  /** When set, replaces the default week list with a custom surface (e.g. time-grid week). */
+  weekViewReplacement?: ReactElement | null;
+  /** When set, replaces the default day list with a custom surface (e.g. time-grid day). */
+  dayViewReplacement?: ReactElement | null;
+  /** When set, replaces the default month grid with a custom surface (e.g. Google-style month). */
+  monthViewReplacement?: ReactElement | null;
 };
 
 export function SlotSelectionCalendar({
@@ -60,10 +75,31 @@ export function SlotSelectionCalendar({
   weekColumnAddLabel,
   onAddForDayKey,
   onMonthDayClick,
+  dayViewExtra,
+  selectionStyle = "accent",
+  variant = "default",
+  weekViewReplacement = null,
+  dayViewReplacement = null,
+  monthViewReplacement = null,
 }: Props) {
+  const daySelectedClass =
+    selectionStyle === "neutral"
+      ? "border-zinc-400 bg-zinc-100 text-zinc-900 ring-1 ring-zinc-300"
+      : "border-primary bg-primary/10 text-zinc-900 ring-1 ring-primary/30";
+  const weekSelectedClass =
+    selectionStyle === "neutral"
+      ? "border-zinc-400 bg-zinc-200 text-zinc-900 shadow-sm"
+      : "border-primary bg-primary text-primary-foreground shadow-sm";
+  const monthSelectedRing =
+    selectionStyle === "neutral" ? "border-zinc-500 ring-1 ring-zinc-300" : "border-primary ring-1 ring-primary/25";
   const groupedSlots = groupSlotsByDay(slots, locale);
   const slotMap = new Map(groupedSlots.map((group) => [group.dayKey, group.slots]));
-  const selectedDayKey = selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso) : "";
+  const slotSelectedDayKey = selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso) : "";
+  /** In month view with custom day click, highlight anchor day when no slot is selected. */
+  const monthCellSelectedDayKey =
+    calendarView === "month" && onMonthDayClick
+      ? slotSelectedDayKey || dayKeyFromIso(calendarAnchor)
+      : slotSelectedDayKey;
   const weekDays = buildWeekDays(calendarAnchor, locale);
   const monthCells = buildMonthCells(calendarAnchor, locale);
   const monthWeekdayHeaders = useMemo(() => buildWeekdayColumnHeaders(locale), [locale]);
@@ -94,8 +130,13 @@ export function SlotSelectionCalendar({
     });
   }
 
+  const rootClassName =
+    variant === "embedded"
+      ? "rounded-none border-0 bg-transparent p-0 shadow-none"
+      : "rounded-2xl border border-zinc-200 bg-zinc-50 p-4 shadow-sm";
+
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 shadow-sm">
+    <div className={rootClassName}>
       <div className="mb-4 border-b border-zinc-200 pb-3">
         <CalendarViewControls
           view={calendarView}
@@ -114,167 +155,191 @@ export function SlotSelectionCalendar({
           nextLabel={copy.next}
         />
       </div>
-      {calendarView === "day" && (
-        <>
-          {(slotMap.get(dayKeyFromIso(calendarAnchor)) ?? []).length === 0 ? (
-            <p className="rounded-lg border border-dashed border-zinc-300 px-3 py-6 text-center text-sm text-zinc-500">
-              {copy.noAvailabilityYet}
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {(slotMap.get(dayKeyFromIso(calendarAnchor)) ?? []).map((slot) => {
-                const selected = isSlotSelected(slot);
+      {calendarView === "day" &&
+        (dayViewReplacement ?? (
+          <>
+            {(slotMap.get(dayKeyFromIso(calendarAnchor)) ?? []).length === 0 ? (
+              <p className="rounded-lg border border-dashed border-zinc-300 px-3 py-6 text-center text-sm text-zinc-500">
+                {copy.noAvailabilityYet}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {(slotMap.get(dayKeyFromIso(calendarAnchor)) ?? []).map((slot) => {
+                  const selected = isSlotSelected(slot);
+                  return (
+                    <button
+                      key={slot.startsAtIso}
+                      type="button"
+                      onClick={() => onSelectSlot(slot.startsAtIso, slot.groupKey)}
+                      className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition ${
+                        selected ? daySelectedClass : "border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-100"
+                      }`}
+                    >
+                      <span className="font-medium">
+                        {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      <span className="truncate pl-3 text-xs text-zinc-500">{slot.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {dayViewExtra ? (
+              <div className="mt-3">{dayViewExtra({ dayKey: dayKeyFromIso(calendarAnchor) })}</div>
+            ) : null}
+          </>
+        ))}
+      {calendarView === "week" &&
+        (weekViewReplacement ?? (
+          <div className="overflow-x-auto pb-1">
+            <div className="grid min-w-[760px] grid-cols-7 gap-2">
+              {weekDays.map((day) => {
+                const daySlots = slotMap.get(day.dayKey) ?? [];
+                const dayDate = new Date(`${day.dayKey}T00:00:00`);
                 return (
-                  <button
-                    key={slot.startsAtIso}
-                    type="button"
-                    onClick={() => onSelectSlot(slot.startsAtIso, slot.groupKey)}
-                    className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition ${
-                      selected
-                        ? "border-primary bg-primary/10 text-zinc-900 ring-1 ring-primary/30"
-                        : "border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-100"
+                  <div
+                    key={day.dayKey}
+                    className={`min-w-[100px] rounded-lg border p-2 ${
+                      daySlots.length > 0 ? "border-zinc-200 bg-white" : "border-zinc-200 bg-zinc-100/80"
                     }`}
                   >
-                    <span className="font-medium">
-                      {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    <span className="truncate pl-3 text-xs text-zinc-500">{slot.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </>
-      )}
-      {calendarView === "week" && (
-        <div className="overflow-x-auto pb-1">
-          <div className="grid min-w-[760px] grid-cols-7 gap-2">
-            {weekDays.map((day) => {
-              const daySlots = slotMap.get(day.dayKey) ?? [];
-              const dayDate = new Date(`${day.dayKey}T00:00:00`);
-              return (
-                <div
-                  key={day.dayKey}
-                  className={`min-w-[100px] rounded-lg border p-2 ${
-                    daySlots.length > 0 ? "border-zinc-200 bg-white" : "border-zinc-200 bg-zinc-100/80"
-                  }`}
-                >
-                  <div className="mb-2 flex items-start justify-between gap-1 border-b border-zinc-200 pb-1">
-                    <p className="text-xs font-semibold text-zinc-500">
-                      {day.shortLabel} {dayDate.getDate()}
-                    </p>
-                    {onAddForDayKey && weekColumnAddLabel ? (
-                      <button
-                        type="button"
-                        onClick={() => onAddForDayKey(day.dayKey)}
-                        className="shrink-0 rounded-md border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-zinc-700 hover:bg-zinc-100"
-                      >
-                        {weekColumnAddLabel}
-                      </button>
-                    ) : null}
-                  </div>
-                  <div className="space-y-1">
-                    {daySlots.slice(0, 5).map((slot) => {
-                      const selected = isSlotSelected(slot);
-                      return (
-                        <button
-                          key={slot.startsAtIso}
-                          type="button"
-                          onClick={() => {
-                            onSelectSlot(slot.startsAtIso, slot.groupKey);
-                            onCalendarAnchorChange(slot.startsAtIso);
-                          }}
-                          className={`w-full rounded-md border px-2 py-1 text-xs transition ${
-                            selected
-                              ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                              : "border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-100"
-                          }`}
-                          aria-pressed={selected}
-                        >
-                          <span className="whitespace-nowrap font-medium">
-                            {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </button>
-                      );
-                    })}
-                    {daySlots.length > 5 && (
-                      <p className="text-center text-[10px] text-zinc-500">+{daySlots.length - 5}</p>
-                    )}
-                    {daySlots.length === 0 && (
-                      <p className="rounded-md border border-zinc-200 bg-zinc-100 px-2 py-1 text-center text-[11px] leading-4 text-zinc-500">
-                        {copy.unavailableShort}
+                    <div className="mb-2 flex items-start justify-between gap-1 border-b border-zinc-200 pb-1">
+                      <p className="text-xs font-semibold text-zinc-500">
+                        {day.shortLabel} {dayDate.getDate()}
                       </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-      {calendarView === "month" && (
-        <>
-          <div className="mb-2 grid grid-cols-7 gap-1">
-            {monthWeekdayHeaders.map((day, index) => (
-              <p
-                key={`${day}-${index}`}
-                className="text-center text-[11px] font-semibold text-zinc-500"
-              >
-                {day}
-              </p>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-1">
-            {monthCells.map((cell) => {
-              const isSelected = selectedDayKey === cell.dayKey;
-              const hasSlots = (slotMap.get(cell.dayKey) ?? []).length > 0;
-              const isAvailable = cell.inCurrentMonth && hasSlots;
-              const isUnavailable = cell.inCurrentMonth && !hasSlots;
-              return (
-                <button
-                  key={cell.dayKey}
-                  type="button"
-                  data-day-key={cell.dayKey}
-                  onClick={() => {
-                    if (onMonthDayClick) {
-                      onMonthDayClick(cell.dayKey);
-                      return;
-                    }
-                    onCalendarAnchorChange(`${cell.dayKey}T00:00:00.000Z`);
-                    onCalendarViewChange("day");
-                  }}
-                  className={`aspect-square rounded-md border p-2 text-left text-xs transition ${
-                    isSelected ? "border-primary ring-1 ring-primary/25" : "border-zinc-200 dark:border-zinc-700"
-                  } ${
-                    isAvailable
-                      ? "bg-white text-zinc-900 hover:bg-zinc-100"
-                      : isUnavailable
-                        ? "bg-zinc-100 text-zinc-500"
-                        : "bg-zinc-50 text-zinc-400"
-                  }`}
-                >
-                  <div className="flex h-full flex-col">
-                    <span className="text-sm font-medium">{cell.shortLabel}</span>
-                    <div className="mt-auto flex items-center justify-center">
-                      {hasSlots ? (
-                        <span className="inline-block h-2 w-2 rounded-full bg-accent" />
-                      ) : (
-                        <span className="inline-block h-2 w-2 rounded-full bg-transparent" />
+                      {onAddForDayKey && weekColumnAddLabel ? (
+                        <button
+                          type="button"
+                          onClick={() => onAddForDayKey(day.dayKey)}
+                          className="shrink-0 rounded-md border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-zinc-700 hover:bg-zinc-100"
+                        >
+                          {weekColumnAddLabel}
+                        </button>
+                      ) : null}
+                    </div>
+                    <div className="space-y-1">
+                      {daySlots.slice(0, 5).map((slot) => {
+                        const selected = isSlotSelected(slot);
+                        return (
+                          <button
+                            key={slot.startsAtIso}
+                            type="button"
+                            onClick={() => {
+                              onSelectSlot(slot.startsAtIso, slot.groupKey);
+                              onCalendarAnchorChange(slot.startsAtIso);
+                            }}
+                            className={`w-full rounded-md border px-2 py-1 text-xs transition ${
+                              selected ? weekSelectedClass : "border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-100"
+                            }`}
+                            aria-pressed={selected}
+                          >
+                            <span className="whitespace-nowrap font-medium">
+                              {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </button>
+                        );
+                      })}
+                      {daySlots.length > 5 && (
+                        <p className="text-center text-[10px] text-zinc-500">+{daySlots.length - 5}</p>
+                      )}
+                      {daySlots.length === 0 && (
+                        <p className="rounded-md border border-zinc-200 bg-zinc-100 px-2 py-1 text-center text-[11px] leading-4 text-zinc-500">
+                          {copy.unavailableShort}
+                        </p>
                       )}
                     </div>
                   </div>
-                </button>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </>
-      )}
+        ))}
+      {calendarView === "month" &&
+        (monthViewReplacement ?? (
+          <div className="overflow-x-auto pb-1">
+            <div className="min-w-[720px]">
+              <div className="mb-2 grid grid-cols-7 gap-1">
+                {monthWeekdayHeaders.map((day, index) => (
+                  <p
+                    key={`${day}-${index}`}
+                    className="text-center text-[11px] font-semibold text-zinc-500"
+                  >
+                    {day}
+                  </p>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                {monthCells.map((cell) => {
+                  const isSelected = monthCellSelectedDayKey === cell.dayKey;
+                  const hasSlots = (slotMap.get(cell.dayKey) ?? []).length > 0;
+                  const isAvailable = cell.inCurrentMonth && hasSlots;
+                  const isUnavailable = cell.inCurrentMonth && !hasSlots;
+                  const showMonthAdd = Boolean(
+                    onAddForDayKey && weekColumnAddLabel && cell.inCurrentMonth,
+                  );
+                  return (
+                    <div
+                      key={cell.dayKey}
+                      data-month-day-cell={cell.dayKey}
+                      className={`relative aspect-square rounded-md border text-left text-xs transition ${
+                        isSelected ? monthSelectedRing : "border-zinc-200 dark:border-zinc-700"
+                      } ${
+                        isAvailable
+                          ? "bg-white text-zinc-900"
+                          : isUnavailable
+                            ? "bg-zinc-100 text-zinc-500"
+                            : "bg-zinc-50 text-zinc-400"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        data-day-key={cell.dayKey}
+                        onClick={() => {
+                          if (onMonthDayClick) {
+                            onMonthDayClick(cell.dayKey);
+                            return;
+                          }
+                          onCalendarAnchorChange(`${cell.dayKey}T00:00:00.000Z`);
+                          onCalendarViewChange("day");
+                        }}
+                        className="flex h-full w-full flex-col rounded-[inherit] p-2 text-left hover:bg-zinc-100/70"
+                      >
+                        <span className="text-sm font-medium">{cell.shortLabel}</span>
+                        <div className="mt-auto flex items-center justify-center">
+                          {hasSlots ? (
+                            <span className="inline-block h-2 w-2 rounded-full bg-accent" />
+                          ) : (
+                            <span className="inline-block h-2 w-2 rounded-full bg-transparent" />
+                          )}
+                        </div>
+                      </button>
+                      {showMonthAdd ? (
+                        <button
+                          type="button"
+                          data-month-day-add={cell.dayKey}
+                          title={weekColumnAddLabel}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAddForDayKey!(cell.dayKey);
+                          }}
+                          className="absolute top-1 right-1 z-10 rounded-md border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-zinc-700 shadow-sm hover:bg-zinc-100"
+                        >
+                          {weekColumnAddLabel}
+                        </button>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ))}
     </div>
   );
 }
