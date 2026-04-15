@@ -199,7 +199,6 @@ async function main() {
       await prisma.availabilitySlot.upsert({
         where: { id: `seed-teacher-${teacherIndex}-slot-${slotIndex}` },
         update: {
-          teacherId: teacherProfile.id,
           dayOfWeek: slot.dayOfWeek,
           startMin: slot.startMin,
           endMin: slot.endMin,

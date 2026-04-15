@@ -146,7 +146,17 @@
       "saving": "保存中…",
       "saved": "保存しました",
       "avatarHelp": "写真は Google アカウントのものです。変更は Google 側で行ってください。",
-      "error": "保存できませんでした。もう一度お試しください。"
+      "error": "保存できませんでした。もう一度お試しください。",
+      "teacherTitle": "講師プロフィール",
+      "teacherIntro": "ここで入力した内容は、受講生が講師一覧や公開の予約ページで見る内容と同じです。写真は引き続き Google アカウントのものです（変更は Google で行ってください）。",
+      "teacherCountryOfOrigin": "出身国・地域",
+      "teacherBio": "自己紹介",
+      "teacherCredentials": "資格・経歴",
+      "teacherInstructionLanguages": "指導言語（カンマ区切り）",
+      "teacherSpecialties": "得意分野（カンマ区切り）",
+      "teacherRateLabel": "レッスン料（円）",
+      "teacherRateHelp": "講師一覧と予約ページに表示されます。料金を出さない場合は空欄にしてください。",
+      "teacherPreviewPublic": "公開の予約ページを見る"
     },
     "schedulePage": {
       "title": "スケジュール",

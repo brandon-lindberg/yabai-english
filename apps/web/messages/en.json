@@ -146,7 +146,17 @@
       "saving": "Saving…",
       "saved": "Saved",
       "avatarHelp": "Your photo comes from your Google account. Update it in Google to change it here.",
-      "error": "Could not save. Try again."
+      "error": "Could not save. Try again.",
+      "teacherTitle": "Teacher profile",
+      "teacherIntro": "What you enter here is what students see when they browse teachers and on your public booking page. Your photo still comes from Google — update it in your Google account.",
+      "teacherCountryOfOrigin": "Country of origin",
+      "teacherBio": "Bio",
+      "teacherCredentials": "Credentials",
+      "teacherInstructionLanguages": "Instruction languages (comma separated)",
+      "teacherSpecialties": "Specialties (comma separated)",
+      "teacherRateLabel": "Lesson rate (JPY)",
+      "teacherRateHelp": "Shown on the teacher list and your booking page. Leave empty if you do not want to show a price.",
+      "teacherPreviewPublic": "View public booking page"
     },
     "schedulePage": {
       "title": "Schedule",

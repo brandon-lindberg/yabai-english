@@ -16,31 +16,36 @@ export default async function DashboardProfilePage() {
   }
 
   if (session.user.role === "TEACHER") {
+    const t = await getTranslations("dashboard.profilePage");
     const profile = await prisma.teacherProfile.findUnique({
       where: { userId: session.user.id },
       select: {
+        id: true,
         displayName: true,
         bio: true,
         countryOfOrigin: true,
         credentials: true,
         instructionLanguages: true,
         specialties: true,
+        rateYen: true,
       },
     });
 
     return (
       <div className="space-y-6">
         <header>
-          <h1 className="text-2xl font-bold text-foreground">Teacher profile</h1>
-          <p className="mt-2 text-muted">Update what students see on your public booking page.</p>
+          <h1 className="text-2xl font-bold text-foreground">{t("teacherTitle")}</h1>
+          <p className="mt-2 text-muted">{t("teacherIntro")}</p>
         </header>
         <TeacherProfileForm
+          initialTeacherProfileId={profile?.id ?? null}
           initialDisplayName={profile?.displayName ?? null}
           initialBio={profile?.bio ?? null}
           initialCountryOfOrigin={profile?.countryOfOrigin ?? null}
           initialCredentials={profile?.credentials ?? null}
           initialInstructionLanguages={profile?.instructionLanguages ?? ["EN"]}
           initialSpecialties={profile?.specialties ?? []}
+          initialRateYen={profile?.rateYen ?? null}
         />
       </div>
     );

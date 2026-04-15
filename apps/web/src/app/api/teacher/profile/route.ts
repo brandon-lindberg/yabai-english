@@ -12,6 +12,8 @@ const patchSchema = z.object({
   credentials: z.string().max(2000).trim().nullable().optional(),
   instructionLanguages: z.array(z.string().min(1).max(20)).max(10).optional(),
   specialties: z.array(z.string().min(1).max(40)).max(20).optional(),
+  /** Shown on the book-a-lesson teacher list and public booking page */
+  rateYen: z.number().int().min(0).max(9_999_999).nullable().optional(),
 });
 
 export async function PATCH(req: Request) {
@@ -29,7 +31,7 @@ export async function PATCH(req: Request) {
   const userId = session.user.id;
   const data = parsed.data;
 
-  await prisma.teacherProfile.upsert({
+  const profile = await prisma.teacherProfile.upsert({
     where: { userId },
     create: {
       userId,
@@ -39,6 +41,7 @@ export async function PATCH(req: Request) {
       credentials: data.credentials === undefined ? null : data.credentials,
       instructionLanguages: data.instructionLanguages ?? ["EN"],
       specialties: data.specialties ?? [],
+      rateYen: data.rateYen === undefined ? null : data.rateYen,
     },
     update: {
       ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
@@ -47,13 +50,16 @@ export async function PATCH(req: Request) {
       ...(data.credentials !== undefined ? { credentials: data.credentials } : {}),
       ...(data.instructionLanguages !== undefined ? { instructionLanguages: data.instructionLanguages } : {}),
       ...(data.specialties !== undefined ? { specialties: data.specialties } : {}),
+      ...(data.rateYen !== undefined ? { rateYen: data.rateYen } : {}),
     },
   });
 
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`);
     revalidatePath(`/${locale}/dashboard/profile`);
+    revalidatePath(`/${locale}/book`);
+    revalidatePath(`/${locale}/book/teachers/${profile.id}`);
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, teacherProfileId: profile.id });
 }
