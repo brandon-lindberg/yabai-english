@@ -1,5 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
+import { sortTeacherCompletedBookings } from "@/lib/dashboard/sort-teacher-completed-bookings";
 
 type TeacherScheduleBooking = {
   id: string;
@@ -56,7 +57,8 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
 
   const now = new Date();
   const { upcoming, completed } = groupBookingsForDashboard(bookings, now);
+  const completedSorted = sortTeacherCompletedBookings(completed);
   const scheduleItems = buildTeacherScheduleItems(upcoming);
 
-  return { bookings, upcoming, completed, scheduleItems };
+  return { bookings, upcoming, completed: completedSorted, scheduleItems };
 }

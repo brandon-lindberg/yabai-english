@@ -26,9 +26,9 @@ export default async function DashboardScheduleCompletedPage() {
         <p className="text-muted">Review your completed lessons and teaching history.</p>
         <section>
           <h2 className="mb-3 text-lg font-semibold text-foreground">{t("completedSectionTitle")}</h2>
-          <ul className="space-y-4">
+          <div className="mt-4">
             <TeacherCompletedLessons completed={teacherBookings.completed} />
-          </ul>
+          </div>
         </section>
       </div>
     );

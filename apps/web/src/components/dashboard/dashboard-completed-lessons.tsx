@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { DashboardProfileBioPreview } from "@/components/dashboard/dashboard-profile-bio-preview";
 import { bookingStatusKey } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 
@@ -7,6 +8,7 @@ type Completed = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["com
 export async function DashboardCompletedLessons({ completed }: { completed: Completed }) {
   const locale = await getLocale();
   const t = await getTranslations("dashboard");
+  const ts = await getTranslations("dashboard.schedulePage");
 
   if (completed.length === 0) {
     return (
@@ -48,9 +50,27 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
                 </a>
               ) : null}
             </div>
-            <p className="mt-3 rounded-lg border border-dashed border-border bg-background/50 px-3 py-2 text-xs text-muted">
-              {t("schedulePage.lessonAttachmentsPlaceholder")}
-            </p>
+            <div className="mt-3 space-y-2">
+              {b.externalTranscriptUrl ? (
+                <p className="text-sm">
+                  <a
+                    href={b.externalTranscriptUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-link underline hover:opacity-90"
+                  >
+                    {ts("transcriptLinkStudentCta")}
+                  </a>
+                </p>
+              ) : null}
+              <div>
+                <p className="text-xs font-medium text-foreground">{ts("lessonNotesReadLabel")}</p>
+                <DashboardProfileBioPreview
+                  markdown={b.completionNotesMd ?? ""}
+                  emptyLabel={ts("lessonNotesEmptyStudent")}
+                />
+              </div>
+            </div>
           </div>
         </li>
       ))}

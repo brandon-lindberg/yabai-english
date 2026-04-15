@@ -255,6 +255,11 @@ model Booking {
   googleEventId String?
   invoice       Invoice?
 
+  /// Teacher-written Markdown lesson notes (visible to student); edited after the lesson ends.
+  completionNotesMd     String? @db.Text
+  /// External link only (e.g. Google Docs / Meet recap) — we do not host transcript files.
+  externalTranscriptUrl String? @db.VarChar(2048)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
