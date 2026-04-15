@@ -354,3 +354,44 @@ body {
   color: var(--app-text);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+/* ------------------------------------------------------------------ */
+/*  MDXEditor — Tailwind preflight removes ul/ol markers. Lexical list   */
+/*  items use CSS-module classes; checklist <li> uses ::before +         */
+/*  margin-inline-start: -1rem (needs left padding on the editor root,  */
+/*  not overflow:hidden on ancestors). Never force li { list-item } on   */
+/*  Lexical checklist rows — it breaks their layout.                    */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  /* Inset for checklist ::before (Lexical uses −1rem); ~12px avoids clip without huge body indent */
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable {
+    box-sizing: border-box;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    overflow: visible;
+  }
+
+  /* GitHub-style checklist: no bullets on the <ul> */
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable ul:has(> li[class*="listItemUnchecked"]),
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable ul:has(> li[class*="listItemChecked"]) {
+    list-style-type: none;
+    padding-inline-start: 0;
+    margin-left: 0;
+  }
+
+  /* Bullet lists (Lexical “bullet” list, not checklist) */
+  .mdxeditor-rich-lists
+    .mdxeditor-root-contenteditable
+    ul:not(:has(> li[class*="listItemUnchecked"])):not(:has(> li[class*="listItemChecked"])) {
+    list-style-type: disc;
+    list-style-position: outside;
+    padding-inline-start: 1.125rem;
+  }
+
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    padding-inline-start: 1.125rem;
+  }
+}

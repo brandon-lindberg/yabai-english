@@ -84,7 +84,7 @@ export function DashboardProfileForm({ initialName, initialShortBio, avatarUrl }
           role="group"
           aria-labelledby="student-short-bio-label"
           aria-describedby="student-short-bio-help student-short-bio-count"
-          className="mt-2 overflow-hidden rounded-xl border border-border bg-background text-sm text-foreground focus-within:ring-2 focus-within:ring-foreground/25 [&_.mdxeditor]:bg-background [&_.mdxeditor-root-contenteditable]:min-h-[200px]"
+          className="mdxeditor-rich-lists min-w-0 mt-2 overflow-visible rounded-xl border border-border bg-background text-sm text-foreground focus-within:ring-2 focus-within:ring-foreground/25 [&_.mdxeditor]:bg-background [&_.mdxeditor-root-contenteditable]:min-h-[200px]"
         >
           <StudentBioMdxEditor
             ref={bioEditorRef}
@@ -100,7 +100,7 @@ export function DashboardProfileForm({ initialName, initialShortBio, avatarUrl }
               setShortBio(clipped);
               queueMicrotask(() => bioEditorRef.current?.setMarkdown(clipped));
             }}
-            contentEditableClassName="px-3 py-2 text-sm"
+            contentEditableClassName="px-0 py-2 text-sm"
           />
         </div>
         <p

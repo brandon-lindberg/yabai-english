@@ -71,8 +71,9 @@ export function TeacherLessonCompletionNotesForm({
       <div>
         <span className="block text-xs font-medium text-foreground">{t("lessonNotesLabel")}</span>
         <p className="mt-0.5 text-xs text-muted">{t("lessonNotesHelp")}</p>
+        <p className="mt-1 text-xs text-muted/90">{t("lessonNotesListTip")}</p>
         <div
-          className="mt-1 overflow-hidden rounded-xl border border-border bg-background text-sm text-foreground focus-within:ring-2 focus-within:ring-foreground/25 [&_.mdxeditor]:bg-background [&_.mdxeditor-root-contenteditable]:min-h-[160px]"
+          className="mdxeditor-rich-lists min-w-0 mt-1 overflow-visible rounded-xl border border-border bg-background text-sm text-foreground focus-within:ring-2 focus-within:ring-foreground/25 [&_.mdxeditor]:bg-background [&_.mdxeditor-root-contenteditable]:min-h-[160px]"
           role="group"
           aria-label={t("lessonNotesLabel")}
         >
@@ -89,7 +90,7 @@ export function TeacherLessonCompletionNotesForm({
               setNotesMd(clipped);
               queueMicrotask(() => editorRef.current?.setMarkdown(clipped));
             }}
-            contentEditableClassName="px-3 py-2 text-sm"
+            contentEditableClassName="px-0 py-2 text-sm"
           />
         </div>
       </div>

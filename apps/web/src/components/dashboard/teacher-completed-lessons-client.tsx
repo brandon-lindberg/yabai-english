@@ -138,7 +138,7 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
             <li
               key={lesson.id}
               id={`booking-${lesson.id}`}
-              className="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm"
+              className="min-w-0 rounded-2xl border border-border bg-surface shadow-sm"
             >
               <button
                 type="button"

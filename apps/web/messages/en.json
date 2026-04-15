@@ -164,6 +164,7 @@
       "transcriptLinkStudentCta": "Open meeting notes / transcript",
       "lessonNotesLabel": "Lesson notes (Markdown)",
       "lessonNotesHelp": "Same editor as your student profile bio — headings, lists, links, and emphasis.",
+      "lessonNotesListTip": "Lists: each bullet or number is one paragraph. Press Enter between lines. Shift+Enter only adds a line inside the same item—highlighting many lines and clicking the list button won’t split them into separate bullets.",
       "lessonNotesPlaceholder": "What you covered, homework, pronunciation tips…",
       "lessonNotesSave": "Save notes & link",
       "lessonNotesSaving": "Saving…",

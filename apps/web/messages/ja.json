@@ -164,6 +164,7 @@
       "transcriptLinkStudentCta": "ミーティングメモ／書き起こしを開く",
       "lessonNotesLabel": "レッスンメモ（Markdown）",
       "lessonNotesHelp": "プロフィールの自己紹介と同じエディタです（見出し・リスト・リンク・強調など）。",
+      "lessonNotesListTip": "箇条書き・番号付きリストは「1段落＝1項目」です。項目の間は Enter。Shift+Enter は同じ項目内での改行だけです。複数行を選んでリストにしても、行ごとに別の箇条書きにはなりません。",
       "lessonNotesPlaceholder": "内容、宿題、発音のポイントなど…",
       "lessonNotesSave": "メモとリンクを保存",
       "lessonNotesSaving": "保存中…",
