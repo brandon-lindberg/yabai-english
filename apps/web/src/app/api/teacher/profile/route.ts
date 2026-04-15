@@ -14,6 +14,7 @@ const patchSchema = z.object({
   specialties: z.array(z.string().min(1).max(40)).max(20).optional(),
   /** Shown on the book-a-lesson teacher list and public booking page */
   rateYen: z.number().int().min(0).max(9_999_999).nullable().optional(),
+  offersFreeTrial: z.boolean().optional(),
 });
 
 export async function PATCH(req: Request) {
@@ -42,6 +43,7 @@ export async function PATCH(req: Request) {
       instructionLanguages: data.instructionLanguages ?? ["EN"],
       specialties: data.specialties ?? [],
       rateYen: data.rateYen === undefined ? null : data.rateYen,
+      offersFreeTrial: data.offersFreeTrial ?? true,
     },
     update: {
       ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
@@ -51,6 +53,7 @@ export async function PATCH(req: Request) {
       ...(data.instructionLanguages !== undefined ? { instructionLanguages: data.instructionLanguages } : {}),
       ...(data.specialties !== undefined ? { specialties: data.specialties } : {}),
       ...(data.rateYen !== undefined ? { rateYen: data.rateYen } : {}),
+      ...(data.offersFreeTrial !== undefined ? { offersFreeTrial: data.offersFreeTrial } : {}),
     },
   });
 

@@ -66,4 +66,21 @@ describe("PATCH /api/teacher/profile", () => {
     expect(res.status).toBe(400);
     expect(upsertMock).not.toHaveBeenCalled();
   });
+
+  test("persists offersFreeTrial toggle", async () => {
+    const res = await PATCH(
+      new Request("http://localhost/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offersFreeTrial: false }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: expect.objectContaining({ offersFreeTrial: false }),
+      }),
+    );
+  });
 });

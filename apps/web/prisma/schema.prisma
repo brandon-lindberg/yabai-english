@@ -189,6 +189,7 @@ model TeacherProfile {
   instructionLanguages       String[] @default(["EN"])
   specialties                String[] @default([])
   rateYen                    Int?
+  offersFreeTrial            Boolean  @default(true)
 
   availabilitySlots        AvailabilitySlot[]
   availabilityOccurrenceSkips AvailabilityOccurrenceSkip[]

@@ -174,6 +174,7 @@ async function main() {
         instructionLanguages: [...seedTeacher.instructionLanguages],
         specialties: [...seedTeacher.specialties],
         rateYen: seedTeacher.rateYen,
+        offersFreeTrial: true,
       },
       create: {
         userId: teacherUser.id,
@@ -182,6 +183,7 @@ async function main() {
         instructionLanguages: [...seedTeacher.instructionLanguages],
         specialties: [...seedTeacher.specialties],
         rateYen: seedTeacher.rateYen,
+        offersFreeTrial: true,
       },
     });
 

@@ -28,6 +28,7 @@ export default async function DashboardProfilePage() {
         instructionLanguages: true,
         specialties: true,
         rateYen: true,
+        offersFreeTrial: true,
       },
     });
 
@@ -46,6 +47,7 @@ export default async function DashboardProfilePage() {
           initialInstructionLanguages={profile?.instructionLanguages ?? ["EN"]}
           initialSpecialties={profile?.specialties ?? []}
           initialRateYen={profile?.rateYen ?? null}
+          initialOffersFreeTrial={profile?.offersFreeTrial ?? true}
         />
       </div>
     );

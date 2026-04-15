@@ -156,6 +156,8 @@
       "teacherSpecialties": "Specialties (comma separated)",
       "teacherRateLabel": "Lesson rate (JPY)",
       "teacherRateHelp": "Shown on the teacher list and your booking page. Leave empty if you do not want to show a price.",
+      "teacherOffersFreeTrialLabel": "Offer free 20-minute trial lesson",
+      "teacherOffersFreeTrialHelp": "If off, students will not be able to select free trial for your lessons.",
       "teacherPreviewPublic": "View public booking page"
     },
     "schedulePage": {
@@ -263,6 +265,7 @@
     "confirm": "Confirm booking",
     "success": "Your lesson is confirmed.",
     "freeTrialOption": "Free trial",
+    "teacherFreeTrialUnavailable": "This teacher does not offer a free trial lesson.",
     "noTeachersFound": "No teachers matched your filters.",
     "teacherSpecialties": "Specialties",
     "teacherRate": "Rate",

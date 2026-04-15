@@ -13,6 +13,7 @@ type Props = {
   initialInstructionLanguages: string[];
   initialSpecialties: string[];
   initialRateYen: number | null;
+  initialOffersFreeTrial: boolean;
 };
 
 export function TeacherProfileForm({
@@ -24,6 +25,7 @@ export function TeacherProfileForm({
   initialInstructionLanguages,
   initialSpecialties,
   initialRateYen,
+  initialOffersFreeTrial,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
@@ -34,6 +36,7 @@ export function TeacherProfileForm({
   const [instructionLanguages, setInstructionLanguages] = useState(initialInstructionLanguages.join(", "));
   const [specialties, setSpecialties] = useState(initialSpecialties.join(", "));
   const [rateYenInput, setRateYenInput] = useState(initialRateYen != null ? String(initialRateYen) : "");
+  const [offersFreeTrial, setOffersFreeTrial] = useState(initialOffersFreeTrial);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   async function onSubmit(e: React.FormEvent) {
@@ -70,6 +73,7 @@ export function TeacherProfileForm({
           .map((s) => s.trim())
           .filter(Boolean),
         rateYen,
+        offersFreeTrial,
       }),
     });
 
@@ -176,6 +180,19 @@ export function TeacherProfileForm({
         />
         <span id="teacher-rate-help" className="block text-xs text-muted">
           {t("teacherRateHelp")}
+        </span>
+      </label>
+
+      <label className="flex items-start gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground">
+        <input
+          type="checkbox"
+          checked={offersFreeTrial}
+          onChange={(e) => setOffersFreeTrial(e.target.checked)}
+          className="mt-0.5"
+        />
+        <span>
+          <span className="font-medium text-foreground">{t("teacherOffersFreeTrialLabel")}</span>
+          <span className="mt-0.5 block text-xs text-muted">{t("teacherOffersFreeTrialHelp")}</span>
         </span>
       </label>
 

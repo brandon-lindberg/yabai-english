@@ -45,13 +45,16 @@ export function BookingForm({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    void fetch("/api/lesson-products")
+    const qs = teacherProfileId
+      ? `?teacherProfileId=${encodeURIComponent(teacherProfileId)}`
+      : "";
+    void fetch(`/api/lesson-products${qs}`)
       .then((r) => r.json())
       .then((data: LessonProductOption[]) => {
         setProducts(data);
         if (data[0]) setLessonProductId(data[0].id);
       });
-  }, []);
+  }, [teacherProfileId]);
 
   useEffect(() => {
     if (presetSlots && presetSlots.length > 0) {
@@ -88,6 +91,8 @@ export function BookingForm({
       if (!res.ok) {
         if (data.error === "Bookings must be made at least 48 hours in advance.") {
           setMessage(t("leadTimeError"));
+        } else if (data.error === "This teacher does not offer a free trial lesson.") {
+          setMessage(t("teacherFreeTrialUnavailable"));
         } else if (data.error === "Manual override reason is required.") {
           setMessage(t("manualOverrideReasonError"));
         } else {

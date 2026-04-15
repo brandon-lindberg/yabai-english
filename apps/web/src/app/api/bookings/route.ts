@@ -11,6 +11,7 @@ import {
   isBookingOutsideLeadWindow,
 } from "@/lib/lead-time-policy";
 import { validateManualOverrideReason } from "@/lib/manual-override";
+import { canTeacherOfferProduct } from "@/lib/lesson-products";
 import { z } from "zod";
 import { BookingStatus, LessonTier } from "@prisma/client";
 
@@ -90,6 +91,13 @@ export async function POST(req: Request) {
   if (!teacher) {
     return NextResponse.json(
       { error: "No teacher available. Ask an admin to add a teacher profile." },
+      { status: 409 },
+    );
+  }
+
+  if (!canTeacherOfferProduct(product.tier, teacher.offersFreeTrial)) {
+    return NextResponse.json(
+      { error: "This teacher does not offer a free trial lesson." },
       { status: 409 },
     );
   }

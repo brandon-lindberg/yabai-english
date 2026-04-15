@@ -156,6 +156,8 @@
       "teacherSpecialties": "得意分野（カンマ区切り）",
       "teacherRateLabel": "レッスン料（円）",
       "teacherRateHelp": "講師一覧と予約ページに表示されます。料金を出さない場合は空欄にしてください。",
+      "teacherOffersFreeTrialLabel": "20分の無料トライアルを提供する",
+      "teacherOffersFreeTrialHelp": "オフにすると、受講生はあなたのレッスンで無料トライアルを選択できません。",
       "teacherPreviewPublic": "公開の予約ページを見る"
     },
     "schedulePage": {
@@ -263,6 +265,7 @@
     "confirm": "予約を確定",
     "success": "予約が確認されました。",
     "freeTrialOption": "無料トライアル",
+    "teacherFreeTrialUnavailable": "この講師は無料トライアルレッスンを提供していません。",
     "noTeachersFound": "条件に合う講師が見つかりませんでした。",
     "teacherSpecialties": "得意分野",
     "teacherRate": "料金",
