@@ -4,6 +4,7 @@ import { getLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { BookingForm } from "@/components/booking-form";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
+import { formatAvailabilitySlotMeta } from "@/lib/availability-slot-lesson-meta";
 import { auth } from "@/auth";
 import { weekdayLabel } from "@/lib/weekdays";
 
@@ -13,6 +14,7 @@ type Props = {
 
 export default async function TeacherProfileBookingPage({ params }: Props) {
   const t = await getTranslations("booking");
+  const tSlotMeta = await getTranslations("lessonSlotMeta");
   const locale = await getLocale();
   const { teacherId } = await params;
 
@@ -64,10 +66,15 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
       startMin: slot.startMin,
       endMin: slot.endMin,
       timezone: slot.timezone,
+      lessonLevel: slot.lessonLevel,
+      lessonType: slot.lessonType,
+      lessonTypeCustom: slot.lessonTypeCustom,
     })),
     viewerTimezone,
     minimumLeadHours: 48,
     skippedStartsAtIso,
+    formatLessonMeta: (slot) =>
+      formatAvailabilitySlotMeta(slot, (k) => tSlotMeta(`levels.${k}`), (k) => tSlotMeta(`types.${k}`)),
   });
 
   return (
@@ -112,7 +119,16 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
                 {String(Math.floor(slot.startMin / 60)).padStart(2, "0")}:
                 {String(slot.startMin % 60).padStart(2, "0")} -{" "}
                 {String(Math.floor(slot.endMin / 60)).padStart(2, "0")}:
-                {String(slot.endMin % 60).padStart(2, "0")} ({slot.timezone})
+                {String(slot.endMin % 60).padStart(2, "0")} ({slot.timezone}) ·{" "}
+                {formatAvailabilitySlotMeta(
+                  {
+                    lessonLevel: slot.lessonLevel,
+                    lessonType: slot.lessonType,
+                    lessonTypeCustom: slot.lessonTypeCustom,
+                  },
+                  (k) => tSlotMeta(`levels.${k}`),
+                  (k) => tSlotMeta(`types.${k}`),
+                )}
               </li>
             ))
           )}

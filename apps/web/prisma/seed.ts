@@ -14,8 +14,22 @@ const teacherSeedData = [
     specialties: ["conversation", "kids"],
     rateYen: 3200,
     slots: [
-      { dayOfWeek: 1, startMin: 10 * 60, endMin: 11 * 60, timezone: "Asia/Tokyo" },
-      { dayOfWeek: 3, startMin: 19 * 60, endMin: 20 * 60, timezone: "Asia/Tokyo" },
+      {
+        dayOfWeek: 1,
+        startMin: 10 * 60,
+        endMin: 11 * 60,
+        timezone: "Asia/Tokyo",
+        lessonLevel: "intermediate",
+        lessonType: "conversation",
+      },
+      {
+        dayOfWeek: 3,
+        startMin: 19 * 60,
+        endMin: 20 * 60,
+        timezone: "Asia/Tokyo",
+        lessonLevel: "intermediate",
+        lessonType: "grammar",
+      },
     ],
   },
   {
@@ -172,6 +186,16 @@ async function main() {
     });
 
     for (const [slotIndex, slot] of seedTeacher.slots.entries()) {
+      const lessonLevel =
+        "lessonLevel" in slot
+          ? (slot as { lessonLevel: string }).lessonLevel
+          : "intermediate";
+      const lessonType =
+        "lessonType" in slot ? (slot as { lessonType: string }).lessonType : "conversation";
+      const lessonTypeCustom =
+        "lessonTypeCustom" in slot
+          ? (slot as { lessonTypeCustom: string | null }).lessonTypeCustom
+          : null;
       await prisma.availabilitySlot.upsert({
         where: { id: `seed-teacher-${teacherIndex}-slot-${slotIndex}` },
         update: {
@@ -180,6 +204,9 @@ async function main() {
           startMin: slot.startMin,
           endMin: slot.endMin,
           timezone: slot.timezone,
+          lessonLevel,
+          lessonType,
+          lessonTypeCustom: lessonType === "custom" ? lessonTypeCustom : null,
           active: true,
         },
         create: {
@@ -189,6 +216,9 @@ async function main() {
           startMin: slot.startMin,
           endMin: slot.endMin,
           timezone: slot.timezone,
+          lessonLevel,
+          lessonType,
+          lessonTypeCustom: lessonType === "custom" ? lessonTypeCustom : null,
           active: true,
         },
       });

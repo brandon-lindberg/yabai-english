@@ -11,6 +11,8 @@ describe("buildUpcomingSlotOptions", () => {
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
+          lessonLevel: "intermediate",
+          lessonType: "conversation",
         },
       ],
       viewerTimezone: "Asia/Tokyo",
@@ -31,6 +33,8 @@ describe("buildUpcomingSlotOptions", () => {
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
+          lessonLevel: "intermediate",
+          lessonType: "conversation",
         },
       ],
       viewerTimezone: "Asia/Tokyo",
@@ -50,6 +54,8 @@ describe("buildUpcomingSlotOptions", () => {
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
+          lessonLevel: "intermediate",
+          lessonType: "conversation",
         },
       ],
       viewerTimezone: "Asia/Tokyo",
@@ -71,6 +77,8 @@ describe("buildUpcomingSlotOptions", () => {
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
+          lessonLevel: "intermediate",
+          lessonType: "conversation",
         },
       ],
       viewerTimezone: "Asia/Tokyo",
@@ -93,6 +101,8 @@ describe("buildUpcomingSlotOptions", () => {
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
+          lessonLevel: "intermediate",
+          lessonType: "conversation",
         },
       ],
       viewerTimezone: "Asia/Tokyo",
@@ -102,5 +112,27 @@ describe("buildUpcomingSlotOptions", () => {
     });
 
     expect(slots.some((s) => s.startsAtIso === "2026-04-13T01:00:00.000Z")).toBe(true);
+  });
+
+  test("formatLessonMeta appends to label when provided", () => {
+    const slots = buildUpcomingSlotOptions({
+      availabilitySlots: [
+        {
+          id: "a1",
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          timezone: "Asia/Tokyo",
+          lessonLevel: "intermediate",
+          lessonType: "grammar",
+        },
+      ],
+      viewerTimezone: "Asia/Tokyo",
+      now: "2026-04-10T00:00:00.000Z",
+      horizonDays: 7,
+      formatLessonMeta: () => "B1 · Grammar",
+    });
+
+    expect(slots[0]?.label.endsWith(" · B1 · Grammar")).toBe(true);
   });
 });

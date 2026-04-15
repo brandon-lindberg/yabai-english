@@ -44,6 +44,9 @@ export default async function DashboardSchedulePage() {
             startMin: slot.startMin,
             endMin: slot.endMin,
             timezone: slot.timezone,
+            lessonLevel: slot.lessonLevel,
+            lessonType: slot.lessonType,
+            lessonTypeCustom: slot.lessonTypeCustom ?? null,
           }))}
           initialOccurrenceSkips={
             profile?.availabilityOccurrenceSkips?.map((s) => s.startsAtIso) ?? []

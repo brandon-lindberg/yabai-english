@@ -6,6 +6,9 @@ type AvailabilitySlotInput = {
   startMin: number;
   endMin: number;
   timezone: string;
+  lessonLevel: string;
+  lessonType: string;
+  lessonTypeCustom?: string | null;
 };
 
 type BuildOptions = {
@@ -18,6 +21,8 @@ type BuildOptions = {
   allowPastInstances?: boolean;
   /** UTC startsAtIso values to omit (single-occurrence removals). */
   skippedStartsAtIso?: ReadonlySet<string>;
+  /** Appends " · {result}" after the time range when provided. */
+  formatLessonMeta?: (slot: AvailabilitySlotInput) => string;
 };
 
 export type SlotOption = {
@@ -39,6 +44,7 @@ export function buildUpcomingSlotOptions({
   minimumLeadHours = 0,
   allowPastInstances = false,
   skippedStartsAtIso,
+  formatLessonMeta,
 }: BuildOptions): SlotOption[] {
   const nowUtc =
     typeof now === "string"
@@ -80,9 +86,11 @@ export function buildUpcomingSlotOptions({
 
       const startViewer = startUtc.setZone(viewerTimezone);
       const endViewer = endUtc.setZone(viewerTimezone);
-      const label = `${startViewer.toFormat("ccc, LLL d HH:mm")} - ${endViewer.toFormat(
+      const timeLabel = `${startViewer.toFormat("ccc, LLL d HH:mm")} - ${endViewer.toFormat(
         "HH:mm",
       )} (${viewerTimezone})`;
+      const meta = formatLessonMeta?.(slot);
+      const label = meta ? `${timeLabel} · ${meta}` : timeLabel;
 
       options.push({
         slotId: slot.id,

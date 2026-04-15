@@ -46,6 +46,8 @@ describe("teacher dashboard helpers", () => {
         startMin: 600,
         endMin: 540,
         timezone: "Asia/Tokyo",
+        lessonLevel: "intermediate",
+        lessonType: "conversation",
       },
     ]);
 

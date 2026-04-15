@@ -22,6 +22,9 @@ export async function GET() {
           startMin: true,
           endMin: true,
           timezone: true,
+          lessonLevel: true,
+          lessonType: true,
+          lessonTypeCustom: true,
           active: true,
         },
       },
@@ -68,6 +71,10 @@ export async function PATCH(req: Request) {
           startMin: slot.startMin,
           endMin: slot.endMin,
           timezone: slot.timezone,
+          lessonLevel: slot.lessonLevel,
+          lessonType: slot.lessonType,
+          lessonTypeCustom:
+            slot.lessonType === "custom" ? (slot.lessonTypeCustom?.trim() ?? null) : null,
           active: true,
         })),
       });

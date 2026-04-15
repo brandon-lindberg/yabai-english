@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { getReceiptKey } from "@/lib/chat-receipts";
@@ -55,37 +55,47 @@ export function ChatPanel() {
     [threads],
   );
 
-  async function loadThreads() {
+  const loadThreads = useCallback(async () => {
     const res = await fetch("/api/chat/threads");
     if (!res.ok) return;
     const data = (await res.json()) as ThreadItem[];
     setThreads(data);
-    if (!activeThreadId && data[0]) {
-      setActiveThreadId(data[0].id);
+    let pickedFirst = false;
+    setActiveThreadId((prev) => {
+      if (!prev && data[0]?.id) {
+        pickedFirst = true;
+        return data[0].id;
+      }
+      return prev;
+    });
+    if (pickedFirst) {
       setMobilePane("chat");
     }
-  }
+  }, []);
 
-  async function loadMessages(threadId: string) {
-    const res = await fetch(`/api/chat/threads/${threadId}/messages`);
-    if (!res.ok) return;
-    const data = (await res.json()) as MessageItem[];
-    setMessages(data);
-    await loadThreads();
-  }
+  const loadMessages = useCallback(
+    async (threadId: string) => {
+      const res = await fetch(`/api/chat/threads/${threadId}/messages`);
+      if (!res.ok) return;
+      const data = (await res.json()) as MessageItem[];
+      setMessages(data);
+      await loadThreads();
+    },
+    [loadThreads],
+  );
 
   useEffect(() => {
     queueMicrotask(() => {
       void loadThreads();
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount bootstrap only
+  }, [loadThreads]);
 
   useEffect(() => {
     if (!activeThreadId) return;
     queueMicrotask(() => {
       void loadMessages(activeThreadId);
     });
-  }, [activeThreadId]);
+  }, [activeThreadId, loadMessages]);
 
   useEffect(() => {
     const userId = session?.user?.id;
@@ -101,7 +111,7 @@ export function ChatPanel() {
     return () => {
       socket.off(REALTIME_EVENTS.CHAT_UPDATE, onChatUpdate);
     };
-  }, [session?.user?.id, activeThreadId]); // eslint-disable-line react-hooks/exhaustive-deps -- avoid resubscribe churn
+  }, [session?.user?.id, activeThreadId, loadThreads, loadMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });

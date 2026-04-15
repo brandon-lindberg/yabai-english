@@ -203,6 +203,12 @@ model AvailabilitySlot {
   startMin   Int      // minutes from midnight local
   endMin     Int
   timezone   String   @default("Asia/Tokyo")
+  /// beginner | intermediate | advanced — see AVAILABILITY_LESSON_LEVELS in apps/web.
+  lessonLevel       String  @default("intermediate")
+  /// pronunciation | conversation | grammar | reading | writing | business | custom
+  lessonType        String  @default("conversation")
+  /// When lessonType is "custom", teacher-defined label (otherwise null).
+  lessonTypeCustom  String?
   active     Boolean  @default(true)
 }
 

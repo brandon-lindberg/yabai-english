@@ -19,6 +19,22 @@
     "clearAllNotifications": "すべて削除",
     "noNotifications": "通知はありません"
   },
+  "lessonSlotMeta": {
+    "levels": {
+      "beginner": "初級",
+      "intermediate": "中級",
+      "advanced": "上級"
+    },
+    "types": {
+      "pronunciation": "発音",
+      "conversation": "会話",
+      "grammar": "文法",
+      "reading": "読解",
+      "writing": "ライティング",
+      "business": "ビジネス",
+      "custom": "カスタム"
+    }
+  },
   "auth": {
     "signInTitle": "ログイン",
     "signInSubtitle": "Googleで続行してアカウントを作成またはログインします。",
@@ -174,7 +190,12 @@
       "monthAddModalConfirm": "追加",
       "monthAddModalCancel": "キャンセル",
       "weeklyRecurringLabel": "カレンダーの曜日で繰り返す",
-      "weeklyRecurringHint": "初期はオフです。オンにすると、タップした曜日に固定され、タイムゾーンを変えても合わせます。"
+      "weeklyRecurringHint": "初期はオフです。オンにすると、タップした曜日に固定され、タイムゾーンを変えても合わせます。",
+      "lessonLevel": "レッスンレベル",
+      "lessonType": "レッスン種別",
+      "customLessonType": "カスタム種別名",
+      "customLessonTypePlaceholder": "例: 面接対策",
+      "invalidLessonMeta": "レベルと種別を選んでください。カスタムの場合は短い名称を入力してください。"
     },
     "quickReview": {
       "title": "クイック復習",

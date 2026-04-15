@@ -19,6 +19,22 @@
     "clearAllNotifications": "Clear all",
     "noNotifications": "No notifications"
   },
+  "lessonSlotMeta": {
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "types": {
+      "pronunciation": "Pronunciation",
+      "conversation": "Conversation",
+      "grammar": "Grammar",
+      "reading": "Reading",
+      "writing": "Writing",
+      "business": "Business",
+      "custom": "Custom"
+    }
+  },
   "auth": {
     "signInTitle": "Sign in",
     "signInSubtitle": "Continue with Google to create or access your account.",
@@ -174,7 +190,12 @@
       "monthAddModalConfirm": "Add",
       "monthAddModalCancel": "Cancel",
       "weeklyRecurringLabel": "Repeat on calendar weekday",
-      "weeklyRecurringHint": "Off by default. Turn on to lock the weekday to the day you tapped (and keep it when you change timezone)."
+      "weeklyRecurringHint": "Off by default. Turn on to lock the weekday to the day you tapped (and keep it when you change timezone).",
+      "lessonLevel": "Lesson level",
+      "lessonType": "Lesson type",
+      "customLessonType": "Custom type name",
+      "customLessonTypePlaceholder": "e.g. Interview practice",
+      "invalidLessonMeta": "Choose a level and lesson type. For Custom, enter a short name."
     },
     "quickReview": {
       "title": "Quick review",
