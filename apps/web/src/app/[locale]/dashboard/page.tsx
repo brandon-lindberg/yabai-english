@@ -15,9 +15,15 @@ import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
 import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
 
-export default async function DashboardPage() {
+type Props = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function DashboardPage({ searchParams }: Props) {
   const session = await auth();
   if (!session?.user?.id) return null;
+  const params = searchParams ? await searchParams : {};
+  const calendarStatus = typeof params.calendar === "string" ? params.calendar : null;
 
   const t = await getTranslations("dashboard");
   const tCommon = await getTranslations("common");
@@ -68,13 +74,39 @@ export default async function DashboardPage() {
           >
             Open schedule
           </Link>
-          <Link
-            href="/book"
-            className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-          >
-            {tCommon("bookLesson")}
-          </Link>
         </div>
+        {session.user.role === "TEACHER" ? (
+          <section className="rounded-2xl border border-border bg-surface p-4">
+            <h2 className="text-base font-semibold text-foreground">
+              {t("teacherHome.calendarTitle")}
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              {teacherProfile?.googleCalendarRefreshToken
+                ? t("teacherHome.calendarConnected")
+                : t("teacherHome.calendarDisconnected")}
+            </p>
+            <div className="mt-3">
+              <a
+                href="/api/teacher/calendar/connect"
+                className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                {teacherProfile?.googleCalendarRefreshToken
+                  ? t("teacherHome.calendarReconnectCta")
+                  : t("teacherHome.calendarConnectCta")}
+              </a>
+            </div>
+            {calendarStatus === "connected" ? (
+              <p className="mt-2 text-xs text-green-700 dark:text-green-400">
+                {t("teacherHome.calendarConnectedToast")}
+              </p>
+            ) : null}
+            {calendarStatus === "failed" || calendarStatus === "misconfigured" ? (
+              <p className="mt-2 text-xs text-destructive">
+                {t("teacherHome.calendarFailedToast")}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
 
         <section>
           <h2 className="mb-3 text-lg font-semibold text-foreground">{t("upcoming")}</h2>

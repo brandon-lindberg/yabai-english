@@ -4,6 +4,8 @@ import { TeacherCard } from "@/components/teacher-card";
 import { TeacherFilterBar } from "@/components/teacher-filter-bar";
 import { filterTeacherCards } from "@/lib/teacher-discovery";
 import { auth } from "@/auth";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 
 type Props = {
   searchParams: Promise<{
@@ -16,6 +18,10 @@ export default async function BookPage({ searchParams }: Props) {
   const t = await getTranslations("booking");
   const params = await searchParams;
   const session = await auth();
+  const locale = await getLocale();
+  if (session?.user?.role && session.user.role !== "STUDENT") {
+    redirect({ href: "/dashboard", locale });
+  }
 
   const specialty = params.specialty?.trim() ?? "";
   const language = params.language?.trim().toUpperCase() ?? "";

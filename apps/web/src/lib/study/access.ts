@@ -15,6 +15,13 @@ export async function isStudyLevelUnlocked(
   trackId: string,
   levelCode: StudyLevelCode,
 ): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  // Teachers/Admins do not take placement; keep all flashcard levels reviewable.
+  if (user?.role === "TEACHER" || user?.role === "ADMIN") return true;
+
   if (levelCode === StudyLevelCode.BEGINNER_1) return true;
 
   const profile = await prisma.studentProfile.findUnique({

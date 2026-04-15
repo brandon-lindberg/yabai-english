@@ -7,6 +7,7 @@ import { buildUpcomingSlotOptions } from "@/lib/availability";
 import { formatAvailabilitySlotMeta } from "@/lib/availability-slot-lesson-meta";
 import { auth } from "@/auth";
 import { weekdayLabel } from "@/lib/weekdays";
+import { redirect } from "@/i18n/navigation";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -17,6 +18,10 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
   const tSlotMeta = await getTranslations("lessonSlotMeta");
   const locale = await getLocale();
   const { teacherId } = await params;
+  const session = await auth();
+  if (session?.user?.role && session.user.role !== "STUDENT") {
+    redirect({ href: "/dashboard", locale });
+  }
 
   const teacher = await prisma.teacherProfile.findUnique({
     where: { id: teacherId },
@@ -35,7 +40,6 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
   if (!teacher) notFound();
 
   const displayName = teacher.displayName ?? teacher.user.name ?? "Teacher";
-  const session = await auth();
   if (session?.user?.id && session.user.role === "STUDENT") {
     const hiddenByTeacher = await prisma.chatThread.findFirst({
       where: {

@@ -11,15 +11,14 @@ const bodySchema = z.object({
 });
 
 /**
- * Allows TEACHER or ADMIN to attach a Google Calendar refresh token
- * (from OAuth with calendar scope). For production, prefer a dedicated OAuth callback flow.
+ * Admin-only token storage endpoint (legacy/manual fallback).
  */
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.user.role !== Role.TEACHER && session.user.role !== Role.ADMIN) {
+  if (session.user.role !== Role.ADMIN) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

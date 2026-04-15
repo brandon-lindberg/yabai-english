@@ -63,4 +63,25 @@ describe("POST /api/bookings free trial guard", () => {
       error: "This teacher does not offer a free trial lesson.",
     });
   });
+
+  test("rejects teacher role from creating bookings", async () => {
+    authMock.mockResolvedValue({ user: { id: "teacher-1", role: "TEACHER" } });
+    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-trial",
+          teacherProfileId: "teacher-profile-1",
+          startsAt,
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(403);
+    await expect(res.json()).resolves.toEqual({
+      error: "Students only",
+    });
+  });
 });

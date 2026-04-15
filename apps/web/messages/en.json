@@ -244,7 +244,14 @@
     },
     "teacherHome": {
       "title": "Dashboard",
-      "body": "Lesson booking and classroom tools are here. Student flashcards: Learn → Flashcards."
+      "body": "Lesson booking and classroom tools are here. Student flashcards: Learn → Flashcards.",
+      "calendarTitle": "Google Calendar for Meet links",
+      "calendarDisconnected": "Not connected yet. Connect your calendar to auto-create Meet links for lessons.",
+      "calendarConnected": "Connected. Meet links can be created automatically for your bookings.",
+      "calendarConnectCta": "Connect Google Calendar",
+      "calendarReconnectCta": "Reconnect Google Calendar",
+      "calendarConnectedToast": "Google Calendar connected successfully.",
+      "calendarFailedToast": "Could not connect Google Calendar. Please try again."
     }
   },
   "admin": {

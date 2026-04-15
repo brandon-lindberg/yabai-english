@@ -40,8 +40,7 @@ export function SiteHeader() {
               >
                 {t("dashboard")}
               </Link>
-              {(session.user.role === "TEACHER" ||
-                session.user.role === "ADMIN") && (
+              {session.user.role === "ADMIN" && (
                 <Link
                   href="/admin"
                   className="rounded-full px-2.5 py-1 text-sm font-medium text-accent transition hover:opacity-90"

@@ -244,7 +244,14 @@
     },
     "teacherHome": {
       "title": "ダッシュボード",
-      "body": "予約やレッスン関連の機能はこちらです。受講生のフラッシュカードは「学習 → フラッシュカード」から。"
+      "body": "予約やレッスン関連の機能はこちらです。受講生のフラッシュカードは「学習 → フラッシュカード」から。",
+      "calendarTitle": "Meet リンク用の Google カレンダー連携",
+      "calendarDisconnected": "まだ連携されていません。レッスンの Meet リンクを自動作成するには Google カレンダーを連携してください。",
+      "calendarConnected": "連携済みです。予約時に Meet リンクを自動作成できます。",
+      "calendarConnectCta": "Google カレンダーを連携",
+      "calendarReconnectCta": "Google カレンダーを再連携",
+      "calendarConnectedToast": "Google カレンダーの連携が完了しました。",
+      "calendarFailedToast": "Google カレンダーを連携できませんでした。もう一度お試しください。"
     }
   },
   "admin": {
