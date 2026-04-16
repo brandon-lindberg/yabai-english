@@ -156,6 +156,13 @@
       "teacherSpecialties": "得意分野（カンマ区切り）",
       "teacherRateLabel": "レッスン料（円）",
       "teacherRateHelp": "講師一覧と予約ページに表示されます。料金を出さない場合は空欄にしてください。",
+      "teacherRatesByDurationTitle": "個人レッスン料金（時間別）",
+      "teacherRatesByDurationHelp": "提供するレッスン時間を選び、それぞれの料金を設定してください。",
+      "teacherGroupRatesTitle": "グループレッスン料金",
+      "teacherGroupRatesHelp": "人数・時間・料金の組み合わせでグループ料金を追加できます。",
+      "teacherGroupRatesAdd": "グループ料金を追加",
+      "teacherGroupRatesRemove": "削除",
+      "teacherGroupRatesEmpty": "グループレッスン料金はまだありません。",
       "teacherOffersFreeTrialLabel": "20分の無料トライアルを提供する",
       "teacherOffersFreeTrialHelp": "オフにすると、受講生はあなたのレッスンで無料トライアルを選択できません。",
       "teacherPreviewPublic": "公開の予約ページを見る"

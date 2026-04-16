@@ -156,6 +156,13 @@
       "teacherSpecialties": "Specialties (comma separated)",
       "teacherRateLabel": "Lesson rate (JPY)",
       "teacherRateHelp": "Shown on the teacher list and your booking page. Leave empty if you do not want to show a price.",
+      "teacherRatesByDurationTitle": "Individual lesson rates by duration",
+      "teacherRatesByDurationHelp": "Choose the lesson lengths you offer and set a price for each.",
+      "teacherGroupRatesTitle": "Group lesson rates",
+      "teacherGroupRatesHelp": "Add optional group lesson pricing by group size, duration, and total rate.",
+      "teacherGroupRatesAdd": "Add group rate",
+      "teacherGroupRatesRemove": "Remove",
+      "teacherGroupRatesEmpty": "No group lesson rates yet.",
       "teacherOffersFreeTrialLabel": "Offer free 20-minute trial lesson",
       "teacherOffersFreeTrialHelp": "If off, students will not be able to select free trial for your lessons.",
       "teacherPreviewPublic": "View public booking page"

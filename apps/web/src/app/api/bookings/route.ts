@@ -11,7 +11,10 @@ import {
   isBookingOutsideLeadWindow,
 } from "@/lib/lead-time-policy";
 import { validateManualOverrideReason } from "@/lib/manual-override";
-import { canTeacherOfferProduct } from "@/lib/lesson-products";
+import {
+  canTeacherOfferProduct,
+  resolveTeacherRateForDuration,
+} from "@/lib/lesson-products";
 import { z } from "zod";
 import { BookingStatus, LessonTier } from "@prisma/client";
 
@@ -84,11 +87,17 @@ export async function POST(req: Request) {
     (teacherProfileId
       ? await prisma.teacherProfile.findFirst({
           where: { id: teacherProfileId },
-          include: { user: true },
+          include: {
+            user: true,
+            lessonOfferings: true,
+          },
         })
       : null) ??
     (await prisma.teacherProfile.findFirst({
-      include: { user: true },
+      include: {
+        user: true,
+        lessonOfferings: true,
+      },
     }));
 
   if (!teacher) {
@@ -150,7 +159,13 @@ export async function POST(req: Request) {
   }
 
   const isFreeTrial = product.tier === LessonTier.FREE_TRIAL;
-  const quotedPriceYen = isFreeTrial ? 0 : (teacher.rateYen ?? 3000);
+  const quotedPriceYen = isFreeTrial
+    ? 0
+    : resolveTeacherRateForDuration(
+        teacher.lessonOfferings,
+        product.durationMin,
+        teacher.rateYen ?? 3000,
+      );
 
   if (isFreeTrial && student.studentProfile.trialLessonUsedAt) {
     return NextResponse.json(

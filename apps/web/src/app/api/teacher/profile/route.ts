@@ -15,6 +15,17 @@ const patchSchema = z.object({
   /** Shown on the book-a-lesson teacher list and public booking page */
   rateYen: z.number().int().min(0).max(9_999_999).nullable().optional(),
   offersFreeTrial: z.boolean().optional(),
+  lessonOfferings: z
+    .array(
+      z.object({
+        durationMin: z.number().int().min(15).max(180),
+        rateYen: z.number().int().min(1).max(9_999_999),
+        isGroup: z.boolean(),
+        groupSize: z.number().int().min(2).max(30).nullable(),
+      }),
+    )
+    .max(40)
+    .optional(),
 });
 
 export async function PATCH(req: Request) {
@@ -32,29 +43,53 @@ export async function PATCH(req: Request) {
   const userId = session.user.id;
   const data = parsed.data;
 
-  const profile = await prisma.teacherProfile.upsert({
-    where: { userId },
-    create: {
-      userId,
-      displayName: data.displayName,
-      bio: data.bio === undefined ? null : data.bio,
-      countryOfOrigin: data.countryOfOrigin === undefined ? null : data.countryOfOrigin,
-      credentials: data.credentials === undefined ? null : data.credentials,
-      instructionLanguages: data.instructionLanguages ?? ["EN"],
-      specialties: data.specialties ?? [],
-      rateYen: data.rateYen === undefined ? null : data.rateYen,
-      offersFreeTrial: data.offersFreeTrial ?? true,
-    },
-    update: {
-      ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
-      ...(data.bio !== undefined ? { bio: data.bio } : {}),
-      ...(data.countryOfOrigin !== undefined ? { countryOfOrigin: data.countryOfOrigin } : {}),
-      ...(data.credentials !== undefined ? { credentials: data.credentials } : {}),
-      ...(data.instructionLanguages !== undefined ? { instructionLanguages: data.instructionLanguages } : {}),
-      ...(data.specialties !== undefined ? { specialties: data.specialties } : {}),
-      ...(data.rateYen !== undefined ? { rateYen: data.rateYen } : {}),
-      ...(data.offersFreeTrial !== undefined ? { offersFreeTrial: data.offersFreeTrial } : {}),
-    },
+  const profile = await prisma.$transaction(async (tx) => {
+    const updated = await tx.teacherProfile.upsert({
+      where: { userId },
+      create: {
+        userId,
+        displayName: data.displayName,
+        bio: data.bio === undefined ? null : data.bio,
+        countryOfOrigin: data.countryOfOrigin === undefined ? null : data.countryOfOrigin,
+        credentials: data.credentials === undefined ? null : data.credentials,
+        instructionLanguages: data.instructionLanguages ?? ["EN"],
+        specialties: data.specialties ?? [],
+        rateYen: data.rateYen === undefined ? null : data.rateYen,
+        offersFreeTrial: data.offersFreeTrial ?? true,
+      },
+      update: {
+        ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
+        ...(data.bio !== undefined ? { bio: data.bio } : {}),
+        ...(data.countryOfOrigin !== undefined ? { countryOfOrigin: data.countryOfOrigin } : {}),
+        ...(data.credentials !== undefined ? { credentials: data.credentials } : {}),
+        ...(data.instructionLanguages !== undefined
+          ? { instructionLanguages: data.instructionLanguages }
+          : {}),
+        ...(data.specialties !== undefined ? { specialties: data.specialties } : {}),
+        ...(data.rateYen !== undefined ? { rateYen: data.rateYen } : {}),
+        ...(data.offersFreeTrial !== undefined ? { offersFreeTrial: data.offersFreeTrial } : {}),
+      },
+    });
+
+    if (data.lessonOfferings !== undefined) {
+      await tx.teacherLessonOffering.deleteMany({
+        where: { teacherId: updated.id },
+      });
+      if (data.lessonOfferings.length > 0) {
+        await tx.teacherLessonOffering.createMany({
+          data: data.lessonOfferings.map((o) => ({
+            teacherId: updated.id,
+            durationMin: o.durationMin,
+            rateYen: o.rateYen,
+            isGroup: o.isGroup,
+            groupSize: o.isGroup ? o.groupSize : null,
+            active: true,
+          })),
+        });
+      }
+    }
+
+    return updated;
   });
 
   for (const locale of routing.locales) {

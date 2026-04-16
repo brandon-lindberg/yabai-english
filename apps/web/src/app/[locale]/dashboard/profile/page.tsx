@@ -29,6 +29,17 @@ export default async function DashboardProfilePage() {
         specialties: true,
         rateYen: true,
         offersFreeTrial: true,
+        lessonOfferings: {
+          where: { active: true },
+          orderBy: [{ isGroup: "asc" }, { durationMin: "asc" }],
+          select: {
+            id: true,
+            durationMin: true,
+            rateYen: true,
+            isGroup: true,
+            groupSize: true,
+          },
+        },
       },
     });
 
@@ -48,6 +59,7 @@ export default async function DashboardProfilePage() {
           initialSpecialties={profile?.specialties ?? []}
           initialRateYen={profile?.rateYen ?? null}
           initialOffersFreeTrial={profile?.offersFreeTrial ?? true}
+          initialLessonOfferings={profile?.lessonOfferings ?? []}
         />
       </div>
     );
