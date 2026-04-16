@@ -23,9 +23,20 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
       {completed.map((b) => {
         const transcriptUrl = b.externalTranscriptUrl?.trim() ?? "";
         const notesMd = (b.completionNotesMd ?? "").trim();
+        const notesDocUrl = b.notesDocId
+          ? `https://docs.google.com/document/d/${b.notesDocId}/edit`
+          : "";
+        const transcriptRefs = b.transcriptArtifactIds ?? [];
+        const smartNoteRefs = b.smartNotesIds ?? [];
+        const recordingRefs = b.recordingIds ?? [];
         const hasTranscript = transcriptUrl.length > 0;
         const hasNotes = notesMd.length > 0;
         const showTeacherMaterials = hasTranscript || hasNotes;
+        const showGoogleRecap =
+          notesDocUrl.length > 0 ||
+          transcriptRefs.length > 0 ||
+          smartNoteRefs.length > 0 ||
+          recordingRefs.length > 0;
 
         return (
           <li
@@ -76,6 +87,40 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
                       <p className="text-xs font-medium text-foreground">{ts("lessonNotesReadLabel")}</p>
                       <DashboardProfileBioPreview markdown={notesMd} emptyLabel="" />
                     </div>
+                  ) : null}
+                </div>
+              ) : null}
+              {showGoogleRecap ? (
+                <div className="mt-3 space-y-2">
+                  <p className="text-xs font-medium text-foreground">
+                    {ts("googleRecapSectionLabel")}
+                  </p>
+                  {notesDocUrl ? (
+                    <p className="text-sm">
+                      <a
+                        href={notesDocUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-link underline hover:opacity-90"
+                      >
+                        {ts("googleDocNotesCta")}
+                      </a>
+                    </p>
+                  ) : null}
+                  {transcriptRefs.length > 0 ? (
+                    <p className="text-xs text-muted">
+                      {ts("syncedTranscriptRefsLabel")}: {transcriptRefs.join(", ")}
+                    </p>
+                  ) : null}
+                  {smartNoteRefs.length > 0 ? (
+                    <p className="text-xs text-muted">
+                      {ts("syncedSmartNotesRefsLabel")}: {smartNoteRefs.join(", ")}
+                    </p>
+                  ) : null}
+                  {recordingRefs.length > 0 ? (
+                    <p className="text-xs text-muted">
+                      {ts("syncedRecordingRefsLabel")}: {recordingRefs.join(", ")}
+                    </p>
                   ) : null}
                 </div>
               ) : null}

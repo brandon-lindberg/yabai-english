@@ -112,9 +112,57 @@ model User {
   studyCardStates          UserStudyCardState[]
   studyAssessmentAttempts  UserStudyAssessmentAttempt[]
   studyQuickReviewDays     StudyQuickReviewDay[]
+  googleIntegrationAccount  GoogleIntegrationAccount?
+  googleIntegrationSettings GoogleIntegrationSettings?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum GoogleIntegrationFeature {
+  CALENDAR
+  DRIVE
+  MEET
+}
+
+model GoogleIntegrationAccount {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider           String   @default("google")
+  providerAccountId  String
+  accessToken        String?  @db.Text
+  refreshToken       String?  @db.Text
+  expiresAt          DateTime?
+  grantedScopes      String[] @default([])
+  tokenMetadataJson  Json?
+  revoked            Boolean  @default(false)
+  disconnectedAt     DateTime?
+  lastErrorCode      String?
+  lastErrorMessage   String?  @db.Text
+  lastSyncedAt       DateTime?
+  revocationSource   String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([userId, revoked])
+}
+
+model GoogleIntegrationSettings {
+  id                           String   @id @default(cuid())
+  userId                       String   @unique
+  user                         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  calendarConnected            Boolean  @default(false)
+  driveConnected               Boolean  @default(false)
+  meetConnected                Boolean  @default(false)
+  preferredCalendarId          String?  @default("primary")
+  defaultNotesFolderId         String?
+  autoCreateMeetLink           Boolean  @default(true)
+  autoShareNotesWithAttendees  Boolean  @default(true)
+  artifactSyncEnabled          Boolean  @default(false)
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
 }
 
 model Account {
@@ -267,6 +315,14 @@ model Booking {
   manualOverrideByRole Role?
   meetUrl       String?       @db.Text
   googleEventId String?
+  googleCalendarId String?
+  meetConferenceId String?
+  meetCode String?
+  notesDocId String?
+  transcriptArtifactIds String[] @default([])
+  smartNotesIds String[] @default([])
+  recordingIds String[] @default([])
+  studentGoogleEventId String?
   invoice       Invoice?
 
   /// Teacher-written Markdown lesson notes (visible to student); edited after the lesson ends.

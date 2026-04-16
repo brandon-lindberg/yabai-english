@@ -9,6 +9,7 @@ export function teacherProfileToAdminDto(tp: TeacherProfile | null): AdminTeache
   const { googleCalendarRefreshToken, ...rest } = tp;
   return {
     ...rest,
+    // Legacy fallback until all teacher records migrate to GoogleIntegrationSettings.
     calendarConnected: Boolean(googleCalendarRefreshToken),
   };
 }

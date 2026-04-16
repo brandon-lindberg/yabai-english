@@ -70,6 +70,12 @@ export default async function DashboardPage({ searchParams }: Props) {
             Edit profile
           </Link>
           <Link
+            href="/dashboard/integrations"
+            className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+          >
+            Google integrations
+          </Link>
+          <Link
             href="/dashboard/schedule"
             className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
           >
@@ -165,6 +171,12 @@ export default async function DashboardPage({ searchParams }: Props) {
             className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
           >
             {tCommon("bookLesson")}
+          </Link>
+          <Link
+            href="/dashboard/integrations"
+            className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+          >
+            Google integrations
           </Link>
           {canStartPlacement ? (
             profile.placedLevel === "UNSET" ? (
