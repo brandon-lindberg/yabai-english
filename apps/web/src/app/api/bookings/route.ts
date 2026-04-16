@@ -254,6 +254,7 @@ export async function POST(req: Request) {
   }
 
   const meet = await createMeetLessonEvent({
+    organizerUserId: teacher.userId,
     refreshTokenEncrypted: teacher.googleCalendarRefreshToken,
     calendarId: teacher.calendarId,
     summary: `Lesson — ${product.nameEn}`,
@@ -263,12 +264,32 @@ export async function POST(req: Request) {
   });
 
   if (meet.meetUrl || meet.googleEventId) {
+    const meetCode = meet.meetUrl ? meet.meetUrl.split("/").pop() ?? null : null;
     await prisma.booking.update({
       where: { id: confirmedBooking.id },
       data: {
         meetUrl: meet.meetUrl,
         googleEventId: meet.googleEventId,
+        googleCalendarId: teacher.calendarId ?? "primary",
+        meetCode,
       },
+    });
+  }
+
+  const studentMirrorEvent = await createMeetLessonEvent({
+    organizerUserId: session.user.id,
+    refreshTokenEncrypted: null,
+    calendarId: "primary",
+    summary: `Lesson — ${product.nameEn}`,
+    start,
+    end: endsAt,
+    attendeeEmails,
+    createMeetLink: false,
+  });
+  if (studentMirrorEvent.googleEventId) {
+    await prisma.booking.update({
+      where: { id: confirmedBooking.id },
+      data: { studentGoogleEventId: studentMirrorEvent.googleEventId },
     });
   }
 

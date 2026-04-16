@@ -95,6 +95,11 @@ export async function GET(req: Request) {
             googleCalendarRefreshToken: true,
           },
         },
+        googleIntegrationSettings: {
+          select: {
+            calendarConnected: true,
+          },
+        },
       },
     }),
     prisma.user.count({ where }),
@@ -114,7 +119,9 @@ export async function GET(req: Request) {
       ? {
           displayName: row.teacherProfile.displayName,
           rateYen: row.teacherProfile.rateYen,
-          calendarConnected: Boolean(row.teacherProfile.googleCalendarRefreshToken),
+          calendarConnected:
+            row.googleIntegrationSettings?.calendarConnected ??
+            Boolean(row.teacherProfile.googleCalendarRefreshToken),
         }
       : null,
   }));

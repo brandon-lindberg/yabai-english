@@ -59,11 +59,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers,
   callbacks: {
     async signIn({ user }) {
-      if (!user.id) return true;
-      const full = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: { role: true, accountStatus: true },
-      });
+      if (!user.id && !user.email) return true;
+      const full =
+        (user.id
+          ? await prisma.user.findUnique({
+              where: { id: user.id },
+              select: { id: true, role: true, accountStatus: true },
+            })
+          : null) ??
+        (user.email
+          ? await prisma.user.findUnique({
+              where: { email: user.email },
+              select: { id: true, role: true, accountStatus: true },
+            })
+          : null);
       if (full && !isLoginAllowedForAccountStatus(full.accountStatus)) {
         return false;
       }
@@ -73,9 +82,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       ) {
         return true;
       }
+      if (!full?.id) {
+        // Auth.js can reach signIn callback before the adapter write is visible.
+        // Skip profile upsert for this pass to avoid transient FK failures.
+        return true;
+      }
       await prisma.studentProfile.upsert({
-        where: { userId: user.id },
-        create: { userId: user.id },
+        where: { userId: full.id },
+        create: { userId: full.id },
         update: {},
       });
       return true;

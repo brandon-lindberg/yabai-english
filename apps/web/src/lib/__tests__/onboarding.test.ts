@@ -35,6 +35,21 @@ describe("onboarding payload schema", () => {
       }),
     ).toThrow();
   });
+
+  test("rejects unsupported learning goals", () => {
+    expect(() =>
+      onboardingPayloadSchema.parse({
+        timezone: "Asia/Tokyo",
+        learningGoals: ["kids"],
+        notifyLessonReminders: true,
+        notifyMessages: true,
+        notifyPayments: true,
+        acceptedTerms: true,
+        acceptedPrivacy: true,
+        acceptedRecordingConsent: true,
+      }),
+    ).toThrow();
+  });
 });
 
 describe("isStudentOnboardingComplete", () => {

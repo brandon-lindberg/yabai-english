@@ -48,3 +48,6 @@ export function decryptRefreshToken(stored: string): string {
     "utf8",
   );
 }
+
+export const encryptIntegrationToken = encryptRefreshToken;
+export const decryptIntegrationToken = decryptRefreshToken;

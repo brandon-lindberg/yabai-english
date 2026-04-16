@@ -49,6 +49,7 @@ export async function POST(_req: Request, { params }: Props) {
     Boolean,
   ) as string[];
   const meet = await createMeetLessonEvent({
+    organizerUserId: updated.teacher.userId,
     refreshTokenEncrypted: updated.teacher.googleCalendarRefreshToken,
     calendarId: updated.teacher.calendarId,
     summary: `Lesson — ${updated.lessonProduct.nameEn}`,
@@ -62,12 +63,34 @@ export async function POST(_req: Request, { params }: Props) {
     data: {
       meetUrl: meet.meetUrl ?? updated.meetUrl,
       googleEventId: meet.googleEventId ?? updated.googleEventId,
+      googleCalendarId: updated.teacher.calendarId ?? "primary",
+      meetCode:
+        meet.meetUrl?.split("/").pop() ??
+        updated.meetUrl?.split("/").pop() ??
+        null,
     },
     include: {
       lessonProduct: true,
       teacher: { include: { user: true } },
     },
   });
+
+  const studentMirrorEvent = await createMeetLessonEvent({
+    organizerUserId: session.user.id,
+    refreshTokenEncrypted: null,
+    calendarId: "primary",
+    summary: `Lesson — ${updated.lessonProduct.nameEn}`,
+    start: updated.startsAt,
+    end: updated.endsAt,
+    attendeeEmails,
+    createMeetLink: false,
+  });
+  if (studentMirrorEvent.googleEventId) {
+    await prisma.booking.update({
+      where: { id: updated.id },
+      data: { studentGoogleEventId: studentMirrorEvent.googleEventId },
+    });
+  }
 
   const now = new Date();
   await prisma.invoice.upsert({

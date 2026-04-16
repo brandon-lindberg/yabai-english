@@ -6,6 +6,14 @@ type Upcoming = Awaited<ReturnType<typeof getTeacherBookingsForDashboard>>["upco
 export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming }) {
   const locale = await getLocale();
   const t = await getTranslations("dashboard");
+  const to = await getTranslations("onboarding");
+
+  const goalLabelById: Record<string, string> = {
+    conversation: to("goalConversation"),
+    business: to("goalBusiness"),
+    exam: to("goalExam"),
+    travel: to("goalTravel"),
+  };
 
   if (upcoming.length === 0) {
     return <li className="rounded-2xl border border-dashed border-border bg-surface p-6 text-muted">{t("noBookings")}</li>;
@@ -27,6 +35,14 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
               <p className="text-sm text-muted">
                 Student: {b.student.name ?? b.student.email}
               </p>
+              {b.student.studentProfile?.learningGoals?.length ? (
+                <p className="text-xs text-muted">
+                  Goals:{" "}
+                  {b.student.studentProfile.learningGoals
+                    .map((goal) => goalLabelById[goal] ?? goal)
+                    .join(", ")}
+                </p>
+              ) : null}
             </div>
             {b.meetUrl ? (
               <a

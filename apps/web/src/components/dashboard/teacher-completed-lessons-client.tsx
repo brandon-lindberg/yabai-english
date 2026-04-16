@@ -13,6 +13,10 @@ export type TeacherCompletedLessonItem = {
   studentDisplay: string;
   initialCompletionNotesMd: string | null;
   initialExternalTranscriptUrl: string | null;
+  notesDocId: string | null;
+  transcriptArtifactIds: string[];
+  smartNotesIds: string[];
+  recordingIds: string[];
   hasSavedContent: boolean;
 };
 
@@ -94,6 +98,14 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
           const title = `${lesson.lessonTitleJa} / ${lesson.lessonTitleEn}`;
           const panelId = `${viewGroupId}-panel-${lesson.id}`;
           const headerId = `${viewGroupId}-header-${lesson.id}`;
+          const notesDocUrl = lesson.notesDocId
+            ? `https://docs.google.com/document/d/${lesson.notesDocId}/edit`
+            : "";
+          const hasGoogleRecap =
+            notesDocUrl.length > 0 ||
+            lesson.transcriptArtifactIds.length > 0 ||
+            lesson.smartNotesIds.length > 0 ||
+            lesson.recordingIds.length > 0;
 
           if (viewMode === "list") {
             return (
@@ -122,6 +134,38 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
                 </button>
                 {expanded ? (
                   <div id={panelId} className="border-t border-border bg-background/40 px-4 py-3 pl-11">
+                    {hasGoogleRecap ? (
+                      <div className="mb-3 space-y-1">
+                        <p className="text-xs font-medium text-foreground">{t("googleRecapSectionLabel")}</p>
+                        {notesDocUrl ? (
+                          <p className="text-sm">
+                            <a
+                              href={notesDocUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-semibold text-link underline hover:opacity-90"
+                            >
+                              {t("googleDocNotesCta")}
+                            </a>
+                          </p>
+                        ) : null}
+                        {lesson.transcriptArtifactIds.length > 0 ? (
+                          <p className="text-xs text-muted">
+                            {t("syncedTranscriptRefsLabel")}: {lesson.transcriptArtifactIds.join(", ")}
+                          </p>
+                        ) : null}
+                        {lesson.smartNotesIds.length > 0 ? (
+                          <p className="text-xs text-muted">
+                            {t("syncedSmartNotesRefsLabel")}: {lesson.smartNotesIds.join(", ")}
+                          </p>
+                        ) : null}
+                        {lesson.recordingIds.length > 0 ? (
+                          <p className="text-xs text-muted">
+                            {t("syncedRecordingRefsLabel")}: {lesson.recordingIds.join(", ")}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : null}
                     <TeacherLessonCompletionNotesForm
                       variant="embedded"
                       bookingId={lesson.id}
@@ -166,6 +210,38 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
               </button>
               {expanded ? (
                 <div id={panelId} className="border-t border-border px-4 pb-4 pt-3">
+                  {hasGoogleRecap ? (
+                    <div className="mb-3 space-y-1">
+                      <p className="text-xs font-medium text-foreground">{t("googleRecapSectionLabel")}</p>
+                      {notesDocUrl ? (
+                        <p className="text-sm">
+                          <a
+                            href={notesDocUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-link underline hover:opacity-90"
+                          >
+                            {t("googleDocNotesCta")}
+                          </a>
+                        </p>
+                      ) : null}
+                      {lesson.transcriptArtifactIds.length > 0 ? (
+                        <p className="text-xs text-muted">
+                          {t("syncedTranscriptRefsLabel")}: {lesson.transcriptArtifactIds.join(", ")}
+                        </p>
+                      ) : null}
+                      {lesson.smartNotesIds.length > 0 ? (
+                        <p className="text-xs text-muted">
+                          {t("syncedSmartNotesRefsLabel")}: {lesson.smartNotesIds.join(", ")}
+                        </p>
+                      ) : null}
+                      {lesson.recordingIds.length > 0 ? (
+                        <p className="text-xs text-muted">
+                          {t("syncedRecordingRefsLabel")}: {lesson.recordingIds.join(", ")}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
                   <TeacherLessonCompletionNotesForm
                     variant="embedded"
                     bookingId={lesson.id}

@@ -13,6 +13,9 @@ type TeacherScheduleBooking = {
   student: {
     name: string | null;
     email: string | null;
+    studentProfile?: {
+      learningGoals: string[];
+    } | null;
   };
 };
 
@@ -50,7 +53,15 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
     orderBy: { startsAt: "asc" },
     include: {
       lessonProduct: true,
-      student: true,
+      student: {
+        include: {
+          studentProfile: {
+            select: {
+              learningGoals: true,
+            },
+          },
+        },
+      },
       invoice: true,
     },
   });
