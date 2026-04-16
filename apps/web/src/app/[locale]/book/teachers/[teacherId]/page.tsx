@@ -154,7 +154,7 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
         >
           {t("leadTimeNotice")}
         </p>
-        <div className="mt-4 max-w-lg">
+        <div className="mt-4 w-full">
           <BookingForm
             teacherProfileId={teacher.id}
             currentUserRole={session?.user?.role ?? "STUDENT"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 
@@ -8,7 +8,7 @@ const GOALS = [
   { id: "conversation", labelKey: "goalConversation" },
   { id: "business", labelKey: "goalBusiness" },
   { id: "exam", labelKey: "goalExam" },
-  { id: "kids", labelKey: "goalKids" },
+  { id: "travel", labelKey: "goalTravel" },
 ] as const;
 
 type Props = {
@@ -28,6 +28,36 @@ export function OnboardingForm({ initialTimezone }: Props) {
   const [acceptedRecordingConsent, setAcceptedRecordingConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const canSubmit =
+    acceptedTerms && acceptedPrivacy && acceptedRecordingConsent && goals.length > 0;
+  const timezoneOptions = useMemo(() => {
+    try {
+      if (typeof Intl.supportedValuesOf === "function") {
+        return Intl.supportedValuesOf("timeZone");
+      }
+    } catch {
+      // Fall through to minimal fallback list.
+    }
+    return [
+      "Asia/Tokyo",
+      "Asia/Seoul",
+      "Asia/Singapore",
+      "Europe/London",
+      "Europe/Paris",
+      "America/New_York",
+      "America/Los_Angeles",
+      "Australia/Sydney",
+      "UTC",
+    ];
+  }, []);
+
+  useEffect(() => {
+    const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!browserTz) return;
+    if (timezone !== "Asia/Tokyo" && timezone.length > 0) return;
+    if (!timezoneOptions.includes(browserTz)) return;
+    setTimezone(browserTz);
+  }, [timezone, timezoneOptions]);
 
   function toggleGoal(goal: string) {
     setGoals((prev) =>
@@ -70,13 +100,19 @@ export function OnboardingForm({ initialTimezone }: Props) {
     <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border border-border bg-surface p-6">
       <div>
         <h2 className="text-lg font-semibold text-foreground">{t("timezoneLabel")}</h2>
-        <input
+        <p className="mt-1 text-xs text-muted">{t("timezoneHelp")}</p>
+        <select
           value={timezone}
           onChange={(e) => setTimezone(e.target.value)}
           className="mt-2 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
-          placeholder="Asia/Tokyo"
           required
-        />
+        >
+          {timezoneOptions.map((tz) => (
+            <option key={tz} value={tz}>
+              {tz}
+            </option>
+          ))}
+        </select>
       </div>
 
       <fieldset>
@@ -166,8 +202,8 @@ export function OnboardingForm({ initialTimezone }: Props) {
 
       <button
         type="submit"
-        disabled={saving}
-        className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+        disabled={saving || !canSubmit}
+        className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {saving ? "…" : t("submit")}
       </button>

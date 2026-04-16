@@ -4,7 +4,7 @@ export const LEARNING_GOALS = [
   "conversation",
   "business",
   "exam",
-  "kids",
+  "travel",
 ] as const;
 
 export const onboardingPayloadSchema = z
