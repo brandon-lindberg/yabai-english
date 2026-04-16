@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { routing } from "@/i18n/routing";
 import { auth } from "@/auth";
 import { AppProviders } from "@/components/providers";
+import { HiddenAccountGuard } from "@/components/hidden-account-guard";
 import { SiteHeader } from "@/components/site-header";
 import { ChatPanel } from "@/components/chat-panel";
 
@@ -30,6 +31,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       <AppProviders session={session}>
+        <HiddenAccountGuard />
         <SiteHeader />
         {children}
         <ChatPanel />

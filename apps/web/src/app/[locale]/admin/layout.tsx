@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { auth } from "@/auth";
+import { AdminSubnav } from "@/components/admin/admin-subnav";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 
@@ -15,5 +16,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     redirect({ href: "/dashboard", locale });
     return null;
   }
-  return children;
+  return (
+    <div className="mx-auto max-w-6xl flex-1 px-4 py-8 sm:px-6">
+      <AdminSubnav />
+      {children}
+    </div>
+  );
 }

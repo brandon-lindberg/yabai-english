@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { canSendChatMessage } from "@/lib/chat-permissions";
 import { isConversationBlocked, isViewerBlockedByCounterpart } from "@/lib/chat-blocking";
 import { emitChatUpdate } from "@/lib/realtime-server";
+import { createUserNotification } from "@/lib/notifications";
 
 const postSchema = z.object({
   body: z.string().trim().min(1).max(2000),
@@ -113,18 +114,23 @@ export async function POST(req: Request, { params }: Props) {
       })),
   );
 
+  const recipientId =
+    session.user.id === thread.studentId ? thread.teacherId : thread.studentId;
+  const counterpart = await prisma.user.findUnique({
+    where: { id: recipientId },
+    select: { role: true },
+  });
+
   if (
     !canSendChatMessage({
       role: session.user.role,
       threadTwoWayEnabled: thread.twoWayEnabled,
       hasScheduledLessonWithTeacher,
+      counterpartRole: counterpart?.role,
     })
   ) {
     return NextResponse.json({ error: "Chat is read-only." }, { status: 403 });
   }
-
-  const recipientId =
-    session.user.id === thread.studentId ? thread.teacherId : thread.studentId;
 
   const message = await prisma.chatMessage.create({
     data: {
@@ -139,6 +145,16 @@ export async function POST(req: Request, { params }: Props) {
     emitChatUpdate(session.user.id, threadId),
     emitChatUpdate(recipientId, threadId),
   ]);
+
+  if (session.user.role === "ADMIN") {
+    await createUserNotification({
+      userId: recipientId,
+      titleJa: "管理者から新しいメッセージがあります",
+      titleEn: "You have a new message from admin",
+      bodyJa: parsed.data.body,
+      bodyEn: parsed.data.body,
+    });
+  }
 
   return NextResponse.json(message);
 }

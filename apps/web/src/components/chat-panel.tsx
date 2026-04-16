@@ -20,6 +20,10 @@ type ThreadItem = {
   studentReportReason: string | null;
   teacherReportReason: string | null;
   unreadCount: number;
+  studentName: string;
+  studentEmail: string | null;
+  teacherName: string;
+  teacherEmail: string | null;
   counterpartName: string | null;
   latestMessage: string | null;
   latestMessageAt: string | null;
@@ -33,18 +37,48 @@ type MessageItem = {
   createdAt: string;
 };
 
+type BroadcastHistoryItem = {
+  id: string;
+  target: "ALL" | "TEACHERS" | "STUDENTS";
+  body: string;
+  targetedRecipients: number;
+  sentMessages: number;
+  createdAt: string;
+};
+
 export function ChatPanel() {
   const t = useTranslations("chat");
   const { data: session } = useSession();
+  const isAdminViewer = session?.user?.role === "ADMIN";
   const [open, setOpen] = useState(false);
   const [threads, setThreads] = useState<ThreadItem[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string>("");
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [draft, setDraft] = useState("");
   const [status, setStatus] = useState<string | null>(null);
+  const [adminQueue, setAdminQueue] = useState<"all" | "reported" | "blocked" | "unread">("reported");
+  const [adminSearch, setAdminSearch] = useState("");
+  const [adminMode, setAdminMode] = useState<"review" | "direct" | "broadcast">("review");
+  const [adminContactType, setAdminContactType] = useState<"teacher" | "student">("teacher");
+  const [adminSelectedContactId, setAdminSelectedContactId] = useState<string>("");
+  const [broadcastTarget, setBroadcastTarget] = useState<"all" | "teachers" | "students">(
+    "all",
+  );
+  const [broadcastBusy, setBroadcastBusy] = useState(false);
+  const [broadcastHistory, setBroadcastHistory] = useState<BroadcastHistoryItem[]>([]);
   const [mobilePane, setMobilePane] = useState<"threads" | "chat">("threads");
   const [moderationBusy, setModerationBusy] = useState(false);
+  const [threadSwipeOpenId, setThreadSwipeOpenId] = useState<string>("");
+  const [threadSwipeDragOffset, setThreadSwipeDragOffset] = useState<number>(0);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const threadSwipeRef = useRef<{
+    threadId: string;
+    startX: number;
+    startOffset: number;
+    moved: boolean;
+    currentOffset: number;
+  } | null>(null);
+  const suppressThreadClickRef = useRef<string | null>(null);
 
   const activeThread = useMemo(
     () => threads.find((thread) => thread.id === activeThreadId) ?? null,
@@ -56,10 +90,24 @@ export function ChatPanel() {
   );
 
   const loadThreads = useCallback(async () => {
-    const res = await fetch("/api/chat/threads");
+    const params = new URLSearchParams();
+    if (session?.user?.role === "ADMIN") {
+      params.set("queue", adminQueue);
+      if (adminSearch.trim()) params.set("q", adminSearch.trim());
+    }
+    const query = params.toString();
+    const res = await fetch(`/api/chat/threads${query ? `?${query}` : ""}`);
     if (!res.ok) return;
     const data = (await res.json()) as ThreadItem[];
     setThreads(data);
+    if (data.length === 0) {
+      setActiveThreadId("");
+      setMessages([]);
+      if (session?.user?.role === "ADMIN") {
+        setMobilePane("threads");
+      }
+      return;
+    }
     let pickedFirst = false;
     setActiveThreadId((prev) => {
       if (!prev && data[0]?.id) {
@@ -71,7 +119,11 @@ export function ChatPanel() {
     if (pickedFirst) {
       setMobilePane("chat");
     }
-  }, []);
+    setActiveThreadId((prev) => {
+      if (prev && data.some((t) => t.id === prev)) return prev;
+      return data[0]?.id ?? "";
+    });
+  }, [session?.user?.role, adminQueue, adminSearch]);
 
   const loadMessages = useCallback(
     async (threadId: string) => {
@@ -96,6 +148,17 @@ export function ChatPanel() {
       void loadMessages(activeThreadId);
     });
   }, [activeThreadId, loadMessages]);
+
+  useEffect(() => {
+    if (!activeThreadId) {
+      setMessages([]);
+      return;
+    }
+    if (!threads.some((thread) => thread.id === activeThreadId)) {
+      setActiveThreadId("");
+      setMessages([]);
+    }
+  }, [threads, activeThreadId]);
 
   useEffect(() => {
     const userId = session?.user?.id;
@@ -153,6 +216,81 @@ export function ChatPanel() {
     await loadThreads();
   }
 
+  async function sendBroadcast() {
+    if (!isAdminViewer || !draft.trim() || broadcastBusy) return;
+    setBroadcastBusy(true);
+    setStatus(null);
+    try {
+      const res = await fetch("/api/admin/chat/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          body: draft,
+          target: broadcastTarget,
+        }),
+      });
+      const data = (await res.json()) as { error?: string; targetedRecipients?: number };
+      if (!res.ok) {
+        setStatus(data.error ?? t("sendFailed"));
+        return;
+      }
+      setDraft("");
+      setStatus(
+        t("broadcastSent", {
+          count: data.targetedRecipients ?? 0,
+        }),
+      );
+      await loadThreads();
+      const list = await fetch("/api/admin/chat/broadcast");
+      if (list.ok) {
+        const payload = (await list.json()) as { items: BroadcastHistoryItem[] };
+        setBroadcastHistory(payload.items ?? []);
+      }
+    } finally {
+      setBroadcastBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!isAdminViewer || adminMode !== "broadcast") return;
+    void (async () => {
+      const res = await fetch("/api/admin/chat/broadcast");
+      if (!res.ok) return;
+      const payload = (await res.json()) as { items: BroadcastHistoryItem[] };
+      setBroadcastHistory(payload.items ?? []);
+    })();
+  }, [isAdminViewer, adminMode]);
+
+  useEffect(() => {
+    if (!status) return;
+    const timeout = window.setTimeout(() => {
+      setStatus(null);
+    }, 5000);
+    return () => window.clearTimeout(timeout);
+  }, [status]);
+
+  async function sendDirectMessage() {
+    if (!isAdminViewer || adminMode !== "direct" || !directTargetThreadId || !draft.trim()) return;
+    setStatus(null);
+    const res = await fetch(`/api/chat/threads/${directTargetThreadId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ body: draft }),
+    });
+    const data = (await res.json()) as { error?: string };
+    if (!res.ok) {
+      setStatus(data.error ?? t("sendFailed"));
+      return;
+    }
+    setDraft("");
+    setStatus(
+      t("directSent", {
+        name: selectedDirectContact?.name ?? t("unknownUser"),
+      }),
+    );
+    await loadThreads();
+  }
+
   async function setTwoWayEnabled(enabled: boolean) {
     if (!activeThreadId) return;
     const res = await fetch(`/api/chat/threads/${activeThreadId}/permissions`, {
@@ -199,10 +337,96 @@ export function ChatPanel() {
     }
   }
 
-  const isTeacherOrAdmin =
-    session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN";
+  async function archiveConversation(threadId: string) {
+    const confirmed = window.confirm(t("archiveConfirm"));
+    if (!confirmed) return;
+    setStatus(null);
+    const res = await fetch(`/api/chat/threads/${threadId}`, { method: "DELETE" });
+    const data = (await res.json().catch(() => null)) as { error?: string } | null;
+    if (!res.ok) {
+      setStatus(data?.error ?? t("archiveFailed"));
+      return;
+    }
+    if (activeThreadId === threadId) {
+      setActiveThreadId("");
+      setMessages([]);
+      setMobilePane("threads");
+    }
+    setThreadSwipeOpenId("");
+    setThreadSwipeDragOffset(0);
+    setStatus(t("archiveSuccess"));
+    await loadThreads();
+  }
+
+  function onThreadSwipeStart(
+    threadId: string,
+    clientX: number,
+    currentTarget: HTMLElement,
+    pointerId: number,
+  ) {
+    currentTarget.setPointerCapture(pointerId);
+    const openOffset = threadSwipeOpenId === threadId ? -88 : 0;
+    threadSwipeRef.current = {
+      threadId,
+      startX: clientX,
+      startOffset: openOffset,
+      moved: false,
+      currentOffset: openOffset,
+    };
+  }
+
+  function onThreadSwipeMove(clientX: number) {
+    const state = threadSwipeRef.current;
+    if (!state) return;
+    const delta = clientX - state.startX;
+    const maxSwipe = 88;
+    const nextOffset = Math.max(-maxSwipe, Math.min(0, state.startOffset + delta));
+    if (Math.abs(delta) > 6) {
+      state.moved = true;
+    }
+    state.currentOffset = nextOffset;
+    if (threadSwipeOpenId !== state.threadId) {
+      setThreadSwipeOpenId(state.threadId);
+    }
+    setThreadSwipeDragOffset(nextOffset);
+  }
+
+  function onThreadSwipeEnd() {
+    const state = threadSwipeRef.current;
+    if (!state) return;
+    const currentOffset = state.currentOffset;
+    const maxSwipe = 88;
+    const shouldOpenAction = currentOffset <= -36;
+    setThreadSwipeOpenId(shouldOpenAction ? state.threadId : "");
+    setThreadSwipeDragOffset(shouldOpenAction ? -maxSwipe : 0);
+    if (state.moved) {
+      suppressThreadClickRef.current = state.threadId;
+    }
+    threadSwipeRef.current = null;
+  }
+
+  function closeThreadSwipe(threadId: string) {
+    if (threadSwipeOpenId !== threadId) return;
+    setThreadSwipeOpenId("");
+    setThreadSwipeDragOffset(0);
+  }
+
+  useEffect(() => {
+    function onGlobalPointerDown(event: PointerEvent) {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("[data-chat-thread-row='true']")) return;
+      setThreadSwipeOpenId("");
+      setThreadSwipeDragOffset(0);
+    }
+    document.addEventListener("pointerdown", onGlobalPointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", onGlobalPointerDown);
+    };
+  }, []);
+
   const canSend =
-    (session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN") ||
+    session?.user?.role === "TEACHER" ||
+    (session?.user?.role === "ADMIN" && (adminMode === "broadcast" || adminMode === "direct")) ||
     Boolean(activeThread?.twoWayEnabled);
   const isBlocked = Boolean(
     activeThread?.studentBlockedAt || activeThread?.teacherBlockedAt,
@@ -215,6 +439,83 @@ export function ChatPanel() {
     : isTeacherInThread
       ? activeThread?.teacherBlockedAt
       : null;
+
+  const adminContacts = useMemo(() => {
+    if (!isAdminViewer || adminQueue !== "all") return [];
+    const map = new Map<string, { id: string; name: string; email: string; count: number }>();
+    for (const thread of threads) {
+      const id = adminContactType === "teacher" ? thread.teacherId : thread.studentId;
+      const name = adminContactType === "teacher" ? thread.teacherName : thread.studentName;
+      const email =
+        (adminContactType === "teacher" ? thread.teacherEmail : thread.studentEmail) ?? "";
+      const existing = map.get(id);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        map.set(id, { id, name, email, count: 1 });
+      }
+    }
+    const q = adminSearch.trim().toLowerCase();
+    const contacts = Array.from(map.values()).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+    return q
+      ? contacts.filter(
+          (c) =>
+            c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q),
+        )
+      : contacts;
+  }, [isAdminViewer, adminQueue, threads, adminContactType, adminSearch]);
+
+  const adminContactThreads = useMemo(() => {
+    if (!isAdminViewer || adminQueue !== "all" || !adminSelectedContactId) return [];
+    return threads.filter((thread) =>
+      adminContactType === "teacher"
+        ? thread.teacherId === adminSelectedContactId
+        : thread.studentId === adminSelectedContactId,
+    );
+  }, [isAdminViewer, adminQueue, threads, adminSelectedContactId, adminContactType]);
+
+  const selectedDirectContact = useMemo(() => {
+    if (!isAdminViewer || adminMode !== "direct") return null;
+    return adminContacts.find((c) => c.id === adminSelectedContactId) ?? null;
+  }, [isAdminViewer, adminMode, adminContacts, adminSelectedContactId]);
+
+  const directTargetThreadId = adminContactThreads[0]?.id ?? "";
+
+  useEffect(() => {
+    if (!isAdminViewer || adminQueue !== "all") return;
+    setAdminSelectedContactId((prev) => {
+      if (prev && adminContacts.some((c) => c.id === prev)) return prev;
+      return adminContacts[0]?.id ?? "";
+    });
+  }, [isAdminViewer, adminQueue, adminContacts]);
+
+  useEffect(() => {
+    if (!isAdminViewer || adminQueue !== "all" || adminMode === "direct") return;
+    if (!adminSelectedContactId) {
+      setActiveThreadId("");
+      setMessages([]);
+      return;
+    }
+
+    const firstThreadId = adminContactThreads[0]?.id ?? "";
+    const hasActiveInContact = adminContactThreads.some((t) => t.id === activeThreadId);
+    if (!hasActiveInContact) {
+      setActiveThreadId(firstThreadId);
+      setMessages([]);
+      if (firstThreadId) {
+        setMobilePane("chat");
+      }
+    }
+  }, [
+    isAdminViewer,
+    adminQueue,
+    adminMode,
+    adminSelectedContactId,
+    adminContactThreads,
+    activeThreadId,
+  ]);
 
   if (!session?.user?.id) return null;
 
@@ -273,41 +574,381 @@ export function ChatPanel() {
               <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-muted">
                 {t("conversations")}
               </p>
-              <div className="max-h-full space-y-2 overflow-auto pr-1">
-                {threads.length === 0 ? (
-                  <p className="px-2 text-sm text-muted">{t("noThreads")}</p>
-                ) : (
-                  threads.map((thread) => (
+              {isAdminViewer && (
+                <div className="mb-2 space-y-2 px-1">
+                  <div className="flex gap-1">
                     <button
-                      key={thread.id}
                       type="button"
-                      onClick={() => {
-                        setActiveThreadId(thread.id);
-                        setMobilePane("chat");
-                      }}
-                      className={`w-full rounded-xl border px-3 py-2 text-left text-xs ${
-                        thread.id === activeThreadId
-                          ? "border-accent bg-[var(--app-hover)]"
-                          : "border-border bg-surface"
+                      onClick={() => setAdminMode("review")}
+                      className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
+                        adminMode === "review"
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-border text-muted"
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold text-foreground">
-                          {thread.counterpartName ?? t("unknownUser")}
-                        </p>
-                        {thread.unreadCount > 0 && (
-                          <span className="inline-flex min-w-4 justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-                            {thread.unreadCount}
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-0.5 line-clamp-2 text-muted">
-                        {thread.latestMessage ?? t("noMessagesYet")}
-                      </p>
+                      {t("adminModeReview")}
                     </button>
-                  ))
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdminMode("direct");
+                        setAdminQueue("all");
+                      }}
+                      className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
+                        adminMode === "direct"
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-border text-muted"
+                      }`}
+                    >
+                      {t("adminModeDirect")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAdminMode("broadcast")}
+                      className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
+                        adminMode === "broadcast"
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-border text-muted"
+                      }`}
+                    >
+                      {t("adminModeBroadcast")}
+                    </button>
+                  </div>
+                  {adminMode !== "broadcast" && (
+                    <>
+                      <div className="flex flex-wrap gap-1">
+                        {(["reported", "unread", "blocked", "all"] as const).map((queue) => (
+                          <button
+                            key={queue}
+                            type="button"
+                            onClick={() => setAdminQueue(queue)}
+                            disabled={adminMode !== "review"}
+                            className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
+                              adminQueue === queue
+                                ? "bg-primary text-primary-foreground"
+                                : "border border-border text-muted"
+                            } ${adminMode !== "review" ? "opacity-40" : ""}`}
+                          >
+                            {t(`adminQueue${queue[0]!.toUpperCase()}${queue.slice(1)}`)}
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        value={adminSearch}
+                        onChange={(e) => setAdminSearch(e.target.value)}
+                        className="w-full rounded-lg border border-border bg-surface px-2 py-1 text-xs text-foreground"
+                        placeholder={t("adminSearchPlaceholder")}
+                      />
+                      {(adminQueue === "all" || adminMode === "direct") && (
+                        <div className="flex gap-1">
+                          {(["teacher", "student"] as const).map((kind) => (
+                            <button
+                              key={kind}
+                              type="button"
+                              onClick={() => {
+                                setAdminContactType(kind);
+                                setAdminSelectedContactId("");
+                              }}
+                              className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
+                                adminContactType === kind
+                                  ? "bg-primary text-primary-foreground"
+                                  : "border border-border text-muted"
+                              }`}
+                            >
+                              {kind === "teacher"
+                                ? t("adminContactTypeTeacher")
+                                : t("adminContactTypeStudent")}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+              <div className="max-h-full space-y-2 overflow-auto pr-1">
+                {isAdminViewer && adminMode === "broadcast" ? (
+                  <div className="space-y-2 px-1">
+                    <p className="text-sm text-muted">{t("broadcastLeftPanelHint")}</p>
+                    <div className="rounded-xl border border-border bg-surface p-2">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                        {t("broadcastHistoryTitle")}
+                      </p>
+                      {broadcastHistory.length === 0 ? (
+                        <p className="text-xs text-muted">{t("broadcastHistoryEmpty")}</p>
+                      ) : (
+                        <div className="max-h-[46vh] space-y-2 overflow-auto">
+                          {broadcastHistory.map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => setDraft(item.body)}
+                              className="w-full rounded-lg border border-border px-2 py-1 text-left text-xs hover:bg-[var(--app-hover)]"
+                            >
+                              <p className="font-semibold text-foreground">
+                                {item.target === "ALL"
+                                  ? t("broadcastTargetAll")
+                                  : item.target === "TEACHERS"
+                                    ? t("broadcastTargetTeachers")
+                                    : t("broadcastTargetStudents")}
+                              </p>
+                              <p className="line-clamp-2 text-muted">{item.body}</p>
+                              <p className="text-[10px] text-muted">
+                                {new Date(item.createdAt).toLocaleString()} ·{" "}
+                                {t("broadcastHistoryRecipients", {
+                                  count: item.targetedRecipients,
+                                })}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : threads.length === 0 ? (
+                  <p className="px-2 text-sm text-muted">
+                    {isAdminViewer && adminQueue === "blocked"
+                      ? t("adminNoBlockedThreads")
+                      : isAdminViewer && adminQueue === "reported"
+                        ? t("adminNoReportedThreads")
+                        : isAdminViewer && adminQueue === "unread"
+                          ? t("adminNoUnreadThreads")
+                          : t("noThreads")}
+                  </p>
+                ) : (
+                  (isAdminViewer
+                    ? adminMode === "direct"
+                      ? (
+                          <div className="space-y-1">
+                            <p className="px-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                              {t("adminContactListTitle")}
+                            </p>
+                            {adminContacts.length === 0 ? (
+                              <p className="px-2 text-xs text-muted">{t("adminNoContacts")}</p>
+                            ) : (
+                              adminContacts.map((contact) => (
+                                <button
+                                  key={contact.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setAdminSelectedContactId(contact.id);
+                                    setStatus(null);
+                                  }}
+                                  className={`w-full rounded-lg border px-2 py-1.5 text-left text-xs ${
+                                    adminSelectedContactId === contact.id
+                                      ? "border-accent bg-[var(--app-hover)]"
+                                      : "border-border bg-surface"
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div>
+                                      <p className="font-semibold text-foreground">{contact.name}</p>
+                                      {contact.email ? (
+                                        <p className="text-[10px] text-muted">{contact.email}</p>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        )
+                      : adminQueue === "all"
+                      ? (
+                          <div className="space-y-3">
+                            <div className="space-y-1">
+                              <p className="px-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                                {t("adminContactListTitle")}
+                              </p>
+                              {adminContacts.length === 0 ? (
+                                <p className="px-2 text-xs text-muted">{t("adminNoContacts")}</p>
+                              ) : (
+                                adminContacts.map((contact) => (
+                                  <button
+                                    key={contact.id}
+                                    type="button"
+                                    onClick={() => setAdminSelectedContactId(contact.id)}
+                                    className={`w-full rounded-lg border px-2 py-1.5 text-left text-xs ${
+                                      adminSelectedContactId === contact.id
+                                        ? "border-accent bg-[var(--app-hover)]"
+                                        : "border-border bg-surface"
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between gap-2">
+                                      <div>
+                                        <p className="font-semibold text-foreground">{contact.name}</p>
+                                        {contact.email ? (
+                                          <p className="text-[10px] text-muted">{contact.email}</p>
+                                        ) : null}
+                                      </div>
+                                      <span className="text-[10px] text-muted">
+                                        {contact.count}
+                                      </span>
+                                    </div>
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                            <div className="space-y-1">
+                              <p className="px-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                                {t("adminContactConversationsTitle")}
+                              </p>
+                              {adminContactThreads.length === 0 ? (
+                                <p className="px-2 text-xs text-muted">
+                                  {t("adminNoConversationsForContact")}
+                                </p>
+                              ) : (
+                                adminContactThreads.map((thread) => (
+                                  <button
+                                    key={thread.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveThreadId(thread.id);
+                                      setMobilePane("chat");
+                                    }}
+                                    className={`w-full rounded-xl border px-3 py-2 text-left text-xs ${
+                                      thread.id === activeThreadId
+                                        ? "border-accent bg-[var(--app-hover)]"
+                                        : "border-border bg-surface"
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="font-semibold text-foreground">
+                                        {thread.studentName} · {thread.teacherName}
+                                      </p>
+                                    </div>
+                                    <p className="mt-0.5 line-clamp-2 text-muted">
+                                      {thread.latestMessage ?? t("noMessagesYet")}
+                                    </p>
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        )
+                      : threads.map((thread) => (
+                          <button
+                            key={thread.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveThreadId(thread.id);
+                              setMobilePane("chat");
+                            }}
+                            className={`w-full rounded-xl border px-3 py-2 text-left text-xs ${
+                              thread.id === activeThreadId
+                                ? "border-accent bg-[var(--app-hover)]"
+                                : "border-border bg-surface"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-semibold text-foreground">
+                                {thread.studentName} · {thread.teacherName}
+                              </p>
+                              <div className="flex items-center gap-1">
+                                {(thread.studentReportedAt || thread.teacherReportedAt) && (
+                                  <span className="rounded-full border border-[var(--app-warning-border)] bg-[var(--app-warning-bg)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--app-warning-text)]">
+                                    {t("adminBadgeReported")}
+                                  </span>
+                                )}
+                                {(thread.studentBlockedAt || thread.teacherBlockedAt) && (
+                                  <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] font-semibold text-muted">
+                                    {t("adminBadgeBlocked")}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <p className="mt-0.5 line-clamp-2 text-muted">
+                              {thread.latestMessage ?? t("noMessagesYet")}
+                            </p>
+                          </button>
+                        ))
+                    : threads.map((thread) => {
+                        const isOpen = threadSwipeOpenId === thread.id;
+                        const swipeOffset = isOpen ? threadSwipeDragOffset : 0;
+                        const isSwipeOpen = swipeOffset <= -36;
+                        return (
+                          <div
+                            key={thread.id}
+                            className="relative overflow-hidden rounded-xl touch-pan-y select-none"
+                            data-chat-thread-row="true"
+                          >
+                            {isOpen && (
+                              <div className="absolute inset-y-0 right-0 z-20 flex items-center pr-1">
+                                <div
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    void archiveConversation(thread.id);
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.preventDefault();
+                                      void archiveConversation(thread.id);
+                                    }
+                                  }}
+                                  className="flex h-[calc(100%-6px)] w-[92px] cursor-pointer items-center justify-center rounded-xl bg-red-500 px-2 text-center text-xs font-semibold text-white"
+                                >
+                                  {t("archiveConversation")}
+                                </div>
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (suppressThreadClickRef.current === thread.id) {
+                                  suppressThreadClickRef.current = null;
+                                  return;
+                                }
+                                if (isOpen) {
+                                  closeThreadSwipe(thread.id);
+                                  return;
+                                }
+                                setActiveThreadId(thread.id);
+                                setMobilePane("chat");
+                              }}
+                              onPointerDown={(e) =>
+                                onThreadSwipeStart(
+                                  thread.id,
+                                  e.clientX,
+                                  e.currentTarget,
+                                  e.pointerId,
+                                )
+                              }
+                              onPointerMove={(e) => onThreadSwipeMove(e.clientX)}
+                              onPointerUp={() => onThreadSwipeEnd()}
+                              onPointerCancel={() => onThreadSwipeEnd()}
+                              style={{ transform: `translateX(${swipeOffset}px)` }}
+                              className={`relative z-10 w-full rounded-xl border px-3 py-2 text-left text-xs transition-transform ${
+                                thread.id === activeThreadId
+                                  ? "border-accent bg-[var(--app-hover)]"
+                                  : "border-border bg-surface"
+                              } ${isSwipeOpen ? "pointer-events-none" : ""}`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="font-semibold text-foreground">
+                                  {thread.counterpartName ?? t("unknownUser")}
+                                </p>
+                                {thread.unreadCount > 0 && (
+                                  <span className="inline-flex min-w-4 justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                                    {thread.unreadCount}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-0.5 line-clamp-2 text-muted">
+                                {thread.latestMessage ?? t("noMessagesYet")}
+                              </p>
+                            </button>
+                          </div>
+                        );
+                      }))
                 )}
               </div>
+              {status && (
+                <p className="mt-2 rounded-md border border-border bg-surface px-2 py-1 text-xs text-muted">
+                  {status}
+                </p>
+              )}
             </aside>
 
             <div
@@ -315,11 +956,123 @@ export function ChatPanel() {
                 mobilePane === "chat" ? "flex" : "hidden md:flex"
               }`}
             >
+              {isAdminViewer && adminMode === "broadcast" ? (
+                <div className="flex h-full flex-col">
+                  <div className="mb-2 border-b border-border pb-2">
+                    <p className="text-sm font-semibold text-foreground">
+                      {t("adminModeBroadcast")}
+                    </p>
+                    <p className="text-xs text-muted">{t("broadcastPanelHint")}</p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-surface p-3">
+                    <label className="text-xs font-medium text-muted">
+                      {t("broadcastTargetLabel")}
+                    </label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <select
+                        value={broadcastTarget}
+                        onChange={(e) =>
+                          setBroadcastTarget(e.target.value as "all" | "teachers" | "students")
+                        }
+                        className="rounded-lg border border-border bg-surface px-2 py-1 text-xs text-foreground"
+                      >
+                        <option value="all">{t("broadcastTargetAll")}</option>
+                        <option value="teachers">{t("broadcastTargetTeachers")}</option>
+                        <option value="students">{t("broadcastTargetStudents")}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex-1">
+                    <textarea
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      className="h-full min-h-[180px] w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                      placeholder={t("broadcastMessagePlaceholder")}
+                    />
+                  </div>
+                  <div className="mt-3 flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setDraft("")}
+                      className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                    >
+                      {t("broadcastClear")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void sendBroadcast()}
+                      disabled={broadcastBusy || !draft.trim()}
+                      className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                    >
+                      {broadcastBusy ? t("broadcastSending") : t("broadcastSend")}
+                    </button>
+                  </div>
+                </div>
+              ) : isAdminViewer && adminMode === "direct" ? (
+                <div className="flex h-full flex-col">
+                  <div className="mb-2 border-b border-border pb-2">
+                    <p className="text-sm font-semibold text-foreground">{t("adminModeDirect")}</p>
+                    <p className="text-xs text-muted">{t("directPanelHint")}</p>
+                  </div>
+                  {selectedDirectContact ? (
+                    <>
+                      <div className="rounded-xl border border-border bg-surface p-3">
+                        <p className="text-xs font-medium text-muted">{t("directRecipientLabel")}</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {selectedDirectContact.name}
+                        </p>
+                        {selectedDirectContact.email ? (
+                          <p className="text-xs text-muted">{selectedDirectContact.email}</p>
+                        ) : null}
+                      </div>
+                      <div className="mt-3 flex-1">
+                        <textarea
+                          value={draft}
+                          onChange={(e) => setDraft(e.target.value)}
+                          className="h-full min-h-[180px] w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                          placeholder={t("directMessagePlaceholder")}
+                        />
+                      </div>
+                      <div className="mt-3 flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setDraft("")}
+                          className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                        >
+                          {t("broadcastClear")}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void sendDirectMessage()}
+                          disabled={!draft.trim() || !directTargetThreadId}
+                          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                        >
+                          {t("directSend")}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted">{t("directSelectContactFirst")}</p>
+                  )}
+                </div>
+              ) : (
+                <>
               <div className="mb-2 flex items-center justify-between gap-2 border-b border-border pb-2">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {activeThread?.counterpartName ?? t("unknownUser")}
-                  </p>
+                  {isAdminViewer && activeThread ? (
+                    <>
+                      <p className="text-sm font-semibold text-foreground">
+                        {t("messageFromStudent")}: {activeThread.studentName}
+                      </p>
+                      <p className="text-xs font-semibold text-foreground">
+                        {t("messageFromTeacher")}: {activeThread.teacherName}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm font-semibold text-foreground">
+                      {activeThread?.counterpartName ?? t("unknownUser")}
+                    </p>
+                  )}
                   <p className="text-xs text-muted">{t("conversations")}</p>
                 </div>
                 <button
@@ -331,7 +1084,7 @@ export function ChatPanel() {
                 </button>
               </div>
 
-              {isTeacherOrAdmin && activeThread && (
+              {isAdminViewer && activeThread && adminMode !== "broadcast" && (
                 <label className="mb-2 flex items-center gap-2 text-xs text-muted">
                   <input
                     type="checkbox"
@@ -352,6 +1105,16 @@ export function ChatPanel() {
                 ) : (
                   messages.map((msg, index) => {
                     const isMine = msg.senderId === session?.user?.id;
+                    const isFromStudent = Boolean(
+                      activeThread && msg.senderId === activeThread.studentId,
+                    );
+                    const isFromTeacher = Boolean(
+                      activeThread && msg.senderId === activeThread.teacherId,
+                    );
+                    /** Admins are not thread participants; align by sender role (teacher right, student left). */
+                    const bubbleOnRight = isAdminViewer
+                      ? isFromTeacher || msg.senderId === session?.user?.id
+                      : isMine;
                     const prev = messages[index - 1];
                     const showDayBreak =
                       !prev ||
@@ -366,11 +1129,28 @@ export function ChatPanel() {
                             </span>
                           </div>
                         )}
-                        <div className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+                        <div
+                          className={`flex ${bubbleOnRight ? "justify-end" : "justify-start"}`}
+                        >
                           <div className="max-w-[75%]">
+                            {isAdminViewer && (
+                              <p
+                                className={`mb-0.5 text-[10px] font-medium text-muted ${
+                                  bubbleOnRight ? "text-right" : "text-left"
+                                }`}
+                              >
+                                {isFromStudent
+                                  ? t("messageFromStudent")
+                                  : isFromTeacher
+                                    ? t("messageFromTeacher")
+                                    : msg.senderId === session?.user?.id
+                                      ? t("messageFromAdmin")
+                                      : t("unknownUser")}
+                              </p>
+                            )}
                             <div
                               className={`relative rounded-2xl px-3 py-2 text-sm ${
-                                isMine
+                                bubbleOnRight
                                   ? "rounded-br-md bg-primary text-primary-foreground"
                                   : "rounded-bl-md border border-border bg-surface text-foreground"
                               }`}
@@ -378,20 +1158,29 @@ export function ChatPanel() {
                               <p>{msg.body}</p>
                               <span
                                 className={`pointer-events-none absolute bottom-0 h-2 w-2 ${
-                                  isMine
+                                  bubbleOnRight
                                     ? "right-[-3px] rotate-45 bg-primary"
                                     : "left-[-5px] rotate-45 border-b border-l border-border bg-surface"
                                 }`}
                               />
                             </div>
                             <p
-                              className={`mt-1 text-[10px] text-muted ${isMine ? "text-right" : ""}`}
+                              className={`mt-1 text-[10px] text-muted ${bubbleOnRight ? "text-right" : ""}`}
                             >
-                              {isMine
-                                ? `${timeLabel(msg.createdAt)} · ${t(
-                                    getReceiptKey(msg.readAt),
-                                  )}`
-                                : timeLabel(msg.createdAt)}
+                              {isAdminViewer ? (
+                                <>
+                                  {timeLabel(msg.createdAt)}
+                                  {isFromTeacher && msg.readAt
+                                    ? ` · ${t(getReceiptKey(msg.readAt))}`
+                                    : null}
+                                </>
+                              ) : isMine ? (
+                                `${timeLabel(msg.createdAt)} · ${t(
+                                  getReceiptKey(msg.readAt),
+                                )}`
+                              ) : (
+                                timeLabel(msg.createdAt)
+                              )}
                             </p>
                           </div>
                         </div>
@@ -405,14 +1194,18 @@ export function ChatPanel() {
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  disabled={!canSend || isBlocked}
+                  disabled={!canSend || isBlocked || (isAdminViewer && adminMode === "review")}
                   className="flex-1 rounded-full border border-border bg-surface px-3 py-2 text-sm text-foreground"
-                  placeholder={t("messagePlaceholder")}
+                  placeholder={
+                    isAdminViewer && adminMode === "review"
+                      ? t("adminReviewOnlyPlaceholder")
+                      : t("messagePlaceholder")
+                  }
                 />
                 <button
                   type="button"
                   onClick={() => void send()}
-                  disabled={!canSend || isBlocked}
+                  disabled={!canSend || isBlocked || (isAdminViewer && adminMode === "review")}
                   className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
                 >
                   {t("send")}
@@ -421,10 +1214,14 @@ export function ChatPanel() {
               {!canSend && (
                 <p className="mt-2 text-xs text-muted">{t("readOnlyHint")}</p>
               )}
+              {isAdminViewer && adminMode === "review" && (
+                <p className="mt-2 text-xs text-muted">{t("adminReviewOnlyHint")}</p>
+              )}
               {isBlocked && (
                 <p className="mt-2 text-xs text-muted">{t("blockedComposerHint")}</p>
               )}
-              {status && <p className="mt-2 text-xs text-muted">{status}</p>}
+                </>
+              )}
             </div>
           </div>
         </div>

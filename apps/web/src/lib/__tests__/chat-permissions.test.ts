@@ -22,7 +22,7 @@ describe("canSendChatMessage", () => {
     ).toBe(true);
   });
 
-  test("teacher/admin can send without two-way enablement", () => {
+  test("teacher can send in normal student-teacher thread without two-way enablement", () => {
     expect(
       canSendChatMessage({
         role: "TEACHER",
@@ -30,10 +30,32 @@ describe("canSendChatMessage", () => {
         hasScheduledLessonWithTeacher: false,
       }),
     ).toBe(true);
+  });
+
+  test("admin can always send", () => {
     expect(
       canSendChatMessage({
         role: "ADMIN",
         threadTwoWayEnabled: false,
+        hasScheduledLessonWithTeacher: false,
+      }),
+    ).toBe(true);
+  });
+
+  test("teacher cannot send to admin unless two-way is enabled by admin", () => {
+    expect(
+      canSendChatMessage({
+        role: "TEACHER",
+        counterpartRole: "ADMIN",
+        threadTwoWayEnabled: false,
+        hasScheduledLessonWithTeacher: false,
+      }),
+    ).toBe(false);
+    expect(
+      canSendChatMessage({
+        role: "TEACHER",
+        counterpartRole: "ADMIN",
+        threadTwoWayEnabled: true,
         hasScheduledLessonWithTeacher: false,
       }),
     ).toBe(true);

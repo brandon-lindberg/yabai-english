@@ -1,3 +1,4 @@
+import NextLink from "next/link";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -86,14 +87,15 @@ export default async function DashboardPage({ searchParams }: Props) {
                 : t("teacherHome.calendarDisconnected")}
             </p>
             <div className="mt-3">
-              <a
+              <NextLink
+                prefetch={false}
                 href="/api/teacher/calendar/connect"
                 className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
                 {teacherProfile?.googleCalendarRefreshToken
                   ? t("teacherHome.calendarReconnectCta")
                   : t("teacherHome.calendarConnectCta")}
-              </a>
+              </NextLink>
             </div>
             {calendarStatus === "connected" ? (
               <p className="mt-2 text-xs text-green-700 dark:text-green-400">

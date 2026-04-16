@@ -32,10 +32,7 @@ export async function POST(req: Request, { params }: Props) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const canUpdate =
-    session.user.role === "ADMIN" ||
-    (session.user.role === "TEACHER" && thread.teacherId === session.user.id);
-  if (!canUpdate) {
+  if (session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

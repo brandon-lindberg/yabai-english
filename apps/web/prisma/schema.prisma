@@ -13,6 +13,11 @@ enum Role {
   ADMIN
 }
 
+enum AccountStatus {
+  ACTIVE
+  HIDDEN
+}
+
 enum BookingStatus {
   PENDING_PAYMENT
   CONFIRMED
@@ -70,6 +75,12 @@ enum StudyAssessmentKind {
   LEVEL_EXIT
 }
 
+enum BroadcastTarget {
+  ALL
+  TEACHERS
+  STUDENTS
+}
+
 // --- NextAuth (Auth.js) ---
 model User {
   id            String    @id @default(cuid())
@@ -78,6 +89,7 @@ model User {
   emailVerified DateTime?
   image         String?
   role          Role      @default(STUDENT)
+  accountStatus AccountStatus @default(ACTIVE)
   locale        String    @default("ja")
 
   accounts           Account[]
@@ -94,6 +106,7 @@ model User {
   invoices           Invoice[]
   chatThreadsAsStudent ChatThread[] @relation("ThreadStudent")
   chatThreadsAsTeacher ChatThread[] @relation("ThreadTeacher")
+  broadcastsSent            AdminBroadcast[]            @relation("AdminBroadcastSender")
   ownedStudyDecks          StudyDeck[]                 @relation("StudyDeckOwner")
   studyLevelProgress       UserStudyLevelProgress[]
   studyCardStates          UserStudyCardState[]
@@ -545,6 +558,8 @@ model ChatThread {
   teacherReportedAt DateTime?
   studentReportReason String? @db.Text
   teacherReportReason String? @db.Text
+  studentArchivedAt DateTime?
+  teacherArchivedAt DateTime?
   updatedAt DateTime @updatedAt
 
   messages ChatMessage[]
@@ -565,6 +580,20 @@ model ChatMessage {
   createdAt   DateTime   @default(now())
 
   @@index([threadId, createdAt])
+}
+
+model AdminBroadcast {
+  id                 String          @id @default(cuid())
+  senderId           String
+  sender             User            @relation("AdminBroadcastSender", fields: [senderId], references: [id], onDelete: Cascade)
+  target             BroadcastTarget
+  body               String          @db.Text
+  targetedRecipients Int
+  sentMessages       Int
+  createdAt          DateTime        @default(now())
+
+  @@index([senderId, createdAt])
+  @@index([createdAt])
 }
 
 model Notification {

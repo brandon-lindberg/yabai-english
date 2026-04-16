@@ -1,4 +1,4 @@
-import { PrismaClient, LessonTier } from "@prisma/client";
+import { AccountStatus, LessonTier, PrismaClient, Role } from "@prisma/client";
 import { seedPlacementBankQuestions } from "./seed-placement-bank";
 import { seedStudyTrack } from "./seed-study";
 
@@ -276,6 +276,22 @@ async function main() {
 
   await seedPlacementBankQuestions(prisma);
   await seedStudyTrack(prisma);
+
+  await prisma.user.upsert({
+    where: { email: "admin@english-studio.local" },
+    update: {
+      name: "Demo Admin",
+      role: Role.ADMIN,
+      accountStatus: AccountStatus.ACTIVE,
+    },
+    create: {
+      email: "admin@english-studio.local",
+      name: "Demo Admin",
+      role: Role.ADMIN,
+      accountStatus: AccountStatus.ACTIVE,
+      locale: "en",
+    },
+  });
 
   console.log("Seed complete.");
 }

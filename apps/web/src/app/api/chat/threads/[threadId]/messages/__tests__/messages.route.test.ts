@@ -5,6 +5,7 @@ const {
   findThreadMock,
   findTeacherProfileMock,
   findBookingMock,
+  findUserMock,
   createMessageMock,
   canSendChatMessageMock,
   emitChatUpdateMock,
@@ -14,6 +15,7 @@ const {
   findThreadMock: vi.fn(),
   findTeacherProfileMock: vi.fn(),
   findBookingMock: vi.fn(),
+  findUserMock: vi.fn(),
   createMessageMock: vi.fn(),
   canSendChatMessageMock: vi.fn(),
   emitChatUpdateMock: vi.fn(),
@@ -37,6 +39,9 @@ vi.mock("@/lib/prisma", () => ({
     },
     chatMessage: {
       create: createMessageMock,
+    },
+    user: {
+      findUnique: findUserMock,
     },
   },
 }));
@@ -72,6 +77,7 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
     });
     findTeacherProfileMock.mockResolvedValue({ id: "teacher-profile-1" });
     findBookingMock.mockResolvedValue({ id: "booking-1" });
+    findUserMock.mockResolvedValue({ role: "TEACHER" });
     canSendChatMessageMock.mockReturnValue(true);
     createMessageMock.mockResolvedValue({
       id: "msg-1",
@@ -115,6 +121,12 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
       "teacher-1",
       "thread-1",
     );
+    expect(canSendChatMessageMock).toHaveBeenCalledWith({
+      role: "STUDENT",
+      threadTwoWayEnabled: true,
+      hasScheduledLessonWithTeacher: true,
+      counterpartRole: "TEACHER",
+    });
   });
 
   test("rejects sending when the conversation is blocked", async () => {
@@ -170,5 +182,50 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
     expect(res.status).toBe(404);
     await expect(res.json()).resolves.toEqual({ error: "Not found" });
     expect(createMessageMock).not.toHaveBeenCalled();
+  });
+
+  test("creates notification when admin sends a message", async () => {
+    authMock.mockResolvedValue({
+      user: { id: "admin-1", role: "ADMIN" },
+    });
+    findThreadMock.mockResolvedValue({
+      id: "thread-1",
+      studentId: "student-1",
+      teacherId: "admin-1",
+      twoWayEnabled: false,
+      studentBlockedAt: null,
+      teacherBlockedAt: null,
+    });
+    findTeacherProfileMock.mockResolvedValue(null);
+    findBookingMock.mockResolvedValue(null);
+    findUserMock.mockResolvedValue({ role: "STUDENT" });
+    canSendChatMessageMock.mockReturnValue(true);
+    createMessageMock.mockResolvedValue({
+      id: "msg-admin-1",
+      threadId: "thread-1",
+      senderId: "admin-1",
+      recipientId: "student-1",
+      body: "Admin update",
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/chat/threads/thread-1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: "Admin update" }),
+      }),
+      {
+        params: Promise.resolve({ threadId: "thread-1" }),
+      },
+    );
+
+    expect(res.status).toBe(200);
+    expect(createUserNotificationMock).toHaveBeenCalledWith({
+      userId: "student-1",
+      titleJa: "管理者から新しいメッセージがあります",
+      titleEn: "You have a new message from admin",
+      bodyJa: "Admin update",
+      bodyEn: "Admin update",
+    });
   });
 });

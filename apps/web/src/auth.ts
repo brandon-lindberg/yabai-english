@@ -5,7 +5,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { Adapter } from "next-auth/adapters";
 import { prisma } from "@/lib/prisma";
 import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
-import { Role } from "@prisma/client";
+import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
+import { AccountStatus, Role } from "@prisma/client";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
 
@@ -38,7 +39,10 @@ if (useDevCredentialsOnly) {
         const email = String(credentials?.email ?? "").trim().toLowerCase();
         if (!email) return null;
         const user = await prisma.user.findUnique({ where: { email } });
-        return user ?? null;
+        if (!user || !isLoginAllowedForAccountStatus(user.accountStatus)) {
+          return null;
+        }
+        return user;
       },
     }),
   );
@@ -58,8 +62,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!user.id) return true;
       const full = await prisma.user.findUnique({
         where: { id: user.id },
-        select: { role: true },
+        select: { role: true, accountStatus: true },
       });
+      if (full && !isLoginAllowedForAccountStatus(full.accountStatus)) {
+        return false;
+      }
       if (
         full?.role === Role.TEACHER ||
         full?.role === Role.ADMIN
@@ -77,11 +84,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (useDevCredentialsOnly && user?.id) {
         const row = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { role: true, locale: true },
+          select: { role: true, locale: true, accountStatus: true },
         });
         if (row) {
           token.role = row.role;
           token.locale = row.locale;
+          (token as { accountStatus?: AccountStatus }).accountStatus = row.accountStatus;
+        }
+      } else if (useDevCredentialsOnly && token.sub) {
+        const row = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true, locale: true, accountStatus: true },
+        });
+        if (row) {
+          token.role = row.role;
+          token.locale = row.locale;
+          (token as { accountStatus?: AccountStatus }).accountStatus = row.accountStatus;
         }
       }
       return token;
@@ -92,14 +110,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = user.id;
         const full = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { role: true, locale: true },
+          select: { role: true, locale: true, accountStatus: true },
         });
         session.user.role = full?.role ?? Role.STUDENT;
         session.user.locale = full?.locale ?? "ja";
+        session.user.accountStatus = full?.accountStatus ?? AccountStatus.ACTIVE;
       } else if (useDevCredentialsOnly && token?.sub) {
         session.user.id = token.sub;
         session.user.role = (token.role as Role) ?? Role.STUDENT;
         session.user.locale = (token.locale as string) ?? "ja";
+        const t = token as { accountStatus?: AccountStatus };
+        session.user.accountStatus = t.accountStatus ?? AccountStatus.ACTIVE;
       }
 
       const userId = session.user.id;
@@ -127,8 +148,10 @@ declare module "next-auth" {
       image?: string | null;
       role: Role;
       locale: string;
+      accountStatus: AccountStatus;
       /** Students: whether `/placement` and retake CTAs should show (false during post-test cooldown). */
       canStartPlacement: boolean;
     };
   }
 }
+

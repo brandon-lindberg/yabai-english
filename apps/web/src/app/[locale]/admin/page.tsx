@@ -28,7 +28,7 @@ export default async function AdminPage() {
   const reviewQueue = students.filter((s) => s.studentProfile?.placementNeedsReview);
 
   return (
-    <main className="mx-auto max-w-4xl flex-1 px-4 py-10 sm:px-6">
+    <main className="max-w-4xl">
       <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
 
       <section className="mt-10">
