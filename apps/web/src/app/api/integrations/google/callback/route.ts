@@ -29,7 +29,8 @@ export async function GET(req: Request) {
   try {
     const result = await handleGoogleCallback(req, code, state);
     return NextResponse.redirect(new URL(result.redirectTo, baseUrl));
-  } catch {
+  } catch (error) {
+    console.error("Google integration callback failed", error);
     return NextResponse.redirect(
       new URL("/dashboard/integrations?google=failed", baseUrl),
     );

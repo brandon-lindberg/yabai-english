@@ -5,21 +5,26 @@ const PREFIX = "enc:v1:";
 function getKey(): Buffer | null {
   const hex = process.env.CALENDAR_TOKEN_ENCRYPTION_KEY;
   if (!hex || hex.length !== 64) return null;
-  try {
-    return Buffer.from(hex, "hex");
-  } catch {
+  if (!/^[0-9a-fA-F]{64}$/.test(hex)) {
     return null;
   }
+  const key = Buffer.from(hex, "hex");
+  if (key.length !== 32) return null;
+  return key;
+}
+
+function assertProductionKey(): Buffer {
+  const key = getKey();
+  if (key) return key;
+  throw new Error(
+    "CALENDAR_TOKEN_ENCRYPTION_KEY (64 hex chars) is required in production",
+  );
 }
 
 export function encryptRefreshToken(plain: string): string {
-  const key = getKey();
+  const key =
+    process.env.NODE_ENV === "production" ? assertProductionKey() : getKey();
   if (!key) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error(
-        "CALENDAR_TOKEN_ENCRYPTION_KEY (64 hex chars) is required in production",
-      );
-    }
     return plain;
   }
 
