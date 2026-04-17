@@ -30,6 +30,8 @@ export type SlotOption = {
   startsAtIso: string;
   endsAtIso: string;
   label: string;
+  lessonType: string;
+  lessonTypeCustom: string | null;
 };
 
 function jsDayOfWeek(dt: DateTime) {
@@ -97,6 +99,8 @@ export function buildUpcomingSlotOptions({
         startsAtIso,
         endsAtIso: endUtc.toISO({ suppressMilliseconds: false }) ?? "",
         label,
+        lessonType: slot.lessonType,
+        lessonTypeCustom: slot.lessonTypeCustom ?? null,
       });
     }
   }

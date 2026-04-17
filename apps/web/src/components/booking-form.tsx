@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { mapBookingApiError } from "@/lib/booking-errors";
 import { useRouter } from "@/i18n/navigation";
@@ -8,6 +8,10 @@ import { canShowManualOverrideToggle } from "@/lib/manual-override";
 import { SlotSelectionCalendar } from "@/components/slot-selection-calendar";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ALL_LESSON_TYPES_KEY,
+  filterSlotsForSelection,
+} from "@/lib/booking-lesson-type-filter";
 
 type LessonProductOption = {
   id: string;
@@ -30,20 +34,34 @@ type Props = {
     startsAtIso: string;
     label: string;
     groupKey?: string;
+    /** Lesson type key from the teacher's availability slot (used to filter). */
+    lessonType?: string;
+    lessonTypeCustom?: string | null;
+  }>;
+  /**
+   * Slots that other students have already booked. Rendered as non-interactive
+   * "Reserved" markers on the calendar. Pass only timing info — never student
+   * identities — so nothing leaks to other students viewing the booking page.
+   */
+  bookedSlots?: Array<{
+    startsAtIso: string;
+    endsAtIso: string;
   }>;
 };
+
 
 export function BookingForm({
   teacherProfileId,
   currentUserRole = "STUDENT",
   presetSlots,
+  bookedSlots,
 }: Props) {
   const locale = useLocale();
   const t = useTranslations("booking");
   const tSlotMeta = useTranslations("lessonSlotMeta");
   const router = useRouter();
   const [products, setProducts] = useState<LessonProductOption[]>([]);
-  const [selectedOptionKey, setSelectedOptionKey] = useState("");
+  const [selectedOptionKey, setSelectedOptionKey] = useState<string>(ALL_LESSON_TYPES_KEY);
   const [startsAt, setStartsAt] = useState("");
   const [manualOverride, setManualOverride] = useState(false);
   const [manualOverrideReason, setManualOverrideReason] = useState("");
@@ -64,7 +82,6 @@ export function BookingForm({
       .then((r) => r.json())
       .then((data: LessonProductOption[]) => {
         setProducts(data);
-        if (data[0]) setSelectedOptionKey(optionKey(data[0]));
       })
       .finally(() => setProductsLoading(false));
   }, [teacherProfileId]);
@@ -76,7 +93,30 @@ export function BookingForm({
     }
   }, [presetSlots]);
 
-  const selectedOption = products.find((p) => optionKey(p) === selectedOptionKey);
+  const selectedOption =
+    selectedOptionKey === ALL_LESSON_TYPES_KEY
+      ? undefined
+      : products.find((p) => optionKey(p) === selectedOptionKey);
+
+  const bookedStartsAtSet = useMemo(
+    () => new Set((bookedSlots ?? []).map((b) => b.startsAtIso)),
+    [bookedSlots],
+  );
+
+  const filteredPresetSlots = useMemo(() => {
+    if (!presetSlots) return presetSlots;
+    const availability = filterSlotsForSelection(presetSlots, selectedOption).filter(
+      (s) => !bookedStartsAtSet.has(s.startsAtIso),
+    );
+    const reservedMarkers = (bookedSlots ?? []).map((b) => ({
+      startsAtIso: b.startsAtIso,
+      label: t("reserved"),
+      kind: "booked" as const,
+    }));
+    return [...availability, ...reservedMarkers].sort((a, b) =>
+      a.startsAtIso.localeCompare(b.startsAtIso),
+    );
+  }, [presetSlots, selectedOption, bookedSlots, bookedStartsAtSet, t]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -143,8 +183,12 @@ export function BookingForm({
           <select
             className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
             value={selectedOptionKey}
-            onChange={(e) => setSelectedOptionKey(e.target.value)}
+            onChange={(e) => {
+              setSelectedOptionKey(e.target.value);
+              setStartsAt("");
+            }}
           >
+            <option value={ALL_LESSON_TYPES_KEY}>{t("allLessonTypes")}</option>
             {products.map((p) => (
               <option key={optionKey(p)} value={optionKey(p)}>
                 {buildProductOptionLabel(p, tSlotMeta, t)} — {p.durationMin}
@@ -154,10 +198,10 @@ export function BookingForm({
           </select>
         )}
       </label>
-      {presetSlots ? (
+      {filteredPresetSlots ? (
         <div className="space-y-3">
           <p className="text-sm font-medium text-foreground">{t("selectSlot")}</p>
-          {presetSlots.length === 0 ? (
+          {filteredPresetSlots.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border bg-background px-3 py-2 text-sm text-muted">
               {t("noAvailabilityYet")}
             </p>
@@ -185,7 +229,7 @@ export function BookingForm({
                   previous: t("previous"),
                   next: t("next"),
                 }}
-                slots={presetSlots}
+                slots={filteredPresetSlots}
                 calendarView={calendarView}
                 onCalendarViewChange={setCalendarView}
                 calendarAnchor={calendarAnchor}

@@ -40,10 +40,19 @@ export type InitialTeacherAvailabilitySlot = {
   lessonTypeCustom: string | null;
 };
 
+export type TeacherCalendarBooking = {
+  id: string;
+  startsAtIso: string;
+  endsAtIso: string;
+  studentLabel: string;
+};
+
 type Props = {
   initialSlots: InitialTeacherAvailabilitySlot[];
   initialOccurrenceSkips: string[];
   defaultTimezone: string;
+  /** Confirmed (or pending-payment) bookings to overlay on the schedule as "booked" blocks. */
+  bookings?: TeacherCalendarBooking[];
 };
 
 function toTime(min: number) {
@@ -66,6 +75,7 @@ export function TeacherAvailabilityCalendar({
   initialSlots,
   initialOccurrenceSkips,
   defaultTimezone,
+  bookings = [],
 }: Props) {
   const locale = useLocale();
   const t = useTranslations("dashboard.teacherAvailability");
@@ -130,9 +140,27 @@ export function TeacherAvailabilityCalendar({
 
   const anchorDayKey = useMemo(() => dayKeyFromIso(calendarAnchor), [calendarAnchor]);
 
+  const bookingGridInputs = useMemo(
+    () =>
+      bookings.map((b) => ({
+        startsAtIso: b.startsAtIso,
+        endsAtIso: b.endsAtIso,
+        label: b.studentLabel,
+        groupKey: `booking-${b.id}`,
+        kind: "booking" as const,
+        subtitle: b.studentLabel,
+      })),
+    [bookings],
+  );
+
+  const weekAndDayGridInputs = useMemo(
+    () => [...calendarSlots, ...bookingGridInputs],
+    [calendarSlots, bookingGridInputs],
+  );
+
   const dayBlocks = useMemo(
-    () => placeSlotsOnDayColumn(anchorDayKey, calendarSlots),
-    [anchorDayKey, calendarSlots],
+    () => placeSlotsOnDayColumn(anchorDayKey, weekAndDayGridInputs),
+    [anchorDayKey, weekAndDayGridInputs],
   );
 
   const monthCells = useMemo(() => buildMonthCells(calendarAnchor, locale), [calendarAnchor, locale]);
@@ -161,8 +189,8 @@ export function TeacherAvailabilityCalendar({
   const weekDays = useMemo(() => buildWeekDays(calendarAnchor, locale), [calendarAnchor, locale]);
 
   const blocksByDay = useMemo(
-    () => placeSlotsOnWeekGrid(weekDays.map((d) => d.dayKey), calendarSlots),
-    [weekDays, calendarSlots],
+    () => placeSlotsOnWeekGrid(weekDays.map((d) => d.dayKey), weekAndDayGridInputs),
+    [weekDays, weekAndDayGridInputs],
   );
 
   const weekTimeGrid = useMemo(

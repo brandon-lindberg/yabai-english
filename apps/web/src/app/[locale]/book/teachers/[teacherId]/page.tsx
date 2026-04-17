@@ -72,6 +72,21 @@ export default async function TeacherProfileBookingPage({
 
   if (!teacher) notFound();
 
+  // Only fetch timing for taken slots. Never select student identity fields
+  // so no booker's name/email can leak to other students on this page.
+  const reservedBookings = await prisma.booking.findMany({
+    where: {
+      teacherId: teacher.id,
+      status: { in: ["CONFIRMED", "PENDING_PAYMENT"] },
+      startsAt: { gte: new Date() },
+    },
+    select: {
+      startsAt: true,
+      endsAt: true,
+    },
+    orderBy: { startsAt: "asc" },
+  });
+
   const displayName = teacher.displayName ?? teacher.user.name ?? "Teacher";
   if (session?.user?.id && session.user.role === "STUDENT") {
     const hiddenByTeacher = await prisma.chatThread.findFirst({
@@ -196,6 +211,12 @@ export default async function TeacherProfileBookingPage({
             startsAtIso: slot.startsAtIso,
             label: slot.label,
             groupKey: slot.slotId,
+            lessonType: slot.lessonType,
+            lessonTypeCustom: slot.lessonTypeCustom,
+          }))}
+          bookedSlots={reservedBookings.map((b) => ({
+            startsAtIso: b.startsAt.toISOString(),
+            endsAtIso: b.endsAt.toISOString(),
           }))}
         />
       </section>

@@ -50,4 +50,48 @@ describe("TeacherAvailabilityTimeGridWeek", () => {
     expect(onSelect).toHaveBeenCalledWith(start.toISOString(), "slot-a");
     expect(onAnchor).toHaveBeenCalledWith(start.toISOString());
   });
+
+  test("renders a booking block distinctly with the student name and does not select on click", () => {
+    const weekDays = buildWeekDays(new Date(2026, 5, 10, 12, 0, 0).toISOString(), "en-US");
+    const wed = weekDays[2]!.dayKey;
+    const start = new Date(`${wed}T15:00:00`);
+    const end = new Date(`${wed}T15:30:00`);
+    const blocksByDay = placeSlotsOnWeekGrid(
+      weekDays.map((d) => d.dayKey),
+      [
+        {
+          startsAtIso: start.toISOString(),
+          endsAtIso: end.toISOString(),
+          label: "Conversation",
+          kind: "booking",
+          subtitle: "Alice S.",
+        },
+      ],
+    );
+
+    const onSelect = vi.fn();
+    const onAnchor = vi.fn();
+
+    const { getAllByTestId } = render(
+      <TeacherAvailabilityTimeGridWeek
+        locale="en-US"
+        weekDays={weekDays}
+        blocksByDay={blocksByDay}
+        selectedStartsAtIso={null}
+        selectedGroupKey={null}
+        onSelectSlot={onSelect}
+        onCalendarAnchorChange={onAnchor}
+        selectionStyle="neutral"
+      />,
+    );
+
+    const bookedBlocks = getAllByTestId("time-grid-booking");
+    expect(bookedBlocks).toHaveLength(1);
+    const block = bookedBlocks[0]!;
+    expect(block.getAttribute("data-starts-at")).toBe(start.toISOString());
+    expect(block.textContent).toContain("Alice S.");
+
+    fireEvent.click(block);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
 });

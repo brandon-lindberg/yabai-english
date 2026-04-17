@@ -410,6 +410,7 @@
     "title": "レッスン予約",
     "teacherBrowseSubtitle": "講師を探して、プロフィールから予約できます。",
     "selectProduct": "レッスン種別",
+    "allLessonTypes": "すべてのレッスン種別",
     "selectSlot": "日時を選択",
     "confirm": "予約を確定",
     "success": "予約が確認されました。",
@@ -446,7 +447,8 @@
     "next": "次へ",
     "unavailableShort": "予約不可",
     "selectedSlot": "選択中",
-    "noSlotSelected": "時間がまだ選択されていません"
+    "noSlotSelected": "時間がまだ選択されていません",
+    "reserved": "予約済み"
   },
   "placement": {
     "pageIntro": "所要時間の目安は15〜25分です。回答は開始レベルとレッスン計画の提案に使われます。",

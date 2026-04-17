@@ -410,6 +410,7 @@
     "title": "Book a lesson",
     "teacherBrowseSubtitle": "Browse teachers and open a profile to schedule with them.",
     "selectProduct": "Lesson type",
+    "allLessonTypes": "All lesson types",
     "selectSlot": "Pick a time",
     "confirm": "Confirm booking",
     "success": "Your lesson is confirmed.",
@@ -446,7 +447,8 @@
     "next": "Next",
     "unavailableShort": "Unavailable",
     "selectedSlot": "Selected",
-    "noSlotSelected": "No time selected yet"
+    "noSlotSelected": "No time selected yet",
+    "reserved": "Reserved"
   },
   "placement": {
     "pageIntro": "About 15–25 minutes. Your answers help us suggest a starting level and lesson plan.",

@@ -231,6 +231,71 @@ describe("SlotSelectionCalendar", () => {
     expect(root?.className).toMatch(/p-0/);
   });
 
+  test("day view renders kind=booked slots as non-clickable 'Reserved' markers", () => {
+    const onSelect = vi.fn();
+    const iso = "2026-04-08T14:00:00.000Z";
+
+    render(
+      <SlotSelectionCalendar
+        locale="en-US"
+        copy={copy}
+        slots={[
+          {
+            startsAtIso: iso,
+            label: "Reserved",
+            kind: "booked",
+          },
+        ]}
+        calendarView="day"
+        onCalendarViewChange={vi.fn()}
+        calendarAnchor={iso}
+        onCalendarAnchorChange={vi.fn()}
+        selectedStartsAtIso={null}
+        onSelectSlot={onSelect}
+      />,
+    );
+
+    const reserved = screen.getByTestId("slot-reserved");
+    expect(reserved.tagName.toLowerCase()).not.toBe("button");
+    expect(reserved.textContent).toMatch(/Reserved/i);
+
+    fireEvent.click(reserved);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  test("week view renders kind=booked slots as non-clickable 'Reserved' markers", () => {
+    const onSelect = vi.fn();
+    const iso = "2026-04-08T14:00:00.000Z";
+
+    render(
+      <SlotSelectionCalendar
+        locale="en-US"
+        copy={copy}
+        slots={[
+          {
+            startsAtIso: iso,
+            label: "Reserved",
+            kind: "booked",
+          },
+        ]}
+        calendarView="week"
+        onCalendarViewChange={vi.fn()}
+        calendarAnchor={iso}
+        onCalendarAnchorChange={vi.fn()}
+        selectedStartsAtIso={null}
+        onSelectSlot={onSelect}
+      />,
+    );
+
+    const reservedBlocks = screen.getAllByTestId("slot-reserved-week");
+    expect(reservedBlocks.length).toBeGreaterThanOrEqual(1);
+    expect(reservedBlocks[0]!.tagName.toLowerCase()).not.toBe("button");
+    expect(reservedBlocks[0]!.textContent).toMatch(/Reserved/i);
+
+    fireEvent.click(reservedBlocks[0]!);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
   test("dayViewExtra renders in day view", () => {
     const { rerender } = render(
       <SlotSelectionCalendar

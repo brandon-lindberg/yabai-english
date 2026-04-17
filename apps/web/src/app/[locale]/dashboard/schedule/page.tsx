@@ -61,6 +61,12 @@ export default async function DashboardSchedulePage({
             profile?.availabilityOccurrenceSkips?.map((s) => s.startsAtIso) ?? []
           }
           defaultTimezone={profile?.availabilitySlots?.[0]?.timezone ?? "Asia/Tokyo"}
+          bookings={teacherBookings.upcoming.map((b) => ({
+            id: b.id,
+            startsAtIso: b.startsAt.toISOString(),
+            endsAtIso: b.endsAt.toISOString(),
+            studentLabel: b.student.name ?? b.student.email ?? "Student",
+          }))}
         />
 
         <section>

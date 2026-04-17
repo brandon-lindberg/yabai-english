@@ -54,11 +54,17 @@ export function initialScrollTopForTimeGrid(
   return TIME_GRID_HEADER_PX + anchorHour * hourPx;
 }
 
+export type TimeGridBlockKind = "availability" | "booking";
+
 export type TimeGridSlotInput = {
   startsAtIso: string;
   endsAtIso: string;
   groupKey?: string;
   label: string;
+  /** What kind of block this represents. Defaults to "availability". */
+  kind?: TimeGridBlockKind;
+  /** Optional secondary line (e.g. student name for a booked lesson). */
+  subtitle?: string;
 };
 
 export type PlacedTimeGridBlock = {
@@ -71,6 +77,8 @@ export type PlacedTimeGridBlock = {
   label: string;
   topPct: number;
   heightPct: number;
+  kind?: TimeGridBlockKind;
+  subtitle?: string;
 };
 
 export function isTimeGridBlockSelected(
@@ -133,6 +141,8 @@ export function placeSlotsOnWeekGrid(
       label: slot.label,
       topPct,
       heightPct,
+      kind: slot.kind,
+      subtitle: slot.subtitle,
     });
   }
 

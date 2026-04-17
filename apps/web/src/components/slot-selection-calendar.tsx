@@ -165,6 +165,26 @@ export function SlotSelectionCalendar({
             ) : (
               <div className="space-y-2">
                 {(slotMap.get(dayKeyFromIso(calendarAnchor)) ?? []).map((slot, idx) => {
+                  if (slot.kind === "booked") {
+                    return (
+                      <div
+                        key={`reserved:${slot.startsAtIso}:${idx}`}
+                        data-testid="slot-reserved"
+                        aria-disabled="true"
+                        className="flex w-full items-center justify-between rounded-lg border border-dashed border-zinc-300 bg-zinc-100 px-3 py-2 text-left text-sm text-zinc-500"
+                      >
+                        <span className="font-medium">
+                          {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        <span className="truncate pl-3 text-xs uppercase tracking-wide text-zinc-500">
+                          {slot.label}
+                        </span>
+                      </div>
+                    );
+                  }
                   const selected = isSlotSelected(slot);
                   return (
                     <button
@@ -222,6 +242,26 @@ export function SlotSelectionCalendar({
                     </div>
                     <div className="space-y-1">
                       {daySlots.slice(0, 5).map((slot, idx) => {
+                        if (slot.kind === "booked") {
+                          return (
+                            <div
+                              key={`reserved:${slot.startsAtIso}:${idx}`}
+                              data-testid="slot-reserved-week"
+                              aria-disabled="true"
+                              className="w-full rounded-md border border-dashed border-zinc-300 bg-zinc-100 px-2 py-1 text-xs text-zinc-500"
+                            >
+                              <span className="block whitespace-nowrap font-medium">
+                                {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                              <span className="block text-[10px] uppercase tracking-wide">
+                                {slot.label}
+                              </span>
+                            </div>
+                          );
+                        }
                         const selected = isSlotSelected(slot);
                         return (
                           <button

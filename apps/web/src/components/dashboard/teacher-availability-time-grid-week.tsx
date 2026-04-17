@@ -113,6 +113,37 @@ export function TeacherAvailabilityTimeGridWeek({
                   ))}
 
                   {blocks.map((block) => {
+                    if (block.kind === "booking") {
+                      return (
+                        <div
+                          key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
+                          data-testid="time-grid-booking"
+                          data-starts-at={block.startsAtIso}
+                          className="absolute right-0.5 left-0.5 overflow-hidden rounded border border-amber-400 bg-amber-100 px-1 py-0.5 text-left text-[10px] leading-tight text-amber-900 shadow-sm"
+                          style={{
+                            top: `${block.topPct}%`,
+                            height: `${block.heightPct}%`,
+                          }}
+                        >
+                          <span className="block truncate font-semibold">
+                            {new Date(block.startsAtIso).toLocaleTimeString(locale, {
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}
+                            {" – "}
+                            {new Date(block.endsAtIso).toLocaleTimeString(locale, {
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                          {block.subtitle ? (
+                            <span className="block truncate text-[10px] text-amber-800">
+                              {block.subtitle}
+                            </span>
+                          ) : null}
+                        </div>
+                      );
+                    }
                     const selected = isTimeGridBlockSelected(block, selectedStartsAtIso, selectedGroupKey);
                     return (
                       <button

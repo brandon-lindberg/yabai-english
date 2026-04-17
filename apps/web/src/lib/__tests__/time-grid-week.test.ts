@@ -62,6 +62,29 @@ describe("placeSlotsOnWeekGrid", () => {
     expect([...map.values()].every((b) => b.length === 0)).toBe(true);
   });
 
+  test("preserves kind and subtitle for non-availability inputs (e.g. bookings)", () => {
+    const weekDays = buildWeekDays(new Date(2026, 5, 10, 12, 0, 0).toISOString(), "en-US");
+    const keys = weekDays.map((d) => d.dayKey);
+    const wed = weekDays[2]!.dayKey;
+    const start = new Date(`${wed}T09:00:00`);
+    const end = new Date(`${wed}T09:30:00`);
+
+    const map = placeSlotsOnWeekGrid(keys, [
+      {
+        startsAtIso: start.toISOString(),
+        endsAtIso: end.toISOString(),
+        label: "Conversation",
+        kind: "booking",
+        subtitle: "Alice S.",
+      },
+    ]);
+
+    const blocks = map.get(wed)!;
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]!.kind).toBe("booking");
+    expect(blocks[0]!.subtitle).toBe("Alice S.");
+  });
+
   test("clips end to end-of-day when the slot ends on the next local day", () => {
     const weekDays = buildWeekDays(new Date(2026, 5, 10, 12, 0, 0).toISOString(), "en-US");
     const keys = weekDays.map((d) => d.dayKey);

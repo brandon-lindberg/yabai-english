@@ -3,6 +3,12 @@ export type SlotOption = {
   label: string;
   /** Optional stable id for recurring rules (teacher availability editor). */
   groupKey?: string;
+  /**
+   * Rendering variant. "booked" slots show as non-interactive "Reserved" markers
+   * on the student-facing booking calendar (no student identity exposed).
+   * Defaults to "available".
+   */
+  kind?: "available" | "booked";
 };
 
 export type SlotDayGroup = {
