@@ -124,21 +124,40 @@ export async function handleGoogleCallback(req: Request, code: string, state: st
     },
   });
 
+  const existingSettings = await prisma.googleIntegrationSettings.findUnique({
+    where: { userId: parsed.userId },
+  });
+
+  // OAuth consent is feature-scoped in this flow. Google can occasionally return
+  // partial/normalized scope echoes, so we treat the selected feature as connected
+  // after a successful callback and preserve previously connected features.
+  const nextCalendarConnected =
+    parsed.feature === "calendar"
+      ? true
+      : (existingSettings?.calendarConnected ?? false) || flags.calendarConnected;
+  const nextDriveConnected =
+    parsed.feature === "drive"
+      ? true
+      : (existingSettings?.driveConnected ?? false) || flags.driveConnected;
+  const nextMeetConnected =
+    parsed.feature === "meet"
+      ? true
+      : (existingSettings?.meetConnected ?? false) || flags.meetConnected;
+
   await prisma.googleIntegrationSettings.upsert({
     where: { userId: parsed.userId },
     create: {
       userId: parsed.userId,
-      calendarConnected: flags.calendarConnected,
-      driveConnected: flags.driveConnected,
-      meetConnected: flags.meetConnected,
-      artifactSyncEnabled: parsed.feature === "meet" ? flags.meetConnected : false,
+      calendarConnected: nextCalendarConnected,
+      driveConnected: nextDriveConnected,
+      meetConnected: nextMeetConnected,
+      artifactSyncEnabled: parsed.feature === "meet" ? true : false,
     },
     update: {
-      calendarConnected: flags.calendarConnected,
-      driveConnected: flags.driveConnected,
-      meetConnected: flags.meetConnected,
-      artifactSyncEnabled:
-        parsed.feature === "meet" ? flags.meetConnected : undefined,
+      calendarConnected: nextCalendarConnected,
+      driveConnected: nextDriveConnected,
+      meetConnected: nextMeetConnected,
+      artifactSyncEnabled: parsed.feature === "meet" ? true : undefined,
     },
   });
 
