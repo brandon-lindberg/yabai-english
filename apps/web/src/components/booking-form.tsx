@@ -7,12 +7,19 @@ import { useRouter } from "@/i18n/navigation";
 import { canShowManualOverrideToggle } from "@/lib/manual-override";
 import { SlotSelectionCalendar } from "@/components/slot-selection-calendar";
 import type { CalendarViewMode } from "@/lib/calendar-view";
+
 type LessonProductOption = {
   id: string;
   nameJa: string;
   nameEn: string;
   durationMin: number;
   tier: string;
+  teacherLessonOfferingId?: string | null;
+  teacherLessonType?: string | null;
+  teacherLessonTypeCustom?: string | null;
+  teacherRateYen?: number | null;
+  teacherGroupSize?: number | null;
+  teacherIsGroupOffer?: boolean;
 };
 
 type Props = {
@@ -31,9 +38,10 @@ export function BookingForm({
 }: Props) {
   const locale = useLocale();
   const t = useTranslations("booking");
+  const tSlotMeta = useTranslations("lessonSlotMeta");
   const router = useRouter();
   const [products, setProducts] = useState<LessonProductOption[]>([]);
-  const [lessonProductId, setLessonProductId] = useState("");
+  const [selectedOptionKey, setSelectedOptionKey] = useState("");
   const [startsAt, setStartsAt] = useState("");
   const [manualOverride, setManualOverride] = useState(false);
   const [manualOverrideReason, setManualOverrideReason] = useState("");
@@ -52,7 +60,7 @@ export function BookingForm({
       .then((r) => r.json())
       .then((data: LessonProductOption[]) => {
         setProducts(data);
-        if (data[0]) setLessonProductId(data[0].id);
+        if (data[0]) setSelectedOptionKey(optionKey(data[0]));
       });
   }, [teacherProfileId]);
 
@@ -62,6 +70,8 @@ export function BookingForm({
       setCalendarAnchor(presetSlots[0].startsAtIso);
     }
   }, [presetSlots]);
+
+  const selectedOption = products.find((p) => optionKey(p) === selectedOptionKey);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -73,7 +83,8 @@ export function BookingForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lessonProductId,
+          lessonProductId: selectedOption?.id ?? "",
+          teacherLessonOfferingId: selectedOption?.teacherLessonOfferingId ?? undefined,
           startsAt: iso,
           teacherProfileId,
           manualOverride: canShowManualOverrideToggle(currentUserRole)
@@ -116,12 +127,12 @@ export function BookingForm({
         {t("selectProduct")}
         <select
           className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
-          value={lessonProductId}
-          onChange={(e) => setLessonProductId(e.target.value)}
+          value={selectedOptionKey}
+          onChange={(e) => setSelectedOptionKey(e.target.value)}
         >
           {products.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.nameJa} — {p.durationMin}
+            <option key={optionKey(p)} value={optionKey(p)}>
+              {buildProductOptionLabel(p, tSlotMeta, t)} — {p.durationMin}
               {p.tier === "FREE_TRIAL" ? ` · ${t("freeTrialOption")}` : ""}
             </option>
           ))}
@@ -219,11 +230,36 @@ export function BookingForm({
       )}
       <button
         type="submit"
-        disabled={loading || !lessonProductId || !startsAt}
+        disabled={loading || !selectedOption || !startsAt}
         className="w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
       >
         {t("confirm")}
       </button>
     </form>
   );
+}
+
+function optionKey(p: LessonProductOption): string {
+  return `${p.id}::${p.teacherLessonOfferingId ?? ""}`;
+}
+
+function buildProductOptionLabel(
+  p: LessonProductOption,
+  tSlotMeta: (key: string) => string,
+  tBooking: (key: string, values?: Record<string, string | number>) => string,
+): string {
+  const lessonType =
+    p.teacherLessonType === "custom"
+      ? (p.teacherLessonTypeCustom ?? "").trim() || tSlotMeta("types.custom")
+      : p.teacherLessonType
+        ? tSlotMeta(`types.${p.teacherLessonType}`)
+        : null;
+  const groupLabel =
+    p.teacherIsGroupOffer && p.teacherGroupSize
+      ? ` / ${tBooking("groupPeopleLabel", { count: p.teacherGroupSize })}`
+      : "";
+  if (!lessonType) {
+    return `${p.nameJa}${groupLabel}`;
+  }
+  return `${p.nameJa} (${lessonType}${groupLabel})`;
 }

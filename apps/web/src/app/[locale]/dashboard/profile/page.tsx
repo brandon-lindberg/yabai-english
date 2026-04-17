@@ -40,6 +40,8 @@ export default async function DashboardProfilePage() {
               rateYen: true,
               isGroup: true,
               groupSize: true,
+              lessonType: true,
+              lessonTypeCustom: true,
             },
           },
         },

@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { LessonTier } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
+  catalogProductMatchesOffering,
   filterLessonProductsForTeacher,
-  filterProductsByIndividualOfferings,
 } from "@/lib/lesson-products";
 
 export async function GET(req: Request) {
@@ -24,11 +24,17 @@ export async function GET(req: Request) {
     select: {
       offersFreeTrial: true,
       lessonOfferings: {
+        where: { active: true },
+        orderBy: [{ durationMin: "asc" }, { id: "asc" }],
         select: {
+          id: true,
           durationMin: true,
           rateYen: true,
           isGroup: true,
           active: true,
+          lessonType: true,
+          lessonTypeCustom: true,
+          groupSize: true,
         },
       },
     },
@@ -38,9 +44,26 @@ export async function GET(req: Request) {
   }
 
   const trialFiltered = filterLessonProductsForTeacher(products, teacher.offersFreeTrial);
-  const durationFiltered = filterProductsByIndividualOfferings(
-    trialFiltered,
-    teacher.lessonOfferings,
+  const freeTrial = trialFiltered.filter((p) => p.tier === LessonTier.FREE_TRIAL);
+  const paid = trialFiltered.filter((p) => p.tier !== LessonTier.FREE_TRIAL);
+
+  const activeOfferings = teacher.lessonOfferings.filter((o) => o.active);
+  const mappedPaid = activeOfferings.flatMap((offering) =>
+    paid
+      .filter((p) => catalogProductMatchesOffering(p, offering))
+      .map((p) => ({
+        ...p,
+        teacherLessonOfferingId: offering.id,
+        teacherLessonType: offering.lessonType ?? null,
+        teacherLessonTypeCustom: offering.lessonTypeCustom ?? null,
+        teacherRateYen: offering.rateYen,
+        teacherGroupSize: offering.isGroup ? offering.groupSize ?? null : null,
+        teacherIsGroupOffer: offering.isGroup,
+      })),
   );
-  return NextResponse.json(durationFiltered);
+
+  return NextResponse.json([
+    ...freeTrial,
+    ...mappedPaid,
+  ]);
 }

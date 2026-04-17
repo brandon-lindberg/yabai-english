@@ -12,8 +12,10 @@ import {
 } from "@/lib/lead-time-policy";
 import { validateManualOverrideReason } from "@/lib/manual-override";
 import {
+  catalogProductMatchesOffering,
   canTeacherOfferProduct,
-  resolveTeacherRateForDuration,
+  resolveTeacherRateForProduct,
+  teacherHasOfferingForProduct,
 } from "@/lib/lesson-products";
 import { z } from "zod";
 import { BookingStatus, LessonTier } from "@prisma/client";
@@ -21,6 +23,7 @@ import { BookingStatus, LessonTier } from "@prisma/client";
 const postSchema = z.object({
   lessonProductId: z.string().min(1),
   teacherProfileId: z.string().min(1).optional(),
+  teacherLessonOfferingId: z.string().min(1).optional(),
   startsAt: z.string().datetime(),
   manualOverride: z.boolean().optional(),
   manualOverrideReason: z.string().max(500).optional(),
@@ -44,6 +47,7 @@ export async function POST(req: Request) {
   const {
     lessonProductId,
     teacherProfileId,
+    teacherLessonOfferingId,
     startsAt,
     manualOverride,
     manualOverrideReason,
@@ -114,6 +118,28 @@ export async function POST(req: Request) {
     );
   }
 
+  const selectedOffering = teacherLessonOfferingId
+    ? teacher.lessonOfferings.find(
+        (o) =>
+          o.id === teacherLessonOfferingId &&
+          o.active,
+      )
+    : null;
+
+  if (selectedOffering && !catalogProductMatchesOffering(product, selectedOffering)) {
+    return NextResponse.json(
+      { error: "This teacher does not offer this lesson type." },
+      { status: 409 },
+    );
+  }
+
+  if (!selectedOffering && !teacherHasOfferingForProduct(teacher.lessonOfferings, product)) {
+    return NextResponse.json(
+      { error: "This teacher does not offer this lesson type." },
+      { status: 409 },
+    );
+  }
+
   const blockedThread = await prisma.chatThread.findUnique({
     where: {
       studentId_teacherId: {
@@ -161,9 +187,11 @@ export async function POST(req: Request) {
   const isFreeTrial = product.tier === LessonTier.FREE_TRIAL;
   const quotedPriceYen = isFreeTrial
     ? 0
-    : resolveTeacherRateForDuration(
+    : selectedOffering
+      ? selectedOffering.rateYen
+      : resolveTeacherRateForProduct(
         teacher.lessonOfferings,
-        product.durationMin,
+        product,
         teacher.rateYen ?? 3000,
       );
 

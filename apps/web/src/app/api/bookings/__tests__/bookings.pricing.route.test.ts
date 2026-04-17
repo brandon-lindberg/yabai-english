@@ -49,7 +49,15 @@ describe("POST /api/bookings pricing", () => {
       userId: "teacher-user-1",
       offersFreeTrial: true,
       rateYen: 3000,
-      lessonOfferings: [{ durationMin: 60, rateYen: 5000, isGroup: false, active: true }],
+      lessonOfferings: [
+        {
+          durationMin: 60,
+          rateYen: 5000,
+          isGroup: false,
+          active: true,
+          lessonType: "grammar",
+        },
+      ],
       user: { email: "teacher@example.com" },
     });
     prismaMock.chatThread.findUnique.mockResolvedValue(null);
@@ -98,5 +106,174 @@ describe("POST /api/bookings pricing", () => {
     });
     expect(prismaMock.$transaction).toHaveBeenCalled();
     expect(createUserNotificationMock).toHaveBeenCalled();
+  });
+
+  test("returns 409 when the teacher profile does not offer that lesson focus for the product", async () => {
+    prismaMock.lessonProduct.findFirst.mockResolvedValue({
+      id: "lp-std-30",
+      tier: LessonTier.STANDARD,
+      active: true,
+      durationMin: 30,
+      nameEn: "Standard 30",
+      nameJa: "標準 30",
+    });
+    prismaMock.teacherProfile.findFirst.mockResolvedValue({
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      offersFreeTrial: true,
+      rateYen: 3000,
+      lessonOfferings: [
+        {
+          durationMin: 30,
+          rateYen: 3500,
+          isGroup: false,
+          active: true,
+          lessonType: "conversation",
+        },
+      ],
+      user: { email: "teacher@example.com" },
+    });
+    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-std-30",
+          teacherProfileId: "teacher-profile-1",
+          startsAt,
+        }),
+      }),
+    );
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "This teacher does not offer this lesson type.",
+    });
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  test("uses teacherLessonOfferingId to pick the correct rate for same-duration options", async () => {
+    prismaMock.lessonProduct.findFirst.mockResolvedValue({
+      id: "lp-std-40",
+      tier: LessonTier.STANDARD,
+      active: true,
+      durationMin: 40,
+      nameEn: "Standard 40",
+      nameJa: "標準 40",
+    });
+    prismaMock.teacherProfile.findFirst.mockResolvedValue({
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      offersFreeTrial: true,
+      rateYen: 3000,
+      lessonOfferings: [
+        {
+          id: "off-conversation-40",
+          durationMin: 40,
+          rateYen: 4100,
+          isGroup: false,
+          active: true,
+          lessonType: "conversation",
+        },
+        {
+          id: "off-grammar-40",
+          durationMin: 40,
+          rateYen: 4700,
+          isGroup: false,
+          active: true,
+          lessonType: "grammar",
+        },
+      ],
+      user: { email: "teacher@example.com" },
+    });
+    prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb({
+        studentProfile: {
+          findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
+        },
+        booking: {
+          create: vi.fn().mockResolvedValue({
+            id: "booking-1",
+            status: BookingStatus.PENDING_PAYMENT,
+            quotedPriceYen: 4700,
+            lessonProduct: { nameEn: "Standard 40", nameJa: "標準 40" },
+            teacher: { user: { email: "teacher@example.com" } },
+          }),
+        },
+      }),
+    );
+    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-std-40",
+          teacherProfileId: "teacher-profile-1",
+          teacherLessonOfferingId: "off-grammar-40",
+          startsAt,
+        }),
+      }),
+    );
+    expect(res.status).toBe(200);
+  });
+
+  test("accepts group offering id and uses its rate", async () => {
+    prismaMock.lessonProduct.findFirst.mockResolvedValue({
+      id: "lp-std-40",
+      tier: LessonTier.STANDARD,
+      active: true,
+      durationMin: 40,
+      nameEn: "Standard 40",
+      nameJa: "標準 40",
+    });
+    prismaMock.teacherProfile.findFirst.mockResolvedValue({
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      offersFreeTrial: true,
+      rateYen: 3000,
+      lessonOfferings: [
+        {
+          id: "off-group-40",
+          durationMin: 40,
+          rateYen: 7200,
+          isGroup: true,
+          groupSize: 4,
+          active: true,
+          lessonType: "conversation",
+        },
+      ],
+      user: { email: "teacher@example.com" },
+    });
+    prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb({
+        studentProfile: {
+          findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
+        },
+        booking: {
+          create: vi.fn().mockResolvedValue({
+            id: "booking-1",
+            status: BookingStatus.PENDING_PAYMENT,
+            quotedPriceYen: 7200,
+            lessonProduct: { nameEn: "Standard 40", nameJa: "標準 40" },
+            teacher: { user: { email: "teacher@example.com" } },
+          }),
+        },
+      }),
+    );
+    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-std-40",
+          teacherProfileId: "teacher-profile-1",
+          teacherLessonOfferingId: "off-group-40",
+          startsAt,
+        }),
+      }),
+    );
+    expect(res.status).toBe(200);
   });
 });

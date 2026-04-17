@@ -104,6 +104,8 @@ describe("PATCH /api/teacher/profile", () => {
           isGroup: false,
           groupSize: null,
           active: true,
+          lessonType: null,
+          lessonTypeCustom: null,
         },
         {
           teacherId: "tp-1",
@@ -112,6 +114,8 @@ describe("PATCH /api/teacher/profile", () => {
           isGroup: true,
           groupSize: 4,
           active: true,
+          lessonType: null,
+          lessonTypeCustom: null,
         },
       ],
     });

@@ -267,6 +267,10 @@ model TeacherLessonOffering {
   isGroup     Boolean  @default(false)
   groupSize   Int?
   active      Boolean  @default(true)
+  /// pronunciation | conversation | grammar | reading | writing | business | custom — matches AvailabilitySlot.lessonType
+  /// Null = legacy row (treat as matching any catalog product for this duration).
+  lessonType       String?
+  lessonTypeCustom String?  @db.VarChar(200)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

@@ -3,6 +3,10 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
+import {
+  AVAILABILITY_LESSON_TYPES,
+  DEFAULT_AVAILABILITY_LESSON_TYPE,
+} from "@/lib/availability-slot-lesson-meta";
 
 const INDIVIDUAL_DURATIONS = [30, 40, 60, 90] as const;
 
@@ -12,10 +16,28 @@ type LessonOfferingInput = {
   rateYen: number;
   isGroup: boolean;
   groupSize: number | null;
+  lessonType?: string | null;
+  lessonTypeCustom?: string | null;
+};
+
+type IndividualOfferRow = {
+  clientId: string;
+  durationMin: number;
+  lessonType: string;
+  lessonTypeCustom: string;
+  rateYenInput: string;
+};
+
+type GroupOfferRow = {
+  clientId: string;
+  durationMin: number;
+  groupSize: number;
+  lessonType: string;
+  lessonTypeCustom: string;
+  rateYenInput: string;
 };
 
 type Props = {
-  /** When display name was filled from Google user name because profile was empty */
   showGooglePrefillHint?: boolean;
   initialTeacherProfileId: string | null;
   initialDisplayName: string | null;
@@ -32,8 +54,14 @@ type Props = {
     rateYen: number;
     isGroup: boolean;
     groupSize: number | null;
+    lessonType?: string | null;
+    lessonTypeCustom?: string | null;
   }>;
 };
+
+function makeRowId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 export function TeacherProfileForm({
   showGooglePrefillHint = false,
@@ -49,6 +77,7 @@ export function TeacherProfileForm({
   initialLessonOfferings,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
+  const tSlotTypes = useTranslations("lessonSlotMeta");
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
   const [displayName, setDisplayName] = useState(initialDisplayName ?? "");
   const [bio, setBio] = useState(initialBio ?? "");
@@ -56,39 +85,39 @@ export function TeacherProfileForm({
   const [credentials, setCredentials] = useState(initialCredentials ?? "");
   const [instructionLanguages, setInstructionLanguages] = useState(initialInstructionLanguages.join(", "));
   const [specialties, setSpecialties] = useState(initialSpecialties.join(", "));
-  const [individualRates, setIndividualRates] = useState<Record<number, string>>(() => {
-    const next: Record<number, string> = {};
-    for (const duration of INDIVIDUAL_DURATIONS) {
-      const row = initialLessonOfferings.find((o) => !o.isGroup && o.durationMin === duration);
-      next[duration] = row ? String(row.rateYen) : "";
+  const [individualOffers, setIndividualOffers] = useState<IndividualOfferRow[]>(() => {
+    const rows = initialLessonOfferings
+      .filter((o) => !o.isGroup)
+      .map((o) => ({
+        clientId: o.id || makeRowId(),
+        durationMin: o.durationMin,
+        lessonType: o.lessonType ?? DEFAULT_AVAILABILITY_LESSON_TYPE,
+        lessonTypeCustom: o.lessonType === "custom" ? (o.lessonTypeCustom ?? "") : "",
+        rateYenInput: String(o.rateYen),
+      }));
+    if (rows.length > 0) return rows;
+    if (initialRateYen != null) {
+      return [
+        {
+          clientId: makeRowId(),
+          durationMin: 30,
+          lessonType: DEFAULT_AVAILABILITY_LESSON_TYPE,
+          lessonTypeCustom: "",
+          rateYenInput: String(initialRateYen),
+        },
+      ];
     }
-    if (Object.values(next).every((v) => v === "") && initialRateYen != null) {
-      next[30] = String(initialRateYen);
-    }
-    return next;
+    return [];
   });
-  const [individualEnabled, setIndividualEnabled] = useState<Record<number, boolean>>(() => {
-    const next: Record<number, boolean> = {};
-    for (const duration of INDIVIDUAL_DURATIONS) {
-      next[duration] = initialLessonOfferings.some(
-        (o) => !o.isGroup && o.durationMin === duration,
-      );
-    }
-    if (!Object.values(next).some(Boolean) && initialRateYen != null) {
-      next[30] = true;
-    }
-    return next;
-  });
-  const [groupOffers, setGroupOffers] = useState<Array<{
-    durationMin: number;
-    groupSize: number;
-    rateYenInput: string;
-  }>>(
+  const [groupOffers, setGroupOffers] = useState<GroupOfferRow[]>(
     initialLessonOfferings
       .filter((o) => o.isGroup && o.groupSize)
       .map((o) => ({
+        clientId: o.id || makeRowId(),
         durationMin: o.durationMin,
         groupSize: o.groupSize ?? 2,
+        lessonType: o.lessonType ?? DEFAULT_AVAILABILITY_LESSON_TYPE,
+        lessonTypeCustom: o.lessonType === "custom" ? (o.lessonTypeCustom ?? "") : "",
         rateYenInput: String(o.rateYen),
       })),
   );
@@ -99,23 +128,34 @@ export function TeacherProfileForm({
     e.preventDefault();
     setStatus("saving");
     const lessonOfferings: LessonOfferingInput[] = [];
-    for (const duration of INDIVIDUAL_DURATIONS) {
-      if (!individualEnabled[duration]) continue;
-      const rate = Number.parseInt((individualRates[duration] ?? "").trim(), 10);
+
+    for (const row of individualOffers) {
+      const rate = Number.parseInt(row.rateYenInput.trim(), 10);
       if (Number.isNaN(rate) || rate <= 0) {
         setStatus("error");
         return;
       }
+      if (row.lessonType === "custom" && !row.lessonTypeCustom.trim()) {
+        setStatus("error");
+        return;
+      }
       lessonOfferings.push({
-        durationMin: duration,
+        durationMin: row.durationMin,
         rateYen: rate,
         isGroup: false,
         groupSize: null,
+        lessonType: row.lessonType,
+        lessonTypeCustom: row.lessonType === "custom" ? row.lessonTypeCustom.trim() : null,
       });
     }
+
     for (const group of groupOffers) {
       const rate = Number.parseInt(group.rateYenInput.trim(), 10);
       if (Number.isNaN(rate) || rate <= 0 || group.groupSize < 2) {
+        setStatus("error");
+        return;
+      }
+      if (group.lessonType === "custom" && !group.lessonTypeCustom.trim()) {
         setStatus("error");
         return;
       }
@@ -124,8 +164,11 @@ export function TeacherProfileForm({
         rateYen: rate,
         isGroup: true,
         groupSize: group.groupSize,
+        lessonType: group.lessonType,
+        lessonTypeCustom: group.lessonType === "custom" ? group.lessonTypeCustom.trim() : null,
       });
     }
+
     const fallbackRate = lessonOfferings.find((o) => !o.isGroup)?.rateYen ?? null;
 
     const response = await fetch("/api/teacher/profile", {
@@ -177,7 +220,7 @@ export function TeacherProfileForm({
         </p>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 sm:items-end">
         <label className="space-y-1 text-sm">
           <span className="font-medium text-foreground">{t("displayName")}</span>
           {showGooglePrefillHint ? (
@@ -243,39 +286,133 @@ export function TeacherProfileForm({
       </div>
 
       <section className="space-y-3 rounded-xl border border-border bg-background p-4">
-        <h3 className="text-sm font-semibold text-foreground">{t("teacherRatesByDurationTitle")}</h3>
-        <p className="text-xs text-muted">{t("teacherRatesByDurationHelp")}</p>
-        <div className="space-y-2">
-          {INDIVIDUAL_DURATIONS.map((duration) => (
-            <div key={duration} className="flex flex-wrap items-center gap-2">
-              <label className="flex items-center gap-2 text-sm text-foreground">
-                <input
-                  type="checkbox"
-                  checked={individualEnabled[duration]}
-                  onChange={(e) =>
-                    setIndividualEnabled((prev) => ({ ...prev, [duration]: e.target.checked }))
-                  }
-                />
-                <span>{duration} min</span>
-              </label>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                disabled={!individualEnabled[duration]}
-                value={individualRates[duration] ?? ""}
-                onChange={(e) =>
-                  setIndividualRates((prev) => ({
-                    ...prev,
-                    [duration]: e.target.value.replace(/\D/g, ""),
-                  }))
-                }
-                placeholder="3500"
-                className="w-36 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25 disabled:opacity-50"
-              />
-            </div>
-          ))}
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-foreground">{t("teacherRatesByDurationTitle")}</h3>
+          <button
+            type="button"
+            onClick={() =>
+              setIndividualOffers((prev) => [
+                ...prev,
+                {
+                  clientId: makeRowId(),
+                  durationMin: 30,
+                  lessonType: DEFAULT_AVAILABILITY_LESSON_TYPE,
+                  lessonTypeCustom: "",
+                  rateYenInput: "",
+                },
+              ])
+            }
+            className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+          >
+            {t("teacherIndividualRatesAdd")}
+          </button>
         </div>
+        <p className="text-xs text-muted">{t("teacherRatesByDurationHelp")}</p>
+        <p className="text-xs text-muted">{t("teacherLessonTypeForRateHelp")}</p>
+
+        {individualOffers.length === 0 ? (
+          <p className="text-xs text-muted">{t("teacherIndividualRatesEmpty")}</p>
+        ) : (
+          <div className="space-y-3">
+            {individualOffers.map((row, index) => (
+              <div
+                key={row.clientId}
+                className="flex flex-col gap-2 rounded-xl border border-border/80 bg-surface/60 p-3 sm:flex-row sm:flex-wrap sm:items-end"
+              >
+                <label className="flex flex-col gap-1 text-xs text-foreground">
+                  <span className="text-muted">{t("teacherLessonTypeForRate")}</span>
+                  <select
+                    value={row.lessonType}
+                    onChange={(e) =>
+                      setIndividualOffers((prev) =>
+                        prev.map((r, i) =>
+                          i === index ? { ...r, lessonType: e.target.value } : r,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+                  >
+                    {AVAILABILITY_LESSON_TYPES.map((lt) => (
+                      <option key={lt} value={lt}>
+                        {tSlotTypes(`types.${lt}`)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1 text-xs text-foreground">
+                  <span className="text-muted">{t("teacherDurationLabel")}</span>
+                  <select
+                    value={row.durationMin}
+                    onChange={(e) =>
+                      setIndividualOffers((prev) =>
+                        prev.map((r, i) =>
+                          i === index
+                            ? { ...r, durationMin: Number.parseInt(e.target.value, 10) }
+                            : r,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+                  >
+                    {INDIVIDUAL_DURATIONS.map((d) => (
+                      <option key={d} value={d}>
+                        {d} min
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {row.lessonType === "custom" ? (
+                  <label className="flex min-w-[12rem] flex-1 flex-col gap-1 text-xs text-foreground">
+                    <span className="text-muted">{t("teacherLessonTypeCustomLabel")}</span>
+                    <input
+                      type="text"
+                      value={row.lessonTypeCustom}
+                      onChange={(e) =>
+                        setIndividualOffers((prev) =>
+                          prev.map((r, i) =>
+                            i === index ? { ...r, lessonTypeCustom: e.target.value } : r,
+                          ),
+                        )
+                      }
+                      placeholder={t("teacherLessonTypeCustomPlaceholder")}
+                      maxLength={200}
+                      className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+                    />
+                  </label>
+                ) : null}
+                <label className="flex flex-col gap-1 text-xs text-foreground">
+                  <span className="text-muted">{t("teacherRateYenLabel")}</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={row.rateYenInput}
+                    onChange={(e) =>
+                      setIndividualOffers((prev) =>
+                        prev.map((r, i) =>
+                          i === index
+                            ? { ...r, rateYenInput: e.target.value.replace(/\D/g, "") }
+                            : r,
+                        ),
+                      )
+                    }
+                    placeholder="3500"
+                    className="w-36 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIndividualOffers((prev) => prev.filter((_, i) => i !== index))
+                  }
+                  className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                >
+                  {t("teacherIndividualRatesRemove")}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="space-y-3 rounded-xl border border-border bg-background p-4">
@@ -284,7 +421,17 @@ export function TeacherProfileForm({
           <button
             type="button"
             onClick={() =>
-              setGroupOffers((prev) => [...prev, { durationMin: 60, groupSize: 2, rateYenInput: "" }])
+              setGroupOffers((prev) => [
+                ...prev,
+                {
+                  clientId: makeRowId(),
+                  durationMin: 60,
+                  groupSize: 2,
+                  lessonType: DEFAULT_AVAILABILITY_LESSON_TYPE,
+                  lessonTypeCustom: "",
+                  rateYenInput: "",
+                },
+              ])
             }
             className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
@@ -297,7 +444,7 @@ export function TeacherProfileForm({
         ) : (
           <div className="space-y-2">
             {groupOffers.map((group, index) => (
-              <div key={`${index}-${group.durationMin}-${group.groupSize}`} className="flex flex-wrap items-center gap-2">
+              <div key={group.clientId} className="flex flex-wrap items-end gap-2">
                 <input
                   type="number"
                   min={2}
@@ -311,6 +458,23 @@ export function TeacherProfileForm({
                   }
                   className="w-20 rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
                 />
+                <select
+                  value={group.lessonType}
+                  onChange={(e) =>
+                    setGroupOffers((prev) =>
+                      prev.map((row, i) =>
+                        i === index ? { ...row, lessonType: e.target.value } : row,
+                      ),
+                    )
+                  }
+                  className="rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
+                >
+                  {AVAILABILITY_LESSON_TYPES.map((lt) => (
+                    <option key={lt} value={lt}>
+                      {tSlotTypes(`types.${lt}`)}
+                    </option>
+                  ))}
+                </select>
                 <select
                   value={group.durationMin}
                   onChange={(e) =>
@@ -328,6 +492,22 @@ export function TeacherProfileForm({
                     </option>
                   ))}
                 </select>
+                {group.lessonType === "custom" ? (
+                  <input
+                    type="text"
+                    value={group.lessonTypeCustom}
+                    onChange={(e) =>
+                      setGroupOffers((prev) =>
+                        prev.map((row, i) =>
+                          i === index ? { ...row, lessonTypeCustom: e.target.value } : row,
+                        ),
+                      )
+                    }
+                    placeholder={t("teacherLessonTypeCustomPlaceholder")}
+                    maxLength={200}
+                    className="min-w-40 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                  />
+                ) : null}
                 <input
                   type="text"
                   inputMode="numeric"

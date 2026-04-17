@@ -7,6 +7,8 @@ import { buildUpcomingSlotOptions } from "@/lib/availability";
 import { formatAvailabilitySlotMeta } from "@/lib/availability-slot-lesson-meta";
 import { auth } from "@/auth";
 import { weekdayLabel } from "@/lib/weekdays";
+import { redirectTargetForTeacherBookingPage } from "@/lib/teacher-booking-page-access";
+import { formatYenRange, getTeacherRateRangeByType } from "@/lib/teacher-rate-range";
 import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { AppCard } from "@/components/ui/app-card";
@@ -22,8 +24,24 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
   const locale = await getLocale();
   const { teacherId } = await params;
   const session = await auth();
-  if (session?.user?.role && session.user.role !== "STUDENT") {
-    redirect({ href: "/dashboard", locale });
+
+  const viewerTeacherProfileId =
+    session?.user?.role === "TEACHER"
+      ? (
+          await prisma.teacherProfile.findUnique({
+            where: { userId: session.user.id },
+            select: { id: true },
+          })
+        )?.id ?? null
+      : null;
+
+  const redirectHref = redirectTargetForTeacherBookingPage({
+    role: session?.user?.role,
+    requestedTeacherProfileId: teacherId,
+    viewerTeacherProfileId,
+  });
+  if (redirectHref) {
+    redirect({ href: redirectHref, locale });
   }
 
   const teacher = await prisma.teacherProfile.findUnique({
@@ -36,6 +54,10 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
       },
       availabilityOccurrenceSkips: {
         select: { startsAtIso: true },
+      },
+      lessonOfferings: {
+        where: { active: true },
+        select: { active: true, rateYen: true, isGroup: true },
       },
     },
   });
@@ -85,6 +107,12 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
   });
 
   const subtitle = `${teacher.countryOfOrigin ?? "—"} · ${teacher.instructionLanguages.join(", ")}`;
+  const individualRateRange = getTeacherRateRangeByType(
+    teacher.lessonOfferings,
+    "individual",
+    teacher.rateYen,
+  );
+  const groupRateRange = getTeacherRateRangeByType(teacher.lessonOfferings, "group");
 
   return (
     <main className="mx-auto max-w-4xl flex-1 px-4 py-10 sm:px-6">
@@ -110,8 +138,10 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
             </p>
           ) : null}
           <p className="mt-3 text-sm font-medium text-foreground">
-            {t("teacherRate")}:{" "}
-            {teacher.rateYen ? `JPY ${teacher.rateYen.toLocaleString()}` : "JPY —"}
+            {t("teacherRateIndividual")}: {formatYenRange(individualRateRange)}
+          </p>
+          <p className="mt-1 text-sm font-medium text-foreground">
+            {t("teacherRateGroup")}: {formatYenRange(groupRateRange)}
           </p>
         </AppCard>
 
