@@ -27,7 +27,7 @@ export function deriveConnectionFlags(scopes: string[]) {
   const uniqueScopes = new Set(scopes);
   return {
     calendarConnected:
-      uniqueScopes.has(GOOGLE_SCOPES.calendarEvents) &&
+      uniqueScopes.has(GOOGLE_SCOPES.calendarEvents) ||
       uniqueScopes.has(GOOGLE_SCOPES.calendarReadonly),
     driveConnected:
       uniqueScopes.has(GOOGLE_SCOPES.driveFile) &&

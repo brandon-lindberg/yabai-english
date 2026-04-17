@@ -53,6 +53,15 @@ describe("google integration scope helpers", () => {
     });
   });
 
+  test("treats calendar as connected when calendar.events is granted", () => {
+    const flags = deriveConnectionFlags([GOOGLE_SCOPES.calendarEvents]);
+    expect(flags).toEqual({
+      calendarConnected: true,
+      driveConnected: false,
+      meetConnected: false,
+    });
+  });
+
   test("returns meet scope set for meet feature", () => {
     const scopes = scopesForFeature("meet");
     expect(scopes).toEqual([GOOGLE_SCOPES.meetSpaceCreated]);
