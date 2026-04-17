@@ -6,6 +6,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
+import {
+  Skeleton,
+  SkeletonText,
+} from "@/components/ui/skeleton";
 
 function formatPlacementEligibleDate(iso: string, locale: string): string {
   const d = new Date(iso);
@@ -169,7 +173,31 @@ export function PlacementQuiz() {
   }
 
   if (loading) {
-    return <p className="text-muted">{t("loading")}</p>;
+    return (
+      <div
+        className="space-y-6"
+        role="status"
+        aria-busy="true"
+        aria-label={t("loading")}
+        data-testid="placement-quiz-loading"
+      >
+        <Skeleton height="4" width="1/3" />
+        <Skeleton height="3" width="1/4" />
+        <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+          <Skeleton height="3" width="1/2" />
+          <div className="mt-3">
+            <SkeletonText lines={2} />
+          </div>
+          <ul className="mt-4 space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <li key={i}>
+                <Skeleton height="12" rounded="xl" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    );
   }
 
   if (cooldownEligibleAt) {

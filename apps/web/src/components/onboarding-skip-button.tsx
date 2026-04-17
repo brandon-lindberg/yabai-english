@@ -79,7 +79,7 @@ export function OnboardingSkipButton({
       onClick={onClick}
       disabled={busy}
       data-testid={testId}
-      aria-invalid={error ? true : undefined}
+      data-error={error ? "true" : undefined}
       title={error ?? undefined}
       className={className ?? VARIANT_CLASSNAMES[variant]}
     >

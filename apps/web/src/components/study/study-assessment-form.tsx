@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
+import { Skeleton, SkeletonButton } from "@/components/ui/skeleton";
 
 type Item = { id: string; promptJa: string; promptEn: string; options: string[] };
 
@@ -73,7 +74,34 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
   };
 
   if (loading) {
-    return <p className="text-sm text-muted">…</p>;
+    return (
+      <div
+        className="space-y-6"
+        role="status"
+        aria-busy="true"
+        aria-label="Loading assessment"
+        data-testid="study-assessment-loading"
+      >
+        <Skeleton height="3" width="1/3" />
+        {Array.from({ length: 2 }).map((_, idx) => (
+          <div
+            key={idx}
+            className="rounded-2xl border border-border bg-surface p-5 shadow-sm"
+          >
+            <Skeleton height="3" width="1/4" />
+            <div className="mt-3">
+              <Skeleton height="5" width="2/3" />
+            </div>
+            <div className="mt-4 space-y-2">
+              {Array.from({ length: 4 }).map((__, j) => (
+                <Skeleton key={j} height="10" rounded="lg" />
+              ))}
+            </div>
+          </div>
+        ))}
+        <SkeletonButton width="full" />
+      </div>
+    );
   }
 
   if (error && !items.length) {

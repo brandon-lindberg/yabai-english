@@ -7,6 +7,7 @@ import { getReceiptKey } from "@/lib/chat-receipts";
 import { getRealtimeSocket } from "@/lib/realtime-client";
 import { REALTIME_EVENTS } from "@/lib/realtime-events";
 import { ChatModerationMenu } from "@/components/chat-moderation-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type ThreadItem = {
   id: string;
@@ -70,6 +71,8 @@ export function ChatPanel() {
   const [moderationBusy, setModerationBusy] = useState(false);
   const [threadSwipeOpenId, setThreadSwipeOpenId] = useState<string>("");
   const [threadSwipeDragOffset, setThreadSwipeDragOffset] = useState<number>(0);
+  const [threadsLoading, setThreadsLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const threadSwipeRef = useRef<{
     threadId: string;
@@ -138,7 +141,14 @@ export function ChatPanel() {
       if (adminSearch.trim()) params.set("q", adminSearch.trim());
     }
     const query = params.toString();
-    const res = await fetch(`/api/chat/threads${query ? `?${query}` : ""}`);
+    let res: Response;
+    try {
+      res = await fetch(`/api/chat/threads${query ? `?${query}` : ""}`);
+    } catch {
+      setThreadsLoading(false);
+      return;
+    }
+    setThreadsLoading(false);
     if (!res.ok) return;
     const data = (await res.json()) as ThreadItem[];
     setThreads(data);
@@ -169,7 +179,15 @@ export function ChatPanel() {
 
   const loadMessages = useCallback(
     async (threadId: string) => {
-      const res = await fetch(`/api/chat/threads/${threadId}/messages`);
+      setMessagesLoading(true);
+      let res: Response;
+      try {
+        res = await fetch(`/api/chat/threads/${threadId}/messages`);
+      } catch {
+        setMessagesLoading(false);
+        return;
+      }
+      setMessagesLoading(false);
       if (!res.ok) return;
       const data = (await res.json()) as MessageItem[];
       setMessages(data);
@@ -747,6 +765,31 @@ export function ChatPanel() {
                       )}
                     </div>
                   </div>
+                ) : threadsLoading && threads.length === 0 ? (
+                  <div
+                    data-testid="chat-threads-loading"
+                    aria-busy="true"
+                    className="space-y-2 px-1"
+                  >
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-full rounded-xl border border-border bg-surface px-3 py-2"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <Skeleton height="4" width="1/2" />
+                          <Skeleton
+                            width="1/4"
+                            rounded="full"
+                            className="!h-4 !w-8 shrink-0"
+                          />
+                        </div>
+                        <div className="mt-2">
+                          <Skeleton height="3" width="3/4" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : threads.length === 0 ? (
                   <p className="px-2 text-sm text-muted">
                     {isAdminViewer && adminQueue === "blocked"
@@ -1142,7 +1185,35 @@ export function ChatPanel() {
                 </p>
               )}
               <div className="flex-1 space-y-2 overflow-auto">
-                {messages.length === 0 ? (
+                {messagesLoading && messages.length === 0 ? (
+                  <div
+                    data-testid="chat-messages-loading"
+                    aria-busy="true"
+                    className="space-y-3"
+                  >
+                    <div className="flex justify-start">
+                      <Skeleton
+                        width="1/2"
+                        rounded="2xl"
+                        className="!h-12"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <Skeleton
+                        width="1/3"
+                        rounded="2xl"
+                        className="!h-10"
+                      />
+                    </div>
+                    <div className="flex justify-start">
+                      <Skeleton
+                        width="2/3"
+                        rounded="2xl"
+                        className="!h-14"
+                      />
+                    </div>
+                  </div>
+                ) : messages.length === 0 ? (
                   <p className="text-sm text-muted">{t("noMessagesYet")}</p>
                 ) : (
                   messages.map((msg, index) => {

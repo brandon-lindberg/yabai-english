@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { getRealtimeSocket } from "@/lib/realtime-client";
 import { REALTIME_EVENTS } from "@/lib/realtime-events";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type NotificationItem = {
   id: string;
@@ -25,9 +26,17 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [clearingAll, setClearingAll] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   async function refresh() {
-    const res = await fetch("/api/notifications");
+    let res: Response;
+    try {
+      res = await fetch("/api/notifications");
+    } catch {
+      setHasLoadedOnce(true);
+      return;
+    }
+    setHasLoadedOnce(true);
     if (!res.ok) return;
     const data = (await res.json()) as {
       items: NotificationItem[];
@@ -129,8 +138,24 @@ export function NotificationBell() {
               </button>
             </div>
           </div>
-          <ul className="max-h-96 space-y-2 overflow-auto">
-            {items.length === 0 ? (
+          <ul
+            className="max-h-96 space-y-2 overflow-auto"
+            aria-busy={!hasLoadedOnce || undefined}
+          >
+            {!hasLoadedOnce && items.length === 0 ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <li
+                  key={`skeleton-${i}`}
+                  data-testid="notification-skeleton"
+                  className="flex gap-2 rounded-xl border border-border bg-background px-2 py-2"
+                >
+                  <div className="min-w-0 flex-1 space-y-2 px-1">
+                    <Skeleton height="3" width="2/3" />
+                    <Skeleton height="3" width="3/4" />
+                  </div>
+                </li>
+              ))
+            ) : items.length === 0 ? (
               <li className="text-sm text-muted">{t("noNotifications")}</li>
             ) : (
               items.map((item) => {

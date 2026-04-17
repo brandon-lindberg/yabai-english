@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { AdminTeacherProfileDto } from "@/lib/admin-user-dto";
+import { Skeleton, SkeletonButton } from "@/components/ui/skeleton";
 
 type StudentProfileDto = {
   id: string;
@@ -209,7 +210,39 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
   }
 
   if (loading) {
-    return <p className="text-sm text-muted">{t("loading")}</p>;
+    return (
+      <div
+        className="space-y-10"
+        role="status"
+        aria-busy="true"
+        aria-label={t("loading")}
+        data-testid="admin-user-detail-loading"
+      >
+        <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
+          <Skeleton height="6" width="1/3" />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="space-y-1">
+              <Skeleton height="3" width="1/4" />
+              <Skeleton height="10" rounded="lg" />
+            </div>
+          ))}
+        </section>
+        <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
+          <Skeleton height="6" width="1/3" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="space-y-1">
+              <Skeleton height="3" width="1/4" />
+              <Skeleton height="10" rounded="lg" />
+            </div>
+          ))}
+        </section>
+        <div className="flex gap-3">
+          <SkeletonButton width="1/4" />
+          <SkeletonButton width="1/4" />
+          <SkeletonButton width="1/4" />
+        </div>
+      </div>
+    );
   }
   if (loadError) {
     return <p className="text-sm text-[var(--app-warning-text)]">{error}</p>;

@@ -7,6 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { canShowManualOverrideToggle } from "@/lib/manual-override";
 import { SlotSelectionCalendar } from "@/components/slot-selection-calendar";
 import type { CalendarViewMode } from "@/lib/calendar-view";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type LessonProductOption = {
   id: string;
@@ -52,17 +53,20 @@ export function BookingForm({
   );
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   useEffect(() => {
     const qs = teacherProfileId
       ? `?teacherProfileId=${encodeURIComponent(teacherProfileId)}`
       : "";
+    setProductsLoading(true);
     void fetch(`/api/lesson-products${qs}`)
       .then((r) => r.json())
       .then((data: LessonProductOption[]) => {
         setProducts(data);
         if (data[0]) setSelectedOptionKey(optionKey(data[0]));
-      });
+      })
+      .finally(() => setProductsLoading(false));
   }, [teacherProfileId]);
 
   useEffect(() => {
@@ -126,18 +130,29 @@ export function BookingForm({
     <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-sm">
       <label className="block text-sm font-medium text-foreground">
         {t("selectProduct")}
-        <select
-          className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
-          value={selectedOptionKey}
-          onChange={(e) => setSelectedOptionKey(e.target.value)}
-        >
-          {products.map((p) => (
-            <option key={optionKey(p)} value={optionKey(p)}>
-              {buildProductOptionLabel(p, tSlotMeta, t)} — {p.durationMin}
-              {p.tier === "FREE_TRIAL" ? ` · ${t("freeTrialOption")}` : ""}
-            </option>
-          ))}
-        </select>
+        {productsLoading ? (
+          <div
+            data-testid="booking-products-loading"
+            aria-busy="true"
+            className="mt-1 space-y-2"
+          >
+            <Skeleton height="10" rounded="lg" />
+            <Skeleton height="3" width="1/3" />
+          </div>
+        ) : (
+          <select
+            className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
+            value={selectedOptionKey}
+            onChange={(e) => setSelectedOptionKey(e.target.value)}
+          >
+            {products.map((p) => (
+              <option key={optionKey(p)} value={optionKey(p)}>
+                {buildProductOptionLabel(p, tSlotMeta, t)} — {p.durationMin}
+                {p.tier === "FREE_TRIAL" ? ` · ${t("freeTrialOption")}` : ""}
+              </option>
+            ))}
+          </select>
+        )}
       </label>
       {presetSlots ? (
         <div className="space-y-3">
