@@ -11,7 +11,9 @@ export function groupBookingsForDashboard<T extends BookingForDashboardGrouping>
   bookings: T[],
   now: Date
 ): { upcoming: T[]; completed: T[] } {
-  const upcoming = bookings.filter((b) => b.endsAt >= now);
+  const upcoming = bookings.filter(
+    (b) => b.endsAt >= now && b.status !== "CANCELLED",
+  );
   const completed = bookings
     .filter((b) => b.endsAt < now && b.status !== "CANCELLED")
     .sort((a, b) => b.startsAt.getTime() - a.startsAt.getTime());

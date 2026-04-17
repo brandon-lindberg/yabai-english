@@ -5,5 +5,9 @@ import { getLocale } from "next-intl/server";
 export default async function LearnLayout({ children }: { children: ReactNode }) {
   const locale = await getLocale();
   await requireStudentOnboardingComplete(locale);
-  return children;
+  return (
+    <div className="mx-auto w-full max-w-6xl flex-1">
+      {children}
+    </div>
+  );
 }

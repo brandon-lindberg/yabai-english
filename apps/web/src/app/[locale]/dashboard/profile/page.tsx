@@ -5,6 +5,7 @@ import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { DashboardProfileForm } from "@/components/dashboard/dashboard-profile-form";
 import { TeacherProfileForm } from "@/components/dashboard/teacher-profile-form";
+import { resolveDisplayNameForForm } from "@/lib/profile-prefill";
 
 export default async function DashboardProfilePage() {
   const session = await auth();
@@ -17,30 +18,42 @@ export default async function DashboardProfilePage() {
 
   if (session.user.role === "TEACHER") {
     const t = await getTranslations("dashboard.profilePage");
-    const profile = await prisma.teacherProfile.findUnique({
-      where: { userId: session.user.id },
-      select: {
-        id: true,
-        displayName: true,
-        bio: true,
-        countryOfOrigin: true,
-        credentials: true,
-        instructionLanguages: true,
-        specialties: true,
-        rateYen: true,
-        offersFreeTrial: true,
-        lessonOfferings: {
-          where: { active: true },
-          orderBy: [{ isGroup: "asc" }, { durationMin: "asc" }],
-          select: {
-            id: true,
-            durationMin: true,
-            rateYen: true,
-            isGroup: true,
-            groupSize: true,
+    const [profile, user] = await Promise.all([
+      prisma.teacherProfile.findUnique({
+        where: { userId: session.user.id },
+        select: {
+          id: true,
+          displayName: true,
+          bio: true,
+          countryOfOrigin: true,
+          credentials: true,
+          instructionLanguages: true,
+          specialties: true,
+          rateYen: true,
+          offersFreeTrial: true,
+          lessonOfferings: {
+            where: { active: true },
+            orderBy: [{ isGroup: "asc" }, { durationMin: "asc" }],
+            select: {
+              id: true,
+              durationMin: true,
+              rateYen: true,
+              isGroup: true,
+              groupSize: true,
+            },
           },
         },
-      },
+      }),
+      prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { name: true, email: true },
+      }),
+    ]);
+
+    const { initial: displayInitial, showPrefillHint } = resolveDisplayNameForForm({
+      profileDisplayName: profile?.displayName,
+      userName: user?.name,
+      userEmail: user?.email,
     });
 
     return (
@@ -50,8 +63,9 @@ export default async function DashboardProfilePage() {
           <p className="mt-2 text-muted">{t("teacherIntro")}</p>
         </header>
         <TeacherProfileForm
+          showGooglePrefillHint={showPrefillHint}
           initialTeacherProfileId={profile?.id ?? null}
-          initialDisplayName={profile?.displayName ?? null}
+          initialDisplayName={displayInitial === "" ? null : displayInitial}
           initialBio={profile?.bio ?? null}
           initialCountryOfOrigin={profile?.countryOfOrigin ?? null}
           initialCredentials={profile?.credentials ?? null}
@@ -69,12 +83,19 @@ export default async function DashboardProfilePage() {
     where: { id: session.user.id },
     select: {
       name: true,
+      email: true,
       image: true,
       studentProfile: { select: { shortBio: true } },
     },
   });
 
   const t = await getTranslations("dashboard.profilePage");
+
+  const { initial: nameInitial, showPrefillHint } = resolveDisplayNameForForm({
+    profileDisplayName: user?.name,
+    userName: user?.name,
+    userEmail: user?.email,
+  });
 
   return (
     <div className="space-y-6">
@@ -83,7 +104,8 @@ export default async function DashboardProfilePage() {
         <p className="mt-2 text-muted">{t("intro")}</p>
       </header>
       <DashboardProfileForm
-        initialName={user?.name ?? null}
+        showGooglePrefillHint={showPrefillHint}
+        initialName={nameInitial === "" ? null : nameInitial}
         initialShortBio={user?.studentProfile?.shortBio ?? null}
         avatarUrl={user?.image ?? null}
       />

@@ -2,6 +2,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { bookingStatusKey } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
+import { AppCard } from "@/components/ui/app-card";
+import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 
 type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
 
@@ -13,7 +15,7 @@ export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) 
 
   if (!next) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-surface/60 p-5">
+      <AppCard className="border-dashed border-border/80 bg-surface/80">
         <h2 className="text-lg font-semibold text-foreground">{th("nextLessonTitle")}</h2>
         <p className="mt-2 text-sm text-muted">{th("noNextLesson")}</p>
         <Link
@@ -22,12 +24,12 @@ export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) 
         >
           {th("bookCta")}
         </Link>
-      </div>
+      </AppCard>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+    <AppCard>
       <h2 className="text-lg font-semibold text-foreground">{th("nextLessonTitle")}</h2>
       <p className="mt-2 font-medium text-foreground">
         {next.lessonProduct.nameJa} / {next.lessonProduct.nameEn}
@@ -56,7 +58,10 @@ export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) 
         <Link href="/dashboard/schedule" className="text-sm text-link">
           {th("fullSchedule")}
         </Link>
+        {(next.status === "CONFIRMED" || next.status === "PENDING_PAYMENT") && (
+          <BookingCancelButton bookingId={next.id} />
+        )}
       </div>
-    </div>
+    </AppCard>
   );
 }

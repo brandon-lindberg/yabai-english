@@ -5,6 +5,12 @@
     "signOut": "ログアウト",
     "dashboard": "ダッシュボード",
     "admin": "管理画面",
+    "book": "講師を探す",
+    "schedule": "スケジュール",
+    "profile": "プロフィール",
+    "integrations": "Google とカレンダー",
+    "accountMenu": "アカウント",
+    "primaryNavAria": "メイン",
     "learn": "レッスン",
     "bookLesson": "予約",
     "themeToggle": "明暗を切り替え",
@@ -63,7 +69,12 @@
     "title": "オンライン英会話",
     "subtitle": "日本の学習者のためのシンプルな予約と学習プラットフォーム。",
     "ctaDashboard": "ダッシュボードへ",
-    "ctaBook": "レッスンを予約"
+    "ctaBook": "レッスンを予約",
+    "signedInTitle": "おかえりなさい",
+    "signedInSubtitle": "次のレッスンの予約、スケジュールの確認、フラッシュカードの続きからお選びください。",
+    "signedInBook": "講師を探す",
+    "signedInDashboard": "ダッシュボード",
+    "signedInLearn": "フラッシュカード"
   },
   "dashboard": {
     "title": "マイページ",
@@ -86,6 +97,10 @@
     "exportIcs": "予定をエクスポート (.ics)",
     "addToGoogleCalendar": "Google カレンダーに追加",
     "downloadIcs": ".ics をダウンロード",
+    "cancelBooking": "予約をキャンセル",
+    "cancelBookingConfirm": "このレッスンの予約をキャンセルしますか？あとから別の枠を取り直せます。",
+    "cancelBookingWorking": "キャンセル中…",
+    "cancelBookingError": "キャンセルできませんでした。もう一度お試しください。",
     "calendarDay": "日",
     "calendarWeek": "週",
     "calendarMonth": "月",
@@ -165,7 +180,8 @@
       "teacherGroupRatesEmpty": "グループレッスン料金はまだありません。",
       "teacherOffersFreeTrialLabel": "20分の無料トライアルを提供する",
       "teacherOffersFreeTrialHelp": "オフにすると、受講生はあなたのレッスンで無料トライアルを選択できません。",
-      "teacherPreviewPublic": "公開の予約ページを見る"
+      "teacherPreviewPublic": "公開の予約ページを見る",
+      "prefillFromGoogle": "ログイン（Google）の情報を表示しています。保存前に編集できます。"
     },
     "schedulePage": {
       "title": "スケジュール",
@@ -254,16 +270,31 @@
       "empty": "まずフラッシュカードで練習しましょう。一度正解したカードから毎日選ばれます。",
       "clearedForToday": "今日のクイック復習はすべて完了したか、これ以上表示できるカードがありません。また明日どうぞ。"
     },
+    "integrationsPage": {
+      "title": "Google 連携",
+      "intro": "必要なものだけを接続します。Meet リンクにはカレンダーが使われます。Drive や Meet の成果物は教材用の任意連携です。",
+      "calendarPreviewTitle": "あなたのカレンダー",
+      "calendarPreviewHint": "Google の埋め込み表示です。真っ白な場合は Google カレンダーで該当カレンダーの設定 → アクセス権限から「一般に公開」または埋め込みを許可するか、新しいタブで開いてください。",
+      "openGoogleCalendar": "Google カレンダーを開く"
+    },
     "teacherHome": {
       "title": "ダッシュボード",
       "body": "予約やレッスン関連の機能はこちらです。受講生のフラッシュカードは「学習 → フラッシュカード」から。",
+      "statUpcoming": "これからのレッスン",
+      "statCompleted": "完了したレッスン",
+      "statSlots": "公開中の枠",
+      "editProfile": "プロフィールを編集",
+      "googleIntegrations": "Google 連携",
+      "openSchedule": "スケジュールを開く",
+      "upcomingSection": "これからのレッスン",
       "calendarTitle": "Meet リンク用の Google カレンダー連携",
       "calendarDisconnected": "まだ連携されていません。レッスンの Meet リンクを自動作成するには Google カレンダーを連携してください。",
       "calendarConnected": "連携済みです。予約時に Meet リンクを自動作成できます。",
       "calendarConnectCta": "Google カレンダーを連携",
       "calendarReconnectCta": "Google カレンダーを再連携",
       "calendarConnectedToast": "Google カレンダーの連携が完了しました。",
-      "calendarFailedToast": "Google カレンダーを連携できませんでした。もう一度お試しください。"
+      "calendarFailedToast": "Google カレンダーを連携できませんでした。もう一度お試しください。",
+      "calendarSetupHint": "予約確定時に Meet リンクを自動作成するには、次の「Google とカレンダー」からカレンダーを連携してください。"
     }
   },
   "admin": {
@@ -375,6 +406,7 @@
     "freeTrialOption": "無料トライアル",
     "teacherFreeTrialUnavailable": "この講師は無料トライアルレッスンを提供していません。",
     "noTeachersFound": "条件に合う講師が見つかりませんでした。",
+    "backToDashboard": "ダッシュボードへ",
     "teacherSpecialties": "得意分野",
     "teacherRate": "料金",
     "availability": "対応可能時間",
@@ -404,6 +436,7 @@
     "noSlotSelected": "時間がまだ選択されていません"
   },
   "placement": {
+    "pageIntro": "所要時間の目安は15〜25分です。回答は開始レベルとレッスン計画の提案に使われます。",
     "title": "レベル診断",
     "loading": "読み込み中…",
     "loadError": "診断を読み込めませんでした。",
@@ -519,6 +552,9 @@
     "acceptPrivacy": "プライバシーポリシーに同意します",
     "acceptRecording": "レッスン録画に同意します",
     "submit": "保存して続ける",
+    "wizardProgress": "ステップ {current} / {total}",
+    "wizardBack": "戻る",
+    "wizardNext": "次へ",
     "saveError": "オンボーディングの保存に失敗しました。もう一度お試しください。",
     "nextTitle": "次のステップを選択してください",
     "nextSubtitle": "今すぐレベル診断を受けるか、先に講師を選ぶことができます。",

@@ -524,21 +524,21 @@ export function ChatPanel() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-xl text-primary-foreground shadow-lg hover:opacity-90 ${
+        className={`fixed bottom-5 right-5 z-40 flex h-11 max-w-[10rem] items-center justify-center gap-1.5 rounded-full border border-border bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-md ring-1 ring-black/5 hover:opacity-90 ${
           open ? "hidden" : ""
         }`}
         aria-label={open ? t("close") : t("open")}
       >
-        💬
+        <span className="truncate">{t("title")}</span>
         {totalUnreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 inline-flex min-w-5 justify-center rounded-full border border-red-300 bg-red-500 px-1.5 text-[10px] font-semibold leading-5 text-white">
-            {totalUnreadCount}
+          <span className="absolute -right-1 -top-1 inline-flex min-w-5 justify-center rounded-full border border-border bg-destructive px-1.5 text-[10px] font-semibold leading-5 text-white">
+            {totalUnreadCount > 99 ? "99+" : totalUnreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 h-[78vh] rounded-t-2xl border border-border bg-surface shadow-xl md:bottom-5 md:left-auto md:right-5 md:top-20 md:h-auto md:w-[760px] md:rounded-2xl">
+        <div className="fixed bottom-0 left-0 right-0 z-[55] h-[78vh] rounded-t-2xl border border-border bg-surface shadow-xl md:bottom-5 md:left-auto md:right-5 md:top-20 md:h-auto md:w-[760px] md:rounded-2xl">
           <div className="mb-2 flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
             <div className="flex items-center gap-2">

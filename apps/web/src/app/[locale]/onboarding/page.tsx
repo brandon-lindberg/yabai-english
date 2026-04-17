@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/onboarding-gate";
 import { getStudentPostOnboardingRoute } from "@/lib/onboarding-routing";
 import { OnboardingForm } from "@/components/onboarding-form";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function OnboardingPage() {
   const t = await getTranslations("onboarding");
@@ -32,10 +33,9 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-      <p className="mt-2 text-sm text-muted">{t("subtitle")}</p>
-      <div className="mt-6">
+    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 sm:px-6">
+      <PageHeader title={t("title")} description={t("subtitle")} />
+      <div className="mt-8">
         <OnboardingForm initialTimezone={profile?.timezone ?? "Asia/Tokyo"} />
       </div>
     </main>

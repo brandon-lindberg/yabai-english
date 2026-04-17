@@ -11,7 +11,7 @@ export async function GET(req: Request) {
   const url = buildGoogleConnectUrl(req, {
     userId: session.user.id,
     feature: "calendar",
-    returnTo: "/dashboard",
+    returnTo: "/dashboard/integrations",
   });
   if (!url) {
     return NextResponse.redirect(new URL("/dashboard?calendar=misconfigured", req.url));

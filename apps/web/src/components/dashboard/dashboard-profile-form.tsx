@@ -7,12 +7,19 @@ import { StudentBioMdxEditor } from "@/components/dashboard/student-bio-mdx-edit
 import { STUDENT_SHORT_BIO_MAX_CHARS } from "@/lib/student-short-bio";
 
 type Props = {
+  /** When display name was suggested because profile name was empty */
+  showGooglePrefillHint?: boolean;
   initialName: string | null;
   initialShortBio: string | null;
   avatarUrl: string | null;
 };
 
-export function DashboardProfileForm({ initialName, initialShortBio, avatarUrl }: Props) {
+export function DashboardProfileForm({
+  showGooglePrefillHint = false,
+  initialName,
+  initialShortBio,
+  avatarUrl,
+}: Props) {
   const t = useTranslations("dashboard.profilePage");
   const [name, setName] = useState(initialName ?? "");
   const [shortBio, setShortBio] = useState(
@@ -63,6 +70,9 @@ export function DashboardProfileForm({ initialName, initialShortBio, avatarUrl }
         <label htmlFor="student-name" className="block text-sm font-medium text-foreground">
           {t("displayName")}
         </label>
+        {showGooglePrefillHint ? (
+          <p className="mt-0.5 text-xs text-muted">{t("prefillFromGoogle")}</p>
+        ) : null}
         <input
           id="student-name"
           name="name"

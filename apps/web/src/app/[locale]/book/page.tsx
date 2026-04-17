@@ -6,6 +6,9 @@ import { filterTeacherCards } from "@/lib/teacher-discovery";
 import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Link } from "@/i18n/navigation";
 
 type Props = {
   searchParams: Promise<{
@@ -63,17 +66,27 @@ export default async function BookPage({ searchParams }: Props) {
   const filtered = filterTeacherCards(cards, { specialty, language });
 
   return (
-    <main className="mx-auto max-w-4xl flex-1 px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-      <p className="mt-2 text-sm text-muted">{t("teacherBrowseSubtitle")}</p>
+    <main className="mx-auto max-w-5xl flex-1 px-4 py-10 sm:px-6">
+      <PageHeader title={t("title")} description={t("teacherBrowseSubtitle")} />
       <div className="mt-6">
         <TeacherFilterBar specialty={specialty} language={language} />
       </div>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {filtered.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border bg-surface p-6 text-sm text-muted sm:col-span-2">
-            {t("noTeachersFound")}
-          </p>
+          <div className="sm:col-span-2">
+            <EmptyState
+              title={t("noTeachersFound")}
+              description={t("teacherBrowseSubtitle")}
+              action={
+                <Link
+                  href="/dashboard"
+                  className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                >
+                  {t("backToDashboard")}
+                </Link>
+              }
+            />
+          </div>
         ) : (
           filtered.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)
         )}

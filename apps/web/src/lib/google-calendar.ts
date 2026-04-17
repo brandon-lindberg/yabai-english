@@ -161,3 +161,56 @@ export async function patchMeetLessonEvent(params: {
     return false;
   }
 }
+
+export async function deleteMeetLessonEvent(params: {
+  organizerUserId?: string;
+  refreshTokenEncrypted: string | null | undefined;
+  calendarId?: string | null;
+  eventId: string;
+}): Promise<boolean> {
+  let refreshTokenEncrypted = params.refreshTokenEncrypted;
+  let calendarId = params.calendarId || "primary";
+  if (params.organizerUserId) {
+    const [integration, settings] = await Promise.all([
+      prisma.googleIntegrationAccount.findUnique({
+        where: { userId: params.organizerUserId },
+        select: { refreshToken: true, revoked: true },
+      }),
+      prisma.googleIntegrationSettings.findUnique({
+        where: { userId: params.organizerUserId },
+        select: { preferredCalendarId: true, calendarConnected: true },
+      }),
+    ]);
+    if (settings?.calendarConnected === false) return false;
+    if (integration?.refreshToken && !integration.revoked) {
+      refreshTokenEncrypted = integration.refreshToken;
+    }
+    if (settings?.preferredCalendarId) {
+      calendarId = settings.preferredCalendarId;
+    }
+  }
+
+  if (!refreshTokenEncrypted || !params.eventId) return false;
+
+  const clientId = process.env.AUTH_GOOGLE_ID;
+  const clientSecret = process.env.AUTH_GOOGLE_SECRET;
+  if (!clientId || !clientSecret) return false;
+
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+  oauth2Client.setCredentials({
+    refresh_token: decryptRefreshToken(refreshTokenEncrypted),
+  });
+
+  const cal = google.calendar({ version: "v3", auth: oauth2Client });
+  try {
+    await cal.events.delete({
+      calendarId,
+      eventId: params.eventId,
+      sendUpdates: "all",
+    });
+    return true;
+  } catch (err) {
+    console.error("Google Calendar delete failed:", err);
+    return false;
+  }
+}
