@@ -6,6 +6,7 @@ import type { Adapter } from "next-auth/adapters";
 import { prisma } from "@/lib/prisma";
 import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
+import { getSessionMaxAgeSeconds } from "@/lib/session-timeout";
 import { AccountStatus, Role } from "@prisma/client";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
@@ -54,6 +55,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: hasGoogleOAuth ? prismaAdapter : undefined,
   session: {
     strategy: hasGoogleOAuth ? "database" : "jwt",
+    maxAge: getSessionMaxAgeSeconds(),
+    updateAge: Math.min(300, getSessionMaxAgeSeconds()),
   },
   trustHost: true,
   providers,

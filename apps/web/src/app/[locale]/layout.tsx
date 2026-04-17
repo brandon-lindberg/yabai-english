@@ -6,6 +6,7 @@ import { routing } from "@/i18n/routing";
 import { auth } from "@/auth";
 import { AppProviders } from "@/components/providers";
 import { HiddenAccountGuard } from "@/components/hidden-account-guard";
+import { IdleLogoutGuard } from "@/components/idle-logout-guard";
 import { SiteHeader } from "@/components/shell/site-header";
 import { ChatPanel } from "@/components/chat-panel";
 
@@ -32,6 +33,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     <NextIntlClientProvider messages={messages}>
       <AppProviders session={session}>
         <HiddenAccountGuard />
+        <IdleLogoutGuard />
         <SiteHeader />
         {children}
         <ChatPanel />
