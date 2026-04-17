@@ -35,9 +35,6 @@
     "study:build-advanced3-json": "tsx scripts/build-advanced3-json.ts",
     "db:seed": "prisma db seed"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
     "@dnd-kit/core": "^6.3.1",
