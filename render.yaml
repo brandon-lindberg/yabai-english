@@ -1,0 +1,76 @@
+# Render Blueprint for the English Platform.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# This provisions:
+#   1. A managed Postgres 18 database.
+#   2. A Node web service that runs the Next.js app in apps/web.
+#
+# Secrets flagged `sync: false` must be set manually in the Render dashboard
+# the first time the Blueprint is applied (Render will prompt for them).
+
+databases:
+  - name: english-platform-db
+    databaseName: english_platform
+    user: english_platform
+    plan: basic-256mb
+    region: singapore
+    postgresMajorVersion: "18"
+    ipAllowList: [] # allow internal Render traffic only
+
+services:
+  - type: web
+    name: english-platform-web
+    runtime: node
+    plan: starter
+    region: singapore
+    rootDir: apps/web
+    # yarn postinstall runs `prisma generate`, so no separate generate step needed.
+    buildCommand: yarn install --frozen-lockfile && yarn build
+    # Migrations run AFTER a successful build but BEFORE traffic is shifted,
+    # so a migration failure won't take the old version down.
+    preDeployCommand: yarn prisma migrate deploy
+    startCommand: yarn start
+    healthCheckPath: /
+    autoDeploy: true
+
+    envVars:
+      # Node 22 LTS — matches local dev and what Next 16 expects.
+      - key: NODE_VERSION
+        value: "22"
+
+      # Wire the web service to the managed database above.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: english-platform-db
+          property: connectionString
+
+      # Auth.js — trust the X-Forwarded-* headers Render sets at the edge.
+      - key: AUTH_TRUST_HOST
+        value: "true"
+
+      # Render generates a strong random value once and keeps it stable.
+      - key: AUTH_SECRET
+        generateValue: true
+
+      # --- Manual secrets — Render will prompt for these on first apply ---
+
+      # Google OAuth (from console.cloud.google.com — same client you use locally,
+      # but you must add the production redirect URI there too).
+      - key: AUTH_GOOGLE_ID
+        sync: false
+      - key: AUTH_GOOGLE_SECRET
+        sync: false
+
+      # 64-char hex string (32 bytes). Generate with:
+      #   openssl rand -hex 32
+      - key: CALENDAR_TOKEN_ENCRYPTION_KEY
+        sync: false
+
+      # Public base URL of the app, e.g. https://english-platform-web.onrender.com
+      # (or your custom domain, once attached). No trailing slash.
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+
+      # Belt-and-suspenders: make sure the dev-only auth bypass is OFF in prod.
+      - key: DEV_AUTH_BYPASS
+        value: "false"
