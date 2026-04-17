@@ -29,5 +29,10 @@
     "study:build-beginner2-json": "yarn --cwd apps/web study:build-beginner2-json",
     "study:build-beginner3-json": "yarn --cwd apps/web study:build-beginner3-json"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "dependencies": {
+    "@codemirror/language": "^6.12.3",
+    "@lezer/highlight": "^1.2.3",
+    "yjs": "^13.6.30"
+  }
 }
