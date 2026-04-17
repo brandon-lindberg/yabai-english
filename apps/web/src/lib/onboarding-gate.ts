@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
+import { getOnboardingRedirectForRole } from "@/lib/onboarding-redirect";
 
 export async function requireAuth(locale: string) {
   const session = await auth();
@@ -28,5 +29,41 @@ export async function requireStudentOnboardingComplete(
     redirect({ href: "/onboarding", locale });
   }
 
+  return user;
+}
+
+export async function requireRoleOnboardingComplete(
+  locale: string,
+  currentUser?: { id: string; role: string },
+) {
+  const user = currentUser ?? (await requireAuth(locale));
+  if (user.role === "STUDENT") {
+    const profile = await prisma.studentProfile.findUnique({
+      where: { userId: user.id },
+      select: { onboardingCompletedAt: true },
+    });
+    const href = getOnboardingRedirectForRole({
+      role: user.role,
+      studentOnboardingCompleted: Boolean(profile?.onboardingCompletedAt),
+    });
+    if (href) {
+      redirect({ href, locale });
+    }
+    return user;
+  }
+  if (user.role === "TEACHER") {
+    const profile = await prisma.teacherProfile.findUnique({
+      where: { userId: user.id },
+      select: { onboardingCompletedAt: true },
+    });
+    const href = getOnboardingRedirectForRole({
+      role: user.role,
+      teacherOnboardingCompleted: Boolean(profile?.onboardingCompletedAt),
+    });
+    if (href) {
+      redirect({ href, locale });
+    }
+    return user;
+  }
   return user;
 }

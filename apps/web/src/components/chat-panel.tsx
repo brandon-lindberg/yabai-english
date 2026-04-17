@@ -80,6 +80,48 @@ export function ChatPanel() {
   } | null>(null);
   const suppressThreadClickRef = useRef<string | null>(null);
 
+  const [onboardingContext, setOnboardingContext] = useState<{
+    step: string;
+    returnHref: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("openChat") === "1") {
+      setOpen(true);
+      const step = params.get("onboardingStep");
+      const returnHref = params.get("onboardingNext");
+      if (step && returnHref) {
+        setOnboardingContext({ step, returnHref });
+      }
+      params.delete("openChat");
+      const qs = params.toString();
+      const newUrl =
+        window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash;
+      window.history.replaceState(null, "", newUrl);
+    }
+  }, []);
+
+  const closeAndMaybeCompleteOnboarding = useCallback(async () => {
+    setOpen(false);
+    if (!onboardingContext) return;
+    const { step, returnHref } = onboardingContext;
+    setOnboardingContext(null);
+    try {
+      await fetch("/api/onboarding/skip-step", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ step }),
+      });
+    } catch {
+      // non-fatal - proceed to redirect regardless
+    }
+    if (typeof window !== "undefined") {
+      window.location.href = returnHref;
+    }
+  }, [onboardingContext]);
+
   const activeThread = useMemo(
     () => threads.find((thread) => thread.id === activeThreadId) ?? null,
     [threads, activeThreadId],
@@ -558,7 +600,7 @@ export function ChatPanel() {
               )}
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={() => void closeAndMaybeCompleteOnboarding()}
                 className="rounded-full border border-border px-2 py-1 text-xs text-muted hover:bg-[var(--app-hover)]"
               >
                 {t("close")}

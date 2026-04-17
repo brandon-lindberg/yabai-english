@@ -6,9 +6,34 @@ import { useState } from "react";
 type Props = {
   feature: "calendar" | "drive" | "meet";
   connected: boolean;
+  onboardingNext?: string | null;
+  onboardingStep?: string | null;
 };
 
-export function GoogleIntegrationCardActions({ feature, connected }: Props) {
+export function buildConnectHref(
+  feature: Props["feature"],
+  onboardingNext?: string | null,
+  onboardingStep?: string | null,
+): string {
+  const basePath = "/dashboard/integrations";
+  const returnParams = new URLSearchParams();
+  if (onboardingNext) {
+    returnParams.set("onboardingNext", onboardingNext);
+  }
+  if (onboardingStep) {
+    returnParams.set("onboardingStep", onboardingStep);
+  }
+  const qs = returnParams.toString();
+  const returnTo = qs ? `${basePath}?${qs}` : basePath;
+  return `/api/integrations/google/connect?feature=${feature}&returnTo=${encodeURIComponent(returnTo)}`;
+}
+
+export function GoogleIntegrationCardActions({
+  feature,
+  connected,
+  onboardingNext = null,
+  onboardingStep = null,
+}: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
@@ -26,7 +51,7 @@ export function GoogleIntegrationCardActions({ feature, connected }: Props) {
   return (
     <div className="mt-3 flex gap-2">
       <a
-        href={`/api/integrations/google/connect?feature=${feature}&returnTo=/dashboard/integrations`}
+        href={buildConnectHref(feature, onboardingNext, onboardingStep)}
         className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
       >
         {connected ? "Reconnect" : "Connect"}

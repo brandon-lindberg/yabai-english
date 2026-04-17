@@ -13,16 +13,24 @@ import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { AppCard } from "@/components/ui/app-card";
 import { InlineAlert } from "@/components/ui/inline-alert";
+import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
+import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
+  searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
 };
 
-export default async function TeacherProfileBookingPage({ params }: Props) {
+export default async function TeacherProfileBookingPage({
+  params,
+  searchParams,
+}: Props) {
   const t = await getTranslations("booking");
   const tSlotMeta = await getTranslations("lessonSlotMeta");
   const locale = await getLocale();
   const { teacherId } = await params;
+  const { onboardingNext, onboardingStep } = await searchParams;
+  const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
   const session = await auth();
 
   const viewerTeacherProfileId =
@@ -116,6 +124,7 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-4xl flex-1 px-4 py-10 sm:px-6">
+      <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       <PageHeader title={displayName} description={subtitle} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -186,6 +195,7 @@ export default async function TeacherProfileBookingPage({ params }: Props) {
           presetSlots={slotOptions.map((slot) => ({
             startsAtIso: slot.startsAtIso,
             label: slot.label,
+            groupKey: slot.slotId,
           }))}
         />
       </section>

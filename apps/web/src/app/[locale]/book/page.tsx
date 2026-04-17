@@ -9,11 +9,15 @@ import { getLocale } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Link } from "@/i18n/navigation";
+import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
+import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 
 type Props = {
   searchParams: Promise<{
     specialty?: string;
     language?: string;
+    onboardingNext?: string;
+    onboardingStep?: string;
   }>;
 };
 
@@ -26,6 +30,7 @@ export default async function BookPage({ searchParams }: Props) {
     redirect({ href: "/dashboard", locale });
   }
 
+  const onboardingHref = normalizeOnboardingNextHref(params.onboardingNext ?? null);
   const specialty = params.specialty?.trim() ?? "";
   const language = params.language?.trim().toUpperCase() ?? "";
 
@@ -67,6 +72,7 @@ export default async function BookPage({ searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-5xl flex-1 px-4 py-10 sm:px-6">
+      <OnboardingResumeBanner href={onboardingHref} step={params.onboardingStep ?? null} />
       <PageHeader title={t("title")} description={t("teacherBrowseSubtitle")} />
       <div className="mt-6">
         <TeacherFilterBar specialty={specialty} language={language} />
@@ -88,7 +94,14 @@ export default async function BookPage({ searchParams }: Props) {
             />
           </div>
         ) : (
-          filtered.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)
+          filtered.map((teacher) => (
+            <TeacherCard
+              key={teacher.id}
+              teacher={teacher}
+              onboardingNext={onboardingHref}
+              onboardingStep={params.onboardingStep ?? null}
+            />
+          ))
         )}
       </div>
     </main>

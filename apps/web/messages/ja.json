@@ -570,10 +570,84 @@
     "saveError": "オンボーディングの保存に失敗しました。もう一度お試しください。",
     "nextTitle": "次のステップを選択してください",
     "nextSubtitle": "今すぐレベル診断を受けるか、先に講師を選ぶことができます。",
+    "completedLabel": "完了済み",
+    "skipForNow": "後で設定する",
+    "skipForNowHint": "ダッシュボードからいつでも戻って続きを設定できます。",
+    "progressSummary": "{current}/{total} 完了",
+    "skipThisStep": "このステップをスキップ",
+    "markStepDone": "このステップを完了にする",
+    "finishOnboarding": "完了してダッシュボードへ",
+    "allDoneHint": "準備完了です。ダッシュボードに移動できます。",
+    "resumeChecklistCta": "オンボーディングの続きを見る",
     "takePlacementNow": "今すぐレベル診断を受ける",
     "takePlacementNowHelp": "予約前に推奨レベルを確認します。",
     "chooseTeacherNow": "先に講師を選ぶ",
-    "chooseTeacherNowHelp": "いまは診断をスキップして講師と時間を選択します。"
+    "chooseTeacherNowHelp": "いまは診断をスキップして講師と時間を選択します。",
+    "studentSteps": {
+      "profile": {
+        "title": "プロフィールを設定",
+        "body": "自己紹介を追加して学習目的を講師に伝えましょう。"
+      },
+      "integrations": {
+        "title": "Google 連携を設定",
+        "body": "カレンダー同期で予約管理をスムーズにします。"
+      },
+      "bookLesson": {
+        "title": "講師を探してレッスンを予約",
+        "body": "講師を比較し、レッスン種別と日時を選択しましょう。"
+      },
+      "chat": {
+        "title": "講師とのチャットを活用",
+        "body": "レッスン前後の連絡にチャットを使います。"
+      },
+      "placement": {
+        "title": "レベル診断を受ける",
+        "body": "続ける前に推奨レベルを確認しましょう。"
+      },
+      "materials": {
+        "title": "学習教材を開く",
+        "body": "予約の合間にフラッシュカードで学習できます。"
+      }
+    },
+    "teacherTitle": "講師オンボーディング",
+    "teacherSubtitle": "一度完了すると、講師ダッシュボードと受講生向け機能が使えるようになります。",
+    "teacherOpenStep": "開く",
+    "teacherSkipOptional": "今はスキップ",
+    "teacherFinish": "オンボーディングを完了",
+    "teacherResumeHint": "講師オンボーディングはまだ完了していません。",
+    "teacherResumeCta": "オンボーディングに戻る",
+    "resumeHint": "アカウントのセットアップを続けてください。",
+    "resumeCta": "オンボーディングに戻る",
+    "teacherSteps": {
+      "profile": {
+        "title": "公開プロフィールを更新",
+        "body": "自己紹介・資格・提供レッスンを設定し、受講生に内容を伝えます。"
+      },
+      "integrations": {
+        "title": "Google 連携を設定",
+        "body": "カレンダー同期と Meet 連携のために Google アカウントを接続します。"
+      },
+      "availability": {
+        "title": "対応可能時間を設定",
+        "body": "受講生が予約できるよう、少なくとも1つの枠を公開します。"
+      },
+      "students": {
+        "title": "受講生プロフィールを確認",
+        "body": "レッスン前に受講生の目的や背景を把握します。"
+      },
+      "chat": {
+        "title": "受講生とのチャット運用",
+        "body": "レッスン前後の連絡はチャットパネルで行います。"
+      },
+      "notes": {
+        "title": "レッスン後メモ・資料リンクを追加",
+        "body": "完了後にレッスンメモや外部リンクを記録します。"
+      },
+      "materials": {
+        "title": "学習教材を把握",
+        "body": "受講生が使うフラッシュカード教材を確認します。"
+      }
+    }
   },
   "chat": {
     "title": "メッセージ",

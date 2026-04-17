@@ -164,11 +164,11 @@ export function SlotSelectionCalendar({
               </p>
             ) : (
               <div className="space-y-2">
-                {(slotMap.get(dayKeyFromIso(calendarAnchor)) ?? []).map((slot) => {
+                {(slotMap.get(dayKeyFromIso(calendarAnchor)) ?? []).map((slot, idx) => {
                   const selected = isSlotSelected(slot);
                   return (
                     <button
-                      key={slot.startsAtIso}
+                      key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
                       type="button"
                       onClick={() => onSelectSlot(slot.startsAtIso, slot.groupKey)}
                       className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition ${
@@ -221,11 +221,11 @@ export function SlotSelectionCalendar({
                       ) : null}
                     </div>
                     <div className="space-y-1">
-                      {daySlots.slice(0, 5).map((slot) => {
+                      {daySlots.slice(0, 5).map((slot, idx) => {
                         const selected = isSlotSelected(slot);
                         return (
                           <button
-                            key={slot.startsAtIso}
+                            key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
                             type="button"
                             onClick={() => {
                               onSelectSlot(slot.startsAtIso, slot.groupKey);

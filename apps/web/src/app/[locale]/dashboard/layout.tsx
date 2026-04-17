@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { requireStudentOnboardingComplete } from "@/lib/onboarding-gate";
+import { requireRoleOnboardingComplete } from "@/lib/onboarding-gate";
 import { getLocale } from "next-intl/server";
 import { auth } from "@/auth";
 import { DashboardSubNav } from "@/components/dashboard/dashboard-sub-nav";
@@ -7,8 +7,8 @@ import { DashboardSubNav } from "@/components/dashboard/dashboard-sub-nav";
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const locale = await getLocale();
   const session = await auth();
-  if (session?.user?.role === "STUDENT") {
-    await requireStudentOnboardingComplete(locale);
+  if (session?.user?.role === "STUDENT" || session?.user?.role === "TEACHER") {
+    await requireRoleOnboardingComplete(locale);
   }
   const isStudent = session?.user?.role === "STUDENT";
   const isTeacher = session?.user?.role === "TEACHER";

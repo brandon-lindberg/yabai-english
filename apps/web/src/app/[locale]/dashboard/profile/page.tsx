@@ -6,23 +6,33 @@ import { getLocale } from "next-intl/server";
 import { DashboardProfileForm } from "@/components/dashboard/dashboard-profile-form";
 import { TeacherProfileForm } from "@/components/dashboard/teacher-profile-form";
 import { resolveDisplayNameForForm } from "@/lib/profile-prefill";
+import { buildTeacherOnboardingReturnFromProfile } from "@/lib/teacher-onboarding-progress";
+import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 
-export default async function DashboardProfilePage() {
+export default async function DashboardProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) return null;
 
   const locale = await getLocale();
+  const { onboardingNext: onboardingNextParam, onboardingStep: onboardingStepParam } =
+    await searchParams;
   if (session.user.role === "ADMIN") {
     redirect({ href: "/dashboard", locale });
   }
 
   if (session.user.role === "TEACHER") {
+    const onboardingNext = onboardingNextParam ?? null;
     const t = await getTranslations("dashboard.profilePage");
     const [profile, user] = await Promise.all([
       prisma.teacherProfile.findUnique({
         where: { userId: session.user.id },
         select: {
           id: true,
+          onboardingCompletedAt: true,
           displayName: true,
           bio: true,
           countryOfOrigin: true,
@@ -57,9 +67,17 @@ export default async function DashboardProfilePage() {
       userName: user?.name,
       userEmail: user?.email,
     });
+    const postSaveRedirect = buildTeacherOnboardingReturnFromProfile(
+      profile?.onboardingCompletedAt,
+      null,
+    );
 
     return (
       <div className="space-y-6">
+        <OnboardingResumeBanner
+          href={onboardingNext}
+          step={onboardingStepParam ?? null}
+        />
         <header>
           <h1 className="text-2xl font-bold text-foreground">{t("teacherTitle")}</h1>
           <p className="mt-2 text-muted">{t("teacherIntro")}</p>
@@ -75,6 +93,7 @@ export default async function DashboardProfilePage() {
           initialSpecialties={profile?.specialties ?? []}
           initialRateYen={profile?.rateYen ?? null}
           initialOffersFreeTrial={profile?.offersFreeTrial ?? true}
+          postSaveRedirect={onboardingNext ?? postSaveRedirect}
           initialLessonOfferings={profile?.lessonOfferings ?? []}
         />
       </div>
@@ -101,6 +120,10 @@ export default async function DashboardProfilePage() {
 
   return (
     <div className="space-y-6">
+      <OnboardingResumeBanner
+        href={onboardingNextParam ?? null}
+        step={onboardingStepParam ?? null}
+      />
       <header>
         <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
         <p className="mt-2 text-muted">{t("intro")}</p>
@@ -110,6 +133,7 @@ export default async function DashboardProfilePage() {
         initialName={nameInitial === "" ? null : nameInitial}
         initialShortBio={user?.studentProfile?.shortBio ?? null}
         avatarUrl={user?.image ?? null}
+        postSaveRedirect={onboardingNextParam ?? null}
       />
     </div>
   );

@@ -5,10 +5,16 @@ import { getStudyTrackOverview } from "@/lib/study/get-overview";
 import { Link } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
+import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 
 const TRACK_SLUG = "english-flashcards";
 
-export default async function StudyHubPage() {
+export default async function StudyHubPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) {
     notFound();
@@ -21,9 +27,12 @@ export default async function StudyHubPage() {
 
   const t = await getTranslations("study");
   const locale = await getLocale();
+  const { onboardingNext, onboardingStep } = await searchParams;
+  const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
 
   return (
     <main className="mx-auto max-w-3xl flex-1 px-4 py-10 sm:px-6">
+      <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       <p className="text-sm text-muted">
         <Link href="/dashboard" className="font-medium text-link hover:opacity-90">
           {t("backToDashboard")}

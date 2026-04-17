@@ -28,6 +28,7 @@ type Props = {
   presetSlots?: Array<{
     startsAtIso: string;
     label: string;
+    groupKey?: string;
   }>;
 };
 
