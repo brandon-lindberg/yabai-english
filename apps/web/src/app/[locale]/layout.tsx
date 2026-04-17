@@ -6,7 +6,7 @@ import { routing } from "@/i18n/routing";
 import { auth } from "@/auth";
 import { AppProviders } from "@/components/providers";
 import { HiddenAccountGuard } from "@/components/hidden-account-guard";
-import { SiteHeader } from "@/components/site-header";
+import { SiteHeader } from "@/components/shell/site-header";
 import { ChatPanel } from "@/components/chat-panel";
 
 type Props = {

@@ -5,6 +5,12 @@
     "signOut": "Sign out",
     "dashboard": "Dashboard",
     "admin": "Admin",
+    "book": "Find teachers",
+    "schedule": "Schedule",
+    "profile": "Profile",
+    "integrations": "Google & calendar",
+    "accountMenu": "Account",
+    "primaryNavAria": "Main",
     "learn": "Learn",
     "bookLesson": "Book a lesson",
     "themeToggle": "Toggle color theme",
@@ -63,7 +69,12 @@
     "title": "Online English lessons",
     "subtitle": "A simple booking and learning platform for Japanese learners.",
     "ctaDashboard": "Go to dashboard",
-    "ctaBook": "Book a lesson"
+    "ctaBook": "Book a lesson",
+    "signedInTitle": "Welcome back",
+    "signedInSubtitle": "Book your next lesson, review your schedule, or continue flashcard practice.",
+    "signedInBook": "Find a teacher",
+    "signedInDashboard": "Dashboard",
+    "signedInLearn": "Flashcards"
   },
   "dashboard": {
     "title": "My dashboard",
@@ -86,6 +97,10 @@
     "exportIcs": "Export schedule (.ics)",
     "addToGoogleCalendar": "Add to Google Calendar",
     "downloadIcs": "Download .ics",
+    "cancelBooking": "Cancel booking",
+    "cancelBookingConfirm": "Cancel this lesson? You can still sign up for another slot later.",
+    "cancelBookingWorking": "Cancelling…",
+    "cancelBookingError": "Could not cancel. Try again.",
     "calendarDay": "Day",
     "calendarWeek": "Week",
     "calendarMonth": "Month",
@@ -165,7 +180,8 @@
       "teacherGroupRatesEmpty": "No group lesson rates yet.",
       "teacherOffersFreeTrialLabel": "Offer free 20-minute trial lesson",
       "teacherOffersFreeTrialHelp": "If off, students will not be able to select free trial for your lessons.",
-      "teacherPreviewPublic": "View public booking page"
+      "teacherPreviewPublic": "View public booking page",
+      "prefillFromGoogle": "Suggested from your sign-in (Google) — you can edit before saving."
     },
     "schedulePage": {
       "title": "Schedule",
@@ -254,16 +270,31 @@
       "empty": "Practice a few flashcards first — quick review uses cards you have already answered correctly.",
       "clearedForToday": "You have cleared today’s quick review slots (or no more eligible cards are left). Come back tomorrow for a fresh set."
     },
+    "integrationsPage": {
+      "title": "Google connections",
+      "intro": "Connect only what you need. Calendar is used for Meet links; Drive and Meet artifacts are optional for lesson materials.",
+      "calendarPreviewTitle": "Your calendar",
+      "calendarPreviewHint": "This preview uses Google’s embed. If it looks empty, open Google Calendar → Settings for your calendar → Access permissions and allow embedding, or open your calendar in a new tab.",
+      "openGoogleCalendar": "Open Google Calendar"
+    },
     "teacherHome": {
       "title": "Dashboard",
       "body": "Lesson booking and classroom tools are here. Student flashcards: Learn → Flashcards.",
+      "statUpcoming": "Upcoming lessons",
+      "statCompleted": "Completed lessons",
+      "statSlots": "Open availability slots",
+      "editProfile": "Edit profile",
+      "googleIntegrations": "Google integrations",
+      "openSchedule": "Open schedule",
+      "upcomingSection": "Upcoming",
       "calendarTitle": "Google Calendar for Meet links",
       "calendarDisconnected": "Not connected yet. Connect your calendar to auto-create Meet links for lessons.",
       "calendarConnected": "Connected. Meet links can be created automatically for your bookings.",
       "calendarConnectCta": "Connect Google Calendar",
       "calendarReconnectCta": "Reconnect Google Calendar",
       "calendarConnectedToast": "Google Calendar connected successfully.",
-      "calendarFailedToast": "Could not connect Google Calendar. Please try again."
+      "calendarFailedToast": "Could not connect Google Calendar. Please try again.",
+      "calendarSetupHint": "Connect Google Calendar there so confirmed bookings can create Meet links automatically."
     }
   },
   "admin": {
@@ -375,6 +406,7 @@
     "freeTrialOption": "Free trial",
     "teacherFreeTrialUnavailable": "This teacher does not offer a free trial lesson.",
     "noTeachersFound": "No teachers matched your filters.",
+    "backToDashboard": "Back to dashboard",
     "teacherSpecialties": "Specialties",
     "teacherRate": "Rate",
     "availability": "Availability",
@@ -404,6 +436,7 @@
     "noSlotSelected": "No time selected yet"
   },
   "placement": {
+    "pageIntro": "About 15–25 minutes. Your answers help us suggest a starting level and lesson plan.",
     "title": "Level placement",
     "loading": "Loading questions…",
     "loadError": "Could not load the placement activity.",
@@ -519,6 +552,9 @@
     "acceptPrivacy": "I agree to the Privacy Policy",
     "acceptRecording": "I consent to lesson recording",
     "submit": "Save and continue",
+    "wizardProgress": "Step {current} of {total}",
+    "wizardBack": "Back",
+    "wizardNext": "Next",
     "saveError": "Could not save onboarding details. Try again.",
     "nextTitle": "Choose your next step",
     "nextSubtitle": "You can take the placement test now, or skip for now and choose a teacher first.",

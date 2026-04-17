@@ -24,7 +24,12 @@ export default async function StudyHubPage() {
 
   return (
     <main className="mx-auto max-w-3xl flex-1 px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+      <p className="text-sm text-muted">
+        <Link href="/dashboard" className="font-medium text-link hover:opacity-90">
+          {t("backToDashboard")}
+        </Link>
+      </p>
+      <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">{t("title")}</h1>
       <p className="mt-2 text-muted">{t("subtitle")}</p>
 
       <div className="mt-6">

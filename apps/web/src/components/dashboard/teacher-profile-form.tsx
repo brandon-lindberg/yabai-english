@@ -15,6 +15,8 @@ type LessonOfferingInput = {
 };
 
 type Props = {
+  /** When display name was filled from Google user name because profile was empty */
+  showGooglePrefillHint?: boolean;
   initialTeacherProfileId: string | null;
   initialDisplayName: string | null;
   initialBio: string | null;
@@ -34,6 +36,7 @@ type Props = {
 };
 
 export function TeacherProfileForm({
+  showGooglePrefillHint = false,
   initialTeacherProfileId,
   initialDisplayName,
   initialBio,
@@ -177,6 +180,9 @@ export function TeacherProfileForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-1 text-sm">
           <span className="font-medium text-foreground">{t("displayName")}</span>
+          {showGooglePrefillHint ? (
+            <span className="block text-xs font-normal text-muted">{t("prefillFromGoogle")}</span>
+          ) : null}
           <input
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}

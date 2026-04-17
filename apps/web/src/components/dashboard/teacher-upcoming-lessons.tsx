@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import type { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
+import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 
 type Upcoming = Awaited<ReturnType<typeof getTeacherBookingsForDashboard>>["upcoming"];
 
@@ -44,16 +45,21 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
                 </p>
               ) : null}
             </div>
-            {b.meetUrl ? (
-              <a
-                href={b.meetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex text-sm font-semibold text-link hover:opacity-90 sm:mt-0"
-              >
-                {t("meetLink")}
-              </a>
-            ) : null}
+            <div className="mt-2 flex flex-col items-start gap-2 sm:mt-0 sm:items-end">
+              {b.meetUrl ? (
+                <a
+                  href={b.meetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex text-sm font-semibold text-link hover:opacity-90"
+                >
+                  {t("meetLink")}
+                </a>
+              ) : null}
+              {(b.status === "CONFIRMED" || b.status === "PENDING_PAYMENT") && (
+                <BookingCancelButton bookingId={b.id} />
+              )}
+            </div>
           </div>
         </li>
       ))}

@@ -7,21 +7,22 @@ import { auth } from "@/auth";
 export default async function DashboardScheduleLayout({ children }: { children: ReactNode }) {
   const t = await getTranslations("dashboard.schedulePage");
   const tCommon = await getTranslations("common");
+  const tTeacher = await getTranslations("dashboard.teacherHome");
   const session = await auth();
   const isTeacher = session?.user?.role === "TEACHER";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 space-y-2">
-          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{t("title")}</h1>
         </div>
         {isTeacher ? (
           <Link
             href="/dashboard/profile"
             className="shrink-0 rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
-            Edit profile
+            {tTeacher("editProfile")}
           </Link>
         ) : (
           <Link

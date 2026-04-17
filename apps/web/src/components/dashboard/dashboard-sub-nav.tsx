@@ -14,31 +14,26 @@ export function DashboardSubNav() {
   const tab = activeTab(pathname);
   const t = useTranslations("dashboard.nav");
 
-  const tabClass = (key: typeof tab) =>
-    key === tab
-      ? "border-foreground text-foreground"
-      : "border-transparent text-muted hover:text-foreground";
-
   return (
     <nav
-      className="mb-8 flex flex-wrap gap-1 border-b border-border"
+      className="mb-8 flex flex-wrap gap-1 rounded-xl border border-border bg-surface/60 p-1"
       aria-label={t("ariaLabel")}
     >
       <Link
         href="/dashboard"
-        className={`border-b-2 px-3 py-2 text-sm font-medium transition ${tabClass("overview")}`}
+        className={`rounded-lg px-3 py-2 text-sm font-medium transition ${tab === "overview" ? "bg-[var(--app-hover)] text-foreground shadow-sm" : "text-muted hover:bg-[var(--app-hover)]/60 hover:text-foreground"}`}
       >
         {t("overview")}
       </Link>
       <Link
         href="/dashboard/profile"
-        className={`border-b-2 px-3 py-2 text-sm font-medium transition ${tabClass("profile")}`}
+        className={`rounded-lg px-3 py-2 text-sm font-medium transition ${tab === "profile" ? "bg-[var(--app-hover)] text-foreground shadow-sm" : "text-muted hover:bg-[var(--app-hover)]/60 hover:text-foreground"}`}
       >
         {t("profile")}
       </Link>
       <Link
         href="/dashboard/schedule"
-        className={`border-b-2 px-3 py-2 text-sm font-medium transition ${tabClass("schedule")}`}
+        className={`rounded-lg px-3 py-2 text-sm font-medium transition ${tab === "schedule" ? "bg-[var(--app-hover)] text-foreground shadow-sm" : "text-muted hover:bg-[var(--app-hover)]/60 hover:text-foreground"}`}
       >
         {t("schedule")}
       </Link>

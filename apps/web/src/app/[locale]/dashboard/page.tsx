@@ -1,4 +1,3 @@
-import NextLink from "next/link";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -15,48 +14,61 @@ import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-rev
 import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
 import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
+import { PageHeader } from "@/components/ui/page-header";
+import { AppCard } from "@/components/ui/app-card";
+import { InlineAlert } from "@/components/ui/inline-alert";
+import { isTeacherCalendarReady } from "@/lib/teacher-calendar-status";
 
-type Props = {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-};
-
-export default async function DashboardPage({ searchParams }: Props) {
+export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
-  const params = searchParams ? await searchParams : {};
-  const calendarStatus = typeof params.calendar === "string" ? params.calendar : null;
-
   const t = await getTranslations("dashboard");
   const tCommon = await getTranslations("common");
   const th = await getTranslations("dashboard.highlights");
 
   if (session.user.role !== "STUDENT") {
-    const teacherProfile = await prisma.teacherProfile.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        user: true,
-        availabilitySlots: { where: { active: true } },
-      },
-    });
+    const [teacherProfile, googleSettings] = await Promise.all([
+      prisma.teacherProfile.findUnique({
+        where: { userId: session.user.id },
+        include: {
+          user: true,
+          availabilitySlots: { where: { active: true } },
+        },
+      }),
+      prisma.googleIntegrationSettings.findUnique({
+        where: { userId: session.user.id },
+        select: { calendarConnected: true },
+      }),
+    ]);
     const teacherBookings = teacherProfile
       ? await getTeacherBookingsForDashboard(prisma, teacherProfile.id)
       : { bookings: [], upcoming: [], completed: [], scheduleItems: [] };
 
+    const calendarReady = isTeacherCalendarReady({
+      calendarConnected: googleSettings?.calendarConnected,
+      legacyRefreshTokenPresent: Boolean(teacherProfile?.googleCalendarRefreshToken),
+    });
+
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-foreground">{t("teacherHome.title")}</h1>
-        <p className="text-muted">{t("teacherHome.body")}</p>
+      <div className="space-y-8">
+        <PageHeader title={t("teacherHome.title")} description={t("teacherHome.body")} />
         <div className="grid gap-4 sm:grid-cols-3">
-          <article className="rounded-2xl border border-border bg-surface p-4">
-            <p className="text-xs uppercase tracking-wide text-muted">Upcoming lessons</p>
+          <article className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+              {t("teacherHome.statUpcoming")}
+            </p>
             <p className="mt-2 text-2xl font-semibold text-foreground">{teacherBookings.upcoming.length}</p>
           </article>
-          <article className="rounded-2xl border border-border bg-surface p-4">
-            <p className="text-xs uppercase tracking-wide text-muted">Completed lessons</p>
+          <article className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+              {t("teacherHome.statCompleted")}
+            </p>
             <p className="mt-2 text-2xl font-semibold text-foreground">{teacherBookings.completed.length}</p>
           </article>
-          <article className="rounded-2xl border border-border bg-surface p-4">
-            <p className="text-xs uppercase tracking-wide text-muted">Active availability slots</p>
+          <article className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+              {t("teacherHome.statSlots")}
+            </p>
             <p className="mt-2 text-2xl font-semibold text-foreground">
               {teacherProfile?.availabilitySlots.length ?? 0}
             </p>
@@ -67,57 +79,32 @@ export default async function DashboardPage({ searchParams }: Props) {
             href="/dashboard/profile"
             className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
-            Edit profile
+            {t("teacherHome.editProfile")}
           </Link>
           <Link
             href="/dashboard/integrations"
             className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
-            Google integrations
+            {t("teacherHome.googleIntegrations")}
           </Link>
           <Link
             href="/dashboard/schedule"
             className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
           >
-            Open schedule
+            {t("teacherHome.openSchedule")}
           </Link>
         </div>
-        {session.user.role === "TEACHER" ? (
-          <section className="rounded-2xl border border-border bg-surface p-4">
-            <h2 className="text-base font-semibold text-foreground">
-              {t("teacherHome.calendarTitle")}
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              {teacherProfile?.googleCalendarRefreshToken
-                ? t("teacherHome.calendarConnected")
-                : t("teacherHome.calendarDisconnected")}
-            </p>
-            <div className="mt-3">
-              <NextLink
-                prefetch={false}
-                href="/api/teacher/calendar/connect"
-                className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-              >
-                {teacherProfile?.googleCalendarRefreshToken
-                  ? t("teacherHome.calendarReconnectCta")
-                  : t("teacherHome.calendarConnectCta")}
-              </NextLink>
-            </div>
-            {calendarStatus === "connected" ? (
-              <p className="mt-2 text-xs text-green-700 dark:text-green-400">
-                {t("teacherHome.calendarConnectedToast")}
-              </p>
-            ) : null}
-            {calendarStatus === "failed" || calendarStatus === "misconfigured" ? (
-              <p className="mt-2 text-xs text-destructive">
-                {t("teacherHome.calendarFailedToast")}
-              </p>
-            ) : null}
-          </section>
+        {session.user.role === "TEACHER" && !calendarReady ? (
+          <InlineAlert variant="info">
+            <span className="text-foreground">{t("teacherHome.calendarSetupHint")} </span>
+            <Link href="/dashboard/integrations" className="font-semibold text-link hover:opacity-90">
+              {tCommon("integrations")}
+            </Link>
+          </InlineAlert>
         ) : null}
 
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-foreground">{t("upcoming")}</h2>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">{t("teacherHome.upcomingSection")}</h2>
           <ul className="space-y-4">
             <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
           </ul>
@@ -149,14 +136,11 @@ export default async function DashboardPage({ searchParams }: Props) {
 
   return (
     <div className="space-y-10">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold text-foreground">{th("pageTitle")}</h1>
-        <p className="text-muted">{th("pageIntro")}</p>
-      </header>
+      <PageHeader title={th("pageTitle")} description={th("pageIntro")} />
 
       {profile ? (
-        <div className="flex flex-wrap gap-3">
-          <p className="w-full text-sm text-muted sm:w-auto sm:flex-1">
+        <AppCard className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+          <p className="min-w-0 flex-1 text-sm text-muted">
             {t("placedLevel")}:{" "}
             <span className="font-semibold text-foreground">
               {profile.placedLevel === "UNSET"
@@ -166,36 +150,38 @@ export default async function DashboardPage({ searchParams }: Props) {
                   })}`}
             </span>
           </p>
-          <Link
-            href="/book"
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-          >
-            {tCommon("bookLesson")}
-          </Link>
-          <Link
-            href="/dashboard/integrations"
-            className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-          >
-            Google integrations
-          </Link>
-          {canStartPlacement ? (
-            profile.placedLevel === "UNSET" ? (
-              <Link
-                href="/placement"
-                className="rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-foreground hover:bg-accent/20"
-              >
-                {t("placementCta")}
-              </Link>
-            ) : (
-              <Link
-                href="/placement"
-                className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted hover:bg-[var(--app-hover)]"
-              >
-                {t("retakePlacement")}
-              </Link>
-            )
-          ) : null}
-        </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/book"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            >
+              {tCommon("bookLesson")}
+            </Link>
+            <Link
+              href="/dashboard/integrations"
+              className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+            >
+              {tCommon("integrations")}
+            </Link>
+            {canStartPlacement ? (
+              profile.placedLevel === "UNSET" ? (
+                <Link
+                  href="/placement"
+                  className="rounded-full border border-border bg-[var(--app-chip)] px-4 py-2 text-sm font-semibold text-foreground hover:opacity-90"
+                >
+                  {t("placementCta")}
+                </Link>
+              ) : (
+                <Link
+                  href="/placement"
+                  className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted hover:bg-[var(--app-hover)]"
+                >
+                  {t("retakePlacement")}
+                </Link>
+              )
+            ) : null}
+          </div>
+        </AppCard>
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">

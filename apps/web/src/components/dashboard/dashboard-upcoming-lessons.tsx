@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { bookingStatusKey } from "@/lib/booking-status";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
+import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 
 type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
 
@@ -79,6 +80,9 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
                 >
                   {t("downloadIcs")}
                 </a>
+                {(b.status === "CONFIRMED" || b.status === "PENDING_PAYMENT") && (
+                  <BookingCancelButton bookingId={b.id} />
+                )}
               </div>
             </div>
             {b.meetUrl && (
