@@ -88,6 +88,11 @@ export async function POST(req: Request) {
 
   const threadAssignments = await Promise.all(
     recipients.map(async (recipient) => {
+      // Admin <-> teacher threads are two-way by design so teachers can reply
+      // to admin messages. Admin <-> student threads stay read-only until the
+      // admin explicitly opens two-way on that thread.
+      const twoWayEnabled = recipient.role === Role.TEACHER;
+      const twoWayEnabledByRole = twoWayEnabled ? Role.ADMIN : null;
       const thread = await prisma.chatThread.upsert({
         where: {
           studentId_teacherId:
@@ -96,22 +101,22 @@ export async function POST(req: Request) {
               : { studentId: recipient.recipientId, teacherId: session.user.id },
         },
         update: {
-          twoWayEnabled: false,
-          twoWayEnabledByRole: null,
+          twoWayEnabled,
+          twoWayEnabledByRole,
         },
         create:
           recipient.role === Role.TEACHER
             ? {
                 studentId: session.user.id,
                 teacherId: recipient.recipientId,
-                twoWayEnabled: false,
-                twoWayEnabledByRole: null,
+                twoWayEnabled,
+                twoWayEnabledByRole,
               }
             : {
                 studentId: recipient.recipientId,
                 teacherId: session.user.id,
-                twoWayEnabled: false,
-                twoWayEnabledByRole: null,
+                twoWayEnabled,
+                twoWayEnabledByRole,
               },
         select: { id: true },
       });

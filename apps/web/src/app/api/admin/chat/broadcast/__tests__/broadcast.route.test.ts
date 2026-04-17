@@ -127,7 +127,11 @@ describe("POST /api/admin/chat/broadcast", () => {
     expect(prismaMock.chatThread.upsert).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        update: { twoWayEnabled: false, twoWayEnabledByRole: null },
+        update: { twoWayEnabled: true, twoWayEnabledByRole: "ADMIN" },
+        create: expect.objectContaining({
+          twoWayEnabled: true,
+          twoWayEnabledByRole: "ADMIN",
+        }),
       }),
     );
     expect(emitChatUpdateMock).toHaveBeenCalledTimes(4);
@@ -189,6 +193,29 @@ describe("POST /api/admin/chat/broadcast", () => {
         sentMessages: 2,
       },
     });
+
+    // Teacher thread is created two-way by admin so teachers can reply.
+    expect(prismaMock.chatThread.upsert).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        update: { twoWayEnabled: true, twoWayEnabledByRole: "ADMIN" },
+        create: expect.objectContaining({
+          twoWayEnabled: true,
+          twoWayEnabledByRole: "ADMIN",
+        }),
+      }),
+    );
+    // Student thread stays read-only unless admin explicitly opens it.
+    expect(prismaMock.chatThread.upsert).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        update: { twoWayEnabled: false, twoWayEnabledByRole: null },
+        create: expect.objectContaining({
+          twoWayEnabled: false,
+          twoWayEnabledByRole: null,
+        }),
+      }),
+    );
   });
 
   afterAll(() => {

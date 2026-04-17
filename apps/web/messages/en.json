@@ -658,6 +658,7 @@
     "backToThreads": "Back",
     "open": "Open chat",
     "close": "Close",
+    "unreadBadgeLabel": "{count, plural, one {# unread message} other {# unread messages}}",
     "moreActions": "More actions",
     "enableTwoWay": "Enable two-way student chat",
     "noThreads": "No chat threads yet.",

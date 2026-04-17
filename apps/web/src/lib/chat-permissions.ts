@@ -13,7 +13,15 @@ export function canSendChatMessage({
 }) {
   if (role === "ADMIN") return true;
 
-  // Admin ↔ user threads are read-only for non-admin users unless admin enables two-way.
+  // Admin <-> teacher threads are two-way by design: teachers are staff and
+  // must be able to respond to admin messages without admin having to flip a
+  // per-thread toggle.
+  if (role === "TEACHER" && counterpartRole === "ADMIN") {
+    return true;
+  }
+
+  // Admin <-> student threads stay read-only for students unless the admin
+  // explicitly enables two-way on the thread.
   if (counterpartRole === "ADMIN") {
     return threadTwoWayEnabled;
   }

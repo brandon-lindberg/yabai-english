@@ -154,6 +154,21 @@ export async function POST(req: Request, { params }: Props) {
       bodyJa: parsed.data.body,
       bodyEn: parsed.data.body,
     });
+  } else if (
+    session.user.role === "TEACHER" &&
+    counterpart?.role === "STUDENT"
+  ) {
+    // Students are typically not actively watching the chat panel, so surface
+    // teacher replies in the notifications bell as well. Teachers receiving
+    // student messages see them directly in their chat panel and don't need
+    // an extra bell badge (intentional asymmetry).
+    await createUserNotification({
+      userId: recipientId,
+      titleJa: "先生から新しいメッセージがあります",
+      titleEn: "You have a new message from your teacher",
+      bodyJa: parsed.data.body,
+      bodyEn: parsed.data.body,
+    });
   }
 
   return NextResponse.json(message);

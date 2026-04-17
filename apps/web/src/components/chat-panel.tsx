@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { getReceiptKey } from "@/lib/chat-receipts";
-import { getRealtimeSocket } from "@/lib/realtime-client";
-import { REALTIME_EVENTS } from "@/lib/realtime-events";
+import { subscribeRealtime } from "@/lib/realtime-client";
 import { ChatModerationMenu } from "@/components/chat-moderation-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UnreadBadge } from "@/components/unread-badge";
 
 type ThreadItem = {
   id: string;
@@ -204,10 +204,14 @@ export function ChatPanel() {
 
   useEffect(() => {
     if (!activeThreadId) return;
+    // Only load (and thereby mark-as-read) when the panel is actually open.
+    // Otherwise just mounting the dashboard would silently clear every unread
+    // badge before the user ever sees it.
+    if (!open) return;
     queueMicrotask(() => {
       void loadMessages(activeThreadId);
     });
-  }, [activeThreadId, loadMessages]);
+  }, [activeThreadId, loadMessages, open]);
 
   useEffect(() => {
     if (!activeThreadId) {
@@ -223,18 +227,31 @@ export function ChatPanel() {
   useEffect(() => {
     const userId = session?.user?.id;
     if (!userId) return;
-    const socket = getRealtimeSocket(userId);
-    const onChatUpdate = (payload?: { threadId?: string }) => {
-      void loadThreads();
-      if (activeThreadId && (!payload?.threadId || payload.threadId === activeThreadId)) {
-        void loadMessages(activeThreadId);
-      }
-    };
-    socket.on(REALTIME_EVENTS.CHAT_UPDATE, onChatUpdate);
-    return () => {
-      socket.off(REALTIME_EVENTS.CHAT_UPDATE, onChatUpdate);
-    };
-  }, [session?.user?.id, activeThreadId, loadThreads, loadMessages]);
+    const unsubscribe = subscribeRealtime({
+      // Pull a fresh snapshot on every (re)connect so we never show stale
+      // unread counts after a dropped SSE connection.
+      onConnected: () => {
+        void loadThreads();
+      },
+      onChatUpdate: (payload) => {
+        void loadThreads();
+        // Never silently mark messages read when the user isn't actually
+        // looking at the panel - that's what was wiping the unread badge on
+        // dashboard mount before.
+        if (
+          open &&
+          activeThreadId &&
+          (!payload?.threadId || payload.threadId === activeThreadId)
+        ) {
+          void loadMessages(activeThreadId);
+        }
+      },
+      onNotificationsUpdate: () => {
+        // Nothing to do here for the chat panel; the bell handles its own UI.
+      },
+    });
+    return unsubscribe;
+  }, [session?.user?.id, activeThreadId, loadThreads, loadMessages, open]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -590,11 +607,11 @@ export function ChatPanel() {
         aria-label={open ? t("close") : t("open")}
       >
         <span className="truncate">{t("title")}</span>
-        {totalUnreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 inline-flex min-w-5 justify-center rounded-full border border-border bg-destructive px-1.5 text-[10px] font-semibold leading-5 text-white">
-            {totalUnreadCount > 99 ? "99+" : totalUnreadCount}
-          </span>
-        )}
+        <UnreadBadge
+          count={totalUnreadCount}
+          label={(n) => t("unreadBadgeLabel", { count: n })}
+          className="absolute -right-1.5 -top-1.5"
+        />
       </button>
 
       {open && (
@@ -1014,11 +1031,10 @@ export function ChatPanel() {
                                 <p className="font-semibold text-foreground">
                                   {thread.counterpartName ?? t("unknownUser")}
                                 </p>
-                                {thread.unreadCount > 0 && (
-                                  <span className="inline-flex min-w-4 justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-                                    {thread.unreadCount}
-                                  </span>
-                                )}
+                                <UnreadBadge
+                                  count={thread.unreadCount}
+                                  label={(n) => t("unreadBadgeLabel", { count: n })}
+                                />
                               </div>
                               <p className="mt-0.5 line-clamp-2 text-muted">
                                 {thread.latestMessage ?? t("noMessagesYet")}
@@ -1169,7 +1185,10 @@ export function ChatPanel() {
                 </button>
               </div>
 
-              {isAdminViewer && activeThread && adminMode !== "broadcast" && (
+              {activeThread &&
+                (isAdminViewer
+                  ? adminMode !== "broadcast"
+                  : isTeacherInThread) && (
                 <label className="mb-2 flex items-center gap-2 text-xs text-muted">
                   <input
                     type="checkbox"

@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
-import { getRealtimeSocket } from "@/lib/realtime-client";
-import { REALTIME_EVENTS } from "@/lib/realtime-events";
+import { subscribeRealtime } from "@/lib/realtime-client";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type NotificationItem = {
@@ -50,30 +49,23 @@ export function NotificationBell() {
     queueMicrotask(() => {
       void refresh();
     });
-    const interval = window.setInterval(() => {
-      void refresh();
-    }, 15000);
-    return () => {
-      window.clearInterval(interval);
-    };
   }, []);
 
   useEffect(() => {
     const userId = session?.user?.id;
     if (!userId) return;
-    const socket = getRealtimeSocket(userId);
-    const onUpdate = () => {
-      void refresh();
-    };
-    const onConnect = () => {
-      void refresh();
-    };
-    socket.on(REALTIME_EVENTS.NOTIFICATIONS_UPDATE, onUpdate);
-    socket.on("connect", onConnect);
-    return () => {
-      socket.off(REALTIME_EVENTS.NOTIFICATIONS_UPDATE, onUpdate);
-      socket.off("connect", onConnect);
-    };
+    return subscribeRealtime({
+      // Fresh snapshot on initial connect and on reconnect.
+      onConnected: () => {
+        void refresh();
+      },
+      onNotificationsUpdate: () => {
+        void refresh();
+      },
+      onChatUpdate: () => {
+        // Chat updates are handled by the chat panel.
+      },
+    });
   }, [session?.user?.id]);
 
   async function markAllRead() {

@@ -42,7 +42,7 @@ describe("canSendChatMessage", () => {
     ).toBe(true);
   });
 
-  test("teacher cannot send to admin unless two-way is enabled by admin", () => {
+  test("teacher can always reply to admin because admin\u2194teacher is two-way by design", () => {
     expect(
       canSendChatMessage({
         role: "TEACHER",
@@ -50,10 +50,29 @@ describe("canSendChatMessage", () => {
         threadTwoWayEnabled: false,
         hasScheduledLessonWithTeacher: false,
       }),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       canSendChatMessage({
         role: "TEACHER",
+        counterpartRole: "ADMIN",
+        threadTwoWayEnabled: true,
+        hasScheduledLessonWithTeacher: false,
+      }),
+    ).toBe(true);
+  });
+
+  test("student still cannot reply to admin unless admin enables two-way", () => {
+    expect(
+      canSendChatMessage({
+        role: "STUDENT",
+        counterpartRole: "ADMIN",
+        threadTwoWayEnabled: false,
+        hasScheduledLessonWithTeacher: false,
+      }),
+    ).toBe(false);
+    expect(
+      canSendChatMessage({
+        role: "STUDENT",
         counterpartRole: "ADMIN",
         threadTwoWayEnabled: true,
         hasScheduledLessonWithTeacher: false,

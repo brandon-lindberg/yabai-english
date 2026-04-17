@@ -184,6 +184,51 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
     expect(createMessageMock).not.toHaveBeenCalled();
   });
 
+  test("creates notification when a teacher sends a message to a student", async () => {
+    authMock.mockResolvedValue({
+      user: { id: "teacher-1", role: "TEACHER" },
+    });
+    findThreadMock.mockResolvedValue({
+      id: "thread-1",
+      studentId: "student-1",
+      teacherId: "teacher-1",
+      twoWayEnabled: true,
+      studentBlockedAt: null,
+      teacherBlockedAt: null,
+    });
+    findTeacherProfileMock.mockResolvedValue({ id: "teacher-profile-1" });
+    findBookingMock.mockResolvedValue({ id: "booking-1" });
+    findUserMock.mockResolvedValue({ role: "STUDENT" });
+    canSendChatMessageMock.mockReturnValue(true);
+    createMessageMock.mockResolvedValue({
+      id: "msg-teacher-1",
+      threadId: "thread-1",
+      senderId: "teacher-1",
+      recipientId: "student-1",
+      body: "See you tomorrow",
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/chat/threads/thread-1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: "See you tomorrow" }),
+      }),
+      {
+        params: Promise.resolve({ threadId: "thread-1" }),
+      },
+    );
+
+    expect(res.status).toBe(200);
+    expect(createUserNotificationMock).toHaveBeenCalledWith({
+      userId: "student-1",
+      titleJa: "先生から新しいメッセージがあります",
+      titleEn: "You have a new message from your teacher",
+      bodyJa: "See you tomorrow",
+      bodyEn: "See you tomorrow",
+    });
+  });
+
   test("creates notification when admin sends a message", async () => {
     authMock.mockResolvedValue({
       user: { id: "admin-1", role: "ADMIN" },

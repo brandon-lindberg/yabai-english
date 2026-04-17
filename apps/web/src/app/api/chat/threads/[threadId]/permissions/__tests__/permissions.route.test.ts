@@ -44,8 +44,42 @@ describe("POST /api/chat/threads/[threadId]/permissions", () => {
     });
   });
 
-  test("rejects teacher from changing two-way setting", async () => {
+  test("allows the thread's teacher to enable two-way", async () => {
     authMock.mockResolvedValue({ user: { id: "teacher-1", role: "TEACHER" } });
+    const res = await POST(
+      new Request("http://localhost/api/chat/threads/thread-1/permissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ twoWayEnabled: true }),
+      }),
+      { params: Promise.resolve({ threadId: "thread-1" }) },
+    );
+    expect(res.status).toBe(200);
+    expect(updateThreadMock).toHaveBeenCalledWith({
+      where: { id: "thread-1" },
+      data: {
+        twoWayEnabled: true,
+        twoWayEnabledByRole: "TEACHER",
+      },
+    });
+  });
+
+  test("rejects a teacher who is not a participant of the thread", async () => {
+    authMock.mockResolvedValue({ user: { id: "other-teacher", role: "TEACHER" } });
+    const res = await POST(
+      new Request("http://localhost/api/chat/threads/thread-1/permissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ twoWayEnabled: true }),
+      }),
+      { params: Promise.resolve({ threadId: "thread-1" }) },
+    );
+    expect(res.status).toBe(403);
+    expect(updateThreadMock).not.toHaveBeenCalled();
+  });
+
+  test("rejects students from changing two-way setting", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
     const res = await POST(
       new Request("http://localhost/api/chat/threads/thread-1/permissions", {
         method: "POST",

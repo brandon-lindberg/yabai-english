@@ -658,6 +658,7 @@
     "backToThreads": "戻る",
     "open": "チャットを開く",
     "close": "閉じる",
+    "unreadBadgeLabel": "未読メッセージ {count}件",
     "moreActions": "その他の操作",
     "enableTwoWay": "受講生との双方向チャットを有効化",
     "noThreads": "チャットスレッドはまだありません。",
