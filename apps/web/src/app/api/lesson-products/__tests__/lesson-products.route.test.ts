@@ -131,7 +131,7 @@ describe("GET /api/lesson-products", () => {
 
   test("includes group offerings in the student dropdown options", async () => {
     findManyMock.mockResolvedValue([
-      { id: "std40", tier: LessonTier.STANDARD, active: true, durationMin: 40 },
+      { id: "eik40", tier: LessonTier.EIKAWA, active: true, durationMin: 40 },
     ]);
     findUniqueMock.mockResolvedValue({
       offersFreeTrial: true,
@@ -152,8 +152,8 @@ describe("GET /api/lesson-products", () => {
     const res = await GET(new Request("http://localhost/api/lesson-products?teacherProfileId=t3"));
     await expect(res.json()).resolves.toEqual([
       {
-        id: "std40",
-        tier: LessonTier.STANDARD,
+        id: "eik40",
+        tier: LessonTier.EIKAWA,
         active: true,
         durationMin: 40,
         teacherLessonOfferingId: "off-group-40",

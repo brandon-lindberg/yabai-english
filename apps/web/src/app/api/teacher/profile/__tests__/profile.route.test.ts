@@ -7,6 +7,7 @@ const {
   deleteManyMock,
   createManyMock,
   revalidatePathMock,
+  ensureCatalogProductsMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
   upsertMock: vi.fn(),
@@ -14,6 +15,7 @@ const {
   deleteManyMock: vi.fn(),
   createManyMock: vi.fn(),
   revalidatePathMock: vi.fn(),
+  ensureCatalogProductsMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -37,6 +39,10 @@ vi.mock("next/cache", () => ({
   revalidatePath: revalidatePathMock,
 }));
 
+vi.mock("@/lib/lesson-product-catalog", () => ({
+  ensureCatalogProductsForOfferings: ensureCatalogProductsMock,
+}));
+
 import { PATCH } from "@/app/api/teacher/profile/route";
 
 describe("PATCH /api/teacher/profile", () => {
@@ -48,12 +54,17 @@ describe("PATCH /api/teacher/profile", () => {
     upsertMock.mockResolvedValue({ id: "tp-1", userId: "teacher-user-1", rateYen: 3500 });
     deleteManyMock.mockResolvedValue({ count: 0 });
     createManyMock.mockResolvedValue({ count: 0 });
+    ensureCatalogProductsMock.mockResolvedValue(undefined);
     transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({
         teacherProfile: { upsert: upsertMock },
         teacherLessonOffering: {
           deleteMany: deleteManyMock,
           createMany: createManyMock,
+        },
+        lessonProduct: {
+          findMany: vi.fn().mockResolvedValue([]),
+          create: vi.fn().mockResolvedValue({}),
         },
       }),
     );
@@ -132,6 +143,51 @@ describe("PATCH /api/teacher/profile", () => {
 
     expect(res.status).toBe(400);
     expect(upsertMock).not.toHaveBeenCalled();
+  });
+
+  test("provisions catalog products for replaced offerings so all become bookable", async () => {
+    const res = await PATCH(
+      new Request("http://localhost/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonOfferings: [
+            {
+              durationMin: 30,
+              rateYen: 3500,
+              isGroup: false,
+              groupSize: null,
+              lessonType: "pronunciation",
+            },
+            {
+              durationMin: 30,
+              rateYen: 3500,
+              isGroup: false,
+              groupSize: null,
+              lessonType: "conversation",
+            },
+          ],
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(ensureCatalogProductsMock).toHaveBeenCalledTimes(1);
+    const [, offerings] = ensureCatalogProductsMock.mock.calls[0];
+    expect(offerings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          lessonType: "pronunciation",
+          durationMin: 30,
+          active: true,
+        }),
+        expect.objectContaining({
+          lessonType: "conversation",
+          durationMin: 30,
+          active: true,
+        }),
+      ]),
+    );
   });
 
   test("persists offersFreeTrial toggle", async () => {

@@ -6,6 +6,7 @@ import { createMeetLessonEvent } from "@/lib/google-calendar";
 import { buildInvoiceNumber } from "@/lib/invoices";
 import { createUserNotification } from "@/lib/notifications";
 import { ensureStudentTeacherThread } from "@/lib/chat-threads";
+import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -22,7 +23,16 @@ export async function POST(_req: Request, { params }: Props) {
     where: { id: bookingId },
     include: {
       lessonProduct: true,
-      teacher: { include: { user: true } },
+      teacher: {
+        include: {
+          user: true,
+          availabilitySlots: {
+            where: { active: true },
+            take: 1,
+            select: { timezone: true },
+          },
+        },
+      },
       student: true,
     },
   });
@@ -115,6 +125,18 @@ export async function POST(_req: Request, { params }: Props) {
     titleEn: "Payment completed",
     bodyJa: "予約が確定されました。",
     bodyEn: "Your booking is now confirmed.",
+  });
+
+  const teacherTimezone =
+    booking.teacher.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
+  const teacherNotification = buildTeacherBookingConfirmedNotification({
+    studentName: updated.student.name ?? null,
+    startsAt: updated.startsAt,
+    timezone: teacherTimezone,
+  });
+  await createUserNotification({
+    userId: updated.teacher.userId,
+    ...teacherNotification,
   });
 
   return NextResponse.json(finalBooking);

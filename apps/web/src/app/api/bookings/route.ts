@@ -17,6 +17,7 @@ import {
   resolveTeacherRateForProduct,
   teacherHasOfferingForProduct,
 } from "@/lib/lesson-products";
+import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
 import { z } from "zod";
 import { BookingStatus, LessonTier } from "@prisma/client";
 
@@ -94,6 +95,11 @@ export async function POST(req: Request) {
           include: {
             user: true,
             lessonOfferings: true,
+            availabilitySlots: {
+              where: { active: true },
+              take: 1,
+              select: { timezone: true },
+            },
           },
         })
       : null) ??
@@ -101,6 +107,11 @@ export async function POST(req: Request) {
       include: {
         user: true,
         lessonOfferings: true,
+        availabilitySlots: {
+          where: { active: true },
+          take: 1,
+          select: { timezone: true },
+        },
       },
     }));
 
@@ -364,6 +375,17 @@ export async function POST(req: Request) {
     titleEn: "Booking confirmed",
     bodyJa: `${product.nameJa} の予約が確定しました。`,
     bodyEn: `Your ${product.nameEn} booking is confirmed.`,
+  });
+
+  const teacherTimezone = teacher.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
+  const teacherNotification = buildTeacherBookingConfirmedNotification({
+    studentName: student.name ?? null,
+    startsAt: start,
+    timezone: teacherTimezone,
+  });
+  await createUserNotification({
+    userId: teacher.userId,
+    ...teacherNotification,
   });
 
   return NextResponse.json(fresh ?? confirmedBooking);

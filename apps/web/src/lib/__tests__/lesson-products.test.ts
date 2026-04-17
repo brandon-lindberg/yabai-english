@@ -130,7 +130,7 @@ describe("lesson product availability by teacher", () => {
     expect(
       teacherHasOfferingForProduct(
         [{ durationMin: 40, rateYen: 7200, isGroup: true, active: true, lessonType: "conversation" }],
-        { tier: LessonTier.STANDARD, durationMin: 40 },
+        { tier: LessonTier.EIKAWA, durationMin: 40 },
       ),
     ).toBe(true);
   });
@@ -157,10 +157,52 @@ describe("catalogProductMatchesOffering", () => {
 });
 
 describe("lessonTypeKeysForCatalogProduct", () => {
-  test("STANDARD 30 excludes conversation", () => {
-    expect(lessonTypeKeysForCatalogProduct(LessonTier.STANDARD, 30)).not.toContain("conversation");
+  test.each([30, 40, 60, 90])(
+    "STANDARD %d never includes conversation (routed to EIKAWA)",
+    (duration) => {
+      expect(
+        lessonTypeKeysForCatalogProduct(LessonTier.STANDARD, duration),
+      ).not.toContain("conversation");
+    },
+  );
+
+  test.each([30, 40, 60, 90])(
+    "STANDARD %d never includes pronunciation (routed to PRONUNCIATION tiers)",
+    (duration) => {
+      expect(
+        lessonTypeKeysForCatalogProduct(LessonTier.STANDARD, duration),
+      ).not.toContain("pronunciation");
+    },
+  );
+
+  test("STANDARD always covers the generic typed offerings", () => {
+    const keys = lessonTypeKeysForCatalogProduct(LessonTier.STANDARD, 40);
+    expect(keys).toEqual(
+      expect.arrayContaining([
+        "grammar",
+        "reading",
+        "writing",
+        "business",
+        "custom",
+      ]),
+    );
   });
-  test("STANDARD 40 includes conversation", () => {
-    expect(lessonTypeKeysForCatalogProduct(LessonTier.STANDARD, 40)).toContain("conversation");
-  });
+
+  test.each([30, 40, 60, 90])(
+    "EIKAWA %d owns conversation at any duration",
+    (duration) => {
+      expect(lessonTypeKeysForCatalogProduct(LessonTier.EIKAWA, duration)).toEqual([
+        "conversation",
+      ]);
+    },
+  );
+
+  test.each([30, 40, 60, 90])(
+    "PRONUNCIATION_ACTING %d owns pronunciation at any duration",
+    (duration) => {
+      expect(
+        lessonTypeKeysForCatalogProduct(LessonTier.PRONUNCIATION_ACTING, duration),
+      ).toEqual(["pronunciation"]);
+    },
+  );
 });

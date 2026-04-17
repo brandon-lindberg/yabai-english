@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
+import { deriveMissingOfferingsFromSchedule } from "@/lib/schedule-offering-sync";
+import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 
 export async function GET() {
   const session = await auth();
@@ -54,19 +56,51 @@ export async function PATCH(req: Request) {
   }
 
   const userId = session.user.id;
-  const profile = await prisma.teacherProfile.upsert({
+  await prisma.teacherProfile.upsert({
     where: { userId },
     create: { userId },
     update: {},
     select: { id: true },
   });
 
+  const profileSnapshot = await prisma.teacherProfile.findUnique({
+    where: { userId },
+    select: {
+      id: true,
+      rateYen: true,
+      lessonOfferings: {
+        select: {
+          lessonType: true,
+          lessonTypeCustom: true,
+          active: true,
+          rateYen: true,
+          isGroup: true,
+          durationMin: true,
+        },
+      },
+    },
+  });
+
+  if (!profileSnapshot) {
+    return NextResponse.json({ error: "Teacher profile missing" }, { status: 500 });
+  }
+
+  const newOfferings = deriveMissingOfferingsFromSchedule({
+    existing: profileSnapshot.lessonOfferings,
+    scheduled: parsed.data.map((slot) => ({
+      lessonType: slot.lessonType,
+      lessonTypeCustom:
+        slot.lessonType === "custom" ? (slot.lessonTypeCustom?.trim() ?? null) : null,
+    })),
+    fallbackRateYen: profileSnapshot.rateYen ?? null,
+  });
+
   await prisma.$transaction(async (tx) => {
-    await tx.availabilitySlot.deleteMany({ where: { teacherId: profile.id } });
+    await tx.availabilitySlot.deleteMany({ where: { teacherId: profileSnapshot.id } });
     if (parsed.data.length > 0) {
       await tx.availabilitySlot.createMany({
         data: parsed.data.map((slot) => ({
-          teacherId: profile.id,
+          teacherId: profileSnapshot.id,
           dayOfWeek: slot.dayOfWeek,
           startMin: slot.startMin,
           endMin: slot.endMin,
@@ -79,6 +113,35 @@ export async function PATCH(req: Request) {
         })),
       });
     }
+    if (newOfferings.length > 0) {
+      await tx.teacherLessonOffering.createMany({
+        data: newOfferings.map((o) => ({
+          teacherId: profileSnapshot.id,
+          durationMin: o.durationMin,
+          rateYen: o.rateYen,
+          isGroup: o.isGroup,
+          groupSize: o.groupSize,
+          active: o.active,
+          lessonType: o.lessonType,
+          lessonTypeCustom: o.lessonTypeCustom,
+        })),
+      });
+    }
+    // Make sure every offering (existing + just-created) has a matching
+    // LessonProduct row so students can actually see/book it.
+    const offeringsForCatalog = [
+      ...profileSnapshot.lessonOfferings.map((o) => ({
+        lessonType: o.lessonType,
+        durationMin: o.durationMin,
+        active: o.active,
+      })),
+      ...newOfferings.map((o) => ({
+        lessonType: o.lessonType,
+        durationMin: o.durationMin,
+        active: o.active,
+      })),
+    ];
+    await ensureCatalogProductsForOfferings(tx, offeringsForCatalog);
   });
 
   return NextResponse.json({ ok: true });

@@ -220,12 +220,12 @@ describe("POST /api/bookings pricing", () => {
 
   test("accepts group offering id and uses its rate", async () => {
     prismaMock.lessonProduct.findFirst.mockResolvedValue({
-      id: "lp-std-40",
-      tier: LessonTier.STANDARD,
+      id: "lp-eik-40",
+      tier: LessonTier.EIKAWA,
       active: true,
       durationMin: 40,
-      nameEn: "Standard 40",
-      nameJa: "標準 40",
+      nameEn: "Conversation 40",
+      nameJa: "英会話 40",
     });
     prismaMock.teacherProfile.findFirst.mockResolvedValue({
       id: "teacher-profile-1",
@@ -250,12 +250,12 @@ describe("POST /api/bookings pricing", () => {
         studentProfile: {
           findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
         },
-        booking: {
+          booking: {
           create: vi.fn().mockResolvedValue({
             id: "booking-1",
             status: BookingStatus.PENDING_PAYMENT,
             quotedPriceYen: 7200,
-            lessonProduct: { nameEn: "Standard 40", nameJa: "標準 40" },
+            lessonProduct: { nameEn: "Conversation 40", nameJa: "英会話 40" },
             teacher: { user: { email: "teacher@example.com" } },
           }),
         },
@@ -267,7 +267,7 @@ describe("POST /api/bookings pricing", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lessonProductId: "lp-std-40",
+          lessonProductId: "lp-eik-40",
           teacherProfileId: "teacher-profile-1",
           teacherLessonOfferingId: "off-group-40",
           startsAt,

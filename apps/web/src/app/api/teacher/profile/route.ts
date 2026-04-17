@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
+import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 
 const patchSchema = z.object({
   displayName: z.string().min(1).max(100).trim().optional(),
@@ -104,6 +105,16 @@ export async function PATCH(req: Request) {
           })),
         });
       }
+      // Make sure a matching LessonProduct exists for every offering so the
+      // student booking dropdown can surface it. Safe to run even when empty.
+      await ensureCatalogProductsForOfferings(
+        tx,
+        data.lessonOfferings.map((o) => ({
+          lessonType: o.lessonType ?? null,
+          durationMin: o.durationMin,
+          active: true,
+        })),
+      );
     }
 
     return updated;

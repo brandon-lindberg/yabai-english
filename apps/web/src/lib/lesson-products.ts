@@ -34,7 +34,8 @@ export type TeacherLessonOfferingLike = {
  */
 export function lessonTypeKeysForCatalogProduct(
   tier: LessonTier,
-  durationMin: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _durationMin: number,
 ): readonly string[] | null {
   switch (tier) {
     case LessonTier.FREE_TRIAL:
@@ -47,28 +48,11 @@ export function lessonTypeKeysForCatalogProduct(
     case LessonTier.PRONUNCIATION_SINGING:
       return ["pronunciation"];
     case LessonTier.STANDARD:
-      if (durationMin === 30) {
-        return ["grammar", "reading", "writing", "business", "custom"];
-      }
-      if (durationMin === 40) {
-        return [
-          "conversation",
-          "grammar",
-          "reading",
-          "writing",
-          "business",
-          "custom",
-        ];
-      }
-      return [
-        "conversation",
-        "grammar",
-        "reading",
-        "writing",
-        "business",
-        "custom",
-        "pronunciation",
-      ];
+      // STANDARD is the "generic" tier. Specialty tiers (EIKAWA for conversation,
+      // PRONUNCIATION_* for pronunciation) own those lesson types exclusively so the
+      // dropdown can auto-provision specialty products at any duration without
+      // causing duplicate matches here.
+      return ["grammar", "reading", "writing", "business", "custom"];
     default:
       return null;
   }
