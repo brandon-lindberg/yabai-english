@@ -7,13 +7,21 @@ import { DashboardUpcomingLessons } from "@/components/dashboard/dashboard-upcom
 import { TeacherAvailabilityCalendar } from "@/components/dashboard/teacher-availability-calendar";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
 import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
+import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
+import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 
-export default async function DashboardSchedulePage() {
+export default async function DashboardSchedulePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) return null;
 
   const t = await getTranslations("dashboard.schedulePage");
   const td = await getTranslations("dashboard");
+  const { onboardingNext, onboardingStep } = await searchParams;
+  const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
 
   if (session.user.role === "TEACHER") {
     const profile = await prisma.teacherProfile.findUnique({
@@ -35,6 +43,7 @@ export default async function DashboardSchedulePage() {
 
     return (
       <div className="space-y-8">
+        <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
         <p className="text-muted">Set your availability and manage upcoming sessions.</p>
 
         <TeacherAvailabilityCalendar

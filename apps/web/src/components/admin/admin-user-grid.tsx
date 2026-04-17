@@ -11,6 +11,7 @@ import { AccountStatus, Role } from "@prisma/client";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export type AdminUserListItem = {
   id: string;
@@ -375,10 +376,17 @@ export function AdminUserGrid({
       {error ? (
         <p className="text-sm text-[var(--app-warning-text)]">{error}</p>
       ) : null}
-      {loading ? <p className="text-sm text-muted">{t("loading")}</p> : null}
+      {loading ? (
+        <p className="sr-only" role="status" aria-live="polite">
+          {t("loading")}
+        </p>
+      ) : null}
 
       <div className="overflow-x-auto rounded-xl border border-border">
-        <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+        <table
+          className="w-full min-w-[720px] border-collapse text-left text-sm"
+          aria-busy={loading || undefined}
+        >
           <thead>
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id} className="border-b border-border bg-[var(--app-hover)]">
@@ -393,15 +401,29 @@ export function AdminUserGrid({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b border-border last:border-0">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-3 py-2 text-foreground">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
+            {loading
+              ? Array.from({ length: 10 }).map((_, i) => (
+                  <tr
+                    key={`skeleton-row-${i}`}
+                    data-testid="admin-user-grid-skeleton-row"
+                    className="border-b border-border last:border-0"
+                  >
+                    {table.getVisibleLeafColumns().map((col) => (
+                      <td key={col.id} className="px-3 py-2">
+                        <Skeleton height="4" width="3/4" />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              : table.getRowModel().rows.map((row) => (
+                  <tr key={row.id} className="border-b border-border last:border-0">
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id} className="px-3 py-2 text-foreground">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
-            ))}
           </tbody>
         </table>
       </div>

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { StudentBioMdxEditor } from "@/components/dashboard/student-bio-mdx-editor";
 import { STUDENT_SHORT_BIO_MAX_CHARS } from "@/lib/student-short-bio";
@@ -12,6 +13,7 @@ type Props = {
   initialName: string | null;
   initialShortBio: string | null;
   avatarUrl: string | null;
+  postSaveRedirect?: string | null;
 };
 
 export function DashboardProfileForm({
@@ -19,8 +21,10 @@ export function DashboardProfileForm({
   initialName,
   initialShortBio,
   avatarUrl,
+  postSaveRedirect,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
+  const router = useRouter();
   const [name, setName] = useState(initialName ?? "");
   const [shortBio, setShortBio] = useState(
     () => (initialShortBio ?? "").slice(0, STUDENT_SHORT_BIO_MAX_CHARS),
@@ -41,6 +45,28 @@ export function DashboardProfileForm({
     });
     if (!res.ok) {
       setStatus("error");
+      return;
+    }
+
+    const qsRedirect =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("onboardingNext")
+        : null;
+    const redirectTarget = postSaveRedirect ?? qsRedirect;
+    if (typeof window !== "undefined") {
+      console.info("[onboarding][student-profile-save]", {
+        currentUrl: window.location.href,
+        postSaveRedirect,
+        qsRedirect,
+        redirectTarget,
+      });
+    }
+    if (redirectTarget) {
+      try {
+        router.push(decodeURIComponent(redirectTarget) as "/onboarding/next");
+      } catch {
+        router.push(redirectTarget as "/onboarding/next");
+      }
       return;
     }
     setStatus("saved");

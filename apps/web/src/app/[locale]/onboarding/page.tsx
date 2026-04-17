@@ -12,6 +12,9 @@ export default async function OnboardingPage() {
   const locale = await getLocale();
   const user = await requireAuth(locale);
 
+  if (user.role === "TEACHER") {
+    redirect({ href: "/onboarding/teacher", locale });
+  }
   if (user.role !== "STUDENT") {
     redirect({ href: "/dashboard", locale });
   }

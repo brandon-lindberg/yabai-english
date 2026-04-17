@@ -66,4 +66,27 @@ export function featureFromState(state: string): {
   }
 }
 
+export function buildPostCallbackReturnUrl(
+  returnTo: string,
+  params: { google: string; feature: IntegrationFeature },
+): string {
+  const placeholderBase = "http://__local__";
+  let url: URL;
+  try {
+    url = new URL(returnTo, placeholderBase);
+  } catch {
+    const sep = returnTo.includes("?") ? "&" : "?";
+    return `${returnTo}${sep}google=${encodeURIComponent(params.google)}&feature=${encodeURIComponent(params.feature)}`;
+  }
+
+  if (url.origin !== placeholderBase) {
+    url = new URL(url.pathname + url.search + url.hash, placeholderBase);
+  }
+
+  url.searchParams.set("google", params.google);
+  url.searchParams.set("feature", params.feature);
+
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 export type { IntegrationFeature };

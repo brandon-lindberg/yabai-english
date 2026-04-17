@@ -16,6 +16,40 @@ const copy = {
 };
 
 describe("SlotSelectionCalendar", () => {
+  test("renders duplicate startsAtIso slots without React key collisions", () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const duplicateIso = "2026-04-20T01:00:00.000Z";
+    try {
+      const { container } = render(
+        <SlotSelectionCalendar
+          locale="en-US"
+          copy={copy}
+          slots={[
+            { startsAtIso: duplicateIso, label: "Level A", groupKey: "slot-a" },
+            { startsAtIso: duplicateIso, label: "Level B", groupKey: "slot-b" },
+          ]}
+          calendarView="day"
+          onCalendarViewChange={vi.fn()}
+          calendarAnchor={duplicateIso}
+          onCalendarAnchorChange={vi.fn()}
+          selectedStartsAtIso={null}
+          onSelectSlot={vi.fn()}
+        />,
+      );
+
+      expect(container.textContent).toContain("Level A");
+      expect(container.textContent).toContain("Level B");
+      const keyErrors = errorSpy.mock.calls.filter((call) =>
+        call.some(
+          (arg) => typeof arg === "string" && /same key|Each child in a list|unique "key"/i.test(arg),
+        ),
+      );
+      expect(keyErrors, JSON.stringify(errorSpy.mock.calls)).toHaveLength(0);
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   test("day view replacement supersedes default day list", () => {
     render(
       <SlotSelectionCalendar

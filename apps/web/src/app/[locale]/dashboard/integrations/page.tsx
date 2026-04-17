@@ -9,12 +9,28 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { buildGoogleCalendarEmbedSrc } from "@/lib/google-calendar-embed";
 import { isTeacherCalendarReady } from "@/lib/teacher-calendar-status";
+import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
+import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 
-export default async function DashboardIntegrationsPage() {
+export default async function DashboardIntegrationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    onboardingNext?: string;
+    onboardingStep?: string;
+    google?: string;
+    feature?: string;
+  }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) return null;
 
   const t = await getTranslations("dashboard.integrationsPage");
+  const { onboardingNext, onboardingStep, google: googleStatus } = await searchParams;
+  const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
+  const locale = await getLocale();
 
   const [settings, userExtras, teacherLegacy] = await Promise.all([
     prisma.googleIntegrationSettings.findUnique({
@@ -43,6 +59,12 @@ export default async function DashboardIntegrationsPage() {
         })
       : Boolean(settings?.calendarConnected);
 
+  // Auto-return to onboarding checklist once the integration step is satisfied.
+  // Triggered after OAuth ("google=connected") or when revisiting while already connected.
+  if (onboardingHref && (googleStatus === "connected" || settings?.calendarConnected || settings?.driveConnected)) {
+    redirect({ href: onboardingHref as "/onboarding/next", locale });
+  }
+
   const timeZone = userExtras?.studentProfile?.timezone ?? "Asia/Tokyo";
   const userEmail = userExtras?.email ?? session.user.email ?? null;
 
@@ -56,12 +78,25 @@ export default async function DashboardIntegrationsPage() {
 
   return (
     <div className="space-y-8">
+      <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       <PageHeader title={t("title")} description={t("intro")} />
       <div className="grid gap-4 lg:grid-cols-2">
         <GoogleIdentityStatusCard email={session.user.email} name={session.user.name} />
-        <CalendarIntegrationCard connected={settings?.calendarConnected ?? false} />
-        <DriveDocsIntegrationCard connected={settings?.driveConnected ?? false} />
-        <MeetArtifactsIntegrationCard connected={settings?.meetConnected ?? false} />
+        <CalendarIntegrationCard
+          connected={settings?.calendarConnected ?? false}
+          onboardingNext={onboardingHref}
+          onboardingStep={onboardingStep ?? null}
+        />
+        <DriveDocsIntegrationCard
+          connected={settings?.driveConnected ?? false}
+          onboardingNext={onboardingHref}
+          onboardingStep={onboardingStep ?? null}
+        />
+        <MeetArtifactsIntegrationCard
+          connected={settings?.meetConnected ?? false}
+          onboardingNext={onboardingHref}
+          onboardingStep={onboardingStep ?? null}
+        />
       </div>
 
       {embedSrc ? (

@@ -18,10 +18,23 @@ import { PageHeader } from "@/components/ui/page-header";
 import { AppCard } from "@/components/ui/app-card";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { isTeacherCalendarReady } from "@/lib/teacher-calendar-status";
+import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
+import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
+import {
+  computeStudentOnboardingCompletion,
+  buildStudentOnboardingChecklist,
+  summarizeStudentOnboardingProgress,
+} from "@/lib/student-onboarding-next-links";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) return null;
+  const { onboardingNext, onboardingStep } = await searchParams;
+  const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
   const t = await getTranslations("dashboard");
   const tCommon = await getTranslations("common");
   const th = await getTranslations("dashboard.highlights");
@@ -51,6 +64,7 @@ export default async function DashboardPage() {
 
     return (
       <div className="space-y-8">
+        <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
         <PageHeader title={t("teacherHome.title")} description={t("teacherHome.body")} />
         <div className="grid gap-4 sm:grid-cols-3">
           <article className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
@@ -76,19 +90,31 @@ export default async function DashboardPage() {
         </div>
         <div className="flex flex-wrap gap-3">
           <Link
-            href="/dashboard/profile"
+            href={
+              onboardingHref
+                ? `/dashboard/profile?onboardingNext=${encodeURIComponent(onboardingHref)}`
+                : "/dashboard/profile"
+            }
             className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
             {t("teacherHome.editProfile")}
           </Link>
           <Link
-            href="/dashboard/integrations"
+            href={
+              onboardingHref
+                ? `/dashboard/integrations?onboardingNext=${encodeURIComponent(onboardingHref)}`
+                : "/dashboard/integrations"
+            }
             className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
             {t("teacherHome.googleIntegrations")}
           </Link>
           <Link
-            href="/dashboard/schedule"
+            href={
+              onboardingHref
+                ? `/dashboard/schedule?onboardingNext=${encodeURIComponent(onboardingHref)}`
+                : "/dashboard/schedule"
+            }
             className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
           >
             {t("teacherHome.openSchedule")}
@@ -134,8 +160,63 @@ export default async function DashboardPage() {
 
   const canStartPlacement = isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null);
 
+  const tOnboarding = await getTranslations("onboarding");
+
+  const [googleSettingsForChecklist, bookingCountForChecklist, threadCountForChecklist, studiedLevelForChecklist] =
+    await Promise.all([
+      prisma.googleIntegrationSettings.findUnique({
+        where: { userId: session.user.id },
+        select: { calendarConnected: true, driveConnected: true },
+      }),
+      prisma.booking.count({ where: { studentId: session.user.id } }),
+      prisma.chatThread.count({ where: { studentId: session.user.id } }),
+      prisma.userStudyLevelProgress.findFirst({
+        where: { userId: session.user.id, lastStudiedAt: { not: null } },
+        select: { id: true },
+      }),
+    ]);
+
+  const studentCompletion = computeStudentOnboardingCompletion(
+    {
+      profileShortBio: profile?.shortBio ?? null,
+      userName: user?.name ?? null,
+      userImage: user?.image ?? null,
+      googleCalendarConnected: googleSettingsForChecklist?.calendarConnected ?? false,
+      googleDriveConnected: googleSettingsForChecklist?.driveConnected ?? false,
+      hasAnyBooking: bookingCountForChecklist > 0,
+      hasAnyChatThread: threadCountForChecklist > 0,
+      placementCompletedAt: profile?.placementCompletedAt ?? null,
+      hasStudiedAny: Boolean(studiedLevelForChecklist),
+    },
+    { skippedSteps: profile?.skippedOnboardingSteps ?? [] },
+  );
+  const studentChecklistForProgress = buildStudentOnboardingChecklist({
+    locale: "en",
+    canStartPlacement,
+    completion: studentCompletion,
+  });
+  const studentProgress = summarizeStudentOnboardingProgress(studentChecklistForProgress);
+  const showResumeOnboardingLink =
+    !onboardingHref &&
+    profile?.placedLevel === "UNSET" &&
+    studentProgress.percent < 100;
+
   return (
     <div className="space-y-10">
+      <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
+      {showResumeOnboardingLink ? (
+        <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-foreground">
+            {tOnboarding("resumeHint")}
+          </p>
+          <Link
+            href="/onboarding/next"
+            className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+          >
+            {tOnboarding("resumeChecklistCta")}
+          </Link>
+        </div>
+      ) : null}
       <PageHeader title={th("pageTitle")} description={th("pageIntro")} />
 
       {profile ? (

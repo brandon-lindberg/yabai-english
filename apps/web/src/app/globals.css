@@ -22,6 +22,11 @@ html[data-theme="light"] {
   --app-border: #e2e8f0;
   --app-header-border: #d1dae6;
 
+  /* Skeleton loading: must be visibly darker than --app-canvas + --app-surface
+     so placeholders are obvious. Highlight is the shimmer peak. */
+  --app-skeleton-base: #cbd5e1;
+  --app-skeleton-highlight: #eef3f9;
+
   --app-primary: #0d9488;
   --app-primary-fg: #ffffff;
   --app-link: #0f766e;
@@ -59,6 +64,9 @@ html[data-theme="dark"] {
   --app-muted: #94a3b8;
   --app-border: #273549;
   --app-header-border: #334155;
+
+  --app-skeleton-base: #2a3a52;
+  --app-skeleton-highlight: #3a4c66;
 
   --app-primary: #2dd4bf;
   --app-primary-fg: #042f2e;
@@ -102,6 +110,40 @@ html[data-theme="dark"] {
   --color-destructive: var(--app-destructive);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+/* ================================================================== */
+/*  Skeleton loading (shimmer)                                         */
+/* ================================================================== */
+
+@keyframes app-shimmer {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -150% 0;
+  }
+}
+
+.app-skeleton {
+  display: block;
+  background-color: var(--app-skeleton-base);
+  background-image: linear-gradient(
+    100deg,
+    var(--app-skeleton-base) 0%,
+    var(--app-skeleton-highlight) 50%,
+    var(--app-skeleton-base) 100%
+  );
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  animation: app-shimmer 1.4s ease-in-out infinite;
+  will-change: background-position;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-skeleton {
+    animation: none;
+  }
 }
 
 /* ================================================================== */

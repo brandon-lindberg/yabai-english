@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { encryptIntegrationToken } from "@/lib/calendar-token";
 import {
   buildGoogleFeatureState,
+  buildPostCallbackReturnUrl,
   deriveConnectionFlags,
   featureFromState,
   scopesForFeature,
@@ -61,7 +62,13 @@ export async function handleGoogleCallback(req: Request, code: string, state: st
   }
   const creds = requireGoogleClient();
   if (!creds) {
-    return { ok: false as const, redirectTo: `${parsed.returnTo}?google=misconfigured` };
+    return {
+      ok: false as const,
+      redirectTo: buildPostCallbackReturnUrl(parsed.returnTo, {
+        google: "misconfigured",
+        feature: parsed.feature,
+      }),
+    };
   }
   const baseUrl = resolveBaseUrl(req);
   const redirectUri = `${baseUrl}/api/integrations/google/callback`;
@@ -135,5 +142,11 @@ export async function handleGoogleCallback(req: Request, code: string, state: st
     },
   });
 
-  return { ok: true as const, redirectTo: `${parsed.returnTo}?google=connected&feature=${parsed.feature}` };
+  return {
+    ok: true as const,
+    redirectTo: buildPostCallbackReturnUrl(parsed.returnTo, {
+      google: "connected",
+      feature: parsed.feature,
+    }),
+  };
 }

@@ -47,6 +47,7 @@
     "signUpTitle": "Create an account",
     "signUpSubtitle": "Sign up as a student with your email. In production you can switch to Google-only if you prefer.",
     "continueWithGoogle": "Continue with Google",
+    "signingIn": "Signing in…",
     "email": "Email",
     "displayName": "Display name",
     "displayNamePlaceholder": "Optional",
@@ -570,10 +571,84 @@
     "saveError": "Could not save onboarding details. Try again.",
     "nextTitle": "Choose your next step",
     "nextSubtitle": "You can take the placement test now, or skip for now and choose a teacher first.",
+    "completedLabel": "Completed",
+    "skipForNow": "Skip for now",
+    "skipForNowHint": "You can come back and finish these later from your dashboard.",
+    "progressSummary": "{current} of {total} completed",
+    "skipThisStep": "Skip this step",
+    "markStepDone": "I'm done with this step",
+    "finishOnboarding": "Finish and go to dashboard",
+    "allDoneHint": "Everything looks good. You can continue to your dashboard.",
+    "resumeChecklistCta": "Resume onboarding checklist",
     "takePlacementNow": "Take placement test now",
     "takePlacementNowHelp": "Get your suggested level before booking.",
     "chooseTeacherNow": "Choose a teacher now",
-    "chooseTeacherNowHelp": "Skip for now and select a teacher/lesson slot."
+    "chooseTeacherNowHelp": "Skip for now and select a teacher/lesson slot.",
+    "studentSteps": {
+      "profile": {
+        "title": "Set up your profile",
+        "body": "Add your intro so teachers understand your goals."
+      },
+      "integrations": {
+        "title": "Connect Google",
+        "body": "Enable calendar sync and faster scheduling."
+      },
+      "bookLesson": {
+        "title": "Find a teacher and book a lesson",
+        "body": "Compare teachers, then pick a lesson type and time slot."
+      },
+      "chat": {
+        "title": "Use teacher chat",
+        "body": "Coordinate with teachers before and after lessons."
+      },
+      "placement": {
+        "title": "Take placement test",
+        "body": "Get your suggested level before you continue."
+      },
+      "materials": {
+        "title": "Open learning materials",
+        "body": "Start with flashcard lessons between bookings."
+      }
+    },
+    "teacherTitle": "Teacher onboarding",
+    "teacherSubtitle": "Complete this once to unlock your teacher dashboard and student workflows.",
+    "teacherOpenStep": "Open",
+    "teacherSkipOptional": "Skip for now",
+    "teacherFinish": "Finish onboarding",
+    "teacherResumeHint": "You are still in teacher onboarding.",
+    "teacherResumeCta": "Continue onboarding",
+    "resumeHint": "You are still setting up your account.",
+    "resumeCta": "Back to onboarding",
+    "teacherSteps": {
+      "profile": {
+        "title": "Update your public profile",
+        "body": "Add your bio, credentials, and lesson offerings so students know what you teach."
+      },
+      "integrations": {
+        "title": "Connect Google",
+        "body": "Link your Google account for calendar sync and Meet event handling."
+      },
+      "availability": {
+        "title": "Set your availability",
+        "body": "Publish at least one schedule block so students can book lessons."
+      },
+      "students": {
+        "title": "Review student profiles",
+        "body": "Check goals and context on student profiles before lessons."
+      },
+      "chat": {
+        "title": "Use chat with students",
+        "body": "Use the chat panel to coordinate before and after lessons."
+      },
+      "notes": {
+        "title": "Post lesson notes/documents",
+        "body": "After lessons, add completion notes and external recap links."
+      },
+      "materials": {
+        "title": "Explore learning materials",
+        "body": "Understand the flashcard materials students use between lessons."
+      }
+    }
   },
   "chat": {
     "title": "Messages",

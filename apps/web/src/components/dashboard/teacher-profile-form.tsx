@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { useEffect, useState } from "react";
+import { Link, useRouter } from "@/i18n/navigation";
 import {
   AVAILABILITY_LESSON_TYPES,
   DEFAULT_AVAILABILITY_LESSON_TYPE,
@@ -48,6 +48,7 @@ type Props = {
   initialSpecialties: string[];
   initialRateYen: number | null;
   initialOffersFreeTrial: boolean;
+  postSaveRedirect?: string | null;
   initialLessonOfferings: Array<{
     id: string;
     durationMin: number;
@@ -74,10 +75,12 @@ export function TeacherProfileForm({
   initialSpecialties,
   initialRateYen,
   initialOffersFreeTrial,
+  postSaveRedirect,
   initialLessonOfferings,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
   const tSlotTypes = useTranslations("lessonSlotMeta");
+  const router = useRouter();
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
   const [displayName, setDisplayName] = useState(initialDisplayName ?? "");
   const [bio, setBio] = useState(initialBio ?? "");
@@ -123,6 +126,16 @@ export function TeacherProfileForm({
   );
   const [offersFreeTrial, setOffersFreeTrial] = useState(initialOffersFreeTrial);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const qsRedirect = new URLSearchParams(window.location.search).get("onboardingNext");
+    console.info("[onboarding][teacher-profile-mount]", {
+      currentUrl: window.location.href,
+      postSaveRedirect,
+      qsRedirect,
+    });
+  }, [postSaveRedirect]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -203,6 +216,23 @@ export function TeacherProfileForm({
       setTeacherProfileId(body.teacherProfileId);
     }
 
+    const qsRedirect =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("onboardingNext")
+        : null;
+    const redirectTarget = postSaveRedirect ?? qsRedirect;
+    if (typeof window !== "undefined") {
+      console.info("[onboarding][teacher-profile-save]", {
+        currentUrl: window.location.href,
+        postSaveRedirect,
+        qsRedirect,
+        redirectTarget,
+      });
+    }
+    if (redirectTarget) {
+      router.push(decodeURIComponent(redirectTarget) as "/onboarding/teacher");
+      return;
+    }
     setStatus("saved");
     setTimeout(() => setStatus("idle"), 2000);
   }

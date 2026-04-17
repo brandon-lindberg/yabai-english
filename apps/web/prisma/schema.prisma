@@ -230,6 +230,8 @@ model StudentProfile {
   privacyAcceptedAt      DateTime?
   recordingConsentAt     DateTime?
   onboardingCompletedAt  DateTime?
+  /// Steps the student explicitly skipped from the onboarding checklist.
+  skippedOnboardingSteps String[]  @default([])
 
   /// Short self-introduction / goals; visible to teachers with other profile context.
   shortBio String? @db.VarChar(300)
@@ -251,6 +253,9 @@ model TeacherProfile {
   specialties                String[] @default([])
   rateYen                    Int?
   offersFreeTrial            Boolean  @default(true)
+  onboardingCompletedAt      DateTime?
+  /// Steps the teacher explicitly skipped from the onboarding wizard.
+  skippedOnboardingSteps     String[]  @default([])
 
   availabilitySlots        AvailabilitySlot[]
   availabilityOccurrenceSkips AvailabilityOccurrenceSkip[]

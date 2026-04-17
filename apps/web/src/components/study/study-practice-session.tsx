@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { StudyLevelCode } from "@prisma/client";
+import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 
 export type StudyQueueFocus = "mixed" | "weak" | "mastered";
 
@@ -152,9 +153,33 @@ export function StudyPracticeSession({
 
   if (loading) {
     return (
-      <p className="text-sm text-muted" data-testid="study-practice-loading">
-        …
-      </p>
+      <div
+        className="space-y-6"
+        role="status"
+        aria-busy="true"
+        aria-label="Loading practice"
+        data-testid="study-practice-loading"
+      >
+        <Skeleton height="10" rounded="xl" />
+        <div className="flex justify-between">
+          <Skeleton height="3" width="1/4" />
+          <Skeleton height="3" width="1/3" />
+        </div>
+        <div className="rounded-2xl border border-border bg-surface p-8 shadow-sm">
+          <Skeleton height="3" width="1/4" />
+          <div className="mt-4 flex min-h-[6rem] items-center">
+            <Skeleton height="8" width="2/3" />
+          </div>
+          <div className="mt-6">
+            <SkeletonText lines={2} lastLineWidth="2/3" />
+          </div>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} height="16" rounded="xl" />
+          ))}
+        </div>
+      </div>
     );
   }
 
