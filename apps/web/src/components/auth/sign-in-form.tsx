@@ -14,6 +14,7 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn }: Props) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   /** Dashboard layout sends students who still need onboarding to `/onboarding`. */
   const redirectTo = "/dashboard";
@@ -64,11 +65,22 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn }: Props) {
       {hasGoogleOAuth && (
         <button
           type="button"
-          onClick={() => void signIn("google", { redirectTo })}
-          className="flex w-full items-center justify-center gap-3 rounded-full border border-border bg-white px-4 py-3 text-sm font-semibold text-[#1f1f1f] shadow-sm transition hover:bg-[#f8f9fa]"
+          onClick={() => {
+            setGoogleLoading(true);
+            void signIn("google", { redirectTo });
+          }}
+          disabled={googleLoading}
+          aria-busy={googleLoading}
           aria-label="Sign in with Google"
+          className="group flex w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-border bg-white px-4 py-3 text-sm font-semibold text-[#1f1f1f] shadow-sm transition duration-150 ease-out hover:-translate-y-0.5 hover:border-[#cbd5e1] hover:bg-[#f8f9fa] hover:shadow-md active:translate-y-0 active:scale-[0.99] active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75"
         >
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
+          {googleLoading ? (
+            <span
+              aria-hidden="true"
+              className="h-5 w-5 animate-spin rounded-full border-2 border-[#1f1f1f]/20 border-t-[#1f1f1f]"
+            />
+          ) : (
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 transition-transform duration-150 group-hover:scale-110">
             <path
               d="M21.35 11.1H12v2.98h5.36c-.23 1.5-1.8 4.4-5.36 4.4-3.23 0-5.86-2.67-5.86-5.97s2.63-5.97 5.86-5.97c1.84 0 3.07.79 3.78 1.47l2.58-2.5C16.72 3.98 14.56 3 12 3 7.03 3 3 7.03 3 12s4.03 9 9 9 8.69-3.48 8.69-8.39c0-.56-.06-.99-.14-1.51z"
               fill="#4285F4"
@@ -85,8 +97,9 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn }: Props) {
               d="M18.94 5.66 16.5 7.55A5.3 5.3 0 0 0 12 5.52a5.97 5.97 0 0 0-5.45 3.72L3.95 7.2A9 9 0 0 1 12 3c2.63 0 4.84.96 6.94 2.66z"
               fill="#EA4335"
             />
-          </svg>
-          <span>{t("continueWithGoogle")}</span>
+            </svg>
+          )}
+          <span>{googleLoading ? t("signingIn") : t("continueWithGoogle")}</span>
         </button>
       )}
 

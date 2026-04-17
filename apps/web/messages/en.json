@@ -47,6 +47,7 @@
     "signUpTitle": "Create an account",
     "signUpSubtitle": "Sign up as a student with your email. In production you can switch to Google-only if you prefer.",
     "continueWithGoogle": "Continue with Google",
+    "signingIn": "Signing in…",
     "email": "Email",
     "displayName": "Display name",
     "displayNamePlaceholder": "Optional",

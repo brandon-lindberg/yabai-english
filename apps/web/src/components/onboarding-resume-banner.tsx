@@ -13,7 +13,7 @@ export async function OnboardingResumeBanner({
   const t = await getTranslations("onboarding");
   return (
     <div className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-foreground">
+      <p className="min-w-0 text-sm text-foreground">
         {t("resumeHint")}{" "}
         <Link
           href={href as "/onboarding/next"}
@@ -23,12 +23,13 @@ export async function OnboardingResumeBanner({
         </Link>
       </p>
       {step ? (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex shrink-0 flex-nowrap items-center gap-2">
           <OnboardingSkipButton
             step={step}
             returnHref={href}
             variant="primary"
             labelKey="markStepDone"
+            action="complete"
             testIdSuffix="done"
           />
           <OnboardingSkipButton
@@ -36,6 +37,7 @@ export async function OnboardingResumeBanner({
             returnHref={href}
             variant="ghost"
             labelKey="skipThisStep"
+            action="skip"
           />
         </div>
       ) : null}

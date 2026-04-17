@@ -20,6 +20,11 @@ import { InlineAlert } from "@/components/ui/inline-alert";
 import { isTeacherCalendarReady } from "@/lib/teacher-calendar-status";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
+import {
+  computeStudentOnboardingCompletion,
+  buildStudentOnboardingChecklist,
+  summarizeStudentOnboardingProgress,
+} from "@/lib/student-onboarding-next-links";
 
 export default async function DashboardPage({
   searchParams,
@@ -156,8 +161,45 @@ export default async function DashboardPage({
   const canStartPlacement = isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null);
 
   const tOnboarding = await getTranslations("onboarding");
+
+  const [googleSettingsForChecklist, bookingCountForChecklist, threadCountForChecklist, studiedLevelForChecklist] =
+    await Promise.all([
+      prisma.googleIntegrationSettings.findUnique({
+        where: { userId: session.user.id },
+        select: { calendarConnected: true, driveConnected: true },
+      }),
+      prisma.booking.count({ where: { studentId: session.user.id } }),
+      prisma.chatThread.count({ where: { studentId: session.user.id } }),
+      prisma.userStudyLevelProgress.findFirst({
+        where: { userId: session.user.id, lastStudiedAt: { not: null } },
+        select: { id: true },
+      }),
+    ]);
+
+  const studentCompletion = computeStudentOnboardingCompletion(
+    {
+      profileShortBio: profile?.shortBio ?? null,
+      userName: user?.name ?? null,
+      userImage: user?.image ?? null,
+      googleCalendarConnected: googleSettingsForChecklist?.calendarConnected ?? false,
+      googleDriveConnected: googleSettingsForChecklist?.driveConnected ?? false,
+      hasAnyBooking: bookingCountForChecklist > 0,
+      hasAnyChatThread: threadCountForChecklist > 0,
+      placementCompletedAt: profile?.placementCompletedAt ?? null,
+      hasStudiedAny: Boolean(studiedLevelForChecklist),
+    },
+    { skippedSteps: profile?.skippedOnboardingSteps ?? [] },
+  );
+  const studentChecklistForProgress = buildStudentOnboardingChecklist({
+    locale: "en",
+    canStartPlacement,
+    completion: studentCompletion,
+  });
+  const studentProgress = summarizeStudentOnboardingProgress(studentChecklistForProgress);
   const showResumeOnboardingLink =
-    !onboardingHref && profile?.placedLevel === "UNSET";
+    !onboardingHref &&
+    profile?.placedLevel === "UNSET" &&
+    studentProgress.percent < 100;
 
   return (
     <div className="space-y-10">

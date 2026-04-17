@@ -47,6 +47,7 @@
     "signUpTitle": "アカウント作成",
     "signUpSubtitle": "受講生としてメールで登録します。本番では Google のみにすることもできます。",
     "continueWithGoogle": "Google で続ける",
+    "signingIn": "サインイン中…",
     "email": "メールアドレス",
     "displayName": "表示名",
     "displayNamePlaceholder": "任意",

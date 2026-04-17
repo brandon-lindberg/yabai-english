@@ -5,21 +5,30 @@ import { useTranslations } from "next-intl";
 
 type Variant = "primary" | "ghost";
 
+/**
+ * What the button should do on click:
+ *  - "complete": POST /api/onboarding/skip-step (marks the step as done) then redirect.
+ *  - "skip":     just redirect to `returnHref` without changing onboarding state.
+ */
+type Action = "complete" | "skip";
+
 type Props = {
   step: string;
   returnHref: string;
   variant?: Variant;
-  /** One of the translation keys under `onboarding.*`. Defaults to "skipThisStep". */
+  /** One of the translation keys under `onboarding.*`. */
   labelKey?: "skipThisStep" | "markStepDone";
+  /** Defaults to "complete" for backward compatibility. */
+  action?: Action;
   className?: string;
   testIdSuffix?: string;
 };
 
 const VARIANT_CLASSNAMES: Record<Variant, string> = {
   primary:
-    "inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60",
+    "inline-flex whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60",
   ghost:
-    "inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)] disabled:opacity-60",
+    "inline-flex whitespace-nowrap rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)] disabled:opacity-60",
 };
 
 export function OnboardingSkipButton({
@@ -27,6 +36,7 @@ export function OnboardingSkipButton({
   returnHref,
   variant = "ghost",
   labelKey = "skipThisStep",
+  action = "complete",
   className,
   testIdSuffix,
 }: Props) {
@@ -35,6 +45,10 @@ export function OnboardingSkipButton({
   const [error, setError] = useState<string | null>(null);
 
   async function onClick() {
+    if (action === "skip") {
+      window.location.href = returnHref;
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -60,21 +74,16 @@ export function OnboardingSkipButton({
     : `onboarding-skip-${step}`;
 
   return (
-    <div className="flex flex-col items-start gap-1">
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={busy}
-        data-testid={testId}
-        className={className ?? VARIANT_CLASSNAMES[variant]}
-      >
-        {busy ? "…" : t(labelKey)}
-      </button>
-      {error ? (
-        <p className="text-xs" style={{ color: "var(--app-danger)" }}>
-          {error}
-        </p>
-      ) : null}
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={busy}
+      data-testid={testId}
+      aria-invalid={error ? true : undefined}
+      title={error ?? undefined}
+      className={className ?? VARIANT_CLASSNAMES[variant]}
+    >
+      {busy ? "…" : t(labelKey)}
+    </button>
   );
 }
