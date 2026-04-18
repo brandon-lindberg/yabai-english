@@ -53,7 +53,7 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
                 )}
                 {b.invoice && (
                   <a
-                    href={`/api/invoices/${b.invoice.id}/csv`}
+                    href={`/api/invoices/${b.invoice.id}/pdf`}
                     className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground hover:bg-[var(--app-hover)]"
                   >
                     {t("downloadInvoice")}
