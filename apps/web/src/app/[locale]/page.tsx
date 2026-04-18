@@ -1,8 +1,22 @@
-import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { auth } from "@/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { AppCard } from "@/components/ui/app-card";
+import { LandingHero } from "@/components/marketing/landing-hero";
+import { LandingHowItWorks } from "@/components/marketing/landing-how-it-works";
+import { LandingPillars } from "@/components/marketing/landing-pillars";
+import { LandingTrust } from "@/components/marketing/landing-trust";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "landing" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 export default async function HomePage() {
   const t = await getTranslations("home");
@@ -46,19 +60,11 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-1 flex-col px-4 py-16 sm:px-6">
-      <PageHeader
-        title={t("title")}
-        description={t("subtitle")}
-        actions={
-          <Link
-            href="/auth/signin"
-            className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-          >
-            {t("ctaDashboard")}
-          </Link>
-        }
-      />
+    <main className="mx-auto flex max-w-5xl flex-1 flex-col px-4 py-12 sm:px-6">
+      <LandingHero />
+      <LandingHowItWorks />
+      <LandingPillars />
+      <LandingTrust />
     </main>
   );
 }

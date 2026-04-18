@@ -19,7 +19,9 @@ export function SiteHeader() {
           role: session.user.role,
           canStartPlacement: session.user.canStartPlacement,
         })
-      : [];
+      : status === "unauthenticated"
+        ? getHeaderPrimaryNavLinks({ signedIn: false, role: undefined })
+        : [];
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--app-header-border)] bg-[color-mix(in_srgb,var(--app-surface)_92%,transparent)] backdrop-blur-md">
@@ -39,12 +41,15 @@ export function SiteHeader() {
         ) : status === "loading" ? (
           <span className="ml-auto text-sm text-muted">…</span>
         ) : (
-          <Link
-            href="/auth/signin"
-            className="ml-auto inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-          >
-            {t("signIn")}
-          </Link>
+          <>
+            <SiteHeaderPrimaryNav links={navLinks} />
+            <Link
+              href="/auth/signin"
+              className="ml-auto inline-flex shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            >
+              {t("signIn")}
+            </Link>
+          </>
         )}
       </div>
     </header>

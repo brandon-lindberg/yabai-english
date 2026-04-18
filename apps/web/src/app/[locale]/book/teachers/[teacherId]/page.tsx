@@ -15,6 +15,9 @@ import { AppCard } from "@/components/ui/app-card";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
+import { buildLocalizedTeacherProfilePath } from "@/lib/teacher-card-href";
+import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
+import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -137,6 +140,16 @@ export default async function TeacherProfileBookingPage({
   );
   const groupRateRange = getTeacherRateRangeByType(teacher.lessonOfferings, "group");
 
+  const postSignInBookingPath = resolveSafeCallbackUrl(
+    buildLocalizedTeacherProfilePath(
+      locale,
+      teacherId,
+      onboardingHref,
+      onboardingStep ?? null,
+    ),
+    "/book",
+  );
+
   return (
     <main className="mx-auto max-w-4xl flex-1 px-4 py-10 sm:px-6">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
@@ -198,28 +211,32 @@ export default async function TeacherProfileBookingPage({
         </AppCard>
       </div>
 
-      <section className="mt-8 space-y-4">
-        <h2 className="text-lg font-semibold text-foreground">{t("scheduleWithTeacher")}</h2>
-        <p className="text-sm text-muted">
-          {t("selectSlot")} · {t("timezoneShownAs")}: {viewerTimezone}
-        </p>
-        <InlineAlert variant="warning">{t("leadTimeNotice")}</InlineAlert>
-        <BookingForm
-          teacherProfileId={teacher.id}
-          currentUserRole={session?.user?.role ?? "STUDENT"}
-          presetSlots={slotOptions.map((slot) => ({
-            startsAtIso: slot.startsAtIso,
-            label: slot.label,
-            groupKey: slot.slotId,
-            lessonType: slot.lessonType,
-            lessonTypeCustom: slot.lessonTypeCustom,
-          }))}
-          bookedSlots={reservedBookings.map((b) => ({
-            startsAtIso: b.startsAt.toISOString(),
-            endsAtIso: b.endsAt.toISOString(),
-          }))}
-        />
-      </section>
+      {session?.user ? (
+        <section className="mt-8 space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">{t("scheduleWithTeacher")}</h2>
+          <p className="text-sm text-muted">
+            {t("selectSlot")} · {t("timezoneShownAs")}: {viewerTimezone}
+          </p>
+          <InlineAlert variant="warning">{t("leadTimeNotice")}</InlineAlert>
+          <BookingForm
+            teacherProfileId={teacher.id}
+            currentUserRole={session.user.role}
+            presetSlots={slotOptions.map((slot) => ({
+              startsAtIso: slot.startsAtIso,
+              label: slot.label,
+              groupKey: slot.slotId,
+              lessonType: slot.lessonType,
+              lessonTypeCustom: slot.lessonTypeCustom,
+            }))}
+            bookedSlots={reservedBookings.map((b) => ({
+              startsAtIso: b.startsAt.toISOString(),
+              endsAtIso: b.endsAt.toISOString(),
+            }))}
+          />
+        </section>
+      ) : (
+        <GuestBookLessonCta callbackUrl={postSignInBookingPath} />
+      )}
     </main>
   );
 }

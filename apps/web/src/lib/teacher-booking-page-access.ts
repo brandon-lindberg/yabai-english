@@ -1,6 +1,6 @@
 /**
- * Gate for /book/teachers/[teacherId]: students and signed-out visitors may browse;
- * teachers may only open their own page (public preview); admins are redirected.
+ * Gate for /book/teachers/[teacherId]: teachers may only open their own profile;
+ * admins are redirected. Guests may view any teacher profile (read-only); booking is gated in the UI.
  */
 export function redirectTargetForTeacherBookingPage(input: {
   role: string | undefined;
