@@ -140,21 +140,17 @@ You may exercise rights by using in-product settings (where available) or contac
 
 ---
 
-## 11. Children’s privacy (including U.S. COPPA)
+## 11. Children’s privacy (U.S. COPPA notice)
 
-### Children under 13 in the United States
+The Service is intended for **adults (18+)**. It is **not directed to children under 13**, and we do **not** currently offer children’s content, minor-specific accounts, or parental verification flows.
 
-The Service is **not** for children under **13** to use on their own. If you are under 13 in the U.S., you must **not** sign up or use the Service **without** (1) **verifiable parental consent** where we require it, and (2) a **parent or legal guardian** who **supervises and assists** your use (including account creation, lessons, and third-party tools such as Google), consistent with the **Children’s Online Privacy Protection Act (“COPPA”)** and its implementing regulations.
+We do **not** knowingly collect, use, or disclose personal information from **U.S. children under 13** online in violation of the **Children’s Online Privacy Protection Act (“COPPA”)**. If you are a parent or guardian and believe we received personal information from a U.S. child under 13, contact us as described in Section 14 and we will delete such information where COPPA and our practices require us to do so.
 
-We do **not** knowingly collect, use, or disclose personal information from U.S. children under 13 except as permitted by COPPA (for example, after obtaining verifiable parental consent when we collect information beyond what COPPA allows without consent).
-
-### Parents and guardians
-
-If you believe we have collected personal information from your child under 13 without appropriate consent, or you wish to **review**, **delete**, or **refuse further collection** of your child’s information, contact us as described in Section 14. We may ask for reasonable information to verify that you are the parent or legal guardian before fulfilling a request.
+If we later offer **children’s content** or services aimed at minors, we will update this Policy and describe any **parental consent and verification** steps we implement, as required by applicable law.
 
 ### Other jurisdictions
 
-Laws outside the United States (including Japan) may impose additional age or parental-consent rules. If local law sets a higher age for digital consent, those rules apply to you as well.
+Laws outside the United States (including Japan) may impose additional age or consent rules. Our current product is designed for adults; stricter local rules still apply where required.
 
 ---
 

@@ -20,23 +20,22 @@ We may modify these Terms at any time. We will post the updated Terms and update
 
 ## 3. Eligibility and accounts
 
-- You must be legally able to enter a binding contract in your jurisdiction, **except** where a parent or legal guardian agrees to these Terms and supervises use on behalf of a user who cannot independently contract (see **Children under 13** below).
+- You must be at least **18 years of age** and legally able to enter a binding contract in your jurisdiction. By registering, you represent and warrant that you meet this requirement.
+- The Service is intended for **adult learners and adult educators only**. We do **not** target children under 13, and we do **not** currently offer children’s content, accounts for minors, or parental verification for underage sign-up.
 - You are responsible for all activity under your account and for keeping your credentials secure.
 - You must provide accurate information and keep it up to date.
 
-### Children under 13 (including U.S. COPPA)
+### U.S. children’s privacy (COPPA)
 
-If you are under **13 years old**, you may **not** register for an account or use the Service **unless** a **parent or legal guardian** gives any **verifiable parental consent** we require, **participates in sign-up**, and **supervises and assists** your ongoing use (including lessons, messaging, and integrations such as Google). A parent or legal guardian who permits such use is responsible for the child’s activity and for information shared through the account.
+We do **not** knowingly collect personal information online from **U.S. children under 13**. If you are under 13, you must **not** use or access the Service. If you are a parent or guardian and believe a child under 13 provided personal information to us, contact us as described in our **Privacy Policy** and we will take steps to delete such information as required by the **Children’s Online Privacy Protection Act (“COPPA”)**, where applicable.
 
-We do **not** knowingly collect personal information online from children under 13 in the United States except in a manner consistent with the **Children’s Online Privacy Protection Act (“COPPA”)** and applicable regulations. If we learn we have collected personal information from a U.S. child under 13 without legally required parental consent, we will delete that information where COPPA requires us to do so. See our **Privacy Policy** for parental rights and contact information.
-
-If you do not meet these requirements, do not create an account or use the Service.
+If we introduce content or features intended for minors in the future, we may update these Terms and implement **verification and consent** mechanisms as required by applicable law.
 
 ---
 
 ## 4. Description of the Service
 
-The Service may include features such as teacher discovery, scheduling, messaging, video lessons (including integrations with third-party conferencing tools), learning tools, notifications, and administrative features. We may add, change, suspend, or discontinue any feature at any time without liability.
+The Service may include features such as teacher discovery, scheduling, messaging, video lessons (including integrations with third-party conferencing tools), learning tools, notifications, and administrative features. It is aimed at **adults** learning or teaching English, not at children as an audience. We may add, change, suspend, or discontinue any feature at any time without liability.
 
 The Service is **not** a substitute for professional advice (including legal, medical, financial, or immigration advice).
 
