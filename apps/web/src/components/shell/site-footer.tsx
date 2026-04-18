@@ -11,7 +11,7 @@ export async function SiteFooter() {
       className="mt-auto border-t border-border bg-[var(--app-surface)]"
       aria-label={t("footerAria")}
     >
-      <div className="mx-auto flex min-w-0 max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-8 text-center text-xs text-muted sm:px-6">
+      <div className="mx-auto flex min-w-0 max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 py-8 text-center text-xs text-muted sm:gap-x-6 sm:px-6">
         <span className="text-muted">{t("footerCopyright", { year })}</span>
         <Link
           href="/contact"

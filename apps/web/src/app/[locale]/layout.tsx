@@ -33,7 +33,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       <AppProviders session={session}>
-        <div className="flex min-h-0 min-h-dvh flex-1 flex-col overflow-x-clip">
+        <div className="flex min-h-0 flex-1 flex-col overflow-x-clip">
           <HiddenAccountGuard />
           <IdleLogoutGuard />
           <SiteHeader />

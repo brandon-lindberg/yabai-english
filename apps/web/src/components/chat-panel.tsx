@@ -594,6 +594,20 @@ export function ChatPanel() {
     activeThreadId,
   ]);
 
+  // Lock body scroll on mobile when chat is open
+  useEffect(() => {
+    if (open) {
+      const scrollY = window.scrollY;
+      document.body.classList.add("chat-open");
+      document.body.style.top = `-${scrollY}px`;
+      return () => {
+        document.body.classList.remove("chat-open");
+        document.body.style.top = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [open]);
+
   if (!session?.user?.id) return null;
 
   return (
@@ -615,7 +629,7 @@ export function ChatPanel() {
       </button>
 
       {open && (
-        <div className="fixed inset-x-0 bottom-0 z-[55] flex h-[min(78dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-0.5rem))] flex-col rounded-t-2xl border border-border bg-surface pb-[env(safe-area-inset-bottom,0px)] shadow-xl md:inset-x-auto md:h-auto md:max-h-[min(calc(100dvh-5rem),900px)] md:w-[min(760px,calc(100dvw-2rem))] md:rounded-2xl md:bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] md:right-[max(1.25rem,env(safe-area-inset-right,0px))] md:top-20">
+        <div className="fixed inset-0 z-[55] flex flex-col bg-surface pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] md:inset-auto md:bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] md:right-[max(1.25rem,env(safe-area-inset-right,0px))] md:top-20 md:h-auto md:max-h-[min(calc(100dvh-5rem),900px)] md:w-[min(760px,calc(100dvw-2rem))] md:rounded-2xl md:border md:border-border md:shadow-xl">
           <div className="mb-2 flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
             <div className="flex items-center gap-2">
@@ -642,7 +656,7 @@ export function ChatPanel() {
               </button>
             </div>
           </div>
-          <div className="grid h-[calc(100%-56px)] grid-cols-1 gap-3 p-3 md:grid-cols-[260px_1fr]">
+          <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-[260px_1fr]">
             <aside
               className={`min-h-0 rounded-xl border border-border bg-background p-2 ${
                 mobilePane === "chat" ? "hidden md:block" : "block"
@@ -743,7 +757,7 @@ export function ChatPanel() {
                   )}
                 </div>
               )}
-              <div className="max-h-full space-y-2 overflow-auto pr-1">
+              <div className="max-h-full space-y-2 overflow-auto overscroll-contain pr-1">
                 {isAdminViewer && adminMode === "broadcast" ? (
                   <div className="space-y-2 px-1">
                     <p className="text-sm text-muted">{t("broadcastLeftPanelHint")}</p>
@@ -1203,7 +1217,7 @@ export function ChatPanel() {
                   {t("blockedHint")}
                 </p>
               )}
-              <div className="flex-1 space-y-2 overflow-auto">
+              <div className="flex-1 space-y-2 overflow-auto overscroll-contain">
                 {messagesLoading && messages.length === 0 ? (
                   <div
                     data-testid="chat-messages-loading"
