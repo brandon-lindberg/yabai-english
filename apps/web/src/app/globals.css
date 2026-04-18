@@ -150,15 +150,36 @@ html[data-theme="dark"] {
 /*  Base elements                                                      */
 /* ================================================================== */
 
-html,
-body {
-  min-height: 100%;
+html {
+  min-height: 100dvh;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior-x: none;
 }
 
 body {
+  min-height: 100dvh;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
   background-color: var(--app-canvas);
   color: var(--app-text);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/*
+  iOS Safari zooms focused fields when computed font-size < 16px.
+  Keep form controls at least 1rem on narrow viewports (iPhone 14 baseline ~390px).
+*/
+/*
+  Must beat Tailwind utilities like `text-sm` on the same node (iOS only checks computed size).
+*/
+@media (max-width: 428px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea,
+  select {
+    font-size: 1rem !important;
+  }
 }
 
 :focus-visible {

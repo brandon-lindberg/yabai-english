@@ -601,7 +601,7 @@ export function ChatPanel() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`fixed bottom-5 right-5 z-40 flex h-11 max-w-[10rem] items-center justify-center gap-1.5 rounded-full border border-border bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-md ring-1 ring-black/5 hover:opacity-90 ${
+        className={`fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] right-[max(1.25rem,env(safe-area-inset-right,0px))] z-40 flex h-11 max-w-[10rem] items-center justify-center gap-1.5 rounded-full border border-border bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-md ring-1 ring-black/5 hover:opacity-90 ${
           open ? "hidden" : ""
         }`}
         aria-label={open ? t("close") : t("open")}
@@ -615,7 +615,7 @@ export function ChatPanel() {
       </button>
 
       {open && (
-        <div className="fixed bottom-0 left-0 right-0 z-[55] h-[78vh] rounded-t-2xl border border-border bg-surface shadow-xl md:bottom-5 md:left-auto md:right-5 md:top-20 md:h-auto md:w-[760px] md:rounded-2xl">
+        <div className="fixed inset-x-0 bottom-0 z-[55] flex h-[min(78dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-0.5rem))] flex-col rounded-t-2xl border border-border bg-surface pb-[env(safe-area-inset-bottom,0px)] shadow-xl md:inset-x-auto md:h-auto md:max-h-[min(calc(100dvh-5rem),900px)] md:w-[min(760px,calc(100dvw-2rem))] md:rounded-2xl md:bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] md:right-[max(1.25rem,env(safe-area-inset-right,0px))] md:top-20">
           <div className="mb-2 flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
             <div className="flex items-center gap-2">
@@ -1087,7 +1087,7 @@ export function ChatPanel() {
                     <textarea
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
-                      className="h-full min-h-[180px] w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                      className="h-full min-h-[180px] w-full rounded-xl border border-border bg-surface px-3 py-2 text-base text-foreground"
                       placeholder={t("broadcastMessagePlaceholder")}
                     />
                   </div>
@@ -1130,7 +1130,7 @@ export function ChatPanel() {
                         <textarea
                           value={draft}
                           onChange={(e) => setDraft(e.target.value)}
-                          className="h-full min-h-[180px] w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                          className="h-full min-h-[180px] w-full rounded-xl border border-border bg-surface px-3 py-2 text-base text-foreground"
                           placeholder={t("directMessagePlaceholder")}
                         />
                       </div>
@@ -1327,7 +1327,7 @@ export function ChatPanel() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   disabled={!canSend || isBlocked || (isAdminViewer && adminMode === "review")}
-                  className="flex-1 rounded-full border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                  className="flex-1 rounded-full border border-border bg-surface px-3 py-2 text-base text-foreground"
                   placeholder={
                     isAdminViewer && adminMode === "review"
                       ? t("adminReviewOnlyPlaceholder")
