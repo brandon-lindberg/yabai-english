@@ -22,7 +22,28 @@
     "markAllRead": "すべて既読",
     "clearNotification": "閉じる",
     "clearAllNotifications": "すべて削除",
-    "noNotifications": "通知はありません"
+    "noNotifications": "通知はありません",
+    "footerCopyright": "© {year} English Studio Japan",
+    "footerContact": "お問い合わせ",
+    "footerAria": "サイトフッター"
+  },
+  "contact": {
+    "metaTitle": "お問い合わせ — English Studio Japan",
+    "metaDescription": "English Studio Japan へのお問い合わせ。",
+    "title": "お問い合わせ",
+    "placeholderBody": "このページは準備中です。近日中にフォームやサポート情報を掲載する予定です。"
+  },
+  "legal": {
+    "navAria": "法務ドキュメント",
+    "navTerms": "利用規約",
+    "navPrivacy": "プライバシーポリシー",
+    "termsPageTitle": "利用規約 — English Studio Japan",
+    "privacyPageTitle": "プライバシーポリシー — English Studio Japan",
+    "termsMetaDescription": "English Studio Japan の利用規約（サービスの利用、Google 等の第三者、レッスン録音、責任制限など）。",
+    "privacyMetaDescription": "English Studio Japan のプライバシーポリシー（取得・利用・共有、Google 連携、レッスン録音、お客様の選択肢など）。",
+    "footerNotice": "本書は慣行を説明するためのものであり、法的助言に代わるものではありません。事業上の判断は専門家にご相談ください。",
+    "footerTermsLink": "利用規約",
+    "footerPrivacyLink": "プライバシー"
   },
   "lessonSlotMeta": {
     "levels": {
@@ -580,8 +601,8 @@
     "notifyMessages": "メッセージ通知",
     "notifyPayments": "支払い通知",
     "consentLabel": "同意事項（必須）",
-    "acceptTerms": "利用規約に同意します",
-    "acceptPrivacy": "プライバシーポリシーに同意します",
+    "acceptTerms": "<terms>利用規約</terms>に同意します",
+    "acceptPrivacy": "<privacy>プライバシーポリシー</privacy>に同意します",
     "acceptRecording": "レッスン録画に同意します",
     "submit": "保存して続ける",
     "wizardProgress": "ステップ {current} / {total}",

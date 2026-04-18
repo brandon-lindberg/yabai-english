@@ -8,6 +8,7 @@ import { AppProviders } from "@/components/providers";
 import { HiddenAccountGuard } from "@/components/hidden-account-guard";
 import { IdleLogoutGuard } from "@/components/idle-logout-guard";
 import { SiteHeader } from "@/components/shell/site-header";
+import { SiteFooter } from "@/components/shell/site-footer";
 import { ChatPanel } from "@/components/chat-panel";
 
 type Props = {
@@ -32,11 +33,14 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       <AppProviders session={session}>
-        <HiddenAccountGuard />
-        <IdleLogoutGuard />
-        <SiteHeader />
-        {children}
-        <ChatPanel />
+        <div className="flex min-h-0 flex-1 flex-col">
+          <HiddenAccountGuard />
+          <IdleLogoutGuard />
+          <SiteHeader />
+          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+          <SiteFooter />
+          <ChatPanel />
+        </div>
       </AppProviders>
     </NextIntlClientProvider>
   );

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
 
 const GOALS = [
@@ -203,29 +203,58 @@ export function OnboardingForm({ initialTimezone }: Props) {
           <fieldset>
             <legend className="text-lg font-semibold text-foreground">{t("consentLabel")}</legend>
             <div className="mt-3 space-y-2 text-sm text-foreground">
-              <label className="flex items-center gap-2">
+              <label className="flex items-start gap-2">
                 <input
                   type="checkbox"
+                  className="mt-1"
                   checked={acceptedTerms}
                   onChange={(e) => setAcceptedTerms(e.target.checked)}
                 />
-                {t("acceptTerms")}
+                <span className="text-sm leading-relaxed">
+                  {t.rich("acceptTerms", {
+                    terms: (chunks) => (
+                      <Link
+                        href="/legal/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-link underline-offset-4 hover:underline"
+                      >
+                        {chunks}
+                      </Link>
+                    ),
+                  })}
+                </span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-start gap-2">
                 <input
                   type="checkbox"
+                  className="mt-1"
                   checked={acceptedPrivacy}
                   onChange={(e) => setAcceptedPrivacy(e.target.checked)}
                 />
-                {t("acceptPrivacy")}
+                <span className="text-sm leading-relaxed">
+                  {t.rich("acceptPrivacy", {
+                    privacy: (chunks) => (
+                      <Link
+                        href="/legal/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-link underline-offset-4 hover:underline"
+                      >
+                        {chunks}
+                      </Link>
+                    ),
+                  })}
+                </span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-start gap-2">
                 <input
                   type="checkbox"
+                  className="mt-1"
                   checked={acceptedRecordingConsent}
                   onChange={(e) => setAcceptedRecordingConsent(e.target.checked)}
                 />
-                {t("acceptRecording")}
+                <span className="text-sm leading-relaxed">{t("acceptRecording")}</span>
               </label>
             </div>
           </fieldset>
