@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { StudyLevelCode } from "@prisma/client";
-import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export type StudyQueueFocus = "mixed" | "weak" | "mastered";
 
@@ -160,23 +160,49 @@ export function StudyPracticeSession({
         aria-label="Loading practice"
         data-testid="study-practice-loading"
       >
-        <Skeleton height="10" rounded="xl" />
-        <div className="flex justify-between">
-          <Skeleton height="3" width="1/4" />
-          <Skeleton height="3" width="1/3" />
-        </div>
-        <div className="rounded-2xl border border-border bg-surface p-8 shadow-sm">
-          <Skeleton height="3" width="1/4" />
-          <div className="mt-4 flex min-h-[6rem] items-center">
-            <Skeleton height="8" width="2/3" />
+        {/* XP bar */}
+        <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+          <Skeleton height="4" width="1/2" />
+          <div className="mt-1">
+            <Skeleton height="3" width="1/3" />
           </div>
-          <div className="mt-6">
-            <SkeletonText lines={2} lastLineWidth="2/3" />
+          <div className="mt-2">
+            <Skeleton height="3" width="full" rounded="full" />
+          </div>
+          <div className="mt-1">
+            <Skeleton height="3" width="2/3" />
           </div>
         </div>
-        <div className="grid gap-2 sm:grid-cols-2">
+        {/* Progress + score */}
+        <div className="flex flex-wrap justify-between gap-2 text-xs text-muted">
+          <Skeleton height="3" width="1/4" className="!w-12" />
+          <Skeleton height="3" width="1/3" className="!w-36" />
+        </div>
+        {/* Flashcard */}
+        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-8">
+          <Skeleton height="3" width="1/4" />
+          <div className="mt-3 min-h-[6rem] sm:min-h-[8rem]">
+            <Skeleton height="8" width="3/4" />
+            <div className="mt-3">
+              <Skeleton height="6" width="1/2" />
+            </div>
+          </div>
+          <div className="mt-4 sm:mt-6">
+            <Skeleton height="4" width="2/3" />
+          </div>
+        </div>
+        {/* Answer options */}
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} height="16" rounded="xl" />
+            <div
+              key={i}
+              className="rounded-xl border border-border bg-surface px-4 py-4"
+            >
+              <Skeleton height="4" width="3/4" />
+              <div className="mt-1">
+                <Skeleton height="3" width="1/2" />
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -266,10 +292,10 @@ export function StudyPracticeSession({
         </span>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-8 shadow-sm">
+      <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-8">
         <p className="text-xs font-medium uppercase tracking-wide text-muted">{promptLabel}</p>
-        <p className="mt-3 whitespace-pre-line text-2xl font-semibold text-foreground">{current.frontJa}</p>
-        <p className="mt-6 text-sm font-medium text-foreground">{taskHint}</p>
+        <p className="mt-3 whitespace-pre-line text-xl font-semibold text-foreground sm:text-2xl">{current.frontJa}</p>
+        <p className="mt-4 text-sm font-medium text-foreground sm:mt-6">{taskHint}</p>
         {current.kind === "reorder" ? (
           <div className="mt-6">
             <StudyReorderExercise

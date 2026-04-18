@@ -29,7 +29,7 @@ export function CalendarViewControls({
 }: Props) {
   return (
     <>
-      <div className="mb-3 inline-flex rounded-lg border border-zinc-200 bg-white p-1">
+      <div className="mb-3 inline-flex rounded-lg border border-border bg-surface p-1">
         {(
           [
             { id: "day", label: dayLabel },
@@ -41,8 +41,8 @@ export function CalendarViewControls({
             key={item.id}
             type="button"
             onClick={() => onViewChange(item.id)}
-            className={`rounded-md px-3 py-1 text-xs font-semibold ${
-              view === item.id ? "bg-primary text-primary-foreground" : "text-zinc-700 hover:bg-zinc-100"
+            className={`rounded-md px-2.5 py-1 text-xs font-semibold sm:px-3 ${
+              view === item.id ? "bg-primary text-primary-foreground" : "text-muted hover:bg-[var(--app-hover)]"
             }`}
           >
             {item.label}
@@ -53,15 +53,15 @@ export function CalendarViewControls({
         <button
           type="button"
           onClick={onPrevious}
-          className="justify-self-start rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-100"
+          className="justify-self-start rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-[var(--app-hover)] sm:px-3"
         >
           {previousLabel}
         </button>
-        <p className="text-center text-sm font-semibold text-zinc-900">{label}</p>
+        <p className="text-center text-xs font-semibold text-foreground sm:text-sm">{label}</p>
         <button
           type="button"
           onClick={onNext}
-          className="justify-self-end rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-100"
+          className="justify-self-end rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-[var(--app-hover)] sm:px-3"
         >
           {nextLabel}
         </button>

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { AdminTeacherProfileDto } from "@/lib/admin-user-dto";
-import { Skeleton, SkeletonButton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type StudentProfileDto = {
   id: string;
@@ -221,25 +221,28 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
         <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
           <Skeleton height="6" width="1/3" />
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="space-y-1">
-              <Skeleton height="3" width="1/4" />
-              <Skeleton height="10" rounded="lg" />
+            <div key={i} className="space-y-2">
+              <Skeleton height="3" width="1/4" className="!w-20" />
+              <div className="rounded-lg border border-border px-3 py-2.5">
+                <Skeleton height="5" width="2/3" />
+              </div>
             </div>
           ))}
         </section>
         <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
           <Skeleton height="6" width="1/3" />
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="space-y-1">
-              <Skeleton height="3" width="1/4" />
-              <Skeleton height="10" rounded="lg" />
+            <div key={i} className="space-y-2">
+              <Skeleton height="3" width="1/4" className="!w-20" />
+              <div className="rounded-lg border border-border px-3 py-2.5">
+                <Skeleton height="5" width="2/3" />
+              </div>
             </div>
           ))}
         </section>
-        <div className="flex gap-3">
-          <SkeletonButton width="1/4" />
-          <SkeletonButton width="1/4" />
-          <SkeletonButton width="1/4" />
+        <div className="flex flex-wrap gap-2">
+          <Skeleton height="10" width="1/4" rounded="full" className="!w-24" />
+          <Skeleton height="10" width="1/4" rounded="full" className="!w-20" />
         </div>
       </div>
     );

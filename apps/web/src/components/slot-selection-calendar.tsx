@@ -214,107 +214,105 @@ export function SlotSelectionCalendar({
         ))}
       {calendarView === "week" &&
         (weekViewReplacement ?? (
-          <div className="overflow-x-auto pb-1">
-            <div className="grid min-w-[760px] grid-cols-7 gap-2">
-              {weekDays.map((day) => {
-                const daySlots = slotMap.get(day.dayKey) ?? [];
-                const dayDate = new Date(`${day.dayKey}T00:00:00`);
-                return (
-                  <div
-                    key={day.dayKey}
-                    className={`min-w-[100px] rounded-lg border p-2 ${
-                      daySlots.length > 0 ? "border-zinc-200 bg-white" : "border-zinc-200 bg-zinc-100/80"
-                    }`}
-                  >
-                    <div className="mb-2 flex items-start justify-between gap-1 border-b border-zinc-200 pb-1">
-                      <p className="text-xs font-semibold text-zinc-500">
-                        {day.shortLabel} {dayDate.getDate()}
-                      </p>
-                      {onAddForDayKey && weekColumnAddLabel ? (
-                        <button
-                          type="button"
-                          onClick={() => onAddForDayKey(day.dayKey)}
-                          className="shrink-0 rounded-md border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-zinc-700 hover:bg-zinc-100"
-                        >
-                          {weekColumnAddLabel}
-                        </button>
-                      ) : null}
-                    </div>
-                    <div className="space-y-1">
-                      {daySlots.slice(0, 5).map((slot, idx) => {
-                        if (slot.kind === "booked") {
-                          return (
-                            <div
-                              key={`reserved:${slot.startsAtIso}:${idx}`}
-                              data-testid="slot-reserved-week"
-                              aria-disabled="true"
-                              className="w-full rounded-md border border-dashed border-zinc-300 bg-zinc-100 px-2 py-1 text-xs text-zinc-500"
-                            >
-                              <span className="block whitespace-nowrap font-medium">
-                                {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </span>
-                              <span className="block text-[10px] uppercase tracking-wide">
-                                {slot.label}
-                              </span>
-                            </div>
-                          );
-                        }
-                        const selected = isSlotSelected(slot);
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-7">
+            {weekDays.map((day) => {
+              const daySlots = slotMap.get(day.dayKey) ?? [];
+              const dayDate = new Date(`${day.dayKey}T00:00:00`);
+              return (
+                <div
+                  key={day.dayKey}
+                  className={`rounded-lg border p-2 ${
+                    daySlots.length > 0 ? "border-border bg-surface" : "border-border bg-background"
+                  }`}
+                >
+                  <div className="mb-2 flex items-start justify-between gap-1 border-b border-border pb-1">
+                    <p className="text-xs font-semibold text-muted">
+                      {day.shortLabel} {dayDate.getDate()}
+                    </p>
+                    {onAddForDayKey && weekColumnAddLabel ? (
+                      <button
+                        type="button"
+                        onClick={() => onAddForDayKey(day.dayKey)}
+                        className="shrink-0 rounded-md border border-border bg-surface px-1.5 py-0.5 text-[10px] font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                      >
+                        {weekColumnAddLabel}
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="space-y-1">
+                    {daySlots.slice(0, 5).map((slot, idx) => {
+                      if (slot.kind === "booked") {
                         return (
-                          <button
-                            key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
-                            type="button"
-                            onClick={() => {
-                              onSelectSlot(slot.startsAtIso, slot.groupKey);
-                              onCalendarAnchorChange(slot.startsAtIso);
-                            }}
-                            className={`w-full rounded-md border px-2 py-1 text-xs transition ${
-                              selected ? weekSelectedClass : "border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-100"
-                            }`}
-                            aria-pressed={selected}
+                          <div
+                            key={`reserved:${slot.startsAtIso}:${idx}`}
+                            data-testid="slot-reserved-week"
+                            aria-disabled="true"
+                            className="w-full rounded-md border border-dashed border-border bg-background px-2 py-1 text-xs text-muted"
                           >
-                            <span className="whitespace-nowrap font-medium">
+                            <span className="block whitespace-nowrap font-medium">
                               {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
                             </span>
-                          </button>
+                            <span className="block text-[10px] uppercase tracking-wide">
+                              {slot.label}
+                            </span>
+                          </div>
                         );
-                      })}
-                      {daySlots.length > 5 && (
-                        <p className="text-center text-[10px] text-zinc-500">+{daySlots.length - 5}</p>
-                      )}
-                      {daySlots.length === 0 && (
-                        <p className="rounded-md border border-zinc-200 bg-zinc-100 px-2 py-1 text-center text-[11px] leading-4 text-zinc-500">
-                          {copy.unavailableShort}
-                        </p>
-                      )}
-                    </div>
+                      }
+                      const selected = isSlotSelected(slot);
+                      return (
+                        <button
+                          key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
+                          type="button"
+                          onClick={() => {
+                            onSelectSlot(slot.startsAtIso, slot.groupKey);
+                            onCalendarAnchorChange(slot.startsAtIso);
+                          }}
+                          className={`w-full rounded-md border px-2 py-1 text-xs transition ${
+                            selected ? weekSelectedClass : "border-border bg-surface text-foreground hover:bg-[var(--app-hover)]"
+                          }`}
+                          aria-pressed={selected}
+                        >
+                          <span className="whitespace-nowrap font-medium">
+                            {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    {daySlots.length > 5 && (
+                      <p className="text-center text-[10px] text-muted">+{daySlots.length - 5}</p>
+                    )}
+                    {daySlots.length === 0 && (
+                      <p className="rounded-md border border-border bg-background px-2 py-1 text-center text-[11px] leading-4 text-muted">
+                        {copy.unavailableShort}
+                      </p>
+                    )}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         ))}
       {calendarView === "month" &&
         (monthViewReplacement ?? (
-          <div className="overflow-x-auto pb-1">
-            <div className="min-w-[720px]">
-              <div className="mb-2 grid grid-cols-7 gap-1">
+          <div>
+            <div>
+              <div className="mb-2 grid grid-cols-7 gap-0.5 sm:gap-1">
                 {monthWeekdayHeaders.map((day, index) => (
                   <p
                     key={`${day}-${index}`}
-                    className="text-center text-[11px] font-semibold text-zinc-500"
+                    className="text-center text-[10px] font-semibold text-muted sm:text-[11px]"
                   >
                     {day}
                   </p>
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-1">
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
                 {monthCells.map((cell) => {
                   const isSelected = monthCellSelectedDayKey === cell.dayKey;
                   const hasSlots = (slotMap.get(cell.dayKey) ?? []).length > 0;
@@ -328,13 +326,13 @@ export function SlotSelectionCalendar({
                       key={cell.dayKey}
                       data-month-day-cell={cell.dayKey}
                       className={`relative aspect-square rounded-md border text-left text-xs transition ${
-                        isSelected ? monthSelectedRing : "border-zinc-200 dark:border-zinc-700"
+                        isSelected ? monthSelectedRing : "border-border"
                       } ${
                         isAvailable
-                          ? "bg-white text-zinc-900"
+                          ? "bg-surface text-foreground"
                           : isUnavailable
-                            ? "bg-zinc-100 text-zinc-500"
-                            : "bg-zinc-50 text-zinc-400"
+                            ? "bg-background text-muted"
+                            : "bg-[var(--app-canvas)] text-muted/50"
                       }`}
                     >
                       <button
@@ -348,9 +346,9 @@ export function SlotSelectionCalendar({
                           onCalendarAnchorChange(`${cell.dayKey}T00:00:00.000Z`);
                           onCalendarViewChange("day");
                         }}
-                        className="flex h-full w-full flex-col rounded-[inherit] p-2 text-left hover:bg-zinc-100/70"
+                        className="flex h-full w-full flex-col rounded-[inherit] p-1 text-left hover:bg-[var(--app-hover)] sm:p-2"
                       >
-                        <span className="text-sm font-medium">{cell.shortLabel}</span>
+                        <span className="text-xs font-medium sm:text-sm">{cell.shortLabel}</span>
                         <div className="mt-auto flex items-center justify-center">
                           {hasSlots ? (
                             <span className="inline-block h-2 w-2 rounded-full bg-accent" />
@@ -368,7 +366,7 @@ export function SlotSelectionCalendar({
                             e.stopPropagation();
                             onAddForDayKey!(cell.dayKey);
                           }}
-                          className="absolute top-1 right-1 z-10 rounded-md border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-zinc-700 shadow-sm hover:bg-zinc-100"
+                          className="absolute top-0.5 right-0.5 z-10 hidden rounded-md border border-border bg-surface px-1 py-0.5 text-[9px] font-semibold text-foreground shadow-sm hover:bg-[var(--app-hover)] sm:block sm:top-1 sm:right-1 sm:px-1.5 sm:text-[10px]"
                         >
                           {weekColumnAddLabel}
                         </button>

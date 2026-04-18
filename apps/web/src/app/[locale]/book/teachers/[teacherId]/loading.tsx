@@ -1,10 +1,4 @@
-import {
-  Skeleton,
-  SkeletonAvatar,
-  SkeletonButton,
-  SkeletonCard,
-  SkeletonText,
-} from "@/components/ui/skeleton";
+import { Skeleton, SkeletonAvatar } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
@@ -14,55 +8,73 @@ export default function Loading() {
       aria-label="Loading teacher profile"
       className="mx-auto max-w-4xl flex-1 px-4 py-10 sm:px-6"
     >
-      <Skeleton height="8" width="1/2" />
+      <Skeleton height="8" width="2/3" />
       <div className="mt-3">
-        <SkeletonText lines={1} />
+        <Skeleton height="4" width="full" />
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <SkeletonCard padding="md">
+        {/* Profile card */}
+        <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6">
           <div className="flex items-start gap-4">
             <SkeletonAvatar size="xl" />
-            <div className="min-w-0 flex-1 space-y-2">
+            <div className="min-w-0 flex-1">
               <Skeleton height="5" width="2/3" />
-              <Skeleton height="3" width="1/3" />
+              <div className="mt-1">
+                <Skeleton height="3" width="1/2" />
+              </div>
             </div>
           </div>
-          <div className="mt-4">
-            <SkeletonText lines={4} />
+          <div className="mt-4 space-y-1">
+            <Skeleton height="3" width="full" />
+            <Skeleton height="3" width="full" />
+            <Skeleton height="3" width="3/4" />
+            <Skeleton height="3" width="1/2" />
           </div>
-          <div className="mt-4 flex gap-2">
-            <Skeleton height="3" width="1/4" />
-            <Skeleton height="3" width="1/4" />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Skeleton height="6" width="1/4" rounded="full" className="!w-16" />
+            <Skeleton height="6" width="1/4" rounded="full" className="!w-16" />
           </div>
-        </SkeletonCard>
+        </div>
 
-        <SkeletonCard padding="md">
+        {/* Time slots card */}
+        <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6">
           <Skeleton height="5" width="1/2" />
           <div className="mt-4 space-y-2">
             {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} height="10" rounded="xl" />
+              <div key={i} className="rounded-xl border border-border px-3 py-2.5">
+                <Skeleton height="4" width="3/4" />
+              </div>
             ))}
           </div>
-        </SkeletonCard>
+        </div>
       </div>
 
+      {/* Booking form */}
       <div className="mt-8 space-y-4">
         <Skeleton height="6" width="1/3" />
-        <SkeletonText lines={1} />
-        <SkeletonCard padding="lg">
+        <Skeleton height="4" width="full" />
+        <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
           <div className="space-y-4">
-            <Skeleton height="10" rounded="xl" />
-            <Skeleton height="10" rounded="xl" />
+            <div className="rounded-xl border border-border px-3 py-2.5">
+              <Skeleton height="5" width="2/3" />
+            </div>
+            <div className="rounded-xl border border-border px-3 py-2.5">
+              <Skeleton height="5" width="2/3" />
+            </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <Skeleton height="10" rounded="xl" />
-              <Skeleton height="10" rounded="xl" />
+              <div className="rounded-xl border border-border px-3 py-2.5">
+                <Skeleton height="5" width="2/3" />
+              </div>
+              <div className="rounded-xl border border-border px-3 py-2.5">
+                <Skeleton height="5" width="2/3" />
+              </div>
             </div>
             <div className="pt-2">
-              <SkeletonButton width="1/3" />
+              <Skeleton height="10" width="1/4" rounded="full" className="!w-28" />
             </div>
           </div>
-        </SkeletonCard>
+        </div>
       </div>
     </main>
   );

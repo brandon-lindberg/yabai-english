@@ -6,10 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
-import {
-  Skeleton,
-  SkeletonText,
-} from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function formatPlacementEligibleDate(iso: string, locale: string): string {
   const d = new Date(iso);
@@ -181,17 +178,28 @@ export function PlacementQuiz() {
         aria-label={t("loading")}
         data-testid="placement-quiz-loading"
       >
+        {/* Timer */}
         <Skeleton height="4" width="1/3" />
+        {/* Progress */}
         <Skeleton height="3" width="1/4" />
-        <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-          <Skeleton height="3" width="1/2" />
-          <div className="mt-3">
-            <SkeletonText lines={2} />
+        {/* Question card — mirrors the real quiz layout */}
+        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
+          {/* Instruction */}
+          <Skeleton height="3" width="full" />
+          <div className="mt-1">
+            <Skeleton height="3" width="2/3" />
           </div>
+          {/* Question prompt */}
+          <div className="mt-3">
+            <Skeleton height="5" width="3/4" />
+          </div>
+          {/* Answer options */}
           <ul className="mt-4 space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <li key={i}>
-                <Skeleton height="12" rounded="xl" />
+                <div className="rounded-xl border border-border px-3 py-3 sm:px-4">
+                  <Skeleton height="4" width="3/4" />
+                </div>
               </li>
             ))}
           </ul>
@@ -203,7 +211,7 @@ export function PlacementQuiz() {
   if (cooldownEligibleAt) {
     const dateLabel = formatPlacementEligibleDate(cooldownEligibleAt, locale);
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+      <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
         <p className="text-base font-semibold text-foreground">{t("cooldownTitle")}</p>
         <p className="mt-2 text-sm text-muted">{t("cooldownBody", { date: dateLabel })}</p>
         <Link
@@ -233,11 +241,11 @@ export function PlacementQuiz() {
       "functional",
     ];
     return (
-      <div className="rounded-2xl border p-6" style={{ borderColor: "var(--app-success-border)", background: "var(--app-success-bg)" }}>
+      <div className="rounded-2xl border p-4 sm:p-6" style={{ borderColor: "var(--app-success-border)", background: "var(--app-success-bg)" }}>
         <p className="text-sm font-medium" style={{ color: "var(--app-success-text)" }}>
           {t("resultTitle")}
         </p>
-        <p className="mt-2 text-xl font-bold text-foreground">{t(labelKey)}</p>
+        <p className="mt-2 text-lg font-bold text-foreground sm:text-xl">{t(labelKey)}</p>
         <p className="mt-1 text-sm font-semibold text-foreground">
           {t("subLevelLabel", { subLevel: result.subLevel })}
         </p>
@@ -309,7 +317,7 @@ export function PlacementQuiz() {
         {t("progress", { current: progressCurrent, total: progressTotal })}
       </p>
       {!objectiveComplete && q ? (
-        <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
           <p className="text-sm font-medium text-muted">
             {placementTextToReact(isJa ? q.instructionJa : q.instructionEn)}
           </p>
@@ -324,7 +332,7 @@ export function PlacementQuiz() {
                   type="button"
                   disabled={submitting || remainingSec === 0}
                   onClick={() => void selectOption(idx)}
-                  className="w-full rounded-xl border border-border px-4 py-3 text-left text-sm text-foreground transition hover:border-accent/60 hover:bg-[var(--app-hover)] disabled:opacity-50"
+                  className="w-full rounded-xl border border-border px-3 py-3 text-left text-sm text-foreground transition hover:border-accent/60 hover:bg-[var(--app-hover)] disabled:opacity-50 sm:px-4"
                 >
                   {placementTextToReact(opt)}
                 </button>
@@ -333,7 +341,7 @@ export function PlacementQuiz() {
           </ul>
         </div>
       ) : (
-        <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
           <p className="text-base font-medium text-foreground">{t("objectiveComplete")}</p>
           <p className="mt-2 text-xs text-muted">{t("submitWhenReady")}</p>
           <button

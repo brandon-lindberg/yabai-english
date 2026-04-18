@@ -82,24 +82,24 @@ export default async function StudyHubPage({
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-3 text-center text-sm">
-                <div className="rounded-xl bg-foreground/5 px-2 py-2">
-                  <p className="text-xs text-muted">{t("mastery")}</p>
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm sm:gap-3">
+                <div className="rounded-xl bg-foreground/5 px-1.5 py-2 sm:px-2">
+                  <p className="text-[11px] text-muted sm:text-xs">{t("mastery")}</p>
                   <p className="font-semibold text-foreground">{level.masteryScore}%</p>
                 </div>
-                <div className="rounded-xl bg-foreground/5 px-2 py-2">
-                  <p className="text-xs text-muted">{t("xp")}</p>
+                <div className="rounded-xl bg-foreground/5 px-1.5 py-2 sm:px-2">
+                  <p className="text-[11px] text-muted sm:text-xs">{t("xp")}</p>
                   <p className="font-semibold text-foreground">{level.xp}</p>
                 </div>
-                <div className="rounded-xl bg-foreground/5 px-2 py-2">
-                  <p className="text-xs text-muted">{t("cards")}</p>
+                <div className="rounded-xl bg-foreground/5 px-1.5 py-2 sm:px-2">
+                  <p className="text-[11px] text-muted sm:text-xs">{t("cards")}</p>
                   <p className="font-semibold text-foreground">
                     {level.cardsTouched}/{level.cardsTotal}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-3">
+              <div className="mt-4 flex flex-wrap gap-2 sm:gap-3">
                 {level.locked ? (
                   <span className="text-sm text-muted">{t("locked")}</span>
                 ) : (

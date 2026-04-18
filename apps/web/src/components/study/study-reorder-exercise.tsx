@@ -32,7 +32,7 @@ function SortableChip({ id, label }: { id: string; label: string }) {
       type="button"
       ref={setNodeRef}
       style={style}
-      className="touch-none rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
+      className="touch-none rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-medium text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 sm:py-2"
       {...attributes}
       {...listeners}
     >

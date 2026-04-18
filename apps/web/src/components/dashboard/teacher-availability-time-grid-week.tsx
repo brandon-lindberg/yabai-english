@@ -58,9 +58,9 @@ export function TeacherAvailabilityTimeGridWeek({
       className="max-h-[min(70vh,1200px)] overflow-y-auto overflow-x-auto pb-1"
       data-testid="time-grid-week"
     >
-      <div className="flex min-w-[880px] gap-0 rounded-lg border border-zinc-200 bg-white shadow-sm">
+      <div className="flex min-w-[640px] gap-0 rounded-lg border border-border bg-surface shadow-sm">
         <div
-          className="w-14 shrink-0 border-r border-zinc-200 bg-zinc-50 text-right text-[10px] text-zinc-500"
+          className="w-10 shrink-0 border-r border-border bg-background text-right text-[10px] text-muted sm:w-14"
           style={{ paddingTop: 52 }}
         >
           <div style={{ height: dayHeightPx }} className="relative">
@@ -76,23 +76,23 @@ export function TeacherAvailabilityTimeGridWeek({
           </div>
         </div>
 
-        <div className="grid min-w-0 flex-1 grid-cols-7 divide-x divide-zinc-200">
+        <div className="grid min-w-0 flex-1 grid-cols-7 divide-x divide-border">
           {weekDays.map((day) => {
             const dayDate = new Date(`${day.dayKey}T12:00:00`);
             const blocks = blocksByDay.get(day.dayKey) ?? [];
             return (
-              <div key={day.dayKey} className="min-w-[100px] bg-white">
-                <div className="flex h-[52px] flex-col justify-between border-b border-zinc-200 px-1 py-1">
+              <div key={day.dayKey} className="min-w-[72px] bg-surface sm:min-w-[100px]">
+                <div className="flex h-[44px] flex-col justify-between border-b border-border px-1 py-1 sm:h-[52px]">
                   <div className="flex items-start justify-between gap-0.5">
-                    <p className="text-[11px] font-semibold leading-tight text-zinc-600">
+                    <p className="text-[10px] font-semibold leading-tight text-muted sm:text-[11px]">
                       {day.shortLabel}{" "}
-                      <span className="text-zinc-900">{dayDate.getDate()}</span>
+                      <span className="text-foreground">{dayDate.getDate()}</span>
                     </p>
                     {onAddForDayKey && weekColumnAddLabel ? (
                       <button
                         type="button"
                         onClick={() => onAddForDayKey(day.dayKey)}
-                        className="shrink-0 rounded border border-zinc-200 bg-white px-1 py-0.5 text-[9px] font-semibold text-zinc-700 hover:bg-zinc-100"
+                        className="hidden shrink-0 rounded border border-border bg-surface px-1 py-0.5 text-[9px] font-semibold text-foreground hover:bg-[var(--app-hover)] sm:block"
                       >
                         {weekColumnAddLabel}
                       </button>
