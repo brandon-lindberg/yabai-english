@@ -13,6 +13,12 @@ export function TeacherCard({
   onboardingNext = null,
   onboardingStep = null,
 }: Props) {
+  const profileHref = buildTeacherCardProfileHref(
+    teacher.id,
+    onboardingNext,
+    onboardingStep,
+  ) as "/book/teachers/[teacherId]";
+
   return (
     <article className="rounded-2xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
       <div className="mb-3 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-border bg-background text-xs text-muted">
@@ -38,13 +44,7 @@ export function TeacherCard({
         {teacher.activeAvailabilityCount === 1 ? "" : "s"}
       </p>
       <Link
-        href={
-          buildTeacherCardProfileHref(
-            teacher.id,
-            onboardingNext,
-            onboardingStep,
-          ) as "/book/teachers/[teacherId]"
-        }
+        href={profileHref}
         className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
       >
         View profile

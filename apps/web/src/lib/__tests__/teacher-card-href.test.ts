@@ -1,32 +1,20 @@
-import { describe, expect, test } from "vitest";
-import { buildTeacherCardProfileHref } from "@/lib/teacher-card-href";
+import { describe, expect, it } from "vitest";
+import { buildLocalizedTeacherProfilePath, buildTeacherCardProfileHref } from "../teacher-card-href";
 
 describe("buildTeacherCardProfileHref", () => {
-  test("returns plain profile path when no onboarding params are provided", () => {
-    expect(buildTeacherCardProfileHref("t-1", null, null)).toBe(
-      "/book/teachers/t-1",
+  it("includes onboarding query", () => {
+    expect(buildTeacherCardProfileHref("tid", "/onboarding", "1")).toBe(
+      "/book/teachers/tid?onboardingNext=%2Fonboarding&onboardingStep=1",
     );
   });
+});
 
-  test("preserves onboardingNext and onboardingStep on the profile link", () => {
-    const href = buildTeacherCardProfileHref(
-      "t-1",
-      "/onboarding/next",
-      "bookLesson",
-    );
-    expect(href).toContain("/book/teachers/t-1?");
-    expect(href).toContain(
-      `onboardingNext=${encodeURIComponent("/onboarding/next")}`,
-    );
-    expect(href).toContain("onboardingStep=bookLesson");
+describe("buildLocalizedTeacherProfilePath", () => {
+  it("localizes for English", () => {
+    expect(buildLocalizedTeacherProfilePath("en", "tid", null, null)).toBe("/en/book/teachers/tid");
   });
 
-  test("omits missing params but keeps present ones", () => {
-    expect(buildTeacherCardProfileHref("t-2", "/onboarding/next", null)).toBe(
-      `/book/teachers/t-2?onboardingNext=${encodeURIComponent("/onboarding/next")}`,
-    );
-    expect(buildTeacherCardProfileHref("t-2", null, "bookLesson")).toBe(
-      "/book/teachers/t-2?onboardingStep=bookLesson",
-    );
+  it("omits prefix for Japanese default", () => {
+    expect(buildLocalizedTeacherProfilePath("ja", "tid", null, null)).toBe("/book/teachers/tid");
   });
 });

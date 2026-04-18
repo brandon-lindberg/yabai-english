@@ -31,7 +31,10 @@ export type HeaderNavInput = {
  * Primary header navigation links by role (pure; safe for unit tests).
  */
 export function getHeaderPrimaryNavLinks(input: HeaderNavInput): HeaderNavLink[] {
-  if (!input.signedIn || !input.role) return [];
+  if (!input.signedIn) {
+    return [{ id: "book", href: "/book", labelKey: "book" }];
+  }
+  if (!input.role) return [];
 
   if (input.role === "STUDENT") {
     const links: HeaderNavLink[] = [

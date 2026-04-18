@@ -16,6 +16,11 @@ export default async function globalSetup() {
   const prisma = new PrismaClient();
   try {
     await seedPlacementBankQuestions(prisma);
+  } catch (e) {
+    console.warn(
+      "[vitest globalSetup] Placement seed skipped (database unavailable or error):",
+      e instanceof Error ? e.message : e,
+    );
   } finally {
     await prisma.$disconnect();
   }

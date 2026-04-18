@@ -2,8 +2,13 @@ import { describe, expect, it } from "vitest";
 import { getHeaderPrimaryNavLinks } from "../header-nav-links";
 
 describe("getHeaderPrimaryNavLinks", () => {
-  it("returns empty when not signed in", () => {
-    expect(getHeaderPrimaryNavLinks({ signedIn: false, role: "STUDENT" })).toEqual([]);
+  it("returns book link for guests", () => {
+    expect(getHeaderPrimaryNavLinks({ signedIn: false, role: "STUDENT" })).toEqual([
+      { id: "book", href: "/book", labelKey: "book" },
+    ]);
+  });
+
+  it("returns empty when signed in but role missing", () => {
     expect(getHeaderPrimaryNavLinks({ signedIn: true, role: null })).toEqual([]);
   });
 
