@@ -1,22 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 /**
  * Returns true when the viewport is narrower than the given breakpoint (default 640px = Tailwind `sm`).
- * During SSR / first paint it returns `false` to avoid hydration mismatches; the real
- * value kicks in after the first client-side effect.
+ * Uses `useSyncExternalStore` so there's no synchronous setState-in-effect.
+ * SSR snapshot returns `false` to avoid hydration mismatches.
  */
 export function useIsMobile(breakpoint = 640) {
-  const [isMobile, setIsMobile] = useState(false);
+  const query = `(max-width: ${breakpoint - 1}px)`;
 
-  useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    setIsMobile(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, [breakpoint]);
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      const mql = window.matchMedia(query);
+      mql.addEventListener("change", onStoreChange);
+      return () => mql.removeEventListener("change", onStoreChange);
+    },
+    [query],
+  );
 
-  return isMobile;
+  const getSnapshot = useCallback(() => window.matchMedia(query).matches, [query]);
+
+  const getServerSnapshot = useCallback(() => false, []);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

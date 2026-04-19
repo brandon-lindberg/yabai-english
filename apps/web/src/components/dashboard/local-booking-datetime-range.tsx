@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { formatLessonInstant } from "@/lib/format-lesson-datetime";
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
   separator?: string;
   /**
    * When set, formatting is identical on server and client (IANA zone).
-   * When omitted, the range is formatted in the viewer’s **browser** local zone after mount
+   * When omitted, the range is formatted in the viewer's **browser** local zone after mount
    * so it matches client-side calendars and avoids server UTC drift.
    */
   timeZone?: string;
@@ -30,8 +30,22 @@ function buildRange(
   return `${start}${separator}${end}`;
 }
 
+function subscribeNoop(onStoreChange: () => void) {
+  // Browser timezone never changes during a session — nothing to subscribe to.
+  void onStoreChange;
+  return () => {};
+}
+
+function getBrowserTz() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+function getServerTz(): string | undefined {
+  return undefined;
+}
+
 /**
- * Renders booking start/end in the viewer’s local timezone when `timeZone` is omitted
+ * Renders booking start/end in the viewer's local timezone when `timeZone` is omitted
  * (consistent with `DashboardScheduleCalendar`), or in a fixed IANA zone when provided.
  */
 export function LocalBookingDateTimeRange({
@@ -42,19 +56,10 @@ export function LocalBookingDateTimeRange({
   separator = " — ",
   timeZone,
 }: Props) {
-  const [text, setText] = useState<string | null>(() =>
-    timeZone ? buildRange(locale, startsAtIso, endsAtIso, separator, timeZone) : null,
-  );
+  const browserTz = useSyncExternalStore(subscribeNoop, getBrowserTz, getServerTz);
+  const resolvedTz = timeZone ?? browserTz;
 
-  useEffect(() => {
-    if (timeZone) {
-      setText(buildRange(locale, startsAtIso, endsAtIso, separator, timeZone));
-      return;
-    }
-    setText(buildRange(locale, startsAtIso, endsAtIso, separator, undefined));
-  }, [locale, startsAtIso, endsAtIso, separator, timeZone]);
-
-  if (!text) {
+  if (!resolvedTz) {
     return (
       <span className={className} aria-busy="true">
         …
@@ -62,5 +67,6 @@ export function LocalBookingDateTimeRange({
     );
   }
 
+  const text = buildRange(locale, startsAtIso, endsAtIso, separator, resolvedTz);
   return <span className={className}>{text}</span>;
 }
