@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { AccountStatus, PlacedLevel, Prisma, Role } from "@prisma/client";
+import { AccountStatus, PlacedLevel, Prisma, Role } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { checkAdminCanDeleteUser } from "@/lib/admin-user-guards";

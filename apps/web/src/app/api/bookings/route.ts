@@ -19,7 +19,7 @@ import {
 } from "@/lib/lesson-products";
 import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
 import { z } from "zod";
-import { BookingStatus, LessonTier } from "@prisma/client";
+import { BookingStatus, LessonTier } from "@/generated/prisma/client";
 
 const postSchema = z.object({
   lessonProductId: z.string().min(1),

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { LessonTier } from "@prisma/client";
+import { LessonTier } from "@/generated/prisma/client";
 
 const { authMock, findProductMock, findTeacherMock } = vi.hoisted(() => ({
   authMock: vi.fn(),

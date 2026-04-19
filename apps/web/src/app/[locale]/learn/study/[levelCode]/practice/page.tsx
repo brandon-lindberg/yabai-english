@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getStudyRpgSnapshot } from "@/lib/study/get-overview";
 import { isStudyLevelUnlocked } from "@/lib/study/access";
 import { Link, redirect } from "@/i18n/navigation";
-import { StudyLevelCode } from "@prisma/client";
+import { StudyLevelCode } from "@/generated/prisma/client";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 

@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@/generated/prisma/client";
 import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
 
 export async function getStudentBookingsForDashboard(prisma: PrismaClient, studentId: string) {

@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 import { getSessionMaxAgeSeconds } from "@/lib/session-timeout";
-import { AccountStatus, Role } from "@prisma/client";
+import { AccountStatus, Role } from "@/generated/prisma/client";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
 

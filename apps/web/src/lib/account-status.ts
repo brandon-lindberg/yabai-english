@@ -1,4 +1,4 @@
-import { AccountStatus } from "@prisma/client";
+import { AccountStatus } from "@/generated/prisma/client";
 
 export function isLoginAllowedForAccountStatus(status: AccountStatus): boolean {
   return status === AccountStatus.ACTIVE;

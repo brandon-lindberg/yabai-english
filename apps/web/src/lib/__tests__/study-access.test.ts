@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { StudyLevelCode } from "@prisma/client";
+import { StudyLevelCode } from "@/generated/prisma/client";
 import { isStudyLevelUnlocked } from "@/lib/study/access";
 
 describe("isStudyLevelUnlocked", () => {

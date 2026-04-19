@@ -6,7 +6,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { StudyLevelCode } from "@prisma/client";
+import { StudyLevelCode } from "../src/generated/prisma/client";
 import {
   inferReorderExerciseFromBlankPrompt,
   inferReorderExerciseFromSlashLines,

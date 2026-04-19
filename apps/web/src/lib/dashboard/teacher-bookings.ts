@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@/generated/prisma/client";
 import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
 import { sortTeacherCompletedBookings } from "@/lib/dashboard/sort-teacher-completed-bookings";
 

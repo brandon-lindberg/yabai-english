@@ -1,4 +1,4 @@
-import { PlacedLevel } from "@prisma/client";
+import { PlacedLevel } from "@/generated/prisma/client";
 
 export function buildPlacementReviewUpdate(input: {
   placedLevel: Exclude<PlacedLevel, "UNSET">;

@@ -1,4 +1,4 @@
-import { StudyLevelCode } from "@prisma/client";
+import { StudyLevelCode } from "@/generated/prisma/client";
 
 /**
  * Curriculum authoring targets for how much Japanese appears on study prompts by level.

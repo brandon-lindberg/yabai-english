@@ -1,4 +1,4 @@
-import { StudyLevelCode } from "@prisma/client";
+import { StudyLevelCode } from "@/generated/prisma/client";
 
 /** Canonical order for unlock gates and UI. */
 export const STUDY_LEVEL_ORDER: StudyLevelCode[] = [

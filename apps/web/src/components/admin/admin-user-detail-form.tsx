@@ -1,6 +1,6 @@
 "use client";
 
-import { AccountStatus, PlacedLevel, Role } from "@prisma/client";
+import { AccountStatus, PlacedLevel, Role } from "@/generated/prisma/browser";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCallback, useEffect, useState } from "react";

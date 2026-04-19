@@ -1,4 +1,4 @@
-import { PlacedLevel, StudyLevelCode } from "@prisma/client";
+import { PlacedLevel, StudyLevelCode } from "@/generated/prisma/client";
 import { STUDY_LEVEL_ORDER, studyLevelIndex } from "./constants";
 
 /**

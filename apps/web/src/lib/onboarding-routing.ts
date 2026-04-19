@@ -1,4 +1,4 @@
-import type { PlacedLevel } from "@prisma/client";
+import type { PlacedLevel } from "@/generated/prisma/client";
 
 export function getStudentPostOnboardingRoute(placedLevel: PlacedLevel) {
   if (placedLevel === "UNSET") {

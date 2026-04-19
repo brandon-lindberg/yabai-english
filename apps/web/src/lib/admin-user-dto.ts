@@ -1,4 +1,4 @@
-import type { TeacherProfile } from "@prisma/client";
+import type { TeacherProfile } from "@/generated/prisma/client";
 
 export type AdminTeacherProfileDto = Omit<TeacherProfile, "googleCalendarRefreshToken"> & {
   calendarConnected: boolean;

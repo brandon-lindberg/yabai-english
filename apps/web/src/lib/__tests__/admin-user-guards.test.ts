@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Role } from "@prisma/client";
+import { Role } from "@/generated/prisma/client";
 import { checkAdminCanDeleteUser } from "@/lib/admin-user-guards";
 
 describe("checkAdminCanDeleteUser", () => {

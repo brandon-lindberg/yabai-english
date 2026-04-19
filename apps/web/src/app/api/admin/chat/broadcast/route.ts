@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { AccountStatus, Role } from "@prisma/client";
+import { AccountStatus, Role } from "@/generated/prisma/client";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";

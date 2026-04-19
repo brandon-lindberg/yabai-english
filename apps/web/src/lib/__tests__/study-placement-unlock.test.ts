@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PlacedLevel, StudyLevelCode } from "@prisma/client";
+import { PlacedLevel, StudyLevelCode } from "@/generated/prisma/client";
 import {
   assertPlacementUnlockMappingCoversTrack,
   isStudyLevelUnlockedByPlacement,

@@ -1,4 +1,4 @@
-import type { BookingStatus } from "@prisma/client";
+import type { BookingStatus } from "@/generated/prisma/client";
 import { isBookingOutsideLeadWindow } from "@/lib/lead-time-policy";
 
 export type CancellationActor = "STUDENT" | "TEACHER" | "ADMIN";

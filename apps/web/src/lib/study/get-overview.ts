@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@/generated/prisma/client";
 import { isStudyLevelUnlocked } from "./access";
 import { computeLevelMastery } from "./mastery";
 import { studyRpgProgressFromTotalXp, type StudyRpgSnapshot } from "./rpg-xp";

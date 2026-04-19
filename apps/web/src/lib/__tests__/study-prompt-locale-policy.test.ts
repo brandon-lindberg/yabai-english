@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { StudyLevelCode } from "@prisma/client";
+import { StudyLevelCode } from "@/generated/prisma/client";
 import {
   STUDY_LEVEL_CURRICULUM_ORDER,
   studyJapanesePromptWeightPercent,

@@ -12,7 +12,7 @@
  * we skip it — this function only ADDs, never edits or removes.
  */
 
-import { LessonTier } from "@prisma/client";
+import { LessonTier } from "@/generated/prisma/client";
 
 type OfferingLike = {
   lessonType: string | null;

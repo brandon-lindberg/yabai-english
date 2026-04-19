@@ -51,6 +51,9 @@ yarn-error.log*
 /data/placement-bank.backup-*/
 /data/placement-bank-level-backups/
 
+# prisma generated client (regenerated via `prisma generate`)
+/src/generated/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

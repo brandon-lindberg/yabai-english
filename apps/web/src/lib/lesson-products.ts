@@ -1,4 +1,4 @@
-import { LessonTier } from "@prisma/client";
+import { LessonTier } from "@/generated/prisma/client";
 
 type ProductWithTier = {
   tier: LessonTier;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { LessonTier } from "@prisma/client";
+import { LessonTier } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   catalogProductMatchesOffering,

@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { encryptRefreshToken } from "@/lib/calendar-token";
 import { z } from "zod";
-import { Role } from "@prisma/client";
+import { Role } from "@/generated/prisma/client";
 
 const bodySchema = z.object({
   refreshToken: z.string().min(10),

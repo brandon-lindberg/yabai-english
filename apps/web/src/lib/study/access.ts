@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
-import { StudyLevelCode } from "@prisma/client";
+import type { PrismaClient } from "@/generated/prisma/client";
+import { StudyLevelCode } from "@/generated/prisma/client";
 import { previousStudyLevel, studyLevelIndex } from "./constants";
 import { placementMaxStudyLevelIndex } from "./placement-unlock";
 

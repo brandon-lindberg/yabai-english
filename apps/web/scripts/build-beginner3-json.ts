@@ -6,7 +6,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { StudyLevelCode } from "@prisma/client";
+import { StudyLevelCode } from "../src/generated/prisma/client";
 import { beginner3LevelFileSchema } from "../src/lib/study/schemas";
 
 const OUT = path.join(__dirname, "../data/study/beginner-3.json");

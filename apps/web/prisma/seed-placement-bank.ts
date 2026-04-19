@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "../src/generated/prisma/client";
 import path from "node:path";
 import { EXPECTED_PLACEMENT_QUESTION_TOTAL } from "../src/lib/placement-bank/constants";
 import { loadPlacementBankSync } from "../src/lib/placement-bank/load-placement-bank";

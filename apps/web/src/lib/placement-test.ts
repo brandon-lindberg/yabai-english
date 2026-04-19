@@ -1,4 +1,4 @@
-import { PlacedLevel } from "@prisma/client";
+import { PlacedLevel } from "@/generated/prisma/client";
 import { randomInt } from "crypto";
 import {
   EXPECTED_PLACEMENT_QUESTION_TOTAL,

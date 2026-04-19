@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { Prisma, type PrismaClient, StudyLevelCode } from "@prisma/client";
+import { Prisma, type PrismaClient, StudyLevelCode } from "../src/generated/prisma/client";
 import {
   advanced1LevelFileSchema,
   advanced2LevelFileSchema,

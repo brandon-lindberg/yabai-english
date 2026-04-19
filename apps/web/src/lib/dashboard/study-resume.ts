@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@/generated/prisma/client";
 import { computeLevelMastery } from "@/lib/study/mastery";
 
 const TRACK_SLUG = "english-flashcards";

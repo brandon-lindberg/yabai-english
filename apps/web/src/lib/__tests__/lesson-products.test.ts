@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { LessonTier } from "@prisma/client";
+import { LessonTier } from "@/generated/prisma/client";
 import {
   canTeacherOfferProduct,
   catalogProductMatchesOffering,

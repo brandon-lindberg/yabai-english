@@ -1,4 +1,4 @@
-import type { BookingStatus, LessonTier } from "@prisma/client";
+import type { BookingStatus, LessonTier } from "@/generated/prisma/client";
 
 export function getBookingPaymentFlow({
   lessonTier,

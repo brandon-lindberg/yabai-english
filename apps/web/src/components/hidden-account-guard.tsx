@@ -1,6 +1,6 @@
 "use client";
 
-import { AccountStatus } from "@prisma/client";
+import { AccountStatus } from "@/generated/prisma/browser";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect } from "react";
 

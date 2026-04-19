@@ -8,7 +8,7 @@ import type { StudyQueueCard } from "@/lib/study/practice-queue-card";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import type { StudyLevelCode } from "@prisma/client";
+import type { StudyLevelCode } from "@/generated/prisma/browser";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export type StudyQueueFocus = "mixed" | "weak" | "mastered";

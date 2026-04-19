@@ -19,7 +19,7 @@ import {
   mcqPoolPhraseWhenFragmentMode,
   weightedSampleWithoutReplacement,
 } from "@/lib/study/quiz";
-import { StudyLevelCode } from "@prisma/client";
+import { StudyLevelCode } from "@/generated/prisma/client";
 import { z } from "zod";
 
 const querySchema = z.object({

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { AccountStatus } from "@prisma/client";
+import { AccountStatus } from "@/generated/prisma/client";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 
 describe("isLoginAllowedForAccountStatus", () => {
