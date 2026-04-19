@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 import {
   AVAILABILITY_LESSON_LEVELS,
@@ -78,6 +79,7 @@ export function TeacherAvailabilityCalendar({
   bookings = [],
 }: Props) {
   const locale = useLocale();
+  const isMobile = useIsMobile();
   const t = useTranslations("dashboard.teacherAvailability");
   const td = useTranslations("dashboard");
   const tSlotMeta = useTranslations("lessonSlotMeta");
@@ -356,6 +358,173 @@ export function TeacherAvailabilityCalendar({
     ],
   );
 
+  /* ── Mobile-friendly week view (stacked day cards) ── */
+  const mobileWeekView = useMemo(() => {
+    const selRing =
+      "border-zinc-500 bg-zinc-200 text-zinc-900";
+    const idleRing =
+      "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50";
+    return (
+      <div className="space-y-3" data-testid="mobile-week-view">
+        {weekDays.map((day) => {
+          const blocks = blocksByDay.get(day.dayKey) ?? [];
+          const dayDate = new Date(`${day.dayKey}T12:00:00`);
+          return (
+            <div key={day.dayKey} className="rounded-lg border border-border bg-surface p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-semibold text-foreground">
+                  {day.shortLabel} {dayDate.getDate()}
+                </p>
+                <button
+                    type="button"
+                    onClick={() => addForDayKey(day.dayKey)}
+                    className="rounded border border-border bg-surface px-2 py-0.5 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                  >
+                    {t("addForDay")}
+                  </button>
+              </div>
+              {blocks.length === 0 ? (
+                <p className="text-xs text-muted">{t("noAvailabilityYet")}</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {blocks.map((block) => {
+                    if (block.kind === "booking") {
+                      return (
+                        <div
+                          key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
+                          className="rounded-md border border-amber-200/70 bg-amber-50/50 px-2.5 py-1.5 text-xs text-amber-950/90"
+                        >
+                          <span className="font-medium">
+                            {new Date(block.startsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                            {" – "}
+                            {new Date(block.endsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                          </span>
+                          <span className="ml-2 text-amber-900/80">{td("slotReserved")}</span>
+                          {block.subtitle ? <span className="ml-1 text-amber-900/65">· {block.subtitle}</span> : null}
+                        </div>
+                      );
+                    }
+                    const selected =
+                      (selectedRuleId && block.groupKey ? block.groupKey === selectedRuleId : false) ||
+                      block.startsAtIso === selectedStartsAtIso;
+                    return (
+                      <button
+                        key={`${block.startsAtIso}-${block.groupKey ?? ""}`}
+                        type="button"
+                        onClick={() => {
+                          setSelectedStartsAtIso(block.startsAtIso);
+                          setSelectedRuleId(block.groupKey ?? null);
+                          setCalendarAnchor(block.startsAtIso);
+                        }}
+                        className={`w-full rounded-md border px-2.5 py-1.5 text-left text-xs font-medium transition ${selected ? selRing : idleRing}`}
+                        aria-pressed={selected}
+                      >
+                        {new Date(block.startsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                        {" – "}
+                        {new Date(block.endsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }, [weekDays, blocksByDay, locale, selectedStartsAtIso, selectedRuleId, t, td, addForDayKey]);
+
+  /* ── Mobile-friendly month view (agenda list for days with slots) ── */
+  const mobileMonthView = useMemo(() => {
+    const selRing = "border-zinc-500 bg-zinc-200 text-zinc-900";
+    const idleRing = "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50";
+    const daysWithContent = monthCells.filter(
+      (cell) => cell.inCurrentMonth && (slotsByDayForMonth.get(cell.dayKey)?.length ?? 0) > 0,
+    );
+    return (
+      <div className="space-y-3" data-testid="mobile-month-view">
+        {daysWithContent.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-border bg-surface px-3 py-6 text-center text-sm text-muted">
+            {t("noAvailabilityYet")}
+          </p>
+        ) : (
+          daysWithContent.map((cell) => {
+            const slots = slotsByDayForMonth.get(cell.dayKey) ?? [];
+            const cellDate = new Date(`${cell.dayKey}T12:00:00`);
+            const dateLabel = cellDate.toLocaleDateString(locale, {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+            });
+            return (
+              <div key={cell.dayKey} className="rounded-lg border border-border bg-surface p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCalendarAnchor(`${cell.dayKey}T00:00:00.000Z`);
+                      setCalendarView("day");
+                    }}
+                    className="text-sm font-semibold text-foreground hover:underline"
+                  >
+                    {dateLabel}
+                  </button>
+                  <button
+                      type="button"
+                      onClick={() => addForDayKey(cell.dayKey)}
+                      className="rounded border border-border bg-surface px-2 py-0.5 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                    >
+                      {t("addForDay")}
+                    </button>
+                </div>
+                <div className="space-y-1.5">
+                  {slots.map((slot) => {
+                    if (slot.kind === "booking") {
+                      return (
+                        <div
+                          key={`booking-${slot.startsAtIso}-${slot.groupKey ?? ""}`}
+                          className="rounded-md border border-amber-200/70 bg-amber-50/50 px-2.5 py-1.5 text-xs text-amber-950/90"
+                        >
+                          <span className="font-medium">
+                            {new Date(slot.startsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                            {" – "}
+                            {new Date(slot.endsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                          </span>
+                          <span className="ml-2 text-amber-900/80">{td("slotReserved")}</span>
+                          {slot.label ? <span className="ml-1 text-amber-900/65">· {slot.label}</span> : null}
+                        </div>
+                      );
+                    }
+                    const selected =
+                      (selectedRuleId && slot.groupKey ? slot.groupKey === selectedRuleId : false) ||
+                      slot.startsAtIso === selectedStartsAtIso;
+                    return (
+                      <button
+                        key={`${slot.startsAtIso}-${slot.groupKey ?? ""}`}
+                        type="button"
+                        onClick={() => {
+                          setSelectedStartsAtIso(slot.startsAtIso);
+                          setSelectedRuleId(slot.groupKey ?? null);
+                          setCalendarAnchor(slot.startsAtIso);
+                        }}
+                        className={`w-full rounded-md border px-2.5 py-1.5 text-left text-xs font-medium transition ${selected ? selRing : idleRing}`}
+                        aria-pressed={selected}
+                      >
+                        {new Date(slot.startsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                        {" – "}
+                        {new Date(slot.endsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    );
+  }, [monthCells, slotsByDayForMonth, locale, selectedStartsAtIso, selectedRuleId, t, td, addForDayKey]);
+
   function patchSelected(
     patch: Partial<
       Pick<
@@ -477,9 +646,9 @@ export function TeacherAvailabilityCalendar({
 
       <SlotSelectionCalendar
         variant="embedded"
-        weekViewReplacement={weekTimeGrid}
+        weekViewReplacement={isMobile ? mobileWeekView : weekTimeGrid}
         dayViewReplacement={dayTimeGrid}
-        monthViewReplacement={monthGoogle}
+        monthViewReplacement={isMobile ? mobileMonthView : monthGoogle}
         locale={locale}
         copy={{
           noAvailabilityYet: t("noAvailabilityYet"),

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CalendarViewControls } from "@/components/calendar-view-controls";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
 import { buildMonthCells, buildWeekDays, buildWeekdayColumnHeaders, dayKeyFromIso } from "@/lib/slot-calendar";
@@ -20,6 +21,7 @@ type Props = {
 
 export function DashboardScheduleCalendar({ items }: Props) {
   const locale = useLocale();
+  const isMobile = useIsMobile();
   const t = useTranslations("dashboard");
   const [view, setView] = useState<CalendarViewMode>("week");
   const [anchorIso, setAnchorIso] = useState(items[0]?.startsAtIso ?? new Date().toISOString());
@@ -94,7 +96,7 @@ export function DashboardScheduleCalendar({ items }: Props) {
         </div>
       )}
 
-      {view === "week" && (
+      {view === "week" && !isMobile && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-7">
           {weekDays.map((day) => {
             const key = day.dayKey;
@@ -135,7 +137,48 @@ export function DashboardScheduleCalendar({ items }: Props) {
         </div>
       )}
 
-      {view === "month" && (
+      {/* Mobile week: stacked day cards */}
+      {view === "week" && isMobile && (
+        <div className="space-y-2">
+          {weekDays.map((day) => {
+            const key = day.dayKey;
+            const dayItems = mapByDay.get(key) ?? [];
+            const date = new Date(`${day.dayKey}T00:00:00`);
+            return (
+              <div key={key} className="rounded-lg border border-border bg-surface p-3">
+                <p className="mb-1.5 text-sm font-semibold text-foreground">
+                  {day.shortLabel} {date.getDate()}
+                </p>
+                {dayItems.length === 0 ? (
+                  <p className="text-xs text-muted">{t("unavailableShort")}</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {dayItems.slice(0, 4).map((item) => (
+                      <a
+                        key={item.id}
+                        href={`#booking-${item.id}`}
+                        className="block rounded-md border border-border bg-muted/25 px-2.5 py-1.5 text-xs transition hover:bg-muted/40"
+                      >
+                        <span className="font-medium text-foreground">
+                          {new Date(item.startsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                          {" - "}
+                          {new Date(item.endsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                        {item.teacherName ? (
+                          <span className="ml-2 text-foreground/70">{item.teacherName}</span>
+                        ) : null}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Desktop month: 7-column grid */}
+      {view === "month" && !isMobile && (
         <div className="overflow-x-auto pb-1">
           <div className="min-w-[720px]">
             <div className="mb-2 grid grid-cols-7 gap-px border-b border-border">
@@ -216,6 +259,59 @@ export function DashboardScheduleCalendar({ items }: Props) {
           </div>
         </div>
       )}
+
+      {/* Mobile month: agenda list of days with lessons */}
+      {view === "month" && isMobile && (() => {
+        const daysWithLessons = monthCells.filter(
+          (cell) => cell.inCurrentMonth && (mapByDay.get(cell.dayKey)?.length ?? 0) > 0,
+        );
+        return (
+          <div className="space-y-2">
+            {daysWithLessons.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-border bg-surface px-3 py-6 text-center text-sm text-muted">
+                {t("noLessonsOnDay")}
+              </p>
+            ) : (
+              daysWithLessons.map((cell) => {
+                const dayItems = mapByDay.get(cell.dayKey) ?? [];
+                const cellDate = new Date(`${cell.dayKey}T12:00:00`);
+                return (
+                  <div key={cell.dayKey} className="rounded-lg border border-border bg-surface p-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAnchorIso(`${cell.dayKey}T00:00:00.000Z`);
+                        setView("day");
+                      }}
+                      className="mb-1.5 text-sm font-semibold text-foreground hover:underline"
+                    >
+                      {cellDate.toLocaleDateString(locale, { weekday: "short", month: "short", day: "numeric" })}
+                    </button>
+                    <div className="space-y-1.5">
+                      {dayItems.map((item) => (
+                        <a
+                          key={item.id}
+                          href={`#booking-${item.id}`}
+                          className="block rounded-md border border-border bg-muted/25 px-2.5 py-1.5 text-xs transition hover:bg-muted/40"
+                        >
+                          <span className="font-medium text-foreground">
+                            {new Date(item.startsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                            {" - "}
+                            {new Date(item.endsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          {item.teacherName ? (
+                            <span className="ml-2 text-foreground/70">{item.teacherName}</span>
+                          ) : null}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        );
+      })()}
     </section>
   );
 }
