@@ -257,6 +257,17 @@ export function ChatPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
 
+  // Lock body scroll when the chat panel is open on mobile so the page behind
+  // doesn't move and create the "bouncing" effect.
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   function dayLabel(iso: string) {
     const dt = new Date(iso);
     const today = new Date();
@@ -629,7 +640,10 @@ export function ChatPanel() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[55] flex flex-col bg-surface pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] md:inset-auto md:bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] md:right-[max(1.25rem,env(safe-area-inset-right,0px))] md:top-20 md:h-auto md:max-h-[min(calc(100dvh-5rem),900px)] md:w-[min(760px,calc(100dvw-2rem))] md:rounded-2xl md:border md:border-border md:shadow-xl">
+        <div
+          className="fixed inset-0 z-[55] flex flex-col overscroll-none bg-surface pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] md:inset-auto md:bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] md:right-[max(1.25rem,env(safe-area-inset-right,0px))] md:top-20 md:h-auto md:max-h-[min(calc(100dvh-5rem),900px)] md:w-[min(760px,calc(100dvw-2rem))] md:rounded-2xl md:border md:border-border md:shadow-xl"
+          style={{ touchAction: "pan-x pan-y" }}
+        >
           <div className="mb-2 flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
             <div className="flex items-center gap-2">
@@ -658,7 +672,7 @@ export function ChatPanel() {
           </div>
           <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-[260px_1fr]">
             <aside
-              className={`min-h-0 rounded-xl border border-border bg-background p-2 ${
+              className={`min-h-0 overflow-y-auto overscroll-contain rounded-xl border border-border bg-background p-2 ${
                 mobilePane === "chat" ? "hidden md:block" : "block"
               }`}
             >
