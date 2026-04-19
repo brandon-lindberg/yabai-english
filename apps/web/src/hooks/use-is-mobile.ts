@@ -12,6 +12,7 @@ export function useIsMobile(breakpoint = 640) {
 
   const subscribe = useCallback(
     (onStoreChange: () => void) => {
+      if (typeof window === "undefined" || !window.matchMedia) return () => {};
       const mql = window.matchMedia(query);
       mql.addEventListener("change", onStoreChange);
       return () => mql.removeEventListener("change", onStoreChange);
@@ -19,7 +20,10 @@ export function useIsMobile(breakpoint = 640) {
     [query],
   );
 
-  const getSnapshot = useCallback(() => window.matchMedia(query).matches, [query]);
+  const getSnapshot = useCallback(
+    () => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia(query).matches : false),
+    [query],
+  );
 
   const getServerSnapshot = useCallback(() => false, []);
 
