@@ -1,5 +1,7 @@
 export type SlotOption = {
   startsAtIso: string;
+  /** When set, month (and other compact) views can show a start–end time range. */
+  endsAtIso?: string;
   label: string;
   /** Optional stable id for recurring rules (teacher availability editor). */
   groupKey?: string;

@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   ALL_LESSON_TYPES_KEY,
   filterSlotsForSelection,
+  slotMatchesProduct,
 } from "@/lib/booking-lesson-type-filter";
 
 type LessonProductOption = {
@@ -32,6 +33,7 @@ type Props = {
   currentUserRole?: "STUDENT" | "TEACHER" | "ADMIN";
   presetSlots?: Array<{
     startsAtIso: string;
+    endsAtIso?: string;
     label: string;
     groupKey?: string;
     /** Lesson type key from the teacher's availability slot (used to filter). */
@@ -98,6 +100,27 @@ export function BookingForm({
       ? undefined
       : products.find((p) => optionKey(p) === selectedOptionKey);
 
+  /** When "All lesson types" is selected, infer the catalog row from the chosen slot. */
+  const resolvedProductForAllTypes = useMemo(() => {
+    if (selectedOptionKey !== ALL_LESSON_TYPES_KEY || !startsAt || !presetSlots?.length) {
+      return undefined;
+    }
+    const slot = presetSlots.find((s) => s.startsAtIso === startsAt);
+    if (!slot) return undefined;
+    const candidates = products.filter((p) => slotMatchesProduct(slot, p));
+    if (candidates.length === 0) return undefined;
+    if (slot.endsAtIso) {
+      const durMin = Math.round(
+        (new Date(slot.endsAtIso).getTime() - new Date(slot.startsAtIso).getTime()) / 60_000,
+      );
+      const byDuration = candidates.filter((p) => p.durationMin === durMin);
+      if (byDuration.length >= 1) return byDuration[0];
+    }
+    return candidates[0];
+  }, [selectedOptionKey, startsAt, presetSlots, products]);
+
+  const effectiveProduct = selectedOption ?? resolvedProductForAllTypes;
+
   const bookedStartsAtSet = useMemo(
     () => new Set((bookedSlots ?? []).map((b) => b.startsAtIso)),
     [bookedSlots],
@@ -110,6 +133,7 @@ export function BookingForm({
     );
     const reservedMarkers = (bookedSlots ?? []).map((b) => ({
       startsAtIso: b.startsAtIso,
+      endsAtIso: b.endsAtIso,
       label: t("reserved"),
       kind: "booked" as const,
     }));
@@ -128,8 +152,8 @@ export function BookingForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lessonProductId: selectedOption?.id ?? "",
-          teacherLessonOfferingId: selectedOption?.teacherLessonOfferingId ?? undefined,
+          lessonProductId: effectiveProduct?.id ?? "",
+          teacherLessonOfferingId: effectiveProduct?.teacherLessonOfferingId ?? undefined,
           startsAt: iso,
           teacherProfileId,
           manualOverride: canShowManualOverrideToggle(currentUserRole)
@@ -290,7 +314,7 @@ export function BookingForm({
       )}
       <button
         type="submit"
-        disabled={loading || !selectedOption || !startsAt}
+        disabled={loading || productsLoading || !startsAt || !effectiveProduct}
         className="w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
       >
         {t("confirm")}

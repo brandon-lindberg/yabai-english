@@ -296,6 +296,81 @@ describe("SlotSelectionCalendar", () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
+  test("month view renders available slots as compact time chips (Google-style)", () => {
+    const onSelect = vi.fn();
+    const isoStart = "2026-04-08T14:00:00.000Z";
+    const isoEnd = "2026-04-08T15:00:00.000Z";
+
+    render(
+      <SlotSelectionCalendar
+        locale="en-US"
+        copy={copy}
+        slots={[
+          {
+            startsAtIso: isoStart,
+            endsAtIso: isoEnd,
+            label: "Long meta label",
+            groupKey: "g1",
+          },
+        ]}
+        calendarView="month"
+        onCalendarViewChange={vi.fn()}
+        calendarAnchor="2026-04-15T12:00:00.000Z"
+        onCalendarAnchorChange={vi.fn()}
+        selectedStartsAtIso={null}
+        onSelectSlot={onSelect}
+      />,
+    );
+
+    const chips = screen.getAllByTestId("month-slot-chip");
+    expect(chips).toHaveLength(1);
+    const expectedRange = `${new Date(isoStart).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    })} – ${new Date(isoEnd).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    })}`;
+    expect(chips[0]!.textContent).toBe(expectedRange);
+    expect(chips[0]!.tagName.toLowerCase()).toBe("button");
+
+    fireEvent.click(chips[0]!);
+    expect(onSelect).toHaveBeenCalledWith(isoStart, "g1");
+  });
+
+  test("month view renders kind=booked slots as non-clickable markers", () => {
+    const onSelect = vi.fn();
+    const iso = "2026-04-08T14:00:00.000Z";
+
+    render(
+      <SlotSelectionCalendar
+        locale="en-US"
+        copy={copy}
+        slots={[
+          {
+            startsAtIso: iso,
+            endsAtIso: "2026-04-08T15:00:00.000Z",
+            label: "Reserved",
+            kind: "booked",
+          },
+        ]}
+        calendarView="month"
+        onCalendarViewChange={vi.fn()}
+        calendarAnchor="2026-04-15T12:00:00.000Z"
+        onCalendarAnchorChange={vi.fn()}
+        selectedStartsAtIso={null}
+        onSelectSlot={onSelect}
+      />,
+    );
+
+    const reserved = screen.getByTestId("slot-reserved-month");
+    expect(reserved.tagName.toLowerCase()).not.toBe("button");
+    expect(reserved.textContent).toMatch(/Reserved/i);
+
+    fireEvent.click(reserved);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
   test("dayViewExtra renders in day view", () => {
     const { rerender } = render(
       <SlotSelectionCalendar

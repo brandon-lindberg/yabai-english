@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
 
@@ -140,5 +140,33 @@ describe("NotificationBell", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  test("closes the panel when pointerdown happens outside the bell", async () => {
+    fetchMock.mockImplementation(async () =>
+      jsonResponse({ items: [], unreadCount: 0 }),
+    );
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <div>
+            <button type="button">outside-target</button>
+            <NotificationBell />
+          </div>
+        </NextIntlClientProvider>,
+      );
+    });
+
+    await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(0));
+
+    fireEvent.click(screen.getByRole("button", { name: en.common.notifications }));
+    expect(screen.getByText(en.common.markAllRead)).toBeInTheDocument();
+
+    fireEvent.pointerDown(screen.getByRole("button", { name: "outside-target" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(en.common.markAllRead)).not.toBeInTheDocument();
+    });
   });
 });

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
 import { BookingForm } from "../booking-form";
@@ -110,12 +110,29 @@ describe("BookingForm lesson type filter", () => {
     expect(allOption?.textContent).toMatch(/All lesson types/i);
   });
 
-  test("confirm button is disabled while 'All lesson types' is selected (no product chosen)", async () => {
+  test("confirm button is enabled with 'All lesson types' when the selected slot maps to a product", async () => {
     renderForm(presetSlots);
 
     await screen.findByLabelText(en.booking.selectProduct);
+    const confirm = await waitFor(() => screen.getByRole("button", { name: en.booking.confirm }));
+    expect(confirm).not.toBeDisabled();
+  });
+
+  test("confirm button disabled with 'All' after changing away clears the slot selection", async () => {
+    renderForm(presetSlots);
+
+    const select = (await screen.findByLabelText(
+      en.booking.selectProduct,
+    )) as HTMLSelectElement;
+    await waitFor(() => expect(select.querySelectorAll("option").length).toBeGreaterThan(1));
+
     const confirm = screen.getByRole("button", { name: en.booking.confirm });
-    expect(confirm).toBeDisabled();
+    await waitFor(() => expect(confirm).not.toBeDisabled());
+
+    fireEvent.change(select, { target: { value: "prod-conv::off-conv" } });
+    fireEvent.change(select, { target: { value: ALL_LESSON_TYPES_KEY } });
+
+    await waitFor(() => expect(confirm).toBeDisabled());
   });
 
   test("booked slots appear as 'Reserved' markers and never leak student names", async () => {

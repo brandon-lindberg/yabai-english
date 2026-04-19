@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { subscribeRealtime } from "@/lib/realtime-client";
@@ -26,6 +26,18 @@ export function NotificationBell() {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [clearingAll, setClearingAll] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(e: PointerEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
 
   async function refresh() {
     let res: Response;
@@ -94,7 +106,7 @@ export function NotificationBell() {
   }
 
   return (
-    <div className="relative">
+    <div ref={rootRef} className="relative">
       <button
         type="button"
         aria-label={t("notifications")}

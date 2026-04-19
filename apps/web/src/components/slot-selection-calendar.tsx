@@ -12,6 +12,21 @@ import {
 import { CalendarViewControls } from "@/components/calendar-view-controls";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
 
+const MAX_MONTH_CHIPS = 3;
+
+function formatMonthChipTimeRange(locale: string, startsAtIso: string, endsAtIso?: string) {
+  const start = new Date(startsAtIso).toLocaleTimeString(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  if (!endsAtIso) return start;
+  const end = new Date(endsAtIso).toLocaleTimeString(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return `${start} – ${end}`;
+}
+
 export type SlotSelectionCalendarCopy = {
   noAvailabilityYet: string;
   unavailableShort: string;
@@ -92,6 +107,14 @@ export function SlotSelectionCalendar({
       : "border-primary bg-primary text-primary-foreground shadow-sm";
   const monthSelectedRing =
     selectionStyle === "neutral" ? "border-zinc-500 ring-1 ring-zinc-300" : "border-primary ring-1 ring-primary/25";
+  const monthChipSelectedClass =
+    selectionStyle === "neutral"
+      ? "border-zinc-400 bg-zinc-200 text-zinc-900"
+      : "border-primary bg-primary/10 text-foreground";
+  const monthChipUnselectedClass =
+    selectionStyle === "neutral"
+      ? "border-border bg-background text-muted hover:bg-[var(--app-hover)]"
+      : "border-border bg-surface text-foreground hover:bg-[var(--app-hover)]";
   const groupedSlots = groupSlotsByDay(slots, locale);
   const slotMap = new Map(groupedSlots.map((group) => [group.dayKey, group.slots]));
   const slotSelectedDayKey = selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso) : "";
@@ -300,22 +323,26 @@ export function SlotSelectionCalendar({
         ))}
       {calendarView === "month" &&
         (monthViewReplacement ?? (
-          <div>
-            <div>
-              <div className="mb-2 grid grid-cols-7 gap-0.5 sm:gap-1">
+          <div className="overflow-x-auto pb-1" data-testid="slot-calendar-month-grid">
+            <div className="min-w-[720px]">
+              <div className="mb-2 grid grid-cols-7 gap-px bg-border">
                 {monthWeekdayHeaders.map((day, index) => (
                   <p
                     key={`${day}-${index}`}
-                    className="text-center text-[10px] font-semibold text-muted sm:text-[11px]"
+                    className="bg-background py-1.5 text-center text-[11px] font-semibold text-muted"
                   >
                     {day}
                   </p>
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+              <div className="grid grid-cols-7 gap-px bg-border">
                 {monthCells.map((cell) => {
                   const isSelected = monthCellSelectedDayKey === cell.dayKey;
-                  const hasSlots = (slotMap.get(cell.dayKey) ?? []).length > 0;
+                  const raw = slotMap.get(cell.dayKey) ?? [];
+                  const sorted = [...raw].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
+                  const chips = sorted.slice(0, MAX_MONTH_CHIPS);
+                  const more = sorted.length - chips.length;
+                  const hasSlots = sorted.length > 0;
                   const isAvailable = cell.inCurrentMonth && hasSlots;
                   const isUnavailable = cell.inCurrentMonth && !hasSlots;
                   const showMonthAdd = Boolean(
@@ -325,52 +352,90 @@ export function SlotSelectionCalendar({
                     <div
                       key={cell.dayKey}
                       data-month-day-cell={cell.dayKey}
-                      className={`relative aspect-square rounded-md border text-left text-xs transition ${
+                      className={`flex min-h-[96px] flex-col border p-1 text-left text-xs transition ${
                         isSelected ? monthSelectedRing : "border-border"
                       } ${
-                        isAvailable
-                          ? "bg-surface text-foreground"
-                          : isUnavailable
-                            ? "bg-background text-muted"
-                            : "bg-[var(--app-canvas)] text-muted/50"
+                        !cell.inCurrentMonth
+                          ? "bg-[var(--app-canvas)] text-muted/50"
+                          : isAvailable
+                            ? "bg-surface text-foreground"
+                            : isUnavailable
+                              ? "bg-background text-muted"
+                              : "bg-[var(--app-canvas)] text-muted/50"
                       }`}
                     >
-                      <button
-                        type="button"
-                        data-day-key={cell.dayKey}
-                        onClick={() => {
-                          if (onMonthDayClick) {
-                            onMonthDayClick(cell.dayKey);
-                            return;
-                          }
-                          onCalendarAnchorChange(`${cell.dayKey}T00:00:00.000Z`);
-                          onCalendarViewChange("day");
-                        }}
-                        className="flex h-full w-full flex-col rounded-[inherit] p-1 text-left hover:bg-[var(--app-hover)] sm:p-2"
-                      >
-                        <span className="text-xs font-medium sm:text-sm">{cell.shortLabel}</span>
-                        <div className="mt-auto flex items-center justify-center">
-                          {hasSlots ? (
-                            <span className="inline-block h-2 w-2 rounded-full bg-accent" />
-                          ) : (
-                            <span className="inline-block h-2 w-2 rounded-full bg-transparent" />
-                          )}
-                        </div>
-                      </button>
-                      {showMonthAdd ? (
+                      <div className="flex items-start justify-between gap-0.5">
                         <button
                           type="button"
-                          data-month-day-add={cell.dayKey}
-                          title={weekColumnAddLabel}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onAddForDayKey!(cell.dayKey);
+                          data-day-key={cell.dayKey}
+                          onClick={() => {
+                            if (onMonthDayClick) {
+                              onMonthDayClick(cell.dayKey);
+                              return;
+                            }
+                            onCalendarAnchorChange(`${cell.dayKey}T00:00:00.000Z`);
+                            onCalendarViewChange("day");
                           }}
-                          className="absolute top-0.5 right-0.5 z-10 hidden rounded-md border border-border bg-surface px-1 py-0.5 text-[9px] font-semibold text-foreground shadow-sm hover:bg-[var(--app-hover)] sm:block sm:top-1 sm:right-1 sm:px-1.5 sm:text-[10px]"
+                          className="min-w-0 rounded px-0.5 text-left text-sm font-semibold hover:bg-[var(--app-hover)]"
                         >
-                          {weekColumnAddLabel}
+                          {cell.shortLabel}
                         </button>
-                      ) : null}
+                        {showMonthAdd ? (
+                          <button
+                            type="button"
+                            data-month-day-add={cell.dayKey}
+                            title={weekColumnAddLabel}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onAddForDayKey!(cell.dayKey);
+                            }}
+                            className="shrink-0 rounded border border-border bg-surface px-1 py-0.5 text-[9px] font-semibold text-foreground shadow-sm hover:bg-[var(--app-hover)]"
+                          >
+                            {weekColumnAddLabel}
+                          </button>
+                        ) : null}
+                      </div>
+                      <div className="mt-1 flex min-h-0 flex-1 flex-col gap-0.5">
+                        {chips.map((slot, idx) => {
+                          if (slot.kind === "booked") {
+                            return (
+                              <div
+                                key={`reserved:${slot.startsAtIso}:${idx}`}
+                                data-testid="slot-reserved-month"
+                                aria-disabled="true"
+                                className="w-full truncate rounded border border-dashed border-border bg-background px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-muted shadow-sm"
+                              >
+                                {formatMonthChipTimeRange(locale, slot.startsAtIso, slot.endsAtIso)}
+                                <span className="block truncate text-[8px] uppercase tracking-wide">
+                                  {slot.label}
+                                </span>
+                              </div>
+                            );
+                          }
+                          const selected = isSlotSelected(slot);
+                          return (
+                            <button
+                              key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
+                              type="button"
+                              data-testid="month-slot-chip"
+                              data-starts-at={slot.startsAtIso}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectSlot(slot.startsAtIso, slot.groupKey);
+                                onCalendarAnchorChange(slot.startsAtIso);
+                              }}
+                              className={`w-full truncate rounded border px-1 py-0.5 text-left text-[9px] font-medium leading-tight shadow-sm ${
+                                selected ? monthChipSelectedClass : monthChipUnselectedClass
+                              }`}
+                            >
+                              {formatMonthChipTimeRange(locale, slot.startsAtIso, slot.endsAtIso)}
+                            </button>
+                          );
+                        })}
+                        {more > 0 ? (
+                          <p className="px-0.5 text-[9px] font-medium text-muted">+{more} more</p>
+                        ) : null}
+                      </div>
                     </div>
                   );
                 })}

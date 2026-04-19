@@ -223,6 +223,7 @@ export default async function TeacherProfileBookingPage({
             currentUserRole={session.user.role}
             presetSlots={slotOptions.map((slot) => ({
               startsAtIso: slot.startsAtIso,
+              endsAtIso: slot.endsAtIso,
               label: slot.label,
               groupKey: slot.slotId,
               lessonType: slot.lessonType,
