@@ -7,6 +7,8 @@ export type MonthDaySlotChip = {
   endsAtIso: string;
   label: string;
   groupKey?: string;
+  /** Booked lessons vs open availability (default: availability). */
+  kind?: "availability" | "booking";
 };
 
 type Props = {
@@ -24,9 +26,28 @@ type Props = {
   onSelectSlot: (startsAtIso: string, groupKey?: string) => void;
   onCalendarAnchorChange: (iso: string) => void;
   selectionStyle?: "accent" | "neutral";
+  /** Shown on booking chips (e.g. “Reserved”). */
+  reservedLabel: string;
 };
 
 const MAX_CHIPS = 3;
+
+function pickMonthChips(slots: MonthDaySlotChip[], max: number): MonthDaySlotChip[] {
+  const sorted = [...slots].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
+  const booked = sorted.filter((s) => s.kind === "booking");
+  const available = sorted.filter((s) => s.kind !== "booking");
+  const out: MonthDaySlotChip[] = [];
+  for (const s of booked) {
+    if (out.length >= max) break;
+    out.push(s);
+  }
+  for (const s of available) {
+    if (out.length >= max) break;
+    out.push(s);
+  }
+  out.sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
+  return out;
+}
 
 function chipSelected(
   slot: MonthDaySlotChip,
@@ -53,6 +74,7 @@ export function TeacherAvailabilityGoogleMonth({
   onSelectSlot,
   onCalendarAnchorChange,
   selectionStyle = "accent",
+  reservedLabel,
 }: Props) {
   const monthSelectedRing =
     selectionStyle === "neutral" ? "border-zinc-500 ring-1 ring-zinc-300" : "border-primary ring-1 ring-primary/25";
@@ -82,12 +104,13 @@ export function TeacherAvailabilityGoogleMonth({
           {monthCells.map((cell) => {
             const raw = slotsByDay.get(cell.dayKey) ?? [];
             const sorted = [...raw].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
-            const chips = sorted.slice(0, MAX_CHIPS);
+            const chips = pickMonthChips(sorted, MAX_CHIPS);
             const more = sorted.length - chips.length;
             const isSelected = focusedDayKey === cell.dayKey;
-            const hasSlots = sorted.length > 0;
-            const isAvailable = cell.inCurrentMonth && hasSlots;
-            const isUnavailable = cell.inCurrentMonth && !hasSlots;
+            const bookable = sorted.filter((s) => s.kind !== "booking");
+            const hasBookable = bookable.length > 0;
+            const isAvailable = cell.inCurrentMonth && hasBookable;
+            const isUnavailable = cell.inCurrentMonth && !hasBookable;
             const showAdd = Boolean(onAddForDayKey && addLabel && cell.inCurrentMonth);
 
             return (
@@ -132,6 +155,36 @@ export function TeacherAvailabilityGoogleMonth({
                 </div>
                 <div className="mt-1 flex min-h-0 flex-1 flex-col gap-0.5">
                   {chips.map((slot) => {
+                    if (slot.kind === "booking") {
+                      return (
+                        <div
+                          key={`booking-${slot.startsAtIso}-${slot.groupKey ?? ""}`}
+                          data-testid="month-booking-chip"
+                          data-starts-at={slot.startsAtIso}
+                          className="w-full truncate rounded-md border border-amber-200/70 bg-amber-50/50 px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-amber-950/90 dark:border-amber-800/40 dark:bg-amber-950/25 dark:text-amber-50/95"
+                        >
+                          <span className="block truncate font-medium text-amber-950 dark:text-amber-50">
+                            {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}
+                            {" – "}
+                            {new Date(slot.endsAtIso).toLocaleTimeString(locale, {
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                          <span className="mt-0.5 block truncate text-[8px] font-medium text-amber-900/85 dark:text-amber-100/90">
+                            {reservedLabel}
+                          </span>
+                          {slot.label ? (
+                            <span className="mt-0.5 block truncate text-[8px] text-amber-900/70 dark:text-amber-100/75">
+                              {slot.label}
+                            </span>
+                          ) : null}
+                        </div>
+                      );
+                    }
                     const sel = chipSelected(slot, selectedStartsAtIso, selectedGroupKey);
                     return (
                       <button

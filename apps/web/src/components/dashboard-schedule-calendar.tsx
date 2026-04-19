@@ -110,9 +110,17 @@ export function DashboardScheduleCalendar({ items }: Props) {
                     <a
                       key={item.id}
                       href={`#booking-${item.id}`}
-                      className="block rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground hover:bg-[var(--app-hover)]"
+                      className="block rounded-md border border-border bg-muted/25 px-2 py-1.5 text-xs transition hover:bg-muted/40"
                     >
-                      {new Date(item.startsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                      <span className="block font-medium text-foreground">
+                        {new Date(item.startsAtIso).toLocaleTimeString(locale, {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      <span className="mt-0.5 block text-[11px] font-medium leading-tight text-foreground/70">
+                        {t("slotReserved")}
+                      </span>
                     </a>
                   ))}
                   {dayItems.length === 0 && (
@@ -170,13 +178,22 @@ export function DashboardScheduleCalendar({ items }: Props) {
                         <a
                           key={item.id}
                           href={`#booking-${item.id}`}
-                          className="w-full truncate rounded border border-blue-200 bg-blue-50 px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-blue-900 shadow-sm hover:bg-blue-100"
+                          className="w-full truncate rounded-md border border-border bg-muted/20 px-1.5 py-1 text-left text-[10px] font-medium leading-snug transition hover:bg-muted/35"
                         >
-                          {new Date(item.startsAtIso).toLocaleTimeString(locale, {
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}{" "}
-                          {item.teacherName}
+                          <span className="block truncate text-foreground">
+                            {new Date(item.startsAtIso).toLocaleTimeString(locale, {
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                          <span className="mt-0.5 block truncate text-[10px] font-medium leading-tight text-foreground/68">
+                            {t("slotReserved")}
+                          </span>
+                          {item.teacherName ? (
+                            <span className="mt-0.5 block truncate text-[9px] text-foreground/55">
+                              {item.teacherName}
+                            </span>
+                          ) : null}
                         </a>
                       ))}
                       {more > 0 && (

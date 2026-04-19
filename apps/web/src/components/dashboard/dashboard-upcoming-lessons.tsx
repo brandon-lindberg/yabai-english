@@ -4,6 +4,7 @@ import { bookingStatusKey } from "@/lib/booking-status";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
+import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 
 type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
 
@@ -33,8 +34,11 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
                 {b.lessonProduct.nameJa} / {b.lessonProduct.nameEn}
               </p>
               <p className="text-sm text-muted">
-                {b.startsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })} —{" "}
-                {b.endsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })}
+                <LocalBookingDateTimeRange
+                  locale={locale}
+                  startsAtIso={b.startsAt.toISOString()}
+                  endsAtIso={b.endsAt.toISOString()}
+                />
               </p>
               <p className="text-sm text-muted">
                 {t("teacher")}: {b.teacher.user.name ?? b.teacher.user.email}

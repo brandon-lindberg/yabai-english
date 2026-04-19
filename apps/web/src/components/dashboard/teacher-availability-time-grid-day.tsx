@@ -25,6 +25,8 @@ type Props = {
   selectionStyle?: "accent" | "neutral";
   footer?: ReactNode;
   emptyLabel: string;
+  /** Line shown on booked blocks (e.g. “Reserved”). */
+  reservedBookingLabel?: string;
 };
 
 export function TeacherAvailabilityTimeGridDay({
@@ -42,6 +44,7 @@ export function TeacherAvailabilityTimeGridDay({
   selectionStyle = "accent",
   footer,
   emptyLabel,
+  reservedBookingLabel,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const dayHeightPx = 24 * hourPx;
@@ -124,13 +127,13 @@ export function TeacherAvailabilityTimeGridDay({
                       key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
                       data-testid="time-grid-day-booking"
                       data-starts-at={block.startsAtIso}
-                      className="absolute right-1 left-1 overflow-hidden rounded border border-amber-400 bg-amber-100 px-1.5 py-1 text-left text-xs leading-tight text-amber-900 shadow-sm"
+                      className="absolute right-1 left-1 overflow-hidden rounded-md border border-amber-200/80 bg-amber-50/60 px-1.5 py-1 text-left text-xs leading-tight text-amber-950/90 dark:border-amber-800/45 dark:bg-amber-950/30 dark:text-amber-50/95"
                       style={{
                         top: `${block.topPct}%`,
                         height: `${block.heightPct}%`,
                       }}
                     >
-                      <span className="block truncate font-semibold">
+                      <span className="block truncate font-medium text-amber-950 dark:text-amber-50">
                         {new Date(block.startsAtIso).toLocaleTimeString(locale, {
                           hour: "numeric",
                           minute: "2-digit",
@@ -141,8 +144,13 @@ export function TeacherAvailabilityTimeGridDay({
                           minute: "2-digit",
                         })}
                       </span>
+                      {reservedBookingLabel ? (
+                        <span className="block truncate text-[10px] font-medium text-amber-900/80 dark:text-amber-100/85">
+                          {reservedBookingLabel}
+                        </span>
+                      ) : null}
                       {block.subtitle ? (
-                        <span className="block truncate text-[11px] text-amber-800">
+                        <span className="block truncate text-[11px] text-amber-900/65 dark:text-amber-100/70">
                           {block.subtitle}
                         </span>
                       ) : null}

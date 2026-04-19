@@ -18,6 +18,8 @@ type Props = {
   weekColumnAddLabel?: string;
   onAddForDayKey?: (dayKey: string) => void;
   selectionStyle?: "accent" | "neutral";
+  /** Line shown on booked blocks (e.g. “Reserved”). */
+  reservedBookingLabel?: string;
 };
 
 export function TeacherAvailabilityTimeGridWeek({
@@ -32,6 +34,7 @@ export function TeacherAvailabilityTimeGridWeek({
   weekColumnAddLabel,
   onAddForDayKey,
   selectionStyle = "accent",
+  reservedBookingLabel,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const weekRangeKey = weekDays.map((d) => d.dayKey).join("|");
@@ -119,13 +122,13 @@ export function TeacherAvailabilityTimeGridWeek({
                           key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
                           data-testid="time-grid-booking"
                           data-starts-at={block.startsAtIso}
-                          className="absolute right-0.5 left-0.5 overflow-hidden rounded border border-amber-400 bg-amber-100 px-1 py-0.5 text-left text-[10px] leading-tight text-amber-900 shadow-sm"
+                          className="absolute right-0.5 left-0.5 overflow-hidden rounded-md border border-amber-200/80 bg-amber-50/60 px-1 py-0.5 text-left text-[10px] leading-tight text-amber-950/90 dark:border-amber-800/45 dark:bg-amber-950/30 dark:text-amber-50/95"
                           style={{
                             top: `${block.topPct}%`,
                             height: `${block.heightPct}%`,
                           }}
                         >
-                          <span className="block truncate font-semibold">
+                          <span className="block truncate font-medium text-amber-950 dark:text-amber-50">
                             {new Date(block.startsAtIso).toLocaleTimeString(locale, {
                               hour: "numeric",
                               minute: "2-digit",
@@ -136,8 +139,13 @@ export function TeacherAvailabilityTimeGridWeek({
                               minute: "2-digit",
                             })}
                           </span>
+                          {reservedBookingLabel ? (
+                            <span className="block truncate text-[9px] font-medium text-amber-900/80 dark:text-amber-100/85">
+                              {reservedBookingLabel}
+                            </span>
+                          ) : null}
                           {block.subtitle ? (
-                            <span className="block truncate text-[10px] text-amber-800">
+                            <span className="block truncate text-[10px] text-amber-900/65 dark:text-amber-100/70">
                               {block.subtitle}
                             </span>
                           ) : null}

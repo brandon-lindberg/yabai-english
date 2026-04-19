@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { DashboardProfileBioPreview } from "@/components/dashboard/dashboard-profile-bio-preview";
 import { bookingStatusKey } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
+import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 
 type Completed = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["completed"];
 
@@ -49,8 +50,11 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
                 {b.lessonProduct.nameJa} / {b.lessonProduct.nameEn}
               </p>
               <p className="text-sm text-muted">
-                {b.startsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })} —{" "}
-                {b.endsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })}
+                <LocalBookingDateTimeRange
+                  locale={locale}
+                  startsAtIso={b.startsAt.toISOString()}
+                  endsAtIso={b.endsAt.toISOString()}
+                />
               </p>
               <p className="text-sm text-muted">
                 {t("teacher")}: {b.teacher.user.name ?? b.teacher.user.email}

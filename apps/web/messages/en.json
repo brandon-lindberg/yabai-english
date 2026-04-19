@@ -128,6 +128,7 @@
     "subLevelShort": "L{subLevel}",
     "placementCta": "Level placement",
     "retakePlacement": "Retake placement",
+    "slotReserved": "Reserved",
     "scheduleCalendar": "Schedule calendar",
     "exportIcs": "Export schedule (.ics)",
     "addToGoogleCalendar": "Add to Google Calendar",

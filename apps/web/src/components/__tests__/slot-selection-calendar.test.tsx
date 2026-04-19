@@ -338,6 +338,53 @@ describe("SlotSelectionCalendar", () => {
     expect(onSelect).toHaveBeenCalledWith(isoStart, "g1");
   });
 
+  test("month view still shows reserved chips when earlier times are all open slots", () => {
+    const onSelect = vi.fn();
+    const day = "2026-04-08";
+
+    render(
+      <SlotSelectionCalendar
+        locale="en-US"
+        copy={copy}
+        slots={[
+          {
+            startsAtIso: `${day}T08:00:00.000Z`,
+            endsAtIso: `${day}T09:00:00.000Z`,
+            label: "Open A",
+          },
+          {
+            startsAtIso: `${day}T09:00:00.000Z`,
+            endsAtIso: `${day}T10:00:00.000Z`,
+            label: "Open B",
+          },
+          {
+            startsAtIso: `${day}T10:00:00.000Z`,
+            endsAtIso: `${day}T11:00:00.000Z`,
+            label: "Open C",
+          },
+          {
+            startsAtIso: `${day}T14:00:00.000Z`,
+            endsAtIso: `${day}T15:00:00.000Z`,
+            label: "Reserved",
+            kind: "booked",
+          },
+        ]}
+        calendarView="month"
+        onCalendarViewChange={vi.fn()}
+        calendarAnchor="2026-04-15T12:00:00.000Z"
+        onCalendarAnchorChange={vi.fn()}
+        selectedStartsAtIso={null}
+        onSelectSlot={onSelect}
+      />,
+    );
+
+    const cell = document.querySelector(`[data-month-day-cell="${day}"]`);
+    expect(cell).toBeTruthy();
+    expect(cell!.querySelector('[data-testid="slot-reserved-month"]')).toBeTruthy();
+    expect(cell!.textContent).toMatch(/Reserved/i);
+    expect(screen.getAllByTestId("month-slot-chip")).toHaveLength(2);
+  });
+
   test("month view renders kind=booked slots as non-clickable markers", () => {
     const onSelect = vi.fn();
     const iso = "2026-04-08T14:00:00.000Z";

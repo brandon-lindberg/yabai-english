@@ -14,6 +14,24 @@ import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view"
 
 const MAX_MONTH_CHIPS = 3;
 
+/** Prefer showing reserved/taken slots so they are not hidden behind “+N more” when many open slots precede them chronologically. */
+function pickMonthDayChips(slots: SlotOption[], max: number): SlotOption[] {
+  const sorted = [...slots].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
+  const booked = sorted.filter((s) => s.kind === "booked");
+  const available = sorted.filter((s) => s.kind !== "booked");
+  const out: SlotOption[] = [];
+  for (const s of booked) {
+    if (out.length >= max) break;
+    out.push(s);
+  }
+  for (const s of available) {
+    if (out.length >= max) break;
+    out.push(s);
+  }
+  out.sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
+  return out;
+}
+
 function formatMonthChipTimeRange(locale: string, startsAtIso: string, endsAtIso?: string) {
   const start = new Date(startsAtIso).toLocaleTimeString(locale, {
     hour: "numeric",
@@ -340,11 +358,12 @@ export function SlotSelectionCalendar({
                   const isSelected = monthCellSelectedDayKey === cell.dayKey;
                   const raw = slotMap.get(cell.dayKey) ?? [];
                   const sorted = [...raw].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
-                  const chips = sorted.slice(0, MAX_MONTH_CHIPS);
+                  const chips = pickMonthDayChips(sorted, MAX_MONTH_CHIPS);
                   const more = sorted.length - chips.length;
-                  const hasSlots = sorted.length > 0;
-                  const isAvailable = cell.inCurrentMonth && hasSlots;
-                  const isUnavailable = cell.inCurrentMonth && !hasSlots;
+                  const bookableSlots = sorted.filter((s) => s.kind !== "booked");
+                  const hasBookable = bookableSlots.length > 0;
+                  const isAvailable = cell.inCurrentMonth && hasBookable;
+                  const isUnavailable = cell.inCurrentMonth && !hasBookable;
                   const showMonthAdd = Boolean(
                     onAddForDayKey && weekColumnAddLabel && cell.inCurrentMonth,
                   );
@@ -398,15 +417,21 @@ export function SlotSelectionCalendar({
                       <div className="mt-1 flex min-h-0 flex-1 flex-col gap-0.5">
                         {chips.map((slot, idx) => {
                           if (slot.kind === "booked") {
+                            const range = formatMonthChipTimeRange(
+                              locale,
+                              slot.startsAtIso,
+                              slot.endsAtIso,
+                            );
                             return (
                               <div
                                 key={`reserved:${slot.startsAtIso}:${idx}`}
                                 data-testid="slot-reserved-month"
-                                aria-disabled="true"
-                                className="w-full truncate rounded border border-dashed border-border bg-background px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-muted shadow-sm"
+                                role="status"
+                                aria-label={`${slot.label}: ${range}`}
+                                className="w-full truncate rounded border border-dashed border-amber-300/80 bg-amber-50 px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-amber-950 shadow-sm dark:border-amber-600/50 dark:bg-amber-950/30 dark:text-amber-100"
                               >
-                                {formatMonthChipTimeRange(locale, slot.startsAtIso, slot.endsAtIso)}
-                                <span className="block truncate text-[8px] uppercase tracking-wide">
+                                <span className="font-semibold">{range}</span>
+                                <span className="mt-0.5 block truncate text-[9px] font-semibold text-amber-900 dark:text-amber-50">
                                   {slot.label}
                                 </span>
                               </div>

@@ -175,6 +175,20 @@ export function TeacherAvailabilityCalendar({
         endsAtIso: s.endsAtIso,
         label: s.label,
         groupKey: s.groupKey,
+        kind: "availability",
+      };
+      const list = m.get(dk);
+      if (list) list.push(chip);
+      else m.set(dk, [chip]);
+    }
+    for (const b of bookings) {
+      const dk = dayKeyFromIso(b.startsAtIso);
+      const chip: MonthDaySlotChip = {
+        startsAtIso: b.startsAtIso,
+        endsAtIso: b.endsAtIso,
+        label: b.studentLabel,
+        groupKey: `booking-${b.id}`,
+        kind: "booking",
       };
       const list = m.get(dk);
       if (list) list.push(chip);
@@ -184,7 +198,7 @@ export function TeacherAvailabilityCalendar({
       list.sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
     }
     return m;
-  }, [calendarSlots]);
+  }, [calendarSlots, bookings]);
 
   const weekDays = useMemo(() => buildWeekDays(calendarAnchor, locale), [calendarAnchor, locale]);
 
@@ -209,6 +223,7 @@ export function TeacherAvailabilityCalendar({
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
         selectionStyle="neutral"
+        reservedBookingLabel={td("slotReserved")}
       />
     ),
     [
@@ -219,6 +234,7 @@ export function TeacherAvailabilityCalendar({
       selectedRuleId,
       t,
       addForDayKey,
+      td,
     ],
   );
 
@@ -275,6 +291,7 @@ export function TeacherAvailabilityCalendar({
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
         selectionStyle="neutral"
+        reservedBookingLabel={td("slotReserved")}
         emptyLabel={t("noAvailabilityYet")}
         footer={
           <button
@@ -296,6 +313,7 @@ export function TeacherAvailabilityCalendar({
       selectedRuleId,
       t,
       addForDayKey,
+      td,
     ],
   );
 
@@ -321,6 +339,7 @@ export function TeacherAvailabilityCalendar({
         }}
         onCalendarAnchorChange={setCalendarAnchor}
         selectionStyle="neutral"
+        reservedLabel={td("slotReserved")}
       />
     ),
     [
@@ -333,6 +352,7 @@ export function TeacherAvailabilityCalendar({
       selectedRuleId,
       t,
       addForDayKey,
+      td,
     ],
   );
 

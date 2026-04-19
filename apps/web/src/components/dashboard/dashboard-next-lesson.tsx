@@ -4,6 +4,7 @@ import { bookingStatusKey } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { AppCard } from "@/components/ui/app-card";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
+import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 
 type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
 
@@ -35,8 +36,11 @@ export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) 
         {next.lessonProduct.nameJa} / {next.lessonProduct.nameEn}
       </p>
       <p className="mt-1 text-sm text-muted">
-        {next.startsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })} —{" "}
-        {next.endsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })}
+        <LocalBookingDateTimeRange
+          locale={locale}
+          startsAtIso={next.startsAt.toISOString()}
+          endsAtIso={next.endsAt.toISOString()}
+        />
       </p>
       <p className="mt-1 text-sm text-muted">
         {t("teacher")}: {next.teacher.user.name ?? next.teacher.user.email}

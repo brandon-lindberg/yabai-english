@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import type { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
+import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 
 type Upcoming = Awaited<ReturnType<typeof getTeacherBookingsForDashboard>>["upcoming"];
 
@@ -30,8 +31,12 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
                 {b.lessonProduct.nameJa} / {b.lessonProduct.nameEn}
               </p>
               <p className="text-sm text-muted">
-                {b.startsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })} -{" "}
-                {b.endsAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })}
+                <LocalBookingDateTimeRange
+                  locale={locale}
+                  startsAtIso={b.startsAt.toISOString()}
+                  endsAtIso={b.endsAt.toISOString()}
+                  separator=" - "
+                />
               </p>
               <p className="text-sm text-muted">
                 Student: {b.student.name ?? b.student.email}
