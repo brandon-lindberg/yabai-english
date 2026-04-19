@@ -25,7 +25,7 @@ services:
     region: singapore
     rootDir: apps/web
     # yarn postinstall runs `prisma generate`, so no separate generate step needed.
-    buildCommand: yarn install --frozen-lockfile && yarn build
+    buildCommand: yarn install --frozen-lockfile --ignore-engines && yarn build
     # Migrations run AFTER a successful build but BEFORE traffic is shifted,
     # so a migration failure won't take the old version down.
     preDeployCommand: yarn prisma migrate deploy
