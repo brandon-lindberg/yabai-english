@@ -128,44 +128,76 @@ export function DashboardScheduleCalendar({ items }: Props) {
       )}
 
       {view === "month" && (
-        <>
-          <div className="mb-2 grid grid-cols-7 gap-0.5 sm:gap-1">
-            {monthWeekdayHeaders.map((d, index) => (
-              <p key={`${d}-${index}`} className="text-center text-[10px] font-semibold text-muted sm:text-[11px]">
-                {d}
-              </p>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
-            {monthCells.map((cell) => {
-              const key = cell.dayKey;
-              const count = (mapByDay.get(key) ?? []).length;
-              const inMonth = cell.inCurrentMonth;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => {
-                    setAnchorIso(`${cell.dayKey}T00:00:00.000Z`);
-                    setView("day");
-                  }}
-                  className={`aspect-square rounded-md border p-1 text-left text-xs sm:p-2 ${
-                    inMonth
-                      ? count > 0
-                        ? "border-border bg-surface text-foreground hover:bg-[var(--app-hover)]"
-                        : "border-border bg-background text-muted"
-                      : "border-border bg-[var(--app-canvas)] text-muted/50"
-                  }`}
-                >
-                  <div className="flex h-full flex-col">
-                    <span className="text-xs font-medium sm:text-sm">{cell.shortLabel}</span>
-                    <span className="mt-auto text-center text-[9px] sm:text-[11px]">{count > 0 ? `${count}` : ""}</span>
+        <div className="overflow-x-auto pb-1">
+          <div className="min-w-[720px]">
+            <div className="mb-2 grid grid-cols-7 gap-px border-b border-border">
+              {monthWeekdayHeaders.map((d, index) => (
+                <p key={`${d}-${index}`} className="bg-background py-1.5 text-center text-[11px] font-semibold text-muted">
+                  {d}
+                </p>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-px bg-border">
+              {monthCells.map((cell) => {
+                const key = cell.dayKey;
+                const dayItems = mapByDay.get(key) ?? [];
+                const chips = dayItems.slice(0, 3);
+                const more = dayItems.length - chips.length;
+                const inMonth = cell.inCurrentMonth;
+                return (
+                  <div
+                    key={key}
+                    className={`flex min-h-[96px] flex-col p-1 text-left text-xs ${
+                      inMonth
+                        ? dayItems.length > 0
+                          ? "bg-surface text-foreground"
+                          : "bg-background text-muted"
+                        : "bg-[var(--app-canvas)] text-muted/50"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAnchorIso(`${cell.dayKey}T00:00:00.000Z`);
+                        setView("day");
+                      }}
+                      className="min-w-0 rounded px-0.5 text-left text-sm font-semibold hover:bg-[var(--app-hover)]"
+                    >
+                      {cell.shortLabel}
+                    </button>
+                    <div className="mt-1 flex min-h-0 flex-1 flex-col gap-0.5">
+                      {chips.map((item) => (
+                        <a
+                          key={item.id}
+                          href={`#booking-${item.id}`}
+                          className="w-full truncate rounded border border-blue-200 bg-blue-50 px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-blue-900 shadow-sm hover:bg-blue-100"
+                        >
+                          {new Date(item.startsAtIso).toLocaleTimeString(locale, {
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}{" "}
+                          {item.teacherName}
+                        </a>
+                      ))}
+                      {more > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAnchorIso(`${cell.dayKey}T00:00:00.000Z`);
+                            setView("day");
+                          }}
+                          className="px-0.5 text-left text-[9px] font-medium text-muted hover:underline"
+                        >
+                          +{more} more
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </button>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </>
+        </div>
       )}
     </section>
   );
