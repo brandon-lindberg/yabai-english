@@ -30,7 +30,7 @@ type LessonProductOption = {
 
 type Props = {
   teacherProfileId?: string;
-  currentUserRole?: "STUDENT" | "TEACHER" | "ADMIN";
+  currentUserRole?: "STUDENT" | "TEACHER" | "SUPER_ADMIN";
   presetSlots?: Array<{
     startsAtIso: string;
     endsAtIso?: string;

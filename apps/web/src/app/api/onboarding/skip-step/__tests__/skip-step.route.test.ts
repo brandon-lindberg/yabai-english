@@ -90,7 +90,7 @@ describe("POST /api/onboarding/skip-step", () => {
   });
 
   test("admin-only roles get 403", async () => {
-    authMock.mockResolvedValue({ user: { id: "a1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "a1", role: "SUPER_ADMIN" } });
     const res = await POST(makeReq({ step: "integrations" }));
     expect(res.status).toBe(403);
     expect(studentUpdateMock).not.toHaveBeenCalled();

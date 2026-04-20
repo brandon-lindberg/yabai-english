@@ -39,7 +39,7 @@ describe("GET /api/admin/users", () => {
   });
 
   test("200 returns paged users for admin", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin", role: "SUPER_ADMIN" } });
     const rows = [
       {
         id: "a",

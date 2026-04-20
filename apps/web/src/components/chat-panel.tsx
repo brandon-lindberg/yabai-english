@@ -50,7 +50,7 @@ type BroadcastHistoryItem = {
 export function ChatPanel() {
   const t = useTranslations("chat");
   const { data: session } = useSession();
-  const isAdminViewer = session?.user?.role === "ADMIN";
+  const isAdminViewer = session?.user?.role === "SUPER_ADMIN";
   const [open, setOpen] = useState(false);
   const [threads, setThreads] = useState<ThreadItem[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string>("");
@@ -136,7 +136,7 @@ export function ChatPanel() {
 
   const loadThreads = useCallback(async () => {
     const params = new URLSearchParams();
-    if (session?.user?.role === "ADMIN") {
+    if (session?.user?.role === "SUPER_ADMIN") {
       params.set("queue", adminQueue);
       if (adminSearch.trim()) params.set("q", adminSearch.trim());
     }
@@ -155,7 +155,7 @@ export function ChatPanel() {
     if (data.length === 0) {
       setActiveThreadId("");
       setMessages([]);
-      if (session?.user?.role === "ADMIN") {
+      if (session?.user?.role === "SUPER_ADMIN") {
         setMobilePane("threads");
       }
       return;
@@ -514,7 +514,7 @@ export function ChatPanel() {
 
   const canSend =
     session?.user?.role === "TEACHER" ||
-    (session?.user?.role === "ADMIN" && (adminMode === "broadcast" || adminMode === "direct")) ||
+    (session?.user?.role === "SUPER_ADMIN" && (adminMode === "broadcast" || adminMode === "direct")) ||
     Boolean(activeThread?.twoWayEnabled);
   const isBlocked = Boolean(
     activeThread?.studentBlockedAt || activeThread?.teacherBlockedAt,

@@ -16,7 +16,7 @@ export function checkAdminCanDeleteUser(params: {
   if (params.actorUserId === params.targetUserId) {
     return { ok: false, status: 400, error: "Cannot delete your own account." };
   }
-  if (params.targetRole === Role.ADMIN && params.adminUserCount <= 1) {
+  if (params.targetRole === Role.SUPER_ADMIN && params.adminUserCount <= 1) {
     return { ok: false, status: 403, error: "Cannot delete the last admin account." };
   }
   return { ok: true };

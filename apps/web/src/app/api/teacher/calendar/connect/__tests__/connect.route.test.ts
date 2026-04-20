@@ -23,7 +23,7 @@ describe("GET /api/teacher/calendar/connect", () => {
   });
 
   test("rejects non-teacher users", async () => {
-    authMock.mockResolvedValue({ user: { id: "u1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "u1", role: "SUPER_ADMIN" } });
     const res = await GET(new Request("http://localhost/api/teacher/calendar/connect"));
     expect(res.status).toBe(403);
   });

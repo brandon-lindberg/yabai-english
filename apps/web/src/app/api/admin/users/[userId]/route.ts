@@ -52,7 +52,7 @@ async function requireAdmin() {
   if (!session?.user?.id) {
     return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
   }
-  if (session.user.role !== "ADMIN") {
+  if (session.user.role !== "SUPER_ADMIN") {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
   return { session };
@@ -196,7 +196,7 @@ export async function DELETE(_req: Request, { params }: Props) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const adminUserCount = await prisma.user.count({ where: { role: Role.ADMIN } });
+  const adminUserCount = await prisma.user.count({ where: { role: Role.SUPER_ADMIN } });
   const check = checkAdminCanDeleteUser({
     actorUserId: actorId,
     targetUserId: userId,

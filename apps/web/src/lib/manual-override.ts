@@ -1,5 +1,5 @@
-export function canShowManualOverrideToggle(role: "STUDENT" | "TEACHER" | "ADMIN") {
-  return role === "TEACHER" || role === "ADMIN";
+export function canShowManualOverrideToggle(role: "STUDENT" | "TEACHER" | "SUPER_ADMIN") {
+  return role === "TEACHER" || role === "SUPER_ADMIN";
 }
 
 export function validateManualOverrideReason(

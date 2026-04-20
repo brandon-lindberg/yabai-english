@@ -8,8 +8,8 @@ describe("canBypassLeadTimeWindow", () => {
 
   test("allows teacher/admin bypass only with explicit manual override", () => {
     expect(canBypassLeadTimeWindow("TEACHER", false)).toBe(false);
-    expect(canBypassLeadTimeWindow("ADMIN", false)).toBe(false);
+    expect(canBypassLeadTimeWindow("SUPER_ADMIN", false)).toBe(false);
     expect(canBypassLeadTimeWindow("TEACHER", true)).toBe(true);
-    expect(canBypassLeadTimeWindow("ADMIN", true)).toBe(true);
+    expect(canBypassLeadTimeWindow("SUPER_ADMIN", true)).toBe(true);
   });
 });

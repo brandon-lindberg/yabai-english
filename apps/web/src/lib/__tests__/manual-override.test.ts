@@ -4,7 +4,7 @@ import { canShowManualOverrideToggle } from "@/lib/manual-override";
 describe("canShowManualOverrideToggle", () => {
   test("shows toggle for teacher/admin", () => {
     expect(canShowManualOverrideToggle("TEACHER")).toBe(true);
-    expect(canShowManualOverrideToggle("ADMIN")).toBe(true);
+    expect(canShowManualOverrideToggle("SUPER_ADMIN")).toBe(true);
   });
 
   test("hides toggle for student", () => {

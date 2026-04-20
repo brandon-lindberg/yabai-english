@@ -283,13 +283,13 @@ async function main() {
     where: { email: "admin@english-studio.local" },
     update: {
       name: "Demo Admin",
-      role: Role.ADMIN,
+      role: Role.SUPER_ADMIN,
       accountStatus: AccountStatus.ACTIVE,
     },
     create: {
       email: "admin@english-studio.local",
       name: "Demo Admin",
-      role: Role.ADMIN,
+      role: Role.SUPER_ADMIN,
       accountStatus: AccountStatus.ACTIVE,
       locale: "en",
     },

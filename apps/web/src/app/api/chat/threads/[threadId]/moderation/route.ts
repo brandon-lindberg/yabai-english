@@ -32,7 +32,7 @@ export async function POST(req: Request, { params }: Props) {
 
   const isStudent = thread.studentId === session.user.id;
   const isTeacher = thread.teacherId === session.user.id;
-  const isAdmin = session.user.role === "ADMIN";
+  const isAdmin = session.user.role === "SUPER_ADMIN";
   if (!isAdmin && isViewerBlockedByCounterpart(thread, session.user.id)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

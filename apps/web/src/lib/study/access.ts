@@ -20,7 +20,7 @@ export async function isStudyLevelUnlocked(
     select: { role: true },
   });
   // Teachers/Admins do not take placement; keep all flashcard levels reviewable.
-  if (user?.role === "TEACHER" || user?.role === "ADMIN") return true;
+  if (user?.role === "TEACHER" || user?.role === "SUPER_ADMIN") return true;
 
   if (levelCode === StudyLevelCode.BEGINNER_1) return true;
 

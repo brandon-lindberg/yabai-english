@@ -10,7 +10,7 @@ export function redirectTargetForTeacherBookingPage(input: {
 }): "/dashboard" | null {
   const { role, requestedTeacherProfileId, viewerTeacherProfileId } = input;
   if (!role) return null;
-  if (role === "ADMIN") return "/dashboard";
+  if (role === "SUPER_ADMIN") return "/dashboard";
   if (role === "TEACHER") {
     if (viewerTeacherProfileId === requestedTeacherProfileId) return null;
     return "/dashboard";

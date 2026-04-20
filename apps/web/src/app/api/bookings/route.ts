@@ -409,7 +409,7 @@ export async function GET() {
     return NextResponse.json(list);
   }
 
-  if (session.user.role === "TEACHER" || session.user.role === "ADMIN") {
+  if (session.user.role === "TEACHER" || session.user.role === "SUPER_ADMIN") {
     const teacher = await prisma.teacherProfile.findFirst({
       where: { userId: session.user.id },
       select: { id: true, userId: true },

@@ -20,7 +20,7 @@ export default async function DashboardProfilePage({
   const locale = await getLocale();
   const { onboardingNext: onboardingNextParam, onboardingStep: onboardingStepParam } =
     await searchParams;
-  if (session.user.role === "ADMIN") {
+  if (session.user.role === "SUPER_ADMIN") {
     redirect({ href: "/dashboard", locale });
   }
 

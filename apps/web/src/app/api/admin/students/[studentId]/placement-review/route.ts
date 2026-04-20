@@ -15,7 +15,7 @@ const postSchema = z.object({
 
 export async function POST(req: Request, { params }: Props) {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.user?.id || session.user.role !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

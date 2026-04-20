@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 
 const listQuerySchema = z.object({
-  role: z.enum(["STUDENT", "TEACHER", "ADMIN"]).optional(),
+  role: z.enum(["STUDENT", "TEACHER", "SUPER_ADMIN"]).optional(),
   q: z.string().trim().max(200).optional(),
   sort: z
     .enum([
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.user.role !== "ADMIN") {
+  if (session.user.role !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

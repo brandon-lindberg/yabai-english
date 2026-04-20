@@ -81,7 +81,7 @@ describe("evaluateBookingCancellationPolicy", () => {
   it("treats ADMIN like TEACHER for compensation timing", () => {
     const soon = new Date("2026-04-10T13:00:00.000Z"); // 1h after t0
     const r = evaluateBookingCancellationPolicy({
-      actor: "ADMIN",
+      actor: "SUPER_ADMIN",
       bookingStatus: "CONFIRMED",
       lessonStartsAt: soon,
       now: t0,

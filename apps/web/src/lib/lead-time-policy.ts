@@ -12,7 +12,7 @@ export function isBookingOutsideLeadWindow({
 }
 
 export function canBypassLeadTimeWindow(
-  role: "STUDENT" | "TEACHER" | "ADMIN",
+  role: "STUDENT" | "TEACHER" | "SUPER_ADMIN",
   manualOverride: boolean,
 ) {
   if (role === "STUDENT") return false;

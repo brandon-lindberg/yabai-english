@@ -15,8 +15,8 @@ function resolveCancellationActor(
   role: string,
   userId: string,
   booking: { studentId: string; teacherUserId: string },
-): "STUDENT" | "TEACHER" | "ADMIN" | null {
-  if (role === "ADMIN") return "ADMIN";
+): "STUDENT" | "TEACHER" | "SUPER_ADMIN" | null {
+  if (role === "SUPER_ADMIN") return "SUPER_ADMIN";
   if (role === "STUDENT" && booking.studentId === userId) return "STUDENT";
   if (role === "TEACHER" && booking.teacherUserId === userId) return "TEACHER";
   return null;

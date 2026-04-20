@@ -10,7 +10,7 @@ datasource db {
 enum Role {
   STUDENT
   TEACHER
-  ADMIN
+  SUPER_ADMIN
 }
 
 enum AccountStatus {
@@ -81,6 +81,35 @@ enum BroadcastTarget {
   STUDENTS
 }
 
+// --- Organization / School enums ---
+
+/// Role within an organization (contextual, not platform-wide).
+enum OrgRole {
+  OWNER        // org-wide, full control including billing and deletion
+  ORG_ADMIN    // org-wide, manages all schools
+  SCHOOL_ADMIN // school-scoped, manages one school
+  TEACHER      // school-scoped, view schedule + request time off
+  STUDENT      // school-scoped, browse + enroll in classes
+}
+
+enum OrgMemberStatus {
+  ACTIVE
+  INACTIVE
+  INVITED
+  PENDING_APPROVAL
+}
+
+enum TimeOffRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
+}
+
+enum OrgBillingTarget {
+  ORGANIZATION
+  STUDENT
+}
+
 // --- NextAuth (Auth.js) ---
 model User {
   id            String    @id @default(cuid())
@@ -114,6 +143,7 @@ model User {
   studyQuickReviewDays     StudyQuickReviewDay[]
   googleIntegrationAccount  GoogleIntegrationAccount?
   googleIntegrationSettings GoogleIntegrationSettings?
+  organizationMemberships   OrganizationMembership[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -387,8 +417,14 @@ model Course {
   descriptionEn String? @db.Text
   sortOrder   Int     @default(0)
 
+  /// When set, this course is scoped to a specific school (org-gated content).
+  schoolId    String?
+  school      School?  @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+
   units CourseUnit[]
   userProgress UserCourseProgress[]
+
+  @@index([schoolId])
 }
 
 model CourseUnit {
@@ -707,4 +743,256 @@ model PlacementBankQuestion {
   correctIndex   Int
 
   @@index([cefrBand, section])
+}
+
+// --- Organization / School ---
+
+/// Top-level entity representing a company or school group (e.g. "ABC English Group").
+model Organization {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  nameJa      String?
+  nameEn      String?
+  timezone    String   @default("Asia/Tokyo")
+  logoUrl     String?
+  description   String?  @db.Text
+  descriptionJa String? @db.Text
+
+  billingTarget           OrgBillingTarget @default(ORGANIZATION)
+  allowTeacherMarketplace Boolean          @default(true)
+
+  /// Future: custom domain for white-label school URL.
+  customDomain String? @unique
+
+  schools     School[]
+  memberships OrganizationMembership[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Operational unit under an Organization (e.g. "ABC Shibuya").
+/// All schedules, enrollment, pricing, and content are scoped to a School.
+model School {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  slug           String
+  name           String
+  nameJa         String?
+  nameEn         String?
+  /// Overrides org timezone if set; otherwise inherits from org.
+  timezone       String?
+  logoUrl        String?
+  description    String?  @db.Text
+  descriptionJa  String? @db.Text
+
+  applicationFlowEnabled Boolean @default(false)
+  selfEnrollmentEnabled  Boolean @default(false)
+
+  /// Future: custom domain for this specific school.
+  customDomain String? @unique
+
+  memberships     OrganizationMembership[]
+  scheduleSlots   SchoolScheduleSlot[]
+  pricing         SchoolLessonPricing[]
+  bookings        SchoolBooking[]
+  timeOffRequests TimeOffRequest[]
+  courses         Course[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+}
+
+/// Joins a User to an Organization, optionally scoped to a specific School.
+/// schoolId = null → org-wide role (OWNER, ORG_ADMIN).
+/// schoolId = X   → school-scoped role (SCHOOL_ADMIN, TEACHER, STUDENT).
+model OrganizationMembership {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schoolId       String?
+  school         School?      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  orgRole OrgRole
+  status  OrgMemberStatus @default(INVITED)
+
+  invitedByUserId  String?
+  invitedAt        DateTime?
+  joinedAt         DateTime?
+  inviteEmail      String?
+  inviteToken      String?    @unique
+  inviteExpiresAt  DateTime?
+
+  applicationNote  String?  @db.Text
+  reviewNote       String?  @db.Text
+
+  teacherScheduleSlots SchoolScheduleSlot[]
+  classEnrollments     SchoolClassEnrollment[]
+  bookingsAsTeacher    SchoolBooking[]          @relation("SchoolBookingTeacher")
+  bookingAttendances   SchoolBookingAttendee[]
+  timeOffRequests      TimeOffRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, userId, schoolId])
+  @@index([userId])
+  @@index([organizationId, orgRole])
+  @@index([schoolId])
+  @@index([inviteToken])
+}
+
+/// Recurring weekly class slot managed by SCHOOL_ADMIN.
+model SchoolScheduleSlot {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  assignedTeacherMembershipId String?
+  assignedTeacher OrganizationMembership? @relation(fields: [assignedTeacherMembershipId], references: [id], onDelete: SetNull)
+
+  dayOfWeek   Int     // 0-6 (Sun-Sat)
+  startMin    Int     // minutes from midnight
+  endMin      Int     // minutes from midnight
+  timezone    String  // resolved from school or org
+
+  lessonLevel String  // "beginner" | "intermediate" | "advanced"
+  lessonType  String  // "conversation" | "grammar" | "pronunciation" | etc.
+  labelJa     String?
+  labelEn     String?
+
+  capacity    Int     @default(1) // 1 = private, >1 = group
+  durationMin Int
+
+  active Boolean @default(true)
+
+  skips       SchoolScheduleSkip[]
+  enrollments SchoolClassEnrollment[]
+  bookings    SchoolBooking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId, active])
+}
+
+/// Single occurrence cancellation for a recurring school schedule slot.
+model SchoolScheduleSkip {
+  id             String             @id @default(cuid())
+  scheduleSlotId String
+  scheduleSlot   SchoolScheduleSlot @relation(fields: [scheduleSlotId], references: [id], onDelete: Cascade)
+  startsAtIso    String
+
+  reason          String?
+  createdByUserId String
+
+  createdAt DateTime @default(now())
+
+  @@unique([scheduleSlotId, startsAtIso])
+}
+
+/// Student enrolled in a recurring school class.
+model SchoolClassEnrollment {
+  id                  String             @id @default(cuid())
+  scheduleSlotId      String
+  scheduleSlot        SchoolScheduleSlot @relation(fields: [scheduleSlotId], references: [id], onDelete: Cascade)
+  studentMembershipId String
+  studentMembership   OrganizationMembership @relation(fields: [studentMembershipId], references: [id], onDelete: Cascade)
+
+  active       Boolean   @default(true)
+  enrolledAt   DateTime  @default(now())
+  unenrolledAt DateTime?
+
+  @@unique([scheduleSlotId, studentMembershipId])
+  @@index([studentMembershipId])
+}
+
+/// Materialized class instance (one occurrence of a recurring slot).
+model SchoolBooking {
+  id                  String             @id @default(cuid())
+  schoolId            String
+  school              School             @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  scheduleSlotId      String
+  scheduleSlot        SchoolScheduleSlot @relation(fields: [scheduleSlotId], references: [id])
+  teacherMembershipId String
+  teacherMembership   OrganizationMembership @relation("SchoolBookingTeacher", fields: [teacherMembershipId], references: [id])
+
+  startsAt          DateTime
+  endsAt            DateTime
+  meetUrl           String?  @db.Text
+  googleEventId     String?
+  completionNotesMd String?  @db.Text
+
+  attendees SchoolBookingAttendee[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId, startsAt])
+  @@index([teacherMembershipId, startsAt])
+}
+
+/// Per-student attendance record for a materialized school class.
+model SchoolBookingAttendee {
+  id                  String             @id @default(cuid())
+  schoolBookingId     String
+  schoolBooking       SchoolBooking      @relation(fields: [schoolBookingId], references: [id], onDelete: Cascade)
+  studentMembershipId String
+  studentMembership   OrganizationMembership @relation(fields: [studentMembershipId], references: [id])
+
+  attended Boolean?
+
+  createdAt DateTime @default(now())
+
+  @@unique([schoolBookingId, studentMembershipId])
+}
+
+/// School-level pricing rules (set by SCHOOL_ADMIN).
+model SchoolLessonPricing {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  lessonLevel String?
+  lessonType  String?
+  durationMin Int
+  priceYen    Int
+  isGroup     Boolean @default(false)
+  active      Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId, active])
+}
+
+/// Teacher time-off request, pending approval by SCHOOL_ADMIN.
+model TimeOffRequest {
+  id                  String             @id @default(cuid())
+  schoolId            String
+  school              School             @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  teacherMembershipId String
+  teacherMembership   OrganizationMembership @relation(fields: [teacherMembershipId], references: [id], onDelete: Cascade)
+
+  startDate DateTime
+  endDate   DateTime
+  reason    String?  @db.Text
+
+  status           TimeOffRequestStatus @default(PENDING)
+  reviewedByUserId String?
+  reviewedAt       DateTime?
+  reviewNote       String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId, status])
+  @@index([teacherMembershipId])
 }

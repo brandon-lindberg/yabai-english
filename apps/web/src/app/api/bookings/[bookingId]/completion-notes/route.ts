@@ -48,7 +48,7 @@ export async function PATCH(req: Request, { params }: Props) {
     return NextResponse.json({ error: "Lesson has not ended yet" }, { status: 409 });
   }
 
-  const isAdmin = session.user.role === "ADMIN";
+  const isAdmin = session.user.role === "SUPER_ADMIN";
   const isTeacher = canTeacherEditBooking(booking.teacher.userId, session.user.id, session.user.role);
   if (!isTeacher && !isAdmin) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

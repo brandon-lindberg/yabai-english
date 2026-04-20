@@ -1,7 +1,7 @@
 import type { BookingStatus } from "@/generated/prisma/client";
 import { isBookingOutsideLeadWindow } from "@/lib/lead-time-policy";
 
-export type CancellationActor = "STUDENT" | "TEACHER" | "ADMIN";
+export type CancellationActor = "STUDENT" | "TEACHER" | "SUPER_ADMIN";
 
 export type CancellationPolicyResult = {
   allowed: boolean;
@@ -54,7 +54,7 @@ export function evaluateBookingCancellationPolicy(input: {
   }
 
   const now = input.now ?? new Date();
-  const actorForCompensation = input.actor === "ADMIN" ? "TEACHER" : input.actor;
+  const actorForCompensation = input.actor === "SUPER_ADMIN" ? "TEACHER" : input.actor;
 
   if (actorForCompensation === "STUDENT") {
     const farEnough = isBookingOutsideLeadWindow({

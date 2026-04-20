@@ -35,7 +35,7 @@ describe("canSendChatMessage", () => {
   test("admin can always send", () => {
     expect(
       canSendChatMessage({
-        role: "ADMIN",
+        role: "SUPER_ADMIN",
         threadTwoWayEnabled: false,
         hasScheduledLessonWithTeacher: false,
       }),
@@ -46,7 +46,7 @@ describe("canSendChatMessage", () => {
     expect(
       canSendChatMessage({
         role: "TEACHER",
-        counterpartRole: "ADMIN",
+        counterpartRole: "SUPER_ADMIN",
         threadTwoWayEnabled: false,
         hasScheduledLessonWithTeacher: false,
       }),
@@ -54,7 +54,7 @@ describe("canSendChatMessage", () => {
     expect(
       canSendChatMessage({
         role: "TEACHER",
-        counterpartRole: "ADMIN",
+        counterpartRole: "SUPER_ADMIN",
         threadTwoWayEnabled: true,
         hasScheduledLessonWithTeacher: false,
       }),
@@ -65,7 +65,7 @@ describe("canSendChatMessage", () => {
     expect(
       canSendChatMessage({
         role: "STUDENT",
-        counterpartRole: "ADMIN",
+        counterpartRole: "SUPER_ADMIN",
         threadTwoWayEnabled: false,
         hasScheduledLessonWithTeacher: false,
       }),
@@ -73,7 +73,7 @@ describe("canSendChatMessage", () => {
     expect(
       canSendChatMessage({
         role: "STUDENT",
-        counterpartRole: "ADMIN",
+        counterpartRole: "SUPER_ADMIN",
         threadTwoWayEnabled: true,
         hasScheduledLessonWithTeacher: false,
       }),

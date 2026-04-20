@@ -4,7 +4,8 @@ export type HeaderNavLinkId =
   | "learn"
   | "schedule"
   | "placement"
-  | "admin";
+  | "admin"
+  | "org";
 
 /** Keys under the `common` messages namespace for nav labels */
 export type CommonNavLabelKey =
@@ -13,7 +14,8 @@ export type CommonNavLabelKey =
   | "learn"
   | "schedule"
   | "placement"
-  | "admin";
+  | "admin"
+  | "org";
 
 export type HeaderNavLink = {
   id: HeaderNavLinkId;
@@ -25,6 +27,7 @@ export type HeaderNavInput = {
   signedIn: boolean;
   role: string | null | undefined;
   canStartPlacement?: boolean | null;
+  activeOrgId?: string | null;
 };
 
 /**
@@ -35,6 +38,10 @@ export function getHeaderPrimaryNavLinks(input: HeaderNavInput): HeaderNavLink[]
     return [{ id: "book", href: "/book", labelKey: "book" }];
   }
   if (!input.role) return [];
+
+  const orgLink: HeaderNavLink | null = input.activeOrgId
+    ? { id: "org", href: `/org/${input.activeOrgId}`, labelKey: "org" }
+    : null;
 
   if (input.role === "STUDENT") {
     const links: HeaderNavLink[] = [
@@ -50,22 +57,28 @@ export function getHeaderPrimaryNavLinks(input: HeaderNavInput): HeaderNavLink[]
         labelKey: "placement",
       });
     }
+    if (orgLink) links.push(orgLink);
     return links;
   }
 
   if (input.role === "TEACHER") {
-    return [
+    const links: HeaderNavLink[] = [
       { id: "dashboard", href: "/dashboard", labelKey: "dashboard" },
       { id: "schedule", href: "/dashboard/schedule", labelKey: "schedule" },
     ];
+    if (orgLink) links.push(orgLink);
+    return links;
   }
 
-  if (input.role === "ADMIN") {
-    return [
+  if (input.role === "SUPER_ADMIN") {
+    const links: HeaderNavLink[] = [
       { id: "dashboard", href: "/dashboard", labelKey: "dashboard" },
       { id: "admin", href: "/admin", labelKey: "admin" },
     ];
+    if (orgLink) links.push(orgLink);
+    return links;
   }
 
+  if (orgLink) return [orgLink];
   return [];
 }
