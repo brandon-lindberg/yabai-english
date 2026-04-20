@@ -116,6 +116,7 @@
     "upcoming": "予定のレッスン",
     "noBookings": "予約はまだありません。",
     "meetLink": "Google Meet で参加",
+    "viewDetails": "詳細を見る",
     "teacher": "講師",
     "statusPendingPayment": "支払い待ち",
     "statusConfirmed": "予約確定",
@@ -231,8 +232,11 @@
     "schedulePage": {
       "title": "スケジュール",
       "intro": "今後のレッスンを確認し、カレンダーに追加できます。",
+      "subNavAvailability": "空き時間",
       "subNavUpcoming": "予定",
       "subNavCompleted": "受講済み",
+      "availabilityIntro": "空き時間を設定し、週間スケジュールを管理しましょう。",
+      "upcomingIntro": "予約済みのレッスンを確認できます。",
       "ariaScheduleSections": "スケジュールの区分",
       "completedSectionTitle": "受講済みレッスン",
       "completedIntro": "過去のレッスンを確認できます。講師がレッスンメモや、Google Meet／Gemini の要約・Google ドキュメントなどのリンクを追加すると、ここからブラウザで開けます（ファイルの保存は行いません）。",
@@ -262,6 +266,22 @@
       "completedLessonsViewList": "リスト",
       "completedLessonsSortHint": "受講生名順、同一受講生では新しい日時が上です。",
       "completedLessonsHasNotes": "メモまたはリンクあり"
+    },
+    "lessonDetail": {
+      "backToSchedule": "スケジュールに戻る",
+      "dateTime": "日時",
+      "status": "ステータス",
+      "meetLink": "ミーティングリンク",
+      "studentProfile": "受講生プロフィール",
+      "unnamed": "名前未設定",
+      "level": "レベル",
+      "timezone": "タイムゾーン",
+      "goals": "学習目標",
+      "bio": "自己紹介",
+      "levelUnset": "未評価",
+      "levelBeginner": "初級",
+      "levelIntermediate": "中級",
+      "levelAdvanced": "上級"
     },
     "teacherAvailability": {
       "sectionTitle": "出勤可能時間",

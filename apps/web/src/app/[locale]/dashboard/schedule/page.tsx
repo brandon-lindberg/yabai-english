@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { DashboardScheduleCalendar } from "@/components/dashboard-schedule-calendar";
 import { DashboardUpcomingLessons } from "@/components/dashboard/dashboard-upcoming-lessons";
-import { TeacherAvailabilityCalendar } from "@/components/dashboard/teacher-availability-calendar";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
 import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
@@ -26,15 +25,7 @@ export default async function DashboardSchedulePage({
   if (session.user.role === "TEACHER") {
     const profile = await prisma.teacherProfile.findUnique({
       where: { userId: session.user.id },
-      include: {
-        availabilitySlots: {
-          where: { active: true },
-          orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
-        },
-        availabilityOccurrenceSkips: {
-          select: { startsAtIso: true },
-        },
-      },
+      select: { id: true },
     });
 
     const teacherBookings = profile
@@ -44,40 +35,14 @@ export default async function DashboardSchedulePage({
     return (
       <div className="space-y-8">
         <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
-        <p className="text-muted">Set your availability and manage upcoming sessions.</p>
+        <p className="text-muted">{t("upcomingIntro")}</p>
 
-        <TeacherAvailabilityCalendar
-          initialSlots={(profile?.availabilitySlots ?? []).map((slot) => ({
-            id: slot.id,
-            dayOfWeek: slot.dayOfWeek,
-            startMin: slot.startMin,
-            endMin: slot.endMin,
-            timezone: slot.timezone,
-            lessonLevel: slot.lessonLevel,
-            lessonType: slot.lessonType,
-            lessonTypeCustom: slot.lessonTypeCustom ?? null,
-          }))}
-          initialOccurrenceSkips={
-            profile?.availabilityOccurrenceSkips?.map((s) => s.startsAtIso) ?? []
-          }
-          defaultTimezone={profile?.availabilitySlots?.[0]?.timezone ?? "Asia/Tokyo"}
-          bookings={teacherBookings.upcoming.map((b) => ({
-            id: b.id,
-            startsAtIso: b.startsAt.toISOString(),
-            endsAtIso: b.endsAt.toISOString(),
-            studentLabel: b.student.name ?? b.student.email ?? "Student",
-          }))}
-        />
-
-        <section>
-          <h2 className="mb-3 text-lg font-semibold text-foreground">{td("upcoming")}</h2>
-          {teacherBookings.scheduleItems.length > 0 ? (
-            <DashboardScheduleCalendar items={teacherBookings.scheduleItems} />
-          ) : null}
-          <ul className="mt-4 space-y-4">
-            <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
-          </ul>
-        </section>
+        {teacherBookings.scheduleItems.length > 0 ? (
+          <DashboardScheduleCalendar items={teacherBookings.scheduleItems} />
+        ) : null}
+        <ul className="space-y-4">
+          <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
+        </ul>
       </div>
     );
   }

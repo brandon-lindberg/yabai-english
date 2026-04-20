@@ -116,6 +116,7 @@
     "upcoming": "Upcoming lessons",
     "noBookings": "No bookings yet.",
     "meetLink": "Join with Google Meet",
+    "viewDetails": "View details",
     "teacher": "Teacher",
     "statusPendingPayment": "Pending payment",
     "statusConfirmed": "Confirmed",
@@ -231,8 +232,11 @@
     "schedulePage": {
       "title": "Schedule",
       "intro": "See upcoming lessons and add them to your calendar.",
+      "subNavAvailability": "Availability",
       "subNavUpcoming": "Upcoming",
       "subNavCompleted": "Completed lessons",
+      "availabilityIntro": "Set your availability and manage your weekly schedule.",
+      "upcomingIntro": "View your upcoming booked lessons.",
       "ariaScheduleSections": "Schedule sections",
       "completedSectionTitle": "Completed lessons",
       "completedIntro": "Review past lessons. Your teacher can add session notes and a link to a Google Meet / Gemini recap or other document you open in the browser — we do not host files here.",
@@ -262,6 +266,22 @@
       "completedLessonsViewList": "List",
       "completedLessonsSortHint": "Sorted by student, then newest lesson first.",
       "completedLessonsHasNotes": "Saved notes or link"
+    },
+    "lessonDetail": {
+      "backToSchedule": "Back to schedule",
+      "dateTime": "Date & time",
+      "status": "Status",
+      "meetLink": "Meeting link",
+      "studentProfile": "Student profile",
+      "unnamed": "Unnamed student",
+      "level": "Level",
+      "timezone": "Timezone",
+      "goals": "Learning goals",
+      "bio": "About",
+      "levelUnset": "Not assessed",
+      "levelBeginner": "Beginner",
+      "levelIntermediate": "Intermediate",
+      "levelAdvanced": "Advanced"
     },
     "teacherAvailability": {
       "sectionTitle": "Availability",

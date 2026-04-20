@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import type { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
@@ -24,9 +25,16 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
   return (
     <>
       {upcoming.map((b) => (
-        <li key={b.id} className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+        <li
+          key={b.id}
+          id={`booking-${b.id}`}
+          className="scroll-mt-24 rounded-2xl border-2 border-transparent bg-surface p-4 shadow-sm ring-1 ring-border transition-colors duration-300 target:border-primary target:ring-primary/30"
+        >
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+            <Link
+              href={`/dashboard/schedule/lessons/${b.id}`}
+              className="min-w-0 flex-1 hover:opacity-80"
+            >
               <p className="font-medium text-foreground">
                 {b.lessonProduct.nameJa} / {b.lessonProduct.nameEn}
               </p>
@@ -49,7 +57,7 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
                     .join(", ")}
                 </p>
               ) : null}
-            </div>
+            </Link>
             <div className="mt-2 flex flex-col items-start gap-2 sm:mt-0 sm:items-end">
               {b.meetUrl ? (
                 <a
@@ -61,6 +69,12 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
                   {t("meetLink")}
                 </a>
               ) : null}
+              <Link
+                href={`/dashboard/schedule/lessons/${b.id}`}
+                className="inline-flex text-sm font-semibold text-link hover:opacity-90"
+              >
+                {t("viewDetails")}
+              </Link>
               {(b.status === "CONFIRMED" || b.status === "PENDING_PAYMENT") && (
                 <BookingCancelButton bookingId={b.id} />
               )}

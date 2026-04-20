@@ -34,7 +34,7 @@ export default async function DashboardScheduleLayout({ children }: { children: 
         )}
       </header>
 
-      <DashboardScheduleSubNav />
+      <DashboardScheduleSubNav isTeacher={isTeacher} />
 
       {children}
     </div>
