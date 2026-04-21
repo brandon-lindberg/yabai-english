@@ -9,6 +9,7 @@ const { authMock, prismaMock, createUserNotificationMock, createMeetMock } = vi.
       teacherProfile: { findFirst: vi.fn() },
       chatThread: { findUnique: vi.fn() },
       booking: { findFirst: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
+      schoolScheduleSlot: { findMany: vi.fn() },
       user: { findUnique: vi.fn() },
       invoice: { upsert: vi.fn() },
       $transaction: vi.fn(),
@@ -68,6 +69,7 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
     });
     prismaMock.chatThread.findUnique.mockResolvedValue(null);
     prismaMock.booking.findFirst.mockResolvedValue(null);
+    prismaMock.schoolScheduleSlot.findMany.mockResolvedValue([]);
     prismaMock.booking.findUnique.mockResolvedValue(null);
     prismaMock.booking.update.mockResolvedValue({});
     prismaMock.invoice.upsert.mockResolvedValue({});

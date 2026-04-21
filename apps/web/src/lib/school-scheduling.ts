@@ -130,6 +130,72 @@ export function isOccurrenceSkipped(
   return skips.some((s) => s.startsAtIso === startsAtIso);
 }
 
+export interface SlotForConflict extends SlotForOccurrences {
+  skips: { startsAtIso: string }[];
+}
+
+export interface SlotForMaterialize extends SlotForOccurrences {
+  id: string;
+  durationMin: number;
+  skips: { startsAtIso: string }[];
+}
+
+export interface MaterializedBookingPlan {
+  scheduleSlotId: string;
+  startsAtIso: string;
+  endsAtIso: string;
+}
+
+/**
+ * Compute which SchoolBooking rows need to be created for a slot's
+ * occurrences in a date range, excluding skipped occurrences and
+ * occurrences that are already materialized.
+ */
+export function planMaterializedBookings(
+  slot: SlotForMaterialize,
+  existing: { startsAtIso: string }[],
+  rangeStart: Date,
+  rangeEnd: Date,
+): MaterializedBookingPlan[] {
+  const existingSet = new Set(existing.map((b) => b.startsAtIso));
+  const occurrences = generateOccurrences(slot, rangeStart, rangeEnd);
+  const plans: MaterializedBookingPlan[] = [];
+  for (const occ of occurrences) {
+    if (isOccurrenceSkipped(slot.skips, occ.startsAtIso)) continue;
+    if (existingSet.has(occ.startsAtIso)) continue;
+    plans.push({
+      scheduleSlotId: slot.id,
+      startsAtIso: occ.startsAtIso,
+      endsAtIso: occ.endsAtIso,
+    });
+  }
+  return plans;
+}
+
+/**
+ * Given a teacher's assigned school slots and a target time window,
+ * return the first occurrence that overlaps the window (excluding skips),
+ * or null if no conflict.
+ */
+export function findOccurrenceConflict(
+  slots: SlotForConflict[],
+  windowStart: Date,
+  windowEnd: Date,
+): Occurrence | null {
+  for (const slot of slots) {
+    const occurrences = generateOccurrences(slot, windowStart, windowEnd);
+    for (const occ of occurrences) {
+      if (isOccurrenceSkipped(slot.skips, occ.startsAtIso)) continue;
+      const occStart = new Date(occ.startsAtIso);
+      const occEnd = new Date(occ.endsAtIso);
+      if (occStart < windowEnd && occEnd > windowStart) {
+        return occ;
+      }
+    }
+  }
+  return null;
+}
+
 /**
  * Build capacity display info for a class slot.
  */

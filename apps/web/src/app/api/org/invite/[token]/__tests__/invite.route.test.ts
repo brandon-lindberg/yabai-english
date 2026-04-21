@@ -1,14 +1,16 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { authMock, prismaMock } = vi.hoisted(() => ({
+const { authMock, prismaMock, notifyMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
     organizationMembership: { findUnique: vi.fn(), update: vi.fn() },
   },
+  notifyMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/lib/notifications", () => ({ createUserNotification: notifyMock }));
 
 import { GET, POST } from "@/app/api/org/invite/[token]/route";
 
@@ -89,5 +91,37 @@ describe("POST /api/org/invite/[token]", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.membership.status).toBe("ACTIVE");
+  });
+
+  test("notifies inviter on acceptance", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", name: "Acceptor" } });
+    prismaMock.organizationMembership.findUnique.mockResolvedValue({
+      id: "mem-1", status: "INVITED", userId: "u-placeholder",
+      inviteExpiresAt: new Date("2099-01-01"),
+      invitedByUserId: "inviter-1",
+      organization: { name: "Acme Org" },
+    });
+    prismaMock.organizationMembership.update.mockResolvedValue({
+      id: "mem-1", status: "ACTIVE", userId: "u1",
+    });
+    await POST(postReq(), routeCtx);
+    expect(notifyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: "inviter-1" }),
+    );
+  });
+
+  test("does not notify when self-accepting (inviter is acceptor)", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findUnique.mockResolvedValue({
+      id: "mem-1", status: "INVITED", userId: "u-placeholder",
+      inviteExpiresAt: new Date("2099-01-01"),
+      invitedByUserId: "u1",
+      organization: { name: "Acme Org" },
+    });
+    prismaMock.organizationMembership.update.mockResolvedValue({
+      id: "mem-1", status: "ACTIVE", userId: "u1",
+    });
+    await POST(postReq(), routeCtx);
+    expect(notifyMock).not.toHaveBeenCalled();
   });
 });

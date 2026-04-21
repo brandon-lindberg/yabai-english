@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { authMock, prismaMock } = vi.hoisted(() => ({
+const { authMock, prismaMock, notifyMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
     organizationMembership: {
@@ -16,10 +16,12 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
       findUnique: vi.fn(),
     },
   },
+  notifyMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/lib/notifications", () => ({ createUserNotification: notifyMock }));
 
 import { GET, POST } from "@/app/api/org/[orgId]/members/route";
 

@@ -4,6 +4,8 @@ import {
   isOccurrenceSkipped,
   getCapacityDisplay,
   validateSlotTimes,
+  findOccurrenceConflict,
+  planMaterializedBookings,
 } from "../school-scheduling";
 
 describe("school-scheduling", () => {
@@ -210,6 +212,114 @@ describe("school-scheduling", () => {
       const display = getCapacityDisplay(0, 1);
       expect(display.remaining).toBe(1);
       expect(display.label).toBe("0/1");
+    });
+  });
+
+  describe("findOccurrenceConflict", () => {
+    const mondaySlot = {
+      dayOfWeek: 1,
+      startMin: 600,
+      endMin: 660,
+      timezone: "Asia/Tokyo",
+      skips: [] as { startsAtIso: string }[],
+    };
+
+    it("returns null when there are no slots", () => {
+      const result = findOccurrenceConflict(
+        [],
+        new Date("2026-05-04T00:00:00Z"),
+        new Date("2026-05-04T23:59:59Z"),
+      );
+      expect(result).toBeNull();
+    });
+
+    it("returns the conflicting occurrence when window overlaps a slot", () => {
+      const result = findOccurrenceConflict(
+        [mondaySlot],
+        new Date("2026-05-04T00:30:00Z"),
+        new Date("2026-05-04T02:00:00Z"),
+      );
+      expect(result).not.toBeNull();
+    });
+
+    it("returns null when window does not overlap the slot", () => {
+      const result = findOccurrenceConflict(
+        [mondaySlot],
+        new Date("2026-05-04T04:00:00Z"),
+        new Date("2026-05-04T05:00:00Z"),
+      );
+      expect(result).toBeNull();
+    });
+
+    it("ignores skipped occurrences", () => {
+      const skipped = {
+        ...mondaySlot,
+        skips: [{ startsAtIso: "2026-05-04T01:00:00.000Z" }],
+      };
+      const result = findOccurrenceConflict(
+        [skipped],
+        new Date("2026-05-04T00:30:00Z"),
+        new Date("2026-05-04T02:00:00Z"),
+      );
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("planMaterializedBookings", () => {
+    const slot = {
+      id: "slot-1",
+      dayOfWeek: 1,
+      startMin: 600,
+      endMin: 660,
+      durationMin: 60,
+      timezone: "Asia/Tokyo",
+      skips: [] as { startsAtIso: string }[],
+    };
+
+    it("returns plans for all occurrences when none exist", () => {
+      const plans = planMaterializedBookings(
+        slot,
+        [],
+        new Date("2026-05-01T00:00:00Z"),
+        new Date("2026-05-31T00:00:00Z"),
+      );
+      expect(plans.length).toBeGreaterThan(0);
+      expect(plans.every((p) => p.scheduleSlotId === "slot-1")).toBe(true);
+    });
+
+    it("skips occurrences that already have bookings", () => {
+      const all = planMaterializedBookings(
+        slot,
+        [],
+        new Date("2026-05-01T00:00:00Z"),
+        new Date("2026-05-31T00:00:00Z"),
+      );
+      const [first, ...rest] = all;
+      const filtered = planMaterializedBookings(
+        slot,
+        [{ startsAtIso: first.startsAtIso }],
+        new Date("2026-05-01T00:00:00Z"),
+        new Date("2026-05-31T00:00:00Z"),
+      );
+      expect(filtered).toHaveLength(rest.length);
+      expect(filtered.find((p) => p.startsAtIso === first.startsAtIso)).toBeUndefined();
+    });
+
+    it("honors the skip list", () => {
+      const all = planMaterializedBookings(
+        slot,
+        [],
+        new Date("2026-05-01T00:00:00Z"),
+        new Date("2026-05-31T00:00:00Z"),
+      );
+      const skipIso = all[0].startsAtIso;
+      const filtered = planMaterializedBookings(
+        { ...slot, skips: [{ startsAtIso: skipIso }] },
+        [],
+        new Date("2026-05-01T00:00:00Z"),
+        new Date("2026-05-31T00:00:00Z"),
+      );
+      expect(filtered.find((p) => p.startsAtIso === skipIso)).toBeUndefined();
     });
   });
 });

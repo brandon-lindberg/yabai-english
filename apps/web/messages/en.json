@@ -907,10 +907,19 @@
         "ariaLabel": "School",
         "dashboard": "Dashboard",
         "schedule": "Schedule",
+        "classes": "Classes",
         "members": "Members",
         "pricing": "Pricing",
         "timeOff": "Time off",
         "settings": "Settings"
+      },
+      "classesPage": {
+        "title": "Upcoming classes",
+        "description": "Materialized class instances generated from your schedule.",
+        "loading": "Loading classes...",
+        "none": "No upcoming classes.",
+        "teacher": "Teacher: {name}",
+        "join": "Join"
       },
       "dashboard": {
         "title": "School dashboard",

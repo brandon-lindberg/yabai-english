@@ -8,6 +8,7 @@ import {
   type MembershipForAuth,
 } from "@/lib/org-authorization";
 import { validateTimeOffReview } from "@/lib/school-time-off";
+import { createUserNotification } from "@/lib/notifications";
 
 const reviewSchema = z.object({
   status: z.enum(["APPROVED", "DENIED"]),
@@ -51,6 +52,10 @@ export async function PATCH(req: Request, ctx: RouteContext) {
 
   const timeOffRequest = await prisma.timeOffRequest.findUnique({
     where: { id: requestId },
+    include: {
+      teacherMembership: { select: { userId: true } },
+      school: { select: { name: true } },
+    },
   });
 
   if (!timeOffRequest || timeOffRequest.schoolId !== schoolId) {
@@ -84,6 +89,19 @@ export async function PATCH(req: Request, ctx: RouteContext) {
       reviewedAt: new Date(),
     },
   });
+
+  const teacherUserId = timeOffRequest.teacherMembership?.userId;
+  if (teacherUserId) {
+    const approved = parsed.data.status === "APPROVED";
+    const schoolName = timeOffRequest.school?.name ?? "";
+    await createUserNotification({
+      userId: teacherUserId,
+      titleJa: approved ? "休暇申請が承認されました" : "休暇申請が却下されました",
+      titleEn: approved ? "Time-off request approved" : "Time-off request denied",
+      bodyJa: schoolName ? `${schoolName}からの通知です。` : undefined,
+      bodyEn: schoolName ? `From ${schoolName}.` : undefined,
+    });
+  }
 
   return NextResponse.json({ request: updated });
 }

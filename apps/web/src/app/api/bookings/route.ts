@@ -18,6 +18,7 @@ import {
   teacherHasOfferingForProduct,
 } from "@/lib/lesson-products";
 import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
+import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
 import { BookingStatus, LessonTier } from "@/generated/prisma/client";
 
@@ -185,6 +186,36 @@ export async function POST(req: Request) {
       { error: "That slot was just booked by another student." },
       { status: 409 },
     );
+  }
+
+  const teacherSchoolSlots = await prisma.schoolScheduleSlot.findMany({
+    where: {
+      active: true,
+      assignedTeacher: {
+        userId: teacher.userId,
+        status: "ACTIVE",
+      },
+    },
+    select: {
+      dayOfWeek: true,
+      startMin: true,
+      endMin: true,
+      timezone: true,
+      skips: { select: { startsAtIso: true } },
+    },
+  });
+  if (teacherSchoolSlots.length > 0) {
+    const schoolConflict = findOccurrenceConflict(
+      teacherSchoolSlots,
+      start,
+      endsAt,
+    );
+    if (schoolConflict) {
+      return NextResponse.json(
+        { error: "The teacher is teaching a school class during that time." },
+        { status: 409 },
+      );
+    }
   }
 
   const student = await prisma.user.findUnique({

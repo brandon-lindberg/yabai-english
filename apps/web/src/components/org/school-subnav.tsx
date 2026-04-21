@@ -13,6 +13,7 @@ export function SchoolSubnav({ orgId, schoolId }: Props) {
   const NAV = [
     [base, "dashboard"],
     [`${base}/schedule`, "schedule"],
+    [`${base}/classes`, "classes"],
     [`${base}/members`, "members"],
     [`${base}/pricing`, "pricing"],
     [`${base}/time-off`, "timeOff"],

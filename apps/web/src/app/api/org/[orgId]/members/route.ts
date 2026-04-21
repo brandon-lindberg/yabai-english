@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isOrgWideAdmin, isSchoolAdmin, type MembershipForAuth } from "@/lib/org-authorization";
+import { createUserNotification } from "@/lib/notifications";
 import crypto from "crypto";
 
 const addMemberSchema = z.object({
@@ -145,6 +146,21 @@ export async function POST(req: Request, ctx: RouteContext) {
       inviteExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     },
   });
+
+  if (targetUser) {
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { name: true },
+    });
+    const orgName = org?.name ?? "an organization";
+    await createUserNotification({
+      userId: targetUser.id,
+      titleJa: "招待が届きました",
+      titleEn: "You have been invited",
+      bodyJa: `${orgName}から招待されました。`,
+      bodyEn: `You have been invited to join ${orgName}.`,
+    });
+  }
 
   return NextResponse.json({ membership }, { status: 201 });
 }

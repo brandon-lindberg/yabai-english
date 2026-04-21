@@ -1,15 +1,17 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { authMock, prismaMock } = vi.hoisted(() => ({
+const { authMock, prismaMock, notifyMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
     organizationMembership: { findFirst: vi.fn() },
     timeOffRequest: { findUnique: vi.fn(), update: vi.fn() },
   },
+  notifyMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/lib/notifications", () => ({ createUserNotification: notifyMock }));
 
 import { PATCH } from "@/app/api/org/[orgId]/schools/[schoolId]/time-off-requests/[requestId]/route";
 
@@ -80,6 +82,8 @@ describe("PATCH /api/org/.../time-off-requests/[requestId]", () => {
     });
     prismaMock.timeOffRequest.findUnique.mockResolvedValue({
       id: requestId, status: "PENDING", schoolId,
+      teacherMembership: { userId: "teacher-1" },
+      school: { name: "Shibuya" },
     });
     prismaMock.timeOffRequest.update.mockResolvedValue({
       id: requestId, status: "APPROVED",
@@ -91,5 +95,25 @@ describe("PATCH /api/org/.../time-off-requests/[requestId]", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.request.status).toBe("APPROVED");
+  });
+
+  test("notifies teacher on approval", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1", orgRole: "SCHOOL_ADMIN", status: "ACTIVE",
+      schoolId, organizationId: orgId, userId: "u1",
+    });
+    prismaMock.timeOffRequest.findUnique.mockResolvedValue({
+      id: requestId, status: "PENDING", schoolId,
+      teacherMembership: { userId: "teacher-1" },
+      school: { name: "Shibuya" },
+    });
+    prismaMock.timeOffRequest.update.mockResolvedValue({
+      id: requestId, status: "APPROVED",
+    });
+    await PATCH(patchReq({ status: "APPROVED" }), routeCtx);
+    expect(notifyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: "teacher-1" }),
+    );
   });
 });

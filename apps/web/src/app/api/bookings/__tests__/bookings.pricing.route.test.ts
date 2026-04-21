@@ -12,6 +12,7 @@ const {
     teacherProfile: { findFirst: vi.fn() },
     chatThread: { findUnique: vi.fn() },
     booking: { findFirst: vi.fn() },
+    schoolScheduleSlot: { findMany: vi.fn() },
     user: { findUnique: vi.fn() },
     $transaction: vi.fn(),
   },
@@ -62,6 +63,7 @@ describe("POST /api/bookings pricing", () => {
     });
     prismaMock.chatThread.findUnique.mockResolvedValue(null);
     prismaMock.booking.findFirst.mockResolvedValue(null);
+    prismaMock.schoolScheduleSlot.findMany.mockResolvedValue([]);
     prismaMock.user.findUnique.mockResolvedValue({
       id: "student-1",
       email: "student@example.com",

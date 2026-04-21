@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { createUserNotification } from "@/lib/notifications";
 
 type RouteContext = { params: Promise<{ token: string }> };
 
@@ -55,6 +56,8 @@ export async function POST(req: Request, ctx: RouteContext) {
     select: {
       id: true, status: true, userId: true, inviteExpiresAt: true,
       inviteEmail: true, organizationId: true, schoolId: true, orgRole: true,
+      invitedByUserId: true,
+      organization: { select: { name: true } },
     },
   });
 
@@ -82,6 +85,18 @@ export async function POST(req: Request, ctx: RouteContext) {
       inviteExpiresAt: null,
     },
   });
+
+  if (membership.invitedByUserId && membership.invitedByUserId !== session.user.id) {
+    const acceptorName = session.user.name ?? session.user.email ?? "A user";
+    const orgName = membership.organization?.name ?? "your organization";
+    await createUserNotification({
+      userId: membership.invitedByUserId,
+      titleJa: "招待が承諾されました",
+      titleEn: "Invitation accepted",
+      bodyJa: `${acceptorName}さんが${orgName}への招待を承諾しました。`,
+      bodyEn: `${acceptorName} accepted your invite to ${orgName}.`,
+    });
+  }
 
   return NextResponse.json({ membership: updated });
 }

@@ -907,10 +907,19 @@
         "ariaLabel": "スクール",
         "dashboard": "ダッシュボード",
         "schedule": "スケジュール",
+        "classes": "クラス",
         "members": "メンバー",
         "pricing": "料金",
         "timeOff": "休暇",
         "settings": "設定"
+      },
+      "classesPage": {
+        "title": "今後のクラス",
+        "description": "スケジュールから生成されたクラスのインスタンスです。",
+        "loading": "クラスを読み込み中...",
+        "none": "予定されているクラスはありません。",
+        "teacher": "講師: {name}",
+        "join": "参加"
       },
       "dashboard": {
         "title": "スクールダッシュボード",
