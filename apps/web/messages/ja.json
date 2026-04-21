@@ -374,10 +374,41 @@
     "noPermission": "このページにアクセスする権限がありません。",
     "nav": {
       "overview": "概要",
+      "schools": "スクール",
       "users": "全ユーザー",
       "teachers": "講師",
       "students": "受講生",
       "reports": "通報"
+    },
+    "schoolsPage": {
+      "title": "スクール・組織管理",
+      "subtitle": "組織を作成し、スクールを追加して、オーナーや管理者を割り当てます。",
+      "none": "組織はまだありません。下のフォームから作成してください。",
+      "createTitle": "組織を作成",
+      "createHelp": "組織、最初のスクールを作成し、指定したユーザーをオーナーに割り当てます。",
+      "createCta": "組織を作成",
+      "saving": "保存中…",
+      "deleting": "削除中…",
+      "error": "エラーが発生しました。",
+      "orgName": "組織名",
+      "orgSlug": "組織スラッグ",
+      "schoolName": "スクール名",
+      "schoolSlugOptional": "スクールスラッグ（任意）",
+      "ownerEmail": "オーナーのメール（登録済ユーザー）",
+      "schoolsTitle": "スクール",
+      "membersTitle": "メンバー",
+      "members": "名",
+      "orgWide": "組織全体",
+      "addSchoolTitle": "スクールを追加",
+      "addSchoolCta": "スクール追加",
+      "assignRoleTitle": "役割を割り当て・変更",
+      "assignRoleCta": "役割を割り当て",
+      "userEmail": "ユーザーのメール",
+      "role": "役割",
+      "school": "スクール",
+      "deleteOrg": "組織を削除",
+      "deleteConfirmPlaceholder": "{slug} と入力してください",
+      "deleteConfirmMismatch": "スラッグが一致しません。"
     },
     "usersPage": {
       "title": "全ユーザー"
@@ -831,7 +862,12 @@
       "noActivity": "最近の活動はありません。",
       "schoolsOverview": "スクール概要",
       "membersCount": "{count} メンバー",
-      "viewSchool": "表示"
+      "viewSchool": "表示",
+      "addSchool": "スクールを追加",
+      "quickSchedule": "スケジュール",
+      "quickClasses": "クラス",
+      "quickMembers": "メンバー",
+      "quickPricing": "料金"
     },
     "schoolsPage": {
       "title": "スクール",

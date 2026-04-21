@@ -102,3 +102,25 @@ export async function PATCH(req: Request, ctx: RouteContext) {
 
   return NextResponse.json({ organization: updated });
 }
+
+export async function DELETE(req: Request, ctx: RouteContext) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (session.user.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { orgId } = await ctx.params;
+  const org = await prisma.organization.findUnique({
+    where: { id: orgId },
+    select: { id: true },
+  });
+  if (!org) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  await prisma.organization.delete({ where: { id: orgId } });
+  return NextResponse.json({ ok: true });
+}

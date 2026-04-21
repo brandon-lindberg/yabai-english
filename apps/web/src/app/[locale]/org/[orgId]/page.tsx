@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { AppCard } from "@/components/ui/app-card";
 import { Link } from "@/i18n/navigation";
+import { isOrgWideRole } from "@/lib/org-authorization";
 
 async function fetchOrg(orgId: string) {
   const session = await auth();
@@ -68,13 +69,22 @@ export default async function OrgDashboardPage({
     return null;
   }
 
-  const { org, teachers, students } = data;
+  const { org, caller, teachers, students } = data;
+  const canManageOrg = isOrgWideRole(caller.orgRole);
+  const singleSchool = org.schools.length === 1 ? org.schools[0] : null;
 
   const stats = [
     { label: t("totalSchools"), value: org.schools.length },
     { label: t("totalMembers"), value: org._count.memberships },
     { label: t("totalTeachers"), value: teachers },
     { label: t("totalStudents"), value: students },
+  ];
+
+  const schoolQuickLinks = (schoolId: string) => [
+    { href: `/org/${orgId}/schools/${schoolId}/schedule`, label: t("quickSchedule") },
+    { href: `/org/${orgId}/schools/${schoolId}/classes`, label: t("quickClasses") },
+    { href: `/org/${orgId}/schools/${schoolId}/members`, label: t("quickMembers") },
+    { href: `/org/${orgId}/schools/${schoolId}/pricing`, label: t("quickPricing") },
   ];
 
   return (
@@ -91,11 +101,49 @@ export default async function OrgDashboardPage({
       </div>
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-foreground">
-          {t("schoolsOverview")}
-        </h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground">
+            {t("schoolsOverview")}
+          </h2>
+          {canManageOrg && (
+            <Link
+              href={`/org/${orgId}/schools`}
+              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            >
+              {t("addSchool")}
+            </Link>
+          )}
+        </div>
         {org.schools.length === 0 ? (
           <p className="text-sm text-muted">{t("noActivity")}</p>
+        ) : singleSchool ? (
+          <AppCard padding="sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-medium text-foreground">{singleSchool.name}</p>
+                <p className="text-xs text-muted">
+                  {t("membersCount", { count: singleSchool._count.memberships })}
+                </p>
+              </div>
+              <Link
+                href={`/org/${orgId}/schools/${singleSchool.id}`}
+                className="rounded-full border border-border px-3 py-1 text-sm font-medium text-foreground hover:bg-[var(--app-hover)]"
+              >
+                {t("viewSchool")}
+              </Link>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {schoolQuickLinks(singleSchool.id).map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted hover:bg-[var(--app-hover)] hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </AppCard>
         ) : (
           <div className="space-y-3">
             {org.schools.map((school) => (

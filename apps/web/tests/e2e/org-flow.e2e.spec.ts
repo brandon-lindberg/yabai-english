@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("organization flow smoke", () => {
-  test("org creation page redirects unauthenticated users to signin", async ({ page }) => {
-    await page.goto("/en/org/create");
-    await expect(page).toHaveURL(/\/auth\/signin/);
+  test("admin schools page redirects unauthenticated users", async ({ page }) => {
+    await page.goto("/en/admin/schools");
+    await expect(page).not.toHaveURL(/\/en\/admin\/schools$/);
   });
 
   test("invite acceptance page is reachable and shows invalid-token state for a bogus token", async ({

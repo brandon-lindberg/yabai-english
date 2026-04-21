@@ -374,10 +374,41 @@
     "noPermission": "You do not have access to this page.",
     "nav": {
       "overview": "Overview",
+      "schools": "Schools",
       "users": "All users",
       "teachers": "Teachers",
       "students": "Students",
       "reports": "Reports"
+    },
+    "schoolsPage": {
+      "title": "Schools & organizations",
+      "subtitle": "Create organizations, add schools, and assign owners and admins.",
+      "none": "No organizations yet. Create one below.",
+      "createTitle": "Create organization",
+      "createHelp": "Creates the org, its first school, and assigns the given user as OWNER.",
+      "createCta": "Create organization",
+      "saving": "Saving…",
+      "deleting": "Deleting…",
+      "error": "Something went wrong.",
+      "orgName": "Organization name",
+      "orgSlug": "Organization slug",
+      "schoolName": "School name",
+      "schoolSlugOptional": "School slug (optional)",
+      "ownerEmail": "Owner email (existing user)",
+      "schoolsTitle": "Schools",
+      "membersTitle": "Members",
+      "members": "members",
+      "orgWide": "Org-wide",
+      "addSchoolTitle": "Add another school",
+      "addSchoolCta": "Add school",
+      "assignRoleTitle": "Assign or update a role",
+      "assignRoleCta": "Assign role",
+      "userEmail": "User email",
+      "role": "Role",
+      "school": "School",
+      "deleteOrg": "Delete org",
+      "deleteConfirmPlaceholder": "Type {slug} to confirm",
+      "deleteConfirmMismatch": "Slug did not match."
     },
     "usersPage": {
       "title": "All users"
@@ -831,7 +862,12 @@
       "noActivity": "No recent activity.",
       "schoolsOverview": "Schools overview",
       "membersCount": "{count} members",
-      "viewSchool": "View"
+      "viewSchool": "View",
+      "addSchool": "Add school",
+      "quickSchedule": "Schedule",
+      "quickClasses": "Classes",
+      "quickMembers": "Members",
+      "quickPricing": "Pricing"
     },
     "schoolsPage": {
       "title": "Schools",

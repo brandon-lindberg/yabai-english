@@ -13,6 +13,9 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
     school: {
       create: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
     $transaction: vi.fn(),
   },
 }));
@@ -39,54 +42,77 @@ describe("POST /api/org", () => {
     expect(res.status).toBe(401);
   });
 
-  test("400 with invalid body (missing name)", async () => {
+  test("403 when caller is not SUPER_ADMIN", async () => {
     authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    const res = await POST(
+      jsonReq({
+        name: "Test Org",
+        slug: "test-org",
+        schoolName: "Main Campus",
+        ownerEmail: "owner@test.com",
+      }),
+    );
+    expect(res.status).toBe(403);
+  });
+
+  test("400 with invalid body (missing name)", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", role: "SUPER_ADMIN" } });
     const res = await POST(jsonReq({ slug: "test-org" }));
     expect(res.status).toBe(400);
   });
 
   test("400 with invalid slug (spaces)", async () => {
-    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    authMock.mockResolvedValue({ user: { id: "u1", role: "SUPER_ADMIN" } });
     const res = await POST(jsonReq({ name: "Test", slug: "bad slug" }));
     expect(res.status).toBe(400);
   });
 
+  test("404 when ownerEmail does not match a user", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", role: "SUPER_ADMIN" } });
+    prismaMock.user.findUnique.mockResolvedValue(null);
+    const res = await POST(
+      jsonReq({
+        name: "Test Org",
+        slug: "test-org",
+        schoolName: "Main Campus",
+        ownerEmail: "ghost@test.com",
+      }),
+    );
+    expect(res.status).toBe(404);
+  });
+
   test("409 when slug is taken", async () => {
-    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    authMock.mockResolvedValue({ user: { id: "u1", role: "SUPER_ADMIN" } });
+    prismaMock.user.findUnique.mockResolvedValue({ id: "owner-1" });
     prismaMock.organization.findUnique.mockResolvedValue({ id: "existing" });
     const res = await POST(
-      jsonReq({ name: "Test Org", slug: "test-org", schoolName: "Main Campus" }),
+      jsonReq({
+        name: "Test Org",
+        slug: "test-org",
+        schoolName: "Main Campus",
+        ownerEmail: "owner@test.com",
+      }),
     );
     expect(res.status).toBe(409);
   });
 
-  test("201 creates org + school + owner membership", async () => {
-    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+  test("201 creates org + school + owner membership pointing at ownerEmail user", async () => {
+    authMock.mockResolvedValue({ user: { id: "super-1", role: "SUPER_ADMIN" } });
+    prismaMock.user.findUnique.mockResolvedValue({ id: "owner-1" });
     prismaMock.organization.findUnique.mockResolvedValue(null);
-
-    const createdOrg = {
-      id: "org-1",
-      slug: "test-org",
-      name: "Test Org",
-      createdAt: new Date(),
-    };
-    const createdSchool = {
-      id: "school-1",
-      slug: "main-campus",
-      name: "Main Campus",
-    };
-    const createdMembership = {
-      id: "mem-1",
-      orgRole: "OWNER",
-      status: "ACTIVE",
-    };
 
     prismaMock.$transaction.mockImplementation(async (fn: (tx: typeof prismaMock) => Promise<unknown>) => {
       return fn(prismaMock);
     });
-    prismaMock.organization.create.mockResolvedValue(createdOrg);
-    prismaMock.school.create.mockResolvedValue(createdSchool);
-    prismaMock.organizationMembership.create.mockResolvedValue(createdMembership);
+    prismaMock.organization.create.mockResolvedValue({
+      id: "org-1", slug: "test-org", name: "Test Org", createdAt: new Date(),
+    });
+    prismaMock.school.create.mockResolvedValue({
+      id: "school-1", slug: "main-campus", name: "Main Campus",
+    });
+    prismaMock.organizationMembership.create.mockResolvedValue({
+      id: "mem-1", orgRole: "OWNER", status: "ACTIVE", userId: "owner-1",
+    });
 
     const res = await POST(
       jsonReq({
@@ -94,13 +120,16 @@ describe("POST /api/org", () => {
         slug: "test-org",
         schoolName: "Main Campus",
         schoolSlug: "main-campus",
+        ownerEmail: "owner@test.com",
       }),
     );
     expect(res.status).toBe(201);
-
     const body = await res.json();
-    expect(body.organization.id).toBe("org-1");
-    expect(body.school.id).toBe("school-1");
-    expect(body.membership.orgRole).toBe("OWNER");
+    expect(body.membership.userId).toBe("owner-1");
+    expect(prismaMock.organizationMembership.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ userId: "owner-1", orgRole: "OWNER" }),
+      }),
+    );
   });
 });
