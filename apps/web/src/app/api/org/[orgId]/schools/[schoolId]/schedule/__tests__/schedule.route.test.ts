@@ -10,6 +10,9 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
       findMany: vi.fn(),
       create: vi.fn(),
     },
+    schoolClassEnrollment: {
+      findMany: vi.fn(),
+    },
     school: {
       findUnique: vi.fn(),
     },
@@ -82,10 +85,14 @@ describe("GET /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       },
     ];
     prismaMock.schoolScheduleSlot.findMany.mockResolvedValue(slots);
+    prismaMock.schoolClassEnrollment.findMany.mockResolvedValue([
+      { scheduleSlotId: "slot-1" },
+    ]);
     const res = await GET(getReq(), routeCtx);
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.slots).toHaveLength(1);
+    expect(body.viewerEnrolledSlotIds).toEqual(["slot-1"]);
   });
 });
 

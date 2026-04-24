@@ -182,6 +182,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           // cookies() may throw in non-request contexts (e.g. API route tests);
           // org context is optional, so silently fall back to null.
         }
+
+        // Fallback: if no cookie-based context resolved, default to the user's
+        // first ACTIVE membership so newly-assigned members see an org in the nav
+        // without having to pick one manually.
+        if (!session.user.activeOrgId) {
+          const memberships = await prisma.organizationMembership.findMany({
+            where: { userId, status: "ACTIVE" },
+            orderBy: { createdAt: "asc" },
+            select: { organizationId: true, schoolId: true, orgRole: true },
+          });
+          const preferred =
+            memberships.find((m) => m.orgRole === "OWNER") ??
+            memberships.find((m) => m.orgRole === "ORG_ADMIN") ??
+            memberships[0];
+          if (preferred) {
+            session.user.activeOrgId = preferred.organizationId;
+            session.user.activeSchoolId = preferred.schoolId;
+            session.user.orgRole = preferred.orgRole;
+          }
+        }
       }
 
       return session;

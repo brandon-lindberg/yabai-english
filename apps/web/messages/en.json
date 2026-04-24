@@ -407,8 +407,13 @@
       "role": "Role",
       "school": "School",
       "deleteOrg": "Delete org",
-      "deleteConfirmPlaceholder": "Type {slug} to confirm",
-      "deleteConfirmMismatch": "Slug did not match."
+      "deleteConfirmPrompt": "Type <code>{slug}</code> below to permanently delete this organization. This also deletes all its schools, members, and schedule data.",
+      "confirmDeleteCta": "Permanently delete",
+      "cancel": "Cancel",
+      "slugPreview": "Will save as",
+      "slugInvalidEmpty": "Slug must contain letters or numbers.",
+      "searching": "Searching…",
+      "noResults": "No matching users."
     },
     "usersPage": {
       "title": "All users"
@@ -480,6 +485,9 @@
       "colDisplayName": "Teacher name",
       "colRateYen": "Rate ¥",
       "colCalendar": "Calendar",
+      "colOrgs": "Organizations",
+      "noOrgs": "—",
+      "orgWideScope": "Org-wide",
       "searchLabel": "Search",
       "searchPlaceholder": "Name or email",
       "sortLabel": "Sort",
@@ -890,7 +898,9 @@
       "create": "Create school",
       "creating": "Creating…",
       "cancel": "Cancel",
-      "error": "Could not create school."
+      "error": "Could not create school.",
+      "slugPreview": "Will save as",
+      "slugInvalidEmpty": "Slug must contain letters or numbers."
     },
     "membersPage": {
       "title": "Members",
@@ -950,12 +960,28 @@
         "settings": "Settings"
       },
       "classesPage": {
-        "title": "Upcoming classes",
-        "description": "Materialized class instances generated from your schedule.",
+        "title": "Classes",
+        "description": "Browse upcoming classes and join open slots.",
         "loading": "Loading classes...",
         "none": "No upcoming classes.",
         "teacher": "Teacher: {name}",
-        "join": "Join"
+        "join": "Join",
+        "browseTitle": "Browse classes",
+        "upcomingTitle": "Upcoming sessions",
+        "noBrowseSlots": "No classes available right now.",
+        "enrolled": "Enrolled",
+        "enrolling": "Joining…",
+        "full": "Full",
+        "enrollError": "Could not join this class.",
+        "days": {
+          "0": "Sun",
+          "1": "Mon",
+          "2": "Tue",
+          "3": "Wed",
+          "4": "Thu",
+          "5": "Fri",
+          "6": "Sat"
+        }
       },
       "dashboard": {
         "title": "School dashboard",
@@ -1065,7 +1091,32 @@
         "saving": "Saving…",
         "saved": "Saved.",
         "error": "Could not save settings."
+      },
+      "applyPage": {
+        "title": "Apply to {school}",
+        "description": "Submit an application to join {org}. An admin will review and respond.",
+        "noteLabel": "Tell the admin about yourself (optional)",
+        "notePlaceholder": "Why you'd like to join, your goals, scheduling preferences…",
+        "noteHelp": "Up to 2,000 characters.",
+        "submit": "Submit application",
+        "submitting": "Submitting…",
+        "submitted": "Your application has been submitted. We'll let you know when it's reviewed.",
+        "error": "Could not submit application.",
+        "notEnabled": "This school is not accepting applications right now.",
+        "alreadyMember": "You are already an active member of this school.",
+        "pending": "Your application is pending review."
       }
+    },
+    "invitePage": {
+      "title": "Accept invitation",
+      "description": "You have been invited to join {org}.",
+      "invitedAs": "You're invited as {role}.",
+      "accept": "Accept invitation",
+      "accepting": "Accepting…",
+      "error": "Could not accept invitation.",
+      "invalid": "This invitation link is invalid.",
+      "alreadyUsed": "This invitation has already been used.",
+      "expired": "This invitation has expired."
     }
   }
 }

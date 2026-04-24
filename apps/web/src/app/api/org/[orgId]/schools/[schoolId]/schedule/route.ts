@@ -89,7 +89,16 @@ export async function GET(req: Request, ctx: RouteContext) {
     orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
   });
 
-  return NextResponse.json({ slots });
+  let viewerEnrolledSlotIds: string[] = [];
+  if (caller.orgRole === "STUDENT" && caller.schoolId === schoolId) {
+    const enrollments = await prisma.schoolClassEnrollment.findMany({
+      where: { studentMembershipId: caller.id, active: true },
+      select: { scheduleSlotId: true },
+    });
+    viewerEnrolledSlotIds = enrollments.map((e) => e.scheduleSlotId);
+  }
+
+  return NextResponse.json({ slots, viewerEnrolledSlotIds });
 }
 
 export async function POST(req: Request, ctx: RouteContext) {

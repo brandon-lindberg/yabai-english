@@ -1,15 +1,24 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { authMock, prismaMock } = vi.hoisted(() => ({
+const { authMock, prismaMock, notifyAdminsMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
     school: { findUnique: vi.fn() },
-    organizationMembership: { findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
+    organizationMembership: {
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
   },
+  notifyAdminsMock: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/lib/school-admin-notify", () => ({
+  notifySchoolAdmins: notifyAdminsMock,
+}));
 
 import { POST } from "@/app/api/org/[orgId]/schools/[schoolId]/apply/route";
 
@@ -62,10 +71,10 @@ describe("POST /api/org/.../apply", () => {
     expect(res.status).toBe(400);
   });
 
-  test("201 creates application", async () => {
-    authMock.mockResolvedValue({ user: { id: "u1" } });
+  test("201 creates application and notifies admins", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", name: "Alice" } });
     prismaMock.school.findUnique.mockResolvedValue({
-      id: schoolId, organizationId: orgId, applicationFlowEnabled: true,
+      id: schoolId, name: "Shibuya", organizationId: orgId, applicationFlowEnabled: true,
     });
     prismaMock.organizationMembership.findFirst.mockResolvedValue(null);
     prismaMock.organizationMembership.create.mockResolvedValue({
@@ -78,12 +87,19 @@ describe("POST /api/org/.../apply", () => {
     expect(res.status).toBe(201);
     const body = await res.json();
     expect(body.application.status).toBe("PENDING_APPROVAL");
+    expect(notifyAdminsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organizationId: orgId,
+        schoolId,
+        excludeUserId: "u1",
+      }),
+    );
   });
 
   test("201 re-applies after denial (INACTIVE)", async () => {
     authMock.mockResolvedValue({ user: { id: "u1" } });
     prismaMock.school.findUnique.mockResolvedValue({
-      id: schoolId, organizationId: orgId, applicationFlowEnabled: true,
+      id: schoolId, name: "Shibuya", organizationId: orgId, applicationFlowEnabled: true,
     });
     prismaMock.organizationMembership.findFirst.mockResolvedValue({
       id: "mem-old", status: "INACTIVE",

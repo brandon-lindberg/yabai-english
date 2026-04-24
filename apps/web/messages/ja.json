@@ -407,8 +407,13 @@
       "role": "役割",
       "school": "スクール",
       "deleteOrg": "組織を削除",
-      "deleteConfirmPlaceholder": "{slug} と入力してください",
-      "deleteConfirmMismatch": "スラッグが一致しません。"
+      "deleteConfirmPrompt": "下に <code>{slug}</code> と入力すると、この組織を完全に削除します。関連するスクール・メンバー・スケジュールもすべて削除されます。",
+      "confirmDeleteCta": "完全に削除する",
+      "cancel": "キャンセル",
+      "slugPreview": "保存される値",
+      "slugInvalidEmpty": "スラッグには英数字を含めてください。",
+      "searching": "検索中…",
+      "noResults": "一致するユーザーはいません。"
     },
     "usersPage": {
       "title": "全ユーザー"
@@ -480,6 +485,9 @@
       "colDisplayName": "講師名",
       "colRateYen": "料金¥",
       "colCalendar": "カレンダー",
+      "colOrgs": "所属組織",
+      "noOrgs": "—",
+      "orgWideScope": "組織全体",
       "searchLabel": "検索",
       "searchPlaceholder": "名前またはメール",
       "sortLabel": "並び替え",
@@ -890,7 +898,9 @@
       "create": "スクールを作成",
       "creating": "作成中…",
       "cancel": "キャンセル",
-      "error": "スクールを作成できませんでした。"
+      "error": "スクールを作成できませんでした。",
+      "slugPreview": "保存される値",
+      "slugInvalidEmpty": "スラッグには英数字を含めてください。"
     },
     "membersPage": {
       "title": "メンバー",
@@ -950,12 +960,28 @@
         "settings": "設定"
       },
       "classesPage": {
-        "title": "今後のクラス",
-        "description": "スケジュールから生成されたクラスのインスタンスです。",
+        "title": "クラス",
+        "description": "今後のクラスを確認し、空きのある枠に参加できます。",
         "loading": "クラスを読み込み中...",
         "none": "予定されているクラスはありません。",
         "teacher": "講師: {name}",
-        "join": "参加"
+        "join": "参加",
+        "browseTitle": "クラスを探す",
+        "upcomingTitle": "今後のセッション",
+        "noBrowseSlots": "現在参加可能なクラスはありません。",
+        "enrolled": "参加中",
+        "enrolling": "参加処理中…",
+        "full": "満員",
+        "enrollError": "クラスに参加できませんでした。",
+        "days": {
+          "0": "日",
+          "1": "月",
+          "2": "火",
+          "3": "水",
+          "4": "木",
+          "5": "金",
+          "6": "土"
+        }
       },
       "dashboard": {
         "title": "スクールダッシュボード",
@@ -1065,7 +1091,32 @@
         "saving": "保存中…",
         "saved": "保存しました。",
         "error": "設定を保存できませんでした。"
+      },
+      "applyPage": {
+        "title": "{school} に申請する",
+        "description": "{org} への参加申請を送信します。管理者が確認のうえ返答します。",
+        "noteLabel": "管理者への一言（任意）",
+        "notePlaceholder": "参加したい理由、目標、希望スケジュールなど…",
+        "noteHelp": "最大 2,000 文字。",
+        "submit": "申請を送信",
+        "submitting": "送信中…",
+        "submitted": "申請を受け付けました。確認後にお知らせします。",
+        "error": "申請を送信できませんでした。",
+        "notEnabled": "このスクールは現在申請を受け付けていません。",
+        "alreadyMember": "あなたはすでにこのスクールのメンバーです。",
+        "pending": "申請は確認待ちです。"
       }
+    },
+    "invitePage": {
+      "title": "招待を承諾",
+      "description": "{org} への参加招待を受け取りました。",
+      "invitedAs": "ロール: {role} として招待されています。",
+      "accept": "招待を承諾",
+      "accepting": "承諾中…",
+      "error": "招待を承諾できませんでした。",
+      "invalid": "招待リンクが無効です。",
+      "alreadyUsed": "この招待はすでに使用されています。",
+      "expired": "この招待は期限切れです。"
     }
   }
 }

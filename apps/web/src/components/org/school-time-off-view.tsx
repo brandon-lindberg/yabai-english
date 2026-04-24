@@ -16,9 +16,19 @@ type TimeOffRequest = {
   };
 };
 
-type Props = { orgId: string; schoolId: string };
+type Props = {
+  orgId: string;
+  schoolId: string;
+  canReview: boolean;
+  canRequest: boolean;
+};
 
-export function SchoolTimeOffView({ orgId, schoolId }: Props) {
+export function SchoolTimeOffView({
+  orgId,
+  schoolId,
+  canReview,
+  canRequest,
+}: Props) {
   const t = useTranslations("org.school.timeOffPage");
   const [requests, setRequests] = useState<TimeOffRequest[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -95,16 +105,18 @@ export function SchoolTimeOffView({ orgId, schoolId }: Props) {
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
-        <button
-          onClick={() => setShowCreate(!showCreate)}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-        >
-          {t("request")}
-        </button>
-      </div>
+      {canRequest && (
+        <div className="mb-4 flex justify-end">
+          <button
+            onClick={() => setShowCreate(!showCreate)}
+            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            {t("request")}
+          </button>
+        </div>
+      )}
 
-      {showCreate && (
+      {canRequest && showCreate && (
         <AppCard className="mb-6">
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -179,7 +191,7 @@ export function SchoolTimeOffView({ orgId, schoolId }: Props) {
                 >
                   {t(r.status.toLowerCase() as "pending" | "approved" | "denied")}
                 </span>
-                {r.status === "PENDING" && (
+                {canReview && r.status === "PENDING" && (
                   <div className="flex gap-1">
                     <button
                       onClick={() => handleReview(r.id, "APPROVED")}

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canApplyToSchool } from "@/lib/school-enrollment";
+import { notifySchoolAdmins } from "@/lib/school-admin-notify";
 
 const applySchema = z.object({
   applicationNote: z.string().trim().max(2000).optional(),
@@ -25,6 +26,7 @@ export async function POST(req: Request, ctx: RouteContext) {
     where: { id: schoolId },
     select: {
       id: true,
+      name: true,
       organizationId: true,
       applicationFlowEnabled: true,
     },
@@ -66,9 +68,10 @@ export async function POST(req: Request, ctx: RouteContext) {
     );
   }
 
+  let application;
   // If re-applying (INACTIVE), update existing membership
   if (existing && existing.status === "INACTIVE") {
-    const updated = await prisma.organizationMembership.update({
+    application = await prisma.organizationMembership.update({
       where: { id: existing.id },
       data: {
         status: "PENDING_APPROVAL",
@@ -76,18 +79,29 @@ export async function POST(req: Request, ctx: RouteContext) {
         orgRole: "STUDENT",
       },
     });
-    return NextResponse.json({ application: updated }, { status: 201 });
+  } else {
+    application = await prisma.organizationMembership.create({
+      data: {
+        organizationId: orgId,
+        userId: session.user.id,
+        schoolId,
+        orgRole: "STUDENT",
+        status: "PENDING_APPROVAL",
+        applicationNote: parsed.data.applicationNote,
+      },
+    });
   }
 
-  const application = await prisma.organizationMembership.create({
-    data: {
-      organizationId: orgId,
-      userId: session.user.id,
-      schoolId,
-      orgRole: "STUDENT",
-      status: "PENDING_APPROVAL",
-      applicationNote: parsed.data.applicationNote,
-    },
+  const applicantName =
+    session.user.name ?? session.user.email ?? "A student";
+  await notifySchoolAdmins({
+    organizationId: orgId,
+    schoolId,
+    excludeUserId: session.user.id,
+    titleJa: "新しいスクール参加申請",
+    titleEn: "New school application",
+    bodyJa: `${applicantName}さんが${school.name}への参加を申請しました。`,
+    bodyEn: `${applicantName} applied to join ${school.name}.`,
   });
 
   return NextResponse.json({ application }, { status: 201 });

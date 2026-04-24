@@ -1,20 +1,28 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { authMock, prismaMock } = vi.hoisted(() => ({
+const { authMock, prismaMock, notifyAdminsMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
     organizationMembership: {
       findFirst: vi.fn(),
+      findMany: vi.fn(),
     },
     timeOffRequest: {
       create: vi.fn(),
       findMany: vi.fn(),
     },
+    school: {
+      findUnique: vi.fn(),
+    },
   },
+  notifyAdminsMock: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/lib/school-admin-notify", () => ({
+  notifySchoolAdmins: notifyAdminsMock,
+}));
 
 import { GET, POST } from "@/app/api/org/[orgId]/schools/[schoolId]/time-off-requests/route";
 
@@ -91,6 +99,7 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/time-off-requests", () => {
       endDate: new Date("2026-04-27"),
     };
     prismaMock.timeOffRequest.create.mockResolvedValue(created);
+    prismaMock.school.findUnique.mockResolvedValue({ name: "Shibuya" });
 
     const res = await POST(
       postReq({
@@ -103,6 +112,13 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/time-off-requests", () => {
     expect(res.status).toBe(201);
     const body = await res.json();
     expect(body.request.status).toBe("PENDING");
+    expect(notifyAdminsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organizationId: orgId,
+        schoolId,
+        excludeUserId: "u1",
+      }),
+    );
   });
 });
 

@@ -5,6 +5,17 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
 
+function normalizeSlugInput(raw: string): string {
+  return raw
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+function finalizeSlug(v: string): string {
+  return v.replace(/^-+|-+$/g, "");
+}
+
 type School = {
   id: string;
   slug: string;
@@ -37,10 +48,16 @@ export function OrgSchoolsList({ orgId }: Props) {
     setSaving(true);
     setError("");
 
+    const finalSlug = finalizeSlug(slug);
+    if (!finalSlug) {
+      setError(t("slugInvalidEmpty"));
+      setSaving(false);
+      return;
+    }
     const res = await fetch(`/api/org/${orgId}/schools`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, slug }),
+      body: JSON.stringify({ name, slug: finalSlug }),
     });
 
     if (!res.ok) {
@@ -96,10 +113,21 @@ export function OrgSchoolsList({ orgId }: Props) {
               <input
                 className={inputCn}
                 value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                onChange={(e) => setSlug(normalizeSlugInput(e.target.value))}
+                onBlur={() => setSlug((s) => finalizeSlug(s))}
                 placeholder={t("schoolSlugPlaceholder")}
                 required
               />
+              {slug.length > 0 && finalizeSlug(slug) !== slug && (
+                <p className="mt-1 text-xs text-muted">
+                  {t("slugPreview")}: <code className="text-foreground">{finalizeSlug(slug)}</code>
+                </p>
+              )}
+              {slug.length > 0 && finalizeSlug(slug).length === 0 && (
+                <p className="mt-1 text-xs text-[var(--app-danger)]">
+                  {t("slugInvalidEmpty")}
+                </p>
+              )}
             </div>
             {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
             <div className="flex gap-2">

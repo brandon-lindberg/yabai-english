@@ -9,6 +9,7 @@ import {
   type MembershipForAuth,
 } from "@/lib/org-authorization";
 import { validateTimeOffRequest } from "@/lib/school-time-off";
+import { notifySchoolAdmins } from "@/lib/school-admin-notify";
 
 const createTimeOffSchema = z.object({
   startDate: z.string().transform((s) => new Date(s)),
@@ -87,6 +88,24 @@ export async function POST(req: Request, ctx: RouteContext) {
       endDate,
       reason,
     },
+  });
+
+  const school = await prisma.school.findUnique({
+    where: { id: schoolId },
+    select: { name: true },
+  });
+  const teacherName =
+    session.user.name ?? session.user.email ?? "A teacher";
+  const schoolName = school?.name ?? "the school";
+  const fmt = (d: Date) => d.toISOString().slice(0, 10);
+  await notifySchoolAdmins({
+    organizationId: orgId,
+    schoolId,
+    excludeUserId: session.user.id,
+    titleJa: "新しい休暇申請",
+    titleEn: "New time-off request",
+    bodyJa: `${teacherName}さん（${schoolName}）が${fmt(startDate)}〜${fmt(endDate)}の休暇を申請しました。`,
+    bodyEn: `${teacherName} at ${schoolName} requested time off ${fmt(startDate)} – ${fmt(endDate)}.`,
   });
 
   return NextResponse.json({ request }, { status: 201 });
