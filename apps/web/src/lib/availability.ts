@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { expandWeeklyOccurrencesInRange } from "@/lib/recurring-slot-occurrences";
 
 type AvailabilitySlotInput = {
   id: string;
@@ -34,10 +35,6 @@ export type SlotOption = {
   lessonTypeCustom: string | null;
 };
 
-function jsDayOfWeek(dt: DateTime) {
-  return dt.weekday % 7;
-}
-
 export function buildUpcomingSlotOptions({
   availabilitySlots,
   viewerTimezone,
@@ -53,39 +50,34 @@ export function buildUpcomingSlotOptions({
       ? DateTime.fromISO(now, { zone: "utc" })
       : DateTime.fromJSDate(now, { zone: "utc" });
   const options: SlotOption[] = [];
+  const leadMs = minimumLeadHours * 60 * 60 * 1000;
 
   for (const slot of availabilitySlots) {
     const zoneNow = nowUtc.setZone(slot.timezone);
-    for (let offset = 0; offset < horizonDays; offset += 1) {
-      const day = zoneNow.startOf("day").plus({ days: offset });
-      if (jsDayOfWeek(day) !== slot.dayOfWeek) continue;
+    const zoneRangeStart = zoneNow.startOf("day");
+    const zoneRangeEnd = zoneRangeStart
+      .plus({ days: Math.max(0, horizonDays - 1) })
+      .endOf("day");
 
-      const startHour = Math.floor(slot.startMin / 60);
-      const startMinute = slot.startMin % 60;
-      const endHour = Math.floor(slot.endMin / 60);
-      const endMinute = slot.endMin % 60;
+    const occurrences = expandWeeklyOccurrencesInRange(
+      {
+        dayOfWeek: slot.dayOfWeek,
+        startMin: slot.startMin,
+        endMin: slot.endMin,
+        timezone: slot.timezone,
+      },
+      zoneRangeStart.toJSDate(),
+      zoneRangeEnd.toJSDate(),
+    );
 
-      const startTeacher = day.set({
-        hour: startHour,
-        minute: startMinute,
-        second: 0,
-        millisecond: 0,
-      });
-      const endTeacher = day.set({
-        hour: endHour,
-        minute: endMinute,
-        second: 0,
-        millisecond: 0,
-      });
-
-      const startUtc = startTeacher.toUTC();
-      const endUtc = endTeacher.toUTC();
-      const startsAtIso = startUtc.toISO({ suppressMilliseconds: false }) ?? "";
+    for (const occ of occurrences) {
+      const startsAtIso = occ.startsAtIso;
       if (skippedStartsAtIso?.has(startsAtIso)) continue;
 
-      const leadMs = minimumLeadHours * 60 * 60 * 1000;
+      const startUtc = DateTime.fromISO(startsAtIso, { zone: "utc" });
       if (!allowPastInstances && startUtc <= nowUtc.plus({ milliseconds: leadMs })) continue;
 
+      const endUtc = DateTime.fromISO(occ.endsAtIso, { zone: "utc" });
       const startViewer = startUtc.setZone(viewerTimezone);
       const endViewer = endUtc.setZone(viewerTimezone);
       const timeLabel = `${startViewer.toFormat("ccc, LLL d HH:mm")} - ${endViewer.toFormat(
@@ -97,7 +89,7 @@ export function buildUpcomingSlotOptions({
       options.push({
         slotId: slot.id,
         startsAtIso,
-        endsAtIso: endUtc.toISO({ suppressMilliseconds: false }) ?? "",
+        endsAtIso: occ.endsAtIso,
         label,
         lessonType: slot.lessonType,
         lessonTypeCustom: slot.lessonTypeCustom ?? null,

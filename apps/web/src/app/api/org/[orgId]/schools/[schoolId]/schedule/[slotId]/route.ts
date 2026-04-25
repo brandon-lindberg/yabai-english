@@ -19,6 +19,8 @@ const updateSlotSchema = z.object({
   labelEn: z.string().trim().optional(),
   capacity: z.number().int().min(1).max(100).optional(),
   assignedTeacherMembershipId: z.string().nullable().optional(),
+  classLevelId: z.string().min(1).nullable().optional(),
+  classTypeId: z.string().min(1).nullable().optional(),
   active: z.boolean().optional(),
 });
 
@@ -77,9 +79,37 @@ export async function PATCH(req: Request, ctx: RouteContext) {
     );
   }
 
+  const data = parsed.data;
+
+  if (data.classLevelId) {
+    const lvl = await prisma.schoolClassLevel.findUnique({
+      where: { id: data.classLevelId },
+      select: { id: true, schoolId: true },
+    });
+    if (!lvl || lvl.schoolId !== schoolId) {
+      return NextResponse.json(
+        { error: "classLevelId does not belong to this school" },
+        { status: 400 },
+      );
+    }
+  }
+
+  if (data.classTypeId) {
+    const t = await prisma.schoolClassType.findUnique({
+      where: { id: data.classTypeId },
+      select: { id: true, schoolId: true },
+    });
+    if (!t || t.schoolId !== schoolId) {
+      return NextResponse.json(
+        { error: "classTypeId does not belong to this school" },
+        { status: 400 },
+      );
+    }
+  }
+
   const updated = await prisma.schoolScheduleSlot.update({
     where: { id: slotId },
-    data: parsed.data,
+    data,
   });
 
   return NextResponse.json({ slot: updated });

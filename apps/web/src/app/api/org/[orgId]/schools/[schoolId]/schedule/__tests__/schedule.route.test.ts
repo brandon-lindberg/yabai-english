@@ -13,6 +13,12 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
     schoolClassEnrollment: {
       findMany: vi.fn(),
     },
+    schoolClassLevel: {
+      findUnique: vi.fn(),
+    },
+    schoolClassType: {
+      findUnique: vi.fn(),
+    },
     school: {
       findUnique: vi.fn(),
     },
@@ -166,6 +172,118 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
     expect(res.status).toBe(201);
     const body = await res.json();
     expect(body.slot.lessonLevel).toBe("beginner");
+  });
+
+  test("400 when classLevelId belongs to a different school", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    prismaMock.schoolClassLevel.findUnique.mockResolvedValue({
+      id: "lvl-foreign",
+      schoolId: "school-other",
+    });
+    const res = await POST(
+      postReq({
+        dayOfWeek: 1,
+        startMin: 540,
+        endMin: 600,
+        durationMin: 60,
+        lessonLevel: "beginner",
+        lessonType: "conversation",
+        capacity: 5,
+        classLevelId: "lvl-foreign",
+      }),
+      routeCtx,
+    );
+    expect(res.status).toBe(400);
+  });
+
+  test("400 when classTypeId belongs to a different school", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    prismaMock.schoolClassType.findUnique.mockResolvedValue({
+      id: "type-foreign",
+      schoolId: "school-other",
+    });
+    const res = await POST(
+      postReq({
+        dayOfWeek: 1,
+        startMin: 540,
+        endMin: 600,
+        durationMin: 60,
+        lessonLevel: "beginner",
+        lessonType: "conversation",
+        capacity: 5,
+        classTypeId: "type-foreign",
+      }),
+      routeCtx,
+    );
+    expect(res.status).toBe(400);
+  });
+
+  test("201 persists classLevelId/classTypeId when they belong to the school", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    prismaMock.school.findUnique.mockResolvedValue({
+      id: schoolId,
+      timezone: "Asia/Tokyo",
+      organization: { timezone: "Asia/Tokyo" },
+    });
+    prismaMock.schoolClassLevel.findUnique.mockResolvedValue({
+      id: "lvl-1",
+      schoolId,
+    });
+    prismaMock.schoolClassType.findUnique.mockResolvedValue({
+      id: "type-1",
+      schoolId,
+    });
+    prismaMock.schoolScheduleSlot.create.mockResolvedValue({
+      id: "slot-1",
+      classLevelId: "lvl-1",
+      classTypeId: "type-1",
+    });
+
+    const res = await POST(
+      postReq({
+        dayOfWeek: 1,
+        startMin: 540,
+        endMin: 600,
+        durationMin: 60,
+        lessonLevel: "beginner",
+        lessonType: "conversation",
+        capacity: 5,
+        classLevelId: "lvl-1",
+        classTypeId: "type-1",
+      }),
+      routeCtx,
+    );
+    expect(res.status).toBe(201);
+    expect(prismaMock.schoolScheduleSlot.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        classLevelId: "lvl-1",
+        classTypeId: "type-1",
+      }),
+    });
   });
 
   test("400 with invalid slot times", async () => {

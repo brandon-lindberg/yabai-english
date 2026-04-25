@@ -3,18 +3,20 @@ import {
   AVAILABILITY_LESSON_LEVELS,
   AVAILABILITY_LESSON_TYPES,
 } from "@/lib/availability-slot-lesson-meta";
+import {
+  weeklyTimeRangeOrdered,
+  weeklyTimeRangeShape,
+} from "@/lib/weekly-time-range";
 
 export const teacherAvailabilitySlotSchema = z
   .object({
-    dayOfWeek: z.number().int().min(0).max(6),
-    startMin: z.number().int().min(0).max(1439),
-    endMin: z.number().int().min(1).max(1440),
+    ...weeklyTimeRangeShape,
     timezone: z.string().min(1).max(100),
     lessonLevel: z.enum(AVAILABILITY_LESSON_LEVELS),
     lessonType: z.enum(AVAILABILITY_LESSON_TYPES),
     lessonTypeCustom: z.string().max(200).nullable().optional(),
   })
-  .refine((slot) => slot.endMin > slot.startMin, {
+  .refine(weeklyTimeRangeOrdered, {
     message: "endMin must be greater than startMin",
     path: ["endMin"],
   })

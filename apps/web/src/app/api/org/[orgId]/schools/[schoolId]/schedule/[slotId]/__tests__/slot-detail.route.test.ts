@@ -5,6 +5,8 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
   prismaMock: {
     organizationMembership: { findFirst: vi.fn() },
     schoolScheduleSlot: { findUnique: vi.fn(), update: vi.fn() },
+    schoolClassLevel: { findUnique: vi.fn() },
+    schoolClassType: { findUnique: vi.fn() },
   },
 }));
 
@@ -70,6 +72,69 @@ describe("PATCH /api/org/.../schedule/[slotId]", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.slot.capacity).toBe(5);
+  });
+
+  test("400 when classLevelId belongs to a different school", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue(adminCaller);
+    prismaMock.schoolScheduleSlot.findUnique.mockResolvedValue({
+      id: slotId, schoolId,
+    });
+    prismaMock.schoolClassLevel.findUnique.mockResolvedValue({
+      id: "lvl-foreign", schoolId: "school-other",
+    });
+    const res = await PATCH(
+      patchReq({ classLevelId: "lvl-foreign" }),
+      routeCtx,
+    );
+    expect(res.status).toBe(400);
+  });
+
+  test("200 updates classLevelId/classTypeId when they belong to the school", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue(adminCaller);
+    prismaMock.schoolScheduleSlot.findUnique.mockResolvedValue({
+      id: slotId, schoolId,
+    });
+    prismaMock.schoolClassLevel.findUnique.mockResolvedValue({
+      id: "lvl-1", schoolId,
+    });
+    prismaMock.schoolClassType.findUnique.mockResolvedValue({
+      id: "type-1", schoolId,
+    });
+    prismaMock.schoolScheduleSlot.update.mockResolvedValue({
+      id: slotId, classLevelId: "lvl-1", classTypeId: "type-1",
+    });
+    const res = await PATCH(
+      patchReq({ classLevelId: "lvl-1", classTypeId: "type-1" }),
+      routeCtx,
+    );
+    expect(res.status).toBe(200);
+    expect(prismaMock.schoolScheduleSlot.update).toHaveBeenCalledWith({
+      where: { id: slotId },
+      data: expect.objectContaining({
+        classLevelId: "lvl-1",
+        classTypeId: "type-1",
+      }),
+    });
+  });
+
+  test("200 clears classLevelId/classTypeId when set to null", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue(adminCaller);
+    prismaMock.schoolScheduleSlot.findUnique.mockResolvedValue({
+      id: slotId, schoolId, classLevelId: "lvl-1", classTypeId: "type-1",
+    });
+    prismaMock.schoolScheduleSlot.update.mockResolvedValue({
+      id: slotId, classLevelId: null, classTypeId: null,
+    });
+    const res = await PATCH(
+      patchReq({ classLevelId: null, classTypeId: null }),
+      routeCtx,
+    );
+    expect(res.status).toBe(200);
+    expect(prismaMock.schoolClassLevel.findUnique).not.toHaveBeenCalled();
+    expect(prismaMock.schoolClassType.findUnique).not.toHaveBeenCalled();
   });
 });
 

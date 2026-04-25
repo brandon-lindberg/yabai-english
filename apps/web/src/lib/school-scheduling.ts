@@ -1,17 +1,14 @@
-import { DateTime } from "luxon";
+import {
+  expandWeeklyOccurrencesInRange,
+  type OccurrenceInRange,
+  type WeeklyRecurrenceRule,
+} from "@/lib/recurring-slot-occurrences";
+import { schoolScheduleSlotInputSchema } from "@/lib/school-schedule-slot";
 
 /** Minimum slot shape for occurrence generation. */
-export interface SlotForOccurrences {
-  dayOfWeek: number; // 0-6 (Sun-Sat)
-  startMin: number; // minutes from midnight
-  endMin: number; // minutes from midnight
-  timezone: string;
-}
+export type SlotForOccurrences = WeeklyRecurrenceRule;
 
-export interface Occurrence {
-  startsAtIso: string;
-  endsAtIso: string;
-}
+export type Occurrence = OccurrenceInRange;
 
 export interface SlotValidationInput {
   dayOfWeek: number;
@@ -36,88 +33,53 @@ export interface CapacityDisplay {
 
 /**
  * Validate schedule slot time/capacity parameters.
+ *
+ * Thin wrapper around `schoolScheduleSlotInputSchema` that maps the first
+ * Zod issue back to a legacy `{valid, error}` shape so existing callers and
+ * route assertions keep working. New code should prefer the schema directly.
  */
 export function validateSlotTimes(
   input: SlotValidationInput,
 ): SlotValidationResult {
-  if (input.dayOfWeek < 0 || input.dayOfWeek > 6) {
-    return { valid: false, error: "dayOfWeek must be 0-6" };
+  const parsed = schoolScheduleSlotInputSchema.safeParse(input);
+  if (parsed.success) return { valid: true };
+  const first = parsed.error.issues[0];
+  return { valid: false, error: legacyMessageForIssue(first, input) };
+}
+
+function legacyMessageForIssue(
+  issue: { path: (string | number)[]; message: string },
+  input: SlotValidationInput,
+): string {
+  const field = issue.path[0];
+  if (field === "dayOfWeek") return "dayOfWeek must be 0-6";
+  if (field === "startMin" && input.startMin < 0) {
+    return "start and end minutes must be non-negative";
   }
-  if (input.startMin < 0 || input.endMin < 0) {
-    return { valid: false, error: "start and end minutes must be non-negative" };
+  if (field === "endMin") {
+    if (input.endMin < 0) return "start and end minutes must be non-negative";
+    if (input.endMin > 1440) return "end minutes must not exceed 1440 (24 hours)";
+    return "start must be before end";
   }
-  if (input.endMin > 1440) {
-    return {
-      valid: false,
-      error: "end minutes must not exceed 1440 (24 hours)",
-    };
-  }
-  if (input.startMin >= input.endMin) {
-    return { valid: false, error: "start must be before end" };
-  }
-  if (input.durationMin < 1) {
-    return { valid: false, error: "duration must be at least 1 minute" };
-  }
-  if (input.capacity < 1) {
-    return { valid: false, error: "capacity must be at least 1" };
-  }
-  return { valid: true };
+  if (field === "durationMin") return "duration must be at least 1 minute";
+  if (field === "capacity") return "capacity must be at least 1";
+  return issue.message;
 }
 
 /**
  * Generate all weekly occurrences of a slot within a date range.
  * Returns UTC ISO timestamps for each occurrence.
+ *
+ * Thin wrapper around the shared `expandWeeklyOccurrencesInRange` so the
+ * weekly time-of-day → UTC math lives in one place (also used by the
+ * marketplace `buildUpcomingSlotOptions`).
  */
 export function generateOccurrences(
   slot: SlotForOccurrences,
   rangeStart: Date,
   rangeEnd: Date,
 ): Occurrence[] {
-  const occurrences: Occurrence[] = [];
-
-  // Luxon uses ISO weekday: 1=Mon...7=Sun
-  // Our dayOfWeek: 0=Sun, 1=Mon...6=Sat
-  const luxonWeekday = slot.dayOfWeek === 0 ? 7 : slot.dayOfWeek;
-
-  const zoneStart = DateTime.fromJSDate(rangeStart, { zone: slot.timezone });
-  const zoneEnd = DateTime.fromJSDate(rangeEnd, { zone: slot.timezone });
-
-  // Find the first occurrence of the target weekday at or after rangeStart
-  let current = zoneStart.startOf("day");
-  while (current.weekday !== luxonWeekday) {
-    current = current.plus({ days: 1 });
-  }
-
-  while (current <= zoneEnd) {
-    const startHour = Math.floor(slot.startMin / 60);
-    const startMinute = slot.startMin % 60;
-    const endHour = Math.floor(slot.endMin / 60);
-    const endMinute = slot.endMin % 60;
-
-    const occStart = current.set({
-      hour: startHour,
-      minute: startMinute,
-      second: 0,
-      millisecond: 0,
-    });
-    const occEnd = current.set({
-      hour: endHour,
-      minute: endMinute,
-      second: 0,
-      millisecond: 0,
-    });
-
-    if (occStart >= zoneStart && occStart <= zoneEnd) {
-      occurrences.push({
-        startsAtIso: occStart.toUTC().toISO()!,
-        endsAtIso: occEnd.toUTC().toISO()!,
-      });
-    }
-
-    current = current.plus({ weeks: 1 });
-  }
-
-  return occurrences;
+  return expandWeeklyOccurrencesInRange(slot, rangeStart, rangeEnd);
 }
 
 /**

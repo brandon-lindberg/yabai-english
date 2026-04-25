@@ -2,10 +2,10 @@ import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
-import { SchoolScheduleCalendar } from "@/components/org/school-schedule-calendar";
+import { SchoolTaxonomyManager } from "@/components/org/school-taxonomy-manager";
 import { getViewerSchoolRole } from "@/lib/org-viewer-role";
 
-export default async function SchoolSchedulePage({
+export default async function SchoolTaxonomyPage({
   params,
 }: {
   params: Promise<{ orgId: string; schoolId: string }>;
@@ -25,12 +25,12 @@ export default async function SchoolSchedulePage({
     return null;
   }
 
-  const t = await getTranslations("org.school.schedulePage");
+  const t = await getTranslations("org.school.taxonomyPage");
 
   return (
     <main>
       <PageHeader title={t("title")} description={t("description")} />
-      <SchoolScheduleCalendar orgId={orgId} schoolId={schoolId} />
+      <SchoolTaxonomyManager orgId={orgId} schoolId={schoolId} />
     </main>
   );
 }

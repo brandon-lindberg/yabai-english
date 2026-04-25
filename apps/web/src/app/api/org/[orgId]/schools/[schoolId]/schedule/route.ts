@@ -20,6 +20,8 @@ const createSlotSchema = z.object({
   labelEn: z.string().trim().optional(),
   capacity: z.number().int().min(1).max(100).default(1),
   assignedTeacherMembershipId: z.string().optional(),
+  classLevelId: z.string().min(1).optional().nullable(),
+  classTypeId: z.string().min(1).optional().nullable(),
 });
 
 type RouteContext = {
@@ -82,6 +84,24 @@ export async function GET(req: Request, ctx: RouteContext) {
           id: true,
           orgRole: true,
           user: { select: { id: true, name: true, image: true } },
+        },
+      },
+      classLevel: {
+        select: {
+          id: true,
+          code: true,
+          label: true,
+          labelJa: true,
+          labelEn: true,
+        },
+      },
+      classType: {
+        select: {
+          id: true,
+          code: true,
+          label: true,
+          labelJa: true,
+          labelEn: true,
         },
       },
       _count: { select: { enrollments: { where: { active: true } } } },
@@ -149,6 +169,32 @@ export async function POST(req: Request, ctx: RouteContext) {
     );
   }
 
+  if (data.classLevelId) {
+    const lvl = await prisma.schoolClassLevel.findUnique({
+      where: { id: data.classLevelId },
+      select: { id: true, schoolId: true },
+    });
+    if (!lvl || lvl.schoolId !== schoolId) {
+      return NextResponse.json(
+        { error: "classLevelId does not belong to this school" },
+        { status: 400 },
+      );
+    }
+  }
+
+  if (data.classTypeId) {
+    const t = await prisma.schoolClassType.findUnique({
+      where: { id: data.classTypeId },
+      select: { id: true, schoolId: true },
+    });
+    if (!t || t.schoolId !== schoolId) {
+      return NextResponse.json(
+        { error: "classTypeId does not belong to this school" },
+        { status: 400 },
+      );
+    }
+  }
+
   // Resolve timezone from school or org
   const school = await prisma.school.findUnique({
     where: { id: schoolId },
@@ -171,6 +217,8 @@ export async function POST(req: Request, ctx: RouteContext) {
       labelEn: data.labelEn,
       capacity: data.capacity,
       assignedTeacherMembershipId: data.assignedTeacherMembershipId,
+      classLevelId: data.classLevelId ?? null,
+      classTypeId: data.classTypeId ?? null,
     },
   });
 

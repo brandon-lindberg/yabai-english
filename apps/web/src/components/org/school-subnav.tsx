@@ -31,6 +31,7 @@ export function SchoolSubnav({
       label: "timeOff",
       show: isSchoolAdmin || isSchoolTeacher,
     },
+    { href: `${base}/taxonomy`, label: "taxonomy", show: isSchoolAdmin },
     { href: `${base}/settings`, label: "settings", show: isSchoolAdmin },
   ];
 
