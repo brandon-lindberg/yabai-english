@@ -21,8 +21,6 @@ type School = {
   slug: string;
   name: string;
   nameJa?: string;
-  applicationFlowEnabled: boolean;
-  selfEnrollmentEnabled: boolean;
   _count?: { memberships: number };
 };
 
@@ -158,22 +156,15 @@ export function OrgSchoolsList({ orgId }: Props) {
             <Link
               key={school.id}
               href={`/org/${orgId}/schools/${school.id}`}
-              className="flex items-center justify-between px-4 py-3 text-sm hover:bg-[var(--app-hover)]"
+              className="flex items-center justify-between gap-4 px-4 py-3 text-sm hover:bg-[var(--app-hover)]"
             >
-              <div>
-                <p className="font-medium text-foreground">{school.name}</p>
-                <p className="text-xs text-muted">/{school.slug}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-foreground">{school.name}</p>
+                <p className="truncate text-xs text-muted">/{school.slug}</p>
               </div>
-              <div className="flex items-center gap-3 text-xs text-muted">
-                <span>
-                  {t("applicationFlow")}:{" "}
-                  {school.applicationFlowEnabled ? t("enabled") : t("disabled")}
-                </span>
-                <span>
-                  {t("selfEnrollment")}:{" "}
-                  {school.selfEnrollmentEnabled ? t("enabled") : t("disabled")}
-                </span>
-              </div>
+              <span className="shrink-0 rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs font-medium text-muted">
+                {t("memberCount", { count: school._count?.memberships ?? 0 })}
+              </span>
             </Link>
           ))}
         </div>

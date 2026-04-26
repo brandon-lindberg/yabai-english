@@ -23,8 +23,6 @@ export type AdminSchool = {
   name: string;
   nameJa: string | null;
   nameEn: string | null;
-  applicationFlowEnabled: boolean;
-  selfEnrollmentEnabled: boolean;
   memberCount: number;
 };
 
@@ -32,7 +30,7 @@ export type AdminMembership = {
   id: string;
   orgRole: OrgRole;
   schoolId: string | null;
-  user: { id: string; name: string | null; email: string | null };
+  user: { id: string; name: string | null; email: string | null } | null;
 };
 
 export type AdminOrganization = {
@@ -279,7 +277,7 @@ function OrgCard({
               return (
                 <li key={m.id} className="flex justify-between gap-2 text-sm">
                   <span className="text-foreground">
-                    {m.user.name ?? m.user.email ?? m.user.id}
+                    {m.user?.name ?? m.user?.email ?? m.user?.id ?? ""}
                   </span>
                   <span className="text-xs text-muted">
                     {m.orgRole} · {schoolName}

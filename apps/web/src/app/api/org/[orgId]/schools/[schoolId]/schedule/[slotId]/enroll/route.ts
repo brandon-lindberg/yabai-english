@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import {
   isOrgWideAdmin,
   isSchoolAdmin,
-  canSelfEnroll,
   type MembershipForAuth,
 } from "@/lib/org-authorization";
 import { canEnrollStudent } from "@/lib/school-enrollment";
@@ -72,26 +71,8 @@ export async function POST(req: Request, ctx: RouteContext) {
 
   const { studentMembershipId } = parsed.data;
 
-  // Determine if this is self-enrollment or admin enrollment
-  const isSelfEnroll = caller.id === studentMembershipId;
-
-  if (isSelfEnroll) {
-    // Self-enrollment: check if school allows it
-    const school = await prisma.school.findUnique({
-      where: { id: schoolId },
-      select: { id: true, selfEnrollmentEnabled: true },
-    });
-    if (!school || !canSelfEnroll(caller, school)) {
-      return NextResponse.json(
-        { error: "Self-enrollment is not enabled for this school" },
-        { status: 403 },
-      );
-    }
-  } else {
-    // Admin enrollment: must be school admin or org-wide admin
-    if (!isOrgWideAdmin(caller) && !isSchoolAdmin(caller, schoolId)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+  if (!isOrgWideAdmin(caller) && !isSchoolAdmin(caller, schoolId)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Get slot and check capacity

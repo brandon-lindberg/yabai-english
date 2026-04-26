@@ -11,8 +11,6 @@ const createSchoolSchema = z.object({
   nameEn: z.string().trim().max(200).optional(),
   description: z.string().trim().max(2000).optional(),
   descriptionJa: z.string().trim().max(2000).optional(),
-  applicationFlowEnabled: z.boolean().optional(),
-  selfEnrollmentEnabled: z.boolean().optional(),
 });
 
 type RouteContext = { params: Promise<{ orgId: string }> };
@@ -52,7 +50,6 @@ export async function GET(req: Request, ctx: RouteContext) {
     where,
     select: {
       id: true, slug: true, name: true, nameJa: true, nameEn: true,
-      applicationFlowEnabled: true, selfEnrollmentEnabled: true,
       _count: {
         select: { memberships: { where: { status: "ACTIVE" } } },
       },

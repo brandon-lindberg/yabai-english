@@ -27,8 +27,6 @@ export default async function AdminSchoolsPage() {
           name: true,
           nameJa: true,
           nameEn: true,
-          applicationFlowEnabled: true,
-          selfEnrollmentEnabled: true,
           _count: {
             select: { memberships: { where: { status: "ACTIVE" } } },
           },
@@ -62,8 +60,6 @@ export default async function AdminSchoolsPage() {
       name: s.name,
       nameJa: s.nameJa,
       nameEn: s.nameEn,
-      applicationFlowEnabled: s.applicationFlowEnabled,
-      selfEnrollmentEnabled: s.selfEnrollmentEnabled,
       memberCount: s._count.memberships,
     })),
     memberships: org.memberships.map((m) => ({

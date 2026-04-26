@@ -48,7 +48,6 @@ export async function GET(req: Request, ctx: RouteContext) {
       schools: {
         select: {
           id: true, slug: true, name: true, nameJa: true, nameEn: true,
-          applicationFlowEnabled: true, selfEnrollmentEnabled: true,
           _count: {
             select: { memberships: { where: { status: "ACTIVE" } } },
           },

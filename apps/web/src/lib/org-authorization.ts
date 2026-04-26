@@ -19,16 +19,10 @@ const ORG_WIDE_ROLES: Set<OrgRole> = new Set(["OWNER", "ORG_ADMIN"]);
 export interface MembershipForAuth {
   id: string;
   organizationId: string;
-  userId: string;
+  userId: string | null;
   schoolId: string | null;
   orgRole: OrgRole;
   status: string;
-}
-
-/** Minimum school shape needed for enrollment checks. */
-export interface SchoolForAuth {
-  id: string;
-  selfEnrollmentEnabled: boolean;
 }
 
 function isActive(m: MembershipForAuth): boolean {
@@ -78,14 +72,6 @@ export function canManageMembers(
 /** True if the membership can request time off (TEACHER only, must be active). */
 export function canRequestTimeOff(m: MembershipForAuth): boolean {
   return isActive(m) && m.orgRole === "TEACHER";
-}
-
-/** True if the membership can self-enroll in classes at the given school. */
-export function canSelfEnroll(
-  m: MembershipForAuth,
-  school: SchoolForAuth,
-): boolean {
-  return isActive(m) && m.orgRole === "STUDENT" && school.selfEnrollmentEnabled;
 }
 
 /** True if `role` meets or exceeds `minimumRole` in the hierarchy. */

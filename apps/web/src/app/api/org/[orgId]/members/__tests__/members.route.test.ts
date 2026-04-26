@@ -55,7 +55,6 @@ describe("GET /api/org/[orgId]/members", () => {
 
   test("403 when user is not an org admin", async () => {
     authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
-    // User has no org-admin membership
     prismaMock.organizationMembership.findFirst.mockResolvedValue(null);
     const res = await GET(getReq(), routeContext);
     expect(res.status).toBe(403);
@@ -63,7 +62,6 @@ describe("GET /api/org/[orgId]/members", () => {
 
   test("200 returns members for org admin", async () => {
     authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
-    // User is OWNER
     prismaMock.organizationMembership.findFirst.mockResolvedValue({
       id: "mem-1",
       orgRole: "OWNER",
@@ -91,7 +89,7 @@ describe("GET /api/org/[orgId]/members", () => {
   });
 });
 
-describe("POST /api/org/[orgId]/members", () => {
+describe("POST /api/org/[orgId]/members (email-match invite)", () => {
   beforeEach(() => vi.clearAllMocks());
 
   test("401 when unauthenticated", async () => {
@@ -118,9 +116,8 @@ describe("POST /api/org/[orgId]/members", () => {
     expect(res.status).toBe(403);
   });
 
-  test("201 creates invited membership when adding by email", async () => {
+  test("201 creates INVITED membership with userId=null when target user does not exist", async () => {
     authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
-    // User is OWNER
     prismaMock.organizationMembership.findFirst
       .mockResolvedValueOnce({
         id: "mem-1",
@@ -130,23 +127,55 @@ describe("POST /api/org/[orgId]/members", () => {
         organizationId: orgId,
         userId: "u1",
       })
-      .mockResolvedValueOnce(null); // no existing membership for target user
+      .mockResolvedValueOnce(null); // no existing membership at this school for this email
 
-    // Target user exists
+    prismaMock.user.findUnique.mockResolvedValue(null); // user does not yet exist
+
+    prismaMock.organizationMembership.create.mockImplementation(
+      async ({ data }: { data: Record<string, unknown> }) => ({
+        id: "mem-new",
+        ...data,
+      }),
+    );
+
+    const res = await POST(
+      postReq({ email: "New@Test.com", orgRole: "STUDENT", schoolId }),
+      routeContext,
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    expect(body.membership.orgRole).toBe("STUDENT");
+    expect(body.membership.status).toBe("INVITED");
+    expect(body.membership.userId).toBeNull();
+    expect(body.membership.inviteEmail).toBe("new@test.com");
+    expect(body.membership.inviteToken).toBeUndefined();
+    expect(body.membership.inviteExpiresAt).toBeUndefined();
+  });
+
+  test("201 creates INVITED membership with userId set when target user already exists", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    prismaMock.organizationMembership.findFirst
+      .mockResolvedValueOnce({
+        id: "mem-1",
+        orgRole: "OWNER",
+        status: "ACTIVE",
+        schoolId: null,
+        organizationId: orgId,
+        userId: "u1",
+      })
+      .mockResolvedValueOnce(null); // no existing membership at this school
+
     prismaMock.user.findUnique.mockResolvedValue({
       id: "u2",
       email: "new@test.com",
     });
 
-    const created = {
-      id: "mem-new",
-      userId: "u2",
-      orgRole: "STUDENT",
-      status: "INVITED",
-      schoolId,
-      inviteToken: "tok-123",
-    };
-    prismaMock.organizationMembership.create.mockResolvedValue(created);
+    prismaMock.organizationMembership.create.mockImplementation(
+      async ({ data }: { data: Record<string, unknown> }) => ({
+        id: "mem-new",
+        ...data,
+      }),
+    );
 
     const res = await POST(
       postReq({ email: "new@test.com", orgRole: "STUDENT", schoolId }),
@@ -154,7 +183,36 @@ describe("POST /api/org/[orgId]/members", () => {
     );
     expect(res.status).toBe(201);
     const body = await res.json();
-    expect(body.membership.orgRole).toBe("STUDENT");
+    expect(body.membership.userId).toBe("u2");
+    expect(body.membership.inviteEmail).toBe("new@test.com");
     expect(body.membership.status).toBe("INVITED");
+  });
+
+  test("409 when email already invited at this school (regardless of whether user exists)", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    prismaMock.organizationMembership.findFirst
+      .mockResolvedValueOnce({
+        id: "mem-1",
+        orgRole: "OWNER",
+        status: "ACTIVE",
+        schoolId: null,
+        organizationId: orgId,
+        userId: "u1",
+      })
+      .mockResolvedValueOnce({
+        id: "mem-existing",
+        organizationId: orgId,
+        schoolId,
+        inviteEmail: "new@test.com",
+        status: "INVITED",
+      });
+
+    prismaMock.user.findUnique.mockResolvedValue(null);
+
+    const res = await POST(
+      postReq({ email: "new@test.com", orgRole: "STUDENT", schoolId }),
+      routeContext,
+    );
+    expect(res.status).toBe(409);
   });
 });

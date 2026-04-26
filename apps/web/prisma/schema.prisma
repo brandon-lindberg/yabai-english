@@ -793,9 +793,6 @@ model School {
   description    String?      @db.Text
   descriptionJa  String?      @db.Text
 
-  applicationFlowEnabled Boolean @default(false)
-  selfEnrollmentEnabled  Boolean @default(false)
-
   /// Future: custom domain for this specific school.
   customDomain String? @unique
 
@@ -822,8 +819,10 @@ model OrganizationMembership {
   id             String       @id @default(cuid())
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Null until the invited email signs in for the first time, at which
+  /// point the auth signIn callback links the membership to the User row.
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
   schoolId       String?
   school         School?      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
@@ -833,12 +832,8 @@ model OrganizationMembership {
   invitedByUserId String?
   invitedAt       DateTime?
   joinedAt        DateTime?
+  /// Email the admin invited. On sign-in, the user is matched here by email.
   inviteEmail     String?
-  inviteToken     String?   @unique
-  inviteExpiresAt DateTime?
-
-  applicationNote String? @db.Text
-  reviewNote      String? @db.Text
 
   teacherScheduleSlots SchoolScheduleSlot[]
   classEnrollments     SchoolClassEnrollment[]
@@ -850,10 +845,11 @@ model OrganizationMembership {
   updatedAt DateTime @updatedAt
 
   @@unique([organizationId, userId, schoolId])
+  @@unique([organizationId, inviteEmail, schoolId])
   @@index([userId])
   @@index([organizationId, orgRole])
   @@index([schoolId])
-  @@index([inviteToken])
+  @@index([inviteEmail])
 }
 
 /// Recurring weekly class slot managed by SCHOOL_ADMIN.

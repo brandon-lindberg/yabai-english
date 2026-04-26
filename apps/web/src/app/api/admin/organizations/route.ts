@@ -30,8 +30,6 @@ export async function GET() {
           name: true,
           nameJa: true,
           nameEn: true,
-          applicationFlowEnabled: true,
-          selfEnrollmentEnabled: true,
           _count: {
             select: { memberships: { where: { status: "ACTIVE" } } },
           },

@@ -6,7 +6,6 @@ import {
   canManageSchedule,
   canManageMembers,
   canRequestTimeOff,
-  canSelfEnroll,
   meetsMinimumRole,
   ORG_ROLE_HIERARCHY,
 } from "../org-authorization";
@@ -28,13 +27,6 @@ function membership(
     schoolId: opts.schoolId ?? null,
     orgRole,
     status: (opts.status ?? "ACTIVE") as OrgMemberStatus,
-  };
-}
-
-function school(opts: { selfEnrollmentEnabled?: boolean } = {}) {
-  return {
-    id: "school-1",
-    selfEnrollmentEnabled: opts.selfEnrollmentEnabled ?? false,
   };
 }
 
@@ -215,44 +207,6 @@ describe("org-authorization", () => {
       expect(
         canRequestTimeOff(
           membership("TEACHER", { schoolId: "s1", status: "INACTIVE" }),
-        ),
-      ).toBe(false);
-    });
-  });
-
-  describe("canSelfEnroll", () => {
-    it("allows STUDENT when school has self-enrollment enabled", () => {
-      expect(
-        canSelfEnroll(
-          membership("STUDENT", { schoolId: "s1" }),
-          school({ selfEnrollmentEnabled: true }),
-        ),
-      ).toBe(true);
-    });
-
-    it("denies STUDENT when self-enrollment disabled", () => {
-      expect(
-        canSelfEnroll(
-          membership("STUDENT", { schoolId: "s1" }),
-          school({ selfEnrollmentEnabled: false }),
-        ),
-      ).toBe(false);
-    });
-
-    it("denies TEACHER even with self-enrollment enabled", () => {
-      expect(
-        canSelfEnroll(
-          membership("TEACHER", { schoolId: "s1" }),
-          school({ selfEnrollmentEnabled: true }),
-        ),
-      ).toBe(false);
-    });
-
-    it("denies inactive student", () => {
-      expect(
-        canSelfEnroll(
-          membership("STUDENT", { schoolId: "s1", status: "INACTIVE" }),
-          school({ selfEnrollmentEnabled: true }),
         ),
       ).toBe(false);
     });

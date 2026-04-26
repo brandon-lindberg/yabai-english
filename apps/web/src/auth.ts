@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 import { getSessionMaxAgeSeconds } from "@/lib/session-timeout";
+import { claimPendingMemberships } from "@/lib/claim-pending-memberships";
 import { AccountStatus, Role, type OrgRole } from "@/generated/prisma/client";
 import { cookies } from "next/headers";
 
@@ -79,6 +80,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           : null);
       if (full && !isLoginAllowedForAccountStatus(full.accountStatus)) {
         return false;
+      }
+      if (full?.id) {
+        await claimPendingMemberships(prisma, {
+          userId: full.id,
+          email: user.email ?? null,
+        });
       }
       if (
         full?.role === Role.TEACHER ||

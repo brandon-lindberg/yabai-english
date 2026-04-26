@@ -24,7 +24,10 @@ export async function findSchoolAdminUserIds(
     select: { userId: true },
   });
 
-  const ids = new Set(memberships.map((m) => m.userId));
+  const ids = new Set<string>();
+  for (const m of memberships) {
+    if (m.userId) ids.add(m.userId);
+  }
   if (excludeUserId) ids.delete(excludeUserId);
   return [...ids];
 }

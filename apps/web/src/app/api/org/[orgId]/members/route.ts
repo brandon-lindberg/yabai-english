@@ -4,10 +4,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isOrgWideAdmin, isSchoolAdmin, type MembershipForAuth } from "@/lib/org-authorization";
 import { createUserNotification } from "@/lib/notifications";
-import crypto from "crypto";
 
 const addMemberSchema = z.object({
-  email: z.string().trim().email(),
+  email: z.string().trim().toLowerCase().email(),
   orgRole: z.enum(["SCHOOL_ADMIN", "TEACHER", "STUDENT"]),
   schoolId: z.string().min(1),
 });
@@ -107,43 +106,35 @@ export async function POST(req: Request, ctx: RouteContext) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Find or identify target user
-  const targetUser = await prisma.user.findUnique({
-    where: { email },
-    select: { id: true, email: true },
+  // Reject if this email is already invited or active at this school.
+  const existingByEmail = await prisma.organizationMembership.findFirst({
+    where: { organizationId: orgId, schoolId, inviteEmail: email },
+    select: { id: true },
   });
-
-  if (targetUser) {
-    // Check for existing membership at this school
-    const existing = await prisma.organizationMembership.findFirst({
-      where: {
-        organizationId: orgId,
-        userId: targetUser.id,
-        schoolId,
-      },
-    });
-    if (existing) {
-      return NextResponse.json(
-        { error: "User already has a membership at this school" },
-        { status: 409 },
-      );
-    }
+  if (existingByEmail) {
+    return NextResponse.json(
+      { error: "This email is already a member or invited at this school" },
+      { status: 409 },
+    );
   }
 
-  const inviteToken = crypto.randomBytes(32).toString("hex");
+  // If a User row already exists for this email, link it eagerly so the
+  // invite shows up in their nav before they re-sign-in.
+  const targetUser = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  });
 
   const membership = await prisma.organizationMembership.create({
     data: {
       organizationId: orgId,
-      userId: targetUser?.id ?? session.user.id, // fallback for email-only invite (future: create placeholder)
+      userId: targetUser?.id ?? null,
       schoolId,
       orgRole,
       status: "INVITED",
       invitedByUserId: session.user.id,
       invitedAt: new Date(),
       inviteEmail: email,
-      inviteToken,
-      inviteExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     },
   });
 

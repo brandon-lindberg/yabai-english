@@ -8,8 +8,8 @@ type Member = {
   id: string;
   orgRole: string;
   status: string;
-  applicationNote?: string;
-  user: { id: string; name: string | null; email: string | null; image: string | null };
+  inviteEmail?: string | null;
+  user: { id: string; name: string | null; email: string | null; image: string | null } | null;
 };
 
 type Props = { orgId: string; schoolId: string };
@@ -47,19 +47,7 @@ export function SchoolMembersView({ orgId, schoolId }: Props) {
     setSaving(false);
   }
 
-  async function handleApplication(memberId: string, status: "ACTIVE" | "INACTIVE") {
-    await fetch(`/api/org/${orgId}/members/${memberId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    setMembers((prev) =>
-      prev.map((m) => (m.id === memberId ? { ...m, status } : m)),
-    );
-  }
-
-  const pending = members.filter((m) => m.status === "PENDING_APPROVAL");
-  const active = members.filter((m) => m.status !== "PENDING_APPROVAL");
+  const visible = members;
 
   const inputCn =
     "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
@@ -106,67 +94,37 @@ export function SchoolMembersView({ orgId, schoolId }: Props) {
         </AppCard>
       )}
 
-      {pending.length > 0 && (
-        <section className="mb-6">
-          <h3 className="mb-3 text-sm font-semibold text-foreground">
-            {t("applications")} — {t("pendingApplications", { count: pending.length })}
-          </h3>
-          <div className="divide-y divide-border rounded-xl border border-border bg-surface">
-            {pending.map((m) => (
-              <div key={m.id} className="flex items-center justify-between px-4 py-3 text-sm">
-                <div>
-                  <p className="font-medium text-foreground">{m.user.name ?? m.user.email}</p>
-                  {m.applicationNote && (
-                    <p className="text-xs text-muted">{m.applicationNote}</p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleApplication(m.id, "ACTIVE")}
-                    className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:opacity-90"
-                  >
-                    {t("approve")}
-                  </button>
-                  <button
-                    onClick={() => handleApplication(m.id, "INACTIVE")}
-                    className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
-                  >
-                    {t("deny")}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {active.length === 0 && pending.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="text-sm text-muted">{t("noMembers")}</p>
       ) : (
         <div className="divide-y divide-border rounded-xl border border-border bg-surface">
-          {active.map((m) => (
-            <div key={m.id} className="flex items-center justify-between px-4 py-3 text-sm">
-              <div className="flex items-center gap-3">
-                {m.user.image ? (
-                  <img src={m.user.image} alt="" className="h-8 w-8 rounded-full" />
-                ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--app-hover)] text-xs font-medium text-muted">
-                    {(m.user.name ?? m.user.email ?? "?")[0]?.toUpperCase()}
+          {visible.map((m) => {
+            const displayName = m.user?.name ?? m.user?.email ?? m.inviteEmail ?? "";
+            const displayEmail = m.user?.email ?? m.inviteEmail ?? "";
+            return (
+              <div key={m.id} className="flex items-center justify-between px-4 py-3 text-sm">
+                <div className="flex items-center gap-3">
+                  {m.user?.image ? (
+                    <img src={m.user.image} alt="" className="h-8 w-8 rounded-full" />
+                  ) : (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--app-hover)] text-xs font-medium text-muted">
+                      {(displayName || "?")[0]?.toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-medium text-foreground">{displayName}</p>
+                    <p className="text-xs text-muted">{displayEmail}</p>
                   </div>
-                )}
-                <div>
-                  <p className="font-medium text-foreground">{m.user.name ?? m.user.email}</p>
-                  <p className="text-xs text-muted">{m.user.email}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs font-medium">
+                    {m.orgRole}
+                  </span>
+                  <span className="text-xs text-muted">{m.status}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs font-medium">
-                  {m.orgRole}
-                </span>
-                <span className="text-xs text-muted">{m.status}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

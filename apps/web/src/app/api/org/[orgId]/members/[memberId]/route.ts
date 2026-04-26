@@ -8,7 +8,6 @@ import {
   meetsMinimumRole,
   type MembershipForAuth,
 } from "@/lib/org-authorization";
-import { createUserNotification } from "@/lib/notifications";
 
 const updateMemberSchema = z.object({
   orgRole: z.enum(["SCHOOL_ADMIN", "TEACHER", "STUDENT"]).optional(),
@@ -84,38 +83,6 @@ export async function PATCH(req: Request, ctx: RouteContext) {
     where: { id: memberId },
     data: parsed.data,
   });
-
-  const wasPending = target.status === "PENDING_APPROVAL";
-  const becameActive = parsed.data.status === "ACTIVE";
-  const becameInactive = parsed.data.status === "INACTIVE";
-
-  if (wasPending && (becameActive || becameInactive)) {
-    const school = target.schoolId
-      ? await prisma.school.findUnique({
-          where: { id: target.schoolId },
-          select: { name: true },
-        })
-      : null;
-    const schoolName = school?.name ?? "the school";
-
-    if (becameActive) {
-      await createUserNotification({
-        userId: target.userId,
-        titleJa: "申請が承認されました",
-        titleEn: "Application approved",
-        bodyJa: `${schoolName}への参加申請が承認されました。`,
-        bodyEn: `Your application to join ${schoolName} was approved.`,
-      });
-    } else {
-      await createUserNotification({
-        userId: target.userId,
-        titleJa: "申請が承認されませんでした",
-        titleEn: "Application not approved",
-        bodyJa: `${schoolName}への参加申請は承認されませんでした。`,
-        bodyEn: `Your application to join ${schoolName} was not approved.`,
-      });
-    }
-  }
 
   return NextResponse.json({ membership: updated });
 }

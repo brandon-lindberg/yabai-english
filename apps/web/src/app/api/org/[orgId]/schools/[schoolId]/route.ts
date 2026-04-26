@@ -10,8 +10,6 @@ const updateSchoolSchema = z.object({
   nameEn: z.string().trim().max(200).optional(),
   description: z.string().trim().max(2000).optional(),
   descriptionJa: z.string().trim().max(2000).optional(),
-  applicationFlowEnabled: z.boolean().optional(),
-  selfEnrollmentEnabled: z.boolean().optional(),
 });
 
 type RouteContext = { params: Promise<{ orgId: string; schoolId: string }> };

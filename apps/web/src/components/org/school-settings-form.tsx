@@ -8,8 +8,6 @@ type SchoolData = {
   name: string;
   nameJa?: string;
   nameEn?: string;
-  applicationFlowEnabled: boolean;
-  selfEnrollmentEnabled: boolean;
 };
 
 type Props = { orgId: string; schoolId: string };
@@ -27,7 +25,7 @@ export function SchoolSettingsForm({ orgId, schoolId }: Props) {
 
   if (!data) return null;
 
-  function update(field: string, value: string | boolean) {
+  function update(field: string, value: string) {
     setData((prev) => prev ? { ...prev, [field]: value } : prev);
   }
 
@@ -83,32 +81,6 @@ export function SchoolSettingsForm({ orgId, schoolId }: Props) {
               value={data.nameEn ?? ""}
               onChange={(e) => update("nameEn", e.target.value)}
             />
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div>
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="checkbox"
-                checked={data.applicationFlowEnabled}
-                onChange={(e) => update("applicationFlowEnabled", e.target.checked)}
-              />
-              {t("applicationFlowEnabled")}
-            </label>
-            <p className="ml-6 text-xs text-muted">{t("applicationFlowHelp")}</p>
-          </div>
-
-          <div>
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="checkbox"
-                checked={data.selfEnrollmentEnabled}
-                onChange={(e) => update("selfEnrollmentEnabled", e.target.checked)}
-              />
-              {t("selfEnrollmentEnabled")}
-            </label>
-            <p className="ml-6 text-xs text-muted">{t("selfEnrollmentHelp")}</p>
           </div>
         </div>
 
