@@ -27,6 +27,15 @@ const initialLevels = {
       sortOrder: 0,
       active: true,
     },
+    {
+      id: "lvl-2",
+      code: "year-8",
+      label: "Year 8",
+      labelJa: null,
+      labelEn: "Year 8",
+      sortOrder: 1,
+      active: true,
+    },
   ],
 };
 const initialTypes = {
@@ -58,7 +67,7 @@ function setupFetchMock() {
       return new Response(
         JSON.stringify({
           classLevel: {
-            id: "lvl-2",
+            id: "lvl-new",
             ...body,
             labelJa: body.labelJa ?? null,
             labelEn: body.labelEn ?? null,
@@ -71,6 +80,9 @@ function setupFetchMock() {
     }
     if (u.includes("/class-levels/") && method === "DELETE") {
       return new Response(JSON.stringify({ success: true }), { status: 200 });
+    }
+    if (u.includes("/class-levels/") && method === "PATCH") {
+      return new Response(JSON.stringify({ classLevel: {} }), { status: 200 });
     }
     return new Response("not found", { status: 404 });
   });
@@ -97,9 +109,31 @@ describe("SchoolTaxonomyManager", () => {
   test("fetches and renders existing class levels and types", async () => {
     renderManager();
     await waitFor(() => {
-      expect(screen.getByText("Year 7")).toBeInTheDocument();
-      expect(screen.getByText("Conversation")).toBeInTheDocument();
+      const yearSevenCells = screen.getAllByText("Year 7");
+      expect(yearSevenCells.length).toBeGreaterThan(0);
+      const convCells = screen.getAllByText("Conversation");
+      expect(convCells.length).toBeGreaterThan(0);
     });
+  });
+
+  test("renders preview of level×type combinations", async () => {
+    renderManager();
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("taxonomy-combo-lvl-1-type-1"),
+      ).toHaveTextContent(/Year 7.*Conversation/);
+      expect(
+        screen.getByTestId("taxonomy-combo-lvl-2-type-1"),
+      ).toHaveTextContent(/Year 8.*Conversation/);
+    });
+  });
+
+  test("does NOT render the in-card duplicate description", async () => {
+    renderManager();
+    await waitFor(() => screen.getAllByText("Year 7"));
+    expect(
+      screen.queryByText(en.org.school.taxonomyPage.description),
+    ).not.toBeInTheDocument();
   });
 
   test("creates a new class level via POST", async () => {
@@ -137,6 +171,73 @@ describe("SchoolTaxonomyManager", () => {
       expect(body.code).toBe("year-8");
       expect(body.label).toBe("Year 8");
     });
+  });
+
+  test("add form does not include a Sort order input", async () => {
+    renderManager();
+    await waitFor(() => screen.getByText("Year 7"));
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: en.org.school.taxonomyPage.addLevel,
+      }),
+    );
+
+    expect(
+      screen.queryByLabelText(en.org.school.taxonomyPage.sortOrder),
+    ).not.toBeInTheDocument();
+  });
+
+  test("clicking move-down on first row swaps sortOrder via two PATCH calls", async () => {
+    renderManager();
+    await waitFor(() => screen.getByText("Year 7"));
+
+    const downButtons = screen.getAllByRole("button", {
+      name: en.org.school.taxonomyPage.moveDown,
+    });
+    fireEvent.click(downButtons[0]);
+
+    await waitFor(() => {
+      const patches = fetchSpy.mock.calls.filter(
+        (c) =>
+          (c[1] as RequestInit | undefined)?.method === "PATCH" &&
+          String(c[0]).includes("/class-levels/"),
+      );
+      expect(patches).toHaveLength(2);
+      const targets = patches.map((c) => String(c[0]));
+      expect(targets).toContain(
+        `/api/org/${orgId}/schools/${schoolId}/class-levels/lvl-1`,
+      );
+      expect(targets).toContain(
+        `/api/org/${orgId}/schools/${schoolId}/class-levels/lvl-2`,
+      );
+      const bodies = patches.map((c) =>
+        JSON.parse((c[1] as RequestInit).body as string),
+      );
+      const sorts = bodies.map((b) => b.sortOrder).sort();
+      expect(sorts).toEqual([0, 1]);
+    });
+  });
+
+  test("clicking the Label column header toggles sort direction", async () => {
+    renderManager();
+    await waitFor(() => screen.getByText("Year 7"));
+
+    const headers = screen.getAllByRole("button", {
+      name: new RegExp(`^${en.org.school.taxonomyPage.labelColumn}`),
+    });
+    const levelsHeader = headers[0];
+
+    const before = screen.getAllByTestId("taxonomy-row-label-lvl");
+    expect(before.map((n) => n.textContent)).toEqual(["Year 7", "Year 8"]);
+
+    fireEvent.click(levelsHeader);
+    const afterAsc = screen.getAllByTestId("taxonomy-row-label-lvl");
+    expect(afterAsc.map((n) => n.textContent)).toEqual(["Year 7", "Year 8"]);
+
+    fireEvent.click(levelsHeader);
+    const afterDesc = screen.getAllByTestId("taxonomy-row-label-lvl");
+    expect(afterDesc.map((n) => n.textContent)).toEqual(["Year 8", "Year 7"]);
   });
 
   test("removes a class level via DELETE", async () => {

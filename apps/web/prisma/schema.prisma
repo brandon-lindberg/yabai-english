@@ -110,6 +110,12 @@ enum OrgBillingTarget {
   STUDENT
 }
 
+enum SchoolSlotRecurrence {
+  WEEKLY
+  DAILY
+  ONE_OFF
+}
+
 // --- NextAuth (Auth.js) ---
 model User {
   id            String        @id @default(cuid())
@@ -759,8 +765,7 @@ model Organization {
   description   String? @db.Text
   descriptionJa String? @db.Text
 
-  billingTarget           OrgBillingTarget @default(ORGANIZATION)
-  allowTeacherMarketplace Boolean          @default(true)
+  billingTarget OrgBillingTarget @default(ORGANIZATION)
 
   /// Future: custom domain for white-label school URL.
   customDomain String? @unique
@@ -882,6 +887,18 @@ model SchoolScheduleSlot {
   durationMin Int
 
   active Boolean @default(true)
+
+  /// Recurrence pattern. WEEKLY (default) honors `dayOfWeek` and/or `daysOfWeek`.
+  /// DAILY emits one occurrence per calendar day. ONE_OFF emits a single
+  /// occurrence on `startsOn` (which is required for ONE_OFF).
+  recurrence SchoolSlotRecurrence @default(WEEKLY)
+  /// Optional multi-day weekly pattern. When non-empty, supersedes `dayOfWeek`.
+  /// Each entry is 0-6 (Sun-Sat).
+  daysOfWeek Int[]                @default([])
+  /// Optional inclusive lower bound for occurrence emission (date-only, midnight UTC).
+  startsOn   DateTime?
+  /// Optional inclusive upper bound for occurrence emission (date-only, midnight UTC).
+  endsOn     DateTime?
 
   skips       SchoolScheduleSkip[]
   enrollments SchoolClassEnrollment[]

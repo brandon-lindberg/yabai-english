@@ -18,7 +18,6 @@ export default async function AdminSchoolsPage() {
       nameEn: true,
       timezone: true,
       billingTarget: true,
-      allowTeacherMarketplace: true,
       createdAt: true,
       schools: {
         orderBy: { createdAt: "asc" },
@@ -56,7 +55,6 @@ export default async function AdminSchoolsPage() {
     nameEn: org.nameEn,
     timezone: org.timezone,
     billingTarget: org.billingTarget,
-    allowTeacherMarketplace: org.allowTeacherMarketplace,
     createdAt: org.createdAt.toISOString(),
     schools: org.schools.map((s) => ({
       id: s.id,

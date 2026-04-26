@@ -8,6 +8,10 @@ import {
   type MembershipForAuth,
 } from "@/lib/org-authorization";
 
+const dateOnly = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "must be YYYY-MM-DD");
+
 const updateSlotSchema = z.object({
   dayOfWeek: z.number().int().min(0).max(6).optional(),
   startMin: z.number().int().min(0).max(1439).optional(),
@@ -22,7 +26,17 @@ const updateSlotSchema = z.object({
   classLevelId: z.string().min(1).nullable().optional(),
   classTypeId: z.string().min(1).nullable().optional(),
   active: z.boolean().optional(),
+  recurrence: z.enum(["WEEKLY", "DAILY", "ONE_OFF"]).optional(),
+  daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
+  startsOn: dateOnly.nullable().optional(),
+  endsOn: dateOnly.nullable().optional(),
 });
+
+function parseDateOnly(value: string | null | undefined): Date | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  return new Date(`${value}T00:00:00.000Z`);
+}
 
 type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string; slotId: string }>;
@@ -107,9 +121,14 @@ export async function PATCH(req: Request, ctx: RouteContext) {
     }
   }
 
+  const { startsOn, endsOn, ...rest } = data;
   const updated = await prisma.schoolScheduleSlot.update({
     where: { id: slotId },
-    data,
+    data: {
+      ...rest,
+      ...(startsOn !== undefined ? { startsOn: parseDateOnly(startsOn) } : {}),
+      ...(endsOn !== undefined ? { endsOn: parseDateOnly(endsOn) } : {}),
+    },
   });
 
   return NextResponse.json({ slot: updated });

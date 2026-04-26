@@ -1,12 +1,12 @@
 import {
-  expandWeeklyOccurrencesInRange,
+  expandRecurringOccurrencesInRange,
   type OccurrenceInRange,
-  type WeeklyRecurrenceRule,
+  type RecurrenceRule,
 } from "@/lib/recurring-slot-occurrences";
 import { schoolScheduleSlotInputSchema } from "@/lib/school-schedule-slot";
 
-/** Minimum slot shape for occurrence generation. */
-export type SlotForOccurrences = WeeklyRecurrenceRule;
+/** Minimum slot shape for occurrence generation (supports all recurrence patterns). */
+export type SlotForOccurrences = RecurrenceRule;
 
 export type Occurrence = OccurrenceInRange;
 
@@ -79,7 +79,7 @@ export function generateOccurrences(
   rangeStart: Date,
   rangeEnd: Date,
 ): Occurrence[] {
-  return expandWeeklyOccurrencesInRange(slot, rangeStart, rangeEnd);
+  return expandRecurringOccurrencesInRange(slot, rangeStart, rangeEnd);
 }
 
 /**

@@ -133,4 +133,34 @@ describe("PATCH /api/org/[orgId]", () => {
     const body = await res.json();
     expect(body.organization.name).toBe("Updated Org");
   });
+
+  test("OWNER cannot change billingTarget (platform-controlled)", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1", orgRole: "OWNER", status: "ACTIVE",
+      schoolId: null, organizationId: orgId, userId: "u1",
+    });
+    prismaMock.organization.update.mockResolvedValue({ id: orgId });
+    await PATCH(
+      patchReq({ name: "Updated Org", billingTarget: "STUDENT" }),
+      routeCtx,
+    );
+    const updateCall = prismaMock.organization.update.mock.calls[0][0];
+    expect(updateCall.data).not.toHaveProperty("billingTarget");
+  });
+
+  test("OWNER cannot toggle marketplace (no longer supported)", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1", orgRole: "OWNER", status: "ACTIVE",
+      schoolId: null, organizationId: orgId, userId: "u1",
+    });
+    prismaMock.organization.update.mockResolvedValue({ id: orgId });
+    await PATCH(
+      patchReq({ name: "Updated Org", allowTeacherMarketplace: false }),
+      routeCtx,
+    );
+    const updateCall = prismaMock.organization.update.mock.calls[0][0];
+    expect(updateCall.data).not.toHaveProperty("allowTeacherMarketplace");
+  });
 });

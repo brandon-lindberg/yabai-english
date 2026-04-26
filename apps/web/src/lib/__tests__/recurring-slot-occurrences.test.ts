@@ -1,5 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { expandWeeklyOccurrencesInRange } from "@/lib/recurring-slot-occurrences";
+import {
+  expandRecurringOccurrencesInRange,
+  expandWeeklyOccurrencesInRange,
+} from "@/lib/recurring-slot-occurrences";
 
 describe("expandWeeklyOccurrencesInRange", () => {
   test("returns weekly occurrences within the inclusive range", () => {
@@ -47,5 +50,127 @@ describe("expandWeeklyOccurrencesInRange", () => {
     );
     expect(occ).toHaveLength(1);
     expect(occ[0].startsAtIso).toBe("2026-05-03T10:00:00.000Z");
+  });
+});
+
+describe("expandRecurringOccurrencesInRange", () => {
+  const baseTime = { startMin: 540, endMin: 600, timezone: "Asia/Tokyo" };
+
+  test("WEEKLY with daysOfWeek expands all selected days", () => {
+    // Mon/Wed/Fri 09:00-10:00 JST in week of Apr 20-26 (Mon-Sun)
+    const occ = expandRecurringOccurrencesInRange(
+      {
+        ...baseTime,
+        recurrence: "WEEKLY",
+        daysOfWeek: [1, 3, 5],
+        dayOfWeek: 1,
+      },
+      new Date("2026-04-20T00:00:00+09:00"),
+      new Date("2026-04-26T23:59:59+09:00"),
+    );
+    const isos = occ.map((o) => o.startsAtIso).sort();
+    expect(isos).toEqual([
+      "2026-04-20T00:00:00.000Z", // Mon
+      "2026-04-22T00:00:00.000Z", // Wed
+      "2026-04-24T00:00:00.000Z", // Fri
+    ]);
+  });
+
+  test("WEEKLY with empty daysOfWeek falls back to single dayOfWeek (back-compat)", () => {
+    const occ = expandRecurringOccurrencesInRange(
+      {
+        ...baseTime,
+        recurrence: "WEEKLY",
+        daysOfWeek: [],
+        dayOfWeek: 2, // Tuesday only
+      },
+      new Date("2026-04-20T00:00:00+09:00"),
+      new Date("2026-04-26T23:59:59+09:00"),
+    );
+    expect(occ).toHaveLength(1);
+    expect(occ[0].startsAtIso).toBe("2026-04-21T00:00:00.000Z"); // Tue
+  });
+
+  test("DAILY emits one occurrence per day in range", () => {
+    const occ = expandRecurringOccurrencesInRange(
+      {
+        ...baseTime,
+        recurrence: "DAILY",
+        daysOfWeek: [],
+        dayOfWeek: 1,
+      },
+      new Date("2026-04-20T00:00:00+09:00"),
+      new Date("2026-04-22T23:59:59+09:00"),
+    );
+    expect(occ).toHaveLength(3);
+    expect(occ[0].startsAtIso).toBe("2026-04-20T00:00:00.000Z");
+    expect(occ[1].startsAtIso).toBe("2026-04-21T00:00:00.000Z");
+    expect(occ[2].startsAtIso).toBe("2026-04-22T00:00:00.000Z");
+  });
+
+  test("ONE_OFF emits exactly one occurrence on startsOn", () => {
+    const occ = expandRecurringOccurrencesInRange(
+      {
+        ...baseTime,
+        recurrence: "ONE_OFF",
+        daysOfWeek: [],
+        dayOfWeek: 0,
+        startsOn: "2026-04-22", // Wed
+      },
+      new Date("2026-04-20T00:00:00+09:00"),
+      new Date("2026-04-30T23:59:59+09:00"),
+    );
+    expect(occ).toHaveLength(1);
+    expect(occ[0].startsAtIso).toBe("2026-04-22T00:00:00.000Z");
+  });
+
+  test("ONE_OFF outside range yields no occurrences", () => {
+    const occ = expandRecurringOccurrencesInRange(
+      {
+        ...baseTime,
+        recurrence: "ONE_OFF",
+        daysOfWeek: [],
+        dayOfWeek: 0,
+        startsOn: "2026-05-15",
+      },
+      new Date("2026-04-20T00:00:00+09:00"),
+      new Date("2026-04-30T23:59:59+09:00"),
+    );
+    expect(occ).toEqual([]);
+  });
+
+  test("startsOn / endsOn bounds clip WEEKLY occurrences", () => {
+    // Slot is Mon, but bounded to only the week of Apr 27 (no Apr 20 occurrence).
+    const occ = expandRecurringOccurrencesInRange(
+      {
+        ...baseTime,
+        recurrence: "WEEKLY",
+        daysOfWeek: [1],
+        dayOfWeek: 1,
+        startsOn: "2026-04-27",
+        endsOn: "2026-05-03",
+      },
+      new Date("2026-04-20T00:00:00+09:00"),
+      new Date("2026-05-31T23:59:59+09:00"),
+    );
+    expect(occ).toHaveLength(1);
+    expect(occ[0].startsAtIso).toBe("2026-04-27T00:00:00.000Z");
+  });
+
+  test("DAILY honors endsOn upper bound", () => {
+    const occ = expandRecurringOccurrencesInRange(
+      {
+        ...baseTime,
+        recurrence: "DAILY",
+        daysOfWeek: [],
+        dayOfWeek: 1,
+        endsOn: "2026-04-21", // inclusive
+      },
+      new Date("2026-04-20T00:00:00+09:00"),
+      new Date("2026-04-30T23:59:59+09:00"),
+    );
+    expect(occ).toHaveLength(2);
+    expect(occ[0].startsAtIso).toBe("2026-04-20T00:00:00.000Z");
+    expect(occ[1].startsAtIso).toBe("2026-04-21T00:00:00.000Z");
   });
 });

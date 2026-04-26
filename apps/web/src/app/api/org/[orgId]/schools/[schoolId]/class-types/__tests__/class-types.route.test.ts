@@ -6,7 +6,9 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
     organizationMembership: { findFirst: vi.fn() },
     schoolClassType: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
@@ -112,6 +114,102 @@ describe("POST /api/org/.../class-types", () => {
     expect(res.status).toBe(400);
   });
 
+  test("201 auto-computes sortOrder as max(existing)+1 when omitted", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    prismaMock.schoolClassType.findMany.mockResolvedValue([
+      { id: "t-existing", sortOrder: 7 },
+    ]);
+    prismaMock.schoolClassType.create.mockResolvedValue({
+      id: "t-new",
+      schoolId,
+      code: "grammar",
+      label: "Grammar",
+      labelJa: null,
+      labelEn: null,
+      sortOrder: 8,
+      active: true,
+    });
+    const res = await POST(
+      postReq({ code: "grammar", label: "Grammar" }),
+      routeCtx,
+    );
+    expect(res.status).toBe(201);
+    expect(prismaMock.schoolClassType.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ sortOrder: 8 }),
+    });
+  });
+
+  test("409 when an ACTIVE row with the same code already exists", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    prismaMock.schoolClassType.findUnique.mockResolvedValue({
+      id: "t-existing",
+      schoolId,
+      code: "conversation",
+      active: true,
+    });
+    const res = await POST(
+      postReq({ code: "conversation", label: "Conversation" }),
+      routeCtx,
+    );
+    expect(res.status).toBe(409);
+    expect(prismaMock.schoolClassType.create).not.toHaveBeenCalled();
+  });
+
+  test("201 reactivates a soft-deleted row with the same code", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    prismaMock.schoolClassType.findUnique.mockResolvedValue({
+      id: "t-old",
+      schoolId,
+      code: "conversation",
+      active: false,
+    });
+    prismaMock.schoolClassType.findMany.mockResolvedValue([]);
+    prismaMock.schoolClassType.update.mockResolvedValue({
+      id: "t-old",
+      schoolId,
+      code: "conversation",
+      label: "Conversation",
+      labelJa: null,
+      labelEn: null,
+      sortOrder: 0,
+      active: true,
+    });
+    const res = await POST(
+      postReq({ code: "conversation", label: "Conversation" }),
+      routeCtx,
+    );
+    expect(res.status).toBe(201);
+    expect(prismaMock.schoolClassType.create).not.toHaveBeenCalled();
+    expect(prismaMock.schoolClassType.update).toHaveBeenCalledWith({
+      where: { id: "t-old" },
+      data: expect.objectContaining({ active: true }),
+    });
+  });
+
   test("201 creates type for SCHOOL_ADMIN", async () => {
     authMock.mockResolvedValue({ user: { id: "u1" } });
     prismaMock.organizationMembership.findFirst.mockResolvedValue({
@@ -122,6 +220,7 @@ describe("POST /api/org/.../class-types", () => {
       organizationId: orgId,
       userId: "u1",
     });
+    prismaMock.schoolClassType.findMany.mockResolvedValue([]);
     prismaMock.schoolClassType.create.mockResolvedValue({
       id: "t-1",
       schoolId,

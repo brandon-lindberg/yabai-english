@@ -43,7 +43,6 @@ export type AdminOrganization = {
   nameEn: string | null;
   timezone: string;
   billingTarget: "ORGANIZATION" | "STUDENT";
-  allowTeacherMarketplace: boolean;
   createdAt: string;
   schools: AdminSchool[];
   memberships: AdminMembership[];

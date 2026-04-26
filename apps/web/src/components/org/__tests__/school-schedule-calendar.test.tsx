@@ -136,6 +136,70 @@ describe("SchoolScheduleCalendar", () => {
     });
   });
 
+  test("class-level dropdown renders the canonical `label` (matches taxonomy manager), even when labelEn collides between rows", async () => {
+    // Mimic real user data where two rows share the same labelEn ("English")
+    // but distinct `label` values ("Year 1" / "beginner"). The dropdown must
+    // render the `label` field so what users see matches the taxonomy table.
+    const collidingLevels = {
+      classLevels: [
+        {
+          id: "lvl-a",
+          code: "year-1",
+          label: "Year 1",
+          labelJa: null,
+          labelEn: "English",
+          sortOrder: 0,
+          active: true,
+        },
+        {
+          id: "lvl-b",
+          code: "beginner",
+          label: "beginner",
+          labelJa: null,
+          labelEn: "English",
+          sortOrder: 1,
+          active: true,
+        },
+      ],
+    };
+    vi.unstubAllGlobals();
+    const fetchSpy2 = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+      const u = typeof url === "string" ? url : url.toString();
+      const method = init?.method ?? "GET";
+      if (u.endsWith("/schedule") && method === "GET") {
+        return new Response(JSON.stringify({ slots: [], viewerEnrolledSlotIds: [] }), { status: 200 });
+      }
+      if (u.endsWith("/class-levels") && method === "GET") {
+        return new Response(JSON.stringify(collidingLevels), { status: 200 });
+      }
+      if (u.endsWith("/class-types") && method === "GET") {
+        return new Response(JSON.stringify({ classTypes: [] }), { status: 200 });
+      }
+      return new Response("not found", { status: 404 });
+    });
+    vi.stubGlobal("fetch", fetchSpy2);
+
+    renderCalendar();
+
+    await waitFor(() =>
+      screen.getByRole("button", {
+        name: en.org.school.schedulePage.addSlot,
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: en.org.school.schedulePage.addSlot }),
+    );
+
+    const levelSelect = (await screen.findByLabelText(
+      en.org.school.schedulePage.classLevel,
+    )) as HTMLSelectElement;
+    const optionTexts = Array.from(levelSelect.options).map((o) => o.text);
+    // Expect the canonical `label` values, not the colliding labelEn.
+    expect(optionTexts).toContain("Year 1");
+    expect(optionTexts).toContain("beginner");
+    expect(optionTexts.filter((t) => t === "English")).toHaveLength(0);
+  });
+
   test("opens add modal and POSTs with classLevelId/classTypeId (FKs, not strings)", async () => {
     renderCalendar();
 
@@ -176,6 +240,98 @@ describe("SchoolScheduleCalendar", () => {
       expect(body.classLevelId).toBe("lvl-2");
       expect(body.classTypeId).toBe("type-2");
       expect(body.dayOfWeek).toBe(2);
+    });
+  });
+
+  test("create form shows a recurrence picker with Weekly / Daily / One-off", async () => {
+    renderCalendar();
+    await waitFor(() =>
+      screen.getByRole("button", {
+        name: en.org.school.schedulePage.addSlot,
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: en.org.school.schedulePage.addSlot }),
+    );
+
+    const recurrence = (await screen.findByLabelText(
+      en.org.school.schedulePage.recurrence,
+    )) as HTMLSelectElement;
+    const optionTexts = Array.from(recurrence.options).map((o) => o.text);
+    expect(optionTexts).toContain(en.org.school.schedulePage.recurrenceWeekly);
+    expect(optionTexts).toContain(en.org.school.schedulePage.recurrenceDaily);
+    expect(optionTexts).toContain(en.org.school.schedulePage.recurrenceOneOff);
+  });
+
+  test("WEEKLY POST sends daysOfWeek when multiple days selected", async () => {
+    renderCalendar();
+    await waitFor(() =>
+      screen.getByRole("button", {
+        name: en.org.school.schedulePage.addSlot,
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: en.org.school.schedulePage.addSlot }),
+    );
+
+    // Default recurrence is WEEKLY. Tick Wednesday and Friday in addition to default Monday.
+    const wed = (await screen.findByLabelText(
+      en.org.school.schedulePage.days[3],
+    )) as HTMLInputElement;
+    const fri = (await screen.findByLabelText(
+      en.org.school.schedulePage.days[5],
+    )) as HTMLInputElement;
+    fireEvent.click(wed);
+    fireEvent.click(fri);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: en.org.school.schedulePage.create }),
+    );
+
+    await waitFor(() => {
+      const post = fetchSpy.mock.calls.find(
+        (c) => (c[1] as RequestInit | undefined)?.method === "POST",
+      );
+      expect(post).toBeTruthy();
+      const body = JSON.parse((post![1] as RequestInit).body as string);
+      expect(body.recurrence).toBe("WEEKLY");
+      expect([...body.daysOfWeek].sort()).toEqual([1, 3, 5]);
+    });
+  });
+
+  test("ONE_OFF requires a date and sends startsOn", async () => {
+    renderCalendar();
+    await waitFor(() =>
+      screen.getByRole("button", {
+        name: en.org.school.schedulePage.addSlot,
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: en.org.school.schedulePage.addSlot }),
+    );
+
+    const recurrence = (await screen.findByLabelText(
+      en.org.school.schedulePage.recurrence,
+    )) as HTMLSelectElement;
+    fireEvent.change(recurrence, { target: { value: "ONE_OFF" } });
+
+    const date = (await screen.findByLabelText(
+      en.org.school.schedulePage.oneOffDate,
+    )) as HTMLInputElement;
+    fireEvent.change(date, { target: { value: "2026-05-15" } });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: en.org.school.schedulePage.create }),
+    );
+
+    await waitFor(() => {
+      const post = fetchSpy.mock.calls.find(
+        (c) => (c[1] as RequestInit | undefined)?.method === "POST",
+      );
+      expect(post).toBeTruthy();
+      const body = JSON.parse((post![1] as RequestInit).body as string);
+      expect(body.recurrence).toBe("ONE_OFF");
+      expect(body.startsOn).toBe("2026-05-15");
     });
   });
 });

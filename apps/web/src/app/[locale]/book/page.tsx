@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { TeacherCard } from "@/components/teacher-card";
 import { TeacherFilterBar } from "@/components/teacher-filter-bar";
 import { filterTeacherCards } from "@/lib/teacher-discovery";
+import { marketplaceTeacherWhere } from "@/lib/marketplace-teacher-filter";
 import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
@@ -63,20 +64,12 @@ export default async function BookPage({ searchParams }: Props) {
     language = "";
   }
 
+  const viewerStudentId =
+    session?.user?.id && session.user.role === "STUDENT"
+      ? session.user.id
+      : null;
   const teacherProfiles = await prisma.teacherProfile.findMany({
-    where:
-      session?.user?.id && session.user.role === "STUDENT"
-        ? {
-            user: {
-              chatThreadsAsTeacher: {
-                none: {
-                  studentId: session.user.id,
-                  teacherBlockedAt: { not: null },
-                },
-              },
-            },
-          }
-        : undefined,
+    where: marketplaceTeacherWhere(viewerStudentId),
     include: {
       user: true,
       availabilitySlots: {

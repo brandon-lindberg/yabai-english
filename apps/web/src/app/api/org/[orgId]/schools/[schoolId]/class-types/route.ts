@@ -8,13 +8,14 @@ import {
   type MembershipForAuth,
 } from "@/lib/org-authorization";
 
-const createSchema = z.object({
-  code: z.string().trim().min(1).max(64),
-  label: z.string().trim().min(1).max(100),
-  labelJa: z.string().trim().max(100).optional().nullable(),
-  labelEn: z.string().trim().max(100).optional().nullable(),
-  sortOrder: z.number().int().min(0).max(10000).default(0),
-});
+const createSchema = z
+  .object({
+    code: z.string().trim().min(1).max(64),
+    label: z.string().trim().min(1).max(100),
+    labelJa: z.string().trim().max(100).optional().nullable(),
+    labelEn: z.string().trim().max(100).optional().nullable(),
+  })
+  .strip();
 
 type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string }>;
@@ -92,8 +93,36 @@ export async function POST(req: Request, ctx: RouteContext) {
     );
   }
 
+  const existing = await prisma.schoolClassType.findUnique({
+    where: { schoolId_code: { schoolId, code: parsed.data.code } },
+    select: { id: true, active: true },
+  });
+
+  if (existing?.active) {
+    return NextResponse.json(
+      { error: "A class type with this code already exists." },
+      { status: 409 },
+    );
+  }
+
+  const last = await prisma.schoolClassType.findMany({
+    where: { schoolId },
+    orderBy: { sortOrder: "desc" },
+    take: 1,
+    select: { sortOrder: true },
+  });
+  const sortOrder = (last[0]?.sortOrder ?? -1) + 1;
+
+  if (existing) {
+    const classType = await prisma.schoolClassType.update({
+      where: { id: existing.id },
+      data: { ...parsed.data, sortOrder, active: true },
+    });
+    return NextResponse.json({ classType }, { status: 201 });
+  }
+
   const classType = await prisma.schoolClassType.create({
-    data: { schoolId, ...parsed.data },
+    data: { schoolId, ...parsed.data, sortOrder },
   });
 
   return NextResponse.json({ classType }, { status: 201 });

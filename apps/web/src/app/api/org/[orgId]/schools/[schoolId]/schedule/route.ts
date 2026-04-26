@@ -9,20 +9,45 @@ import {
 } from "@/lib/org-authorization";
 import { validateSlotTimes } from "@/lib/school-scheduling";
 
-const createSlotSchema = z.object({
-  dayOfWeek: z.number().int().min(0).max(6),
-  startMin: z.number().int().min(0).max(1439),
-  endMin: z.number().int().min(1).max(1440),
-  durationMin: z.number().int().min(1),
-  lessonLevel: z.string().trim().min(1),
-  lessonType: z.string().trim().min(1),
-  labelJa: z.string().trim().optional(),
-  labelEn: z.string().trim().optional(),
-  capacity: z.number().int().min(1).max(100).default(1),
-  assignedTeacherMembershipId: z.string().optional(),
-  classLevelId: z.string().min(1).optional().nullable(),
-  classTypeId: z.string().min(1).optional().nullable(),
-});
+const dateOnly = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "must be YYYY-MM-DD");
+
+const createSlotSchema = z
+  .object({
+    dayOfWeek: z.number().int().min(0).max(6),
+    startMin: z.number().int().min(0).max(1439),
+    endMin: z.number().int().min(1).max(1440),
+    durationMin: z.number().int().min(1),
+    lessonLevel: z.string().trim().min(1),
+    lessonType: z.string().trim().min(1),
+    labelJa: z.string().trim().optional(),
+    labelEn: z.string().trim().optional(),
+    capacity: z.number().int().min(1).max(100).default(1),
+    assignedTeacherMembershipId: z.string().optional(),
+    classLevelId: z.string().min(1).optional().nullable(),
+    classTypeId: z.string().min(1).optional().nullable(),
+    recurrence: z.enum(["WEEKLY", "DAILY", "ONE_OFF"]).optional(),
+    daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
+    startsOn: dateOnly.optional().nullable(),
+    endsOn: dateOnly.optional().nullable(),
+  })
+  .refine(
+    (v) =>
+      v.recurrence !== "ONE_OFF" ||
+      (typeof v.startsOn === "string" && v.startsOn.length > 0),
+    { message: "ONE_OFF recurrence requires startsOn", path: ["startsOn"] },
+  )
+  .refine(
+    (v) => !v.startsOn || !v.endsOn || v.startsOn <= v.endsOn,
+    { message: "endsOn must be on or after startsOn", path: ["endsOn"] },
+  );
+
+function parseDateOnly(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  // Store as midnight UTC of the given calendar date.
+  return new Date(`${value}T00:00:00.000Z`);
+}
 
 type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string }>;
@@ -219,6 +244,10 @@ export async function POST(req: Request, ctx: RouteContext) {
       assignedTeacherMembershipId: data.assignedTeacherMembershipId,
       classLevelId: data.classLevelId ?? null,
       classTypeId: data.classTypeId ?? null,
+      recurrence: data.recurrence ?? "WEEKLY",
+      daysOfWeek: data.daysOfWeek ?? [],
+      startsOn: parseDateOnly(data.startsOn),
+      endsOn: parseDateOnly(data.endsOn),
     },
   });
 

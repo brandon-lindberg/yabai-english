@@ -49,6 +49,8 @@ function parseTime(value: string) {
   return h * 60 + m;
 }
 
+type RecurrenceValue = "WEEKLY" | "DAILY" | "ONE_OFF";
+
 function newDraft() {
   return {
     dayOfWeek: 1,
@@ -60,6 +62,10 @@ function newDraft() {
     lessonType: "conversation",
     classLevelId: "",
     classTypeId: "",
+    recurrence: "WEEKLY" as RecurrenceValue,
+    daysOfWeek: [1] as number[],
+    startsOn: "",
+    endsOn: "",
   };
 }
 
@@ -84,6 +90,19 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
   const [draft, setDraft] = useState(newDraft());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const dayOptions = useMemo(
+    () => [
+      { value: 0, label: t("days.0") },
+      { value: 1, label: t("days.1") },
+      { value: 2, label: t("days.2") },
+      { value: 3, label: t("days.3") },
+      { value: 4, label: t("days.4") },
+      { value: 5, label: t("days.5") },
+      { value: 6, label: t("days.6") },
+    ],
+    [t],
+  );
 
   useEffect(() => {
     const base = `/api/org/${orgId}/schools/${schoolId}`;
@@ -143,9 +162,15 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
       capacity: draft.capacity,
       lessonLevel: draft.lessonLevel,
       lessonType: draft.lessonType,
+      recurrence: draft.recurrence,
     };
     if (draft.classLevelId) body.classLevelId = draft.classLevelId;
     if (draft.classTypeId) body.classTypeId = draft.classTypeId;
+    if (draft.recurrence === "WEEKLY") {
+      body.daysOfWeek = [...draft.daysOfWeek].sort((a, b) => a - b);
+    }
+    if (draft.startsOn) body.startsOn = draft.startsOn;
+    if (draft.endsOn) body.endsOn = draft.endsOn;
 
     const res = await fetch(
       `/api/org/${orgId}/schools/${schoolId}/schedule`,
@@ -332,6 +357,99 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="text-xs text-muted">
+                {t("recurrence")}
+                <select
+                  className={selectCn}
+                  value={draft.recurrence}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      recurrence: e.target.value as RecurrenceValue,
+                    })
+                  }
+                >
+                  <option value="WEEKLY">{t("recurrenceWeekly")}</option>
+                  <option value="DAILY">{t("recurrenceDaily")}</option>
+                  <option value="ONE_OFF">{t("recurrenceOneOff")}</option>
+                </select>
+              </label>
+              {draft.recurrence === "ONE_OFF" ? (
+                <label className="text-xs text-muted">
+                  {t("oneOffDate")}
+                  <input
+                    type="date"
+                    className={inputCn}
+                    value={draft.startsOn}
+                    onChange={(e) =>
+                      setDraft({ ...draft, startsOn: e.target.value })
+                    }
+                    required
+                  />
+                </label>
+              ) : null}
+            </div>
+
+            {draft.recurrence === "WEEKLY" ? (
+              <fieldset className="rounded-lg border border-border p-3">
+                <legend className="px-1 text-xs text-muted">
+                  {t("daysOfWeek")}
+                </legend>
+                <div className="flex flex-wrap gap-3">
+                  {dayOptions.map(({ value, label }) => {
+                    const checked = draft.daysOfWeek.includes(value);
+                    return (
+                      <label
+                        key={value}
+                        className="inline-flex items-center gap-1 text-xs text-foreground"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          aria-label={label}
+                          onChange={(e) => {
+                            const next = e.target.checked
+                              ? [...draft.daysOfWeek, value]
+                              : draft.daysOfWeek.filter((x) => x !== value);
+                            setDraft({ ...draft, daysOfWeek: next });
+                          }}
+                        />
+                        {label}
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            ) : null}
+
+            {draft.recurrence !== "ONE_OFF" ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="text-xs text-muted">
+                  {t("startsOn")}
+                  <input
+                    type="date"
+                    className={inputCn}
+                    value={draft.startsOn}
+                    onChange={(e) =>
+                      setDraft({ ...draft, startsOn: e.target.value })
+                    }
+                  />
+                </label>
+                <label className="text-xs text-muted">
+                  {t("endsOn")}
+                  <input
+                    type="date"
+                    className={inputCn}
+                    value={draft.endsOn}
+                    onChange={(e) =>
+                      setDraft({ ...draft, endsOn: e.target.value })
+                    }
+                  />
+                </label>
+              </div>
+            ) : null}
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-xs text-muted">
                 {t("classLevel")}
                 <select
                   className={selectCn}
@@ -343,7 +461,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                   <option value="">{t("classLevelPlaceholder")}</option>
                   {classLevels.map((lvl) => (
                     <option key={lvl.id} value={lvl.id}>
-                      {lvl.labelEn ?? lvl.label}
+                      {lvl.label}
                     </option>
                   ))}
                 </select>
@@ -365,7 +483,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                   <option value="">{t("classTypePlaceholder")}</option>
                   {classTypes.map((ty) => (
                     <option key={ty.id} value={ty.id}>
-                      {ty.labelEn ?? ty.label}
+                      {ty.label}
                     </option>
                   ))}
                 </select>

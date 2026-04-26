@@ -21,7 +21,6 @@ export async function GET() {
       nameEn: true,
       timezone: true,
       billingTarget: true,
-      allowTeacherMarketplace: true,
       createdAt: true,
       schools: {
         orderBy: { createdAt: "asc" },

@@ -286,6 +286,116 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
     });
   });
 
+  test("201 persists recurrence/daysOfWeek/startsOn/endsOn for WEEKLY multi-day", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    prismaMock.school.findUnique.mockResolvedValue({
+      id: schoolId,
+      timezone: "Asia/Tokyo",
+      organization: { timezone: "Asia/Tokyo" },
+    });
+    prismaMock.schoolScheduleSlot.create.mockResolvedValue({ id: "slot-1" });
+
+    const res = await POST(
+      postReq({
+        dayOfWeek: 1,
+        startMin: 540,
+        endMin: 600,
+        durationMin: 60,
+        lessonLevel: "beginner",
+        lessonType: "conversation",
+        capacity: 5,
+        recurrence: "WEEKLY",
+        daysOfWeek: [1, 3, 5],
+        startsOn: "2026-04-27",
+        endsOn: "2026-06-30",
+      }),
+      routeCtx,
+    );
+    expect(res.status).toBe(201);
+    expect(prismaMock.schoolScheduleSlot.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        recurrence: "WEEKLY",
+        daysOfWeek: [1, 3, 5],
+        startsOn: expect.any(Date),
+        endsOn: expect.any(Date),
+      }),
+    });
+  });
+
+  test("201 persists ONE_OFF with startsOn", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    prismaMock.school.findUnique.mockResolvedValue({
+      id: schoolId,
+      timezone: "Asia/Tokyo",
+      organization: { timezone: "Asia/Tokyo" },
+    });
+    prismaMock.schoolScheduleSlot.create.mockResolvedValue({ id: "slot-1" });
+
+    const res = await POST(
+      postReq({
+        dayOfWeek: 0,
+        startMin: 540,
+        endMin: 600,
+        durationMin: 60,
+        lessonLevel: "beginner",
+        lessonType: "conversation",
+        capacity: 1,
+        recurrence: "ONE_OFF",
+        startsOn: "2026-05-15",
+      }),
+      routeCtx,
+    );
+    expect(res.status).toBe(201);
+    expect(prismaMock.schoolScheduleSlot.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        recurrence: "ONE_OFF",
+        startsOn: expect.any(Date),
+      }),
+    });
+  });
+
+  test("400 when ONE_OFF without startsOn", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    const res = await POST(
+      postReq({
+        dayOfWeek: 0,
+        startMin: 540,
+        endMin: 600,
+        durationMin: 60,
+        lessonLevel: "beginner",
+        lessonType: "conversation",
+        capacity: 1,
+        recurrence: "ONE_OFF",
+      }),
+      routeCtx,
+    );
+    expect(res.status).toBe(400);
+  });
+
   test("400 with invalid slot times", async () => {
     authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
     prismaMock.organizationMembership.findFirst.mockResolvedValue({

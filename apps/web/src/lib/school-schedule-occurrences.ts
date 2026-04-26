@@ -1,6 +1,7 @@
 import {
-  expandWeeklyOccurrencesInRange,
+  expandRecurringOccurrencesInRange,
   type OccurrenceInRange,
+  type RecurrencePattern,
 } from "@/lib/recurring-slot-occurrences";
 import type { SlotOption } from "@/lib/slot-calendar";
 
@@ -36,6 +37,14 @@ export type SchoolSlotForOccurrences = {
   classType?: SchoolSlotTaxonomyEntry;
   /** UTC ISO timestamps of cancelled occurrences. */
   skips?: string[];
+  /** Recurrence pattern. Defaults to WEEKLY for back-compat. */
+  recurrence?: RecurrencePattern | null;
+  /** Multi-day WEEKLY selection. Empty/undefined falls back to dayOfWeek. */
+  daysOfWeek?: number[] | null;
+  /** Inclusive lower bound (YYYY-MM-DD in slot timezone). */
+  startsOn?: string | null;
+  /** Inclusive upper bound (YYYY-MM-DD in slot timezone). */
+  endsOn?: string | null;
 };
 
 export type CapacityInfo = { enrolled: number; capacity: number };
@@ -81,8 +90,17 @@ export function expandSchoolSlotOccurrences(
   const out: SlotOption[] = [];
   for (const slot of input.slots) {
     const skipSet = new Set(slot.skips ?? []);
-    const occurrences: OccurrenceInRange[] = expandWeeklyOccurrencesInRange(
-      slot,
+    const occurrences: OccurrenceInRange[] = expandRecurringOccurrencesInRange(
+      {
+        dayOfWeek: slot.dayOfWeek,
+        startMin: slot.startMin,
+        endMin: slot.endMin,
+        timezone: slot.timezone,
+        recurrence: slot.recurrence ?? undefined,
+        daysOfWeek: slot.daysOfWeek ?? undefined,
+        startsOn: slot.startsOn ?? undefined,
+        endsOn: slot.endsOn ?? undefined,
+      },
       input.rangeStart,
       input.rangeEnd,
     );

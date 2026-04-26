@@ -30,6 +30,10 @@ const orgId = "org-1";
 const schoolId = "school-1";
 const routeCtx = { params: Promise.resolve({ orgId, schoolId }) };
 
+const DAY_MS = 86_400_000;
+const futureStartIso = new Date(Date.now() + 7 * DAY_MS).toISOString();
+const futureEndIso = new Date(Date.now() + 9 * DAY_MS).toISOString();
+
 function postReq(body: unknown) {
   return new Request(
     `http://localhost/api/org/${orgId}/schools/${schoolId}/time-off-requests`,
@@ -54,8 +58,8 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/time-off-requests", () => {
     authMock.mockResolvedValue(null);
     const res = await POST(
       postReq({
-        startDate: "2026-04-25T00:00:00Z",
-        endDate: "2026-04-27T23:59:59Z",
+        startDate: futureStartIso,
+        endDate: futureEndIso,
       }),
       routeCtx,
     );
@@ -74,8 +78,8 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/time-off-requests", () => {
     });
     const res = await POST(
       postReq({
-        startDate: "2026-04-25T00:00:00Z",
-        endDate: "2026-04-27T23:59:59Z",
+        startDate: futureStartIso,
+        endDate: futureEndIso,
       }),
       routeCtx,
     );
@@ -95,16 +99,16 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/time-off-requests", () => {
     const created = {
       id: "req-1",
       status: "PENDING",
-      startDate: new Date("2026-04-25"),
-      endDate: new Date("2026-04-27"),
+      startDate: new Date(futureStartIso),
+      endDate: new Date(futureEndIso),
     };
     prismaMock.timeOffRequest.create.mockResolvedValue(created);
     prismaMock.school.findUnique.mockResolvedValue({ name: "Shibuya" });
 
     const res = await POST(
       postReq({
-        startDate: "2026-04-25T00:00:00Z",
-        endDate: "2026-04-27T23:59:59Z",
+        startDate: futureStartIso,
+        endDate: futureEndIso,
         reason: "Family trip",
       }),
       routeCtx,

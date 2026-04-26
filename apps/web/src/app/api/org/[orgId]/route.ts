@@ -4,16 +4,16 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isOrgWideAdmin, type MembershipForAuth } from "@/lib/org-authorization";
 
-const updateOrgSchema = z.object({
-  name: z.string().trim().min(1).max(200).optional(),
-  nameJa: z.string().trim().max(200).optional(),
-  nameEn: z.string().trim().max(200).optional(),
-  timezone: z.string().trim().max(100).optional(),
-  description: z.string().trim().max(2000).optional(),
-  descriptionJa: z.string().trim().max(2000).optional(),
-  billingTarget: z.enum(["ORGANIZATION", "STUDENT"]).optional(),
-  allowTeacherMarketplace: z.boolean().optional(),
-});
+const updateOrgSchema = z
+  .object({
+    name: z.string().trim().min(1).max(200).optional(),
+    nameJa: z.string().trim().max(200).optional(),
+    nameEn: z.string().trim().max(200).optional(),
+    timezone: z.string().trim().max(100).optional(),
+    description: z.string().trim().max(2000).optional(),
+    descriptionJa: z.string().trim().max(2000).optional(),
+  })
+  .strip();
 
 type RouteContext = { params: Promise<{ orgId: string }> };
 

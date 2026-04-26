@@ -11,8 +11,6 @@ type OrgData = {
   timezone?: string;
   description?: string;
   descriptionJa?: string;
-  billingTarget: string;
-  allowTeacherMarketplace: boolean;
 };
 
 type Props = { orgId: string };
@@ -48,8 +46,6 @@ export function OrgSettingsForm({ orgId }: Props) {
         timezone: data!.timezone || undefined,
         description: data!.description || undefined,
         descriptionJa: data!.descriptionJa || undefined,
-        billingTarget: data!.billingTarget,
-        allowTeacherMarketplace: data!.allowTeacherMarketplace,
       }),
     });
 
@@ -119,46 +115,6 @@ export function OrgSettingsForm({ orgId }: Props) {
             value={data.description ?? ""}
             onChange={(e) => update("description", e.target.value)}
           />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-foreground">
-            {t("billingTarget")}
-          </label>
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="radio"
-                name="billingTarget"
-                value="ORGANIZATION"
-                checked={data.billingTarget === "ORGANIZATION"}
-                onChange={() => update("billingTarget", "ORGANIZATION")}
-              />
-              {t("billingOrg")}
-            </label>
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="radio"
-                name="billingTarget"
-                value="STUDENT"
-                checked={data.billingTarget === "STUDENT"}
-                onChange={() => update("billingTarget", "STUDENT")}
-              />
-              {t("billingStudent")}
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <label className="flex items-center gap-2 text-sm text-foreground">
-            <input
-              type="checkbox"
-              checked={data.allowTeacherMarketplace}
-              onChange={(e) => update("allowTeacherMarketplace", e.target.checked)}
-            />
-            {t("allowTeacherMarketplace")}
-          </label>
-          <p className="mt-1 text-xs text-muted">{t("allowTeacherMarketplaceHelp")}</p>
         </div>
 
         {status === "error" && (

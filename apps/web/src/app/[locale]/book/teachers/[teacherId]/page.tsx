@@ -58,7 +58,15 @@ export default async function TeacherProfileBookingPage({
   const teacher = await prisma.teacherProfile.findUnique({
     where: { id: teacherId },
     include: {
-      user: true,
+      user: {
+        include: {
+          organizationMemberships: {
+            where: { status: "ACTIVE" },
+            select: { id: true },
+            take: 1,
+          },
+        },
+      },
       availabilitySlots: {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
@@ -74,6 +82,7 @@ export default async function TeacherProfileBookingPage({
   });
 
   if (!teacher) notFound();
+  if (teacher.user.organizationMemberships.length > 0) notFound();
 
   // Only fetch timing for taken slots. Never select student identity fields
   // so no booker's name/email can leak to other students on this page.
