@@ -1,5 +1,5 @@
 /**
- * Keeps the `LessonProduct` catalog in lockstep with the `(lessonType, durationMin)`
+ * Keeps the `LessonProduct` catalog in lockstep with the `(classType.code, durationMin)`
  * combinations that teachers actually offer.
  *
  * Why: the student booking dropdown is built from catalog products. A teacher
@@ -15,7 +15,7 @@
 import { LessonTier } from "@/generated/prisma/client";
 
 type OfferingLike = {
-  lessonType: string | null;
+  classType: { code: string } | null;
   durationMin: number;
   active: boolean;
 };
@@ -45,9 +45,9 @@ type CatalogTx = {
 };
 
 export function inferLessonTierForOffering(offering: {
-  lessonType: string | null;
+  classType: { code: string } | null;
 }): LessonTier {
-  switch (offering.lessonType) {
+  switch (offering.classType?.code) {
     case "conversation":
       return LessonTier.EIKAWA;
     case "pronunciation":
@@ -102,7 +102,7 @@ function nameForTier(
 }
 
 export function buildCatalogProductForOffering(offering: {
-  lessonType: string | null;
+  classType: { code: string } | null;
   durationMin: number;
 }): CatalogProductRow {
   const tier = inferLessonTierForOffering(offering);

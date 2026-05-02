@@ -6,7 +6,7 @@ import { AdminPlacementReviewForm } from "@/components/admin-placement-review-fo
 export default async function AdminPage() {
   const t = await getTranslations("admin");
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "ADMIN") return null;
+  if (!session?.user?.id || session.user.role !== "SUPER_ADMIN") return null;
 
   const bookings = await prisma.booking.findMany({
     where: {},

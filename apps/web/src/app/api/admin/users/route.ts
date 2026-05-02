@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 
 const listQuerySchema = z.object({
-  role: z.enum(["STUDENT", "TEACHER", "ADMIN"]).optional(),
+  role: z.enum(["STUDENT", "TEACHER", "SUPER_ADMIN"]).optional(),
   q: z.string().trim().max(200).optional(),
   sort: z
     .enum([
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.user.role !== "ADMIN") {
+  if (session.user.role !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -100,6 +100,18 @@ export async function GET(req: Request) {
             calendarConnected: true,
           },
         },
+        organizationMemberships: {
+          where: { status: { in: ["ACTIVE", "PENDING_APPROVAL", "INVITED"] } },
+          select: {
+            id: true,
+            orgRole: true,
+            status: true,
+            schoolId: true,
+            organization: { select: { id: true, name: true } },
+            school: { select: { id: true, name: true } },
+          },
+          orderBy: [{ organizationId: "asc" }, { schoolId: "asc" }],
+        },
       },
     }),
     prisma.user.count({ where }),
@@ -124,6 +136,7 @@ export async function GET(req: Request) {
             Boolean(row.teacherProfile.googleCalendarRefreshToken),
         }
       : null,
+    memberships: row.organizationMemberships ?? [],
   }));
 
   return NextResponse.json({ items, total, page, pageSize });

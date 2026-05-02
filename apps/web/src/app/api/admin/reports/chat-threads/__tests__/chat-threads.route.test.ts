@@ -37,7 +37,7 @@ describe("GET /api/admin/reports/chat-threads", () => {
   });
 
   test("200 returns reported threads", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin", role: "SUPER_ADMIN" } });
     prismaMock.chatThread.findMany.mockResolvedValue([
       {
         id: "th1",

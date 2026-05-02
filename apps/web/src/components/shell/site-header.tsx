@@ -18,6 +18,7 @@ export function SiteHeader() {
           signedIn: true,
           role: session.user.role,
           canStartPlacement: session.user.canStartPlacement,
+          activeOrgId: session.user.activeOrgId,
         })
       : status === "unauthenticated"
         ? getHeaderPrimaryNavLinks({ signedIn: false, role: undefined })

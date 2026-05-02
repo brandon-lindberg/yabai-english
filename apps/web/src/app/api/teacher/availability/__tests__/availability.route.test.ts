@@ -3,21 +3,25 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 const {
   authMock,
   profileUpsertMock,
-  profileFindUniqueMock,
   availabilityDeleteManyMock,
   availabilityCreateManyMock,
-  offeringFindManyMock,
   offeringCreateManyMock,
+  classLevelFindManyMock,
+  classTypeFindManyMock,
+  classLevelCreateManyMock,
+  classTypeCreateManyMock,
   transactionMock,
   ensureCatalogProductsMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
   profileUpsertMock: vi.fn(),
-  profileFindUniqueMock: vi.fn(),
   availabilityDeleteManyMock: vi.fn(),
   availabilityCreateManyMock: vi.fn(),
-  offeringFindManyMock: vi.fn(),
   offeringCreateManyMock: vi.fn(),
+  classLevelFindManyMock: vi.fn(),
+  classTypeFindManyMock: vi.fn(),
+  classLevelCreateManyMock: vi.fn(),
+  classTypeCreateManyMock: vi.fn(),
   transactionMock: vi.fn(),
   ensureCatalogProductsMock: vi.fn(),
 }));
@@ -31,15 +35,21 @@ vi.mock("@/lib/prisma", () => ({
     $transaction: transactionMock,
     teacherProfile: {
       upsert: profileUpsertMock,
-      findUnique: profileFindUniqueMock,
     },
     availabilitySlot: {
       deleteMany: availabilityDeleteManyMock,
       createMany: availabilityCreateManyMock,
     },
     teacherLessonOffering: {
-      findMany: offeringFindManyMock,
       createMany: offeringCreateManyMock,
+    },
+    teacherClassLevel: {
+      findMany: classLevelFindManyMock,
+      createMany: classLevelCreateManyMock,
+    },
+    teacherClassType: {
+      findMany: classTypeFindManyMock,
+      createMany: classTypeCreateManyMock,
     },
   },
 }));
@@ -62,20 +72,39 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
-    profileUpsertMock.mockResolvedValue({ id: "tp-1", rateYen: 3500 });
-    profileFindUniqueMock.mockResolvedValue({
+    profileUpsertMock.mockResolvedValue({
       id: "tp-1",
       rateYen: 3500,
       lessonOfferings: [
         {
-          lessonType: "conversation",
-          lessonTypeCustom: null,
+          classTypeId: "ty-conv",
           active: true,
           rateYen: 3500,
           isGroup: false,
+          durationMin: 30,
         },
       ],
     });
+    const knownLevels = [{ id: "lvl-int" }];
+    const knownTypes = [
+      { id: "ty-conv", code: "conversation" },
+      { id: "ty-gram", code: "grammar" },
+      { id: "ty-pron", code: "pronunciation" },
+    ];
+    classLevelFindManyMock.mockImplementation(
+      async ({ where }: { where: { id: { in: string[] } } }) => {
+        const ids = where.id.in ?? [];
+        return knownLevels.filter((l) => ids.includes(l.id));
+      },
+    );
+    classTypeFindManyMock.mockImplementation(
+      async ({ where }: { where: { id: { in: string[] } } }) => {
+        const ids = where.id.in ?? [];
+        return knownTypes.filter((t) => ids.includes(t.id));
+      },
+    );
+    classLevelCreateManyMock.mockResolvedValue({ count: 0 });
+    classTypeCreateManyMock.mockResolvedValue({ count: 0 });
     availabilityDeleteManyMock.mockResolvedValue({ count: 0 });
     availabilityCreateManyMock.mockResolvedValue({ count: 0 });
     offeringCreateManyMock.mockResolvedValue({ count: 0 });
@@ -97,7 +126,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     );
   });
 
-  test("creates a matching lesson offering when schedule introduces a new lesson type", async () => {
+  test("creates a matching lesson offering when schedule introduces a new class type", async () => {
     const res = await PATCH(
       patchRequest([
         {
@@ -105,16 +134,16 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "conversation",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
         },
         {
           dayOfWeek: 3,
           startMin: 19 * 60,
           endMin: 20 * 60,
           timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "grammar",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-gram",
         },
       ]),
     );
@@ -130,28 +159,13 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           isGroup: false,
           groupSize: null,
           active: true,
-          lessonType: "grammar",
-          lessonTypeCustom: null,
+          classTypeId: "ty-gram",
         },
       ],
     });
   });
 
   test("does not create any new offerings when all schedule types are already covered", async () => {
-    profileFindUniqueMock.mockResolvedValue({
-      id: "tp-1",
-      rateYen: 3500,
-      lessonOfferings: [
-        {
-          lessonType: "conversation",
-          lessonTypeCustom: null,
-          active: true,
-          rateYen: 3500,
-          isGroup: false,
-        },
-      ],
-    });
-
     const res = await PATCH(
       patchRequest([
         {
@@ -159,8 +173,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "conversation",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
         },
       ]),
     );
@@ -170,7 +184,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
   });
 
   test("uses 40-min default duration for pronunciation so the offering maps to a catalog product", async () => {
-    profileFindUniqueMock.mockResolvedValue({
+    profileUpsertMock.mockResolvedValue({
       id: "tp-1",
       rateYen: 4200,
       lessonOfferings: [],
@@ -183,8 +197,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           startMin: 9 * 60,
           endMin: 10 * 60,
           timezone: "Asia/Tokyo",
-          lessonLevel: "advanced",
-          lessonType: "pronunciation",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-pron",
         },
       ]),
     );
@@ -195,7 +209,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
         expect.objectContaining({
           teacherId: "tp-1",
           durationMin: 40,
-          lessonType: "pronunciation",
+          classTypeId: "ty-pron",
           rateYen: 4200,
           isGroup: false,
           active: true,
@@ -205,7 +219,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
   });
 
   test("provisions catalog products so every new offering is bookable", async () => {
-    profileFindUniqueMock.mockResolvedValue({
+    profileUpsertMock.mockResolvedValue({
       id: "tp-1",
       rateYen: 4200,
       lessonOfferings: [],
@@ -218,8 +232,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           startMin: 9 * 60,
           endMin: 10 * 60,
           timezone: "Asia/Tokyo",
-          lessonLevel: "advanced",
-          lessonType: "pronunciation",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-pron",
         },
       ]),
     );
@@ -230,7 +244,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     expect(offerings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          lessonType: "pronunciation",
+          classType: { code: "pronunciation" },
           durationMin: 40,
           active: true,
         }),

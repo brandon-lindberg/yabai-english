@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.user.role !== Role.ADMIN) {
+  if (session.user.role !== Role.SUPER_ADMIN) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     where: { userId: session.user.id },
   });
 
-  if (!teacher && session.user.role === Role.ADMIN) {
+  if (!teacher && session.user.role === Role.SUPER_ADMIN) {
     teacher = await prisma.teacherProfile.findFirst();
   }
 

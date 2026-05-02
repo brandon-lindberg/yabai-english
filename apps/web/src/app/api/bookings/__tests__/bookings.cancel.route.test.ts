@@ -186,7 +186,7 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
   });
 
   test("lets admin cancel any booking", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
     const booking = baseBooking();
     findUniqueMock.mockResolvedValue(booking);
     updateMock.mockImplementation(async ({ data }: { data: { status: BookingStatus } }) => ({

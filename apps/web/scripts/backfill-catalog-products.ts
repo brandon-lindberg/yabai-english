@@ -16,9 +16,9 @@ async function main() {
   const offerings = await prisma.teacherLessonOffering.findMany({
     where: { active: true },
     select: {
-      lessonType: true,
       durationMin: true,
       active: true,
+      classType: { select: { code: true } },
     },
   });
 

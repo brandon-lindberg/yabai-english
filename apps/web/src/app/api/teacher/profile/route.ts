@@ -23,8 +23,8 @@ const patchSchema = z.object({
         rateYen: z.number().int().min(1).max(9_999_999),
         isGroup: z.boolean(),
         groupSize: z.number().int().min(2).max(30).nullable(),
-        lessonType: z.string().max(24).nullable().optional(),
-        lessonTypeCustom: z.string().max(200).nullable().optional(),
+        /** FK to TeacherClassType.id; null/undefined = wildcard offering. */
+        classTypeId: z.string().min(1).nullable().optional(),
       }),
     )
     .max(40)
@@ -33,7 +33,7 @@ const patchSchema = z.object({
 
 export async function PATCH(req: Request) {
   const session = await auth();
-  if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "ADMIN")) {
+  if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -43,21 +43,12 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  if (parsed.data.lessonOfferings) {
-    for (const o of parsed.data.lessonOfferings) {
-      if (o.lessonType === "custom" && !o.lessonTypeCustom?.trim()) {
-        return NextResponse.json(
-          { error: "Custom lesson label is required when lesson type is Custom." },
-          { status: 400 },
-        );
-      }
-    }
-  }
-
   const userId = session.user.id;
   const data = parsed.data;
 
-  const profile = await prisma.$transaction(async (tx) => {
+  let profile;
+  try {
+    profile = await prisma.$transaction(async (tx) => {
     const updated = await tx.teacherProfile.upsert({
       where: { userId },
       create: {
@@ -86,6 +77,28 @@ export async function PATCH(req: Request) {
     });
 
     if (data.lessonOfferings !== undefined) {
+      const refTypeIds = Array.from(
+        new Set(
+          data.lessonOfferings
+            .map((o) => o.classTypeId)
+            .filter((id): id is string => typeof id === "string"),
+        ),
+      );
+      const foundTypes =
+        refTypeIds.length > 0
+          ? await tx.teacherClassType.findMany({
+              where: { id: { in: refTypeIds }, teacherId: updated.id },
+              select: { id: true, code: true },
+            })
+          : [];
+      if (foundTypes.length !== refTypeIds.length) {
+        throw Object.assign(
+          new Error("classTypeId does not belong to this teacher"),
+          { status: 400 },
+        );
+      }
+      const codeByTypeId = new Map(foundTypes.map((t) => [t.id, t.code]));
+
       await tx.teacherLessonOffering.deleteMany({
         where: { teacherId: updated.id },
       });
@@ -98,10 +111,7 @@ export async function PATCH(req: Request) {
             isGroup: o.isGroup,
             groupSize: o.isGroup ? o.groupSize : null,
             active: true,
-            lessonType: o.lessonType ?? null,
-            lessonTypeCustom: o.lessonType === "custom"
-                ? (o.lessonTypeCustom?.trim() ?? null)
-                : null,
+            classTypeId: o.classTypeId ?? null,
           })),
         });
       }
@@ -110,15 +120,24 @@ export async function PATCH(req: Request) {
       await ensureCatalogProductsForOfferings(
         tx,
         data.lessonOfferings.map((o) => ({
-          lessonType: o.lessonType ?? null,
+          classType: o.classTypeId
+            ? { code: codeByTypeId.get(o.classTypeId) ?? "" }
+            : null,
           durationMin: o.durationMin,
           active: true,
         })),
       );
     }
 
-    return updated;
-  });
+      return updated;
+    });
+  } catch (err) {
+    const e = err as { status?: number; message?: string };
+    if (e.status === 400) {
+      return NextResponse.json({ error: e.message ?? "Invalid input" }, { status: 400 });
+    }
+    throw err;
+  }
 
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`);

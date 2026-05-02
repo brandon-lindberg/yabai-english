@@ -11,7 +11,7 @@ const bodySchema = z.object({
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "ADMIN")) {
+  if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -35,9 +35,8 @@ export async function POST(req: Request) {
           startMin: true,
           endMin: true,
           timezone: true,
-          lessonLevel: true,
-          lessonType: true,
-          lessonTypeCustom: true,
+          classLevelId: true,
+          classTypeId: true,
         },
       },
     },
@@ -55,9 +54,8 @@ export async function POST(req: Request) {
       startMin: s.startMin,
       endMin: s.endMin,
       timezone: s.timezone,
-      lessonLevel: s.lessonLevel,
-      lessonType: s.lessonType,
-      lessonTypeCustom: s.lessonTypeCustom,
+      classLevelId: s.classLevelId,
+      classTypeId: s.classTypeId,
     })),
     viewerTimezone: viewerTz,
     horizonDays: 400,

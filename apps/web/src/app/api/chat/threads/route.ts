@@ -78,13 +78,13 @@ export async function GET(req: Request) {
     },
   );
 
-  const queue = session.user.role === Role.ADMIN ? adminQueue ?? "all" : "all";
+  const queue = session.user.role === Role.SUPER_ADMIN ? adminQueue ?? "all" : "all";
   const withUnread = await Promise.all(
     visibleThreads.map(async (thread) => {
       const unreadCount = await prisma.chatMessage.count({
         where: {
           threadId: thread.id,
-          ...(session.user.role === Role.ADMIN
+          ...(session.user.role === Role.SUPER_ADMIN
             ? {}
             : { recipientId: session.user.id }),
           readAt: null,
@@ -108,7 +108,7 @@ export async function GET(req: Request) {
         teacherName: teacherThreadLabel(thread.teacher),
         teacherEmail: thread.teacher.email,
         counterpartName:
-          session.user.role === Role.ADMIN
+          session.user.role === Role.SUPER_ADMIN
             ? `${studentThreadLabel(thread.student)} · ${teacherThreadLabel(thread.teacher)}`
             : session.user.id === thread.studentId
               ? teacherThreadLabel(thread.teacher)

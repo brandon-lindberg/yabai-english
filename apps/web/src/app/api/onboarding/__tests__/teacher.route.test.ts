@@ -14,6 +14,12 @@ vi.mock("@/lib/prisma", () => ({
     teacherProfile: {
       upsert: upsertMock,
     },
+    teacherClassLevel: {
+      createMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
+    teacherClassType: {
+      createMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
   },
 }));
 

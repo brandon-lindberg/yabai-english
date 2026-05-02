@@ -4,10 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import { deriveMissingOfferingsFromSchedule } from "@/lib/schedule-offering-sync";
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
+import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "ADMIN")) {
+  if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -24,9 +25,10 @@ export async function GET() {
           startMin: true,
           endMin: true,
           timezone: true,
-          lessonLevel: true,
-          lessonType: true,
-          lessonTypeCustom: true,
+          classLevelId: true,
+          classTypeId: true,
+          classLevel: { select: { id: true, code: true, labelEn: true, labelJa: true } },
+          classType: { select: { id: true, code: true, labelEn: true, labelJa: true } },
           active: true,
         },
       },
@@ -45,7 +47,7 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   const session = await auth();
-  if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "ADMIN")) {
+  if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -56,22 +58,16 @@ export async function PATCH(req: Request) {
   }
 
   const userId = session.user.id;
-  await prisma.teacherProfile.upsert({
+  const profileSnapshot = await prisma.teacherProfile.upsert({
     where: { userId },
     create: { userId },
     update: {},
-    select: { id: true },
-  });
-
-  const profileSnapshot = await prisma.teacherProfile.findUnique({
-    where: { userId },
     select: {
       id: true,
       rateYen: true,
       lessonOfferings: {
         select: {
-          lessonType: true,
-          lessonTypeCustom: true,
+          classTypeId: true,
           active: true,
           rateYen: true,
           isGroup: true,
@@ -81,16 +77,42 @@ export async function PATCH(req: Request) {
     },
   });
 
-  if (!profileSnapshot) {
-    return NextResponse.json({ error: "Teacher profile missing" }, { status: 500 });
+  // Defensively seed default taxonomy in case the teacher reached this PATCH
+  // before the onboarding flow ran (e.g. legacy profile).
+  await seedDefaultTeacherTaxonomy(prisma, profileSnapshot.id);
+
+  // Validate that every classLevelId / classTypeId belongs to this teacher.
+  const refLevelIds = Array.from(new Set(parsed.data.map((s) => s.classLevelId)));
+  const refTypeIds = Array.from(new Set(parsed.data.map((s) => s.classTypeId)));
+  const [foundLevels, foundTypes] = await Promise.all([
+    prisma.teacherClassLevel.findMany({
+      where: { id: { in: refLevelIds }, teacherId: profileSnapshot.id },
+      select: { id: true },
+    }),
+    prisma.teacherClassType.findMany({
+      where: { id: { in: refTypeIds }, teacherId: profileSnapshot.id },
+      select: { id: true, code: true },
+    }),
+  ]);
+  if (foundLevels.length !== refLevelIds.length) {
+    return NextResponse.json(
+      { error: "classLevelId does not belong to this teacher" },
+      { status: 400 },
+    );
   }
+  if (foundTypes.length !== refTypeIds.length) {
+    return NextResponse.json(
+      { error: "classTypeId does not belong to this teacher" },
+      { status: 400 },
+    );
+  }
+  const codeByTypeId = new Map(foundTypes.map((t) => [t.id, t.code]));
 
   const newOfferings = deriveMissingOfferingsFromSchedule({
     existing: profileSnapshot.lessonOfferings,
     scheduled: parsed.data.map((slot) => ({
-      lessonType: slot.lessonType,
-      lessonTypeCustom:
-        slot.lessonType === "custom" ? (slot.lessonTypeCustom?.trim() ?? null) : null,
+      classTypeId: slot.classTypeId,
+      classTypeCode: codeByTypeId.get(slot.classTypeId) ?? "",
     })),
     fallbackRateYen: profileSnapshot.rateYen ?? null,
   });
@@ -105,10 +127,8 @@ export async function PATCH(req: Request) {
           startMin: slot.startMin,
           endMin: slot.endMin,
           timezone: slot.timezone,
-          lessonLevel: slot.lessonLevel,
-          lessonType: slot.lessonType,
-          lessonTypeCustom:
-            slot.lessonType === "custom" ? (slot.lessonTypeCustom?.trim() ?? null) : null,
+          classLevelId: slot.classLevelId,
+          classTypeId: slot.classTypeId,
           active: true,
         })),
       });
@@ -122,8 +142,7 @@ export async function PATCH(req: Request) {
           isGroup: o.isGroup,
           groupSize: o.groupSize,
           active: o.active,
-          lessonType: o.lessonType,
-          lessonTypeCustom: o.lessonTypeCustom,
+          classTypeId: o.classTypeId,
         })),
       });
     }
@@ -131,12 +150,14 @@ export async function PATCH(req: Request) {
     // LessonProduct row so students can actually see/book it.
     const offeringsForCatalog = [
       ...profileSnapshot.lessonOfferings.map((o) => ({
-        lessonType: o.lessonType,
+        classType: o.classTypeId
+          ? { code: codeByTypeId.get(o.classTypeId) ?? "" }
+          : null,
         durationMin: o.durationMin,
         active: o.active,
       })),
       ...newOfferings.map((o) => ({
-        lessonType: o.lessonType,
+        classType: { code: codeByTypeId.get(o.classTypeId) ?? "" },
         durationMin: o.durationMin,
         active: o.active,
       })),

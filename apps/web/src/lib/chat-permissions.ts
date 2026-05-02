@@ -11,18 +11,18 @@ export function canSendChatMessage({
   hasScheduledLessonWithTeacher: boolean;
   counterpartRole?: Role;
 }) {
-  if (role === "ADMIN") return true;
+  if (role === "SUPER_ADMIN") return true;
 
   // Admin <-> teacher threads are two-way by design: teachers are staff and
   // must be able to respond to admin messages without admin having to flip a
   // per-thread toggle.
-  if (role === "TEACHER" && counterpartRole === "ADMIN") {
+  if (role === "TEACHER" && counterpartRole === "SUPER_ADMIN") {
     return true;
   }
 
   // Admin <-> student threads stay read-only for students unless the admin
   // explicitly enables two-way on the thread.
-  if (counterpartRole === "ADMIN") {
+  if (counterpartRole === "SUPER_ADMIN") {
     return threadTwoWayEnabled;
   }
 

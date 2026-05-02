@@ -4,7 +4,6 @@ import { getLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { BookingForm } from "@/components/booking-form";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
-import { formatAvailabilitySlotMeta } from "@/lib/availability-slot-lesson-meta";
 import { auth } from "@/auth";
 import { weekdayLabel } from "@/lib/weekdays";
 import { redirectTargetForTeacherBookingPage } from "@/lib/teacher-booking-page-access";
@@ -29,8 +28,17 @@ export default async function TeacherProfileBookingPage({
   searchParams,
 }: Props) {
   const t = await getTranslations("booking");
-  const tSlotMeta = await getTranslations("lessonSlotMeta");
   const locale = await getLocale();
+  const isJa = locale.toLowerCase().startsWith("ja");
+  const localized = (entry: { labelEn: string; labelJa: string | null } | null) =>
+    entry ? (isJa ? (entry.labelJa ?? entry.labelEn) : entry.labelEn) : "";
+  const formatSlotMeta = (slot: {
+    classLevel: { labelEn: string; labelJa: string | null } | null;
+    classType: { labelEn: string; labelJa: string | null } | null;
+  }) =>
+    [localized(slot.classLevel), localized(slot.classType)]
+      .filter(Boolean)
+      .join(" · ");
   const { teacherId } = await params;
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
@@ -58,10 +66,22 @@ export default async function TeacherProfileBookingPage({
   const teacher = await prisma.teacherProfile.findUnique({
     where: { id: teacherId },
     include: {
-      user: true,
+      user: {
+        include: {
+          organizationMemberships: {
+            where: { status: "ACTIVE" },
+            select: { id: true },
+            take: 1,
+          },
+        },
+      },
       availabilitySlots: {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
+        include: {
+          classLevel: { select: { labelEn: true, labelJa: true } },
+          classType: { select: { labelEn: true, labelJa: true } },
+        },
       },
       availabilityOccurrenceSkips: {
         select: { startsAtIso: true },
@@ -74,6 +94,7 @@ export default async function TeacherProfileBookingPage({
   });
 
   if (!teacher) notFound();
+  if (teacher.user.organizationMemberships.length > 0) notFound();
 
   // Only fetch timing for taken slots. Never select student identity fields
   // so no booker's name/email can leak to other students on this page.
@@ -114,6 +135,10 @@ export default async function TeacherProfileBookingPage({
   const skippedStartsAtIso = new Set(
     teacher.availabilityOccurrenceSkips.map((s) => s.startsAtIso),
   );
+  const slotMetaById = new Map<string, string>();
+  for (const slot of teacher.availabilitySlots) {
+    slotMetaById.set(slot.id, formatSlotMeta(slot));
+  }
   const slotOptions = buildUpcomingSlotOptions({
     availabilitySlots: teacher.availabilitySlots.map((slot) => ({
       id: slot.id,
@@ -121,15 +146,13 @@ export default async function TeacherProfileBookingPage({
       startMin: slot.startMin,
       endMin: slot.endMin,
       timezone: slot.timezone,
-      lessonLevel: slot.lessonLevel,
-      lessonType: slot.lessonType,
-      lessonTypeCustom: slot.lessonTypeCustom,
+      classLevelId: slot.classLevelId,
+      classTypeId: slot.classTypeId,
     })),
     viewerTimezone,
     minimumLeadHours: 48,
     skippedStartsAtIso,
-    formatLessonMeta: (slot) =>
-      formatAvailabilitySlotMeta(slot, (k) => tSlotMeta(`levels.${k}`), (k) => tSlotMeta(`types.${k}`)),
+    formatLessonMeta: (slot) => slotMetaById.get(slot.id) ?? "",
   });
 
   const subtitle = `${teacher.countryOfOrigin ?? "—"} · ${teacher.instructionLanguages.join(", ")}`;
@@ -195,15 +218,7 @@ export default async function TeacherProfileBookingPage({
                   {String(slot.startMin % 60).padStart(2, "0")} -{" "}
                   {String(Math.floor(slot.endMin / 60)).padStart(2, "0")}:
                   {String(slot.endMin % 60).padStart(2, "0")} ({slot.timezone}) ·{" "}
-                  {formatAvailabilitySlotMeta(
-                    {
-                      lessonLevel: slot.lessonLevel,
-                      lessonType: slot.lessonType,
-                      lessonTypeCustom: slot.lessonTypeCustom,
-                    },
-                    (k) => tSlotMeta(`levels.${k}`),
-                    (k) => tSlotMeta(`types.${k}`),
-                  )}
+                  {formatSlotMeta(slot)}
                 </li>
               ))
             )}
@@ -226,8 +241,7 @@ export default async function TeacherProfileBookingPage({
               endsAtIso: slot.endsAtIso,
               label: slot.label,
               groupKey: slot.slotId,
-              lessonType: slot.lessonType,
-              lessonTypeCustom: slot.lessonTypeCustom,
+              classTypeId: slot.classTypeId,
             }))}
             bookedSlots={reservedBookings.map((b) => ({
               startsAtIso: b.startsAt.toISOString(),

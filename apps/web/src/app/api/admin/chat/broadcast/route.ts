@@ -22,7 +22,7 @@ export async function GET() {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.user.role !== "ADMIN") {
+  if (session.user.role !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.user.role !== "ADMIN") {
+  if (session.user.role !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
       // to admin messages. Admin <-> student threads stay read-only until the
       // admin explicitly opens two-way on that thread.
       const twoWayEnabled = recipient.role === Role.TEACHER;
-      const twoWayEnabledByRole = twoWayEnabled ? Role.ADMIN : null;
+      const twoWayEnabledByRole = twoWayEnabled ? Role.SUPER_ADMIN : null;
       const thread = await prisma.chatThread.upsert({
         where: {
           studentId_teacherId:

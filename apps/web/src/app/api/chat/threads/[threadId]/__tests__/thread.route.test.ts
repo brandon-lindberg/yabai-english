@@ -52,7 +52,7 @@ describe("DELETE /api/chat/threads/[threadId]", () => {
   });
 
   test("forbids non-participant", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
     const res = await DELETE(new Request("http://localhost/api/chat/threads/thread-1"), {
       params: Promise.resolve({ threadId: "thread-1" }),
     });

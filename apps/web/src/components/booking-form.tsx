@@ -21,8 +21,10 @@ type LessonProductOption = {
   durationMin: number;
   tier: string;
   teacherLessonOfferingId?: string | null;
-  teacherLessonType?: string | null;
-  teacherLessonTypeCustom?: string | null;
+  teacherClassTypeId?: string | null;
+  teacherClassTypeCode?: string | null;
+  teacherClassTypeLabelEn?: string | null;
+  teacherClassTypeLabelJa?: string | null;
   teacherRateYen?: number | null;
   teacherGroupSize?: number | null;
   teacherIsGroupOffer?: boolean;
@@ -30,15 +32,14 @@ type LessonProductOption = {
 
 type Props = {
   teacherProfileId?: string;
-  currentUserRole?: "STUDENT" | "TEACHER" | "ADMIN";
+  currentUserRole?: "STUDENT" | "TEACHER" | "SUPER_ADMIN";
   presetSlots?: Array<{
     startsAtIso: string;
     endsAtIso?: string;
     label: string;
     groupKey?: string;
-    /** Lesson type key from the teacher's availability slot (used to filter). */
-    lessonType?: string;
-    lessonTypeCustom?: string | null;
+    /** TeacherClassType.id from the slot — used to filter against teacher offerings. */
+    classTypeId?: string | null;
   }>;
   /**
    * Slots that other students have already booked. Rendered as non-interactive
@@ -60,7 +61,6 @@ export function BookingForm({
 }: Props) {
   const locale = useLocale();
   const t = useTranslations("booking");
-  const tSlotMeta = useTranslations("lessonSlotMeta");
   const router = useRouter();
   const [products, setProducts] = useState<LessonProductOption[]>([]);
   const [selectedOptionKey, setSelectedOptionKey] = useState<string>(ALL_LESSON_TYPES_KEY);
@@ -215,7 +215,7 @@ export function BookingForm({
             <option value={ALL_LESSON_TYPES_KEY}>{t("allLessonTypes")}</option>
             {products.map((p) => (
               <option key={optionKey(p)} value={optionKey(p)}>
-                {buildProductOptionLabel(p, tSlotMeta, t)} — {p.durationMin}
+                {buildProductOptionLabel(p, locale, t)} — {p.durationMin}
                 {p.tier === "FREE_TRIAL" ? ` · ${t("freeTrialOption")}` : ""}
               </option>
             ))}
@@ -329,15 +329,16 @@ function optionKey(p: LessonProductOption): string {
 
 function buildProductOptionLabel(
   p: LessonProductOption,
-  tSlotMeta: (key: string) => string,
+  locale: string,
   tBooking: (key: string, values?: Record<string, string | number>) => string,
 ): string {
+  const isJa = locale.toLowerCase().startsWith("ja");
   const lessonType =
-    p.teacherLessonType === "custom"
-      ? (p.teacherLessonTypeCustom ?? "").trim() || tSlotMeta("types.custom")
-      : p.teacherLessonType
-        ? tSlotMeta(`types.${p.teacherLessonType}`)
-        : null;
+    p.teacherClassTypeLabelEn || p.teacherClassTypeLabelJa
+      ? isJa
+        ? (p.teacherClassTypeLabelJa ?? p.teacherClassTypeLabelEn)
+        : p.teacherClassTypeLabelEn
+      : null;
   const groupLabel =
     p.teacherIsGroupOffer && p.teacherGroupSize
       ? ` / ${tBooking("groupPeopleLabel", { count: p.teacherGroupSize })}`

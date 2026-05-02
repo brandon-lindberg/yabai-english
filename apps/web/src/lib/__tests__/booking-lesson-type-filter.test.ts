@@ -10,53 +10,44 @@ describe("booking lesson-type filter", () => {
     expect(ALL_LESSON_TYPES_KEY).toBe("__all__");
   });
 
-  test("slotMatchesProduct allows a matching non-custom lesson type", () => {
+  test("slotMatchesProduct allows a matching classTypeId", () => {
     expect(
       slotMatchesProduct(
-        { lessonType: "conversation" },
-        { teacherLessonType: "conversation" },
+        { classTypeId: "ty-conv" },
+        { teacherClassTypeId: "ty-conv" },
       ),
     ).toBe(true);
   });
 
-  test("slotMatchesProduct rejects when lesson types differ", () => {
+  test("slotMatchesProduct rejects when classTypeIds differ", () => {
     expect(
       slotMatchesProduct(
-        { lessonType: "pronunciation" },
-        { teacherLessonType: "conversation" },
+        { classTypeId: "ty-pron" },
+        { teacherClassTypeId: "ty-conv" },
       ),
     ).toBe(false);
   });
 
-  test("slotMatchesProduct compares trimmed/lowercase custom labels", () => {
-    expect(
-      slotMatchesProduct(
-        { lessonType: "custom", lessonTypeCustom: "  Interview Prep  " },
-        { teacherLessonType: "custom", teacherLessonTypeCustom: "interview prep" },
-      ),
-    ).toBe(true);
-  });
-
   test("slotMatchesProduct falls back to allowing the slot when metadata is missing", () => {
-    expect(slotMatchesProduct({}, { teacherLessonType: "conversation" })).toBe(true);
-    expect(slotMatchesProduct({ lessonType: "conversation" }, {})).toBe(true);
+    expect(slotMatchesProduct({}, { teacherClassTypeId: "ty-conv" })).toBe(true);
+    expect(slotMatchesProduct({ classTypeId: "ty-conv" }, {})).toBe(true);
   });
 
   test("filterSlotsForSelection returns all slots when selection is undefined (All)", () => {
     const slots = [
-      { lessonType: "conversation" },
-      { lessonType: "pronunciation" },
+      { classTypeId: "ty-conv" },
+      { classTypeId: "ty-pron" },
     ];
     expect(filterSlotsForSelection(slots, undefined)).toEqual(slots);
   });
 
-  test("filterSlotsForSelection hides slots with a non-matching lesson type", () => {
+  test("filterSlotsForSelection hides slots with a non-matching classTypeId", () => {
     const slots = [
-      { lessonType: "conversation", id: "a" },
-      { lessonType: "pronunciation", id: "b" },
+      { classTypeId: "ty-conv" },
+      { classTypeId: "ty-pron" },
     ];
     expect(
-      filterSlotsForSelection(slots, { teacherLessonType: "pronunciation" }),
-    ).toEqual([{ lessonType: "pronunciation", id: "b" }]);
+      filterSlotsForSelection(slots, { teacherClassTypeId: "ty-pron" }),
+    ).toEqual([{ classTypeId: "ty-pron" }]);
   });
 });

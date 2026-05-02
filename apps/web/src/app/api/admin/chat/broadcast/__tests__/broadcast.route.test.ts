@@ -70,7 +70,7 @@ describe("POST /api/admin/chat/broadcast", () => {
   });
 
   test("GET lists admin broadcast history", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
     prismaMock.adminBroadcast.findMany.mockResolvedValue([
       {
         id: "b1",
@@ -89,7 +89,7 @@ describe("POST /api/admin/chat/broadcast", () => {
   });
 
   test("broadcasts to teachers only", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
     prismaMock.user.findMany.mockResolvedValue([
       { id: "t-1", role: "TEACHER" },
       { id: "t-2", role: "TEACHER" },
@@ -127,10 +127,10 @@ describe("POST /api/admin/chat/broadcast", () => {
     expect(prismaMock.chatThread.upsert).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        update: { twoWayEnabled: true, twoWayEnabledByRole: "ADMIN" },
+        update: { twoWayEnabled: true, twoWayEnabledByRole: "SUPER_ADMIN" },
         create: expect.objectContaining({
           twoWayEnabled: true,
-          twoWayEnabledByRole: "ADMIN",
+          twoWayEnabledByRole: "SUPER_ADMIN",
         }),
       }),
     );
@@ -148,7 +148,7 @@ describe("POST /api/admin/chat/broadcast", () => {
   });
 
   test("broadcasts to both teachers and students", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
     prismaMock.user.findMany.mockResolvedValue([
       { id: "t-1", role: "TEACHER" },
       { id: "s-1", role: "STUDENT" },
@@ -198,10 +198,10 @@ describe("POST /api/admin/chat/broadcast", () => {
     expect(prismaMock.chatThread.upsert).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        update: { twoWayEnabled: true, twoWayEnabledByRole: "ADMIN" },
+        update: { twoWayEnabled: true, twoWayEnabledByRole: "SUPER_ADMIN" },
         create: expect.objectContaining({
           twoWayEnabled: true,
-          twoWayEnabledByRole: "ADMIN",
+          twoWayEnabledByRole: "SUPER_ADMIN",
         }),
       }),
     );

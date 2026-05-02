@@ -32,7 +32,7 @@ describe("GET /api/chat/threads", () => {
   });
 
   test("admin counterpartName lists student and teacher", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
     prismaMock.chatThread.findMany.mockResolvedValue([
       {
         id: "t1",
@@ -95,7 +95,7 @@ describe("GET /api/chat/threads", () => {
   });
 
   test("admin can filter by queue=reported", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
     prismaMock.chatThread.findMany.mockResolvedValue([
       {
         id: "reported",
@@ -138,7 +138,7 @@ describe("GET /api/chat/threads", () => {
   });
 
   test("admin search matches teacher email", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
     prismaMock.chatThread.findMany.mockResolvedValue([
       {
         id: "th-email",

@@ -31,9 +31,23 @@ export default async function DashboardScheduleAvailabilityPage({
       availabilitySlots: {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
+        include: {
+          classLevel: { select: { id: true, code: true, labelEn: true, labelJa: true } },
+          classType: { select: { id: true, code: true, labelEn: true, labelJa: true } },
+        },
       },
       availabilityOccurrenceSkips: {
         select: { startsAtIso: true },
+      },
+      classLevels: {
+        where: { active: true },
+        orderBy: [{ sortOrder: "asc" }, { labelEn: "asc" }],
+        select: { id: true, code: true, labelEn: true, labelJa: true },
+      },
+      classTypes: {
+        where: { active: true },
+        orderBy: [{ sortOrder: "asc" }, { labelEn: "asc" }],
+        select: { id: true, code: true, labelEn: true, labelJa: true },
       },
     },
   });
@@ -54,14 +68,17 @@ export default async function DashboardScheduleAvailabilityPage({
           startMin: slot.startMin,
           endMin: slot.endMin,
           timezone: slot.timezone,
-          lessonLevel: slot.lessonLevel,
-          lessonType: slot.lessonType,
-          lessonTypeCustom: slot.lessonTypeCustom ?? null,
+          classLevelId: slot.classLevelId,
+          classTypeId: slot.classTypeId,
+          classLevel: slot.classLevel,
+          classType: slot.classType,
         }))}
         initialOccurrenceSkips={
           profile?.availabilityOccurrenceSkips?.map((s) => s.startsAtIso) ?? []
         }
         defaultTimezone={profile?.availabilitySlots?.[0]?.timezone ?? "Asia/Tokyo"}
+        classLevels={profile?.classLevels ?? []}
+        classTypes={profile?.classTypes ?? []}
         bookings={teacherBookings.upcoming.map((b) => ({
           id: b.id,
           startsAtIso: b.startsAt.toISOString(),

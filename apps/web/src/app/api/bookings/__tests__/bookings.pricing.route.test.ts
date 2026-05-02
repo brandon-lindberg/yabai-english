@@ -12,6 +12,7 @@ const {
     teacherProfile: { findFirst: vi.fn() },
     chatThread: { findUnique: vi.fn() },
     booking: { findFirst: vi.fn() },
+    schoolScheduleSlot: { findMany: vi.fn() },
     user: { findUnique: vi.fn() },
     $transaction: vi.fn(),
   },
@@ -55,13 +56,14 @@ describe("POST /api/bookings pricing", () => {
           rateYen: 5000,
           isGroup: false,
           active: true,
-          lessonType: "grammar",
+          classType: { code: "grammar" },
         },
       ],
       user: { email: "teacher@example.com" },
     });
     prismaMock.chatThread.findUnique.mockResolvedValue(null);
     prismaMock.booking.findFirst.mockResolvedValue(null);
+    prismaMock.schoolScheduleSlot.findMany.mockResolvedValue([]);
     prismaMock.user.findUnique.mockResolvedValue({
       id: "student-1",
       email: "student@example.com",
@@ -128,7 +130,7 @@ describe("POST /api/bookings pricing", () => {
           rateYen: 3500,
           isGroup: false,
           active: true,
-          lessonType: "conversation",
+          classType: { code: "conversation" },
         },
       ],
       user: { email: "teacher@example.com" },
@@ -173,7 +175,7 @@ describe("POST /api/bookings pricing", () => {
           rateYen: 4100,
           isGroup: false,
           active: true,
-          lessonType: "conversation",
+          classType: { code: "conversation" },
         },
         {
           id: "off-grammar-40",
@@ -181,7 +183,7 @@ describe("POST /api/bookings pricing", () => {
           rateYen: 4700,
           isGroup: false,
           active: true,
-          lessonType: "grammar",
+          classType: { code: "grammar" },
         },
       ],
       user: { email: "teacher@example.com" },
@@ -240,7 +242,7 @@ describe("POST /api/bookings pricing", () => {
           isGroup: true,
           groupSize: 4,
           active: true,
-          lessonType: "conversation",
+          classType: { code: "conversation" },
         },
       ],
       user: { email: "teacher@example.com" },

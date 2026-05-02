@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 const NAV = [
   ["/admin", "overview"],
+  ["/admin/schools", "schools"],
   ["/admin/users", "users"],
   ["/admin/teachers", "teachers"],
   ["/admin/students", "students"],

@@ -1,4 +1,4 @@
-type Role = "STUDENT" | "TEACHER" | "ADMIN" | string;
+type Role = "STUDENT" | "TEACHER" | "SUPER_ADMIN" | string;
 
 export function getOnboardingRedirectForRole(input: {
   role: Role;

@@ -231,7 +231,7 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
 
   test("creates notification when admin sends a message", async () => {
     authMock.mockResolvedValue({
-      user: { id: "admin-1", role: "ADMIN" },
+      user: { id: "admin-1", role: "SUPER_ADMIN" },
     });
     findThreadMock.mockResolvedValue({
       id: "thread-1",

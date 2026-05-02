@@ -189,17 +189,38 @@ async function main() {
       },
     });
 
+    // Ensure default per-teacher taxonomy exists so seed slots can FK to it.
+    const { seedDefaultTeacherTaxonomy } = await import(
+      "../src/lib/teacher-default-taxonomy"
+    );
+    await seedDefaultTeacherTaxonomy(prisma, teacherProfile.id);
+
+    const [intermediateLevel, conversationType] = await Promise.all([
+      prisma.teacherClassLevel.findUnique({
+        where: { teacherId_code: { teacherId: teacherProfile.id, code: "intermediate" } },
+        select: { id: true },
+      }),
+      prisma.teacherClassType.findUnique({
+        where: { teacherId_code: { teacherId: teacherProfile.id, code: "conversation" } },
+        select: { id: true },
+      }),
+    ]);
+    if (!intermediateLevel || !conversationType) {
+      throw new Error(
+        `default taxonomy not seeded for teacher ${teacherProfile.id}`,
+      );
+    }
+
     for (const [slotIndex, slot] of seedTeacher.slots.entries()) {
-      const lessonLevel =
-        "lessonLevel" in slot
-          ? (slot as { lessonLevel: string }).lessonLevel
-          : "intermediate";
-      const lessonType =
+      const code =
         "lessonType" in slot ? (slot as { lessonType: string }).lessonType : "conversation";
-      const lessonTypeCustom =
-        "lessonTypeCustom" in slot
-          ? (slot as { lessonTypeCustom: string | null }).lessonTypeCustom
-          : null;
+      const slotLevelId = intermediateLevel.id;
+      const slotType = await prisma.teacherClassType.findUnique({
+        where: { teacherId_code: { teacherId: teacherProfile.id, code } },
+        select: { id: true },
+      });
+      const slotTypeId = slotType?.id ?? conversationType.id;
+
       await prisma.availabilitySlot.upsert({
         where: { id: `seed-teacher-${teacherIndex}-slot-${slotIndex}` },
         update: {
@@ -207,9 +228,8 @@ async function main() {
           startMin: slot.startMin,
           endMin: slot.endMin,
           timezone: slot.timezone,
-          lessonLevel,
-          lessonType,
-          lessonTypeCustom: lessonType === "custom" ? lessonTypeCustom : null,
+          classLevelId: slotLevelId,
+          classTypeId: slotTypeId,
           active: true,
         },
         create: {
@@ -219,9 +239,8 @@ async function main() {
           startMin: slot.startMin,
           endMin: slot.endMin,
           timezone: slot.timezone,
-          lessonLevel,
-          lessonType,
-          lessonTypeCustom: lessonType === "custom" ? lessonTypeCustom : null,
+          classLevelId: slotLevelId,
+          classTypeId: slotTypeId,
           active: true,
         },
       });
@@ -283,13 +302,13 @@ async function main() {
     where: { email: "admin@english-studio.local" },
     update: {
       name: "Demo Admin",
-      role: Role.ADMIN,
+      role: Role.SUPER_ADMIN,
       accountStatus: AccountStatus.ACTIVE,
     },
     create: {
       email: "admin@english-studio.local",
       name: "Demo Admin",
-      role: Role.ADMIN,
+      role: Role.SUPER_ADMIN,
       accountStatus: AccountStatus.ACTIVE,
       locale: "en",
     },

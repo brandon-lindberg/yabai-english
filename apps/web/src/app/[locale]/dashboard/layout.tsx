@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <main className="mx-auto max-w-4xl flex-1 px-4 py-6 sm:px-6">
-      {isStudent || isTeacher ? <DashboardSubNav /> : null}
+      {isStudent || isTeacher ? <DashboardSubNav isTeacher={isTeacher} /> : null}
       {children}
     </main>
   );

@@ -23,16 +23,19 @@ export type TeacherLessonOfferingLike = {
   rateYen: number;
   isGroup: boolean;
   active: boolean;
-  /** When set, limits which catalog products this row applies to (see `catalogProductMatchesOffering`). */
-  lessonType?: string | null;
-  lessonTypeCustom?: string | null;
+  /**
+   * Joined TeacherClassType row. When null/undefined, the offering matches any
+   * catalog product for its duration (legacy/wildcard behavior).
+   */
+  classType?: { code: string } | null;
 };
 
 /**
- * Which availability "lesson type" keys (AvailabilitySlot.lessonType) map to a catalog product.
- * Used to align teacher rate rows with LessonProduct tiers (e.g. 英会話 vs 標準).
+ * Which class-type codes map to a catalog product. Codes are stable per-teacher
+ * (we seed `TeacherClassType` defaults with these exact codes), so the catalog
+ * keeps a single canonical mapping rather than duplicating it per teacher.
  */
-export function lessonTypeKeysForCatalogProduct(
+export function classTypeCodesForCatalogProduct(
   tier: LessonTier,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _durationMin: number,
@@ -49,10 +52,9 @@ export function lessonTypeKeysForCatalogProduct(
       return ["pronunciation"];
     case LessonTier.STANDARD:
       // STANDARD is the "generic" tier. Specialty tiers (EIKAWA for conversation,
-      // PRONUNCIATION_* for pronunciation) own those lesson types exclusively so the
-      // dropdown can auto-provision specialty products at any duration without
-      // causing duplicate matches here.
-      return ["grammar", "reading", "writing", "business", "custom"];
+      // PRONUNCIATION_* for pronunciation) own those codes exclusively so we
+      // exclude them here.
+      return ["grammar", "reading", "writing", "business"];
     default:
       return null;
   }
@@ -65,12 +67,11 @@ export function catalogProductMatchesOffering(
 ): boolean {
   if (!offering.active) return false;
   if (product.durationMin !== offering.durationMin) return false;
-  if (offering.lessonType == null || offering.lessonType === "") {
-    return true;
-  }
-  const allowed = lessonTypeKeysForCatalogProduct(product.tier, product.durationMin);
+  const code = offering.classType?.code;
+  if (!code) return true; // wildcard offering
+  const allowed = classTypeCodesForCatalogProduct(product.tier, product.durationMin);
   if (allowed === null) return true;
-  return (allowed as readonly string[]).includes(offering.lessonType);
+  return (allowed as readonly string[]).includes(code);
 }
 
 export function teacherHasOfferingForProduct(

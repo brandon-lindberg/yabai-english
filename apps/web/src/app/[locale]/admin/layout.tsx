@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     redirect({ href: "/", locale });
     return null;
   }
-  if (user.role !== "ADMIN") {
+  if (user.role !== "SUPER_ADMIN") {
     redirect({ href: "/dashboard", locale });
     return null;
   }

@@ -32,7 +32,7 @@ export async function POST(req: Request, { params }: Props) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const isAdmin = session.user.role === "ADMIN";
+  const isAdmin = session.user.role === "SUPER_ADMIN";
   const isThreadTeacher =
     session.user.role === "TEACHER" && session.user.id === thread.teacherId;
   if (!isAdmin && !isThreadTeacher) {

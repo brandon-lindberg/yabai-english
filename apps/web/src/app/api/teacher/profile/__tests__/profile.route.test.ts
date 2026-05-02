@@ -32,6 +32,9 @@ vi.mock("@/lib/prisma", () => ({
       deleteMany: deleteManyMock,
       createMany: createManyMock,
     },
+    teacherClassType: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
   },
 }));
 
@@ -61,6 +64,17 @@ describe("PATCH /api/teacher/profile", () => {
         teacherLessonOffering: {
           deleteMany: deleteManyMock,
           createMany: createManyMock,
+        },
+        teacherClassType: {
+          findMany: vi.fn().mockImplementation(async ({ where }: { where: { id: { in: string[] } } }) => {
+            const ids = where.id.in ?? [];
+            const knownCodes: Record<string, string> = {
+              "ty-conv": "conversation",
+              "ty-pron": "pronunciation",
+              "ty-gram": "grammar",
+            };
+            return ids.map((id) => ({ id, code: knownCodes[id] ?? "unknown" }));
+          }),
         },
         lessonProduct: {
           findMany: vi.fn().mockResolvedValue([]),
@@ -115,8 +129,7 @@ describe("PATCH /api/teacher/profile", () => {
           isGroup: false,
           groupSize: null,
           active: true,
-          lessonType: null,
-          lessonTypeCustom: null,
+          classTypeId: null,
         },
         {
           teacherId: "tp-1",
@@ -125,8 +138,7 @@ describe("PATCH /api/teacher/profile", () => {
           isGroup: true,
           groupSize: 4,
           active: true,
-          lessonType: null,
-          lessonTypeCustom: null,
+          classTypeId: null,
         },
       ],
     });
@@ -157,14 +169,14 @@ describe("PATCH /api/teacher/profile", () => {
               rateYen: 3500,
               isGroup: false,
               groupSize: null,
-              lessonType: "pronunciation",
+              classTypeId: "ty-pron",
             },
             {
               durationMin: 30,
               rateYen: 3500,
               isGroup: false,
               groupSize: null,
-              lessonType: "conversation",
+              classTypeId: "ty-conv",
             },
           ],
         }),
@@ -177,12 +189,12 @@ describe("PATCH /api/teacher/profile", () => {
     expect(offerings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          lessonType: "pronunciation",
+          classType: { code: "pronunciation" },
           durationMin: 30,
           active: true,
         }),
         expect.objectContaining({
-          lessonType: "conversation",
+          classType: { code: "conversation" },
           durationMin: 30,
           active: true,
         }),

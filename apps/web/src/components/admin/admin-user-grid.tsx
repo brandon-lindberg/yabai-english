@@ -32,6 +32,14 @@ export type AdminUserListItem = {
     rateYen: number | null;
     calendarConnected: boolean;
   } | null;
+  memberships: Array<{
+    id: string;
+    orgRole: "OWNER" | "ORG_ADMIN" | "SCHOOL_ADMIN" | "TEACHER" | "STUDENT";
+    status: "ACTIVE" | "INACTIVE" | "INVITED" | "PENDING_APPROVAL";
+    schoolId: string | null;
+    organization: { id: string; name: string };
+    school: { id: string; name: string } | null;
+  }>;
 };
 
 type ListResponse = {
@@ -71,6 +79,7 @@ const COLUMN_LABEL_KEY: Partial<
     | "colDisplayName"
     | "colRateYen"
     | "colCalendar"
+    | "colOrgs"
   >
 > = {
   role: "colRole",
@@ -85,6 +94,7 @@ const COLUMN_LABEL_KEY: Partial<
   displayName: "colDisplayName",
   rateYen: "colRateYen",
   cal: "colCalendar",
+  orgs: "colOrgs",
 };
 
 function defaultColumnVisibility(mode: "all" | "teachers" | "students"): VisibilityState {
@@ -318,6 +328,33 @@ export function AdminUserGrid({
           header: t("colCalendar"),
         },
       ),
+      columnHelper.display({
+        id: "orgs",
+        header: t("colOrgs"),
+        cell: ({ row }) => {
+          const memberships = row.original.memberships ?? [];
+          if (!memberships.length) {
+            return <span className="text-muted">{t("noOrgs")}</span>;
+          }
+          return (
+            <div className="flex flex-wrap gap-1">
+              {memberships.map((m) => (
+                <span
+                  key={m.id}
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-[var(--app-hover)] px-2 py-0.5 text-xs"
+                  title={`${m.organization.name} · ${m.school?.name ?? t("orgWideScope")} · ${m.orgRole}`}
+                >
+                  <span className="font-medium text-foreground">
+                    {m.school?.name ?? m.organization.name}
+                  </span>
+                  <span className="text-muted">·</span>
+                  <span className="text-foreground">{m.orgRole}</span>
+                </span>
+              ))}
+            </div>
+          );
+        },
+      }),
     ];
     return cols;
   }, [cycleSort, t]);

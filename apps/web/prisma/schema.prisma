@@ -10,7 +10,7 @@ datasource db {
 enum Role {
   STUDENT
   TEACHER
-  ADMIN
+  SUPER_ADMIN
 }
 
 enum AccountStatus {
@@ -81,39 +81,75 @@ enum BroadcastTarget {
   STUDENTS
 }
 
+// --- Organization / School enums ---
+
+/// Role within an organization (contextual, not platform-wide).
+enum OrgRole {
+  OWNER // org-wide, full control including billing and deletion
+  ORG_ADMIN // org-wide, manages all schools
+  SCHOOL_ADMIN // school-scoped, manages one school
+  TEACHER // school-scoped, view schedule + request time off
+  STUDENT // school-scoped, browse + enroll in classes
+}
+
+enum OrgMemberStatus {
+  ACTIVE
+  INACTIVE
+  INVITED
+  PENDING_APPROVAL
+}
+
+enum TimeOffRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
+}
+
+enum OrgBillingTarget {
+  ORGANIZATION
+  STUDENT
+}
+
+enum SchoolSlotRecurrence {
+  WEEKLY
+  DAILY
+  ONE_OFF
+}
+
 // --- NextAuth (Auth.js) ---
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
-  role          Role      @default(STUDENT)
+  role          Role          @default(STUDENT)
   accountStatus AccountStatus @default(ACTIVE)
-  locale        String    @default("ja")
+  locale        String        @default("ja")
 
-  accounts           Account[]
-  sessions           Session[]
-  studentProfile     StudentProfile?
-  teacherProfile     TeacherProfile?
-  bookingsAsStudent  Booking[]      @relation("StudentBookings")
-  courseProgress     UserCourseProgress[]
-  lessonProgress     UserLessonProgress[]
-  exerciseAttempts   ExerciseAttempt[]
-  sentMessages       ChatMessage[]  @relation("MessageSender")
-  receivedMessages   ChatMessage[]  @relation("MessageRecipient")
-  notifications      Notification[]
-  invoices           Invoice[]
-  chatThreadsAsStudent ChatThread[] @relation("ThreadStudent")
-  chatThreadsAsTeacher ChatThread[] @relation("ThreadTeacher")
-  broadcastsSent            AdminBroadcast[]            @relation("AdminBroadcastSender")
-  ownedStudyDecks          StudyDeck[]                 @relation("StudyDeckOwner")
-  studyLevelProgress       UserStudyLevelProgress[]
-  studyCardStates          UserStudyCardState[]
-  studyAssessmentAttempts  UserStudyAssessmentAttempt[]
-  studyQuickReviewDays     StudyQuickReviewDay[]
+  accounts                  Account[]
+  sessions                  Session[]
+  studentProfile            StudentProfile?
+  teacherProfile            TeacherProfile?
+  bookingsAsStudent         Booking[]                    @relation("StudentBookings")
+  courseProgress            UserCourseProgress[]
+  lessonProgress            UserLessonProgress[]
+  exerciseAttempts          ExerciseAttempt[]
+  sentMessages              ChatMessage[]                @relation("MessageSender")
+  receivedMessages          ChatMessage[]                @relation("MessageRecipient")
+  notifications             Notification[]
+  invoices                  Invoice[]
+  chatThreadsAsStudent      ChatThread[]                 @relation("ThreadStudent")
+  chatThreadsAsTeacher      ChatThread[]                 @relation("ThreadTeacher")
+  broadcastsSent            AdminBroadcast[]             @relation("AdminBroadcastSender")
+  ownedStudyDecks           StudyDeck[]                  @relation("StudyDeckOwner")
+  studyLevelProgress        UserStudyLevelProgress[]
+  studyCardStates           UserStudyCardState[]
+  studyAssessmentAttempts   UserStudyAssessmentAttempt[]
+  studyQuickReviewDays      StudyQuickReviewDay[]
   googleIntegrationAccount  GoogleIntegrationAccount?
   googleIntegrationSettings GoogleIntegrationSettings?
+  organizationMemberships   OrganizationMembership[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -126,43 +162,43 @@ enum GoogleIntegrationFeature {
 }
 
 model GoogleIntegrationAccount {
-  id                 String   @id @default(cuid())
-  userId             String   @unique
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  provider           String   @default("google")
-  providerAccountId  String
-  accessToken        String?  @db.Text
-  refreshToken       String?  @db.Text
-  expiresAt          DateTime?
-  grantedScopes      String[] @default([])
-  tokenMetadataJson  Json?
-  revoked            Boolean  @default(false)
-  disconnectedAt     DateTime?
-  lastErrorCode      String?
-  lastErrorMessage   String?  @db.Text
-  lastSyncedAt       DateTime?
-  revocationSource   String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider          String    @default("google")
+  providerAccountId String
+  accessToken       String?   @db.Text
+  refreshToken      String?   @db.Text
+  expiresAt         DateTime?
+  grantedScopes     String[]  @default([])
+  tokenMetadataJson Json?
+  revoked           Boolean   @default(false)
+  disconnectedAt    DateTime?
+  lastErrorCode     String?
+  lastErrorMessage  String?   @db.Text
+  lastSyncedAt      DateTime?
+  revocationSource  String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@unique([provider, providerAccountId])
   @@index([userId, revoked])
 }
 
 model GoogleIntegrationSettings {
-  id                           String   @id @default(cuid())
-  userId                       String   @unique
-  user                         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  calendarConnected            Boolean  @default(false)
-  driveConnected               Boolean  @default(false)
-  meetConnected                Boolean  @default(false)
-  preferredCalendarId          String?  @default("primary")
-  defaultNotesFolderId         String?
-  autoCreateMeetLink           Boolean  @default(true)
-  autoShareNotesWithAttendees  Boolean  @default(true)
-  artifactSyncEnabled          Boolean  @default(false)
-  createdAt                    DateTime @default(now())
-  updatedAt                    DateTime @updatedAt
+  id                          String   @id @default(cuid())
+  userId                      String   @unique
+  user                        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  calendarConnected           Boolean  @default(false)
+  driveConnected              Boolean  @default(false)
+  meetConnected               Boolean  @default(false)
+  preferredCalendarId         String?  @default("primary")
+  defaultNotesFolderId        String?
+  autoCreateMeetLink          Boolean  @default(true)
+  autoShareNotesWithAttendees Boolean  @default(true)
+  artifactSyncEnabled         Boolean  @default(false)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
 }
 
 model Account {
@@ -210,13 +246,13 @@ model StudentProfile {
   timezone String @default("Asia/Tokyo")
 
   /// Result of the in-app placement activity
-  placedLevel           PlacedLevel @default(UNSET)
-  placedSubLevel        Int?        @default(1)
-  placementCompletedAt  DateTime?
-  placementNeedsReview  Boolean     @default(false)
-  placementReviewReason String?
-  placementReport       Json?
-  placementWritingSample String?    @db.Text
+  placedLevel            PlacedLevel @default(UNSET)
+  placedSubLevel         Int?        @default(1)
+  placementCompletedAt   DateTime?
+  placementNeedsReview   Boolean     @default(false)
+  placementReviewReason  String?
+  placementReport        Json?
+  placementWritingSample String?     @db.Text
 
   /// One free 20-minute trial per student (set when a trial booking is confirmed)
   trialLessonUsedAt DateTime?
@@ -243,60 +279,117 @@ model TeacherProfile {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   /// Encrypted refresh token for Google Calendar API (app-level encryption)
-  googleCalendarRefreshToken String? @db.Text
-  calendarId                 String? @default("primary")
+  googleCalendarRefreshToken String?   @db.Text
+  calendarId                 String?   @default("primary")
   displayName                String?
-  bio                        String? @db.Text
+  bio                        String?   @db.Text
   countryOfOrigin            String?
-  credentials                String? @db.Text
-  instructionLanguages       String[] @default(["EN"])
-  specialties                String[] @default([])
+  credentials                String?   @db.Text
+  instructionLanguages       String[]  @default(["EN"])
+  specialties                String[]  @default([])
   rateYen                    Int?
-  offersFreeTrial            Boolean  @default(true)
+  offersFreeTrial            Boolean   @default(true)
   onboardingCompletedAt      DateTime?
   /// Steps the teacher explicitly skipped from the onboarding wizard.
   skippedOnboardingSteps     String[]  @default([])
 
-  availabilitySlots        AvailabilitySlot[]
+  availabilitySlots           AvailabilitySlot[]
   availabilityOccurrenceSkips AvailabilityOccurrenceSkip[]
-  bookingsTeaching         Booking[]          @relation("TeacherBookings")
-  lessonOfferings          TeacherLessonOffering[]
+  bookingsTeaching            Booking[]                    @relation("TeacherBookings")
+  lessonOfferings             TeacherLessonOffering[]
+  classLevels                 TeacherClassLevel[]
+  classTypes                  TeacherClassType[]
+}
+
+/// Per-teacher class level taxonomy (e.g. "Beginner", "JLPT N2"). Mirrors
+/// SchoolClassLevel but scoped to a marketplace TeacherProfile.
+model TeacherClassLevel {
+  id        String         @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  /// Stable identifier within the teacher's taxonomy (slug-like).
+  /// Auto-generated from labelEn.
+  code    String
+  labelEn String
+  labelJa String?
+
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  availabilitySlots AvailabilitySlot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teacherId, code])
+  @@index([teacherId, active])
+}
+
+/// Per-teacher class type taxonomy (e.g. "Conversation", "Eiken Prep").
+model TeacherClassType {
+  id        String         @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  code    String
+  labelEn String
+  labelJa String?
+
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  availabilitySlots AvailabilitySlot[]
+  lessonOfferings   TeacherLessonOffering[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teacherId, code])
+  @@index([teacherId, active])
 }
 
 model TeacherLessonOffering {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   teacherId   String
   teacher     TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   durationMin Int
   rateYen     Int
-  isGroup     Boolean  @default(false)
+  isGroup     Boolean        @default(false)
   groupSize   Int?
-  active      Boolean  @default(true)
-  /// pronunciation | conversation | grammar | reading | writing | business | custom — matches AvailabilitySlot.lessonType
-  /// Null = legacy row (treat as matching any catalog product for this duration).
-  lessonType       String?
-  lessonTypeCustom String?  @db.VarChar(200)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  active      Boolean        @default(true)
+
+  /// FK to the teacher's per-teacher class type taxonomy. Drives catalog matching.
+  classTypeId String?
+  classType   TeacherClassType? @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([teacherId, isGroup, active])
+  @@index([classTypeId])
 }
 
 model AvailabilitySlot {
-  id         String   @id @default(cuid())
-  teacherId  String
-  teacher    TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  dayOfWeek  Int      // 0-6, Sunday-Saturday in teacher timezone context
-  startMin   Int      // minutes from midnight local
-  endMin     Int
-  timezone   String   @default("Asia/Tokyo")
-  /// beginner | intermediate | advanced — see AVAILABILITY_LESSON_LEVELS in apps/web.
-  lessonLevel       String  @default("intermediate")
-  /// pronunciation | conversation | grammar | reading | writing | business | custom
-  lessonType        String  @default("conversation")
-  /// When lessonType is "custom", teacher-defined label (otherwise null).
-  lessonTypeCustom  String?
-  active     Boolean  @default(true)
+  id        String         @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  dayOfWeek Int // 0-6, Sunday-Saturday in teacher timezone context
+  startMin  Int // minutes from midnight local
+  endMin    Int
+  timezone  String         @default("Asia/Tokyo")
+
+  /// FK to the teacher's per-teacher class level taxonomy.
+  classLevelId String?
+  classLevel   TeacherClassLevel? @relation(fields: [classLevelId], references: [id], onDelete: SetNull)
+  /// FK to the teacher's per-teacher class type taxonomy.
+  classTypeId  String?
+  classType    TeacherClassType?  @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+
+  active Boolean @default(true)
+
+  @@index([classLevelId])
+  @@index([classTypeId])
 }
 
 /// Single UTC start hidden for one weekly series occurrence (teacher "this event only" delete).
@@ -323,32 +416,32 @@ model LessonProduct {
 }
 
 model Booking {
-  id            String        @id @default(cuid())
-  studentId     String
-  student       User          @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
-  teacherId     String
-  teacher       TeacherProfile @relation("TeacherBookings", fields: [teacherId], references: [id], onDelete: Cascade)
+  id              String         @id @default(cuid())
+  studentId       String
+  student         User           @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId       String
+  teacher         TeacherProfile @relation("TeacherBookings", fields: [teacherId], references: [id], onDelete: Cascade)
   lessonProductId String
-  lessonProduct LessonProduct @relation(fields: [lessonProductId], references: [id])
+  lessonProduct   LessonProduct  @relation(fields: [lessonProductId], references: [id])
 
-  startsAt      DateTime
-  endsAt        DateTime
-  status        BookingStatus
-  quotedPriceYen Int      @default(0)
-  manualOverrideUsed Boolean @default(false)
-  manualOverrideReason String? @db.Text
-  manualOverrideByRole Role?
-  meetUrl       String?       @db.Text
-  googleEventId String?
-  googleCalendarId String?
-  meetConferenceId String?
-  meetCode String?
-  notesDocId String?
-  transcriptArtifactIds String[] @default([])
-  smartNotesIds String[] @default([])
-  recordingIds String[] @default([])
-  studentGoogleEventId String?
-  invoice       Invoice?
+  startsAt              DateTime
+  endsAt                DateTime
+  status                BookingStatus
+  quotedPriceYen        Int           @default(0)
+  manualOverrideUsed    Boolean       @default(false)
+  manualOverrideReason  String?       @db.Text
+  manualOverrideByRole  Role?
+  meetUrl               String?       @db.Text
+  googleEventId         String?
+  googleCalendarId      String?
+  meetConferenceId      String?
+  meetCode              String?
+  notesDocId            String?
+  transcriptArtifactIds String[]      @default([])
+  smartNotesIds         String[]      @default([])
+  recordingIds          String[]      @default([])
+  studentGoogleEventId  String?
+  invoice               Invoice?
 
   /// Teacher-written Markdown lesson notes (visible to student); edited after the lesson ends.
   completionNotesMd     String? @db.Text
@@ -363,100 +456,106 @@ model Booking {
 }
 
 model Invoice {
-  id          String   @id @default(cuid())
-  bookingId   String   @unique
-  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  studentId   String
-  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  amountYen   Int
-  invoiceNo   String   @unique
-  paidAt      DateTime
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  studentId String
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  amountYen Int
+  invoiceNo String   @unique
+  paidAt    DateTime
+  createdAt DateTime @default(now())
 
   @@index([studentId, createdAt])
 }
 
 // --- Phase 2: Learning ---
 model Course {
-  id          String  @id @default(cuid())
-  slug        String  @unique
-  level       String  // beginner, intermediate, advanced, eikawa, theme:*
-  titleJa     String
-  titleEn     String
+  id            String  @id @default(cuid())
+  slug          String  @unique
+  level         String // beginner, intermediate, advanced, eikawa, theme:*
+  titleJa       String
+  titleEn       String
   descriptionJa String? @db.Text
   descriptionEn String? @db.Text
-  sortOrder   Int     @default(0)
+  sortOrder     Int     @default(0)
 
-  units CourseUnit[]
+  /// When set, this course is scoped to a specific school (org-gated content).
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+
+  units        CourseUnit[]
   userProgress UserCourseProgress[]
+
+  @@index([schoolId])
 }
 
 model CourseUnit {
-  id       String @id @default(cuid())
-  courseId String
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  titleJa  String
-  titleEn  String
-  sortOrder Int @default(0)
+  id        String @id @default(cuid())
+  courseId  String
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  titleJa   String
+  titleEn   String
+  sortOrder Int    @default(0)
 
   skills Skill[]
 }
 
 model Skill {
-  id       String @id @default(cuid())
-  unitId   String
-  unit     CourseUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  titleJa  String
-  titleEn  String
-  sortOrder Int @default(0)
+  id        String     @id @default(cuid())
+  unitId    String
+  unit      CourseUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  titleJa   String
+  titleEn   String
+  sortOrder Int        @default(0)
 
   lessons Lesson[]
 }
 
 model Lesson {
-  id       String @id @default(cuid())
-  skillId  String
-  skill    Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  titleJa  String
-  titleEn  String
-  sortOrder Int @default(0)
+  id        String @id @default(cuid())
+  skillId   String
+  skill     Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  titleJa   String
+  titleEn   String
+  sortOrder Int    @default(0)
 
   exercises Exercise[]
   progress  UserLessonProgress[]
 }
 
 model Exercise {
-  id          String       @id @default(cuid())
-  lessonId    String
-  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  type        ExerciseType
+  id        String       @id @default(cuid())
+  lessonId  String
+  lesson    Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  type      ExerciseType
   /// JSON payload: prompts, options, correct answers (validated in app)
-  content     Json
-  points      Int          @default(10)
-  sortOrder   Int          @default(0)
+  content   Json
+  points    Int          @default(10)
+  sortOrder Int          @default(0)
 
   attempts ExerciseAttempt[]
 }
 
 model UserCourseProgress {
-  id        String @id @default(cuid())
-  userId    String
-  courseId  String
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  xp        Int    @default(0)
+  id          String    @id @default(cuid())
+  userId      String
+  courseId    String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  xp          Int       @default(0)
   completedAt DateTime?
 
   @@unique([userId, courseId])
 }
 
 model UserLessonProgress {
-  id        String @id @default(cuid())
-  userId    String
-  lessonId  String
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson    Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  stars     Int    @default(0)
+  id          String    @id @default(cuid())
+  userId      String
+  lessonId    String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  stars       Int       @default(0)
   completedAt DateTime?
 
   @@unique([userId, lessonId])
@@ -477,28 +576,28 @@ model ExerciseAttempt {
 
 // --- Study track (flashcards / leveled SRS) ---
 model StudyTrack {
-  id        String  @id @default(cuid())
-  slug      String  @unique
+  id        String @id @default(cuid())
+  slug      String @unique
   titleJa   String
   titleEn   String
-  sortOrder Int     @default(0)
+  sortOrder Int    @default(0)
 
   levels StudyLevel[]
 }
 
 model StudyLevel {
-  id                 String         @id @default(cuid())
-  trackId            String
-  track              StudyTrack     @relation(fields: [trackId], references: [id], onDelete: Cascade)
-  levelCode          StudyLevelCode
-  titleJa            String
-  titleEn            String
-  sortOrder          Int            @default(0)
+  id                String         @id @default(cuid())
+  trackId           String
+  track             StudyTrack     @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  levelCode         StudyLevelCode
+  titleJa           String
+  titleEn           String
+  sortOrder         Int            @default(0)
   /// Optional curriculum notes (future MDX / export).
-  referenceMarkdown  String?        @db.Text
+  referenceMarkdown String?        @db.Text
 
-  decks     StudyDeck[]
-  assessments StudyAssessment[]
+  decks        StudyDeck[]
+  assessments  StudyAssessment[]
   userProgress UserStudyLevelProgress[]
 
   @@unique([trackId, levelCode])
@@ -523,14 +622,14 @@ model StudyDeck {
 
 /// Front = learner-facing prompt (`frontJa` DB column): Japanese-heavy at Beginner 1, trending to English at higher levels (see `prompt-locale-policy.ts`). Back = English answer.
 model StudyCard {
-  id        String    @id @default(cuid())
-  deckId    String
-  deck      StudyDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  frontJa   String    @db.Text
-  backEn    String    @db.Text
+  id           String    @id @default(cuid())
+  deckId       String
+  deck         StudyDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  frontJa      String    @db.Text
+  backEn       String    @db.Text
   /// Optional structured exercise (reorder tokens, multi-step prompts). Null = classic MCQ from `frontJa` + `backEn`.
   exerciseJson Json?
-  sortOrder Int       @default(0)
+  sortOrder    Int       @default(0)
 
   userStates UserStudyCardState[]
 
@@ -538,42 +637,42 @@ model StudyCard {
 }
 
 model UserStudyLevelProgress {
-  id                   String    @id @default(cuid())
-  userId               String
-  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  levelId              String
-  level                StudyLevel @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  xp                   Int       @default(0)
+  id                 String     @id @default(cuid())
+  userId             String
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  levelId            String
+  level              StudyLevel @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  xp                 Int        @default(0)
   /// 0–100 aggregate mastery for UI (updated on reviews).
-  masteryScore         Int       @default(0)
-  unlockedAt           DateTime  @default(now())
-  completedAt          DateTime?
-  assessmentPassedAt   DateTime?
-  lastStudiedAt        DateTime?
+  masteryScore       Int        @default(0)
+  unlockedAt         DateTime   @default(now())
+  completedAt        DateTime?
+  assessmentPassedAt DateTime?
+  lastStudiedAt      DateTime?
 
   @@unique([userId, levelId])
   @@index([userId])
 }
 
 model UserStudyCardState {
-  id           String    @id @default(cuid())
-  userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cardId       String
-  card         StudyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  id                 String    @id @default(cuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId             String
+  card               StudyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
   /// MCQ performance (SRS-style ease/reps kept for legacy rows; queue uses counts + dueAt).
-  ease         Float     @default(2.5)
-  intervalDays Float     @default(0)
-  dueAt        DateTime?
-  reps         Int       @default(0)
-  lapses       Int       @default(0)
-  correctCount Int       @default(0)
-  wrongCount   Int       @default(0)
-  streakCorrect Int      @default(0)
+  ease               Float     @default(2.5)
+  intervalDays       Float     @default(0)
+  dueAt              DateTime?
+  reps               Int       @default(0)
+  lapses             Int       @default(0)
+  correctCount       Int       @default(0)
+  wrongCount         Int       @default(0)
+  streakCorrect      Int       @default(0)
   /// Running mean answer latency (ms) for this card; null until first timed submission.
-  averageAnswerMs   Float?
-  latencySampleCount Int @default(0)
-  updatedAt    DateTime  @updatedAt
+  averageAnswerMs    Float?
+  latencySampleCount Int       @default(0)
+  updatedAt          DateTime  @updatedAt
 
   @@unique([userId, cardId])
   @@index([userId, dueAt])
@@ -581,29 +680,29 @@ model UserStudyCardState {
 
 /// Fixed set of up to 5 review cards chosen once per UTC calendar day per user (dashboard quick review).
 model StudyQuickReviewDay {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dayKey    String
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dayKey       String
   /// JSON string[] of StudyCard ids
-  cardIds   Json
+  cardIds      Json
   /// JSON [{ cardId, outcome: "learned" | "not_yet", at: ISO string }]
-  interactions Json @default("[]")
-  createdAt DateTime @default(now())
+  interactions Json     @default("[]")
+  createdAt    DateTime @default(now())
 
   @@unique([userId, dayKey])
   @@index([userId])
 }
 
 model StudyAssessment {
-  id            String              @id @default(cuid())
-  levelId       String
-  level         StudyLevel          @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  kind          StudyAssessmentKind @default(LEVEL_EXIT)
+  id           String              @id @default(cuid())
+  levelId      String
+  level        StudyLevel          @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  kind         StudyAssessmentKind @default(LEVEL_EXIT)
   /// MCQ items: { items: [{ id, promptJa, promptEn, options[], correctIndex }] }
-  itemsJson     Json
-  passingScore  Int                 @default(70)
-  sortOrder     Int                 @default(0)
+  itemsJson    Json
+  passingScore Int                 @default(70)
+  sortOrder    Int                 @default(0)
 
   attempts UserStudyAssessmentAttempt[]
 
@@ -626,22 +725,22 @@ model UserStudyAssessmentAttempt {
 }
 
 model ChatThread {
-  id        String   @id @default(cuid())
-  studentId String
-  teacherId String
-  student   User     @relation("ThreadStudent", fields: [studentId], references: [id], onDelete: Cascade)
-  teacher   User     @relation("ThreadTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
-  twoWayEnabled Boolean @default(false)
+  id                  String    @id @default(cuid())
+  studentId           String
+  teacherId           String
+  student             User      @relation("ThreadStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher             User      @relation("ThreadTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  twoWayEnabled       Boolean   @default(false)
   twoWayEnabledByRole Role?
-  studentBlockedAt DateTime?
-  teacherBlockedAt DateTime?
-  studentReportedAt DateTime?
-  teacherReportedAt DateTime?
-  studentReportReason String? @db.Text
-  teacherReportReason String? @db.Text
-  studentArchivedAt DateTime?
-  teacherArchivedAt DateTime?
-  updatedAt DateTime @updatedAt
+  studentBlockedAt    DateTime?
+  teacherBlockedAt    DateTime?
+  studentReportedAt   DateTime?
+  teacherReportedAt   DateTime?
+  studentReportReason String?   @db.Text
+  teacherReportReason String?   @db.Text
+  studentArchivedAt   DateTime?
+  teacherArchivedAt   DateTime?
+  updatedAt           DateTime  @updatedAt
 
   messages ChatMessage[]
 
@@ -678,33 +777,347 @@ model AdminBroadcast {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   titleJa   String
   titleEn   String
-  bodyJa    String?  @db.Text
-  bodyEn    String?  @db.Text
+  bodyJa    String?   @db.Text
+  bodyEn    String?   @db.Text
   readAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   @@index([userId, createdAt])
 }
 
 /// Authoritative placement MCQ bank (loaded by API only; never bundled to the browser).
 model PlacementBankQuestion {
-  id             String @id
-  stemId         String?
-  weight           Int
-  cefrBand       String
-  section        String
-  instructionEn  String @db.Text
-  instructionJa  String @db.Text
-  questionEn     String @db.Text
-  questionJa     String @db.Text
-  optionsEn      Json
-  optionsJa      Json
-  correctIndex   Int
+  id            String  @id
+  stemId        String?
+  weight        Int
+  cefrBand      String
+  section       String
+  instructionEn String  @db.Text
+  instructionJa String  @db.Text
+  questionEn    String  @db.Text
+  questionJa    String  @db.Text
+  optionsEn     Json
+  optionsJa     Json
+  correctIndex  Int
 
   @@index([cefrBand, section])
+}
+
+// --- Organization / School ---
+
+/// Top-level entity representing a company or school group (e.g. "ABC English Group").
+model Organization {
+  id            String  @id @default(cuid())
+  slug          String  @unique
+  name          String
+  nameJa        String?
+  nameEn        String?
+  timezone      String  @default("Asia/Tokyo")
+  logoUrl       String?
+  description   String? @db.Text
+  descriptionJa String? @db.Text
+
+  billingTarget OrgBillingTarget @default(ORGANIZATION)
+
+  /// Future: custom domain for white-label school URL.
+  customDomain String? @unique
+
+  schools     School[]
+  memberships OrganizationMembership[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Operational unit under an Organization (e.g. "ABC Shibuya").
+/// All schedules, enrollment, pricing, and content are scoped to a School.
+model School {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  slug           String
+  name           String
+  nameJa         String?
+  nameEn         String?
+  /// Overrides org timezone if set; otherwise inherits from org.
+  timezone       String?
+  logoUrl        String?
+  description    String?      @db.Text
+  descriptionJa  String?      @db.Text
+
+  /// Future: custom domain for this specific school.
+  customDomain String? @unique
+
+  memberships     OrganizationMembership[]
+  scheduleSlots   SchoolScheduleSlot[]
+  pricing         SchoolLessonPricing[]
+  bookings        SchoolBooking[]
+  timeOffRequests TimeOffRequest[]
+  courses         Course[]
+  classLevels     SchoolClassLevel[]
+  classTypes      SchoolClassType[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+}
+
+/// Joins a User to an Organization, optionally scoped to a specific School.
+/// schoolId = null → org-wide role (OWNER, ORG_ADMIN).
+/// schoolId = X   → school-scoped role (SCHOOL_ADMIN, TEACHER, STUDENT).
+model OrganizationMembership {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  /// Null until the invited email signs in for the first time, at which
+  /// point the auth signIn callback links the membership to the User row.
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schoolId       String?
+  school         School?      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  orgRole OrgRole
+  status  OrgMemberStatus @default(INVITED)
+
+  invitedByUserId String?
+  invitedAt       DateTime?
+  joinedAt        DateTime?
+  /// Email the admin invited. On sign-in, the user is matched here by email.
+  inviteEmail     String?
+
+  teacherScheduleSlots SchoolScheduleSlot[]
+  classEnrollments     SchoolClassEnrollment[]
+  bookingsAsTeacher    SchoolBooking[]         @relation("SchoolBookingTeacher")
+  bookingAttendances   SchoolBookingAttendee[]
+  timeOffRequests      TimeOffRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, userId, schoolId])
+  @@unique([organizationId, inviteEmail, schoolId])
+  @@index([userId])
+  @@index([organizationId, orgRole])
+  @@index([schoolId])
+  @@index([inviteEmail])
+}
+
+/// Recurring weekly class slot managed by SCHOOL_ADMIN.
+model SchoolScheduleSlot {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  assignedTeacherMembershipId String?
+  assignedTeacher             OrganizationMembership? @relation(fields: [assignedTeacherMembershipId], references: [id], onDelete: SetNull)
+
+  dayOfWeek Int // 0-6 (Sun-Sat)
+  startMin  Int // minutes from midnight
+  endMin    Int // minutes from midnight
+  timezone  String // resolved from school or org
+
+  labelJa String?
+  labelEn String?
+
+  classLevelId String?
+  classLevel   SchoolClassLevel? @relation(fields: [classLevelId], references: [id], onDelete: SetNull)
+  classTypeId  String?
+  classType    SchoolClassType?  @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+
+  capacity    Int @default(1) // 1 = private, >1 = group
+  durationMin Int
+
+  active Boolean @default(true)
+
+  /// Recurrence pattern. WEEKLY (default) honors `dayOfWeek` and/or `daysOfWeek`.
+  /// DAILY emits one occurrence per calendar day. ONE_OFF emits a single
+  /// occurrence on `startsOn` (which is required for ONE_OFF).
+  recurrence SchoolSlotRecurrence @default(WEEKLY)
+  /// Optional multi-day weekly pattern. When non-empty, supersedes `dayOfWeek`.
+  /// Each entry is 0-6 (Sun-Sat).
+  daysOfWeek Int[]                @default([])
+  /// Optional inclusive lower bound for occurrence emission (date-only, midnight UTC).
+  startsOn   DateTime?
+  /// Optional inclusive upper bound for occurrence emission (date-only, midnight UTC).
+  endsOn     DateTime?
+
+  skips       SchoolScheduleSkip[]
+  enrollments SchoolClassEnrollment[]
+  bookings    SchoolBooking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId, active])
+  @@index([classLevelId])
+  @@index([classTypeId])
+}
+
+/// Per-school grade/level taxonomy (e.g. "Year 7", "JLPT N2", "Eiken Pre-2").
+/// Schools define their own list rather than reusing the marketplace's
+/// fixed beginner/intermediate/advanced enum.
+model SchoolClassLevel {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  /// Stable identifier within the school (slug-like). Auto-generated from labelEn.
+  code    String
+  /// Required English/canonical display name.
+  labelEn String
+  /// Optional Japanese override; falls back to labelEn when null.
+  labelJa String?
+  /// Optional sort order — lower values appear first.
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  scheduleSlots SchoolScheduleSlot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([schoolId, code])
+  @@index([schoolId, active])
+}
+
+/// Per-school class type taxonomy (e.g. "Eiken Prep", "Conversation Club", "JLPT N2 Reading").
+model SchoolClassType {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  code      String
+  labelEn   String
+  labelJa   String?
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  scheduleSlots SchoolScheduleSlot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([schoolId, code])
+  @@index([schoolId, active])
+}
+
+/// Single occurrence cancellation for a recurring school schedule slot.
+model SchoolScheduleSkip {
+  id             String             @id @default(cuid())
+  scheduleSlotId String
+  scheduleSlot   SchoolScheduleSlot @relation(fields: [scheduleSlotId], references: [id], onDelete: Cascade)
+  startsAtIso    String
+
+  reason          String?
+  createdByUserId String
+
+  createdAt DateTime @default(now())
+
+  @@unique([scheduleSlotId, startsAtIso])
+}
+
+/// Student enrolled in a recurring school class.
+model SchoolClassEnrollment {
+  id                  String                 @id @default(cuid())
+  scheduleSlotId      String
+  scheduleSlot        SchoolScheduleSlot     @relation(fields: [scheduleSlotId], references: [id], onDelete: Cascade)
+  studentMembershipId String
+  studentMembership   OrganizationMembership @relation(fields: [studentMembershipId], references: [id], onDelete: Cascade)
+
+  active       Boolean   @default(true)
+  enrolledAt   DateTime  @default(now())
+  unenrolledAt DateTime?
+
+  @@unique([scheduleSlotId, studentMembershipId])
+  @@index([studentMembershipId])
+}
+
+/// Materialized class instance (one occurrence of a recurring slot).
+model SchoolBooking {
+  id                  String                 @id @default(cuid())
+  schoolId            String
+  school              School                 @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  scheduleSlotId      String
+  scheduleSlot        SchoolScheduleSlot     @relation(fields: [scheduleSlotId], references: [id])
+  teacherMembershipId String
+  teacherMembership   OrganizationMembership @relation("SchoolBookingTeacher", fields: [teacherMembershipId], references: [id])
+
+  startsAt          DateTime
+  endsAt            DateTime
+  meetUrl           String?  @db.Text
+  googleEventId     String?
+  completionNotesMd String?  @db.Text
+
+  attendees SchoolBookingAttendee[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId, startsAt])
+  @@index([teacherMembershipId, startsAt])
+}
+
+/// Per-student attendance record for a materialized school class.
+model SchoolBookingAttendee {
+  id                  String                 @id @default(cuid())
+  schoolBookingId     String
+  schoolBooking       SchoolBooking          @relation(fields: [schoolBookingId], references: [id], onDelete: Cascade)
+  studentMembershipId String
+  studentMembership   OrganizationMembership @relation(fields: [studentMembershipId], references: [id])
+
+  attended Boolean?
+
+  createdAt DateTime @default(now())
+
+  @@unique([schoolBookingId, studentMembershipId])
+}
+
+/// School-level pricing rules (set by SCHOOL_ADMIN).
+model SchoolLessonPricing {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  lessonLevel String?
+  lessonType  String?
+  durationMin Int
+  priceYen    Int
+  isGroup     Boolean @default(false)
+  active      Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId, active])
+}
+
+/// Teacher time-off request, pending approval by SCHOOL_ADMIN.
+model TimeOffRequest {
+  id                  String                 @id @default(cuid())
+  schoolId            String
+  school              School                 @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  teacherMembershipId String
+  teacherMembership   OrganizationMembership @relation(fields: [teacherMembershipId], references: [id], onDelete: Cascade)
+
+  startDate DateTime
+  endDate   DateTime
+  reason    String?  @db.Text
+
+  status           TimeOffRequestStatus @default(PENDING)
+  reviewedByUserId String?
+  reviewedAt       DateTime?
+  reviewNote       String?              @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId, status])
+  @@index([teacherMembershipId])
 }

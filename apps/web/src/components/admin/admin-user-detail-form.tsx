@@ -290,7 +290,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
             value={role}
             onChange={(e) => setRole(e.target.value as Role)}
           >
-            {[Role.STUDENT, Role.TEACHER, Role.ADMIN].map((r) => (
+            {[Role.STUDENT, Role.TEACHER, Role.SUPER_ADMIN].map((r) => (
               <option key={r} value={r}>
                 {r}
               </option>

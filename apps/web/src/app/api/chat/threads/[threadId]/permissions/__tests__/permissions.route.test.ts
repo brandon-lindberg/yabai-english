@@ -93,7 +93,7 @@ describe("POST /api/chat/threads/[threadId]/permissions", () => {
   });
 
   test("allows admin to change two-way setting", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
     const res = await POST(
       new Request("http://localhost/api/chat/threads/thread-1/permissions", {
         method: "POST",
@@ -107,7 +107,7 @@ describe("POST /api/chat/threads/[threadId]/permissions", () => {
       where: { id: "thread-1" },
       data: {
         twoWayEnabled: true,
-        twoWayEnabledByRole: "ADMIN",
+        twoWayEnabledByRole: "SUPER_ADMIN",
       },
     });
   });

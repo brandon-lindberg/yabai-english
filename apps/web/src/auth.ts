@@ -7,7 +7,9 @@ import { prisma } from "@/lib/prisma";
 import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 import { getSessionMaxAgeSeconds } from "@/lib/session-timeout";
-import { AccountStatus, Role } from "@/generated/prisma/client";
+import { claimPendingMemberships } from "@/lib/claim-pending-memberships";
+import { AccountStatus, Role, type OrgRole } from "@/generated/prisma/client";
+import { cookies } from "next/headers";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
 
@@ -79,9 +81,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (full && !isLoginAllowedForAccountStatus(full.accountStatus)) {
         return false;
       }
+      if (full?.id) {
+        await claimPendingMemberships(prisma, {
+          userId: full.id,
+          email: user.email ?? null,
+        });
+      }
       if (
         full?.role === Role.TEACHER ||
-        full?.role === Role.ADMIN
+        full?.role === Role.SUPER_ADMIN
       ) {
         return true;
       }
@@ -151,6 +159,58 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.canStartPlacement = true;
       }
 
+      // --- Org context from cookie ---
+      session.user.activeOrgId = null;
+      session.user.activeSchoolId = null;
+      session.user.orgRole = null;
+
+      if (userId) {
+        try {
+          const cookieStore = await cookies();
+          const activeOrgId = cookieStore.get("active-org-id")?.value ?? null;
+          const activeSchoolId = cookieStore.get("active-school-id")?.value ?? null;
+          if (activeOrgId) {
+            const membership = await prisma.organizationMembership.findFirst({
+              where: {
+                userId,
+                organizationId: activeOrgId,
+                status: "ACTIVE",
+                ...(activeSchoolId ? { schoolId: activeSchoolId } : { schoolId: null }),
+              },
+              select: { orgRole: true, schoolId: true },
+            });
+            if (membership) {
+              session.user.activeOrgId = activeOrgId;
+              session.user.activeSchoolId = activeSchoolId;
+              session.user.orgRole = membership.orgRole;
+            }
+          }
+        } catch {
+          // cookies() may throw in non-request contexts (e.g. API route tests);
+          // org context is optional, so silently fall back to null.
+        }
+
+        // Fallback: if no cookie-based context resolved, default to the user's
+        // first ACTIVE membership so newly-assigned members see an org in the nav
+        // without having to pick one manually.
+        if (!session.user.activeOrgId) {
+          const memberships = await prisma.organizationMembership.findMany({
+            where: { userId, status: "ACTIVE" },
+            orderBy: { createdAt: "asc" },
+            select: { organizationId: true, schoolId: true, orgRole: true },
+          });
+          const preferred =
+            memberships.find((m) => m.orgRole === "OWNER") ??
+            memberships.find((m) => m.orgRole === "ORG_ADMIN") ??
+            memberships[0];
+          if (preferred) {
+            session.user.activeOrgId = preferred.organizationId;
+            session.user.activeSchoolId = preferred.schoolId;
+            session.user.orgRole = preferred.orgRole;
+          }
+        }
+      }
+
       return session;
     },
   },
@@ -168,6 +228,12 @@ declare module "next-auth" {
       accountStatus: AccountStatus;
       /** Students: whether `/placement` and retake CTAs should show (false during post-test cooldown). */
       canStartPlacement: boolean;
+      /** Active organization context (set via org switcher cookie). */
+      activeOrgId: string | null;
+      /** Active school context within the org (set via org switcher cookie). */
+      activeSchoolId: string | null;
+      /** User's role within the active organization. */
+      orgRole: OrgRole | null;
     };
   }
 }

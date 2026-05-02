@@ -45,7 +45,7 @@ describe("getHeaderPrimaryNavLinks", () => {
 
   it("returns admin dashboard and admin", () => {
     expect(
-      getHeaderPrimaryNavLinks({ signedIn: true, role: "ADMIN" }).map((l) => l.id),
+      getHeaderPrimaryNavLinks({ signedIn: true, role: "SUPER_ADMIN" }).map((l) => l.id),
     ).toEqual(["dashboard", "admin"]);
   });
 });

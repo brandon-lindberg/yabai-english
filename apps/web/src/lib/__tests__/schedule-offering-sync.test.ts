@@ -1,25 +1,26 @@
 import { describe, expect, test } from "vitest";
 import {
   deriveMissingOfferingsFromSchedule,
-  type ScheduleLessonTypeKey,
+  type ScheduleClassTypeKey,
   type ExistingOfferingSnapshot,
 } from "@/lib/schedule-offering-sync";
+
+const k = (id: string, code: string): ScheduleClassTypeKey => ({
+  classTypeId: id,
+  classTypeCode: code,
+});
 
 describe("deriveMissingOfferingsFromSchedule", () => {
   test("returns empty list when every scheduled type has an active offering", () => {
     const existing: ExistingOfferingSnapshot[] = [
-      { lessonType: "conversation", lessonTypeCustom: null, active: true },
-      { lessonType: "grammar", lessonTypeCustom: null, active: true },
-    ];
-    const scheduled: ScheduleLessonTypeKey[] = [
-      { lessonType: "conversation", lessonTypeCustom: null },
-      { lessonType: "grammar", lessonTypeCustom: null },
+      { classTypeId: "ty-conv", active: true },
+      { classTypeId: "ty-gram", active: true },
     ];
 
     expect(
       deriveMissingOfferingsFromSchedule({
         existing,
-        scheduled,
+        scheduled: [k("ty-conv", "conversation"), k("ty-gram", "grammar")],
         fallbackRateYen: 3000,
       }),
     ).toEqual([]);
@@ -28,7 +29,7 @@ describe("deriveMissingOfferingsFromSchedule", () => {
   test("creates a default 30-min conversation offering when only schedule has it", () => {
     const result = deriveMissingOfferingsFromSchedule({
       existing: [],
-      scheduled: [{ lessonType: "conversation", lessonTypeCustom: null }],
+      scheduled: [k("ty-conv", "conversation")],
       fallbackRateYen: 3500,
     });
 
@@ -38,8 +39,7 @@ describe("deriveMissingOfferingsFromSchedule", () => {
         rateYen: 3500,
         isGroup: false,
         groupSize: null,
-        lessonType: "conversation",
-        lessonTypeCustom: null,
+        classTypeId: "ty-conv",
         active: true,
       },
     ]);
@@ -48,28 +48,29 @@ describe("deriveMissingOfferingsFromSchedule", () => {
   test("uses 40-min default for pronunciation so it matches a catalog product", () => {
     const result = deriveMissingOfferingsFromSchedule({
       existing: [],
-      scheduled: [{ lessonType: "pronunciation", lessonTypeCustom: null }],
+      scheduled: [k("ty-pron", "pronunciation")],
       fallbackRateYen: 4000,
     });
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
       durationMin: 40,
-      lessonType: "pronunciation",
+      classTypeId: "ty-pron",
       rateYen: 4000,
     });
   });
 
   test("skips types when an inactive offering already exists for that type (does not duplicate)", () => {
     const existing: ExistingOfferingSnapshot[] = [
-      { lessonType: "grammar", lessonTypeCustom: null, active: false },
+      { classTypeId: "ty-gram", active: false },
     ];
     const result = deriveMissingOfferingsFromSchedule({
       existing,
-      scheduled: [{ lessonType: "grammar", lessonTypeCustom: null }],
+      scheduled: [k("ty-gram", "grammar")],
       fallbackRateYen: 3000,
     });
 
+    // existing covers it (regardless of active flag — we only care about coverage by id)
     expect(result).toEqual([]);
   });
 
@@ -77,49 +78,23 @@ describe("deriveMissingOfferingsFromSchedule", () => {
     const result = deriveMissingOfferingsFromSchedule({
       existing: [],
       scheduled: [
-        { lessonType: "conversation", lessonTypeCustom: null },
-        { lessonType: "conversation", lessonTypeCustom: null },
-        { lessonType: "grammar", lessonTypeCustom: null },
+        k("ty-conv", "conversation"),
+        k("ty-conv", "conversation"),
+        k("ty-gram", "grammar"),
       ],
       fallbackRateYen: 3000,
     });
 
-    expect(result.map((r) => r.lessonType).sort()).toEqual([
-      "conversation",
-      "grammar",
-    ]);
-  });
-
-  test("treats custom lesson types as distinct per lessonTypeCustom label", () => {
-    const existing: ExistingOfferingSnapshot[] = [
-      { lessonType: "custom", lessonTypeCustom: "Interview prep", active: true },
-    ];
-    const result = deriveMissingOfferingsFromSchedule({
-      existing,
-      scheduled: [
-        { lessonType: "custom", lessonTypeCustom: "Interview prep" },
-        { lessonType: "custom", lessonTypeCustom: "Kids storytime" },
-      ],
-      fallbackRateYen: 3000,
-    });
-
-    expect(result).toEqual([
-      {
-        durationMin: 30,
-        rateYen: 3000,
-        isGroup: false,
-        groupSize: null,
-        lessonType: "custom",
-        lessonTypeCustom: "Kids storytime",
-        active: true,
-      },
+    expect(result.map((r) => r.classTypeId).sort()).toEqual([
+      "ty-conv",
+      "ty-gram",
     ]);
   });
 
   test("defaults rateYen to 3000 when no fallback and no existing offerings", () => {
     const result = deriveMissingOfferingsFromSchedule({
       existing: [],
-      scheduled: [{ lessonType: "conversation", lessonTypeCustom: null }],
+      scheduled: [k("ty-conv", "conversation")],
       fallbackRateYen: null,
     });
 
@@ -129,16 +104,21 @@ describe("deriveMissingOfferingsFromSchedule", () => {
   test("inherits rate from first existing individual offering when fallback is null", () => {
     const result = deriveMissingOfferingsFromSchedule({
       existing: [
-        { lessonType: "conversation", lessonTypeCustom: null, active: true, rateYen: 4200 },
+        {
+          classTypeId: "ty-conv",
+          active: true,
+          rateYen: 4200,
+          isGroup: false,
+        },
       ],
-      scheduled: [
-        { lessonType: "conversation", lessonTypeCustom: null },
-        { lessonType: "grammar", lessonTypeCustom: null },
-      ],
+      scheduled: [k("ty-conv", "conversation"), k("ty-gram", "grammar")],
       fallbackRateYen: null,
     });
 
     expect(result).toHaveLength(1);
-    expect(result[0]).toMatchObject({ lessonType: "grammar", rateYen: 4200 });
+    expect(result[0]).toMatchObject({
+      classTypeId: "ty-gram",
+      rateYen: 4200,
+    });
   });
 });

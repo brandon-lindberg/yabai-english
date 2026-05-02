@@ -51,7 +51,7 @@ export default async function LessonDetailPage({
 
   // Only the teacher who owns this booking (or an admin) can view this page.
   const isTeacher = booking.teacher.userId === session.user.id;
-  const isAdmin = session.user.role === "ADMIN";
+  const isAdmin = session.user.role === "SUPER_ADMIN";
   if (!isTeacher && !isAdmin) {
     redirect({ href: "/dashboard/schedule", locale });
   }

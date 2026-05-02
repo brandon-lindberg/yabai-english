@@ -20,7 +20,7 @@ describe("checkAdminCanDeleteUser", () => {
     const r = checkAdminCanDeleteUser({
       actorUserId: "other",
       targetUserId: "admin1",
-      targetRole: Role.ADMIN,
+      targetRole: Role.SUPER_ADMIN,
       adminUserCount: 1,
     });
     expect(r.ok).toBe(false);
@@ -33,7 +33,7 @@ describe("checkAdminCanDeleteUser", () => {
     const r = checkAdminCanDeleteUser({
       actorUserId: "a",
       targetUserId: "b",
-      targetRole: Role.ADMIN,
+      targetRole: Role.SUPER_ADMIN,
       adminUserCount: 2,
     });
     expect(r.ok).toBe(true);

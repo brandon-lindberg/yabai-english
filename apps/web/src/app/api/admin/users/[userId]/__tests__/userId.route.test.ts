@@ -40,7 +40,7 @@ describe("GET /api/admin/users/[userId]", () => {
   });
 
   test("404 when user missing", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin", role: "SUPER_ADMIN" } });
     prismaMock.user.findUnique.mockResolvedValue(null);
 
     const res = await GET(new Request("http://localhost/api/admin/users/target"), { params });
@@ -49,7 +49,7 @@ describe("GET /api/admin/users/[userId]", () => {
   });
 
   test("strips calendar refresh token from teacher profile", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin", role: "SUPER_ADMIN" } });
     prismaMock.user.findUnique.mockResolvedValue({
       id: "target",
       email: "t@test.com",
@@ -87,7 +87,7 @@ describe("PATCH /api/admin/users/[userId]", () => {
   });
 
   test("invalidates sessions when account becomes HIDDEN", async () => {
-    authMock.mockResolvedValue({ user: { id: "admin", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "admin", role: "SUPER_ADMIN" } });
     prismaMock.user.findUnique
       .mockResolvedValueOnce({
         id: "target",
@@ -130,8 +130,8 @@ describe("DELETE /api/admin/users/[userId]", () => {
   });
 
   test("400 when deleting self", async () => {
-    authMock.mockResolvedValue({ user: { id: "same", role: "ADMIN" } });
-    prismaMock.user.findUnique.mockResolvedValue({ id: "same", role: "ADMIN" });
+    authMock.mockResolvedValue({ user: { id: "same", role: "SUPER_ADMIN" } });
+    prismaMock.user.findUnique.mockResolvedValue({ id: "same", role: "SUPER_ADMIN" });
     prismaMock.user.count.mockResolvedValue(2);
 
     const res = await DELETE(new Request("http://localhost/api/admin/users/same"), {
@@ -143,8 +143,8 @@ describe("DELETE /api/admin/users/[userId]", () => {
   });
 
   test("403 when deleting last admin", async () => {
-    authMock.mockResolvedValue({ user: { id: "a", role: "ADMIN" } });
-    prismaMock.user.findUnique.mockResolvedValue({ id: "b", role: "ADMIN" });
+    authMock.mockResolvedValue({ user: { id: "a", role: "SUPER_ADMIN" } });
+    prismaMock.user.findUnique.mockResolvedValue({ id: "b", role: "SUPER_ADMIN" });
     prismaMock.user.count.mockResolvedValue(1);
 
     const res = await DELETE(new Request("http://localhost/api/admin/users/b"), {
@@ -156,7 +156,7 @@ describe("DELETE /api/admin/users/[userId]", () => {
   });
 
   test("204/200 deletes when allowed", async () => {
-    authMock.mockResolvedValue({ user: { id: "a", role: "ADMIN" } });
+    authMock.mockResolvedValue({ user: { id: "a", role: "SUPER_ADMIN" } });
     prismaMock.user.findUnique.mockResolvedValue({ id: "b", role: "STUDENT" });
     prismaMock.user.count.mockResolvedValue(1);
     prismaMock.user.delete.mockResolvedValue({});

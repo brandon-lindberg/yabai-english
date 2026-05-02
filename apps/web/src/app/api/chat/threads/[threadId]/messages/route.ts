@@ -29,7 +29,7 @@ export async function GET(_req: Request, { params }: Props) {
 
   const isParticipant =
     thread.studentId === session.user.id || thread.teacherId === session.user.id;
-  if (!isParticipant && session.user.role !== "ADMIN") {
+  if (!isParticipant && session.user.role !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   if (isViewerBlockedByCounterpart(thread, session.user.id)) {
@@ -83,7 +83,7 @@ export async function POST(req: Request, { params }: Props) {
 
   const isStudentSender = session.user.id === thread.studentId;
   const isTeacherSender = session.user.id === thread.teacherId;
-  const isAdminSender = session.user.role === "ADMIN";
+  const isAdminSender = session.user.role === "SUPER_ADMIN";
   if (!isStudentSender && !isTeacherSender && !isAdminSender) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -146,7 +146,7 @@ export async function POST(req: Request, { params }: Props) {
     emitChatUpdate(recipientId, threadId),
   ]);
 
-  if (session.user.role === "ADMIN") {
+  if (session.user.role === "SUPER_ADMIN") {
     await createUserNotification({
       userId: recipientId,
       titleJa: "管理者から新しいメッセージがあります",

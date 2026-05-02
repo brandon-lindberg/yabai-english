@@ -25,7 +25,7 @@ describe("redirectTargetForTeacherBookingPage", () => {
   it("redirects admins", () => {
     expect(
       redirectTargetForTeacherBookingPage({
-        role: "ADMIN",
+        role: "SUPER_ADMIN",
         requestedTeacherProfileId: "tp-1",
         viewerTeacherProfileId: null,
       }),
