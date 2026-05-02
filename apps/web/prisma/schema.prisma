@@ -297,42 +297,99 @@ model TeacherProfile {
   availabilityOccurrenceSkips AvailabilityOccurrenceSkip[]
   bookingsTeaching            Booking[]                    @relation("TeacherBookings")
   lessonOfferings             TeacherLessonOffering[]
+  classLevels                 TeacherClassLevel[]
+  classTypes                  TeacherClassType[]
+}
+
+/// Per-teacher class level taxonomy (e.g. "Beginner", "JLPT N2"). Mirrors
+/// SchoolClassLevel but scoped to a marketplace TeacherProfile.
+model TeacherClassLevel {
+  id        String         @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  /// Stable identifier within the teacher's taxonomy (slug-like).
+  /// Auto-generated from labelEn.
+  code    String
+  labelEn String
+  labelJa String?
+
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  availabilitySlots AvailabilitySlot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teacherId, code])
+  @@index([teacherId, active])
+}
+
+/// Per-teacher class type taxonomy (e.g. "Conversation", "Eiken Prep").
+model TeacherClassType {
+  id        String         @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  code    String
+  labelEn String
+  labelJa String?
+
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  availabilitySlots AvailabilitySlot[]
+  lessonOfferings   TeacherLessonOffering[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teacherId, code])
+  @@index([teacherId, active])
 }
 
 model TeacherLessonOffering {
-  id               String         @id @default(cuid())
-  teacherId        String
-  teacher          TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  durationMin      Int
-  rateYen          Int
-  isGroup          Boolean        @default(false)
-  groupSize        Int?
-  active           Boolean        @default(true)
-  /// pronunciation | conversation | grammar | reading | writing | business | custom — matches AvailabilitySlot.lessonType
-  /// Null = legacy row (treat as matching any catalog product for this duration).
-  lessonType       String?
-  lessonTypeCustom String?        @db.VarChar(200)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  id          String         @id @default(cuid())
+  teacherId   String
+  teacher     TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  durationMin Int
+  rateYen     Int
+  isGroup     Boolean        @default(false)
+  groupSize   Int?
+  active      Boolean        @default(true)
+
+  /// FK to the teacher's per-teacher class type taxonomy. Drives catalog matching.
+  classTypeId String?
+  classType   TeacherClassType? @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([teacherId, isGroup, active])
+  @@index([classTypeId])
 }
 
 model AvailabilitySlot {
-  id               String         @id @default(cuid())
-  teacherId        String
-  teacher          TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  dayOfWeek        Int // 0-6, Sunday-Saturday in teacher timezone context
-  startMin         Int // minutes from midnight local
-  endMin           Int
-  timezone         String         @default("Asia/Tokyo")
-  /// beginner | intermediate | advanced — see AVAILABILITY_LESSON_LEVELS in apps/web.
-  lessonLevel      String         @default("intermediate")
-  /// pronunciation | conversation | grammar | reading | writing | business | custom
-  lessonType       String         @default("conversation")
-  /// When lessonType is "custom", teacher-defined label (otherwise null).
-  lessonTypeCustom String?
-  active           Boolean        @default(true)
+  id        String         @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  dayOfWeek Int // 0-6, Sunday-Saturday in teacher timezone context
+  startMin  Int // minutes from midnight local
+  endMin    Int
+  timezone  String         @default("Asia/Tokyo")
+
+  /// FK to the teacher's per-teacher class level taxonomy.
+  classLevelId String?
+  classLevel   TeacherClassLevel? @relation(fields: [classLevelId], references: [id], onDelete: SetNull)
+  /// FK to the teacher's per-teacher class type taxonomy.
+  classTypeId  String?
+  classType    TeacherClassType?  @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+
+  active Boolean @default(true)
+
+  @@index([classLevelId])
+  @@index([classTypeId])
 }
 
 /// Single UTC start hidden for one weekly series occurrence (teacher "this event only" delete).

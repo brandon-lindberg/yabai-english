@@ -113,6 +113,40 @@
     "pillarsHeading": "Why learners use English Studio"
   },
   "dashboard": {
+    "taxonomyPage": {
+      "title": "Class taxonomy",
+      "description": "Configure the class levels and class types your availability slots can be tagged with.",
+      "classLevelsTitle": "Class levels",
+      "classTypesTitle": "Class types",
+      "addLevel": "Add class level",
+      "addType": "Add class type",
+      "name": "Name",
+      "nameJa": "Japanese name",
+      "nameHelp": "The Japanese name is optional — Japanese-locale users see it when set, otherwise they see the name above.",
+      "levelLabelPlaceholder": "e.g. Beginner",
+      "levelLabelJaPlaceholder": "e.g. 初級",
+      "typeLabelPlaceholder": "e.g. Conversation",
+      "typeLabelJaPlaceholder": "e.g. 会話",
+      "sortOrder": "Sort order",
+      "nameColumn": "Name",
+      "nameJaColumn": "Japanese name",
+      "orderColumn": "Order",
+      "actionsColumn": "Actions",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "remove": "Remove",
+      "noLevels": "No class levels yet.",
+      "noTypes": "No class types yet.",
+      "loading": "Loading…",
+      "error": "Could not save.",
+      "duplicateName": "A row with this name already exists. Choose a different name.",
+      "combinationsTitle": "Available combinations",
+      "combinationsHelp": "Availability slots can be tagged with any combination below.",
+      "combinationsEmpty": "Add at least one class level and one class type to enable combinations."
+    },
     "title": "My dashboard",
     "upcoming": "Upcoming lessons",
     "noBookings": "No bookings yet.",
@@ -156,7 +190,8 @@
       "ariaLabel": "Dashboard sections",
       "overview": "Overview",
       "profile": "Profile",
-      "schedule": "Schedule"
+      "schedule": "Schedule",
+      "taxonomy": "Taxonomy"
     },
     "highlights": {
       "pageTitle": "Overview",
@@ -318,9 +353,8 @@
       "weeklyRecurringHint": "Off by default. Turn on to lock the weekday to the day you tapped (and keep it when you change timezone).",
       "lessonLevel": "Lesson level",
       "lessonType": "Lesson type",
-      "customLessonType": "Custom type name",
-      "customLessonTypePlaceholder": "e.g. Interview practice",
-      "invalidLessonMeta": "Choose a level and lesson type. For Custom, enter a short name."
+      "invalidLessonMeta": "Pick both a class level and a class type for every slot.",
+      "taxonomyMissingWarning": "You have no class levels or types yet. Add them under Taxonomy first."
     },
     "quickReview": {
       "title": "Quick review",

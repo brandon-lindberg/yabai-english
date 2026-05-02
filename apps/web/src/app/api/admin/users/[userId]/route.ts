@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { checkAdminCanDeleteUser } from "@/lib/admin-user-guards";
 import { teacherProfileToAdminDto } from "@/lib/admin-user-dto";
 import { invalidateUserSessions } from "@/lib/admin-invalidate-sessions";
+import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 
 const teacherProfilePatchSchema = z
   .object({
@@ -130,7 +131,11 @@ export async function PATCH(req: Request, { params }: Props) {
         await tx.studentProfile.create({ data: { userId } });
       }
       if (nextRole === Role.TEACHER && !existing.teacherProfile) {
-        await tx.teacherProfile.create({ data: { userId } });
+        const created = await tx.teacherProfile.create({
+          data: { userId },
+          select: { id: true },
+        });
+        await seedDefaultTeacherTaxonomy(tx, created.id);
       }
 
       if (

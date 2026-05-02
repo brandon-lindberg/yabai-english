@@ -10,7 +10,6 @@ vi.mock("@/i18n/navigation", () => ({
     children,
     ...props
   }: React.PropsWithChildren<Record<string, unknown>>) => (
-    // eslint-disable-next-line jsx-a11y/anchor-is-valid
     <a {...props}>{children}</a>
   ),
 }));

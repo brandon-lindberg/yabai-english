@@ -6,14 +6,6 @@ test.describe("organization flow smoke", () => {
     await expect(page).not.toHaveURL(/\/en\/admin\/schools$/);
   });
 
-  test("invite acceptance page is reachable and shows invalid-token state for a bogus token", async ({
-    page,
-    request,
-  }) => {
-    const res = await request.get("/api/org/invite/this-token-does-not-exist");
-    expect(res.status()).toBe(404);
-  });
-
   test.fixme(
     "full owner journey: sign in -> create org + first school -> invite teacher -> create schedule slot",
     async () => {

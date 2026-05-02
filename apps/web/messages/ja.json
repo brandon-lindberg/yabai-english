@@ -113,6 +113,40 @@
     "pillarsHeading": "English Studio が選ばれる理由"
   },
   "dashboard": {
+    "taxonomyPage": {
+      "title": "クラス分類",
+      "description": "空き枠に付けられるクラスレベルとクラスタイプを設定します。",
+      "classLevelsTitle": "クラスレベル",
+      "classTypesTitle": "クラスタイプ",
+      "addLevel": "クラスレベルを追加",
+      "addType": "クラスタイプを追加",
+      "name": "名前",
+      "nameJa": "日本語名",
+      "nameHelp": "日本語名は任意です。設定すれば日本語ロケールのユーザーに表示され、未設定なら上記の名前が表示されます。",
+      "levelLabelPlaceholder": "例: Beginner",
+      "levelLabelJaPlaceholder": "例: 初級",
+      "typeLabelPlaceholder": "例: Conversation",
+      "typeLabelJaPlaceholder": "例: 会話",
+      "sortOrder": "並び順",
+      "nameColumn": "名前",
+      "nameJaColumn": "日本語名",
+      "orderColumn": "順序",
+      "actionsColumn": "操作",
+      "moveUp": "上へ移動",
+      "moveDown": "下へ移動",
+      "save": "保存",
+      "saving": "保存中…",
+      "cancel": "キャンセル",
+      "remove": "削除",
+      "noLevels": "クラスレベルがありません。",
+      "noTypes": "クラスタイプがありません。",
+      "loading": "読み込み中…",
+      "error": "保存できませんでした。",
+      "duplicateName": "この名前はすでに存在します。別の名前を指定してください。",
+      "combinationsTitle": "利用可能な組み合わせ",
+      "combinationsHelp": "空き枠に以下のいずれかの組み合わせを設定できます。",
+      "combinationsEmpty": "クラスレベルとクラスタイプを少なくとも1つずつ追加してください。"
+    },
     "title": "マイページ",
     "upcoming": "予定のレッスン",
     "noBookings": "予約はまだありません。",
@@ -156,7 +190,8 @@
       "ariaLabel": "ダッシュボードのセクション",
       "overview": "概要",
       "profile": "プロフィール",
-      "schedule": "スケジュール"
+      "schedule": "スケジュール",
+      "taxonomy": "クラス分類"
     },
     "highlights": {
       "pageTitle": "概要",
@@ -318,9 +353,8 @@
       "weeklyRecurringHint": "初期はオフです。オンにすると、タップした曜日に固定され、タイムゾーンを変えても合わせます。",
       "lessonLevel": "レッスンレベル",
       "lessonType": "レッスン種別",
-      "customLessonType": "カスタム種別名",
-      "customLessonTypePlaceholder": "例: 面接対策",
-      "invalidLessonMeta": "レベルと種別を選んでください。カスタムの場合は短い名称を入力してください。"
+      "invalidLessonMeta": "各スロットにクラスレベルとクラス種別の両方を選んでください。",
+      "taxonomyMissingWarning": "クラスレベル・種別が未設定です。先に「分類」から追加してください。"
     },
     "quickReview": {
       "title": "クイック復習",

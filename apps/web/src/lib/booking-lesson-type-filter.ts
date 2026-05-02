@@ -1,36 +1,25 @@
 export const ALL_LESSON_TYPES_KEY = "__all__";
 
 export type FilterableSlot = {
-  lessonType?: string;
-  lessonTypeCustom?: string | null;
+  classTypeId?: string | null;
 };
 
 export type FilterableProduct = {
-  teacherLessonType?: string | null;
-  teacherLessonTypeCustom?: string | null;
+  teacherClassTypeId?: string | null;
 };
-
-function normalizeCustom(value: string | null | undefined): string {
-  return (value ?? "").trim().toLowerCase();
-}
 
 /**
  * True when a preset availability slot should remain visible for the currently
- * selected lesson product. Missing lesson-type metadata on either side falls
- * back to showing the slot (e.g. legacy data, or a product without a specific
- * teacher lesson type association).
+ * selected lesson product. Missing class-type metadata on either side falls
+ * back to showing the slot (e.g. catalog product without a specific teacher
+ * class-type association).
  */
 export function slotMatchesProduct(
   slot: FilterableSlot,
   product: FilterableProduct,
 ): boolean {
-  if (!slot.lessonType || !product.teacherLessonType) return true;
-  if (slot.lessonType !== product.teacherLessonType) return false;
-  if (slot.lessonType !== "custom") return true;
-  return (
-    normalizeCustom(slot.lessonTypeCustom) ===
-    normalizeCustom(product.teacherLessonTypeCustom)
-  );
+  if (!slot.classTypeId || !product.teacherClassTypeId) return true;
+  return slot.classTypeId === product.teacherClassTypeId;
 }
 
 /** Filter a preset list for the given selection; "All" / undefined returns all. */

@@ -7,9 +7,10 @@ type AvailabilitySlotInput = {
   startMin: number;
   endMin: number;
   timezone: string;
-  lessonLevel: string;
-  lessonType: string;
-  lessonTypeCustom?: string | null;
+  /** FK to TeacherClassLevel.id (nullable while migration completes). */
+  classLevelId: string | null;
+  /** FK to TeacherClassType.id (nullable while migration completes). */
+  classTypeId: string | null;
 };
 
 type BuildOptions = {
@@ -31,8 +32,7 @@ export type SlotOption = {
   startsAtIso: string;
   endsAtIso: string;
   label: string;
-  lessonType: string;
-  lessonTypeCustom: string | null;
+  classTypeId: string | null;
 };
 
 export function buildUpcomingSlotOptions({
@@ -91,8 +91,7 @@ export function buildUpcomingSlotOptions({
         startsAtIso,
         endsAtIso: occ.endsAtIso,
         label,
-        lessonType: slot.lessonType,
-        lessonTypeCustom: slot.lessonTypeCustom ?? null,
+        classTypeId: slot.classTypeId,
       });
     }
   }

@@ -16,15 +16,6 @@ const createPricingSchema = z.object({
   isGroup: z.boolean().default(false),
 });
 
-const updatePricingSchema = z.object({
-  lessonLevel: z.string().trim().optional(),
-  lessonType: z.string().trim().optional(),
-  durationMin: z.number().int().min(1).optional(),
-  priceYen: z.number().int().min(0).optional(),
-  isGroup: z.boolean().optional(),
-  active: z.boolean().optional(),
-});
-
 type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string }>;
 };

@@ -3,22 +3,22 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
-import {
-  AVAILABILITY_LESSON_LEVELS,
-  AVAILABILITY_LESSON_TYPES,
-  DEFAULT_AVAILABILITY_LESSON_LEVEL,
-  DEFAULT_AVAILABILITY_LESSON_TYPE,
-} from "@/lib/availability-slot-lesson-meta";
 import { weekdayLabel } from "@/lib/weekdays";
+
+export type TaxonomyOption = {
+  id: string;
+  code: string;
+  labelEn: string;
+  labelJa: string | null;
+};
 
 export type TeacherAvailabilityAddModalDraft = {
   dayOfWeek: number;
   startMin: number;
   endMin: number;
   timezone: string;
-  lessonLevel: string;
-  lessonType: string;
-  lessonTypeCustom: string | null;
+  classLevelId: string;
+  classTypeId: string;
 };
 
 type Props = {
@@ -36,6 +36,8 @@ type Props = {
   startLabel: string;
   endLabel: string;
   timezoneLabel: string;
+  classLevels: TaxonomyOption[];
+  classTypes: TaxonomyOption[];
 };
 
 function toTime(min: number) {
@@ -48,6 +50,12 @@ function parseTime(value: string) {
   const [h, m] = value.split(":").map((v) => Number(v));
   if (!Number.isFinite(h) || !Number.isFinite(m)) return 0;
   return h * 60 + m;
+}
+
+function pickLabel(opt: TaxonomyOption, locale: string): string {
+  return locale.toLowerCase().startsWith("ja")
+    ? (opt.labelJa ?? opt.labelEn)
+    : opt.labelEn;
 }
 
 type InnerProps = Omit<Props, "open"> & { dayKey: string };
@@ -66,19 +74,21 @@ function TeacherAvailabilityAddModalInner({
   startLabel,
   endLabel,
   timezoneLabel,
+  classLevels,
+  classTypes,
 }: InnerProps) {
   const tModal = useTranslations("dashboard.teacherAvailability");
-  const tMeta = useTranslations("lessonSlotMeta");
   const [weeklyOnCalendarDay, setWeeklyOnCalendarDay] = useState(false);
   const [draft, setDraft] = useState<TeacherAvailabilityAddModalDraft>(() => ({
     dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, initialTimezone),
     startMin: 9 * 60,
     endMin: 10 * 60,
     timezone: initialTimezone,
-    lessonLevel: DEFAULT_AVAILABILITY_LESSON_LEVEL,
-    lessonType: DEFAULT_AVAILABILITY_LESSON_TYPE,
-    lessonTypeCustom: null,
+    classLevelId: classLevels[0]?.id ?? "",
+    classTypeId: classTypes[0]?.id ?? "",
   }));
+
+  const noTaxonomy = classLevels.length === 0 || classTypes.length === 0;
 
   return (
     <>
@@ -172,18 +182,27 @@ function TeacherAvailabilityAddModalInner({
           {draft.endMin <= draft.startMin ? (
             <p className="text-sm text-destructive">{tModal("invalidTimeRange")}</p>
           ) : null}
+          {noTaxonomy ? (
+            <p className="rounded-lg border border-[var(--app-warning,#d97706)]/40 bg-[var(--app-warning,#d97706)]/10 px-3 py-2 text-xs text-foreground">
+              {tModal("taxonomyMissingWarning")}
+            </p>
+          ) : null}
           <label className="block text-xs text-muted">
             {tModal("lessonLevel")}
             <select
-              value={draft.lessonLevel}
+              value={draft.classLevelId}
               onChange={(e) =>
-                setDraft((d) => ({ ...d, lessonLevel: e.target.value }))
+                setDraft((d) => ({ ...d, classLevelId: e.target.value }))
               }
+              required
               className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
             >
-              {AVAILABILITY_LESSON_LEVELS.map((key) => (
-                <option key={key} value={key}>
-                  {tMeta(`levels.${key}`)}
+              {classLevels.length === 0 ? (
+                <option value="">—</option>
+              ) : null}
+              {classLevels.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {pickLabel(opt, locale)}
                 </option>
               ))}
             </select>
@@ -191,40 +210,23 @@ function TeacherAvailabilityAddModalInner({
           <label className="block text-xs text-muted">
             {tModal("lessonType")}
             <select
-              value={draft.lessonType}
-              onChange={(e) => {
-                const lessonType = e.target.value;
-                setDraft((d) => ({
-                  ...d,
-                  lessonType,
-                  lessonTypeCustom: lessonType === "custom" ? d.lessonTypeCustom : null,
-                }));
-              }}
+              value={draft.classTypeId}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, classTypeId: e.target.value }))
+              }
+              required
               className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
             >
-              {AVAILABILITY_LESSON_TYPES.map((key) => (
-                <option key={key} value={key}>
-                  {tMeta(`types.${key}`)}
+              {classTypes.length === 0 ? (
+                <option value="">—</option>
+              ) : null}
+              {classTypes.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {pickLabel(opt, locale)}
                 </option>
               ))}
             </select>
           </label>
-          {draft.lessonType === "custom" ? (
-            <label className="block text-xs text-muted">
-              {tModal("customLessonType")}
-              <input
-                value={draft.lessonTypeCustom ?? ""}
-                onChange={(e) =>
-                  setDraft((d) => ({
-                    ...d,
-                    lessonTypeCustom: e.target.value || null,
-                  }))
-                }
-                placeholder={tModal("customLessonTypePlaceholder")}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
-              />
-            </label>
-          ) : null}
           <label className="block text-xs text-muted">
             {timezoneLabel}
             <input
@@ -256,7 +258,8 @@ function TeacherAvailabilityAddModalInner({
             type="button"
             disabled={
               draft.endMin <= draft.startMin ||
-              (draft.lessonType === "custom" && !(draft.lessonTypeCustom ?? "").trim())
+              !draft.classLevelId ||
+              !draft.classTypeId
             }
             onClick={() => {
               onConfirm(draft);
@@ -271,32 +274,17 @@ function TeacherAvailabilityAddModalInner({
   );
 }
 
-export function TeacherAvailabilityAddModal({
-  open,
-  dayKey,
-  locale,
-  initialTimezone,
-  onClose,
-  onConfirm,
-  title,
-  subtitle,
-  cancelLabel,
-  confirmLabel,
-  dayOfWeekLabel,
-  startLabel,
-  endLabel,
-  timezoneLabel,
-}: Props) {
+export function TeacherAvailabilityAddModal(props: Props) {
   useEffect(() => {
-    if (!open) return;
+    if (!props.open) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") props.onClose();
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [props]);
 
-  if (!open || !dayKey) return null;
+  if (!props.open || !props.dayKey) return null;
 
   return (
     <div
@@ -308,26 +296,11 @@ export function TeacherAvailabilityAddModal({
       <button
         type="button"
         className="absolute inset-0 bg-black/40"
-        aria-label={cancelLabel}
-        onClick={onClose}
+        aria-label={props.cancelLabel}
+        onClick={props.onClose}
       />
       <div className="relative z-[101] w-full max-w-md rounded-2xl border border-border bg-surface p-5 shadow-xl">
-        <TeacherAvailabilityAddModalInner
-          key={`${dayKey}:${initialTimezone}`}
-          dayKey={dayKey}
-          locale={locale}
-          initialTimezone={initialTimezone}
-          onClose={onClose}
-          onConfirm={onConfirm}
-          title={title}
-          subtitle={subtitle}
-          cancelLabel={cancelLabel}
-          confirmLabel={confirmLabel}
-          dayOfWeekLabel={dayOfWeekLabel}
-          startLabel={startLabel}
-          endLabel={endLabel}
-          timezoneLabel={timezoneLabel}
-        />
+        <TeacherAvailabilityAddModalInner {...props} dayKey={props.dayKey} />
       </div>
     </div>
   );

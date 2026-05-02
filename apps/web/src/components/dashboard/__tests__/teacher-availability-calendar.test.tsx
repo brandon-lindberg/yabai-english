@@ -6,6 +6,13 @@ import { NextIntlClientProvider } from "next-intl";
 import en from "../../../../messages/en.json";
 import { TeacherAvailabilityCalendar } from "../teacher-availability-calendar";
 
+const sampleLevels = [
+  { id: "lvl-int", code: "intermediate", labelEn: "Intermediate", labelJa: null },
+];
+const sampleTypes = [
+  { id: "ty-conv", code: "conversation", labelEn: "Conversation", labelJa: null },
+];
+
 function renderTeacherCalendar() {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
@@ -13,6 +20,8 @@ function renderTeacherCalendar() {
         initialSlots={[]}
         initialOccurrenceSkips={[]}
         defaultTimezone="UTC"
+        classLevels={sampleLevels}
+        classTypes={sampleTypes}
       />
     </NextIntlClientProvider>,
   );

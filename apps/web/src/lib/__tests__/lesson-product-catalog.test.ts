@@ -6,15 +6,17 @@ import {
   inferLessonTierForOffering,
 } from "@/lib/lesson-product-catalog";
 
+const ct = (code: string) => ({ code });
+
 describe("inferLessonTierForOffering", () => {
   test("conversation → EIKAWA", () => {
-    expect(inferLessonTierForOffering({ lessonType: "conversation" })).toBe(
+    expect(inferLessonTierForOffering({ classType: ct("conversation") })).toBe(
       LessonTier.EIKAWA,
     );
   });
 
   test("pronunciation → PRONUNCIATION_ACTING", () => {
-    expect(inferLessonTierForOffering({ lessonType: "pronunciation" })).toBe(
+    expect(inferLessonTierForOffering({ classType: ct("pronunciation") })).toBe(
       LessonTier.PRONUNCIATION_ACTING,
     );
   });
@@ -24,10 +26,14 @@ describe("inferLessonTierForOffering", () => {
     "reading",
     "writing",
     "business",
-    "custom",
-    null,
-  ] as const)("%s → STANDARD", (lessonType) => {
-    expect(inferLessonTierForOffering({ lessonType })).toBe(
+  ] as const)("%s → STANDARD", (code) => {
+    expect(inferLessonTierForOffering({ classType: ct(code) })).toBe(
+      LessonTier.STANDARD,
+    );
+  });
+
+  test("null classType → STANDARD", () => {
+    expect(inferLessonTierForOffering({ classType: null })).toBe(
       LessonTier.STANDARD,
     );
   });
@@ -36,7 +42,7 @@ describe("inferLessonTierForOffering", () => {
 describe("buildCatalogProductForOffering", () => {
   test("pronunciation @ 30 min builds a PRONUNCIATION_ACTING catalog row", () => {
     const product = buildCatalogProductForOffering({
-      lessonType: "pronunciation",
+      classType: ct("pronunciation"),
       durationMin: 30,
     });
     expect(product).toEqual({
@@ -51,7 +57,7 @@ describe("buildCatalogProductForOffering", () => {
 
   test("conversation @ 60 min builds an EIKAWA catalog row", () => {
     const product = buildCatalogProductForOffering({
-      lessonType: "conversation",
+      classType: ct("conversation"),
       durationMin: 60,
     });
     expect(product.tier).toBe(LessonTier.EIKAWA);
@@ -63,7 +69,7 @@ describe("buildCatalogProductForOffering", () => {
 
   test("grammar @ 90 min builds a STANDARD catalog row", () => {
     const product = buildCatalogProductForOffering({
-      lessonType: "grammar",
+      classType: ct("grammar"),
       durationMin: 90,
     });
     expect(product.tier).toBe(LessonTier.STANDARD);
@@ -88,8 +94,8 @@ describe("ensureCatalogProductsForOfferings", () => {
     createMock.mockResolvedValue({});
 
     await ensureCatalogProductsForOfferings(tx, [
-      { lessonType: "pronunciation", durationMin: 30, active: true },
-      { lessonType: "conversation", durationMin: 60, active: true },
+      { classType: ct("pronunciation"), durationMin: 30, active: true },
+      { classType: ct("conversation"), durationMin: 60, active: true },
     ]);
 
     expect(createMock).toHaveBeenCalledTimes(2);
@@ -108,7 +114,7 @@ describe("ensureCatalogProductsForOfferings", () => {
   test("skips inactive offerings entirely", async () => {
     findManyMock.mockResolvedValueOnce([]);
     await ensureCatalogProductsForOfferings(tx, [
-      { lessonType: "pronunciation", durationMin: 30, active: false },
+      { classType: ct("pronunciation"), durationMin: 30, active: false },
     ]);
     expect(createMock).not.toHaveBeenCalled();
   });
@@ -124,8 +130,8 @@ describe("ensureCatalogProductsForOfferings", () => {
     createMock.mockResolvedValue({});
 
     await ensureCatalogProductsForOfferings(tx, [
-      { lessonType: "pronunciation", durationMin: 40, active: true },
-      { lessonType: "pronunciation", durationMin: 30, active: true },
+      { classType: ct("pronunciation"), durationMin: 40, active: true },
+      { classType: ct("pronunciation"), durationMin: 30, active: true },
     ]);
 
     // only the 30-min combo should be newly created
@@ -138,8 +144,8 @@ describe("ensureCatalogProductsForOfferings", () => {
     createMock.mockResolvedValue({});
 
     await ensureCatalogProductsForOfferings(tx, [
-      { lessonType: "grammar", durationMin: 30, active: true },
-      { lessonType: "reading", durationMin: 30, active: true },
+      { classType: ct("grammar"), durationMin: 30, active: true },
+      { classType: ct("reading"), durationMin: 30, active: true },
     ]);
 
     expect(createMock).toHaveBeenCalledTimes(1);

@@ -1,20 +1,20 @@
 import { describe, expect, test } from "vitest";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 
+const baseSlot = {
+  id: "a1",
+  dayOfWeek: 1,
+  startMin: 10 * 60,
+  endMin: 11 * 60,
+  timezone: "Asia/Tokyo",
+  classLevelId: "lvl-int",
+  classTypeId: "ty-conv",
+};
+
 describe("buildUpcomingSlotOptions", () => {
   test("builds upcoming UTC slot from teacher weekly availability", () => {
     const slots = buildUpcomingSlotOptions({
-      availabilitySlots: [
-        {
-          id: "a1",
-          dayOfWeek: 1,
-          startMin: 10 * 60,
-          endMin: 11 * 60,
-          timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "conversation",
-        },
-      ],
+      availabilitySlots: [baseSlot],
       viewerTimezone: "Asia/Tokyo",
       now: "2026-04-10T00:00:00.000Z",
       horizonDays: 7,
@@ -26,17 +26,7 @@ describe("buildUpcomingSlotOptions", () => {
 
   test("skips slots that already started", () => {
     const slots = buildUpcomingSlotOptions({
-      availabilitySlots: [
-        {
-          id: "a1",
-          dayOfWeek: 1,
-          startMin: 10 * 60,
-          endMin: 11 * 60,
-          timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "conversation",
-        },
-      ],
+      availabilitySlots: [baseSlot],
       viewerTimezone: "Asia/Tokyo",
       now: "2026-04-13T01:30:00.000Z",
       horizonDays: 7,
@@ -47,17 +37,7 @@ describe("buildUpcomingSlotOptions", () => {
 
   test("skips slots inside minimum lead window", () => {
     const slots = buildUpcomingSlotOptions({
-      availabilitySlots: [
-        {
-          id: "a1",
-          dayOfWeek: 1,
-          startMin: 10 * 60,
-          endMin: 11 * 60,
-          timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "conversation",
-        },
-      ],
+      availabilitySlots: [baseSlot],
       viewerTimezone: "Asia/Tokyo",
       now: "2026-04-11T03:00:00.000Z",
       horizonDays: 7,
@@ -70,17 +50,7 @@ describe("buildUpcomingSlotOptions", () => {
   test("skippedStartsAtIso omits matching occurrences", () => {
     const skip = new Set(["2026-04-13T01:00:00.000Z"]);
     const slots = buildUpcomingSlotOptions({
-      availabilitySlots: [
-        {
-          id: "a1",
-          dayOfWeek: 1,
-          startMin: 10 * 60,
-          endMin: 11 * 60,
-          timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "conversation",
-        },
-      ],
+      availabilitySlots: [baseSlot],
       viewerTimezone: "Asia/Tokyo",
       now: "2026-04-10T00:00:00.000Z",
       horizonDays: 14,
@@ -94,17 +64,7 @@ describe("buildUpcomingSlotOptions", () => {
 
   test("allowPastInstances includes slots that already started within horizon", () => {
     const slots = buildUpcomingSlotOptions({
-      availabilitySlots: [
-        {
-          id: "a1",
-          dayOfWeek: 1,
-          startMin: 10 * 60,
-          endMin: 11 * 60,
-          timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "conversation",
-        },
-      ],
+      availabilitySlots: [baseSlot],
       viewerTimezone: "Asia/Tokyo",
       now: "2026-04-13T01:30:00.000Z",
       horizonDays: 7,
@@ -114,42 +74,20 @@ describe("buildUpcomingSlotOptions", () => {
     expect(slots.some((s) => s.startsAtIso === "2026-04-13T01:00:00.000Z")).toBe(true);
   });
 
-  test("returned slots carry the originating availability lessonType and custom label", () => {
+  test("returned slots carry the originating classTypeId", () => {
     const slots = buildUpcomingSlotOptions({
-      availabilitySlots: [
-        {
-          id: "a1",
-          dayOfWeek: 1,
-          startMin: 10 * 60,
-          endMin: 11 * 60,
-          timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "custom",
-          lessonTypeCustom: "Interview prep",
-        },
-      ],
+      availabilitySlots: [{ ...baseSlot, classTypeId: "ty-custom" }],
       viewerTimezone: "Asia/Tokyo",
       now: "2026-04-10T00:00:00.000Z",
       horizonDays: 7,
     });
 
-    expect(slots[0]?.lessonType).toBe("custom");
-    expect(slots[0]?.lessonTypeCustom).toBe("Interview prep");
+    expect(slots[0]?.classTypeId).toBe("ty-custom");
   });
 
   test("formatLessonMeta appends to label when provided", () => {
     const slots = buildUpcomingSlotOptions({
-      availabilitySlots: [
-        {
-          id: "a1",
-          dayOfWeek: 1,
-          startMin: 10 * 60,
-          endMin: 11 * 60,
-          timezone: "Asia/Tokyo",
-          lessonLevel: "intermediate",
-          lessonType: "grammar",
-        },
-      ],
+      availabilitySlots: [baseSlot],
       viewerTimezone: "Asia/Tokyo",
       now: "2026-04-10T00:00:00.000Z",
       horizonDays: 7,

@@ -3,8 +3,8 @@ import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 
 const baseSlot = {
   timezone: "Asia/Tokyo",
-  lessonLevel: "intermediate" as const,
-  lessonType: "conversation" as const,
+  classLevelId: "lvl-int",
+  classTypeId: "ty-conv",
 };
 
 describe("teacherAvailabilitySchema", () => {
@@ -29,7 +29,7 @@ describe("teacherAvailabilitySchema", () => {
     ).toBe(true);
   });
 
-  test("requires non-empty lessonTypeCustom when lessonType is custom", () => {
+  test("requires classLevelId and classTypeId to be present", () => {
     expect(
       teacherAvailabilitySchema.safeParse([
         {
@@ -37,9 +37,8 @@ describe("teacherAvailabilitySchema", () => {
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
-          lessonLevel: "beginner",
-          lessonType: "custom",
-          lessonTypeCustom: "   ",
+          classLevelId: "",
+          classTypeId: "ty-conv",
         },
       ]).success,
     ).toBe(false);
@@ -50,30 +49,14 @@ describe("teacherAvailabilitySchema", () => {
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
-          lessonLevel: "beginner",
-          lessonType: "custom",
-          lessonTypeCustom: "Interview prep",
-        },
-      ]).success,
-    ).toBe(true);
-  });
-
-  test("rejects unknown lesson level", () => {
-    expect(
-      teacherAvailabilitySchema.safeParse([
-        {
-          dayOfWeek: 1,
-          startMin: 10 * 60,
-          endMin: 11 * 60,
-          timezone: "Asia/Tokyo",
-          lessonLevel: "nope",
-          lessonType: "grammar",
+          classLevelId: "lvl-int",
+          classTypeId: "",
         },
       ]).success,
     ).toBe(false);
   });
 
-  test("accepts business lesson type", () => {
+  test("accepts a slot with both FK ids set", () => {
     expect(
       teacherAvailabilitySchema.safeParse([
         {
@@ -81,8 +64,8 @@ describe("teacherAvailabilitySchema", () => {
           startMin: 10 * 60,
           endMin: 11 * 60,
           timezone: "Asia/Tokyo",
-          lessonLevel: "advanced",
-          lessonType: "business",
+          classLevelId: "lvl-adv",
+          classTypeId: "ty-biz",
         },
       ]).success,
     ).toBe(true);

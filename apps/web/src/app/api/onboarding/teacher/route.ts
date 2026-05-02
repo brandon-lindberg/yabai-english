@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(_req: Request) {
@@ -10,7 +11,7 @@ export async function POST(_req: Request) {
   }
 
   const now = new Date();
-  await prisma.teacherProfile.upsert({
+  const profile = await prisma.teacherProfile.upsert({
     where: { userId: session.user.id },
     create: {
       userId: session.user.id,
@@ -19,7 +20,9 @@ export async function POST(_req: Request) {
     update: {
       onboardingCompletedAt: now,
     },
+    select: { id: true },
   });
+  await seedDefaultTeacherTaxonomy(prisma, profile.id);
 
   return NextResponse.json({ ok: true });
 }

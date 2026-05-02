@@ -1,14 +1,17 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
-import {
-  AVAILABILITY_LESSON_TYPES,
-  DEFAULT_AVAILABILITY_LESSON_TYPE,
-} from "@/lib/availability-slot-lesson-meta";
 
 const INDIVIDUAL_DURATIONS = [30, 40, 60, 90] as const;
+
+export type TaxonomyOption = {
+  id: string;
+  code: string;
+  labelEn: string;
+  labelJa: string | null;
+};
 
 type LessonOfferingInput = {
   id?: string;
@@ -16,15 +19,13 @@ type LessonOfferingInput = {
   rateYen: number;
   isGroup: boolean;
   groupSize: number | null;
-  lessonType?: string | null;
-  lessonTypeCustom?: string | null;
+  classTypeId: string | null;
 };
 
 type IndividualOfferRow = {
   clientId: string;
   durationMin: number;
-  lessonType: string;
-  lessonTypeCustom: string;
+  classTypeId: string;
   rateYenInput: string;
 };
 
@@ -32,8 +33,7 @@ type GroupOfferRow = {
   clientId: string;
   durationMin: number;
   groupSize: number;
-  lessonType: string;
-  lessonTypeCustom: string;
+  classTypeId: string;
   rateYenInput: string;
 };
 
@@ -55,10 +55,17 @@ type Props = {
     rateYen: number;
     isGroup: boolean;
     groupSize: number | null;
-    lessonType?: string | null;
-    lessonTypeCustom?: string | null;
+    classTypeId?: string | null;
+    classType?: TaxonomyOption | null;
   }>;
+  classTypes: TaxonomyOption[];
 };
+
+function pickLabel(opt: TaxonomyOption, locale: string): string {
+  return locale.toLowerCase().startsWith("ja")
+    ? (opt.labelJa ?? opt.labelEn)
+    : opt.labelEn;
+}
 
 function makeRowId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -77,10 +84,12 @@ export function TeacherProfileForm({
   initialOffersFreeTrial,
   postSaveRedirect,
   initialLessonOfferings,
+  classTypes,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
-  const tSlotTypes = useTranslations("lessonSlotMeta");
+  const locale = useLocale();
   const router = useRouter();
+  const defaultClassTypeId = classTypes[0]?.id ?? "";
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
   const [displayName, setDisplayName] = useState(initialDisplayName ?? "");
   const [bio, setBio] = useState(initialBio ?? "");
@@ -94,8 +103,7 @@ export function TeacherProfileForm({
       .map((o) => ({
         clientId: o.id || makeRowId(),
         durationMin: o.durationMin,
-        lessonType: o.lessonType ?? DEFAULT_AVAILABILITY_LESSON_TYPE,
-        lessonTypeCustom: o.lessonType === "custom" ? (o.lessonTypeCustom ?? "") : "",
+        classTypeId: o.classTypeId ?? defaultClassTypeId,
         rateYenInput: String(o.rateYen),
       }));
     if (rows.length > 0) return rows;
@@ -104,8 +112,7 @@ export function TeacherProfileForm({
         {
           clientId: makeRowId(),
           durationMin: 30,
-          lessonType: DEFAULT_AVAILABILITY_LESSON_TYPE,
-          lessonTypeCustom: "",
+          classTypeId: defaultClassTypeId,
           rateYenInput: String(initialRateYen),
         },
       ];
@@ -119,8 +126,7 @@ export function TeacherProfileForm({
         clientId: o.id || makeRowId(),
         durationMin: o.durationMin,
         groupSize: o.groupSize ?? 2,
-        lessonType: o.lessonType ?? DEFAULT_AVAILABILITY_LESSON_TYPE,
-        lessonTypeCustom: o.lessonType === "custom" ? (o.lessonTypeCustom ?? "") : "",
+        classTypeId: o.classTypeId ?? defaultClassTypeId,
         rateYenInput: String(o.rateYen),
       })),
   );
@@ -148,17 +154,12 @@ export function TeacherProfileForm({
         setStatus("error");
         return;
       }
-      if (row.lessonType === "custom" && !row.lessonTypeCustom.trim()) {
-        setStatus("error");
-        return;
-      }
       lessonOfferings.push({
         durationMin: row.durationMin,
         rateYen: rate,
         isGroup: false,
         groupSize: null,
-        lessonType: row.lessonType,
-        lessonTypeCustom: row.lessonType === "custom" ? row.lessonTypeCustom.trim() : null,
+        classTypeId: row.classTypeId || null,
       });
     }
 
@@ -168,17 +169,12 @@ export function TeacherProfileForm({
         setStatus("error");
         return;
       }
-      if (group.lessonType === "custom" && !group.lessonTypeCustom.trim()) {
-        setStatus("error");
-        return;
-      }
       lessonOfferings.push({
         durationMin: group.durationMin,
         rateYen: rate,
         isGroup: true,
         groupSize: group.groupSize,
-        lessonType: group.lessonType,
-        lessonTypeCustom: group.lessonType === "custom" ? group.lessonTypeCustom.trim() : null,
+        classTypeId: group.classTypeId || null,
       });
     }
 
@@ -326,8 +322,7 @@ export function TeacherProfileForm({
                 {
                   clientId: makeRowId(),
                   durationMin: 30,
-                  lessonType: DEFAULT_AVAILABILITY_LESSON_TYPE,
-                  lessonTypeCustom: "",
+                  classTypeId: defaultClassTypeId,
                   rateYenInput: "",
                 },
               ])
@@ -352,19 +347,19 @@ export function TeacherProfileForm({
                 <label className="flex flex-col gap-1 text-xs text-foreground">
                   <span className="text-muted">{t("teacherLessonTypeForRate")}</span>
                   <select
-                    value={row.lessonType}
+                    value={row.classTypeId}
                     onChange={(e) =>
                       setIndividualOffers((prev) =>
                         prev.map((r, i) =>
-                          i === index ? { ...r, lessonType: e.target.value } : r,
+                          i === index ? { ...r, classTypeId: e.target.value } : r,
                         ),
                       )
                     }
                     className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
                   >
-                    {AVAILABILITY_LESSON_TYPES.map((lt) => (
-                      <option key={lt} value={lt}>
-                        {tSlotTypes(`types.${lt}`)}
+                    {classTypes.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {pickLabel(opt, locale)}
                       </option>
                     ))}
                   </select>
@@ -391,25 +386,6 @@ export function TeacherProfileForm({
                     ))}
                   </select>
                 </label>
-                {row.lessonType === "custom" ? (
-                  <label className="flex min-w-[12rem] flex-1 flex-col gap-1 text-xs text-foreground">
-                    <span className="text-muted">{t("teacherLessonTypeCustomLabel")}</span>
-                    <input
-                      type="text"
-                      value={row.lessonTypeCustom}
-                      onChange={(e) =>
-                        setIndividualOffers((prev) =>
-                          prev.map((r, i) =>
-                            i === index ? { ...r, lessonTypeCustom: e.target.value } : r,
-                          ),
-                        )
-                      }
-                      placeholder={t("teacherLessonTypeCustomPlaceholder")}
-                      maxLength={200}
-                      className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
-                    />
-                  </label>
-                ) : null}
                 <label className="flex flex-col gap-1 text-xs text-foreground">
                   <span className="text-muted">{t("teacherRateYenLabel")}</span>
                   <input
@@ -457,8 +433,7 @@ export function TeacherProfileForm({
                   clientId: makeRowId(),
                   durationMin: 60,
                   groupSize: 2,
-                  lessonType: DEFAULT_AVAILABILITY_LESSON_TYPE,
-                  lessonTypeCustom: "",
+                  classTypeId: defaultClassTypeId,
                   rateYenInput: "",
                 },
               ])
@@ -489,19 +464,19 @@ export function TeacherProfileForm({
                   className="w-20 rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
                 />
                 <select
-                  value={group.lessonType}
+                  value={group.classTypeId}
                   onChange={(e) =>
                     setGroupOffers((prev) =>
                       prev.map((row, i) =>
-                        i === index ? { ...row, lessonType: e.target.value } : row,
+                        i === index ? { ...row, classTypeId: e.target.value } : row,
                       ),
                     )
                   }
                   className="rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
                 >
-                  {AVAILABILITY_LESSON_TYPES.map((lt) => (
-                    <option key={lt} value={lt}>
-                      {tSlotTypes(`types.${lt}`)}
+                  {classTypes.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {pickLabel(opt, locale)}
                     </option>
                   ))}
                 </select>
@@ -522,22 +497,6 @@ export function TeacherProfileForm({
                     </option>
                   ))}
                 </select>
-                {group.lessonType === "custom" ? (
-                  <input
-                    type="text"
-                    value={group.lessonTypeCustom}
-                    onChange={(e) =>
-                      setGroupOffers((prev) =>
-                        prev.map((row, i) =>
-                          i === index ? { ...row, lessonTypeCustom: e.target.value } : row,
-                        ),
-                      )
-                    }
-                    placeholder={t("teacherLessonTypeCustomPlaceholder")}
-                    maxLength={200}
-                    className="min-w-40 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
-                  />
-                ) : null}
                 <input
                   type="text"
                   inputMode="numeric"

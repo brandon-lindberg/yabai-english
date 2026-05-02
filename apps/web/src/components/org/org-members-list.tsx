@@ -174,6 +174,7 @@ export function OrgMembersList({ orgId }: Props) {
             >
               <div className="flex items-center gap-3">
                 {m.user.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={m.user.image}
                     alt=""

@@ -105,6 +105,7 @@ export function SchoolMembersView({ orgId, schoolId }: Props) {
               <div key={m.id} className="flex items-center justify-between px-4 py-3 text-sm">
                 <div className="flex items-center gap-3">
                   {m.user?.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={m.user.image} alt="" className="h-8 w-8 rounded-full" />
                   ) : (
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--app-hover)] text-xs font-medium text-muted">

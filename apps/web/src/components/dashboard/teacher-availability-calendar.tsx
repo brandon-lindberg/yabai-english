@@ -4,11 +4,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
-import {
-  AVAILABILITY_LESSON_LEVELS,
-  AVAILABILITY_LESSON_TYPES,
-  formatAvailabilitySlotMeta,
-} from "@/lib/availability-slot-lesson-meta";
 import { weekdayLabel } from "@/lib/weekdays";
 import { TeacherAvailabilityAddModal } from "@/components/dashboard/teacher-availability-add-modal";
 import { TeacherAvailabilityRemoveModal } from "@/components/dashboard/teacher-availability-remove-modal";
@@ -30,15 +25,23 @@ import { placeSlotsOnDayColumn, placeSlotsOnWeekGrid } from "@/lib/time-grid-wee
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 
+export type TaxonomyOption = {
+  id: string;
+  code: string;
+  labelEn: string;
+  labelJa: string | null;
+};
+
 export type InitialTeacherAvailabilitySlot = {
   id: string;
   dayOfWeek: number;
   startMin: number;
   endMin: number;
   timezone: string;
-  lessonLevel: string;
-  lessonType: string;
-  lessonTypeCustom: string | null;
+  classLevelId: string | null;
+  classTypeId: string | null;
+  classLevel: TaxonomyOption | null;
+  classType: TaxonomyOption | null;
 };
 
 export type TeacherCalendarBooking = {
@@ -52,6 +55,8 @@ type Props = {
   initialSlots: InitialTeacherAvailabilitySlot[];
   initialOccurrenceSkips: string[];
   defaultTimezone: string;
+  classLevels: TaxonomyOption[];
+  classTypes: TaxonomyOption[];
   /** Confirmed (or pending-payment) bookings to overlay on the schedule as "booked" blocks. */
   bookings?: TeacherCalendarBooking[];
 };
@@ -76,13 +81,28 @@ export function TeacherAvailabilityCalendar({
   initialSlots,
   initialOccurrenceSkips,
   defaultTimezone,
+  classLevels,
+  classTypes,
   bookings = [],
 }: Props) {
   const locale = useLocale();
   const isMobile = useIsMobile();
   const t = useTranslations("dashboard.teacherAvailability");
   const td = useTranslations("dashboard");
-  const tSlotMeta = useTranslations("lessonSlotMeta");
+  const isJa = locale.toLowerCase().startsWith("ja");
+  const pickLabel = useCallback(
+    (opt: TaxonomyOption | null | undefined): string =>
+      opt ? (isJa ? (opt.labelJa ?? opt.labelEn) : opt.labelEn) : "",
+    [isJa],
+  );
+  const levelById = useMemo(
+    () => new Map(classLevels.map((l) => [l.id, l])),
+    [classLevels],
+  );
+  const typeById = useMemo(
+    () => new Map(classTypes.map((t) => [t.id, t])),
+    [classTypes],
+  );
   const [rules, setRules] = useState<InitialTeacherAvailabilitySlot[]>(initialSlots);
   const [occurrenceSkips, setOccurrenceSkips] = useState<string[]>(initialOccurrenceSkips);
   const [calendarView, setCalendarView] = useState<CalendarViewMode>("month");
@@ -109,6 +129,12 @@ export function TeacherAvailabilityCalendar({
   }, []);
 
   const calendarSlots = useMemo(() => {
+    const metaBySlotId = new Map<string, string>();
+    for (const r of rules) {
+      const lvl = pickLabel(levelById.get(r.classLevelId ?? ""));
+      const ty = pickLabel(typeById.get(r.classTypeId ?? ""));
+      metaBySlotId.set(r.id, [lvl, ty].filter(Boolean).join(" · "));
+    }
     const expanded = buildUpcomingSlotOptions({
       availabilitySlots: rules.map((r) => ({
         id: r.id,
@@ -116,21 +142,15 @@ export function TeacherAvailabilityCalendar({
         startMin: r.startMin,
         endMin: r.endMin,
         timezone: r.timezone,
-        lessonLevel: r.lessonLevel,
-        lessonType: r.lessonType,
-        lessonTypeCustom: r.lessonTypeCustom,
+        classLevelId: r.classLevelId,
+        classTypeId: r.classTypeId,
       })),
       viewerTimezone: teacherTz,
       horizonDays: 365,
       minimumLeadHours: 0,
       allowPastInstances: true,
       skippedStartsAtIso: skipSet,
-      formatLessonMeta: (slot) =>
-        formatAvailabilitySlotMeta(
-          slot,
-          (k) => tSlotMeta(`levels.${k}`),
-          (k) => tSlotMeta(`types.${k}`),
-        ),
+      formatLessonMeta: (slot) => metaBySlotId.get(slot.id) ?? "",
     });
     return expanded.map((s) => ({
       startsAtIso: s.startsAtIso,
@@ -138,7 +158,7 @@ export function TeacherAvailabilityCalendar({
       label: s.label,
       groupKey: s.slotId,
     }));
-  }, [rules, teacherTz, skipSet, tSlotMeta]);
+  }, [rules, teacherTz, skipSet, levelById, typeById, pickLabel]);
 
   const anchorDayKey = useMemo(() => dayKeyFromIso(calendarAnchor), [calendarAnchor]);
 
@@ -248,10 +268,7 @@ export function TeacherAvailabilityCalendar({
   );
 
   const hasInvalidLessonMeta = useMemo(
-    () =>
-      rules.some(
-        (r) => r.lessonType === "custom" && !(r.lessonTypeCustom ?? "").trim(),
-      ),
+    () => rules.some((r) => !r.classLevelId || !r.classTypeId),
     [rules],
   );
 
@@ -533,14 +550,29 @@ export function TeacherAvailabilityCalendar({
         | "startMin"
         | "endMin"
         | "timezone"
-        | "lessonLevel"
-        | "lessonType"
-        | "lessonTypeCustom"
+        | "classLevelId"
+        | "classTypeId"
       >
     >,
   ) {
     if (!selectedRuleId) return;
-    setRules((prev) => prev.map((r) => (r.id === selectedRuleId ? { ...r, ...patch } : r)));
+    setRules((prev) =>
+      prev.map((r) => {
+        if (r.id !== selectedRuleId) return r;
+        const next: InitialTeacherAvailabilitySlot = { ...r, ...patch };
+        if (patch.classLevelId !== undefined) {
+          next.classLevel = patch.classLevelId
+            ? (levelById.get(patch.classLevelId) ?? null)
+            : null;
+        }
+        if (patch.classTypeId !== undefined) {
+          next.classType = patch.classTypeId
+            ? (typeById.get(patch.classTypeId) ?? null)
+            : null;
+        }
+        return next;
+      }),
+    );
   }
 
   function removeEntireWeeklyRule() {
@@ -592,9 +624,8 @@ export function TeacherAvailabilityCalendar({
       startMin: r.startMin,
       endMin: r.endMin,
       timezone: r.timezone,
-      lessonLevel: r.lessonLevel,
-      lessonType: r.lessonType,
-      lessonTypeCustom: r.lessonType === "custom" ? r.lessonTypeCustom : null,
+      classLevelId: r.classLevelId ?? "",
+      classTypeId: r.classTypeId ?? "",
     }));
     const parsed = teacherAvailabilitySchema.safeParse(payload);
     if (!parsed.success) {
@@ -680,9 +711,24 @@ export function TeacherAvailabilityCalendar({
         dayKey={monthAddDayKey}
         locale={locale}
         initialTimezone={teacherTz}
+        classLevels={classLevels}
+        classTypes={classTypes}
         onClose={() => setMonthAddDayKey(null)}
         onConfirm={(draft) => {
-          setRules((prev) => [...prev, { id: newRuleId(), ...draft }]);
+          setRules((prev) => [
+            ...prev,
+            {
+              id: newRuleId(),
+              dayOfWeek: draft.dayOfWeek,
+              startMin: draft.startMin,
+              endMin: draft.endMin,
+              timezone: draft.timezone,
+              classLevelId: draft.classLevelId,
+              classTypeId: draft.classTypeId,
+              classLevel: levelById.get(draft.classLevelId) ?? null,
+              classType: typeById.get(draft.classTypeId) ?? null,
+            },
+          ]);
           setSelectedRuleId(null);
           setSelectedStartsAtIso(null);
         }}
@@ -761,13 +807,15 @@ export function TeacherAvailabilityCalendar({
           <label className="block text-xs text-muted">
             {t("lessonLevel")}
             <select
-              value={selectedRule.lessonLevel}
-              onChange={(e) => patchSelected({ lessonLevel: e.target.value })}
+              value={selectedRule.classLevelId ?? ""}
+              onChange={(e) => patchSelected({ classLevelId: e.target.value })}
+              required
               className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
             >
-              {AVAILABILITY_LESSON_LEVELS.map((key) => (
-                <option key={key} value={key}>
-                  {tSlotMeta(`levels.${key}`)}
+              {!selectedRule.classLevelId ? <option value="">—</option> : null}
+              {classLevels.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {pickLabel(opt)}
                 </option>
               ))}
             </select>
@@ -775,37 +823,20 @@ export function TeacherAvailabilityCalendar({
           <label className="block text-xs text-muted">
             {t("lessonType")}
             <select
-              value={selectedRule.lessonType}
-              onChange={(e) => {
-                const lessonType = e.target.value;
-                patchSelected({
-                  lessonType,
-                  lessonTypeCustom: lessonType === "custom" ? selectedRule.lessonTypeCustom : null,
-                });
-              }}
+              value={selectedRule.classTypeId ?? ""}
+              onChange={(e) => patchSelected({ classTypeId: e.target.value })}
+              required
               className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
             >
-              {AVAILABILITY_LESSON_TYPES.map((key) => (
-                <option key={key} value={key}>
-                  {tSlotMeta(`types.${key}`)}
+              {!selectedRule.classTypeId ? <option value="">—</option> : null}
+              {classTypes.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {pickLabel(opt)}
                 </option>
               ))}
             </select>
           </label>
-          {selectedRule.lessonType === "custom" ? (
-            <label className="block text-xs text-muted">
-              {t("customLessonType")}
-              <input
-                value={selectedRule.lessonTypeCustom ?? ""}
-                onChange={(e) =>
-                  patchSelected({ lessonTypeCustom: e.target.value || null })
-                }
-                placeholder={t("customLessonTypePlaceholder")}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
-              />
-            </label>
-          ) : null}
-          {selectedRule.lessonType === "custom" && !(selectedRule.lessonTypeCustom ?? "").trim() ? (
+          {!selectedRule.classLevelId || !selectedRule.classTypeId ? (
             <p className="text-sm text-destructive">{t("invalidLessonMeta")}</p>
           ) : null}
         </div>

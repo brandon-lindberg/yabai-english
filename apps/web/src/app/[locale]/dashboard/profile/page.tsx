@@ -50,9 +50,14 @@ export default async function DashboardProfilePage({
               rateYen: true,
               isGroup: true,
               groupSize: true,
-              lessonType: true,
-              lessonTypeCustom: true,
+              classTypeId: true,
+              classType: { select: { id: true, code: true, labelEn: true, labelJa: true } },
             },
+          },
+          classTypes: {
+            where: { active: true },
+            orderBy: [{ sortOrder: "asc" }, { labelEn: "asc" }],
+            select: { id: true, code: true, labelEn: true, labelJa: true },
           },
         },
       }),
@@ -95,6 +100,7 @@ export default async function DashboardProfilePage({
           initialOffersFreeTrial={profile?.offersFreeTrial ?? true}
           postSaveRedirect={onboardingNext ?? postSaveRedirect}
           initialLessonOfferings={profile?.lessonOfferings ?? []}
+          classTypes={profile?.classTypes ?? []}
         />
       </div>
     );
