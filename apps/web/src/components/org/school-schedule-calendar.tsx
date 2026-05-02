@@ -7,6 +7,7 @@ import type { CalendarViewMode } from "@/lib/calendar-view";
 import {
   expandSchoolSlotOccurrences,
   formatSchoolSlotLabel,
+  resolveSchoolSlotTaxonomy,
   type SchoolSlotForOccurrences,
 } from "@/lib/school-schedule-occurrences";
 import { weekdayLabel } from "@/lib/weekdays";
@@ -14,19 +15,26 @@ import { weekdayLabel } from "@/lib/weekdays";
 type Taxonomy = {
   id: string;
   code: string;
-  label: string;
+  labelEn: string;
   labelJa: string | null;
-  labelEn: string | null;
   sortOrder: number;
   active: boolean;
 };
+
+function pickTaxonomyLabel(
+  entry: { labelEn: string; labelJa: string | null },
+  locale: string,
+): string {
+  if (locale.toLowerCase().startsWith("ja")) {
+    return entry.labelJa ?? entry.labelEn;
+  }
+  return entry.labelEn;
+}
 
 type ScheduleSlot = SchoolSlotForOccurrences & {
   durationMin: number;
   classLevelId: string | null;
   classTypeId: string | null;
-  classLevel: Taxonomy | null;
-  classType: Taxonomy | null;
   _count?: { enrollments: number };
 };
 
@@ -58,8 +66,6 @@ function newDraft() {
     endMin: 600,
     durationMin: 60,
     capacity: 1,
-    lessonLevel: "beginner",
-    lessonType: "conversation",
     classLevelId: "",
     classTypeId: "",
     recurrence: "WEEKLY" as RecurrenceValue,
@@ -154,18 +160,22 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
     setSaving(true);
     setError("");
 
+    if (!draft.classLevelId || !draft.classTypeId) {
+      setSaving(false);
+      setError(t("classTaxonomyRequired"));
+      return;
+    }
+
     const body: Record<string, unknown> = {
       dayOfWeek: draft.dayOfWeek,
       startMin: draft.startMin,
       endMin: draft.endMin,
       durationMin: draft.durationMin,
       capacity: draft.capacity,
-      lessonLevel: draft.lessonLevel,
-      lessonType: draft.lessonType,
+      classLevelId: draft.classLevelId,
+      classTypeId: draft.classTypeId,
       recurrence: draft.recurrence,
     };
-    if (draft.classLevelId) body.classLevelId = draft.classLevelId;
-    if (draft.classTypeId) body.classTypeId = draft.classTypeId;
     if (draft.recurrence === "WEEKLY") {
       body.daysOfWeek = [...draft.daysOfWeek].sort((a, b) => a - b);
     }
@@ -206,6 +216,9 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
     "w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
   const selectCn = inputCn;
 
+  const taxonomyMissing =
+    !loading && (classLevels.length === 0 || classTypes.length === 0);
+
   return (
     <section className="space-y-4 rounded-2xl border border-border bg-surface p-4">
       <div className="flex items-center justify-between">
@@ -213,11 +226,18 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
         <button
           type="button"
           onClick={() => setShowCreate(true)}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          disabled={taxonomyMissing}
+          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
         >
           {t("addSlot")}
         </button>
       </div>
+
+      {taxonomyMissing && (
+        <p className="rounded-lg border border-[var(--app-warning,#d97706)]/40 bg-[var(--app-warning,#d97706)]/10 px-3 py-2 text-xs text-foreground">
+          {t("taxonomyMissingWarning")}
+        </p>
+      )}
 
       {loading ? (
         <p className="text-sm text-muted">{t("loading")}</p>
@@ -267,16 +287,20 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
             {toTime(selectedSlot.startMin)} – {toTime(selectedSlot.endMin)} ·{" "}
             {(selectedSlot._count?.enrollments ?? 0)}/{selectedSlot.capacity}
           </p>
-          <p className="text-xs text-muted">
-            {formatSchoolSlotLabel(
+          {(() => {
+            const { level, type } = resolveSchoolSlotTaxonomy(
               selectedSlot,
-              {
-                enrolled: selectedSlot._count?.enrollments ?? 0,
-                capacity: selectedSlot.capacity,
-              },
               locale,
-            )}
-          </p>
+            );
+            return (
+              <dl className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-1 text-xs">
+                <dt className="text-muted">{t("classLevel")}</dt>
+                <dd className="text-foreground">{level || "—"}</dd>
+                <dt className="text-muted">{t("classType")}</dt>
+                <dd className="text-foreground">{type || "—"}</dd>
+              </dl>
+            );
+          })()}
         </div>
       ) : null}
 
@@ -454,14 +478,17 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                 <select
                   className={selectCn}
                   value={draft.classLevelId}
+                  required
                   onChange={(e) =>
                     setDraft({ ...draft, classLevelId: e.target.value })
                   }
                 >
-                  <option value="">{t("classLevelPlaceholder")}</option>
+                  <option value="" disabled>
+                    {t("classLevelPlaceholder")}
+                  </option>
                   {classLevels.map((lvl) => (
                     <option key={lvl.id} value={lvl.id}>
-                      {lvl.label}
+                      {pickTaxonomyLabel(lvl, locale)}
                     </option>
                   ))}
                 </select>
@@ -476,14 +503,17 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                 <select
                   className={selectCn}
                   value={draft.classTypeId}
+                  required
                   onChange={(e) =>
                     setDraft({ ...draft, classTypeId: e.target.value })
                   }
                 >
-                  <option value="">{t("classTypePlaceholder")}</option>
+                  <option value="" disabled>
+                    {t("classTypePlaceholder")}
+                  </option>
                   {classTypes.map((ty) => (
                     <option key={ty.id} value={ty.id}>
-                      {ty.label}
+                      {pickTaxonomyLabel(ty, locale)}
                     </option>
                   ))}
                 </select>

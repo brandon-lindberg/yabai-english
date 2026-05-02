@@ -6,6 +6,9 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
     organizationMembership: { findFirst: vi.fn() },
     organization: { findUnique: vi.fn() },
     school: { findMany: vi.fn(), create: vi.fn() },
+    schoolClassLevel: { createMany: vi.fn().mockResolvedValue({ count: 0 }) },
+    schoolClassType: { createMany: vi.fn().mockResolvedValue({ count: 0 }) },
+    $transaction: vi.fn(),
   },
 }));
 
@@ -100,12 +103,15 @@ describe("POST /api/org/[orgId]/schools", () => {
     expect(res.status).toBe(400);
   });
 
-  test("201 creates school for OWNER", async () => {
+  test("201 creates school for OWNER and seeds default taxonomy", async () => {
     authMock.mockResolvedValue({ user: { id: "u1" } });
     prismaMock.organizationMembership.findFirst.mockResolvedValue({
       id: "mem-1", orgRole: "OWNER", status: "ACTIVE",
       schoolId: null, organizationId: orgId, userId: "u1",
     });
+    prismaMock.$transaction.mockImplementation(
+      async (fn: (tx: typeof prismaMock) => Promise<unknown>) => fn(prismaMock),
+    );
     prismaMock.school.create.mockResolvedValue({
       id: "s-new", name: "New School", slug: "new-school", organizationId: orgId,
     });
@@ -116,5 +122,13 @@ describe("POST /api/org/[orgId]/schools", () => {
     expect(res.status).toBe(201);
     const body = await res.json();
     expect(body.school.slug).toBe("new-school");
+    expect(prismaMock.schoolClassLevel.createMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.arrayContaining([
+          expect.objectContaining({ schoolId: "s-new", code: "beginner" }),
+        ]),
+      }),
+    );
+    expect(prismaMock.schoolClassType.createMany).toHaveBeenCalled();
   });
 });

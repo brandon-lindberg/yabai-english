@@ -119,22 +119,17 @@ describe("PATCH /api/org/.../schedule/[slotId]", () => {
     });
   });
 
-  test("200 clears classLevelId/classTypeId when set to null", async () => {
+  test("400 when classLevelId is set to null (taxonomy is required)", async () => {
     authMock.mockResolvedValue({ user: { id: "u1" } });
     prismaMock.organizationMembership.findFirst.mockResolvedValue(adminCaller);
     prismaMock.schoolScheduleSlot.findUnique.mockResolvedValue({
       id: slotId, schoolId, classLevelId: "lvl-1", classTypeId: "type-1",
     });
-    prismaMock.schoolScheduleSlot.update.mockResolvedValue({
-      id: slotId, classLevelId: null, classTypeId: null,
-    });
     const res = await PATCH(
-      patchReq({ classLevelId: null, classTypeId: null }),
+      patchReq({ classLevelId: null }),
       routeCtx,
     );
-    expect(res.status).toBe(200);
-    expect(prismaMock.schoolClassLevel.findUnique).not.toHaveBeenCalled();
-    expect(prismaMock.schoolClassType.findUnique).not.toHaveBeenCalled();
+    expect(res.status).toBe(400);
   });
 });
 

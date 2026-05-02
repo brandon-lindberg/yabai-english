@@ -10,9 +10,8 @@ import {
 
 const updateSchema = z.object({
   code: z.string().trim().min(1).max(64).optional(),
-  label: z.string().trim().min(1).max(100).optional(),
+  labelEn: z.string().trim().min(1).max(100).optional(),
   labelJa: z.string().trim().max(100).nullable().optional(),
-  labelEn: z.string().trim().max(100).nullable().optional(),
   sortOrder: z.number().int().min(0).max(10000).optional(),
   active: z.boolean().optional(),
 });

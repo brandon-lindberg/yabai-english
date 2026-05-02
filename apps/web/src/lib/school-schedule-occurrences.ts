@@ -12,9 +12,8 @@ import type { SlotOption } from "@/lib/slot-calendar";
  * created without a class-level/type assignment.
  */
 export type SchoolSlotTaxonomyEntry = {
-  label: string;
+  labelEn: string;
   labelJa?: string | null;
-  labelEn?: string | null;
 } | null;
 
 /**
@@ -30,9 +29,6 @@ export type SchoolSlotForOccurrences = {
   endMin: number;
   timezone: string;
   capacity: number;
-  /** Denormalized fallback when taxonomy FKs are not set. */
-  lessonLevel?: string | null;
-  lessonType?: string | null;
   classLevel?: SchoolSlotTaxonomyEntry;
   classType?: SchoolSlotTaxonomyEntry;
   /** UTC ISO timestamps of cancelled occurrences. */
@@ -72,8 +68,8 @@ export type ExpandSchoolSlotOccurrencesInput = {
 function localized(entry: SchoolSlotTaxonomyEntry, locale: string): string | null {
   if (!entry) return null;
   const isJa = locale.toLowerCase().startsWith("ja");
-  if (isJa) return entry.labelJa ?? entry.label;
-  return entry.labelEn ?? entry.label;
+  if (isJa) return entry.labelJa ?? entry.labelEn;
+  return entry.labelEn;
 }
 
 /**
@@ -135,9 +131,22 @@ export function formatSchoolSlotLabel(
   cap: CapacityInfo,
   locale: string,
 ): string {
-  const lvl = localized(slot.classLevel ?? null, locale) ?? slot.lessonLevel ?? "";
-  const type = localized(slot.classType ?? null, locale) ?? slot.lessonType ?? "";
-  const taxonomy = [lvl, type].filter((s) => s.length > 0).join(" · ");
+  const { level, type } = resolveSchoolSlotTaxonomy(slot, locale);
+  const taxonomy = [level, type].filter((s) => s.length > 0).join(" · ");
   const cap_ = `${cap.enrolled}/${cap.capacity}`;
   return taxonomy ? `${taxonomy} (${cap_})` : cap_;
+}
+
+/**
+ * Resolve a slot's class level + type to locale-aware display strings.
+ * Returns empty strings when the slot has no taxonomy attached.
+ */
+export function resolveSchoolSlotTaxonomy(
+  slot: SchoolSlotForOccurrences,
+  locale: string,
+): { level: string; type: string } {
+  return {
+    level: localized(slot.classLevel ?? null, locale) ?? "",
+    type: localized(slot.classType ?? null, locale) ?? "",
+  };
 }

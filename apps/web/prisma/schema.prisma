@@ -866,13 +866,8 @@ model SchoolScheduleSlot {
   endMin    Int // minutes from midnight
   timezone  String // resolved from school or org
 
-  /// Legacy free-text fields. Prefer the typed FKs (`classLevelId`/`classTypeId`)
-  /// once the school has configured a taxonomy. Kept as denormalized fallback
-  /// for display when the FK rows are deleted (onDelete: SetNull on the FKs).
-  lessonLevel String
-  lessonType  String
-  labelJa     String?
-  labelEn     String?
+  labelJa String?
+  labelEn String?
 
   classLevelId String?
   classLevel   SchoolClassLevel? @relation(fields: [classLevelId], references: [id], onDelete: SetNull)
@@ -916,12 +911,12 @@ model SchoolClassLevel {
   schoolId String
   school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
-  /// Stable identifier within the school (slug-like).
-  code      String
-  /// Default display label (used when no locale-specific label is set).
-  label     String
-  labelJa   String?
-  labelEn   String?
+  /// Stable identifier within the school (slug-like). Auto-generated from labelEn.
+  code    String
+  /// Required English/canonical display name.
+  labelEn String
+  /// Optional Japanese override; falls back to labelEn when null.
+  labelJa String?
   /// Optional sort order — lower values appear first.
   sortOrder Int     @default(0)
   active    Boolean @default(true)
@@ -942,9 +937,8 @@ model SchoolClassType {
   school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
   code      String
-  label     String
+  labelEn   String
   labelJa   String?
-  labelEn   String?
   sortOrder Int     @default(0)
   active    Boolean @default(true)
 

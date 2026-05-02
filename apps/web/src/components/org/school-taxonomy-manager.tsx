@@ -7,9 +7,8 @@ import { AppCard } from "@/components/ui/app-card";
 type TaxonomyItem = {
   id: string;
   code: string;
-  label: string;
+  labelEn: string;
   labelJa: string | null;
-  labelEn: string | null;
   sortOrder: number;
   active: boolean;
 };
@@ -17,23 +16,19 @@ type TaxonomyItem = {
 type Props = { orgId: string; schoolId: string };
 
 type DraftForm = {
-  code: string;
-  label: string;
-  labelJa: string;
   labelEn: string;
+  labelJa: string;
 };
 
 const emptyDraft: DraftForm = {
-  code: "",
-  label: "",
-  labelJa: "",
   labelEn: "",
+  labelJa: "",
 };
 
 const inputCn =
   "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
 
-type SortKey = "sortOrder" | "code" | "label";
+type SortKey = "sortOrder" | "code" | "labelEn";
 type SortDir = "asc" | "desc";
 
 export function SchoolTaxonomyManager({ orgId, schoolId }: Props) {
@@ -71,8 +66,8 @@ export function SchoolTaxonomyManager({ orgId, schoolId }: Props) {
         title={t("classLevelsTitle")}
         addLabel={t("addLevel")}
         emptyLabel={t("noLevels")}
-        codePlaceholder={t("levelCodePlaceholder")}
-        labelPlaceholder={t("levelLabelPlaceholder")}
+        labelEnPlaceholder={t("levelLabelPlaceholder")}
+        labelJaPlaceholder={t("levelLabelJaPlaceholder")}
         items={levels}
         endpoint={`/api/org/${orgId}/schools/${schoolId}/class-levels`}
         rowTestIdPrefix="taxonomy-row-label-lvl"
@@ -86,8 +81,8 @@ export function SchoolTaxonomyManager({ orgId, schoolId }: Props) {
         title={t("classTypesTitle")}
         addLabel={t("addType")}
         emptyLabel={t("noTypes")}
-        codePlaceholder={t("typeCodePlaceholder")}
-        labelPlaceholder={t("typeLabelPlaceholder")}
+        labelEnPlaceholder={t("typeLabelPlaceholder")}
+        labelJaPlaceholder={t("typeLabelJaPlaceholder")}
         items={types}
         endpoint={`/api/org/${orgId}/schools/${schoolId}/class-types`}
         responseKey="classType"
@@ -140,7 +135,7 @@ function CombinationsPreview({
                 data-testid={`taxonomy-combo-${lvl.id}-${typ.id}`}
                 className="rounded-full border border-border bg-[var(--app-hover)] px-3 py-1 text-xs text-foreground"
               >
-                {lvl.label} · {typ.label}
+                {lvl.labelEn} · {typ.labelEn}
               </span>
             )),
           )}
@@ -154,8 +149,8 @@ type SectionProps = {
   title: string;
   addLabel: string;
   emptyLabel: string;
-  codePlaceholder: string;
-  labelPlaceholder: string;
+  labelEnPlaceholder: string;
+  labelJaPlaceholder: string;
   items: TaxonomyItem[];
   endpoint: string;
   responseKey?: "classLevel" | "classType";
@@ -170,16 +165,16 @@ function TaxonomySection({
   title,
   addLabel,
   emptyLabel,
-  codePlaceholder,
-  labelPlaceholder,
+  labelEnPlaceholder,
+  labelJaPlaceholder,
   items,
   endpoint,
   responseKey = "classLevel",
   rowTestIdPrefix,
   onCreated,
   onRemoved,
-  onReorder,
   loading,
+  onReorder,
 }: SectionProps) {
   const t = useTranslations("org.school.taxonomyPage");
   const [showAdd, setShowAdd] = useState(false);
@@ -189,10 +184,8 @@ function TaxonomySection({
   const [sortKey, setSortKey] = useState<SortKey>("sortOrder");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  const codeId = useId();
-  const labelId = useId();
-  const labelJaId = useId();
   const labelEnId = useId();
+  const labelJaId = useId();
 
   const sortedItems = useMemo(() => {
     const copy = [...items];
@@ -227,14 +220,12 @@ function TaxonomySection({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        code: draft.code,
-        label: draft.label,
+        labelEn: draft.labelEn,
         labelJa: draft.labelJa || null,
-        labelEn: draft.labelEn || null,
       }),
     });
     if (!res.ok) {
-      setError(res.status === 409 ? t("duplicateCode") : t("error"));
+      setError(res.status === 409 ? t("duplicateName") : t("error"));
       setSaving(false);
       return;
     }
@@ -299,54 +290,38 @@ function TaxonomySection({
         <form onSubmit={handleSave} className="mb-4 space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label htmlFor={codeId} className="mb-1 block text-sm font-medium text-foreground">
-                {t("code")}
-              </label>
-              <input
-                id={codeId}
-                className={inputCn}
-                value={draft.code}
-                onChange={(e) => setDraft({ ...draft, code: e.target.value })}
-                placeholder={codePlaceholder}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor={labelId} className="mb-1 block text-sm font-medium text-foreground">
-                {t("label")}
-              </label>
-              <input
-                id={labelId}
-                className={inputCn}
-                value={draft.label}
-                onChange={(e) => setDraft({ ...draft, label: e.target.value })}
-                placeholder={labelPlaceholder}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor={labelJaId} className="mb-1 block text-sm font-medium text-foreground">
-                {t("labelJa")}
-              </label>
-              <input
-                id={labelJaId}
-                className={inputCn}
-                value={draft.labelJa}
-                onChange={(e) => setDraft({ ...draft, labelJa: e.target.value })}
-              />
-            </div>
-            <div>
-              <label htmlFor={labelEnId} className="mb-1 block text-sm font-medium text-foreground">
-                {t("labelEn")}
+              <label
+                htmlFor={labelEnId}
+                className="mb-1 block text-sm font-medium text-foreground"
+              >
+                {t("name")}
               </label>
               <input
                 id={labelEnId}
                 className={inputCn}
                 value={draft.labelEn}
                 onChange={(e) => setDraft({ ...draft, labelEn: e.target.value })}
+                placeholder={labelEnPlaceholder}
+                required
+              />
+            </div>
+            <div>
+              <label
+                htmlFor={labelJaId}
+                className="mb-1 block text-sm font-medium text-foreground"
+              >
+                {t("nameJa")}
+              </label>
+              <input
+                id={labelJaId}
+                className={inputCn}
+                value={draft.labelJa}
+                onChange={(e) => setDraft({ ...draft, labelJa: e.target.value })}
+                placeholder={labelJaPlaceholder}
               />
             </div>
           </div>
+          <p className="text-xs text-muted">{t("nameHelp")}</p>
           {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
           <div className="flex gap-2">
             <button
@@ -387,16 +362,16 @@ function TaxonomySection({
                   onClick={() => toggleSort("sortOrder")}
                 />
                 <SortHeader
-                  label={t("codeColumn")}
-                  active={sortKey === "code"}
+                  label={t("nameColumn")}
+                  active={sortKey === "labelEn"}
                   dir={sortDir}
-                  onClick={() => toggleSort("code")}
+                  onClick={() => toggleSort("labelEn")}
                 />
                 <SortHeader
-                  label={t("labelColumn")}
-                  active={sortKey === "label"}
+                  label={t("nameJaColumn")}
+                  active={false}
                   dir={sortDir}
-                  onClick={() => toggleSort("label")}
+                  onClick={() => toggleSort("labelEn")}
                 />
                 <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wide text-muted">
                   {t("actionsColumn")}
@@ -423,14 +398,14 @@ function TaxonomySection({
                     }
                   >
                     <td className="px-4 py-3 text-muted">{item.sortOrder}</td>
-                    <td className="px-4 py-3 text-xs text-muted">
-                      {item.code}
-                    </td>
                     <td
                       className="px-4 py-3 font-medium text-foreground"
                       data-testid={rowTestIdPrefix}
                     >
-                      {item.label}
+                      {item.labelEn}
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      {item.labelJa ?? "—"}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">

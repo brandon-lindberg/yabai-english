@@ -102,6 +102,30 @@ describe("GET /api/org/[orgId]/schools/[schoolId]/schedule", () => {
   });
 });
 
+function basePostBody(extra: Record<string, unknown> = {}) {
+  return {
+    dayOfWeek: 1,
+    startMin: 540,
+    endMin: 600,
+    durationMin: 60,
+    capacity: 5,
+    classLevelId: "lvl-1",
+    classTypeId: "type-1",
+    ...extra,
+  };
+}
+
+function mockTaxonomyOk() {
+  prismaMock.schoolClassLevel.findUnique.mockResolvedValue({
+    id: "lvl-1",
+    schoolId,
+  });
+  prismaMock.schoolClassType.findUnique.mockResolvedValue({
+    id: "type-1",
+    schoolId,
+  });
+}
+
 describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
   beforeEach(() => vi.clearAllMocks());
 
@@ -115,19 +139,40 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       organizationId: orgId,
       userId: "u1",
     });
-    const res = await POST(
-      postReq({
-        dayOfWeek: 1,
-        startMin: 540,
-        endMin: 600,
-        durationMin: 60,
-        lessonLevel: "beginner",
-        lessonType: "conversation",
-        capacity: 5,
-      }),
-      routeCtx,
-    );
+    const res = await POST(postReq(basePostBody()), routeCtx);
     expect(res.status).toBe(403);
+  });
+
+  test("400 when classLevelId is missing", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    const { classLevelId: _omit, ...body } = basePostBody();
+    void _omit;
+    const res = await POST(postReq(body), routeCtx);
+    expect(res.status).toBe(400);
+  });
+
+  test("400 when classTypeId is missing", async () => {
+    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "SCHOOL_ADMIN",
+      status: "ACTIVE",
+      schoolId,
+      organizationId: orgId,
+      userId: "u1",
+    });
+    const { classTypeId: _omit, ...body } = basePostBody();
+    void _omit;
+    const res = await POST(postReq(body), routeCtx);
+    expect(res.status).toBe(400);
   });
 
   test("201 creates slot for SCHOOL_ADMIN", async () => {
@@ -140,6 +185,7 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       organizationId: orgId,
       userId: "u1",
     });
+    mockTaxonomyOk();
     prismaMock.school.findUnique.mockResolvedValue({
       id: schoolId,
       timezone: "Asia/Tokyo",
@@ -151,27 +197,16 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       startMin: 540,
       endMin: 600,
       durationMin: 60,
-      lessonLevel: "beginner",
-      lessonType: "conversation",
       capacity: 5,
+      classLevelId: "lvl-1",
+      classTypeId: "type-1",
     };
     prismaMock.schoolScheduleSlot.create.mockResolvedValue(created);
 
-    const res = await POST(
-      postReq({
-        dayOfWeek: 1,
-        startMin: 540,
-        endMin: 600,
-        durationMin: 60,
-        lessonLevel: "beginner",
-        lessonType: "conversation",
-        capacity: 5,
-      }),
-      routeCtx,
-    );
+    const res = await POST(postReq(basePostBody()), routeCtx);
     expect(res.status).toBe(201);
     const body = await res.json();
-    expect(body.slot.lessonLevel).toBe("beginner");
+    expect(body.slot.classLevelId).toBe("lvl-1");
   });
 
   test("400 when classLevelId belongs to a different school", async () => {
@@ -189,16 +224,7 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       schoolId: "school-other",
     });
     const res = await POST(
-      postReq({
-        dayOfWeek: 1,
-        startMin: 540,
-        endMin: 600,
-        durationMin: 60,
-        lessonLevel: "beginner",
-        lessonType: "conversation",
-        capacity: 5,
-        classLevelId: "lvl-foreign",
-      }),
+      postReq(basePostBody({ classLevelId: "lvl-foreign" })),
       routeCtx,
     );
     expect(res.status).toBe(400);
@@ -214,21 +240,16 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       organizationId: orgId,
       userId: "u1",
     });
+    prismaMock.schoolClassLevel.findUnique.mockResolvedValue({
+      id: "lvl-1",
+      schoolId,
+    });
     prismaMock.schoolClassType.findUnique.mockResolvedValue({
       id: "type-foreign",
       schoolId: "school-other",
     });
     const res = await POST(
-      postReq({
-        dayOfWeek: 1,
-        startMin: 540,
-        endMin: 600,
-        durationMin: 60,
-        lessonLevel: "beginner",
-        lessonType: "conversation",
-        capacity: 5,
-        classTypeId: "type-foreign",
-      }),
+      postReq(basePostBody({ classTypeId: "type-foreign" })),
       routeCtx,
     );
     expect(res.status).toBe(400);
@@ -249,40 +270,21 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       timezone: "Asia/Tokyo",
       organization: { timezone: "Asia/Tokyo" },
     });
-    prismaMock.schoolClassLevel.findUnique.mockResolvedValue({
-      id: "lvl-1",
-      schoolId,
-    });
-    prismaMock.schoolClassType.findUnique.mockResolvedValue({
-      id: "type-1",
-      schoolId,
-    });
+    mockTaxonomyOk();
     prismaMock.schoolScheduleSlot.create.mockResolvedValue({
       id: "slot-1",
       classLevelId: "lvl-1",
       classTypeId: "type-1",
     });
 
-    const res = await POST(
-      postReq({
-        dayOfWeek: 1,
-        startMin: 540,
-        endMin: 600,
-        durationMin: 60,
-        lessonLevel: "beginner",
-        lessonType: "conversation",
-        capacity: 5,
-        classLevelId: "lvl-1",
-        classTypeId: "type-1",
-      }),
-      routeCtx,
-    );
+    const res = await POST(postReq(basePostBody()), routeCtx);
     expect(res.status).toBe(201);
     expect(prismaMock.schoolScheduleSlot.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         classLevelId: "lvl-1",
         classTypeId: "type-1",
       }),
+      include: expect.any(Object),
     });
   });
 
@@ -301,22 +303,18 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       timezone: "Asia/Tokyo",
       organization: { timezone: "Asia/Tokyo" },
     });
+    mockTaxonomyOk();
     prismaMock.schoolScheduleSlot.create.mockResolvedValue({ id: "slot-1" });
 
     const res = await POST(
-      postReq({
-        dayOfWeek: 1,
-        startMin: 540,
-        endMin: 600,
-        durationMin: 60,
-        lessonLevel: "beginner",
-        lessonType: "conversation",
-        capacity: 5,
-        recurrence: "WEEKLY",
-        daysOfWeek: [1, 3, 5],
-        startsOn: "2026-04-27",
-        endsOn: "2026-06-30",
-      }),
+      postReq(
+        basePostBody({
+          recurrence: "WEEKLY",
+          daysOfWeek: [1, 3, 5],
+          startsOn: "2026-04-27",
+          endsOn: "2026-06-30",
+        }),
+      ),
       routeCtx,
     );
     expect(res.status).toBe(201);
@@ -327,6 +325,7 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
         startsOn: expect.any(Date),
         endsOn: expect.any(Date),
       }),
+      include: expect.any(Object),
     });
   });
 
@@ -345,20 +344,18 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       timezone: "Asia/Tokyo",
       organization: { timezone: "Asia/Tokyo" },
     });
+    mockTaxonomyOk();
     prismaMock.schoolScheduleSlot.create.mockResolvedValue({ id: "slot-1" });
 
     const res = await POST(
-      postReq({
-        dayOfWeek: 0,
-        startMin: 540,
-        endMin: 600,
-        durationMin: 60,
-        lessonLevel: "beginner",
-        lessonType: "conversation",
-        capacity: 1,
-        recurrence: "ONE_OFF",
-        startsOn: "2026-05-15",
-      }),
+      postReq(
+        basePostBody({
+          dayOfWeek: 0,
+          capacity: 1,
+          recurrence: "ONE_OFF",
+          startsOn: "2026-05-15",
+        }),
+      ),
       routeCtx,
     );
     expect(res.status).toBe(201);
@@ -367,6 +364,7 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
         recurrence: "ONE_OFF",
         startsOn: expect.any(Date),
       }),
+      include: expect.any(Object),
     });
   });
 
@@ -381,16 +379,13 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       userId: "u1",
     });
     const res = await POST(
-      postReq({
-        dayOfWeek: 0,
-        startMin: 540,
-        endMin: 600,
-        durationMin: 60,
-        lessonLevel: "beginner",
-        lessonType: "conversation",
-        capacity: 1,
-        recurrence: "ONE_OFF",
-      }),
+      postReq(
+        basePostBody({
+          dayOfWeek: 0,
+          capacity: 1,
+          recurrence: "ONE_OFF",
+        }),
+      ),
       routeCtx,
     );
     expect(res.status).toBe(400);
@@ -406,16 +401,9 @@ describe("POST /api/org/[orgId]/schools/[schoolId]/schedule", () => {
       organizationId: orgId,
       userId: "u1",
     });
+    mockTaxonomyOk();
     const res = await POST(
-      postReq({
-        dayOfWeek: 8, // invalid
-        startMin: 540,
-        endMin: 600,
-        durationMin: 60,
-        lessonLevel: "beginner",
-        lessonType: "conversation",
-        capacity: 5,
-      }),
+      postReq(basePostBody({ dayOfWeek: 8 })),
       routeCtx,
     );
     expect(res.status).toBe(400);

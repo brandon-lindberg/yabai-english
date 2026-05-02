@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { seedDefaultSchoolTaxonomy } from "@/lib/school-default-taxonomy";
 
 const createOrgSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -91,6 +92,7 @@ export async function POST(req: Request) {
         slug: resolvedSchoolSlug,
       },
     });
+    await seedDefaultSchoolTaxonomy(tx, school.id);
 
     const membership = await tx.organizationMembership.create({
       data: {

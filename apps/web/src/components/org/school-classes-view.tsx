@@ -4,17 +4,22 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
 
+type TaxonomyLabel = {
+  labelEn: string;
+  labelJa?: string | null;
+} | null;
+
 type SchoolClass = {
   id: string;
   startsAt: string;
   endsAt: string;
   meetUrl?: string | null;
   scheduleSlot?: {
-    lessonLevel: string;
-    lessonType: string;
     labelJa?: string | null;
     labelEn?: string | null;
     capacity: number;
+    classLevel?: TaxonomyLabel;
+    classType?: TaxonomyLabel;
   };
   teacherMembership?: {
     user: { id: string; name: string | null; image: string | null } | null;
@@ -52,9 +57,10 @@ export function SchoolClassesView({ orgId, schoolId }: Props) {
         ) : (
           <div className="space-y-3">
             {classes.map((c) => {
-              const label =
-                c.scheduleSlot?.labelEn ??
-                `${c.scheduleSlot?.lessonLevel ?? ""} ${c.scheduleSlot?.lessonType ?? ""}`.trim();
+              const lvl = c.scheduleSlot?.classLevel?.labelEn ?? "";
+              const ty = c.scheduleSlot?.classType?.labelEn ?? "";
+              const fallback = [lvl, ty].filter(Boolean).join(" · ");
+              const label = c.scheduleSlot?.labelEn ?? fallback;
               const capacity = c.scheduleSlot?.capacity ?? 1;
               const enrolled = c.attendees.length;
               return (

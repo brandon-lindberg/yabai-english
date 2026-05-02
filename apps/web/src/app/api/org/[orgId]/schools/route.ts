@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isOrgWideAdmin, type MembershipForAuth } from "@/lib/org-authorization";
+import { seedDefaultSchoolTaxonomy } from "@/lib/school-default-taxonomy";
 
 const createSchoolSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -85,11 +86,15 @@ export async function POST(req: Request, ctx: RouteContext) {
     );
   }
 
-  const school = await prisma.school.create({
-    data: {
-      organizationId: orgId,
-      ...parsed.data,
-    },
+  const school = await prisma.$transaction(async (tx) => {
+    const created = await tx.school.create({
+      data: {
+        organizationId: orgId,
+        ...parsed.data,
+      },
+    });
+    await seedDefaultSchoolTaxonomy(tx, created.id);
+    return created;
   });
 
   return NextResponse.json({ school }, { status: 201 });

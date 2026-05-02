@@ -7,13 +7,14 @@ import {
   isSchoolAdmin,
   type MembershipForAuth,
 } from "@/lib/org-authorization";
+import { slugifyTaxonomyCode } from "@/lib/slugify-taxonomy-code";
 
 const createSchema = z
   .object({
-    code: z.string().trim().min(1).max(64),
-    label: z.string().trim().min(1).max(100),
+    labelEn: z.string().trim().min(1).max(100),
     labelJa: z.string().trim().max(100).optional().nullable(),
-    labelEn: z.string().trim().max(100).optional().nullable(),
+    /** Optional override; auto-derived from labelEn if omitted. */
+    code: z.string().trim().min(1).max(64).optional(),
   })
   .strip();
 
@@ -59,7 +60,7 @@ export async function GET(_req: Request, ctx: RouteContext) {
 
   const classLevels = await prisma.schoolClassLevel.findMany({
     where: { schoolId, active: true },
-    orderBy: [{ sortOrder: "asc" }, { label: "asc" }],
+    orderBy: [{ sortOrder: "asc" }, { labelEn: "asc" }],
   });
 
   return NextResponse.json({ classLevels });
@@ -93,14 +94,24 @@ export async function POST(req: Request, ctx: RouteContext) {
     );
   }
 
+  const code =
+    (parsed.data.code && slugifyTaxonomyCode(parsed.data.code)) ||
+    slugifyTaxonomyCode(parsed.data.labelEn);
+  if (!code) {
+    return NextResponse.json(
+      { error: "Name must contain at least one letter or digit." },
+      { status: 400 },
+    );
+  }
+
   const existing = await prisma.schoolClassLevel.findUnique({
-    where: { schoolId_code: { schoolId, code: parsed.data.code } },
+    where: { schoolId_code: { schoolId, code } },
     select: { id: true, active: true },
   });
 
   if (existing?.active) {
     return NextResponse.json(
-      { error: "A class level with this code already exists." },
+      { error: "A class level with this name already exists." },
       { status: 409 },
     );
   }
@@ -113,16 +124,23 @@ export async function POST(req: Request, ctx: RouteContext) {
   });
   const sortOrder = (last[0]?.sortOrder ?? -1) + 1;
 
+  const data = {
+    code,
+    labelEn: parsed.data.labelEn,
+    labelJa: parsed.data.labelJa ?? null,
+    sortOrder,
+  };
+
   if (existing) {
     const classLevel = await prisma.schoolClassLevel.update({
       where: { id: existing.id },
-      data: { ...parsed.data, sortOrder, active: true },
+      data: { ...data, active: true },
     });
     return NextResponse.json({ classLevel }, { status: 201 });
   }
 
   const classLevel = await prisma.schoolClassLevel.create({
-    data: { schoolId, ...parsed.data, sortOrder },
+    data: { schoolId, ...data },
   });
 
   return NextResponse.json({ classLevel }, { status: 201 });

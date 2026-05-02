@@ -13,6 +13,12 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
     school: {
       create: vi.fn(),
     },
+    schoolClassLevel: {
+      createMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
+    schoolClassType: {
+      createMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
     user: {
       findUnique: vi.fn(),
     },

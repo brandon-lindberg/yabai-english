@@ -119,11 +119,11 @@ export async function GET(req: Request, ctx: RouteContext) {
     include: {
       scheduleSlot: {
         select: {
-          lessonLevel: true,
-          lessonType: true,
           labelJa: true,
           labelEn: true,
           capacity: true,
+          classLevel: { select: { labelJa: true, labelEn: true } },
+          classType: { select: { labelJa: true, labelEn: true } },
         },
       },
       teacherMembership: {

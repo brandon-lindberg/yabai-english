@@ -146,14 +146,10 @@ describe("SchoolTaxonomyManager", () => {
       }),
     );
 
-    const codeInputs = screen.getAllByLabelText(
-      en.org.school.taxonomyPage.code,
+    const nameInputs = screen.getAllByLabelText(
+      en.org.school.taxonomyPage.name,
     );
-    fireEvent.change(codeInputs[0], { target: { value: "year-8" } });
-    const labelInputs = screen.getAllByLabelText(
-      en.org.school.taxonomyPage.label,
-    );
-    fireEvent.change(labelInputs[0], { target: { value: "Year 8" } });
+    fireEvent.change(nameInputs[0], { target: { value: "Year 8" } });
 
     const saveButtons = screen.getAllByRole("button", {
       name: en.org.school.taxonomyPage.save,
@@ -168,8 +164,8 @@ describe("SchoolTaxonomyManager", () => {
       );
       expect(post).toBeTruthy();
       const body = JSON.parse((post![1] as RequestInit).body as string);
-      expect(body.code).toBe("year-8");
-      expect(body.label).toBe("Year 8");
+      expect(body.labelEn).toBe("Year 8");
+      expect(body.code).toBeUndefined();
     });
   });
 
@@ -219,12 +215,12 @@ describe("SchoolTaxonomyManager", () => {
     });
   });
 
-  test("clicking the Label column header toggles sort direction", async () => {
+  test("clicking the Name column header toggles sort direction", async () => {
     renderManager();
     await waitFor(() => screen.getByText("Year 7"));
 
     const headers = screen.getAllByRole("button", {
-      name: new RegExp(`^${en.org.school.taxonomyPage.labelColumn}`),
+      name: new RegExp(`^${en.org.school.taxonomyPage.nameColumn}`),
     });
     const levelsHeader = headers[0];
 

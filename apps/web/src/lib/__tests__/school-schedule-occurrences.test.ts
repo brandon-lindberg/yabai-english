@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   expandSchoolSlotOccurrences,
   formatSchoolSlotLabel,
+  resolveSchoolSlotTaxonomy,
 } from "@/lib/school-schedule-occurrences";
 
 const baseSlot = {
@@ -11,8 +12,8 @@ const baseSlot = {
   endMin: 600, // 10:00
   timezone: "Asia/Tokyo",
   capacity: 5,
-  classLevel: { label: "Year 7", labelJa: "中学1年", labelEn: "Year 7" },
-  classType: { label: "Conversation", labelJa: "会話", labelEn: "Conversation" },
+  classLevel: { labelEn: "Year 7", labelJa: "中学1年" },
+  classType: { labelEn: "Conversation", labelJa: "会話" },
 };
 
 describe("expandSchoolSlotOccurrences", () => {
@@ -23,7 +24,7 @@ describe("expandSchoolSlotOccurrences", () => {
       rangeEnd: new Date("2026-05-04T23:59:59+09:00"),
       enrollmentBySlotId: { "slot-1": 2 },
       formatLabel: (s, occ) =>
-        `${s.classLevel?.label ?? ""} · ${s.classType?.label ?? ""} (${occ.enrolled}/${occ.capacity})`,
+        `${s.classLevel?.labelEn ?? ""} · ${s.classType?.labelEn ?? ""} (${occ.enrolled}/${occ.capacity})`,
     });
     expect(out).toHaveLength(3);
     expect(out[0].startsAtIso).toBe("2026-04-20T00:00:00.000Z");
@@ -40,7 +41,7 @@ describe("expandSchoolSlotOccurrences", () => {
       rangeStart: new Date("2026-04-20T00:00:00+09:00"),
       rangeEnd: new Date("2026-05-04T23:59:59+09:00"),
       enrollmentBySlotId: { "slot-1": 0 },
-      formatLabel: (s) => s.classLevel?.label ?? "",
+      formatLabel: (s) => s.classLevel?.labelEn ?? "",
     });
     expect(out).toHaveLength(2);
     expect(out.map((o) => o.startsAtIso)).toEqual([
@@ -49,7 +50,7 @@ describe("expandSchoolSlotOccurrences", () => {
     ]);
   });
 
-  test("handles slots without taxonomy by falling back to legacy lessonLevel/lessonType", () => {
+  test("handles slots without taxonomy by leaving label fields empty", () => {
     const slot = {
       id: "slot-2",
       dayOfWeek: 1,
@@ -57,8 +58,6 @@ describe("expandSchoolSlotOccurrences", () => {
       endMin: 600,
       timezone: "Asia/Tokyo",
       capacity: 1,
-      lessonLevel: "beginner",
-      lessonType: "conversation",
       classLevel: null,
       classType: null,
     };
@@ -67,10 +66,11 @@ describe("expandSchoolSlotOccurrences", () => {
       rangeStart: new Date("2026-04-20T00:00:00+09:00"),
       rangeEnd: new Date("2026-04-20T23:59:59+09:00"),
       enrollmentBySlotId: { "slot-2": 0 },
-      formatLabel: (s) => `${s.lessonLevel ?? ""}·${s.lessonType ?? ""}`,
+      formatLabel: (s) =>
+        `${s.classLevel?.labelEn ?? "-"}·${s.classType?.labelEn ?? "-"}`,
     });
     expect(out).toHaveLength(1);
-    expect(out[0].label).toBe("beginner·conversation");
+    expect(out[0].label).toBe("-·-");
   });
 });
 
@@ -89,27 +89,51 @@ describe("formatSchoolSlotLabel", () => {
     expect(label).toContain("2/5");
   });
 
-  test("falls back to label when locale label missing", () => {
+  test("falls back to labelEn when ja label is not set", () => {
     const slot = {
       ...baseSlot,
-      classLevel: { label: "X", labelJa: null, labelEn: null },
-      classType: { label: "Y", labelJa: null, labelEn: null },
+      classLevel: { labelEn: "X", labelJa: null },
+      classType: { labelEn: "Y", labelJa: null },
     };
     const label = formatSchoolSlotLabel(slot, { enrolled: 0, capacity: 1 }, "ja");
     expect(label).toContain("X");
     expect(label).toContain("Y");
   });
 
-  test("falls back to lessonLevel/lessonType strings when no taxonomy", () => {
+  test("renders only the capacity when taxonomy is not set", () => {
     const slot = {
       ...baseSlot,
       classLevel: null,
       classType: null,
-      lessonLevel: "intermediate",
-      lessonType: "grammar",
     };
     const label = formatSchoolSlotLabel(slot, { enrolled: 0, capacity: 1 }, "en");
-    expect(label).toContain("intermediate");
-    expect(label).toContain("grammar");
+    expect(label).toBe("0/1");
+  });
+});
+
+describe("resolveSchoolSlotTaxonomy", () => {
+  test("returns level and type as separate strings (en)", () => {
+    const out = resolveSchoolSlotTaxonomy(baseSlot, "en");
+    expect(out.level).toBe("Year 7");
+    expect(out.type).toBe("Conversation");
+  });
+
+  test("uses japanese labels for ja locale", () => {
+    const out = resolveSchoolSlotTaxonomy(baseSlot, "ja");
+    expect(out.level).toBe("中学1年");
+    expect(out.type).toBe("会話");
+  });
+
+  test("returns empty strings when taxonomy is not set", () => {
+    const out = resolveSchoolSlotTaxonomy(
+      {
+        ...baseSlot,
+        classLevel: null,
+        classType: null,
+      },
+      "en",
+    );
+    expect(out.level).toBe("");
+    expect(out.type).toBe("");
   });
 });

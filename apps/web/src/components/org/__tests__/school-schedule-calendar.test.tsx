@@ -136,27 +136,22 @@ describe("SchoolScheduleCalendar", () => {
     });
   });
 
-  test("class-level dropdown renders the canonical `label` (matches taxonomy manager), even when labelEn collides between rows", async () => {
-    // Mimic real user data where two rows share the same labelEn ("English")
-    // but distinct `label` values ("Year 1" / "beginner"). The dropdown must
-    // render the `label` field so what users see matches the taxonomy table.
-    const collidingLevels = {
+  test("class-level dropdown renders labelEn values (en locale)", async () => {
+    const distinctLevels = {
       classLevels: [
         {
           id: "lvl-a",
           code: "year-1",
-          label: "Year 1",
+          labelEn: "Year 1",
           labelJa: null,
-          labelEn: "English",
           sortOrder: 0,
           active: true,
         },
         {
           id: "lvl-b",
           code: "beginner",
-          label: "beginner",
+          labelEn: "Beginner",
           labelJa: null,
-          labelEn: "English",
           sortOrder: 1,
           active: true,
         },
@@ -170,10 +165,24 @@ describe("SchoolScheduleCalendar", () => {
         return new Response(JSON.stringify({ slots: [], viewerEnrolledSlotIds: [] }), { status: 200 });
       }
       if (u.endsWith("/class-levels") && method === "GET") {
-        return new Response(JSON.stringify(collidingLevels), { status: 200 });
+        return new Response(JSON.stringify(distinctLevels), { status: 200 });
       }
       if (u.endsWith("/class-types") && method === "GET") {
-        return new Response(JSON.stringify({ classTypes: [] }), { status: 200 });
+        return new Response(
+          JSON.stringify({
+            classTypes: [
+              {
+                id: "ty-1",
+                code: "conv",
+                labelEn: "Conversation",
+                labelJa: null,
+                sortOrder: 0,
+                active: true,
+              },
+            ],
+          }),
+          { status: 200 },
+        );
       }
       return new Response("not found", { status: 404 });
     });
@@ -194,10 +203,8 @@ describe("SchoolScheduleCalendar", () => {
       en.org.school.schedulePage.classLevel,
     )) as HTMLSelectElement;
     const optionTexts = Array.from(levelSelect.options).map((o) => o.text);
-    // Expect the canonical `label` values, not the colliding labelEn.
     expect(optionTexts).toContain("Year 1");
-    expect(optionTexts).toContain("beginner");
-    expect(optionTexts.filter((t) => t === "English")).toHaveLength(0);
+    expect(optionTexts).toContain("Beginner");
   });
 
   test("opens add modal and POSTs with classLevelId/classTypeId (FKs, not strings)", async () => {
@@ -274,6 +281,16 @@ describe("SchoolScheduleCalendar", () => {
       screen.getByRole("button", { name: en.org.school.schedulePage.addSlot }),
     );
 
+    // Class level/type are required: pick them first.
+    fireEvent.change(
+      await screen.findByLabelText(en.org.school.schedulePage.classLevel),
+      { target: { value: "lvl-1" } },
+    );
+    fireEvent.change(
+      await screen.findByLabelText(en.org.school.schedulePage.classType),
+      { target: { value: "type-1" } },
+    );
+
     // Default recurrence is WEEKLY. Tick Wednesday and Friday in addition to default Monday.
     const wed = (await screen.findByLabelText(
       en.org.school.schedulePage.days[3],
@@ -308,6 +325,15 @@ describe("SchoolScheduleCalendar", () => {
     );
     fireEvent.click(
       screen.getByRole("button", { name: en.org.school.schedulePage.addSlot }),
+    );
+
+    fireEvent.change(
+      await screen.findByLabelText(en.org.school.schedulePage.classLevel),
+      { target: { value: "lvl-1" } },
+    );
+    fireEvent.change(
+      await screen.findByLabelText(en.org.school.schedulePage.classType),
+      { target: { value: "type-1" } },
     );
 
     const recurrence = (await screen.findByLabelText(

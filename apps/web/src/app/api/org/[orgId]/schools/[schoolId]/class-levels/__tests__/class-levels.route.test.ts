@@ -93,7 +93,7 @@ describe("POST /api/org/.../class-levels", () => {
   test("401 when unauthenticated", async () => {
     authMock.mockResolvedValue(null);
     const res = await POST(
-      postReq({ code: "year-7", label: "Year 7" }),
+      postReq({ labelEn: "Year 7" }),
       routeCtx,
     );
     expect(res.status).toBe(401);
@@ -110,7 +110,7 @@ describe("POST /api/org/.../class-levels", () => {
       userId: "u1",
     });
     const res = await POST(
-      postReq({ code: "year-7", label: "Year 7" }),
+      postReq({ labelEn: "Year 7" }),
       routeCtx,
     );
     expect(res.status).toBe(403);
@@ -127,7 +127,7 @@ describe("POST /api/org/.../class-levels", () => {
       userId: "u1",
     });
     const res = await POST(
-      postReq({ code: "year-7", label: "Year 7" }),
+      postReq({ labelEn: "Year 7" }),
       routeCtx,
     );
     expect(res.status).toBe(403);
@@ -143,7 +143,7 @@ describe("POST /api/org/.../class-levels", () => {
       organizationId: orgId,
       userId: "u1",
     });
-    const res = await POST(postReq({ code: "" }), routeCtx);
+    const res = await POST(postReq({ labelEn: "" }), routeCtx);
     expect(res.status).toBe(400);
   });
 
@@ -169,7 +169,7 @@ describe("POST /api/org/.../class-levels", () => {
       active: true,
     });
     const res = await POST(
-      postReq({ code: "year-7", label: "Year 7" }),
+      postReq({ labelEn: "Year 7" }),
       routeCtx,
     );
     expect(res.status).toBe(201);
@@ -179,7 +179,7 @@ describe("POST /api/org/.../class-levels", () => {
       data: expect.objectContaining({
         schoolId,
         code: "year-7",
-        label: "Year 7",
+        labelEn: "Year 7",
       }),
     });
   });
@@ -208,7 +208,7 @@ describe("POST /api/org/.../class-levels", () => {
       active: true,
     });
     const res = await POST(
-      postReq({ code: "year-9", label: "Year 9" }),
+      postReq({ labelEn: "Year 9" }),
       routeCtx,
     );
     expect(res.status).toBe(201);
@@ -239,7 +239,7 @@ describe("POST /api/org/.../class-levels", () => {
       active: true,
     });
     const res = await POST(
-      postReq({ code: "year-1", label: "Year 1" }),
+      postReq({ labelEn: "Year 1" }),
       routeCtx,
     );
     expect(res.status).toBe(201);
@@ -265,7 +265,7 @@ describe("POST /api/org/.../class-levels", () => {
       active: true,
     });
     const res = await POST(
-      postReq({ code: "year-7", label: "Year 7" }),
+      postReq({ labelEn: "Year 7" }),
       routeCtx,
     );
     expect(res.status).toBe(409);
@@ -295,14 +295,13 @@ describe("POST /api/org/.../class-levels", () => {
       id: "lvl-old",
       schoolId,
       code: "year-7",
-      label: "Year 7 Renamed",
+      labelEn: "Year 7 Renamed",
       labelJa: null,
-      labelEn: null,
       sortOrder: 3,
       active: true,
     });
     const res = await POST(
-      postReq({ code: "year-7", label: "Year 7 Renamed" }),
+      postReq({ code: "year-7", labelEn: "Year 7 Renamed" }),
       routeCtx,
     );
     expect(res.status).toBe(201);
@@ -311,7 +310,7 @@ describe("POST /api/org/.../class-levels", () => {
       where: { id: "lvl-old" },
       data: expect.objectContaining({
         active: true,
-        label: "Year 7 Renamed",
+        labelEn: "Year 7 Renamed",
         sortOrder: 3,
       }),
     });

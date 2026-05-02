@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { seedDefaultSchoolTaxonomy } from "@/lib/school-default-taxonomy";
 
 const createSchoolSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -65,15 +66,19 @@ export async function POST(req: Request, ctx: RouteContext) {
     return NextResponse.json({ error: "Slug is already taken in this org" }, { status: 409 });
   }
 
-  const school = await prisma.school.create({
-    data: {
-      organizationId: orgId,
-      name,
-      slug: resolvedSlug,
-      nameJa,
-      nameEn,
-      timezone,
-    },
+  const school = await prisma.$transaction(async (tx) => {
+    const created = await tx.school.create({
+      data: {
+        organizationId: orgId,
+        name,
+        slug: resolvedSlug,
+        nameJa,
+        nameEn,
+        timezone,
+      },
+    });
+    await seedDefaultSchoolTaxonomy(tx, created.id);
+    return created;
   });
 
   return NextResponse.json({ school }, { status: 201 });

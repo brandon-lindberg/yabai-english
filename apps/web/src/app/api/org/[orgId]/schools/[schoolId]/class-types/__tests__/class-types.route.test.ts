@@ -94,7 +94,7 @@ describe("POST /api/org/.../class-types", () => {
       userId: "u1",
     });
     const res = await POST(
-      postReq({ code: "conversation", label: "Conversation" }),
+      postReq({ labelEn: "Conversation" }),
       routeCtx,
     );
     expect(res.status).toBe(403);
@@ -110,7 +110,7 @@ describe("POST /api/org/.../class-types", () => {
       organizationId: orgId,
       userId: "u1",
     });
-    const res = await POST(postReq({ code: "conversation" }), routeCtx);
+    const res = await POST(postReq({ labelEn: "" }), routeCtx);
     expect(res.status).toBe(400);
   });
 
@@ -138,7 +138,7 @@ describe("POST /api/org/.../class-types", () => {
       active: true,
     });
     const res = await POST(
-      postReq({ code: "grammar", label: "Grammar" }),
+      postReq({ labelEn: "Grammar" }),
       routeCtx,
     );
     expect(res.status).toBe(201);
@@ -164,7 +164,7 @@ describe("POST /api/org/.../class-types", () => {
       active: true,
     });
     const res = await POST(
-      postReq({ code: "conversation", label: "Conversation" }),
+      postReq({ labelEn: "Conversation" }),
       routeCtx,
     );
     expect(res.status).toBe(409);
@@ -199,7 +199,7 @@ describe("POST /api/org/.../class-types", () => {
       active: true,
     });
     const res = await POST(
-      postReq({ code: "conversation", label: "Conversation" }),
+      postReq({ labelEn: "Conversation" }),
       routeCtx,
     );
     expect(res.status).toBe(201);

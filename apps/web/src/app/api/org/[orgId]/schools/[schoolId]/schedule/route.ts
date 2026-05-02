@@ -19,14 +19,12 @@ const createSlotSchema = z
     startMin: z.number().int().min(0).max(1439),
     endMin: z.number().int().min(1).max(1440),
     durationMin: z.number().int().min(1),
-    lessonLevel: z.string().trim().min(1),
-    lessonType: z.string().trim().min(1),
     labelJa: z.string().trim().optional(),
     labelEn: z.string().trim().optional(),
     capacity: z.number().int().min(1).max(100).default(1),
     assignedTeacherMembershipId: z.string().optional(),
-    classLevelId: z.string().min(1).optional().nullable(),
-    classTypeId: z.string().min(1).optional().nullable(),
+    classLevelId: z.string().min(1, "classLevelId is required"),
+    classTypeId: z.string().min(1, "classTypeId is required"),
     recurrence: z.enum(["WEEKLY", "DAILY", "ONE_OFF"]).optional(),
     daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
     startsOn: dateOnly.optional().nullable(),
@@ -115,7 +113,6 @@ export async function GET(req: Request, ctx: RouteContext) {
         select: {
           id: true,
           code: true,
-          label: true,
           labelJa: true,
           labelEn: true,
         },
@@ -124,7 +121,6 @@ export async function GET(req: Request, ctx: RouteContext) {
         select: {
           id: true,
           code: true,
-          label: true,
           labelJa: true,
           labelEn: true,
         },
@@ -194,30 +190,26 @@ export async function POST(req: Request, ctx: RouteContext) {
     );
   }
 
-  if (data.classLevelId) {
-    const lvl = await prisma.schoolClassLevel.findUnique({
-      where: { id: data.classLevelId },
-      select: { id: true, schoolId: true },
-    });
-    if (!lvl || lvl.schoolId !== schoolId) {
-      return NextResponse.json(
-        { error: "classLevelId does not belong to this school" },
-        { status: 400 },
-      );
-    }
+  const lvl = await prisma.schoolClassLevel.findUnique({
+    where: { id: data.classLevelId },
+    select: { id: true, schoolId: true },
+  });
+  if (!lvl || lvl.schoolId !== schoolId) {
+    return NextResponse.json(
+      { error: "classLevelId does not belong to this school" },
+      { status: 400 },
+    );
   }
 
-  if (data.classTypeId) {
-    const t = await prisma.schoolClassType.findUnique({
-      where: { id: data.classTypeId },
-      select: { id: true, schoolId: true },
-    });
-    if (!t || t.schoolId !== schoolId) {
-      return NextResponse.json(
-        { error: "classTypeId does not belong to this school" },
-        { status: 400 },
-      );
-    }
+  const ty = await prisma.schoolClassType.findUnique({
+    where: { id: data.classTypeId },
+    select: { id: true, schoolId: true },
+  });
+  if (!ty || ty.schoolId !== schoolId) {
+    return NextResponse.json(
+      { error: "classTypeId does not belong to this school" },
+      { status: 400 },
+    );
   }
 
   // Resolve timezone from school or org
@@ -236,18 +228,24 @@ export async function POST(req: Request, ctx: RouteContext) {
       endMin: data.endMin,
       durationMin: data.durationMin,
       timezone,
-      lessonLevel: data.lessonLevel,
-      lessonType: data.lessonType,
       labelJa: data.labelJa,
       labelEn: data.labelEn,
       capacity: data.capacity,
       assignedTeacherMembershipId: data.assignedTeacherMembershipId,
-      classLevelId: data.classLevelId ?? null,
-      classTypeId: data.classTypeId ?? null,
+      classLevelId: data.classLevelId,
+      classTypeId: data.classTypeId,
       recurrence: data.recurrence ?? "WEEKLY",
       daysOfWeek: data.daysOfWeek ?? [],
       startsOn: parseDateOnly(data.startsOn),
       endsOn: parseDateOnly(data.endsOn),
+    },
+    include: {
+      classLevel: {
+        select: { id: true, code: true, labelJa: true, labelEn: true },
+      },
+      classType: {
+        select: { id: true, code: true, labelJa: true, labelEn: true },
+      },
     },
   });
 
