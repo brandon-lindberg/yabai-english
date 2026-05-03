@@ -24,6 +24,24 @@ describe("buildUpcomingSlotOptions", () => {
     expect(slots[0]?.endsAtIso).toBe("2026-04-13T02:00:00.000Z");
   });
 
+  test("builds only the selected date for one-off availability", () => {
+    const slots = buildUpcomingSlotOptions({
+      availabilitySlots: [
+        {
+          ...baseSlot,
+          dayOfWeek: 5,
+          recurrence: "ONE_OFF",
+          startsOn: "2026-05-15",
+        },
+      ],
+      viewerTimezone: "Asia/Tokyo",
+      now: "2026-05-01T00:00:00.000Z",
+      horizonDays: 30,
+    });
+
+    expect(slots.map((s) => s.startsAtIso)).toEqual(["2026-05-15T01:00:00.000Z"]);
+  });
+
   test("skips slots that already started", () => {
     const slots = buildUpcomingSlotOptions({
       availabilitySlots: [baseSlot],

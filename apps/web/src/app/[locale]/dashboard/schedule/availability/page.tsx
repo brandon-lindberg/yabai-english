@@ -7,6 +7,10 @@ import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 
+function dateOnlyFromDate(value: Date | null | undefined): string | null {
+  return value ? value.toISOString().slice(0, 10) : null;
+}
+
 export default async function DashboardScheduleAvailabilityPage({
   searchParams,
 }: {
@@ -68,6 +72,9 @@ export default async function DashboardScheduleAvailabilityPage({
           startMin: slot.startMin,
           endMin: slot.endMin,
           timezone: slot.timezone,
+          recurrence: slot.recurrence,
+          startsOn: dateOnlyFromDate(slot.startsOn),
+          endsOn: dateOnlyFromDate(slot.endsOn),
           classLevelId: slot.classLevelId,
           classTypeId: slot.classTypeId,
           classLevel: slot.classLevel,

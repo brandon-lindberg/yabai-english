@@ -17,6 +17,8 @@ export type TeacherAvailabilityAddModalDraft = {
   startMin: number;
   endMin: number;
   timezone: string;
+  recurrence: "WEEKLY" | "ONE_OFF";
+  startsOn: string | null;
   classLevelId: string;
   classTypeId: string;
 };
@@ -84,6 +86,8 @@ function TeacherAvailabilityAddModalInner({
     startMin: 9 * 60,
     endMin: 10 * 60,
     timezone: initialTimezone,
+    recurrence: "ONE_OFF",
+    startsOn: dayKey,
     classLevelId: classLevels[0]?.id ?? "",
     classTypeId: classTypes[0]?.id ?? "",
   }));
@@ -100,9 +104,9 @@ function TeacherAvailabilityAddModalInner({
         <div className="mt-4 flex items-start justify-between gap-3 border-b border-border pb-3">
           <div className="min-w-0 flex-1">
             <p id="weekly-recurring-label" className="text-sm font-medium text-foreground">
-              {tModal("weeklyRecurringLabel")}
+              {tModal("repeatWeeklyLabel")}
             </p>
-            <p className="mt-0.5 text-xs text-muted">{tModal("weeklyRecurringHint")}</p>
+            <p className="mt-0.5 text-xs text-muted">{tModal("repeatWeeklyHint")}</p>
           </div>
           <button
             type="button"
@@ -112,12 +116,12 @@ function TeacherAvailabilityAddModalInner({
             onClick={() => {
               setWeeklyOnCalendarDay((on) => {
                 const next = !on;
-                if (next) {
-                  setDraft((d) => ({
-                    ...d,
-                    dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, d.timezone),
-                  }));
-                }
+                setDraft((d) => ({
+                  ...d,
+                  recurrence: next ? "WEEKLY" : "ONE_OFF",
+                  startsOn: next ? null : dayKey,
+                  dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, d.timezone),
+                }));
                 return next;
               });
             }}
@@ -135,23 +139,41 @@ function TeacherAvailabilityAddModalInner({
         </div>
 
         <div className="mt-4 space-y-3">
-          <label className="block text-xs text-muted">
-            {dayOfWeekLabel}
-            <select
-              value={draft.dayOfWeek}
-              disabled={weeklyOnCalendarDay}
-              onChange={(e) =>
-                setDraft((d) => ({ ...d, dayOfWeek: Number(e.target.value) }))
-              }
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {Array.from({ length: 7 }, (_, i) => (
-                <option key={i} value={i}>
-                  {weekdayLabel(i, locale)}
-                </option>
-              ))}
-            </select>
-          </label>
+          {weeklyOnCalendarDay ? (
+            <label className="block text-xs text-muted">
+              {dayOfWeekLabel}
+              <select
+                value={draft.dayOfWeek}
+                disabled
+                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {Array.from({ length: 7 }, (_, i) => (
+                  <option key={i} value={i}>
+                    {weekdayLabel(i, locale)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <label className="block text-xs text-muted">
+              {tModal("date")}
+              <input
+                type="date"
+                value={draft.startsOn ?? dayKey}
+                onChange={(e) => {
+                  const startsOn = e.target.value;
+                  setDraft((d) => ({
+                    ...d,
+                    startsOn,
+                    dayOfWeek: startsOn
+                      ? luxonWeekdayMod7FromDayKey(startsOn, d.timezone)
+                      : d.dayOfWeek,
+                  }));
+                }}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
+              />
+            </label>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="text-xs text-muted">
               {startLabel}
@@ -236,8 +258,8 @@ function TeacherAvailabilityAddModalInner({
                 setDraft((d) => ({
                   ...d,
                   timezone: tz,
-                  ...(weeklyOnCalendarDay && tz.trim()
-                    ? { dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, tz) }
+                  ...(tz.trim()
+                    ? { dayOfWeek: luxonWeekdayMod7FromDayKey(d.startsOn ?? dayKey, tz) }
                     : {}),
                 }));
               }}

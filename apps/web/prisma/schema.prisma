@@ -116,6 +116,11 @@ enum SchoolSlotRecurrence {
   ONE_OFF
 }
 
+enum AvailabilitySlotRecurrence {
+  WEEKLY
+  ONE_OFF
+}
+
 // --- NextAuth (Auth.js) ---
 model User {
   id            String        @id @default(cuid())
@@ -378,6 +383,14 @@ model AvailabilitySlot {
   startMin  Int // minutes from midnight local
   endMin    Int
   timezone  String         @default("Asia/Tokyo")
+
+  /// Recurrence pattern. Existing rows default to WEEKLY; new UI-created rows
+  /// send ONE_OFF unless the teacher explicitly enables weekly repeat.
+  recurrence AvailabilitySlotRecurrence @default(WEEKLY)
+  /// Date-only lower bound for ONE_OFF slots, stored as midnight UTC.
+  startsOn   DateTime?
+  /// Optional inclusive end date for future bounded weekly support.
+  endsOn     DateTime?
 
   /// FK to the teacher's per-teacher class level taxonomy.
   classLevelId String?

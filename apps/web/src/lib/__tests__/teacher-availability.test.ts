@@ -70,4 +70,45 @@ describe("teacherAvailabilitySchema", () => {
       ]).success,
     ).toBe(true);
   });
+
+  test("accepts one-off slots only when a startsOn date is present", () => {
+    expect(
+      teacherAvailabilitySchema.safeParse([
+        {
+          dayOfWeek: 5,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          recurrence: "ONE_OFF",
+          startsOn: "2026-05-15",
+          ...baseSlot,
+        },
+      ]).success,
+    ).toBe(true);
+
+    expect(
+      teacherAvailabilitySchema.safeParse([
+        {
+          dayOfWeek: 5,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          recurrence: "ONE_OFF",
+          ...baseSlot,
+        },
+      ]).success,
+    ).toBe(false);
+  });
+
+  test("accepts weekly slots without date bounds", () => {
+    expect(
+      teacherAvailabilitySchema.safeParse([
+        {
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          recurrence: "WEEKLY",
+          ...baseSlot,
+        },
+      ]).success,
+    ).toBe(true);
+  });
 });

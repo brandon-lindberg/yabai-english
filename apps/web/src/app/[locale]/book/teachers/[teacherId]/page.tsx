@@ -23,6 +23,10 @@ type Props = {
   searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
 };
 
+function dateOnlyFromDate(value: Date | null | undefined): string | null {
+  return value ? value.toISOString().slice(0, 10) : null;
+}
+
 export default async function TeacherProfileBookingPage({
   params,
   searchParams,
@@ -146,6 +150,9 @@ export default async function TeacherProfileBookingPage({
       startMin: slot.startMin,
       endMin: slot.endMin,
       timezone: slot.timezone,
+      recurrence: slot.recurrence,
+      startsOn: dateOnlyFromDate(slot.startsOn),
+      endsOn: dateOnlyFromDate(slot.endsOn),
       classLevelId: slot.classLevelId,
       classTypeId: slot.classTypeId,
     })),

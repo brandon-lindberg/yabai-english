@@ -21,9 +21,12 @@ import {
   dayKeyFromIso,
   hasSlotMatchingAnchorDay,
 } from "@/lib/slot-calendar";
+import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
 import { placeSlotsOnDayColumn, placeSlotsOnWeekGrid } from "@/lib/time-grid-week";
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import type { CalendarViewMode } from "@/lib/calendar-view";
+
+type TeacherAvailabilityRecurrence = "WEEKLY" | "ONE_OFF";
 
 export type TaxonomyOption = {
   id: string;
@@ -38,6 +41,9 @@ export type InitialTeacherAvailabilitySlot = {
   startMin: number;
   endMin: number;
   timezone: string;
+  recurrence: TeacherAvailabilityRecurrence;
+  startsOn: string | null;
+  endsOn: string | null;
   classLevelId: string | null;
   classTypeId: string | null;
   classLevel: TaxonomyOption | null;
@@ -142,6 +148,9 @@ export function TeacherAvailabilityCalendar({
         startMin: r.startMin,
         endMin: r.endMin,
         timezone: r.timezone,
+        recurrence: r.recurrence,
+        startsOn: r.startsOn,
+        endsOn: r.endsOn,
         classLevelId: r.classLevelId,
         classTypeId: r.classTypeId,
       })),
@@ -550,6 +559,9 @@ export function TeacherAvailabilityCalendar({
         | "startMin"
         | "endMin"
         | "timezone"
+        | "recurrence"
+        | "startsOn"
+        | "endsOn"
         | "classLevelId"
         | "classTypeId"
       >
@@ -619,14 +631,20 @@ export function TeacherAvailabilityCalendar({
       setSaveErrorMessage(t("invalidLessonMeta"));
       return;
     }
-    const payload = rules.map((r) => ({
-      dayOfWeek: r.dayOfWeek,
-      startMin: r.startMin,
-      endMin: r.endMin,
-      timezone: r.timezone,
-      classLevelId: r.classLevelId ?? "",
-      classTypeId: r.classTypeId ?? "",
-    }));
+    const payload = rules.map((r) => {
+      const slot: Record<string, unknown> = {
+        dayOfWeek: r.dayOfWeek,
+        startMin: r.startMin,
+        endMin: r.endMin,
+        timezone: r.timezone,
+        recurrence: r.recurrence,
+        classLevelId: r.classLevelId ?? "",
+        classTypeId: r.classTypeId ?? "",
+      };
+      if (r.startsOn) slot.startsOn = r.startsOn;
+      if (r.endsOn) slot.endsOn = r.endsOn;
+      return slot;
+    });
     const parsed = teacherAvailabilitySchema.safeParse(payload);
     if (!parsed.success) {
       setStatus("error");
@@ -723,6 +741,9 @@ export function TeacherAvailabilityCalendar({
               startMin: draft.startMin,
               endMin: draft.endMin,
               timezone: draft.timezone,
+              recurrence: draft.recurrence,
+              startsOn: draft.startsOn,
+              endsOn: null,
               classLevelId: draft.classLevelId,
               classTypeId: draft.classTypeId,
               classLevel: levelById.get(draft.classLevelId) ?? null,
@@ -755,20 +776,40 @@ export function TeacherAvailabilityCalendar({
 
       {selectedRule ? (
         <div className="space-y-3 rounded-xl border border-border bg-background p-3">
-          <label className="block text-xs text-muted">
-            {t("dayOfWeek")}
-            <select
-              value={selectedRule.dayOfWeek}
-              onChange={(e) => patchSelected({ dayOfWeek: Number(e.target.value) })}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
-            >
-              {Array.from({ length: 7 }, (_, i) => (
-                <option key={i} value={i}>
-                  {weekdayLabel(i, locale)}
-                </option>
-              ))}
-            </select>
-          </label>
+          {selectedRule.recurrence === "ONE_OFF" ? (
+            <label className="block text-xs text-muted">
+              {t("date")}
+              <input
+                type="date"
+                value={selectedRule.startsOn ?? ""}
+                onChange={(e) => {
+                  const startsOn = e.target.value;
+                  patchSelected({
+                    startsOn,
+                    dayOfWeek: startsOn
+                      ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
+                      : selectedRule.dayOfWeek,
+                  });
+                }}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
+              />
+            </label>
+          ) : (
+            <label className="block text-xs text-muted">
+              {t("dayOfWeek")}
+              <select
+                value={selectedRule.dayOfWeek}
+                onChange={(e) => patchSelected({ dayOfWeek: Number(e.target.value) })}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
+              >
+                {Array.from({ length: 7 }, (_, i) => (
+                  <option key={i} value={i}>
+                    {weekdayLabel(i, locale)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <div className="grid gap-3 sm:grid-cols-3">
           <label className="text-xs text-muted">
             {t("start")}
@@ -876,13 +917,23 @@ export function TeacherAvailabilityCalendar({
           setRemoveOpen(false);
           setRemoveError(null);
         }}
-        canRemoveThisOccurrence={Boolean(selectedRuleId && selectedStartsAtIso)}
+        canRemoveThisOccurrence={Boolean(
+          selectedRuleId && selectedStartsAtIso && selectedRule?.recurrence === "WEEKLY",
+        )}
         busy={removeBusy}
         error={removeError}
         title={t("removeDialogTitle")}
-        description={t("removeDialogDescription")}
+        description={
+          selectedRule?.recurrence === "WEEKLY"
+            ? t("removeDialogDescriptionWeekly")
+            : t("removeDialogDescriptionOneOff")
+        }
         thisOccurrenceLabel={t("removeThisOccurrence")}
-        allSeriesLabel={t("removeAllSeries")}
+        allSeriesLabel={
+          selectedRule?.recurrence === "WEEKLY"
+            ? t("removeAllSeries")
+            : t("removeOneOff")
+        }
         cancelLabel={t("removeDialogCancel")}
         onThisOccurrence={() => void removeThisOccurrenceOnly()}
         onAllSeries={removeEntireWeeklyRule}

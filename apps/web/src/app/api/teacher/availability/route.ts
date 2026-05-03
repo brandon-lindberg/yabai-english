@@ -6,6 +6,11 @@ import { deriveMissingOfferingsFromSchedule } from "@/lib/schedule-offering-sync
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 
+function parseDateOnly(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  return new Date(`${value}T00:00:00.000Z`);
+}
+
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "SUPER_ADMIN")) {
@@ -25,6 +30,9 @@ export async function GET() {
           startMin: true,
           endMin: true,
           timezone: true,
+          recurrence: true,
+          startsOn: true,
+          endsOn: true,
           classLevelId: true,
           classTypeId: true,
           classLevel: { select: { id: true, code: true, labelEn: true, labelJa: true } },
@@ -127,6 +135,9 @@ export async function PATCH(req: Request) {
           startMin: slot.startMin,
           endMin: slot.endMin,
           timezone: slot.timezone,
+          recurrence: slot.recurrence ?? "WEEKLY",
+          startsOn: parseDateOnly(slot.startsOn),
+          endsOn: parseDateOnly(slot.endsOn),
           classLevelId: slot.classLevelId,
           classTypeId: slot.classTypeId,
           active: true,

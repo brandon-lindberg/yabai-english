@@ -9,6 +9,10 @@ const bodySchema = z.object({
   startsAtIso: z.string().min(10),
 });
 
+function dateOnlyFromDate(value: Date | null | undefined): string | null {
+  return value ? value.toISOString().slice(0, 10) : null;
+}
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id || (session.user.role !== "TEACHER" && session.user.role !== "SUPER_ADMIN")) {
@@ -35,6 +39,9 @@ export async function POST(req: Request) {
           startMin: true,
           endMin: true,
           timezone: true,
+          recurrence: true,
+          startsOn: true,
+          endsOn: true,
           classLevelId: true,
           classTypeId: true,
         },
@@ -54,6 +61,9 @@ export async function POST(req: Request) {
       startMin: s.startMin,
       endMin: s.endMin,
       timezone: s.timezone,
+      recurrence: s.recurrence,
+      startsOn: dateOnlyFromDate(s.startsOn),
+      endsOn: dateOnlyFromDate(s.endsOn),
       classLevelId: s.classLevelId,
       classTypeId: s.classTypeId,
     })),

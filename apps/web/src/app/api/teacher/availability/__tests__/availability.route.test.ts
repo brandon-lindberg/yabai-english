@@ -251,4 +251,34 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
       ]),
     );
   });
+
+  test("persists teacher recurrence and date bounds", async () => {
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 5,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          timezone: "Asia/Tokyo",
+          recurrence: "ONE_OFF",
+          startsOn: "2026-05-15",
+          endsOn: "2026-05-15",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(200);
+    expect(availabilityCreateManyMock).toHaveBeenCalledWith({
+      data: [
+        expect.objectContaining({
+          teacherId: "tp-1",
+          recurrence: "ONE_OFF",
+          startsOn: new Date("2026-05-15T00:00:00.000Z"),
+          endsOn: new Date("2026-05-15T00:00:00.000Z"),
+        }),
+      ],
+    });
+  });
 });

@@ -1,5 +1,8 @@
 import { DateTime } from "luxon";
-import { expandWeeklyOccurrencesInRange } from "@/lib/recurring-slot-occurrences";
+import {
+  expandRecurringOccurrencesInRange,
+  type RecurrencePattern,
+} from "@/lib/recurring-slot-occurrences";
 
 type AvailabilitySlotInput = {
   id: string;
@@ -7,6 +10,9 @@ type AvailabilitySlotInput = {
   startMin: number;
   endMin: number;
   timezone: string;
+  recurrence?: RecurrencePattern | null;
+  startsOn?: string | null;
+  endsOn?: string | null;
   /** FK to TeacherClassLevel.id (nullable while migration completes). */
   classLevelId: string | null;
   /** FK to TeacherClassType.id (nullable while migration completes). */
@@ -59,12 +65,15 @@ export function buildUpcomingSlotOptions({
       .plus({ days: Math.max(0, horizonDays - 1) })
       .endOf("day");
 
-    const occurrences = expandWeeklyOccurrencesInRange(
+    const occurrences = expandRecurringOccurrencesInRange(
       {
         dayOfWeek: slot.dayOfWeek,
         startMin: slot.startMin,
         endMin: slot.endMin,
         timezone: slot.timezone,
+        recurrence: slot.recurrence ?? undefined,
+        startsOn: slot.startsOn ?? undefined,
+        endsOn: slot.endsOn ?? undefined,
       },
       zoneRangeStart.toJSDate(),
       zoneRangeEnd.toJSDate(),
