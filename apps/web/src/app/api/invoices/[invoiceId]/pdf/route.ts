@@ -31,12 +31,6 @@ export async function GET(_req: Request, { params }: Props) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const teacherName =
-    invoice.booking.teacher.displayName ??
-    invoice.booking.teacher.user.name ??
-    invoice.booking.teacher.user.email ??
-    "Teacher";
-
   const studentName =
     invoice.student.name ?? invoice.student.email ?? "Student";
 
@@ -49,8 +43,7 @@ export async function GET(_req: Request, { params }: Props) {
       day: "numeric",
     }),
     studentName,
-    teacherName,
-    lessonType: `${invoice.booking.lessonProduct.nameEn} (${invoice.booking.lessonProduct.nameJa})`,
+    className: invoice.booking.lessonProduct.nameEn,
     durationMin: invoice.booking.lessonProduct.durationMin,
     lessonDate: invoice.booking.startsAt.toLocaleDateString("en-US", {
       year: "numeric",

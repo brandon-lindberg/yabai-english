@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildInvoiceCsv } from "@/lib/invoice-csv";
+import { calculateTaxIncludedInvoiceTotals } from "@/lib/invoice-totals";
 
 type Props = {
   params: Promise<{ invoiceId: string }>;
@@ -21,6 +22,7 @@ export async function GET(_req: Request, { params }: Props) {
       booking: {
         include: {
           teacher: { include: { user: true } },
+          lessonProduct: true,
         },
       },
     },
@@ -30,9 +32,18 @@ export async function GET(_req: Request, { params }: Props) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  const totals = calculateTaxIncludedInvoiceTotals(invoice.amountYen);
+  const studentName = invoice.student.name ?? invoice.student.email ?? "Student";
+
   const csv = buildInvoiceCsv({
     invoiceNo: invoice.invoiceNo,
-    amountYen: invoice.amountYen,
+    studentName,
+    className: invoice.booking.lessonProduct.nameEn,
+    durationMin: invoice.booking.lessonProduct.durationMin,
+    priceYen: totals.totalYen,
+    subtotalYen: totals.subtotalYen,
+    taxYen: totals.taxYen,
+    totalYen: totals.totalYen,
     paidAtIso: invoice.paidAt.toISOString(),
     bookingId: invoice.bookingId,
     studentEmail: invoice.student.email ?? "",
