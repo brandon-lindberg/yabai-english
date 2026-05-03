@@ -1,21 +1,24 @@
 import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
 import { calculateTaxIncludedInvoiceTotals } from "@/lib/invoice-totals";
 
 export type InvoicePdfLanguage = "en" | "ja";
 
-const require = createRequire(import.meta.url);
-const japaneseFontPackageRoot = dirname(require.resolve("@expo-google-fonts/noto-sans-jp"));
 const japaneseRegularFontPath = join(
-  japaneseFontPackageRoot,
+  process.cwd(),
+  "node_modules",
+  "@expo-google-fonts",
+  "noto-sans-jp",
   "400Regular",
   "NotoSansJP_400Regular.ttf",
 );
 const japaneseBoldFontPath = join(
-  japaneseFontPackageRoot,
+  process.cwd(),
+  "node_modules",
+  "@expo-google-fonts",
+  "noto-sans-jp",
   "700Bold",
   "NotoSansJP_700Bold.ttf",
 );
