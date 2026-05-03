@@ -111,4 +111,20 @@ describe("teacherAvailabilitySchema", () => {
       ]).success,
     ).toBe(true);
   });
+
+  test("rejects weekly slots when Until is before From", () => {
+    expect(
+      teacherAvailabilitySchema.safeParse([
+        {
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          recurrence: "WEEKLY",
+          startsOn: "2026-06-16",
+          endsOn: "2026-04-16",
+          ...baseSlot,
+        },
+      ]).success,
+    ).toBe(false);
+  });
 });

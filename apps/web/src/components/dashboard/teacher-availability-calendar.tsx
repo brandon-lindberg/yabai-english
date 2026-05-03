@@ -276,6 +276,11 @@ export function TeacherAvailabilityCalendar({
     [rules],
   );
 
+  const invalidDateRanges = useMemo(
+    () => rules.some((r) => Boolean(r.startsOn && r.endsOn && r.startsOn > r.endsOn)),
+    [rules],
+  );
+
   const hasInvalidLessonMeta = useMemo(
     () => rules.some((r) => !r.classLevelId || !r.classTypeId),
     [rules],
@@ -631,6 +636,11 @@ export function TeacherAvailabilityCalendar({
       setSaveErrorMessage(t("invalidLessonMeta"));
       return;
     }
+    if (invalidDateRanges) {
+      setStatus("error");
+      setSaveErrorMessage(t("invalidDateRange"));
+      return;
+    }
     const payload = rules.map((r) => {
       const slot: Record<string, unknown> = {
         dayOfWeek: r.dayOfWeek,
@@ -743,7 +753,7 @@ export function TeacherAvailabilityCalendar({
               timezone: draft.timezone,
               recurrence: draft.recurrence,
               startsOn: draft.startsOn,
-              endsOn: null,
+              endsOn: draft.endsOn,
               classLevelId: draft.classLevelId,
               classTypeId: draft.classTypeId,
               classLevel: levelById.get(draft.classLevelId) ?? null,
@@ -795,20 +805,62 @@ export function TeacherAvailabilityCalendar({
               />
             </label>
           ) : (
-            <label className="block text-xs text-muted">
-              {t("dayOfWeek")}
-              <select
-                value={selectedRule.dayOfWeek}
-                onChange={(e) => patchSelected({ dayOfWeek: Number(e.target.value) })}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
-              >
-                {Array.from({ length: 7 }, (_, i) => (
-                  <option key={i} value={i}>
-                    {weekdayLabel(i, locale)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <>
+              <label className="block text-xs text-muted">
+                {t("dayOfWeek")}
+                <select
+                  value={selectedRule.dayOfWeek}
+                  onChange={(e) => patchSelected({ dayOfWeek: Number(e.target.value) })}
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
+                >
+                  {Array.from({ length: 7 }, (_, i) => (
+                    <option key={i} value={i}>
+                      {weekdayLabel(i, locale)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="text-xs text-muted">
+                  {t("fromDate")}
+                  <input
+                    type="date"
+                    value={selectedRule.startsOn ?? ""}
+                    onChange={(e) => {
+                      const startsOn = e.target.value;
+                      patchSelected({
+                        startsOn,
+                        dayOfWeek: startsOn
+                          ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
+                          : selectedRule.dayOfWeek,
+                      });
+                    }}
+                    className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
+                  />
+                </label>
+                <label className="text-xs text-muted">
+                  {t("untilDate")}
+                  <input
+                    type="date"
+                    value={selectedRule.endsOn ?? ""}
+                    onChange={(e) => patchSelected({ endsOn: e.target.value || null })}
+                    className={`mt-1 w-full rounded-lg border bg-background px-2 py-1 text-sm text-foreground ${
+                      selectedRule.startsOn &&
+                      selectedRule.endsOn &&
+                      selectedRule.startsOn > selectedRule.endsOn
+                        ? "border-destructive"
+                        : "border-border"
+                    }`}
+                  />
+                </label>
+              </div>
+              <p className="text-xs text-muted">{t("weeklyDateRangeHint")}</p>
+              {selectedRule.startsOn &&
+              selectedRule.endsOn &&
+              selectedRule.startsOn > selectedRule.endsOn ? (
+                <p className="text-sm text-destructive">{t("invalidDateRange")}</p>
+              ) : null}
+            </>
           )}
           <div className="grid gap-3 sm:grid-cols-3">
           <label className="text-xs text-muted">
@@ -898,7 +950,7 @@ export function TeacherAvailabilityCalendar({
         <button
           type="button"
           onClick={() => void save()}
-          disabled={status === "saving" || invalidSlotRanges || hasInvalidLessonMeta}
+          disabled={status === "saving" || invalidSlotRanges || invalidDateRanges || hasInvalidLessonMeta}
           className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-50"
         >
           {status === "saving" ? t("saving") : t("save")}

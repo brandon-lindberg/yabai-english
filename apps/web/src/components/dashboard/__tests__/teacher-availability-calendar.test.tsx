@@ -89,7 +89,7 @@ describe("TeacherAvailabilityCalendar", () => {
     });
   });
 
-  test("the repeat toggle saves a weekly slot", async () => {
+  test("the repeat toggle saves a weekly slot with From and Until bounds", async () => {
     renderTeacherCalendar();
 
     fireEvent.click(document.querySelector('[data-month-day-add="2026-04-16"]')!);
@@ -98,6 +98,10 @@ describe("TeacherAvailabilityCalendar", () => {
     });
     fireEvent.click(within(dialog).getByRole("switch"));
     expect(within(dialog).getByRole("switch")).toHaveAttribute("aria-checked", "true");
+    expect(within(dialog).getByLabelText("From")).toHaveValue("2026-04-16");
+    fireEvent.change(within(dialog).getByLabelText("Until"), {
+      target: { value: "2026-06-16" },
+    });
 
     fireEvent.click(within(dialog).getByRole("button", { name: en.dashboard.teacherAvailability.monthAddModalConfirm }));
     await act(async () => {
@@ -113,7 +117,8 @@ describe("TeacherAvailabilityCalendar", () => {
     expect(body[0]).toMatchObject({
       recurrence: "WEEKLY",
       dayOfWeek: 4,
+      startsOn: "2026-04-16",
+      endsOn: "2026-06-16",
     });
-    expect(body[0].startsOn).toBeUndefined();
   });
 });

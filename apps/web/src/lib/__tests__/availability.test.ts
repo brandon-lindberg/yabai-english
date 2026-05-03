@@ -42,6 +42,28 @@ describe("buildUpcomingSlotOptions", () => {
     expect(slots.map((s) => s.startsAtIso)).toEqual(["2026-05-15T01:00:00.000Z"]);
   });
 
+  test("clips weekly availability to From and Until dates", () => {
+    const slots = buildUpcomingSlotOptions({
+      availabilitySlots: [
+        {
+          ...baseSlot,
+          recurrence: "WEEKLY",
+          startsOn: "2026-04-13",
+          endsOn: "2026-04-27",
+        },
+      ],
+      viewerTimezone: "Asia/Tokyo",
+      now: "2026-04-01T00:00:00.000Z",
+      horizonDays: 60,
+    });
+
+    expect(slots.map((s) => s.startsAtIso)).toEqual([
+      "2026-04-13T01:00:00.000Z",
+      "2026-04-20T01:00:00.000Z",
+      "2026-04-27T01:00:00.000Z",
+    ]);
+  });
+
   test("skips slots that already started", () => {
     const slots = buildUpcomingSlotOptions({
       availabilitySlots: [baseSlot],

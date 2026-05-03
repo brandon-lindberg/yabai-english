@@ -19,6 +19,7 @@ export type TeacherAvailabilityAddModalDraft = {
   timezone: string;
   recurrence: "WEEKLY" | "ONE_OFF";
   startsOn: string | null;
+  endsOn: string | null;
   classLevelId: string;
   classTypeId: string;
 };
@@ -88,11 +89,13 @@ function TeacherAvailabilityAddModalInner({
     timezone: initialTimezone,
     recurrence: "ONE_OFF",
     startsOn: dayKey,
+    endsOn: null,
     classLevelId: classLevels[0]?.id ?? "",
     classTypeId: classTypes[0]?.id ?? "",
   }));
 
   const noTaxonomy = classLevels.length === 0 || classTypes.length === 0;
+  const invalidDateRange = Boolean(draft.startsOn && draft.endsOn && draft.startsOn > draft.endsOn);
 
   return (
     <>
@@ -119,7 +122,8 @@ function TeacherAvailabilityAddModalInner({
                 setDraft((d) => ({
                   ...d,
                   recurrence: next ? "WEEKLY" : "ONE_OFF",
-                  startsOn: next ? null : dayKey,
+                  startsOn: dayKey,
+                  endsOn: next ? d.endsOn : null,
                   dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, d.timezone),
                 }));
                 return next;
@@ -140,20 +144,59 @@ function TeacherAvailabilityAddModalInner({
 
         <div className="mt-4 space-y-3">
           {weeklyOnCalendarDay ? (
-            <label className="block text-xs text-muted">
-              {dayOfWeekLabel}
-              <select
-                value={draft.dayOfWeek}
-                disabled
-                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {Array.from({ length: 7 }, (_, i) => (
-                  <option key={i} value={i}>
-                    {weekdayLabel(i, locale)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <>
+              <label className="block text-xs text-muted">
+                {dayOfWeekLabel}
+                <select
+                  value={draft.dayOfWeek}
+                  disabled
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {Array.from({ length: 7 }, (_, i) => (
+                    <option key={i} value={i}>
+                      {weekdayLabel(i, locale)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="text-xs text-muted">
+                  {tModal("fromDate")}
+                  <input
+                    type="date"
+                    value={draft.startsOn ?? dayKey}
+                    onChange={(e) => {
+                      const startsOn = e.target.value;
+                      setDraft((d) => ({
+                        ...d,
+                        startsOn,
+                        dayOfWeek: startsOn
+                          ? luxonWeekdayMod7FromDayKey(startsOn, d.timezone)
+                          : d.dayOfWeek,
+                      }));
+                    }}
+                    className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
+                  />
+                </label>
+                <label className="text-xs text-muted">
+                  {tModal("untilDate")}
+                  <input
+                    type="date"
+                    value={draft.endsOn ?? ""}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, endsOn: e.target.value || null }))
+                    }
+                    className={`mt-1 w-full rounded-lg border bg-background px-2 py-2 text-sm text-foreground ${
+                      invalidDateRange ? "border-destructive" : "border-border"
+                    }`}
+                  />
+                </label>
+              </div>
+              <p className="text-xs text-muted">{tModal("weeklyDateRangeHint")}</p>
+              {invalidDateRange ? (
+                <p className="text-sm text-destructive">{tModal("invalidDateRange")}</p>
+              ) : null}
+            </>
           ) : (
             <label className="block text-xs text-muted">
               {tModal("date")}
@@ -280,6 +323,7 @@ function TeacherAvailabilityAddModalInner({
             type="button"
             disabled={
               draft.endMin <= draft.startMin ||
+              invalidDateRange ||
               !draft.classLevelId ||
               !draft.classTypeId
             }
