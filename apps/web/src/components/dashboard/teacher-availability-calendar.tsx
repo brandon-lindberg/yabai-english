@@ -46,6 +46,19 @@ export type InitialTeacherAvailabilitySlot = {
   endsOn: string | null;
   classLevelId: string | null;
   classTypeId: string | null;
+  teacherLessonOfferingId: string | null;
+  classLevel: TaxonomyOption | null;
+  classType: TaxonomyOption | null;
+};
+
+export type TeacherLessonOfferingOption = {
+  id: string;
+  durationMin: number;
+  rateYen: number;
+  isGroup: boolean;
+  groupSize: number | null;
+  classLevelId: string | null;
+  classTypeId: string | null;
   classLevel: TaxonomyOption | null;
   classType: TaxonomyOption | null;
 };
@@ -63,6 +76,7 @@ type Props = {
   defaultTimezone: string;
   classLevels: TaxonomyOption[];
   classTypes: TaxonomyOption[];
+  lessonOfferings: TeacherLessonOfferingOption[];
   /** Confirmed (or pending-payment) bookings to overlay on the schedule as "booked" blocks. */
   bookings?: TeacherCalendarBooking[];
 };
@@ -89,6 +103,7 @@ export function TeacherAvailabilityCalendar({
   defaultTimezone,
   classLevels,
   classTypes,
+  lessonOfferings,
   bookings = [],
 }: Props) {
   const locale = useLocale();
@@ -108,6 +123,13 @@ export function TeacherAvailabilityCalendar({
   const typeById = useMemo(
     () => new Map(classTypes.map((t) => [t.id, t])),
     [classTypes],
+  );
+  const formatOfferingLabel = useCallback(
+    (offer: TeacherLessonOfferingOption) => {
+      const size = offer.isGroup && offer.groupSize ? `, group ${offer.groupSize}` : "";
+      return `${pickLabel(offer.classLevel)} / ${pickLabel(offer.classType)} (${offer.durationMin} min, ¥${offer.rateYen.toLocaleString()}${size})`;
+    },
+    [pickLabel],
   );
   const [rules, setRules] = useState<InitialTeacherAvailabilitySlot[]>(initialSlots);
   const [occurrenceSkips, setOccurrenceSkips] = useState<string[]>(initialOccurrenceSkips);
@@ -282,7 +304,7 @@ export function TeacherAvailabilityCalendar({
   );
 
   const hasInvalidLessonMeta = useMemo(
-    () => rules.some((r) => !r.classLevelId || !r.classTypeId),
+    () => rules.some((r) => !r.classLevelId || !r.classTypeId || !r.teacherLessonOfferingId),
     [rules],
   );
 
@@ -569,6 +591,7 @@ export function TeacherAvailabilityCalendar({
         | "endsOn"
         | "classLevelId"
         | "classTypeId"
+        | "teacherLessonOfferingId"
       >
     >,
   ) {
@@ -586,6 +609,16 @@ export function TeacherAvailabilityCalendar({
           next.classType = patch.classTypeId
             ? (typeById.get(patch.classTypeId) ?? null)
             : null;
+        }
+        if (patch.teacherLessonOfferingId !== undefined) {
+          const offer = lessonOfferings.find((o) => o.id === patch.teacherLessonOfferingId);
+          if (offer) {
+            next.classLevelId = offer.classLevelId;
+            next.classTypeId = offer.classTypeId;
+            next.classLevel = offer.classLevel;
+            next.classType = offer.classType;
+            next.endMin = next.startMin + offer.durationMin;
+          }
         }
         return next;
       }),
@@ -650,6 +683,7 @@ export function TeacherAvailabilityCalendar({
         recurrence: r.recurrence,
         classLevelId: r.classLevelId ?? "",
         classTypeId: r.classTypeId ?? "",
+        teacherLessonOfferingId: r.teacherLessonOfferingId ?? "",
       };
       if (r.startsOn) slot.startsOn = r.startsOn;
       if (r.endsOn) slot.endsOn = r.endsOn;
@@ -741,6 +775,7 @@ export function TeacherAvailabilityCalendar({
         initialTimezone={teacherTz}
         classLevels={classLevels}
         classTypes={classTypes}
+        lessonOfferings={lessonOfferings}
         onClose={() => setMonthAddDayKey(null)}
         onConfirm={(draft) => {
           setRules((prev) => [
@@ -756,6 +791,7 @@ export function TeacherAvailabilityCalendar({
               endsOn: draft.endsOn,
               classLevelId: draft.classLevelId,
               classTypeId: draft.classTypeId,
+              teacherLessonOfferingId: draft.teacherLessonOfferingId,
               classLevel: levelById.get(draft.classLevelId) ?? null,
               classType: typeById.get(draft.classTypeId) ?? null,
             },
@@ -868,7 +904,16 @@ export function TeacherAvailabilityCalendar({
             <input
               type="time"
               value={toTime(selectedRule.startMin)}
-              onChange={(e) => patchSelected({ startMin: parseTime(e.target.value) })}
+              onChange={(e) => {
+                const startMin = parseTime(e.target.value);
+                const offer = lessonOfferings.find(
+                  (o) => o.id === selectedRule.teacherLessonOfferingId,
+                );
+                patchSelected({
+                  startMin,
+                  endMin: offer ? startMin + offer.durationMin : selectedRule.endMin,
+                });
+              }}
               className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
             />
           </label>
@@ -877,7 +922,7 @@ export function TeacherAvailabilityCalendar({
             <input
               type="time"
               value={toTime(selectedRule.endMin)}
-              onChange={(e) => patchSelected({ endMin: parseTime(e.target.value) })}
+            readOnly
               className={`mt-1 w-full rounded-lg border bg-background px-2 py-1 text-sm text-foreground ${
                 selectedRule.endMin <= selectedRule.startMin
                   ? "border-destructive"
@@ -898,38 +943,38 @@ export function TeacherAvailabilityCalendar({
             <p className="text-sm text-destructive">{t("invalidTimeRange")}</p>
           ) : null}
           <label className="block text-xs text-muted">
-            {t("lessonLevel")}
+            Class offer
             <select
-              value={selectedRule.classLevelId ?? ""}
-              onChange={(e) => patchSelected({ classLevelId: e.target.value })}
+              value={selectedRule.teacherLessonOfferingId ?? ""}
+              onChange={(e) => patchSelected({ teacherLessonOfferingId: e.target.value })}
               required
               className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
             >
-              {!selectedRule.classLevelId ? <option value="">—</option> : null}
-              {classLevels.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {pickLabel(opt)}
+              {!selectedRule.teacherLessonOfferingId ? <option value="">—</option> : null}
+              {lessonOfferings.map((offer) => (
+                <option key={offer.id} value={offer.id}>
+                  {formatOfferingLabel(offer)}
                 </option>
               ))}
             </select>
           </label>
           <label className="block text-xs text-muted">
-            {t("lessonType")}
-            <select
-              value={selectedRule.classTypeId ?? ""}
-              onChange={(e) => patchSelected({ classTypeId: e.target.value })}
-              required
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
-            >
-              {!selectedRule.classTypeId ? <option value="">—</option> : null}
-              {classTypes.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {pickLabel(opt)}
-                </option>
-              ))}
-            </select>
+            {t("lessonLevel")}
+            <input
+              value={pickLabel(selectedRule.classLevel)}
+              readOnly
+              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-muted sm:max-w-xs"
+            />
           </label>
-          {!selectedRule.classLevelId || !selectedRule.classTypeId ? (
+          <label className="block text-xs text-muted">
+            {t("lessonType")}
+            <input
+              value={pickLabel(selectedRule.classType)}
+              readOnly
+              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-muted sm:max-w-xs"
+            />
+          </label>
+          {!selectedRule.classLevelId || !selectedRule.classTypeId || !selectedRule.teacherLessonOfferingId ? (
             <p className="text-sm text-destructive">{t("invalidLessonMeta")}</p>
           ) : null}
         </div>

@@ -8,6 +8,7 @@ const {
   createManyMock,
   revalidatePathMock,
   ensureCatalogProductsMock,
+  classLevelFindManyMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
   upsertMock: vi.fn(),
@@ -16,6 +17,7 @@ const {
   createManyMock: vi.fn(),
   revalidatePathMock: vi.fn(),
   ensureCatalogProductsMock: vi.fn(),
+  classLevelFindManyMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -31,6 +33,9 @@ vi.mock("@/lib/prisma", () => ({
     teacherLessonOffering: {
       deleteMany: deleteManyMock,
       createMany: createManyMock,
+    },
+    teacherClassLevel: {
+      findMany: classLevelFindManyMock,
     },
     teacherClassType: {
       findMany: vi.fn().mockResolvedValue([]),
@@ -58,12 +63,21 @@ describe("PATCH /api/teacher/profile", () => {
     deleteManyMock.mockResolvedValue({ count: 0 });
     createManyMock.mockResolvedValue({ count: 0 });
     ensureCatalogProductsMock.mockResolvedValue(undefined);
+    classLevelFindManyMock.mockImplementation(
+      async ({ where }: { where: { id: { in: string[] } } }) => {
+        const ids = where.id.in ?? [];
+        return ids.map((id) => ({ id }));
+      },
+    );
     transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({
         teacherProfile: { upsert: upsertMock },
         teacherLessonOffering: {
           deleteMany: deleteManyMock,
           createMany: createManyMock,
+        },
+        teacherClassLevel: {
+          findMany: classLevelFindManyMock,
         },
         teacherClassType: {
           findMany: vi.fn().mockImplementation(async ({ where }: { where: { id: { in: string[] } } }) => {
@@ -112,8 +126,20 @@ describe("PATCH /api/teacher/profile", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lessonOfferings: [
-            { durationMin: 60, rateYen: 4500, isGroup: false, groupSize: null },
-            { durationMin: 90, rateYen: 9000, isGroup: true, groupSize: 4 },
+            {
+              durationMin: 60,
+              rateYen: 4500,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lvl-int",
+            },
+            {
+              durationMin: 90,
+              rateYen: 9000,
+              isGroup: true,
+              groupSize: 4,
+              classLevelId: "lvl-int",
+            },
           ],
         }),
       }),
@@ -129,6 +155,7 @@ describe("PATCH /api/teacher/profile", () => {
           isGroup: false,
           groupSize: null,
           active: true,
+          classLevelId: "lvl-int",
           classTypeId: null,
         },
         {
@@ -138,6 +165,7 @@ describe("PATCH /api/teacher/profile", () => {
           isGroup: true,
           groupSize: 4,
           active: true,
+          classLevelId: "lvl-int",
           classTypeId: null,
         },
       ],
@@ -169,6 +197,7 @@ describe("PATCH /api/teacher/profile", () => {
               rateYen: 3500,
               isGroup: false,
               groupSize: null,
+              classLevelId: "lvl-int",
               classTypeId: "ty-pron",
             },
             {
@@ -176,6 +205,7 @@ describe("PATCH /api/teacher/profile", () => {
               rateYen: 3500,
               isGroup: false,
               groupSize: null,
+              classLevelId: "lvl-int",
               classTypeId: "ty-conv",
             },
           ],

@@ -35,6 +35,7 @@ export async function GET() {
           endsOn: true,
           classLevelId: true,
           classTypeId: true,
+          teacherLessonOfferingId: true,
           classLevel: { select: { id: true, code: true, labelEn: true, labelJa: true } },
           classType: { select: { id: true, code: true, labelEn: true, labelJa: true } },
           active: true,
@@ -76,6 +77,8 @@ export async function PATCH(req: Request) {
       lessonOfferings: {
         select: {
           classTypeId: true,
+          classLevelId: true,
+          id: true,
           active: true,
           rateYen: true,
           isGroup: true,
@@ -92,7 +95,8 @@ export async function PATCH(req: Request) {
   // Validate that every classLevelId / classTypeId belongs to this teacher.
   const refLevelIds = Array.from(new Set(parsed.data.map((s) => s.classLevelId)));
   const refTypeIds = Array.from(new Set(parsed.data.map((s) => s.classTypeId)));
-  const [foundLevels, foundTypes] = await Promise.all([
+  const refOfferIds = Array.from(new Set(parsed.data.map((s) => s.teacherLessonOfferingId)));
+  const [foundLevels, foundTypes, foundOfferings] = await Promise.all([
     prisma.teacherClassLevel.findMany({
       where: { id: { in: refLevelIds }, teacherId: profileSnapshot.id },
       select: { id: true },
@@ -100,6 +104,19 @@ export async function PATCH(req: Request) {
     prisma.teacherClassType.findMany({
       where: { id: { in: refTypeIds }, teacherId: profileSnapshot.id },
       select: { id: true, code: true },
+    }),
+    prisma.teacherLessonOffering.findMany({
+      where: { id: { in: refOfferIds }, teacherId: profileSnapshot.id, active: true },
+      select: {
+        id: true,
+        classLevelId: true,
+        classTypeId: true,
+        durationMin: true,
+        active: true,
+        isGroup: true,
+        rateYen: true,
+        classType: { select: { code: true } },
+      },
     }),
   ]);
   if (foundLevels.length !== refLevelIds.length) {
@@ -114,11 +131,34 @@ export async function PATCH(req: Request) {
       { status: 400 },
     );
   }
+  if (foundOfferings.length !== refOfferIds.length) {
+    return NextResponse.json(
+      { error: "teacherLessonOfferingId does not belong to this teacher" },
+      { status: 400 },
+    );
+  }
   const codeByTypeId = new Map(foundTypes.map((t) => [t.id, t.code]));
+  const offeringById = new Map(foundOfferings.map((offering) => [offering.id, offering]));
+  const mismatchedSlot = parsed.data.find((slot) => {
+    const offering = offeringById.get(slot.teacherLessonOfferingId);
+    return (
+      !offering ||
+      offering.classLevelId !== slot.classLevelId ||
+      offering.classTypeId !== slot.classTypeId ||
+      slot.endMin - slot.startMin !== offering.durationMin
+    );
+  });
+  if (mismatchedSlot) {
+    return NextResponse.json(
+      { error: "Availability must match the selected class offer." },
+      { status: 400 },
+    );
+  }
 
   const newOfferings = deriveMissingOfferingsFromSchedule({
     existing: profileSnapshot.lessonOfferings,
     scheduled: parsed.data.map((slot) => ({
+      classLevelId: slot.classLevelId,
       classTypeId: slot.classTypeId,
       classTypeCode: codeByTypeId.get(slot.classTypeId) ?? "",
     })),
@@ -140,6 +180,7 @@ export async function PATCH(req: Request) {
           endsOn: parseDateOnly(slot.endsOn),
           classLevelId: slot.classLevelId,
           classTypeId: slot.classTypeId,
+          teacherLessonOfferingId: slot.teacherLessonOfferingId,
           active: true,
         })),
       });
@@ -153,6 +194,7 @@ export async function PATCH(req: Request) {
           isGroup: o.isGroup,
           groupSize: o.groupSize,
           active: o.active,
+          classLevelId: o.classLevelId,
           classTypeId: o.classTypeId,
         })),
       });

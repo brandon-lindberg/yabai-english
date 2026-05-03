@@ -13,6 +13,8 @@
  */
 
 export type ScheduleClassTypeKey = {
+  /** TeacherClassLevel.id */
+  classLevelId: string;
   /** TeacherClassType.id */
   classTypeId: string;
   /** TeacherClassType.code (used to derive sensible default duration) */
@@ -20,6 +22,7 @@ export type ScheduleClassTypeKey = {
 };
 
 export type ExistingOfferingSnapshot = {
+  classLevelId?: string | null;
   classTypeId: string | null;
   active: boolean;
   rateYen?: number;
@@ -32,6 +35,7 @@ export type DerivedOfferingToCreate = {
   isGroup: false;
   groupSize: null;
   classTypeId: string;
+  classLevelId: string;
   active: true;
 };
 
@@ -98,6 +102,7 @@ export function deriveMissingOfferingsFromSchedule({
       isGroup: false,
       groupSize: null,
       classTypeId: slot.classTypeId,
+      classLevelId: slot.classLevelId,
       active: true,
     });
   }

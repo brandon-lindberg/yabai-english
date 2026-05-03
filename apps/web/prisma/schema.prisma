@@ -144,6 +144,7 @@ model User {
   receivedMessages          ChatMessage[]                @relation("MessageRecipient")
   notifications             Notification[]
   invoices                  Invoice[]
+  teacherStudentLessonRates TeacherStudentLessonRate[]
   chatThreadsAsStudent      ChatThread[]                 @relation("ThreadStudent")
   chatThreadsAsTeacher      ChatThread[]                 @relation("ThreadTeacher")
   broadcastsSent            AdminBroadcast[]             @relation("AdminBroadcastSender")
@@ -302,6 +303,7 @@ model TeacherProfile {
   availabilityOccurrenceSkips AvailabilityOccurrenceSkip[]
   bookingsTeaching            Booking[]                    @relation("TeacherBookings")
   lessonOfferings             TeacherLessonOffering[]
+  studentLessonRateOverrides  TeacherStudentLessonRate[]
   classLevels                 TeacherClassLevel[]
   classTypes                  TeacherClassType[]
 }
@@ -323,6 +325,7 @@ model TeacherClassLevel {
   active    Boolean @default(true)
 
   availabilitySlots AvailabilitySlot[]
+  lessonOfferings   TeacherLessonOffering[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -365,13 +368,19 @@ model TeacherLessonOffering {
   active      Boolean        @default(true)
 
   /// FK to the teacher's per-teacher class type taxonomy. Drives catalog matching.
+  classLevelId String?
+  classLevel   TeacherClassLevel? @relation(fields: [classLevelId], references: [id], onDelete: SetNull)
   classTypeId String?
   classType   TeacherClassType? @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+
+  availabilitySlots AvailabilitySlot[]
+  studentRateOverrides TeacherStudentLessonRate[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([teacherId, isGroup, active])
+  @@index([classLevelId])
   @@index([classTypeId])
 }
 
@@ -398,11 +407,32 @@ model AvailabilitySlot {
   /// FK to the teacher's per-teacher class type taxonomy.
   classTypeId  String?
   classType    TeacherClassType?  @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+  /// FK to the priced class offer. This is the source of truth for duration/price.
+  teacherLessonOfferingId String?
+  teacherLessonOffering   TeacherLessonOffering? @relation(fields: [teacherLessonOfferingId], references: [id], onDelete: SetNull)
 
   active Boolean @default(true)
 
   @@index([classLevelId])
   @@index([classTypeId])
+  @@index([teacherLessonOfferingId])
+}
+
+model TeacherStudentLessonRate {
+  id        String @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  studentId String
+  student   User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacherLessonOfferingId String
+  teacherLessonOffering   TeacherLessonOffering @relation(fields: [teacherLessonOfferingId], references: [id], onDelete: Cascade)
+  rateYen Int
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teacherLessonOfferingId, studentId])
+  @@index([teacherId, studentId, active])
 }
 
 /// Single UTC start hidden for one weekly series occurrence (teacher "this event only" delete).

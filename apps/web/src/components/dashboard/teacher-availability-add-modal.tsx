@@ -22,6 +22,19 @@ export type TeacherAvailabilityAddModalDraft = {
   endsOn: string | null;
   classLevelId: string;
   classTypeId: string;
+  teacherLessonOfferingId: string;
+};
+
+export type TeacherLessonOfferingOption = {
+  id: string;
+  durationMin: number;
+  rateYen: number;
+  isGroup: boolean;
+  groupSize: number | null;
+  classLevelId: string | null;
+  classTypeId: string | null;
+  classLevel: TaxonomyOption | null;
+  classType: TaxonomyOption | null;
 };
 
 type Props = {
@@ -41,6 +54,7 @@ type Props = {
   timezoneLabel: string;
   classLevels: TaxonomyOption[];
   classTypes: TaxonomyOption[];
+  lessonOfferings: TeacherLessonOfferingOption[];
 };
 
 function toTime(min: number) {
@@ -55,7 +69,8 @@ function parseTime(value: string) {
   return h * 60 + m;
 }
 
-function pickLabel(opt: TaxonomyOption, locale: string): string {
+function pickLabel(opt: TaxonomyOption | null | undefined, locale: string): string {
+  if (!opt) return "";
   return locale.toLowerCase().startsWith("ja")
     ? (opt.labelJa ?? opt.labelEn)
     : opt.labelEn;
@@ -79,23 +94,33 @@ function TeacherAvailabilityAddModalInner({
   timezoneLabel,
   classLevels,
   classTypes,
+  lessonOfferings,
 }: InnerProps) {
   const tModal = useTranslations("dashboard.teacherAvailability");
+  const defaultOffering = lessonOfferings[0];
   const [weeklyOnCalendarDay, setWeeklyOnCalendarDay] = useState(false);
   const [draft, setDraft] = useState<TeacherAvailabilityAddModalDraft>(() => ({
     dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, initialTimezone),
     startMin: 9 * 60,
-    endMin: 10 * 60,
+    endMin: 9 * 60 + (defaultOffering?.durationMin ?? 60),
     timezone: initialTimezone,
     recurrence: "ONE_OFF",
     startsOn: dayKey,
     endsOn: null,
-    classLevelId: classLevels[0]?.id ?? "",
-    classTypeId: classTypes[0]?.id ?? "",
+    classLevelId: defaultOffering?.classLevelId ?? classLevels[0]?.id ?? "",
+    classTypeId: defaultOffering?.classTypeId ?? classTypes[0]?.id ?? "",
+    teacherLessonOfferingId: defaultOffering?.id ?? "",
   }));
 
-  const noTaxonomy = classLevels.length === 0 || classTypes.length === 0;
+  const noTaxonomy = classLevels.length === 0 || classTypes.length === 0 || lessonOfferings.length === 0;
   const invalidDateRange = Boolean(draft.startsOn && draft.endsOn && draft.startsOn > draft.endsOn);
+  const offerById = new Map(lessonOfferings.map((offer) => [offer.id, offer]));
+  const formatOfferingLabel = (offer: TeacherLessonOfferingOption) => {
+    const level = offer.classLevel ? pickLabel(offer.classLevel, locale) : "";
+    const type = offer.classType ? pickLabel(offer.classType, locale) : "";
+    const size = offer.isGroup && offer.groupSize ? `, group ${offer.groupSize}` : "";
+    return `${level} / ${type} (${offer.durationMin} min, ¥${offer.rateYen.toLocaleString()}${size})`;
+  };
 
   return (
     <>
@@ -224,7 +249,15 @@ function TeacherAvailabilityAddModalInner({
                 type="time"
                 value={toTime(draft.startMin)}
                 onChange={(e) =>
-                  setDraft((d) => ({ ...d, startMin: parseTime(e.target.value) }))
+                  setDraft((d) => {
+                    const startMin = parseTime(e.target.value);
+                    const offer = offerById.get(d.teacherLessonOfferingId);
+                    return {
+                      ...d,
+                      startMin,
+                      endMin: offer ? startMin + offer.durationMin : d.endMin,
+                    };
+                  })
                 }
                 className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
               />
@@ -234,9 +267,7 @@ function TeacherAvailabilityAddModalInner({
               <input
                 type="time"
                 value={toTime(draft.endMin)}
-                onChange={(e) =>
-                  setDraft((d) => ({ ...d, endMin: parseTime(e.target.value) }))
-                }
+                readOnly
                 className={`mt-1 w-full rounded-lg border bg-background px-2 py-2 text-sm text-foreground ${
                   draft.endMin <= draft.startMin ? "border-destructive" : "border-border"
                 }`}
@@ -253,44 +284,55 @@ function TeacherAvailabilityAddModalInner({
             </p>
           ) : null}
           <label className="block text-xs text-muted">
-            {tModal("lessonLevel")}
+            Class offer
             <select
-              value={draft.classLevelId}
-              onChange={(e) =>
-                setDraft((d) => ({ ...d, classLevelId: e.target.value }))
-              }
+              value={draft.teacherLessonOfferingId}
+              onChange={(e) => {
+                const offer = offerById.get(e.target.value);
+                setDraft((d) => ({
+                  ...d,
+                  teacherLessonOfferingId: e.target.value,
+                  classLevelId: offer?.classLevelId ?? "",
+                  classTypeId: offer?.classTypeId ?? "",
+                  endMin: offer ? d.startMin + offer.durationMin : d.endMin,
+                }));
+              }}
               required
               className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
             >
-              {classLevels.length === 0 ? (
+              {lessonOfferings.length === 0 ? (
                 <option value="">—</option>
               ) : null}
-              {classLevels.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {pickLabel(opt, locale)}
+              {lessonOfferings.map((offer) => (
+                <option key={offer.id} value={offer.id}>
+                  {formatOfferingLabel(offer)}
                 </option>
               ))}
             </select>
           </label>
           <label className="block text-xs text-muted">
-            {tModal("lessonType")}
-            <select
-              value={draft.classTypeId}
-              onChange={(e) =>
-                setDraft((d) => ({ ...d, classTypeId: e.target.value }))
+            {tModal("lessonLevel")}
+            <input
+              value={
+                offerById.get(draft.teacherLessonOfferingId)?.classLevel
+                  ? pickLabel(offerById.get(draft.teacherLessonOfferingId)?.classLevel ?? null, locale)
+                  : ""
               }
-              required
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
-            >
-              {classTypes.length === 0 ? (
-                <option value="">—</option>
-              ) : null}
-              {classTypes.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {pickLabel(opt, locale)}
-                </option>
-              ))}
-            </select>
+              readOnly
+              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-muted"
+            />
+          </label>
+          <label className="block text-xs text-muted">
+            {tModal("lessonType")}
+            <input
+              value={
+                offerById.get(draft.teacherLessonOfferingId)?.classType
+                  ? pickLabel(offerById.get(draft.teacherLessonOfferingId)?.classType ?? null, locale)
+                  : ""
+              }
+              readOnly
+              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-muted"
+            />
           </label>
           <label className="block text-xs text-muted">
             {timezoneLabel}
@@ -325,7 +367,8 @@ function TeacherAvailabilityAddModalInner({
               draft.endMin <= draft.startMin ||
               invalidDateRange ||
               !draft.classLevelId ||
-              !draft.classTypeId
+              !draft.classTypeId ||
+              !draft.teacherLessonOfferingId
             }
             onClick={() => {
               onConfirm(draft);

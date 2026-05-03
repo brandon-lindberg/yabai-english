@@ -23,6 +23,8 @@ const patchSchema = z.object({
         rateYen: z.number().int().min(1).max(9_999_999),
         isGroup: z.boolean(),
         groupSize: z.number().int().min(2).max(30).nullable(),
+        /** FK to TeacherClassLevel.id; required so level/type/duration/price stay together. */
+        classLevelId: z.string().min(1),
         /** FK to TeacherClassType.id; null/undefined = wildcard offering. */
         classTypeId: z.string().min(1).nullable().optional(),
       }),
@@ -84,13 +86,25 @@ export async function PATCH(req: Request) {
             .filter((id): id is string => typeof id === "string"),
         ),
       );
-      const foundTypes =
+      const refLevelIds = Array.from(new Set(data.lessonOfferings.map((o) => o.classLevelId)));
+      const [foundLevels, foundTypes] = await Promise.all([
+        tx.teacherClassLevel.findMany({
+          where: { id: { in: refLevelIds }, teacherId: updated.id },
+          select: { id: true },
+        }),
         refTypeIds.length > 0
-          ? await tx.teacherClassType.findMany({
+          ? tx.teacherClassType.findMany({
               where: { id: { in: refTypeIds }, teacherId: updated.id },
               select: { id: true, code: true },
             })
-          : [];
+          : Promise.resolve([]),
+      ]);
+      if (foundLevels.length !== refLevelIds.length) {
+        throw Object.assign(
+          new Error("classLevelId does not belong to this teacher"),
+          { status: 400 },
+        );
+      }
       if (foundTypes.length !== refTypeIds.length) {
         throw Object.assign(
           new Error("classTypeId does not belong to this teacher"),
@@ -111,6 +125,7 @@ export async function PATCH(req: Request) {
             isGroup: o.isGroup,
             groupSize: o.isGroup ? o.groupSize : null,
             active: true,
+            classLevelId: o.classLevelId,
             classTypeId: o.classTypeId ?? null,
           })),
         });

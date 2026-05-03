@@ -42,14 +42,14 @@ describe("redirectTargetForTeacherBookingPage", () => {
     ).toBe("/dashboard");
   });
 
-  it("allows teachers to preview their own public page", () => {
+  it("redirects teachers viewing their own public booking page", () => {
     expect(
       redirectTargetForTeacherBookingPage({
         role: "TEACHER",
         requestedTeacherProfileId: "tp-self",
         viewerTeacherProfileId: "tp-self",
       }),
-    ).toBeNull();
+    ).toBe("/dashboard");
   });
 
   it("redirects teachers without a profile id when ids cannot match", () => {

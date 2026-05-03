@@ -5,6 +5,7 @@ const baseSlot = {
   timezone: "Asia/Tokyo",
   classLevelId: "lvl-int",
   classTypeId: "ty-conv",
+  teacherLessonOfferingId: "offer-conv-40",
 };
 
 describe("teacherAvailabilitySchema", () => {
@@ -29,7 +30,7 @@ describe("teacherAvailabilitySchema", () => {
     ).toBe(true);
   });
 
-  test("requires classLevelId and classTypeId to be present", () => {
+  test("requires classLevelId, classTypeId, and teacherLessonOfferingId to be present", () => {
     expect(
       teacherAvailabilitySchema.safeParse([
         {
@@ -39,6 +40,7 @@ describe("teacherAvailabilitySchema", () => {
           timezone: "Asia/Tokyo",
           classLevelId: "",
           classTypeId: "ty-conv",
+          teacherLessonOfferingId: "offer-conv-40",
         },
       ]).success,
     ).toBe(false);
@@ -51,6 +53,20 @@ describe("teacherAvailabilitySchema", () => {
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "",
+          teacherLessonOfferingId: "offer-conv-40",
+        },
+      ]).success,
+    ).toBe(false);
+    expect(
+      teacherAvailabilitySchema.safeParse([
+        {
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          timezone: "Asia/Tokyo",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "",
         },
       ]).success,
     ).toBe(false);
@@ -66,6 +82,7 @@ describe("teacherAvailabilitySchema", () => {
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-adv",
           classTypeId: "ty-biz",
+          teacherLessonOfferingId: "offer-biz-60",
         },
       ]).success,
     ).toBe(true);

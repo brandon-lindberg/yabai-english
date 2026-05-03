@@ -14,9 +14,9 @@ import { validateManualOverrideReason } from "@/lib/manual-override";
 import {
   catalogProductMatchesOffering,
   canTeacherOfferProduct,
-  resolveTeacherRateForProduct,
   teacherHasOfferingForProduct,
 } from "@/lib/lesson-products";
+import { resolveQuotedPriceYen } from "@/lib/booking-price-resolution";
 import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
           where: { id: teacherProfileId },
           include: {
             user: true,
-            lessonOfferings: true,
+            lessonOfferings: { include: { classType: true } },
             availabilitySlots: {
               where: { active: true },
               take: 1,
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
     (await prisma.teacherProfile.findFirst({
       include: {
         user: true,
-        lessonOfferings: true,
+        lessonOfferings: { include: { classType: true } },
         availabilitySlots: {
           where: { active: true },
           take: 1,
@@ -227,15 +227,24 @@ export async function POST(req: Request) {
   }
 
   const isFreeTrial = product.tier === LessonTier.FREE_TRIAL;
-  const quotedPriceYen = isFreeTrial
-    ? 0
-    : selectedOffering
-      ? selectedOffering.rateYen
-      : resolveTeacherRateForProduct(
-        teacher.lessonOfferings,
-        product,
-        teacher.rateYen ?? 3000,
-      );
+  const studentOverride = selectedOffering
+    ? await prisma.teacherStudentLessonRate.findUnique({
+        where: {
+          teacherLessonOfferingId_studentId: {
+            teacherLessonOfferingId: selectedOffering.id,
+            studentId: session.user.id,
+          },
+        },
+        select: { rateYen: true, active: true },
+      })
+    : null;
+  const quotedPriceYen = resolveQuotedPriceYen({
+    product,
+    selectedOffering: selectedOffering ?? null,
+    offerings: teacher.lessonOfferings,
+    fallbackRateYen: teacher.rateYen ?? 3000,
+    studentOverride: studentOverride?.active ? studentOverride : null,
+  });
 
   if (isFreeTrial && student.studentProfile.trialLessonUsedAt) {
     return NextResponse.json(

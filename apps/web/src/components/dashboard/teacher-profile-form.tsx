@@ -19,12 +19,14 @@ type LessonOfferingInput = {
   rateYen: number;
   isGroup: boolean;
   groupSize: number | null;
+  classLevelId: string;
   classTypeId: string | null;
 };
 
 type IndividualOfferRow = {
   clientId: string;
   durationMin: number;
+  classLevelId: string;
   classTypeId: string;
   rateYenInput: string;
 };
@@ -33,6 +35,7 @@ type GroupOfferRow = {
   clientId: string;
   durationMin: number;
   groupSize: number;
+  classLevelId: string;
   classTypeId: string;
   rateYenInput: string;
 };
@@ -55,9 +58,12 @@ type Props = {
     rateYen: number;
     isGroup: boolean;
     groupSize: number | null;
+    classLevelId?: string | null;
+    classLevel?: TaxonomyOption | null;
     classTypeId?: string | null;
     classType?: TaxonomyOption | null;
   }>;
+  classLevels: TaxonomyOption[];
   classTypes: TaxonomyOption[];
 };
 
@@ -84,12 +90,14 @@ export function TeacherProfileForm({
   initialOffersFreeTrial,
   postSaveRedirect,
   initialLessonOfferings,
+  classLevels,
   classTypes,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
   const locale = useLocale();
   const router = useRouter();
   const defaultClassTypeId = classTypes[0]?.id ?? "";
+  const defaultClassLevelId = classLevels[0]?.id ?? "";
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
   const [displayName, setDisplayName] = useState(initialDisplayName ?? "");
   const [bio, setBio] = useState(initialBio ?? "");
@@ -103,6 +111,7 @@ export function TeacherProfileForm({
       .map((o) => ({
         clientId: o.id || makeRowId(),
         durationMin: o.durationMin,
+        classLevelId: o.classLevelId ?? defaultClassLevelId,
         classTypeId: o.classTypeId ?? defaultClassTypeId,
         rateYenInput: String(o.rateYen),
       }));
@@ -112,6 +121,7 @@ export function TeacherProfileForm({
         {
           clientId: makeRowId(),
           durationMin: 30,
+          classLevelId: defaultClassLevelId,
           classTypeId: defaultClassTypeId,
           rateYenInput: String(initialRateYen),
         },
@@ -126,6 +136,7 @@ export function TeacherProfileForm({
         clientId: o.id || makeRowId(),
         durationMin: o.durationMin,
         groupSize: o.groupSize ?? 2,
+        classLevelId: o.classLevelId ?? defaultClassLevelId,
         classTypeId: o.classTypeId ?? defaultClassTypeId,
         rateYenInput: String(o.rateYen),
       })),
@@ -159,6 +170,7 @@ export function TeacherProfileForm({
         rateYen: rate,
         isGroup: false,
         groupSize: null,
+        classLevelId: row.classLevelId,
         classTypeId: row.classTypeId || null,
       });
     }
@@ -174,6 +186,7 @@ export function TeacherProfileForm({
         rateYen: rate,
         isGroup: true,
         groupSize: group.groupSize,
+        classLevelId: group.classLevelId,
         classTypeId: group.classTypeId || null,
       });
     }
@@ -322,6 +335,7 @@ export function TeacherProfileForm({
                 {
                   clientId: makeRowId(),
                   durationMin: 30,
+                  classLevelId: defaultClassLevelId,
                   classTypeId: defaultClassTypeId,
                   rateYenInput: "",
                 },
@@ -344,6 +358,26 @@ export function TeacherProfileForm({
                 key={row.clientId}
                 className="flex flex-col gap-2 rounded-xl border border-border/80 bg-surface/60 p-3 sm:flex-row sm:flex-wrap sm:items-end"
               >
+                <label className="flex flex-col gap-1 text-xs text-foreground">
+                  <span className="text-muted">Class level</span>
+                  <select
+                    value={row.classLevelId}
+                    onChange={(e) =>
+                      setIndividualOffers((prev) =>
+                        prev.map((r, i) =>
+                          i === index ? { ...r, classLevelId: e.target.value } : r,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+                  >
+                    {classLevels.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {pickLabel(opt, locale)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <label className="flex flex-col gap-1 text-xs text-foreground">
                   <span className="text-muted">{t("teacherLessonTypeForRate")}</span>
                   <select
@@ -433,6 +467,7 @@ export function TeacherProfileForm({
                   clientId: makeRowId(),
                   durationMin: 60,
                   groupSize: 2,
+                  classLevelId: defaultClassLevelId,
                   classTypeId: defaultClassTypeId,
                   rateYenInput: "",
                 },
@@ -463,6 +498,23 @@ export function TeacherProfileForm({
                   }
                   className="w-20 rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
                 />
+                <select
+                  value={group.classLevelId}
+                  onChange={(e) =>
+                    setGroupOffers((prev) =>
+                      prev.map((row, i) =>
+                        i === index ? { ...row, classLevelId: e.target.value } : row,
+                      ),
+                    )
+                  }
+                  className="rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
+                >
+                  {classLevels.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {pickLabel(opt, locale)}
+                    </option>
+                  ))}
+                </select>
                 <select
                   value={group.classTypeId}
                   onChange={(e) =>

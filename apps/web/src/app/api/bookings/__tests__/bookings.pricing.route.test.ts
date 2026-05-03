@@ -13,6 +13,7 @@ const {
     chatThread: { findUnique: vi.fn() },
     booking: { findFirst: vi.fn() },
     schoolScheduleSlot: { findMany: vi.fn() },
+    teacherStudentLessonRate: { findUnique: vi.fn() },
     user: { findUnique: vi.fn() },
     $transaction: vi.fn(),
   },
@@ -64,6 +65,7 @@ describe("POST /api/bookings pricing", () => {
     prismaMock.chatThread.findUnique.mockResolvedValue(null);
     prismaMock.booking.findFirst.mockResolvedValue(null);
     prismaMock.schoolScheduleSlot.findMany.mockResolvedValue([]);
+    prismaMock.teacherStudentLessonRate.findUnique.mockResolvedValue(null);
     prismaMock.user.findUnique.mockResolvedValue({
       id: "student-1",
       email: "student@example.com",
@@ -218,6 +220,77 @@ describe("POST /api/bookings pricing", () => {
       }),
     );
     expect(res.status).toBe(200);
+  });
+
+  test("uses a student-specific rate override for the selected class offer", async () => {
+    prismaMock.teacherStudentLessonRate.findUnique.mockResolvedValue({
+      rateYen: 3900,
+      active: true,
+    });
+    prismaMock.teacherProfile.findFirst.mockResolvedValue({
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      offersFreeTrial: true,
+      rateYen: 3000,
+      lessonOfferings: [
+        {
+          id: "off-grammar-60",
+          durationMin: 60,
+          rateYen: 5000,
+          isGroup: false,
+          active: true,
+          classType: { code: "grammar" },
+        },
+      ],
+      user: { email: "teacher@example.com" },
+    });
+    const bookingCreate = vi.fn().mockResolvedValue({
+      id: "booking-override",
+      status: BookingStatus.PENDING_PAYMENT,
+      quotedPriceYen: 3900,
+      lessonProduct: { nameEn: "Standard 60", nameJa: "標準 60" },
+      teacher: { user: { email: "teacher@example.com" } },
+    });
+    prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb({
+        studentProfile: {
+          findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
+        },
+        booking: { create: bookingCreate },
+      }),
+    );
+
+    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-60",
+          teacherProfileId: "teacher-profile-1",
+          teacherLessonOfferingId: "off-grammar-60",
+          startsAt,
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.teacherStudentLessonRate.findUnique).toHaveBeenCalledWith({
+      where: {
+        teacherLessonOfferingId_studentId: {
+          teacherLessonOfferingId: "off-grammar-60",
+          studentId: "student-1",
+        },
+      },
+      select: { rateYen: true, active: true },
+    });
+    expect(bookingCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          quotedPriceYen: 3900,
+        }),
+      }),
+    );
   });
 
   test("accepts group offering id and uses its rate", async () => {

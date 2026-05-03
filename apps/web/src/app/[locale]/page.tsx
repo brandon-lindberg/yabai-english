@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import { redirect } from "@/i18n/navigation";
 import { auth } from "@/auth";
-import { PageHeader } from "@/components/ui/page-header";
-import { AppCard } from "@/components/ui/app-card";
+import { prisma } from "@/lib/prisma";
+import { getAuthenticatedDefaultRoute } from "@/lib/authenticated-default-route";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { LandingHowItWorks } from "@/components/marketing/landing-how-it-works";
 import { LandingPillars } from "@/components/marketing/landing-pillars";
@@ -19,44 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const t = await getTranslations("home");
   const session = await auth();
 
-  if (session?.user) {
-    return (
-      <main className="mx-auto flex max-w-3xl flex-1 flex-col px-4 py-12 sm:px-6">
-        <PageHeader title={t("signedInTitle")} description={t("signedInSubtitle")} />
-        <div className="grid gap-4 sm:grid-cols-3">
-          <AppCard padding="sm" className="flex flex-col">
-            <p className="text-sm font-medium text-foreground">{t("signedInBook")}</p>
-            <Link
-              href="/book"
-              className="mt-4 inline-flex justify-center rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              {t("ctaBook")}
-            </Link>
-          </AppCard>
-          <AppCard padding="sm" className="flex flex-col">
-            <p className="text-sm font-medium text-foreground">{t("signedInDashboard")}</p>
-            <Link
-              href="/dashboard"
-              className="mt-4 inline-flex justify-center rounded-full border border-border px-4 py-2 text-center text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-            >
-              {t("ctaDashboard")}
-            </Link>
-          </AppCard>
-          <AppCard padding="sm" className="flex flex-col">
-            <p className="text-sm font-medium text-foreground">{t("signedInLearn")}</p>
-            <Link
-              href="/learn/study"
-              className="mt-4 inline-flex justify-center rounded-full border border-border px-4 py-2 text-center text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-            >
-              {t("signedInLearn")}
-            </Link>
-          </AppCard>
-        </div>
-      </main>
-    );
+  if (session?.user?.id) {
+    const locale = await getLocale();
+    const href = await getAuthenticatedHomeRedirect(session.user);
+    redirect({ href, locale });
   }
 
   return (
@@ -67,4 +35,30 @@ export default async function HomePage() {
       <LandingTrust />
     </main>
   );
+}
+
+async function getAuthenticatedHomeRedirect(user: { id: string; role: string }) {
+  if (user.role === "STUDENT") {
+    const profile = await prisma.studentProfile.findUnique({
+      where: { userId: user.id },
+      select: { onboardingCompletedAt: true },
+    });
+    return getAuthenticatedDefaultRoute({
+      role: user.role,
+      studentOnboardingCompleted: Boolean(profile?.onboardingCompletedAt),
+    });
+  }
+
+  if (user.role === "TEACHER") {
+    const profile = await prisma.teacherProfile.findUnique({
+      where: { userId: user.id },
+      select: { onboardingCompletedAt: true },
+    });
+    return getAuthenticatedDefaultRoute({
+      role: user.role,
+      teacherOnboardingCompleted: Boolean(profile?.onboardingCompletedAt),
+    });
+  }
+
+  return getAuthenticatedDefaultRoute({ role: user.role });
 }

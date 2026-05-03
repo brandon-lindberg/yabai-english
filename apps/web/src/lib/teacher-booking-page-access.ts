@@ -1,6 +1,6 @@
 /**
- * Gate for /book/teachers/[teacherId]: teachers may only open their own profile;
- * admins are redirected. Guests may view any teacher profile (read-only); booking is gated in the UI.
+ * Gate for /book/teachers/[teacherId]: the booking flow is for students and
+ * guests only. Teachers and admins are redirected away from student booking UI.
  */
 export function redirectTargetForTeacherBookingPage(input: {
   role: string | undefined;
@@ -9,11 +9,10 @@ export function redirectTargetForTeacherBookingPage(input: {
   viewerTeacherProfileId: string | null;
 }): "/dashboard" | null {
   const { role, requestedTeacherProfileId, viewerTeacherProfileId } = input;
+  void requestedTeacherProfileId;
+  void viewerTeacherProfileId;
   if (!role) return null;
   if (role === "SUPER_ADMIN") return "/dashboard";
-  if (role === "TEACHER") {
-    if (viewerTeacherProfileId === requestedTeacherProfileId) return null;
-    return "/dashboard";
-  }
+  if (role === "TEACHER") return "/dashboard";
   return null;
 }

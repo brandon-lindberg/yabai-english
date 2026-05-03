@@ -6,6 +6,7 @@ const {
   availabilityDeleteManyMock,
   availabilityCreateManyMock,
   offeringCreateManyMock,
+  offeringFindManyMock,
   classLevelFindManyMock,
   classTypeFindManyMock,
   classLevelCreateManyMock,
@@ -18,6 +19,7 @@ const {
   availabilityDeleteManyMock: vi.fn(),
   availabilityCreateManyMock: vi.fn(),
   offeringCreateManyMock: vi.fn(),
+  offeringFindManyMock: vi.fn(),
   classLevelFindManyMock: vi.fn(),
   classTypeFindManyMock: vi.fn(),
   classLevelCreateManyMock: vi.fn(),
@@ -42,6 +44,7 @@ vi.mock("@/lib/prisma", () => ({
     },
     teacherLessonOffering: {
       createMany: offeringCreateManyMock,
+      findMany: offeringFindManyMock,
     },
     teacherClassLevel: {
       findMany: classLevelFindManyMock,
@@ -77,11 +80,22 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
       rateYen: 3500,
       lessonOfferings: [
         {
+          id: "off-conv-60",
+          classLevelId: "lvl-int",
           classTypeId: "ty-conv",
           active: true,
           rateYen: 3500,
           isGroup: false,
           durationMin: 30,
+        },
+        {
+          id: "off-gram-60",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-gram",
+          active: true,
+          rateYen: 3500,
+          isGroup: false,
+          durationMin: 60,
         },
       ],
     });
@@ -101,6 +115,43 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
       async ({ where }: { where: { id: { in: string[] } } }) => {
         const ids = where.id.in ?? [];
         return knownTypes.filter((t) => ids.includes(t.id));
+      },
+    );
+    offeringFindManyMock.mockImplementation(
+      async ({ where }: { where: { id: { in: string[] } } }) => {
+        const ids = where.id.in ?? [];
+        return [
+          {
+            id: "off-conv-60",
+            classLevelId: "lvl-int",
+            classTypeId: "ty-conv",
+            durationMin: 60,
+            active: true,
+            isGroup: false,
+            rateYen: 3500,
+            classType: { code: "conversation" },
+          },
+          {
+            id: "off-gram-60",
+            classLevelId: "lvl-int",
+            classTypeId: "ty-gram",
+            durationMin: 60,
+            active: true,
+            isGroup: false,
+            rateYen: 3500,
+            classType: { code: "grammar" },
+          },
+          {
+            id: "off-pron-60",
+            classLevelId: "lvl-int",
+            classTypeId: "ty-pron",
+            durationMin: 60,
+            active: true,
+            isGroup: false,
+            rateYen: 4200,
+            classType: { code: "pronunciation" },
+          },
+        ].filter((offering) => ids.includes(offering.id));
       },
     );
     classLevelCreateManyMock.mockResolvedValue({ count: 0 });
@@ -126,7 +177,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     );
   });
 
-  test("creates a matching lesson offering when schedule introduces a new class type", async () => {
+  test("persists availability against selected class offers", async () => {
     const res = await PATCH(
       patchRequest([
         {
@@ -136,6 +187,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
         },
         {
           dayOfWeek: 3,
@@ -144,24 +196,18 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-gram",
+          teacherLessonOfferingId: "off-gram-60",
         },
       ]),
     );
 
     expect(res.status).toBe(200);
-    expect(offeringCreateManyMock).toHaveBeenCalledTimes(1);
-    expect(offeringCreateManyMock).toHaveBeenCalledWith({
-      data: [
-        {
-          teacherId: "tp-1",
-          durationMin: 30,
-          rateYen: 3500,
-          isGroup: false,
-          groupSize: null,
-          active: true,
-          classTypeId: "ty-gram",
-        },
-      ],
+    expect(offeringCreateManyMock).not.toHaveBeenCalled();
+    expect(availabilityCreateManyMock).toHaveBeenCalledWith({
+      data: expect.arrayContaining([
+        expect.objectContaining({ teacherLessonOfferingId: "off-conv-60" }),
+        expect.objectContaining({ teacherLessonOfferingId: "off-gram-60" }),
+      ]),
     });
   });
 
@@ -175,6 +221,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
         },
       ]),
     );
@@ -199,6 +246,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-pron",
+          teacherLessonOfferingId: "off-pron-60",
         },
       ]),
     );
@@ -234,6 +282,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-pron",
+          teacherLessonOfferingId: "off-pron-60",
         },
       ]),
     );
@@ -265,6 +314,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           endsOn: "2026-05-15",
           classLevelId: "lvl-int",
           classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
         },
       ]),
     );

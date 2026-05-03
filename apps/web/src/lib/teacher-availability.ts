@@ -21,6 +21,8 @@ export const teacherAvailabilitySlotSchema = z
     classLevelId: z.string().min(1),
     /** FK to TeacherClassType.id — required. */
     classTypeId: z.string().min(1),
+    /** FK to TeacherLessonOffering.id — required so class, duration, and price stay linked. */
+    teacherLessonOfferingId: z.string().min(1),
   })
   .refine(weeklyTimeRangeOrdered, {
     message: "endMin must be greater than startMin",

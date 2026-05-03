@@ -7,6 +7,7 @@ import {
 
 const k = (id: string, code: string): ScheduleClassTypeKey => ({
   classTypeId: id,
+  classLevelId: "lvl-beginner",
   classTypeCode: code,
 });
 
@@ -40,6 +41,7 @@ describe("deriveMissingOfferingsFromSchedule", () => {
         isGroup: false,
         groupSize: null,
         classTypeId: "ty-conv",
+        classLevelId: "lvl-beginner",
         active: true,
       },
     ]);

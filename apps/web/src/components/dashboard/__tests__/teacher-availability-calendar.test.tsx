@@ -12,6 +12,19 @@ const sampleLevels = [
 const sampleTypes = [
   { id: "ty-conv", code: "conversation", labelEn: "Conversation", labelJa: null },
 ];
+const sampleOfferings = [
+  {
+    id: "offer-conv-60",
+    durationMin: 60,
+    rateYen: 3500,
+    isGroup: false,
+    groupSize: null,
+    classLevelId: "lvl-int",
+    classTypeId: "ty-conv",
+    classLevel: sampleLevels[0],
+    classType: sampleTypes[0],
+  },
+];
 
 async function flushPromises() {
   await Promise.resolve();
@@ -27,6 +40,7 @@ function renderTeacherCalendar() {
         defaultTimezone="UTC"
         classLevels={sampleLevels}
         classTypes={sampleTypes}
+        lessonOfferings={sampleOfferings}
       />
     </NextIntlClientProvider>,
   );

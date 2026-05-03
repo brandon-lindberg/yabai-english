@@ -40,6 +40,14 @@ export default async function DashboardScheduleAvailabilityPage({
           classType: { select: { id: true, code: true, labelEn: true, labelJa: true } },
         },
       },
+      lessonOfferings: {
+        where: { active: true },
+        orderBy: [{ isGroup: "asc" }, { durationMin: "asc" }, { rateYen: "asc" }],
+        include: {
+          classLevel: { select: { id: true, code: true, labelEn: true, labelJa: true } },
+          classType: { select: { id: true, code: true, labelEn: true, labelJa: true } },
+        },
+      },
       availabilityOccurrenceSkips: {
         select: { startsAtIso: true },
       },
@@ -77,6 +85,7 @@ export default async function DashboardScheduleAvailabilityPage({
           endsOn: dateOnlyFromDate(slot.endsOn),
           classLevelId: slot.classLevelId,
           classTypeId: slot.classTypeId,
+          teacherLessonOfferingId: slot.teacherLessonOfferingId,
           classLevel: slot.classLevel,
           classType: slot.classType,
         }))}
@@ -86,6 +95,7 @@ export default async function DashboardScheduleAvailabilityPage({
         defaultTimezone={profile?.availabilitySlots?.[0]?.timezone ?? "Asia/Tokyo"}
         classLevels={profile?.classLevels ?? []}
         classTypes={profile?.classTypes ?? []}
+        lessonOfferings={profile?.lessonOfferings ?? []}
         bookings={teacherBookings.upcoming.map((b) => ({
           id: b.id,
           startsAtIso: b.startsAt.toISOString(),
