@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus, LessonTier } from "@/generated/prisma/client";
 
 const { authMock, prismaMock, createUserNotificationMock, createMeetMock } = vi.hoisted(
@@ -37,6 +37,8 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
   const startsAt = new Date("2026-05-02T00:00:00Z");
 
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-29T00:00:00Z"));
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
     prismaMock.lessonProduct.findFirst.mockResolvedValue({
@@ -99,6 +101,10 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
         },
       }),
     );
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test("notifies the teacher with the student name and lesson time on a confirmed free-trial booking", async () => {
