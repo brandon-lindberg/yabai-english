@@ -159,6 +159,8 @@
     "statusCancelled": "キャンセル",
     "completePayment": "支払いを完了",
     "downloadInvoice": "請求書をダウンロード",
+    "downloadInvoiceEn": "請求書をダウンロード（英語）",
+    "downloadInvoiceJa": "請求書をダウンロード（日本語）",
     "placedLevel": "診断レベル",
     "placedUnset": "未設定 — レベル診断を受けてください",
     "subLevelShort": "Lv{subLevel}",

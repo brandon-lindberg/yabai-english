@@ -3,6 +3,7 @@ import { DashboardProfileBioPreview } from "@/components/dashboard/dashboard-pro
 import { bookingStatusKey } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
+import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
 
 type Completed = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["completed"];
 
@@ -64,12 +65,11 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
                   {t(bookingStatusKey(b.status))}
                 </span>
                 {b.invoice ? (
-                  <a
-                    href={`/api/invoices/${b.invoice.id}/pdf`}
-                    className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground hover:bg-[var(--app-hover)]"
-                  >
-                    {t("downloadInvoice")}
-                  </a>
+                  <InvoiceDownloadLinks
+                    invoiceId={b.invoice.id}
+                    englishLabel={t("downloadInvoiceEn")}
+                    japaneseLabel={t("downloadInvoiceJa")}
+                  />
                 ) : null}
               </div>
               {showTeacherMaterials ? (

@@ -159,6 +159,8 @@
     "statusCancelled": "Cancelled",
     "completePayment": "Complete payment",
     "downloadInvoice": "Download invoice",
+    "downloadInvoiceEn": "Download invoice (English)",
+    "downloadInvoiceJa": "Download invoice (Japanese)",
     "placedLevel": "Placed level",
     "placedUnset": "Not set — take the level check",
     "subLevelShort": "L{subLevel}",

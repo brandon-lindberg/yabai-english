@@ -5,6 +5,7 @@ import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
+import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
 
 type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
 
@@ -56,12 +57,11 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
                   </Link>
                 )}
                 {b.invoice && (
-                  <a
-                    href={`/api/invoices/${b.invoice.id}/pdf`}
-                    className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground hover:bg-[var(--app-hover)]"
-                  >
-                    {t("downloadInvoice")}
-                  </a>
+                  <InvoiceDownloadLinks
+                    invoiceId={b.invoice.id}
+                    englishLabel={t("downloadInvoiceEn")}
+                    japaneseLabel={t("downloadInvoiceJa")}
+                  />
                 )}
                 <a
                   href={buildGoogleCalendarUrl({

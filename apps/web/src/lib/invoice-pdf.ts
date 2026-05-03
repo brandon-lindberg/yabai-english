@@ -1,5 +1,77 @@
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import fontkit from "@pdf-lib/fontkit";
+import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
 import { calculateTaxIncludedInvoiceTotals } from "@/lib/invoice-totals";
+
+export type InvoicePdfLanguage = "en" | "ja";
+
+const require = createRequire(import.meta.url);
+const japaneseFontPackageRoot = dirname(require.resolve("@expo-google-fonts/noto-sans-jp"));
+const japaneseRegularFontPath = join(
+  japaneseFontPackageRoot,
+  "400Regular",
+  "NotoSansJP_400Regular.ttf",
+);
+const japaneseBoldFontPath = join(
+  japaneseFontPackageRoot,
+  "700Bold",
+  "NotoSansJP_700Bold.ttf",
+);
+
+let japaneseRegularFontBytes: Promise<Uint8Array> | undefined;
+let japaneseBoldFontBytes: Promise<Uint8Array> | undefined;
+
+const invoiceCopy = {
+  en: {
+    title: "INVOICE",
+    dateLabel: "Invoice Date:",
+    thankYou: "Thank you for learning with English Studio Japan!",
+    item: "Item",
+    className: "Class",
+    duration: "Duration",
+    price: "Price (JPY)",
+    durationValue: (minutes: number) => `${minutes} min`,
+    subtotal: "Total before tax",
+    tax: "Tax (10%)",
+    finalTotal: "Final Total",
+    currencyNote: "All amounts are in Japanese Yen (JPY).",
+    lessonDate: (date: string) => `Lesson Date: ${date}`,
+  },
+  ja: {
+    title: "請求書",
+    dateLabel: "請求日:",
+    thankYou: "English Studio Japanをご利用いただきありがとうございます。",
+    item: "項目",
+    className: "クラス",
+    duration: "時間",
+    price: "金額 (JPY)",
+    durationValue: (minutes: number) => `${minutes}分`,
+    subtotal: "税抜金額",
+    tax: "消費税 (10%)",
+    finalTotal: "合計金額",
+    currencyNote: "金額はすべて日本円 (JPY) です。",
+    lessonDate: (date: string) => `レッスン日: ${date}`,
+  },
+} satisfies Record<
+  InvoicePdfLanguage,
+  {
+    title: string;
+    dateLabel: string;
+    thankYou: string;
+    item: string;
+    className: string;
+    duration: string;
+    price: string;
+    durationValue: (minutes: number) => string;
+    subtotal: string;
+    tax: string;
+    finalTotal: string;
+    currencyNote: string;
+    lessonDate: (date: string) => string;
+  }
+>;
 
 export async function buildInvoicePdf(input: {
   invoiceNo: string;
@@ -9,11 +81,13 @@ export async function buildInvoicePdf(input: {
   className: string;
   durationMin: number;
   lessonDate: string;
+  language?: InvoicePdfLanguage;
 }): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const page = doc.addPage([595, 842]); // A4
-  const font = await doc.embedFont(StandardFonts.Helvetica);
-  const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const language = input.language ?? "en";
+  const copy = invoiceCopy[language];
+  const { font, fontBold } = await loadInvoiceFonts(doc, language);
 
   const { width, height } = page.getSize();
   const margin = 50;
@@ -61,7 +135,7 @@ export async function buildInvoicePdf(input: {
     color: gray,
   });
 
-  page.drawText("INVOICE", {
+  page.drawText(copy.title, {
     x: width - margin - 152,
     y: y - 4,
     size: 30,
@@ -85,7 +159,7 @@ export async function buildInvoicePdf(input: {
   });
 
   y -= 28;
-  page.drawText("Invoice Date:", {
+  page.drawText(copy.dateLabel, {
     x: width - margin - 160,
     y,
     size: 10,
@@ -109,7 +183,7 @@ export async function buildInvoicePdf(input: {
     color: navy,
   });
   y -= 20;
-  page.drawText("Thank you for learning with English Studio Japan!", {
+  page.drawText(copy.thankYou, {
     x: margin + 52,
     y,
     size: 10,
@@ -139,34 +213,28 @@ export async function buildInvoicePdf(input: {
   });
 
   const headerY = y - 14;
-  page.drawText("Item", {
+  page.drawText(copy.item, {
     x: columns.item + 22,
     y: headerY,
     size: 10,
     font: fontBold,
     color: white,
   });
-  page.drawText("Class", {
+  page.drawText(copy.className, {
     x: columns.className + 20,
     y: headerY,
     size: 10,
     font: fontBold,
     color: white,
   });
-  page.drawText("Duration", {
+  page.drawText(copy.duration, {
     x: columns.duration + 16,
     y: headerY,
     size: 10,
     font: fontBold,
     color: white,
   });
-  page.drawText("Price (JPY)", {
-    x: columns.price + 22,
-    y: headerY,
-    size: 10,
-    font: fontBold,
-    color: white,
-  });
+  drawRightText(copy.price, columns.end - 22, headerY, 10, fontBold, white);
 
   y -= headerHeight + rowHeight;
   page.drawRectangle({
@@ -194,7 +262,7 @@ export async function buildInvoicePdf(input: {
     font,
     color: black,
   });
-  page.drawText(`${input.durationMin} min`, {
+  page.drawText(copy.durationValue(input.durationMin), {
     x: columns.duration + 22,
     y: rowTextY,
     size: 10,
@@ -235,9 +303,9 @@ export async function buildInvoicePdf(input: {
     );
   };
 
-  drawTotalRow("Total before tax", formatYen(totals.subtotalYen), y);
+  drawTotalRow(copy.subtotal, formatYen(totals.subtotalYen), y);
   y -= 34;
-  drawTotalRow("Tax (10%)", formatYen(totals.taxYen), y);
+  drawTotalRow(copy.tax, formatYen(totals.taxYen), y);
   y -= 46;
   page.drawRectangle({
     x: totalsLabelX - 24,
@@ -246,7 +314,7 @@ export async function buildInvoicePdf(input: {
     height: 34,
     color: mint,
   });
-  drawTotalRow("Final Total", formatYen(totals.totalYen), y, true);
+  drawTotalRow(copy.finalTotal, formatYen(totals.totalYen), y, true);
 
   y -= 90;
   page.drawRectangle({
@@ -258,14 +326,14 @@ export async function buildInvoicePdf(input: {
     borderWidth: 1,
     color: white,
   });
-  page.drawText("All amounts are in Japanese Yen (JPY).", {
+  page.drawText(copy.currencyNote, {
     x: margin + 40,
     y: y + 35,
     size: 10,
     font,
     color: black,
   });
-  page.drawText("Thank you for learning with English Studio Japan!", {
+  page.drawText(copy.thankYou, {
     x: margin + 40,
     y: y + 20,
     size: 10,
@@ -288,7 +356,7 @@ export async function buildInvoicePdf(input: {
     color: gray,
   });
 
-  page.drawText(`Lesson Date: ${input.lessonDate}`, {
+  page.drawText(copy.lessonDate(input.lessonDate), {
     x: margin,
     y: margin - 16,
     size: 8,
@@ -297,4 +365,29 @@ export async function buildInvoicePdf(input: {
   });
 
   return doc.save();
+}
+
+async function loadInvoiceFonts(
+  doc: PDFDocument,
+  language: InvoicePdfLanguage,
+): Promise<{ font: PDFFont; fontBold: PDFFont }> {
+  if (language === "en") {
+    const font = await doc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
+    return { font, fontBold };
+  }
+
+  doc.registerFontkit(fontkit);
+  japaneseRegularFontBytes ??= readFile(japaneseRegularFontPath);
+  japaneseBoldFontBytes ??= readFile(japaneseBoldFontPath);
+
+  const [regularBytes, boldBytes] = await Promise.all([
+    japaneseRegularFontBytes,
+    japaneseBoldFontBytes,
+  ]);
+
+  const font = await doc.embedFont(regularBytes, { subset: false });
+  const fontBold = await doc.embedFont(boldBytes, { subset: false });
+
+  return { font, fontBold };
 }
