@@ -262,7 +262,10 @@ export async function POST(req: Request) {
       throw new Error("NO_PROFILE");
     }
 
-    if (!flow.requiresPayment) {
+    // Only burn the free-trial flag for actual free-trial bookings. The
+    // payment flow can also auto-confirm paid bookings (BOOKING_AUTO_CONFIRM
+    // dev flag) — those must not consume the student's free-trial slot.
+    if (product.tier === "FREE_TRIAL") {
       const claimed = await tx.studentProfile.updateMany({
         where: { userId: session.user.id, trialLessonUsedAt: null },
         data: { trialLessonUsedAt: new Date() },
@@ -270,21 +273,6 @@ export async function POST(req: Request) {
       if (claimed.count === 0) {
         throw new Error("TRIAL_USED");
       }
-      return tx.booking.create({
-        data: {
-          studentId: session.user.id,
-          teacherId: teacher.id,
-          lessonProductId: product.id,
-          startsAt: start,
-          endsAt,
-          status: flow.status,
-          quotedPriceYen,
-          manualOverrideUsed: !outsideLeadWindow && canBypass,
-          manualOverrideReason: !outsideLeadWindow && canBypass ? reasonCheck.normalizedReason : null,
-          manualOverrideByRole: !outsideLeadWindow && canBypass ? session.user.role : null,
-        },
-        include: { lessonProduct: true, teacher: { include: { user: true } } },
-      });
     }
 
     return tx.booking.create({
