@@ -42,6 +42,23 @@ describe("buildUpcomingSlotOptions", () => {
     expect(slots.map((s) => s.startsAtIso)).toEqual(["2026-05-15T01:00:00.000Z"]);
   });
 
+  test("default student-facing horizon includes one-off availability two months out", () => {
+    const slots = buildUpcomingSlotOptions({
+      availabilitySlots: [
+        {
+          ...baseSlot,
+          dayOfWeek: 1,
+          recurrence: "ONE_OFF",
+          startsOn: "2026-06-29",
+        },
+      ],
+      viewerTimezone: "Asia/Tokyo",
+      now: "2026-05-01T00:00:00.000Z",
+    });
+
+    expect(slots.map((s) => s.startsAtIso)).toEqual(["2026-06-29T01:00:00.000Z"]);
+  });
+
   test("clips weekly availability to From and Until dates", () => {
     const slots = buildUpcomingSlotOptions({
       availabilitySlots: [

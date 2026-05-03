@@ -4,6 +4,8 @@ import {
   type RecurrencePattern,
 } from "@/lib/recurring-slot-occurrences";
 
+const DEFAULT_AVAILABILITY_HORIZON_DAYS = 365;
+
 type AvailabilitySlotInput = {
   id: string;
   dayOfWeek: number;
@@ -45,7 +47,7 @@ export function buildUpcomingSlotOptions({
   availabilitySlots,
   viewerTimezone,
   now = new Date(),
-  horizonDays = 21,
+  horizonDays = DEFAULT_AVAILABILITY_HORIZON_DAYS,
   minimumLeadHours = 0,
   allowPastInstances = false,
   skippedStartsAtIso,
