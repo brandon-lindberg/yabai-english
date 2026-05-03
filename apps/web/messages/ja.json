@@ -192,8 +192,13 @@
       "ariaLabel": "ダッシュボードのセクション",
       "overview": "概要",
       "profile": "プロフィール",
+      "lessons": "レッスン・料金",
       "schedule": "スケジュール",
       "taxonomy": "クラス分類"
+    },
+    "lessonOfferingsPage": {
+      "title": "レッスン・料金",
+      "intro": "受講生が予約できるレッスン内容（レベル、内容、時間、料金）を作成します。"
     },
     "highlights": {
       "pageTitle": "概要",
@@ -248,6 +253,7 @@
       "teacherRateHelp": "講師一覧と予約ページに表示されます。料金を出さない場合は空欄にしてください。",
       "teacherRatesByDurationTitle": "個人レッスン料金（時間別）",
       "teacherRatesByDurationHelp": "提供するレッスン時間を選び、それぞれの料金を設定してください。",
+      "teacherLessonLevelForRate": "クラスレベル",
       "teacherLessonTypeForRate": "レッスンの内容",
       "teacherLessonTypeForRateHelp": "時間の長さごとに、どんな内容のレッスンか選びます（スケジュールの種類と同じ）。ここに合わせて予約時のレッスン種別が絞り込まれます。",
       "teacherLessonTypeCustomLabel": "カスタム名",
@@ -766,7 +772,7 @@
     "teacherSteps": {
       "profile": {
         "title": "公開プロフィールを更新",
-        "body": "自己紹介・資格・提供レッスンを設定し、受講生に内容を伝えます。"
+        "body": "自己紹介・資格を設定し、受講生に講師としての情報を伝えます。"
       },
       "integrations": {
         "title": "Google 連携を設定",

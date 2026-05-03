@@ -39,33 +39,6 @@ export default async function DashboardProfilePage({
           credentials: true,
           instructionLanguages: true,
           specialties: true,
-          rateYen: true,
-          offersFreeTrial: true,
-          lessonOfferings: {
-            where: { active: true },
-            orderBy: [{ isGroup: "asc" }, { durationMin: "asc" }],
-            select: {
-              id: true,
-              durationMin: true,
-              rateYen: true,
-              isGroup: true,
-              groupSize: true,
-              classLevelId: true,
-              classLevel: { select: { id: true, code: true, labelEn: true, labelJa: true } },
-              classTypeId: true,
-              classType: { select: { id: true, code: true, labelEn: true, labelJa: true } },
-            },
-          },
-          classLevels: {
-            where: { active: true },
-            orderBy: [{ sortOrder: "asc" }, { labelEn: "asc" }],
-            select: { id: true, code: true, labelEn: true, labelJa: true },
-          },
-          classTypes: {
-            where: { active: true },
-            orderBy: [{ sortOrder: "asc" }, { labelEn: "asc" }],
-            select: { id: true, code: true, labelEn: true, labelJa: true },
-          },
         },
       }),
       prisma.user.findUnique({
@@ -103,12 +76,7 @@ export default async function DashboardProfilePage({
           initialCredentials={profile?.credentials ?? null}
           initialInstructionLanguages={profile?.instructionLanguages ?? ["EN"]}
           initialSpecialties={profile?.specialties ?? []}
-          initialRateYen={profile?.rateYen ?? null}
-          initialOffersFreeTrial={profile?.offersFreeTrial ?? true}
           postSaveRedirect={onboardingNext ?? postSaveRedirect}
-          initialLessonOfferings={profile?.lessonOfferings ?? []}
-          classLevels={profile?.classLevels ?? []}
-          classTypes={profile?.classTypes ?? []}
         />
       </div>
     );
