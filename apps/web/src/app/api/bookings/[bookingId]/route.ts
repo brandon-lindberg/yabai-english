@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { evaluateBookingRescheduleTimes } from "@/lib/booking-reschedule-policy";
 import { patchMeetLessonEvent } from "@/lib/google-calendar";
+import { createUserNotification } from "@/lib/notifications";
+import { marketplaceBookingRescheduledNotification } from "@/lib/reschedule-notification-copy";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 
 const patchBodySchema = z.object({
@@ -45,7 +47,9 @@ export async function PATCH(req: Request, { params }: Props) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
-      lessonProduct: { select: { durationMin: true } },
+      lessonProduct: {
+        select: { durationMin: true, nameJa: true, nameEn: true },
+      },
       teacher: {
         select: {
           id: true,
@@ -189,6 +193,15 @@ export async function PATCH(req: Request, { params }: Props) {
         })
       : Promise.resolve(true),
   ]);
+
+  const notify = marketplaceBookingRescheduledNotification({
+    lessonNameJa: booking.lessonProduct.nameJa,
+    lessonNameEn: booking.lessonProduct.nameEn,
+  });
+  await createUserNotification({
+    userId: booking.studentId,
+    ...notify,
+  });
 
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`);

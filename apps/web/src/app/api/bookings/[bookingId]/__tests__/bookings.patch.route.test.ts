@@ -8,6 +8,7 @@ const {
   findManyMock,
   updateMock,
   patchMeetLessonEventMock,
+  createUserNotificationMock,
   revalidatePathMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
@@ -16,6 +17,7 @@ const {
   findManyMock: vi.fn(),
   updateMock: vi.fn(),
   patchMeetLessonEventMock: vi.fn(),
+  createUserNotificationMock: vi.fn(),
   revalidatePathMock: vi.fn(),
 }));
 
@@ -44,6 +46,10 @@ vi.mock("next/cache", () => ({
   revalidatePath: revalidatePathMock,
 }));
 
+vi.mock("@/lib/notifications", () => ({
+  createUserNotification: createUserNotificationMock,
+}));
+
 import { PATCH } from "@/app/api/bookings/[bookingId]/route";
 
 const now = new Date("2026-05-10T12:00:00.000Z");
@@ -58,7 +64,11 @@ function baseBooking(overrides: Partial<Record<string, unknown>> = {}) {
     googleEventId: "evt-teacher",
     googleCalendarId: "primary",
     studentGoogleEventId: "evt-student",
-    lessonProduct: { durationMin: 40 },
+    lessonProduct: {
+      durationMin: 40,
+      nameJa: "英会話（40分）",
+      nameEn: "Conversation (40 min)",
+    },
     teacher: {
       id: "tp-1",
       userId: "teacher-user-1",
@@ -219,6 +229,7 @@ describe("PATCH /api/bookings/[bookingId]", () => {
     expect(res.status).toBe(200);
     expect(updateMock).not.toHaveBeenCalled();
     expect(patchMeetLessonEventMock).not.toHaveBeenCalled();
+    expect(createUserNotificationMock).not.toHaveBeenCalled();
     const body = (await res.json()) as { calendarUpdated?: boolean };
     expect(body.calendarUpdated).toBe(true);
   });
@@ -288,6 +299,12 @@ describe("PATCH /api/bookings/[bookingId]", () => {
         end: newEnd,
       }),
     );
+    expect(createUserNotificationMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "student-user-1",
+        titleEn: expect.stringContaining("lesson") as unknown as string,
+      }),
+    );
     expect(revalidatePathMock).toHaveBeenCalled();
   });
 
@@ -317,5 +334,6 @@ describe("PATCH /api/bookings/[bookingId]", () => {
 
     expect(res.status).toBe(200);
     expect(updateMock).toHaveBeenCalled();
+    expect(createUserNotificationMock).toHaveBeenCalled();
   });
 });
