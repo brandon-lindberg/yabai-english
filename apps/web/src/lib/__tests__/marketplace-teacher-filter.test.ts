@@ -4,6 +4,7 @@ import { marketplaceTeacherWhere } from "../marketplace-teacher-filter";
 describe("marketplaceTeacherWhere", () => {
   test("returns base clause when no viewer", () => {
     const where = marketplaceTeacherWhere(null);
+    expect(where.marketplaceHidden).toBe(false);
     expect(where.user?.organizationMemberships).toEqual({
       none: { status: "ACTIVE" },
     });
@@ -26,5 +27,10 @@ describe("marketplaceTeacherWhere", () => {
   test("does not include blocked-thread filter when no viewer", () => {
     const where = marketplaceTeacherWhere(null);
     expect(where.user?.chatThreadsAsTeacher).toBeUndefined();
+  });
+
+  test("excludes teachers who opted out of marketplace listing", () => {
+    expect(marketplaceTeacherWhere(null).marketplaceHidden).toBe(false);
+    expect(marketplaceTeacherWhere("student-1").marketplaceHidden).toBe(false);
   });
 });

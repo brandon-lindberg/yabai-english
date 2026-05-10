@@ -21,6 +21,7 @@ describe("TeacherProfileForm", () => {
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherProfileForm
           showGooglePrefillHint={false}
+          avatarUrl={null}
           initialTeacherProfileId="teacher-profile-1"
           initialDisplayName="Teacher One"
           initialBio={null}
@@ -28,6 +29,7 @@ describe("TeacherProfileForm", () => {
           initialCredentials={null}
           initialInstructionLanguages={["EN"]}
           initialSpecialties={[]}
+          initialMarketplaceHidden={false}
           postSaveRedirect={null}
         />
       </NextIntlClientProvider>,
@@ -40,5 +42,28 @@ describe("TeacherProfileForm", () => {
     expect(
       screen.queryByText(en.dashboard.profilePage.teacherOffersFreeTrialLabel),
     ).not.toBeInTheDocument();
+  });
+
+  test("shows OAuth avatar when avatarUrl is set", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherProfileForm
+          showGooglePrefillHint={false}
+          avatarUrl="https://example.com/avatar.png"
+          initialTeacherProfileId="teacher-profile-1"
+          initialDisplayName="Teacher One"
+          initialBio={null}
+          initialCountryOfOrigin={null}
+          initialCredentials={null}
+          initialInstructionLanguages={["EN"]}
+          initialSpecialties={[]}
+          initialMarketplaceHidden={false}
+          postSaveRedirect={null}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    const img = screen.getByRole("presentation");
+    expect(img).toHaveAttribute("src", "https://example.com/avatar.png");
   });
 });

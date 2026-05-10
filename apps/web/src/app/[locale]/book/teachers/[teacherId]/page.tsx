@@ -17,6 +17,7 @@ import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { buildLocalizedTeacherProfilePath } from "@/lib/teacher-card-href";
 import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
+import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -99,6 +100,26 @@ export default async function TeacherProfileBookingPage({
 
   if (!teacher) notFound();
   if (teacher.user.organizationMemberships.length > 0) notFound();
+
+  const viewerStudentId =
+    session?.user?.role === "STUDENT" ? session.user.id : null;
+  if (teacher.marketplaceHidden) {
+    const onRoster =
+      viewerStudentId &&
+      (await prisma.teacherRosterEntry.findFirst({
+        where: { teacherId: teacher.id, studentId: viewerStudentId },
+        select: { id: true },
+      }));
+    if (
+      !studentMayAccessTeacherBookingFlow({
+        marketplaceHidden: true,
+        viewerStudentId,
+        isStudentOnRoster: Boolean(onRoster),
+      })
+    ) {
+      notFound();
+    }
+  }
 
   // Only fetch timing for taken slots. Never select student identity fields
   // so no booker's name/email can leak to other students on this page.

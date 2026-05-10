@@ -21,6 +21,9 @@ import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifica
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
 import { BookingStatus, LessonTier } from "@/generated/prisma/client";
+import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
+import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
+import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 
 const postSchema = z.object({
   lessonProductId: z.string().min(1),
@@ -94,7 +97,15 @@ export async function POST(req: Request) {
       ? await prisma.teacherProfile.findFirst({
           where: { id: teacherProfileId },
           include: {
-            user: true,
+            user: {
+              include: {
+                organizationMemberships: {
+                  where: { status: "ACTIVE" },
+                  select: { id: true },
+                  take: 1,
+                },
+              },
+            },
             lessonOfferings: { include: { classType: true } },
             availabilitySlots: {
               where: { active: true },
@@ -106,7 +117,15 @@ export async function POST(req: Request) {
       : null) ??
     (await prisma.teacherProfile.findFirst({
       include: {
-        user: true,
+        user: {
+          include: {
+            organizationMemberships: {
+              where: { status: "ACTIVE" },
+              select: { id: true },
+              take: 1,
+            },
+          },
+        },
         lessonOfferings: { include: { classType: true } },
         availabilitySlots: {
           where: { active: true },
@@ -120,6 +139,30 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "No teacher available. Ask an admin to add a teacher profile." },
       { status: 409 },
+    );
+  }
+
+  if (teacher.user.organizationMemberships.length > 0) {
+    return NextResponse.json(
+      { error: "This teacher is not available for marketplace booking." },
+      { status: 403 },
+    );
+  }
+
+  const onRoster = await prisma.teacherRosterEntry.findFirst({
+    where: { teacherId: teacher.id, studentId: session.user.id },
+    select: { id: true },
+  });
+  if (
+    !studentMayAccessTeacherBookingFlow({
+      marketplaceHidden: teacher.marketplaceHidden,
+      viewerStudentId: session.user.id,
+      isStudentOnRoster: Boolean(onRoster),
+    })
+  ) {
+    return NextResponse.json(
+      { error: "This teacher is not available for booking." },
+      { status: 403 },
     );
   }
 
@@ -284,7 +327,7 @@ export async function POST(req: Request) {
       }
     }
 
-    return tx.booking.create({
+    const created = await tx.booking.create({
       data: {
         studentId: session.user.id,
         teacherId: teacher.id,
@@ -299,6 +342,13 @@ export async function POST(req: Request) {
       },
       include: { lessonProduct: true, teacher: { include: { user: true } } },
     });
+
+    await syncTeacherRosterAfterStudentBooking(tx, {
+      teacherId: teacher.id,
+      studentUserId: session.user.id,
+    });
+
+    return created;
   }).catch((e) => {
     const msg = String((e as Error).message);
     if (msg === "TRIAL_USED" || msg === "NO_PROFILE") {
@@ -319,6 +369,8 @@ export async function POST(req: Request) {
   }
 
   const confirmedBooking = booking as Exclude<typeof booking, { _err: string }>;
+
+  revalidateDashboardStudentRosterPaths();
 
   if (confirmedBooking.status === BookingStatus.PENDING_PAYMENT) {
     await createUserNotification({

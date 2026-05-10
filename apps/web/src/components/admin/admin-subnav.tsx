@@ -2,15 +2,7 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-
-const NAV = [
-  ["/admin", "overview"],
-  ["/admin/schools", "schools"],
-  ["/admin/users", "users"],
-  ["/admin/teachers", "teachers"],
-  ["/admin/students", "students"],
-  ["/admin/reports", "reports"],
-] as const;
+import { ADMIN_SUBNAV_ROUTES } from "@/lib/admin-subnav-routes";
 
 export function AdminSubnav() {
   const t = useTranslations("admin.nav");
@@ -21,7 +13,7 @@ export function AdminSubnav() {
       className="mb-8 flex flex-wrap gap-2 border-b border-border pb-3"
       aria-label="Admin"
     >
-      {NAV.map(([href, labelKey]) => {
+      {ADMIN_SUBNAV_ROUTES.map(([href, labelKey]) => {
         const active =
           href === "/admin"
             ? pathname === "/admin"

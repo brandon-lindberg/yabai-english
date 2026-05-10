@@ -162,6 +162,7 @@ model User {
   googleIntegrationAccount  GoogleIntegrationAccount?
   googleIntegrationSettings GoogleIntegrationSettings?
   organizationMemberships   OrganizationMembership[]
+  teacherRosterEntriesAsStudent TeacherRosterEntry[] @relation("RosterStudent")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -301,10 +302,13 @@ model TeacherProfile {
   specialties                String[]  @default([])
   rateYen                    Int?
   offersFreeTrial            Boolean   @default(true)
+  /// When true, profile is hidden from /book marketplace; only rostered students may book via direct link.
+  marketplaceHidden          Boolean   @default(false)
   onboardingCompletedAt      DateTime?
   /// Steps the teacher explicitly skipped from the onboarding wizard.
   skippedOnboardingSteps     String[]  @default([])
 
+  rosterEntries               TeacherRosterEntry[]
   availabilitySlots           AvailabilitySlot[]
   availabilityOccurrenceSkips AvailabilityOccurrenceSkip[]
   bookingsTeaching            Booking[]                    @relation("TeacherBookings")
@@ -312,6 +316,25 @@ model TeacherProfile {
   studentLessonRateOverrides  TeacherStudentLessonRate[]
   classLevels                 TeacherClassLevel[]
   classTypes                  TeacherClassType[]
+}
+
+/// Students (or pending email invites) allowed to book a marketplace teacher when hidden from the list.
+model TeacherRosterEntry {
+  id        String         @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  studentId String?
+  student   User?          @relation("RosterStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  /// Lowercase normalized email while invite is pending (no User yet).
+  invitedEmail String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teacherId, studentId])
+  @@unique([teacherId, invitedEmail])
+  @@index([teacherId])
+  @@index([studentId])
 }
 
 /// Per-teacher class level taxonomy (e.g. "Beginner", "JLPT N2"). Mirrors

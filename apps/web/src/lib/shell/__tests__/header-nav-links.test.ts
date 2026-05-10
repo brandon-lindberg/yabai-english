@@ -43,9 +43,9 @@ describe("getHeaderPrimaryNavLinks", () => {
     ).toEqual(["dashboard", "schedule"]);
   });
 
-  it("returns admin dashboard and admin", () => {
+  it("returns admin dashboard, schedule, and admin", () => {
     expect(
       getHeaderPrimaryNavLinks({ signedIn: true, role: "SUPER_ADMIN" }).map((l) => l.id),
-    ).toEqual(["dashboard", "admin"]);
+    ).toEqual(["dashboard", "schedule", "admin"]);
   });
 });

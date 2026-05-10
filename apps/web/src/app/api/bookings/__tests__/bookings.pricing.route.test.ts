@@ -10,6 +10,7 @@ const {
   prismaMock: {
     lessonProduct: { findFirst: vi.fn() },
     teacherProfile: { findFirst: vi.fn() },
+    teacherRosterEntry: { findFirst: vi.fn() },
     chatThread: { findUnique: vi.fn() },
     booking: { findFirst: vi.fn() },
     schoolScheduleSlot: { findMany: vi.fn() },
@@ -32,6 +33,10 @@ vi.mock("@/lib/notifications", () => ({
   createUserNotification: createUserNotificationMock,
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { POST } from "@/app/api/bookings/route";
 
 describe("POST /api/bookings pricing", () => {
@@ -50,6 +55,7 @@ describe("POST /api/bookings pricing", () => {
       id: "teacher-profile-1",
       userId: "teacher-user-1",
       offersFreeTrial: true,
+      marketplaceHidden: false,
       rateYen: 3000,
       lessonOfferings: [
         {
@@ -60,8 +66,9 @@ describe("POST /api/bookings pricing", () => {
           classType: { code: "grammar" },
         },
       ],
-      user: { email: "teacher@example.com" },
+      user: { email: "teacher@example.com", organizationMemberships: [] },
     });
+    prismaMock.teacherRosterEntry.findFirst.mockResolvedValue(null);
     prismaMock.chatThread.findUnique.mockResolvedValue(null);
     prismaMock.booking.findFirst.mockResolvedValue(null);
     prismaMock.schoolScheduleSlot.findMany.mockResolvedValue([]);
@@ -84,6 +91,13 @@ describe("POST /api/bookings pricing", () => {
             lessonProduct: { nameEn: "Standard 60", nameJa: "標準 60" },
             teacher: { user: { email: "teacher@example.com" } },
           }),
+        },
+        teacherRosterEntry: {
+          upsert: vi.fn().mockResolvedValue({}),
+          deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
+        user: {
+          findUnique: vi.fn().mockResolvedValue({ email: "student@example.com" }),
         },
       }),
     );
@@ -125,6 +139,7 @@ describe("POST /api/bookings pricing", () => {
       id: "teacher-profile-1",
       userId: "teacher-user-1",
       offersFreeTrial: true,
+      marketplaceHidden: false,
       rateYen: 3000,
       lessonOfferings: [
         {
@@ -135,7 +150,7 @@ describe("POST /api/bookings pricing", () => {
           classType: { code: "conversation" },
         },
       ],
-      user: { email: "teacher@example.com" },
+      user: { email: "teacher@example.com", organizationMemberships: [] },
     });
     const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const res = await POST(
@@ -169,6 +184,7 @@ describe("POST /api/bookings pricing", () => {
       id: "teacher-profile-1",
       userId: "teacher-user-1",
       offersFreeTrial: true,
+      marketplaceHidden: false,
       rateYen: 3000,
       lessonOfferings: [
         {
@@ -188,7 +204,7 @@ describe("POST /api/bookings pricing", () => {
           classType: { code: "grammar" },
         },
       ],
-      user: { email: "teacher@example.com" },
+      user: { email: "teacher@example.com", organizationMemberships: [] },
     });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({
@@ -203,6 +219,13 @@ describe("POST /api/bookings pricing", () => {
             lessonProduct: { nameEn: "Standard 40", nameJa: "標準 40" },
             teacher: { user: { email: "teacher@example.com" } },
           }),
+        },
+        teacherRosterEntry: {
+          upsert: vi.fn().mockResolvedValue({}),
+          deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
+        user: {
+          findUnique: vi.fn().mockResolvedValue({ email: "student@example.com" }),
         },
       }),
     );
@@ -231,6 +254,7 @@ describe("POST /api/bookings pricing", () => {
       id: "teacher-profile-1",
       userId: "teacher-user-1",
       offersFreeTrial: true,
+      marketplaceHidden: false,
       rateYen: 3000,
       lessonOfferings: [
         {
@@ -242,7 +266,7 @@ describe("POST /api/bookings pricing", () => {
           classType: { code: "grammar" },
         },
       ],
-      user: { email: "teacher@example.com" },
+      user: { email: "teacher@example.com", organizationMemberships: [] },
     });
     const bookingCreate = vi.fn().mockResolvedValue({
       id: "booking-override",
@@ -257,6 +281,13 @@ describe("POST /api/bookings pricing", () => {
           findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
         },
         booking: { create: bookingCreate },
+        teacherRosterEntry: {
+          upsert: vi.fn().mockResolvedValue({}),
+          deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
+        user: {
+          findUnique: vi.fn().mockResolvedValue({ email: "student@example.com" }),
+        },
       }),
     );
 
@@ -306,6 +337,7 @@ describe("POST /api/bookings pricing", () => {
       id: "teacher-profile-1",
       userId: "teacher-user-1",
       offersFreeTrial: true,
+      marketplaceHidden: false,
       rateYen: 3000,
       lessonOfferings: [
         {
@@ -318,14 +350,14 @@ describe("POST /api/bookings pricing", () => {
           classType: { code: "conversation" },
         },
       ],
-      user: { email: "teacher@example.com" },
+      user: { email: "teacher@example.com", organizationMemberships: [] },
     });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({
         studentProfile: {
           findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
         },
-          booking: {
+        booking: {
           create: vi.fn().mockResolvedValue({
             id: "booking-1",
             status: BookingStatus.PENDING_PAYMENT,
@@ -333,6 +365,13 @@ describe("POST /api/bookings pricing", () => {
             lessonProduct: { nameEn: "Conversation 40", nameJa: "英会話 40" },
             teacher: { user: { email: "teacher@example.com" } },
           }),
+        },
+        teacherRosterEntry: {
+          upsert: vi.fn().mockResolvedValue({}),
+          deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
+        user: {
+          findUnique: vi.fn().mockResolvedValue({ email: "student@example.com" }),
         },
       }),
     );

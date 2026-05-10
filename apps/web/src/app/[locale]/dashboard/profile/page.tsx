@@ -1,13 +1,12 @@
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "@/i18n/navigation";
-import { getLocale } from "next-intl/server";
 import { DashboardProfileForm } from "@/components/dashboard/dashboard-profile-form";
 import { TeacherProfileForm } from "@/components/dashboard/teacher-profile-form";
 import { resolveDisplayNameForForm } from "@/lib/profile-prefill";
 import { buildTeacherOnboardingReturnFromProfile } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
+import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 
 export default async function DashboardProfilePage({
   searchParams,
@@ -17,14 +16,9 @@ export default async function DashboardProfilePage({
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  const locale = await getLocale();
   const { onboardingNext: onboardingNextParam, onboardingStep: onboardingStepParam } =
     await searchParams;
-  if (session.user.role === "SUPER_ADMIN") {
-    redirect({ href: "/dashboard", locale });
-  }
-
-  if (session.user.role === "TEACHER") {
+  if (isTeacherCabinetRole(session.user.role)) {
     const onboardingNext = onboardingNextParam ?? null;
     const t = await getTranslations("dashboard.profilePage");
     const [profile, user] = await Promise.all([
@@ -39,11 +33,12 @@ export default async function DashboardProfilePage({
           credentials: true,
           instructionLanguages: true,
           specialties: true,
+          marketplaceHidden: true,
         },
       }),
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { name: true, email: true },
+        select: { name: true, email: true, image: true },
       }),
     ]);
 
@@ -69,6 +64,7 @@ export default async function DashboardProfilePage({
         </header>
         <TeacherProfileForm
           showGooglePrefillHint={showPrefillHint}
+          avatarUrl={user?.image ?? null}
           initialTeacherProfileId={profile?.id ?? null}
           initialDisplayName={displayInitial === "" ? null : displayInitial}
           initialBio={profile?.bio ?? null}
@@ -76,6 +72,7 @@ export default async function DashboardProfilePage({
           initialCredentials={profile?.credentials ?? null}
           initialInstructionLanguages={profile?.instructionLanguages ?? ["EN"]}
           initialSpecialties={profile?.specialties ?? []}
+          initialMarketplaceHidden={profile?.marketplaceHidden ?? false}
           postSaveRedirect={onboardingNext ?? postSaveRedirect}
         />
       </div>

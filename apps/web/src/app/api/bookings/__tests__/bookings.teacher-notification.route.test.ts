@@ -7,6 +7,7 @@ const { authMock, prismaMock, createUserNotificationMock, createMeetMock } = vi.
     prismaMock: {
       lessonProduct: { findFirst: vi.fn() },
       teacherProfile: { findFirst: vi.fn() },
+      teacherRosterEntry: { findFirst: vi.fn() },
       chatThread: { findUnique: vi.fn() },
       booking: { findFirst: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
       schoolScheduleSlot: { findMany: vi.fn() },
@@ -31,6 +32,10 @@ vi.mock("@/lib/chat-threads", () => ({
   ensureStudentTeacherThread: vi.fn(),
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { POST } from "@/app/api/bookings/route";
 
 describe("POST /api/bookings — teacher notification on confirmed booking", () => {
@@ -53,6 +58,7 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
       id: "teacher-profile-1",
       userId: "teacher-user-1",
       offersFreeTrial: true,
+      marketplaceHidden: false,
       rateYen: 3000,
       calendarId: "primary",
       googleCalendarRefreshToken: null,
@@ -67,8 +73,9 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
         },
       ],
       availabilitySlots: [{ timezone: "Asia/Tokyo" }],
-      user: { email: "teacher@example.com" },
+      user: { email: "teacher@example.com", organizationMemberships: [] },
     });
+    prismaMock.teacherRosterEntry.findFirst.mockResolvedValue(null);
     prismaMock.chatThread.findUnique.mockResolvedValue(null);
     prismaMock.booking.findFirst.mockResolvedValue(null);
     prismaMock.schoolScheduleSlot.findMany.mockResolvedValue([]);
@@ -98,6 +105,13 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
             lessonProduct: { nameEn: "Free trial", nameJa: "無料トライアル" },
             teacher: { user: { email: "teacher@example.com" } },
           }),
+        },
+        teacherRosterEntry: {
+          upsert: vi.fn().mockResolvedValue({}),
+          deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
+        user: {
+          findUnique: vi.fn().mockResolvedValue({ email: "student@example.com" }),
         },
       }),
     );
@@ -147,6 +161,7 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
       id: "teacher-profile-1",
       userId: "teacher-user-1",
       offersFreeTrial: true,
+      marketplaceHidden: false,
       rateYen: 3000,
       lessonOfferings: [
         {
@@ -159,7 +174,7 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
         },
       ],
       availabilitySlots: [{ timezone: "Asia/Tokyo" }],
-      user: { email: "teacher@example.com" },
+      user: { email: "teacher@example.com", organizationMemberships: [] },
     });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({
@@ -176,6 +191,13 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
             lessonProduct: { nameEn: "Standard 30", nameJa: "標準 30" },
             teacher: { user: { email: "teacher@example.com" } },
           }),
+        },
+        teacherRosterEntry: {
+          upsert: vi.fn().mockResolvedValue({}),
+          deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
+        user: {
+          findUnique: vi.fn().mockResolvedValue({ email: "student@example.com" }),
         },
       }),
     );

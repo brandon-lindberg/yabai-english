@@ -8,6 +8,7 @@ import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 import { getSessionMaxAgeSeconds } from "@/lib/session-timeout";
 import { claimPendingMemberships } from "@/lib/claim-pending-memberships";
+import { claimTeacherRosterInvites } from "@/lib/claim-teacher-roster-invites";
 import { AccountStatus, Role, type OrgRole } from "@/generated/prisma/client";
 import { cookies } from "next/headers";
 
@@ -83,6 +84,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       if (full?.id) {
         await claimPendingMemberships(prisma, {
+          userId: full.id,
+          email: user.email ?? null,
+        });
+      }
+      if (full?.id && full.role === Role.STUDENT) {
+        await claimTeacherRosterInvites(prisma, {
           userId: full.id,
           email: user.email ?? null,
         });

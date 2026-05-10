@@ -30,4 +30,28 @@ describe("DashboardSubNav", () => {
     expect(lessonsLink).toHaveAttribute("href", "/dashboard/lessons");
     expect(lessonsLink.className).toContain("text-foreground");
   });
+
+  test("shows students tab for teachers", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <DashboardSubNav isTeacher />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("link", { name: en.dashboard.nav.students })).toHaveAttribute(
+      "href",
+      "/dashboard/students",
+    );
+  });
+
+  test("shows my teachers tab for students", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <DashboardSubNav isStudent />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("link", { name: en.dashboard.nav.myTeachers })).toHaveAttribute(
+      "href",
+      "/dashboard/my-teachers",
+    );
+  });
 });

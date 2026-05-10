@@ -10,13 +10,23 @@ type Props = {
   image: string | null;
   shortBio: string | null;
   rpg: StudyRpgSnapshot | null;
+  /** When set (e.g. teacher dashboard), overrides student-oriented default empty bio copy */
+  emptyBioLabel?: string;
 };
 
-export async function DashboardProfileSummary({ name, email, image, shortBio, rpg }: Props) {
+export async function DashboardProfileSummary({
+  name,
+  email,
+  image,
+  shortBio,
+  rpg,
+  emptyBioLabel,
+}: Props) {
   const t = await getTranslations("dashboard.highlights");
   const ts = await getTranslations("study");
   const display = name ?? email ?? "—";
   const initial = display.slice(0, 2).toUpperCase();
+  const bioEmptyLabel = emptyBioLabel ?? t("profileCardEmpty");
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
@@ -36,7 +46,7 @@ export async function DashboardProfileSummary({ name, email, image, shortBio, rp
           <DashboardProfileBioPreview
             key={shortBio ?? ""}
             markdown={shortBio ?? ""}
-            emptyLabel={t("profileCardEmpty")}
+            emptyLabel={bioEmptyLabel}
           />
           {rpg ? (
             <StudyRpgXpBar

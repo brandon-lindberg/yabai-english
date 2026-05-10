@@ -25,6 +25,7 @@ import {
   buildStudentOnboardingChecklist,
   summarizeStudentOnboardingProgress,
 } from "@/lib/student-onboarding-next-links";
+import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 
 export default async function DashboardPage({
   searchParams,
@@ -40,7 +41,7 @@ export default async function DashboardPage({
   const th = await getTranslations("dashboard.highlights");
 
   if (session.user.role !== "STUDENT") {
-    const [teacherProfile, googleSettings] = await Promise.all([
+    const [teacherProfile, googleSettings, accountUser] = await Promise.all([
       prisma.teacherProfile.findUnique({
         where: { userId: session.user.id },
         include: {
@@ -51,6 +52,10 @@ export default async function DashboardPage({
       prisma.googleIntegrationSettings.findUnique({
         where: { userId: session.user.id },
         select: { calendarConnected: true },
+      }),
+      prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { name: true, email: true, image: true },
       }),
     ]);
     const teacherBookings = teacherProfile
@@ -120,7 +125,7 @@ export default async function DashboardPage({
             {t("teacherHome.openSchedule")}
           </Link>
         </div>
-        {session.user.role === "TEACHER" && !calendarReady ? (
+        {isTeacherCabinetRole(session.user.role) && !calendarReady ? (
           <InlineAlert variant="info">
             <span className="text-foreground">{t("teacherHome.calendarSetupHint")} </span>
             <Link href="/dashboard/integrations" className="font-semibold text-link hover:opacity-90">
@@ -129,12 +134,27 @@ export default async function DashboardPage({
           </InlineAlert>
         ) : null}
 
-        <section>
-          <h2 className="mb-3 text-lg font-semibold text-foreground">{t("teacherHome.upcomingSection")}</h2>
-          <ul className="space-y-4">
-            <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
-          </ul>
-        </section>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <section>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">{t("teacherHome.upcomingSection")}</h2>
+            <ul className="space-y-4">
+              <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
+            </ul>
+          </section>
+          <DashboardProfileSummary
+            name={
+              teacherProfile?.displayName ??
+              teacherProfile?.user.name ??
+              accountUser?.name ??
+              null
+            }
+            email={teacherProfile?.user.email ?? accountUser?.email ?? null}
+            image={teacherProfile?.user.image ?? accountUser?.image ?? null}
+            shortBio={teacherProfile?.bio ?? null}
+            rpg={null}
+            emptyBioLabel={th("teacherProfileCardEmpty")}
+          />
+        </div>
       </div>
     );
   }
