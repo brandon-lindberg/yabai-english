@@ -19,8 +19,8 @@ export default async function DashboardScheduleAvailabilityPage({
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  // Only teachers have availability — redirect students back to schedule.
-  if (session.user.role !== "TEACHER") {
+  // Only users with a teacher profile manage availability — same scope as schedule teacher view.
+  if (session.user.role === "STUDENT") {
     const locale = await getLocale();
     redirect({ href: "/dashboard/schedule", locale });
   }
@@ -64,9 +64,13 @@ export default async function DashboardScheduleAvailabilityPage({
     },
   });
 
-  const teacherBookings = profile
-    ? await getTeacherBookingsForDashboard(prisma, profile.id)
-    : { bookings: [], upcoming: [], completed: [], scheduleItems: [] };
+  if (!profile) {
+    const locale = await getLocale();
+    redirect({ href: "/dashboard/schedule", locale });
+    return null;
+  }
+
+  const teacherBookings = await getTeacherBookingsForDashboard(prisma, profile.id);
 
   return (
     <div className="space-y-8">
@@ -74,7 +78,7 @@ export default async function DashboardScheduleAvailabilityPage({
       <p className="text-muted">{t("availabilityIntro")}</p>
 
       <TeacherAvailabilityCalendar
-        initialSlots={(profile?.availabilitySlots ?? []).map((slot) => ({
+        initialSlots={profile.availabilitySlots.map((slot) => ({
           id: slot.id,
           dayOfWeek: slot.dayOfWeek,
           startMin: slot.startMin,
@@ -89,13 +93,11 @@ export default async function DashboardScheduleAvailabilityPage({
           classLevel: slot.classLevel,
           classType: slot.classType,
         }))}
-        initialOccurrenceSkips={
-          profile?.availabilityOccurrenceSkips?.map((s) => s.startsAtIso) ?? []
-        }
-        defaultTimezone={profile?.availabilitySlots?.[0]?.timezone ?? "Asia/Tokyo"}
-        classLevels={profile?.classLevels ?? []}
-        classTypes={profile?.classTypes ?? []}
-        lessonOfferings={profile?.lessonOfferings ?? []}
+        initialOccurrenceSkips={profile.availabilityOccurrenceSkips.map((s) => s.startsAtIso)}
+        defaultTimezone={profile.availabilitySlots[0]?.timezone ?? "Asia/Tokyo"}
+        classLevels={profile.classLevels}
+        classTypes={profile.classTypes}
+        lessonOfferings={profile.lessonOfferings}
         bookings={teacherBookings.upcoming.map((b) => ({
           id: b.id,
           startsAtIso: b.startsAt.toISOString(),

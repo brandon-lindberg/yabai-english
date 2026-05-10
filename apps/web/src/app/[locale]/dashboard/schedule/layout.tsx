@@ -3,13 +3,26 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { DashboardScheduleSubNav } from "@/components/dashboard/dashboard-schedule-sub-nav";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { shouldLoadTeacherBookingsOnSchedule } from "@/lib/dashboard/schedule-view-role";
 
 export default async function DashboardScheduleLayout({ children }: { children: ReactNode }) {
   const t = await getTranslations("dashboard.schedulePage");
   const tCommon = await getTranslations("common");
   const tTeacher = await getTranslations("dashboard.teacherHome");
   const session = await auth();
-  const isTeacher = session?.user?.role === "TEACHER";
+  const hasTeacherProfile =
+    session?.user?.id != null
+      ? Boolean(
+          await prisma.teacherProfile.findUnique({
+            where: { userId: session.user.id },
+            select: { id: true },
+          }),
+        )
+      : false;
+  const isTeacher =
+    Boolean(session?.user?.role && shouldLoadTeacherBookingsOnSchedule(session.user.role)) &&
+    hasTeacherProfile;
 
   return (
     <div className="space-y-8">

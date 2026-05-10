@@ -7,6 +7,7 @@ import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings
 import { TeacherCompletedLessons } from "@/components/dashboard/teacher-completed-lessons";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
+import { shouldLoadTeacherBookingsOnSchedule } from "@/lib/dashboard/schedule-view-role";
 
 export default async function DashboardScheduleCompletedPage({
   searchParams,
@@ -20,7 +21,7 @@ export default async function DashboardScheduleCompletedPage({
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
 
-  if (session.user.role === "TEACHER") {
+  if (shouldLoadTeacherBookingsOnSchedule(session.user.role)) {
     const profile = await prisma.teacherProfile.findUnique({
       where: { userId: session.user.id },
       select: { id: true },
