@@ -19,6 +19,9 @@ vi.mock("@/lib/prisma", () => ({
     teacherProfile: {
       findFirst: findTeacherMock,
     },
+    teacherRosterEntry: {
+      findFirst: vi.fn().mockResolvedValue(null),
+    },
   },
 }));
 
@@ -40,7 +43,11 @@ describe("POST /api/bookings free trial guard", () => {
       id: "teacher-profile-1",
       userId: "teacher-user-1",
       offersFreeTrial: false,
-      user: { email: "teacher@example.com" },
+      marketplaceHidden: false,
+      user: {
+        email: "teacher@example.com",
+        organizationMemberships: [],
+      },
     });
   });
 

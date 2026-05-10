@@ -23,5 +23,8 @@ export function marketplaceTeacherWhere(
     };
   }
 
-  return { user: userWhere };
+  return {
+    marketplaceHidden: false,
+    user: userWhere,
+  };
 }

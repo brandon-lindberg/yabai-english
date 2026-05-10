@@ -248,4 +248,21 @@ describe("PATCH /api/teacher/profile", () => {
       }),
     );
   });
+
+  test("persists marketplaceHidden toggle", async () => {
+    const res = await PATCH(
+      new Request("http://localhost/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ marketplaceHidden: true }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: expect.objectContaining({ marketplaceHidden: true }),
+      }),
+    );
+  });
 });

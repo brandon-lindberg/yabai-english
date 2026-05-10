@@ -28,6 +28,7 @@ describe("TeacherProfileForm", () => {
           initialCredentials={null}
           initialInstructionLanguages={["EN"]}
           initialSpecialties={[]}
+          initialMarketplaceHidden={false}
           postSaveRedirect={null}
         />
       </NextIntlClientProvider>,

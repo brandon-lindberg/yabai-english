@@ -16,6 +16,8 @@ const patchSchema = z.object({
   /** Shown on the book-a-lesson teacher list and public booking page */
   rateYen: z.number().int().min(0).max(9_999_999).nullable().optional(),
   offersFreeTrial: z.boolean().optional(),
+  /** When true, teacher is hidden from /book and only rostered students may book via direct link. */
+  marketplaceHidden: z.boolean().optional(),
   lessonOfferings: z
     .array(
       z.object({
@@ -63,6 +65,7 @@ export async function PATCH(req: Request) {
         specialties: data.specialties ?? [],
         rateYen: data.rateYen === undefined ? null : data.rateYen,
         offersFreeTrial: data.offersFreeTrial ?? true,
+        marketplaceHidden: data.marketplaceHidden ?? false,
       },
       update: {
         ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
@@ -75,6 +78,9 @@ export async function PATCH(req: Request) {
         ...(data.specialties !== undefined ? { specialties: data.specialties } : {}),
         ...(data.rateYen !== undefined ? { rateYen: data.rateYen } : {}),
         ...(data.offersFreeTrial !== undefined ? { offersFreeTrial: data.offersFreeTrial } : {}),
+        ...(data.marketplaceHidden !== undefined
+          ? { marketplaceHidden: data.marketplaceHidden }
+          : {}),
       },
     });
 
@@ -157,6 +163,8 @@ export async function PATCH(req: Request) {
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`);
     revalidatePath(`/${locale}/dashboard/profile`);
+    revalidatePath(`/${locale}/dashboard/students`);
+    revalidatePath(`/${locale}/dashboard/my-teachers`);
     revalidatePath(`/${locale}/book`);
     revalidatePath(`/${locale}/book/teachers/${profile.id}`);
   }

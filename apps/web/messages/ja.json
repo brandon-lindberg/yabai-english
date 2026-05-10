@@ -193,8 +193,29 @@
       "overview": "概要",
       "profile": "プロフィール",
       "lessons": "レッスン・料金",
+      "students": "受講生一覧",
+      "myTeachers": "講師一覧",
       "schedule": "スケジュール",
       "taxonomy": "クラス分類"
+    },
+    "studentsPage": {
+      "title": "受講生一覧",
+      "intro": "メールアドレスで受講生を追加すると、公開の講師一覧に表示されない設定でも予約ページから予約できるようになります。未登録のメールは、相手がそのアドレスでサインインすると有効になります。",
+      "emailLabel": "受講生のメール",
+      "emailPlaceholder": "student@example.com",
+      "add": "追加",
+      "adding": "追加中…",
+      "addError": "追加できませんでした。メールを確認するか、もう一度お試しください。",
+      "remove": "削除",
+      "removeError": "削除できませんでした。",
+      "loading": "読み込み中…",
+      "empty": "まだ受講生がいません。メールアドレスを追加して招待してください。",
+      "pendingBadge": "登録待ち"
+    },
+    "myTeachersPage": {
+      "title": "講師一覧",
+      "intro": "講師があなたを追加した場合、またはマーケットプレイスで予約した講師がここに表示されます。",
+      "empty": "まだ連携している講師がいません。"
     },
     "lessonOfferingsPage": {
       "title": "レッスン・料金",
@@ -271,6 +292,9 @@
       "teacherOffersFreeTrialLabel": "20分の無料トライアルを提供する",
       "teacherOffersFreeTrialHelp": "オフにすると、受講生はあなたのレッスンで無料トライアルを選択できません。",
       "teacherPreviewPublic": "公開の予約ページを見る",
+      "teacherPreviewWhenHidden": "公開一覧に表示されないため、受講生一覧にいる方にこのリンクを共有してください。",
+      "teacherMarketplaceHiddenLabel": "公開の講師一覧に自分を表示しない",
+      "teacherMarketplaceHiddenHelp": "オンにすると、「受講生一覧」で追加した受講生だけが予約ページを開いて予約できます。",
       "prefillFromGoogle": "ログイン（Google）の情報を表示しています。保存前に編集できます。"
     },
     "schedulePage": {

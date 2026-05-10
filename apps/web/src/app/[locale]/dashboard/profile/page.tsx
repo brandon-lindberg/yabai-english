@@ -39,6 +39,7 @@ export default async function DashboardProfilePage({
           credentials: true,
           instructionLanguages: true,
           specialties: true,
+          marketplaceHidden: true,
         },
       }),
       prisma.user.findUnique({
@@ -76,6 +77,7 @@ export default async function DashboardProfilePage({
           initialCredentials={profile?.credentials ?? null}
           initialInstructionLanguages={profile?.instructionLanguages ?? ["EN"]}
           initialSpecialties={profile?.specialties ?? []}
+          initialMarketplaceHidden={profile?.marketplaceHidden ?? false}
           postSaveRedirect={onboardingNext ?? postSaveRedirect}
         />
       </div>

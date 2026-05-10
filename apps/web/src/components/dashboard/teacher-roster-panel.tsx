@@ -1,0 +1,132 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useState } from "react";
+
+type Entry = {
+  id: string;
+  status: "active" | "pending";
+  displayName: string | null;
+  email: string | null;
+};
+
+export function TeacherRosterPanel() {
+  const t = useTranslations("dashboard.studentsPage");
+  const [entries, setEntries] = useState<Entry[] | null>(null);
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    const res = await fetch("/api/teacher/roster");
+    if (!res.ok) {
+      setEntries([]);
+      return;
+    }
+    const body = (await res.json()) as { entries: Entry[] };
+    setEntries(body.entries);
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function addStudent(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    const res = await fetch("/api/teacher/roster", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim() }),
+    });
+    setBusy(false);
+    if (!res.ok) {
+      const body = (await res.json().catch(() => null)) as { error?: string } | null;
+      setError(body?.error ?? t("addError"));
+      return;
+    }
+    setEmail("");
+    await load();
+  }
+
+  async function removeEntry(id: string) {
+    setBusy(true);
+    setError(null);
+    const res = await fetch(`/api/teacher/roster/${id}`, { method: "DELETE" });
+    setBusy(false);
+    if (!res.ok) {
+      setError(t("removeError"));
+      return;
+    }
+    await load();
+  }
+
+  if (entries === null) {
+    return <p className="text-sm text-muted">{t("loading")}</p>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <form onSubmit={addStudent} className="flex flex-wrap items-end gap-3">
+        <label className="block min-w-[240px] flex-1 space-y-1 text-sm">
+          <span className="font-medium text-foreground">{t("emailLabel")}</span>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            placeholder={t("emailPlaceholder")}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+          />
+        </label>
+        <button
+          type="submit"
+          disabled={busy}
+          className="rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-50"
+        >
+          {busy ? t("adding") : t("add")}
+        </button>
+      </form>
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+      <div className="rounded-xl border border-border">
+        {entries.length === 0 ? (
+          <p className="p-4 text-sm text-muted">{t("empty")}</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {entries.map((row) => (
+              <li
+                key={row.id}
+                className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm"
+              >
+                <div>
+                  <span className="font-medium text-foreground">
+                    {row.displayName ?? row.email ?? "—"}
+                  </span>
+                  {row.status === "pending" ? (
+                    <span className="ml-2 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-800 dark:text-amber-200">
+                      {t("pendingBadge")}
+                    </span>
+                  ) : null}
+                  {row.email && row.displayName ? (
+                    <p className="text-xs text-muted">{row.email}</p>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void removeEntry(row.id)}
+                  className="text-sm font-medium text-destructive hover:underline disabled:opacity-50"
+                >
+                  {t("remove")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}

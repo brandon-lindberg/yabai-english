@@ -193,8 +193,29 @@
       "overview": "Overview",
       "profile": "Profile",
       "lessons": "Lessons & rates",
+      "students": "Students",
+      "myTeachers": "My teachers",
       "schedule": "Schedule",
       "taxonomy": "Taxonomy"
+    },
+    "studentsPage": {
+      "title": "Student list",
+      "intro": "Add students by email so they can book you when you are hidden from the public teacher list. Pending invites activate when they sign in with that email.",
+      "emailLabel": "Student email",
+      "emailPlaceholder": "student@example.com",
+      "add": "Add",
+      "adding": "Adding…",
+      "addError": "Could not add. Check the email or try again.",
+      "remove": "Remove",
+      "removeError": "Could not remove.",
+      "loading": "Loading…",
+      "empty": "No students yet. Add an email to invite someone.",
+      "pendingBadge": "Pending sign-up"
+    },
+    "myTeachersPage": {
+      "title": "My teachers",
+      "intro": "Teachers who added you to their list, or teachers you booked on the marketplace.",
+      "empty": "No linked teachers yet."
     },
     "lessonOfferingsPage": {
       "title": "Lessons & rates",
@@ -271,6 +292,9 @@
       "teacherOffersFreeTrialLabel": "Offer free 20-minute trial lesson",
       "teacherOffersFreeTrialHelp": "If off, students will not be able to select free trial for your lessons.",
       "teacherPreviewPublic": "View public booking page",
+      "teacherPreviewWhenHidden": "Share this link with students on your list — you are hidden from the public teacher list.",
+      "teacherMarketplaceHiddenLabel": "Hide my profile from the public teacher list",
+      "teacherMarketplaceHiddenHelp": "When enabled, only students you add under “Students” can open your booking page and schedule with you.",
       "prefillFromGoogle": "Suggested from your sign-in (Google) — you can edit before saving."
     },
     "schedulePage": {

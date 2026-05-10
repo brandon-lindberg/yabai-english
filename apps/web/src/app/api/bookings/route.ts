@@ -21,6 +21,8 @@ import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifica
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
 import { BookingStatus, LessonTier } from "@/generated/prisma/client";
+import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
+import { normalizeRosterInviteEmail } from "@/lib/claim-teacher-roster-invites";
 
 const postSchema = z.object({
   lessonProductId: z.string().min(1),
@@ -94,7 +96,15 @@ export async function POST(req: Request) {
       ? await prisma.teacherProfile.findFirst({
           where: { id: teacherProfileId },
           include: {
-            user: true,
+            user: {
+              include: {
+                organizationMemberships: {
+                  where: { status: "ACTIVE" },
+                  select: { id: true },
+                  take: 1,
+                },
+              },
+            },
             lessonOfferings: { include: { classType: true } },
             availabilitySlots: {
               where: { active: true },
@@ -106,7 +116,15 @@ export async function POST(req: Request) {
       : null) ??
     (await prisma.teacherProfile.findFirst({
       include: {
-        user: true,
+        user: {
+          include: {
+            organizationMemberships: {
+              where: { status: "ACTIVE" },
+              select: { id: true },
+              take: 1,
+            },
+          },
+        },
         lessonOfferings: { include: { classType: true } },
         availabilitySlots: {
           where: { active: true },
@@ -120,6 +138,30 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "No teacher available. Ask an admin to add a teacher profile." },
       { status: 409 },
+    );
+  }
+
+  if (teacher.user.organizationMemberships.length > 0) {
+    return NextResponse.json(
+      { error: "This teacher is not available for marketplace booking." },
+      { status: 403 },
+    );
+  }
+
+  const onRoster = await prisma.teacherRosterEntry.findFirst({
+    where: { teacherId: teacher.id, studentId: session.user.id },
+    select: { id: true },
+  });
+  if (
+    !studentMayAccessTeacherBookingFlow({
+      marketplaceHidden: teacher.marketplaceHidden,
+      viewerStudentId: session.user.id,
+      isStudentOnRoster: Boolean(onRoster),
+    })
+  ) {
+    return NextResponse.json(
+      { error: "This teacher is not available for booking." },
+      { status: 403 },
     );
   }
 
@@ -284,7 +326,7 @@ export async function POST(req: Request) {
       }
     }
 
-    return tx.booking.create({
+    const created = await tx.booking.create({
       data: {
         studentId: session.user.id,
         teacherId: teacher.id,
@@ -299,6 +341,40 @@ export async function POST(req: Request) {
       },
       include: { lessonProduct: true, teacher: { include: { user: true } } },
     });
+
+    if (!teacher.marketplaceHidden) {
+      await tx.teacherRosterEntry.upsert({
+        where: {
+          teacherId_studentId: {
+            teacherId: teacher.id,
+            studentId: session.user.id,
+          },
+        },
+        create: {
+          teacherId: teacher.id,
+          studentId: session.user.id,
+        },
+        update: {},
+      });
+      const studentEmail = await tx.user.findUnique({
+        where: { id: session.user.id },
+        select: { email: true },
+      });
+      if (studentEmail?.email) {
+        await tx.teacherRosterEntry.deleteMany({
+          where: {
+            teacherId: teacher.id,
+            studentId: null,
+            invitedEmail: {
+              equals: normalizeRosterInviteEmail(studentEmail.email),
+              mode: "insensitive",
+            },
+          },
+        });
+      }
+    }
+
+    return created;
   }).catch((e) => {
     const msg = String((e as Error).message);
     if (msg === "TRIAL_USED" || msg === "NO_PROFILE") {

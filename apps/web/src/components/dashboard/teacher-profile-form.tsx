@@ -13,6 +13,7 @@ type Props = {
   initialCredentials: string | null;
   initialInstructionLanguages: string[];
   initialSpecialties: string[];
+  initialMarketplaceHidden?: boolean;
   postSaveRedirect?: string | null;
 };
 
@@ -25,11 +26,13 @@ export function TeacherProfileForm({
   initialCredentials,
   initialInstructionLanguages,
   initialSpecialties,
+  initialMarketplaceHidden = false,
   postSaveRedirect,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
   const router = useRouter();
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
+  const [marketplaceHidden, setMarketplaceHidden] = useState(initialMarketplaceHidden);
   const [displayName, setDisplayName] = useState(initialDisplayName ?? "");
   const [bio, setBio] = useState(initialBio ?? "");
   const [countryOfOrigin, setCountryOfOrigin] = useState(initialCountryOfOrigin ?? "");
@@ -68,6 +71,7 @@ export function TeacherProfileForm({
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
+        marketplaceHidden,
       }),
     });
 
@@ -105,15 +109,28 @@ export function TeacherProfileForm({
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       {teacherProfileId ? (
-        <p>
+        <p className="text-sm text-muted">
           <Link
             href={`/book/teachers/${teacherProfileId}`}
-            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+            className="font-medium text-primary underline-offset-4 hover:underline"
           >
-            {t("teacherPreviewPublic")}
+            {marketplaceHidden ? t("teacherPreviewWhenHidden") : t("teacherPreviewPublic")}
           </Link>
         </p>
       ) : null}
+
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-surface/40 p-4 text-sm">
+        <input
+          type="checkbox"
+          checked={marketplaceHidden}
+          onChange={(e) => setMarketplaceHidden(e.target.checked)}
+          className="mt-1 size-4 rounded border-border"
+        />
+        <span>
+          <span className="font-medium text-foreground">{t("teacherMarketplaceHiddenLabel")}</span>
+          <span className="mt-1 block text-muted">{t("teacherMarketplaceHiddenHelp")}</span>
+        </span>
+      </label>
 
       <div className="grid gap-4 sm:grid-cols-2 sm:items-end">
         <label className="space-y-1 text-sm">
