@@ -13,28 +13,30 @@ type Props = {
 export default async function TeacherViewStudentProfilePage({ params }: Props) {
   const session = await auth();
   const locale = await getLocale();
-  if (!session?.user?.id || !isTeacherCabinetRole(session.user.role)) {
+  const viewerUserId = session?.user?.id;
+  if (!viewerUserId || !session?.user || !isTeacherCabinetRole(session.user.role)) {
     redirect({ href: "/dashboard", locale });
   }
 
   const { studentId } = await params;
 
   const teacherProfile = await prisma.teacherProfile.findUnique({
-    where: { userId: session.user.id },
+    where: { userId: viewerUserId },
     select: { id: true },
   });
-  if (!teacherProfile) {
+  const teacherProfileId = teacherProfile?.id;
+  if (!teacherProfileId) {
     redirect({ href: "/dashboard", locale });
   }
 
   const [roster, booking] = await Promise.all([
     prisma.teacherRosterEntry.findFirst({
-      where: { teacherId: teacherProfile.id, studentId },
+      where: { teacherId: teacherProfileId, studentId },
       select: { id: true },
     }),
     prisma.booking.findFirst({
       where: {
-        teacherId: teacherProfile.id,
+        teacherId: teacherProfileId,
         studentId,
         status: {
           in: [

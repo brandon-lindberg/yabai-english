@@ -12,11 +12,12 @@ export default async function DashboardMyTeachersPage() {
   if (!session?.user?.id || session.user.role !== "STUDENT") {
     redirect({ href: "/dashboard", locale });
   }
-
+  // Narrowed by guard above; `redirect` does not refine types for the checker.
+  const studentUserId = session!.user.id;
   const t = await getTranslations("dashboard.myTeachersPage");
 
-  await reconcileTeacherRosterFromBookings(prisma, { studentUserId: session.user.id });
-  const teachers = await getStudentRosterTeachers(prisma, session.user.id);
+  await reconcileTeacherRosterFromBookings(prisma, { studentUserId });
+  const teachers = await getStudentRosterTeachers(prisma, studentUserId);
 
   return (
     <div className="space-y-6">
