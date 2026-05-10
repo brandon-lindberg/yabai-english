@@ -29,7 +29,7 @@ const {
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    organizationMembership: { findFirst: findFirstMembershipMock },
+    organizationMembership: { findFirst: findFirstMembershipMock, findMany: vi.fn() },
     schoolBooking: {
       findUnique: findUniqueBookingMock,
       findFirst: findFirstSchoolBookingConflictMock,
@@ -212,7 +212,7 @@ describe("PATCH /api/org/.../schools/.../classes/[bookingId]", () => {
     expect(revalidatePathMock).toHaveBeenCalled();
   });
 
-  test("200 when assigned teacher reschedules own class", async () => {
+  test("403 when assigned teacher uses direct PATCH (must submit a request)", async () => {
     authMock.mockResolvedValue({ user: { id: "teacher-user-1" } });
     findFirstMembershipMock.mockResolvedValue({
       id: "tm-teacher",
@@ -223,13 +223,6 @@ describe("PATCH /api/org/.../schools/.../classes/[bookingId]", () => {
       userId: "teacher-user-1",
     });
     findUniqueBookingMock.mockResolvedValue(baseSchoolBooking());
-    findFirstSchoolBookingConflictMock.mockResolvedValue(null);
-    updateBookingMock.mockResolvedValue({
-      id: bookingId,
-      startsAt: new Date("2026-05-24T01:30:00.000Z"),
-      endsAt: new Date("2026-05-24T02:30:00.000Z"),
-      googleEventId: "gcal-evt-1",
-    });
 
     const res = await PATCH(
       new Request(`http://localhost/api/org/${orgId}/schools/${schoolId}/classes/${bookingId}`, {
@@ -239,8 +232,9 @@ describe("PATCH /api/org/.../schools/.../classes/[bookingId]", () => {
       }),
       ctx,
     );
-    expect(res.status).toBe(200);
-    expect(createUserNotificationMock).toHaveBeenCalled();
+    expect(res.status).toBe(403);
+    expect(updateBookingMock).not.toHaveBeenCalled();
+    expect(createUserNotificationMock).not.toHaveBeenCalled();
   });
 
   test("200 unchanged time skips update and does not notify", async () => {

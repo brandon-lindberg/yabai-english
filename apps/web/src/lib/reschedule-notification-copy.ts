@@ -30,3 +30,42 @@ export function schoolClassRescheduledNotification(input: {
     bodyEn: `A class at ${input.schoolName} was rescheduled. Please check your schedule for the new time.`,
   };
 }
+
+export function schoolClassRescheduleRequestPendingForAdmins(input: {
+  schoolName: string;
+}): {
+  titleJa: string;
+  titleEn: string;
+  bodyJa: string;
+  bodyEn: string;
+} {
+  return {
+    titleJa: "クラスの時間変更リクエスト",
+    titleEn: "Class reschedule request",
+    bodyJa: `${input.schoolName} の講師からクラス開始時刻の変更リクエストがあります。承認または却下してください。`,
+    bodyEn: `A teacher submitted a new class time for ${input.schoolName}. Review the request to approve or reject it.`,
+  };
+}
+
+export function schoolClassRescheduleRequestRejectedForTeacher(input: {
+  schoolName: string;
+  rejectReason?: string | null;
+}): {
+  titleJa: string;
+  titleEn: string;
+  bodyJa: string;
+  bodyEn: string;
+} {
+  const reasonJa = input.rejectReason
+    ? ` 理由: ${input.rejectReason}`
+    : "";
+  const reasonEn = input.rejectReason
+    ? ` Reason: ${input.rejectReason}`
+    : "";
+  return {
+    titleJa: "時間変更リクエストが却下されました",
+    titleEn: "Your class reschedule request was declined",
+    bodyJa: `${input.schoolName} の管理者が、提出したクラス時間の変更を却下しました。${reasonJa}`,
+    bodyEn: `A school admin declined your proposed class time change at ${input.schoolName}.${reasonEn}`,
+  };
+}

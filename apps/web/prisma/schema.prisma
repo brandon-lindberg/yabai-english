@@ -116,6 +116,12 @@ enum SchoolSlotRecurrence {
   ONE_OFF
 }
 
+enum SchoolBookingRescheduleRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum AvailabilitySlotRecurrence {
   WEEKLY
   ONE_OFF
@@ -940,6 +946,8 @@ model OrganizationMembership {
   bookingsAsTeacher    SchoolBooking[]         @relation("SchoolBookingTeacher")
   bookingAttendances   SchoolBookingAttendee[]
   timeOffRequests      TimeOffRequest[]
+  schoolRescheduleRequestsSubmitted SchoolBookingRescheduleRequest[] @relation("SchoolRescheduleRequester")
+  schoolRescheduleRequestsReviewed  SchoolBookingRescheduleRequest[] @relation("SchoolRescheduleReviewer")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1099,12 +1107,34 @@ model SchoolBooking {
   completionNotesMd String?  @db.Text
 
   attendees SchoolBookingAttendee[]
+  rescheduleRequests SchoolBookingRescheduleRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([schoolId, startsAt])
   @@index([teacherMembershipId, startsAt])
+}
+
+/// Teacher-proposed new time for a materialized school class; school admins approve or reject.
+model SchoolBookingRescheduleRequest {
+  id                      String @id @default(cuid())
+  schoolBookingId       String
+  schoolBooking           SchoolBooking @relation(fields: [schoolBookingId], references: [id], onDelete: Cascade)
+  requesterMembershipId String
+  requesterMembership   OrganizationMembership @relation("SchoolRescheduleRequester", fields: [requesterMembershipId], references: [id], onDelete: Cascade)
+  proposedStartsAt      DateTime
+  proposedEndsAt        DateTime
+  status                SchoolBookingRescheduleRequestStatus @default(PENDING)
+  reviewedByMembershipId String?
+  reviewedByMembership   OrganizationMembership? @relation("SchoolRescheduleReviewer", fields: [reviewedByMembershipId], references: [id], onDelete: SetNull)
+  reviewedAt            DateTime?
+  rejectReason          String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolBookingId, status])
 }
 
 /// Per-student attendance record for a materialized school class.

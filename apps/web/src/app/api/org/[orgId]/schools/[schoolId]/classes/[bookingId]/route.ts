@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { BookingStatus } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { routing } from "@/i18n/routing";
-import { patchMeetLessonEvent } from "@/lib/google-calendar";
-import { createUserNotification } from "@/lib/notifications";
-import { findOccurrenceConflict } from "@/lib/school-scheduling";
-import { canRescheduleSchoolClassBooking } from "@/lib/school-booking-reschedule-authorization";
 import { evaluateSchoolBookingRescheduleTimes } from "@/lib/school-booking-reschedule-policy";
-import { schoolClassRescheduledNotification } from "@/lib/reschedule-notification-copy";
+import { canDirectRescheduleSchoolClassBooking } from "@/lib/school-booking-reschedule-authorization";
+import {
+  applySchoolBookingReschedule,
+  getSchoolBookingRescheduleConflictError,
+  type SchoolBookingReschedulePayload,
+} from "@/lib/school-booking-reschedule-apply";
 import type { MembershipForAuth } from "@/lib/org-authorization";
 
 const patchBodySchema = z.object({
@@ -86,14 +84,17 @@ export async function PATCH(req: Request, ctx: RouteContext) {
   }
 
   const caller = await getCallerMembership(session.user.id, orgId, schoolId);
-  if (
-    !canRescheduleSchoolClassBooking(
-      caller,
-      schoolId,
-      booking.teacherMembershipId,
-    )
-  ) {
+  if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (!canDirectRescheduleSchoolClassBooking(caller, schoolId)) {
+    return NextResponse.json(
+      {
+        error:
+          "Only school administrators can reschedule directly. Teachers should submit a reschedule request.",
+      },
+      { status: 403 },
+    );
   }
 
   const organizerUserId = booking.teacherMembership.user?.id;
@@ -127,130 +128,37 @@ export async function PATCH(req: Request, ctx: RouteContext) {
     });
   }
 
-  const schoolConflict = await prisma.schoolBooking.findFirst({
-    where: {
-      id: { not: booking.id },
-      teacherMembershipId: booking.teacherMembershipId,
-      startsAt: { lt: newEnd },
-      endsAt: { gt: newStart },
-    },
-  });
-  if (schoolConflict) {
-    return NextResponse.json(
-      { error: "That time overlaps another class for this teacher." },
-      { status: 409 },
-    );
+  const conflictMsg = await getSchoolBookingRescheduleConflictError(
+    booking,
+    newStart,
+    newEnd,
+    organizerUserId,
+  );
+  if (conflictMsg) {
+    return NextResponse.json({ error: conflictMsg }, { status: 409 });
   }
 
-  const teacherProfile = await prisma.teacherProfile.findUnique({
-    where: { userId: organizerUserId },
-    select: { id: true },
-  });
-  if (teacherProfile) {
-    const marketplaceConflict = await prisma.booking.findFirst({
-      where: {
-        teacherId: teacherProfile.id,
-        status: { in: [BookingStatus.CONFIRMED, BookingStatus.PENDING_PAYMENT] },
-        startsAt: { lt: newEnd },
-        endsAt: { gt: newStart },
-      },
-    });
-    if (marketplaceConflict) {
-      return NextResponse.json(
-        { error: "That time overlaps a marketplace lesson for this teacher." },
-        { status: 409 },
-      );
-    }
-  }
-
-  const teacherSchoolSlots = await prisma.schoolScheduleSlot.findMany({
-    where: {
-      active: true,
-      id: { not: booking.scheduleSlotId },
-      assignedTeacher: {
-        userId: organizerUserId,
-        status: "ACTIVE",
-      },
-    },
-    select: {
-      dayOfWeek: true,
-      startMin: true,
-      endMin: true,
-      timezone: true,
-      recurrence: true,
-      daysOfWeek: true,
-      startsOn: true,
-      endsOn: true,
-      skips: { select: { startsAtIso: true } },
-    },
-  });
-  if (teacherSchoolSlots.length > 0) {
-    const slotsForConflict = teacherSchoolSlots.map((s) => ({
-      ...s,
-      startsOn: s.startsOn ? s.startsOn.toISOString().slice(0, 10) : null,
-      endsOn: s.endsOn ? s.endsOn.toISOString().slice(0, 10) : null,
-    }));
-    const slotOverlap = findOccurrenceConflict(
-      slotsForConflict,
+  try {
+    const { calendarUpdated } = await applySchoolBookingReschedule({
+      booking: booking as SchoolBookingReschedulePayload,
       newStart,
       newEnd,
-    );
-    if (slotOverlap) {
+      orgId,
+      schoolId,
+    });
+    return NextResponse.json({
+      id: booking.id,
+      startsAt: newStart.toISOString(),
+      endsAt: newEnd.toISOString(),
+      calendarUpdated,
+    });
+  } catch (e) {
+    if (String((e as Error).message) === "MISSING_TEACHER_USER") {
       return NextResponse.json(
-        { error: "That time overlaps another scheduled school slot." },
+        { error: "Teacher account is not linked for this class." },
         { status: 409 },
       );
     }
+    throw e;
   }
-
-  const updated = await prisma.schoolBooking.update({
-    where: { id: booking.id },
-    data: { startsAt: newStart, endsAt: newEnd },
-    select: {
-      id: true,
-      startsAt: true,
-      endsAt: true,
-      googleEventId: true,
-    },
-  });
-
-  let calendarUpdated = true;
-  if (updated.googleEventId) {
-    calendarUpdated = await patchMeetLessonEvent({
-      organizerUserId,
-      refreshTokenEncrypted: null,
-      eventId: updated.googleEventId,
-      start: newStart,
-      end: newEnd,
-    });
-  }
-
-  const schoolName = booking.school?.name ?? "School";
-  const notifyPayload = schoolClassRescheduledNotification({ schoolName });
-  const studentUserIds = new Set<string>();
-  for (const a of booking.attendees) {
-    const uid = a.studentMembership?.userId ?? a.studentMembership?.user?.id;
-    if (uid) studentUserIds.add(uid);
-  }
-  if (studentUserIds.size > 0) {
-    await Promise.all(
-      [...studentUserIds].map((userId) =>
-        createUserNotification({
-          userId,
-          ...notifyPayload,
-        }),
-      ),
-    );
-  }
-
-  for (const locale of routing.locales) {
-    revalidatePath(`/${locale}/org/${orgId}/schools/${schoolId}/classes`);
-  }
-
-  return NextResponse.json({
-    id: updated.id,
-    startsAt: updated.startsAt.toISOString(),
-    endsAt: updated.endsAt.toISOString(),
-    calendarUpdated,
-  });
 }
