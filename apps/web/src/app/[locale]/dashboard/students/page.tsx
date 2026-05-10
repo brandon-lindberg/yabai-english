@@ -3,11 +3,12 @@ import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { TeacherRosterPanel } from "@/components/dashboard/teacher-roster-panel";
+import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 
 export default async function DashboardStudentsPage() {
   const session = await auth();
   const locale = await getLocale();
-  if (!session?.user?.id || session.user.role !== "TEACHER") {
+  if (!session?.user?.id || !isTeacherCabinetRole(session.user.role)) {
     redirect({ href: "/dashboard", locale });
   }
 

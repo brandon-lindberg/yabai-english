@@ -2,23 +2,26 @@
 
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
+import { Link, useRouter } from "@/i18n/navigation";
 
 type Entry = {
   id: string;
   status: "active" | "pending";
   displayName: string | null;
   email: string | null;
+  studentUserId: string | null;
 };
 
 export function TeacherRosterPanel() {
   const t = useTranslations("dashboard.studentsPage");
+  const router = useRouter();
   const [entries, setEntries] = useState<Entry[] | null>(null);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/teacher/roster");
+    const res = await fetch("/api/teacher/roster", { cache: "no-store" });
     if (!res.ok) {
       setEntries([]);
       return;
@@ -31,6 +34,20 @@ export function TeacherRosterPanel() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState !== "visible") return;
+      void load();
+      router.refresh();
+    };
+    document.addEventListener("visibilitychange", refresh);
+    const interval = window.setInterval(refresh, 45_000);
+    return () => {
+      document.removeEventListener("visibilitychange", refresh);
+      window.clearInterval(interval);
+    };
+  }, [load, router]);
+
   async function addStudent(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -39,6 +56,7 @@ export function TeacherRosterPanel() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email.trim() }),
+      cache: "no-store",
     });
     setBusy(false);
     if (!res.ok) {
@@ -53,7 +71,7 @@ export function TeacherRosterPanel() {
   async function removeEntry(id: string) {
     setBusy(true);
     setError(null);
-    const res = await fetch(`/api/teacher/roster/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/teacher/roster/${id}`, { method: "DELETE", cache: "no-store" });
     setBusy(false);
     if (!res.ok) {
       setError(t("removeError"));
@@ -101,19 +119,34 @@ export function TeacherRosterPanel() {
                 key={row.id}
                 className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm"
               >
-                <div>
-                  <span className="font-medium text-foreground">
-                    {row.displayName ?? row.email ?? "—"}
-                  </span>
-                  {row.status === "pending" ? (
-                    <span className="ml-2 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-800 dark:text-amber-200">
-                      {t("pendingBadge")}
+                {row.studentUserId ? (
+                  <Link
+                    href={`/dashboard/students/${row.studentUserId}`}
+                    className="min-w-0 flex-1 rounded-lg py-0.5 text-left outline-none ring-offset-background transition hover:bg-[var(--app-hover)]/50 focus-visible:ring-2 focus-visible:ring-foreground/25"
+                    aria-label={t("openStudentProfile")}
+                  >
+                    <span className="font-medium text-foreground">
+                      {row.displayName ?? row.email ?? "—"}
                     </span>
-                  ) : null}
-                  {row.email && row.displayName ? (
-                    <p className="text-xs text-muted">{row.email}</p>
-                  ) : null}
-                </div>
+                    {row.email && row.displayName ? (
+                      <p className="text-xs text-muted">{row.email}</p>
+                    ) : null}
+                  </Link>
+                ) : (
+                  <div className="min-w-0 flex-1">
+                    <span className="font-medium text-foreground">
+                      {row.displayName ?? row.email ?? "—"}
+                    </span>
+                    {row.status === "pending" ? (
+                      <span className="ml-2 inline-block rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-800 dark:text-amber-200">
+                        {t("pendingBadge")}
+                      </span>
+                    ) : null}
+                    {row.email && row.displayName ? (
+                      <p className="text-xs text-muted">{row.email}</p>
+                    ) : null}
+                  </div>
+                )}
                 <button
                   type="button"
                   disabled={busy}

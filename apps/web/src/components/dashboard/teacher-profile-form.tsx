@@ -6,6 +6,8 @@ import { Link, useRouter } from "@/i18n/navigation";
 
 type Props = {
   showGooglePrefillHint?: boolean;
+  /** OAuth / account image URL (same source as student profile) */
+  avatarUrl: string | null;
   initialTeacherProfileId: string | null;
   initialDisplayName: string | null;
   initialBio: string | null;
@@ -19,6 +21,7 @@ type Props = {
 
 export function TeacherProfileForm({
   showGooglePrefillHint = false,
+  avatarUrl,
   initialTeacherProfileId,
   initialDisplayName,
   initialBio,
@@ -106,8 +109,25 @@ export function TeacherProfileForm({
     setTimeout(() => setStatus("idle"), 2000);
   }
 
+  const displayForInitial = displayName.trim() || "—";
+  const avatarInitial = displayForInitial.slice(0, 2).toUpperCase();
+
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      <div className="flex items-start gap-4">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-foreground/5">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- external OAuth avatar
+            <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center text-lg font-semibold text-muted">
+              {avatarInitial}
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-muted">{t("avatarHelp")}</p>
+      </div>
+
       {teacherProfileId ? (
         <p className="text-sm text-muted">
           <Link

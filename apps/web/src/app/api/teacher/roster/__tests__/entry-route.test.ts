@@ -24,6 +24,16 @@ describe("DELETE /api/teacher/roster/[entryId]", () => {
     findUniqueMock.mockResolvedValue({ id: "tp-1" });
   });
 
+  test("allows SUPER_ADMIN", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: Role.SUPER_ADMIN } });
+    deleteManyMock.mockResolvedValue({ count: 1 });
+    const res = await DELETE(
+      new Request("http://localhost/api/teacher/roster/e1"),
+      { params: Promise.resolve({ entryId: "e1" }) },
+    );
+    expect(res.status).toBe(200);
+  });
+
   test("returns 404 when entry does not belong to teacher", async () => {
     deleteManyMock.mockResolvedValue({ count: 0 });
     const res = await DELETE(

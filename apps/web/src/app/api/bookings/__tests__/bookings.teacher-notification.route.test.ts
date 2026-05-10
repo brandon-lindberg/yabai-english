@@ -32,6 +32,10 @@ vi.mock("@/lib/chat-threads", () => ({
   ensureStudentTeacherThread: vi.fn(),
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { POST } from "@/app/api/bookings/route";
 
 describe("POST /api/bookings — teacher notification on confirmed booking", () => {

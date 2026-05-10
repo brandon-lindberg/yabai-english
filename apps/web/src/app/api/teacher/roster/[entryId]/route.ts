@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { Role } from "@/generated/prisma/client";
+import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 
 type Props = { params: Promise<{ entryId: string }> };
 
 export async function DELETE(_req: Request, ctx: Props) {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== Role.TEACHER) {
+  if (!session?.user?.id || !isTeacherCabinetRole(session.user.role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

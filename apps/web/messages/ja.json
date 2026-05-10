@@ -200,7 +200,7 @@
     },
     "studentsPage": {
       "title": "受講生一覧",
-      "intro": "メールアドレスで受講生を追加すると、公開の講師一覧に表示されない設定でも予約ページから予約できるようになります。未登録のメールは、相手がそのアドレスでサインインすると有効になります。",
+      "intro": "メールアドレスで受講生を追加すると、公開の講師一覧に表示されない設定でも予約ページから予約できるようになります。未登録のメールは、相手がそのアドレスでサインインすると有効になります。スーパー管理者が講師プロフィールでレッスンする場合も、同じ一覧を使います。",
       "emailLabel": "受講生のメール",
       "emailPlaceholder": "student@example.com",
       "add": "追加",
@@ -210,7 +210,13 @@
       "removeError": "削除できませんでした。",
       "loading": "読み込み中…",
       "empty": "まだ受講生がいません。メールアドレスを追加して招待してください。",
-      "pendingBadge": "登録待ち"
+      "pendingBadge": "登録待ち",
+      "openStudentProfile": "受講生のプロフィールを見る"
+    },
+    "studentProfilePage": {
+      "title": "受講生プロフィール",
+      "intro": "受講生が共有した情報です。レッスン予約の詳細画面と同じ内容です。",
+      "backToList": "受講生一覧に戻る"
     },
     "myTeachersPage": {
       "title": "講師一覧",
@@ -239,6 +245,7 @@
       "studyLastHint": "最後の練習: {when}",
       "rpgLine": "学習ランク {rank} · このランク {into} / {total} XP",
       "profileCardEmpty": "短い自己紹介を書くと講師があなたを知りやすくなります。",
+      "teacherProfileCardEmpty": "自己紹介や指導内容を書くと、受講生がイメージしやすくなります。",
       "profileCardEdit": "プロフィールを編集",
       "profileBioSeeMore": "もっと見る",
       "profileBioSeeLess": "閉じる",

@@ -11,8 +11,13 @@ vi.mock("@/lib/prisma", () => ({
     teacherRosterEntry: { findMany: findManyMock },
   },
 }));
+vi.mock("@/lib/reconcile-teacher-roster-from-bookings", () => ({
+  reconcileTeacherRosterFromBookings: vi.fn().mockResolvedValue(undefined),
+}));
 
+import { prisma } from "@/lib/prisma";
 import { GET } from "../route";
+import { reconcileTeacherRosterFromBookings } from "@/lib/reconcile-teacher-roster-from-bookings";
 
 describe("GET /api/student/rostered-teachers", () => {
   beforeEach(() => {
@@ -48,6 +53,9 @@ describe("GET /api/student/rostered-teachers", () => {
 
     const res = await GET();
     expect(res.status).toBe(200);
+    expect(reconcileTeacherRosterFromBookings).toHaveBeenCalledWith(prisma, {
+      studentUserId: "stu-1",
+    });
     await expect(res.json()).resolves.toEqual({
       teachers: [
         { teacherProfileId: "tp-1", displayName: "Ms. A" },

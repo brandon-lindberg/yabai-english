@@ -5,6 +5,7 @@ import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { redirect } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
+import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 
 export default async function DashboardLessonsPage({
   searchParams,
@@ -14,7 +15,7 @@ export default async function DashboardLessonsPage({
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  if (session.user.role !== "TEACHER") {
+  if (!isTeacherCabinetRole(session.user.role)) {
     const locale = await getLocale();
     redirect({ href: "/dashboard", locale });
   }

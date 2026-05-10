@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect, Link } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { getStudentRosterTeachers } from "@/lib/student-roster-teachers";
+import { reconcileTeacherRosterFromBookings } from "@/lib/reconcile-teacher-roster-from-bookings";
 
 export default async function DashboardMyTeachersPage() {
   const session = await auth();
@@ -14,6 +15,7 @@ export default async function DashboardMyTeachersPage() {
 
   const t = await getTranslations("dashboard.myTeachersPage");
 
+  await reconcileTeacherRosterFromBookings(prisma, { studentUserId: session.user.id });
   const teachers = await getStudentRosterTeachers(prisma, session.user.id);
 
   return (

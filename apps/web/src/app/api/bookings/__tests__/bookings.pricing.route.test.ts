@@ -33,6 +33,10 @@ vi.mock("@/lib/notifications", () => ({
   createUserNotification: createUserNotificationMock,
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { POST } from "@/app/api/bookings/route";
 
 describe("POST /api/bookings pricing", () => {

@@ -17,7 +17,7 @@ export function SiteHeaderUserMenu({ role }: Props) {
 
   const showProfile =
     role === "STUDENT" || role === "TEACHER" || role === "SUPER_ADMIN";
-  const showIntegrations = role === "STUDENT" || role === "TEACHER";
+  const showIntegrations = role === "STUDENT" || role === "TEACHER" || role === "SUPER_ADMIN";
 
   // Close menu when tapping outside (iOS Safari doesn't do this natively for <details>)
   useEffect(() => {

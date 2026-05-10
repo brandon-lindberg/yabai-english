@@ -73,6 +73,7 @@ export function getHeaderPrimaryNavLinks(input: HeaderNavInput): HeaderNavLink[]
   if (input.role === "SUPER_ADMIN") {
     const links: HeaderNavLink[] = [
       { id: "dashboard", href: "/dashboard", labelKey: "dashboard" },
+      { id: "schedule", href: "/dashboard/schedule", labelKey: "schedule" },
       { id: "admin", href: "/admin", labelKey: "admin" },
     ];
     if (orgLink) links.push(orgLink);

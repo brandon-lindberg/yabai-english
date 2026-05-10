@@ -7,6 +7,8 @@ import { buildInvoiceNumber } from "@/lib/invoices";
 import { createUserNotification } from "@/lib/notifications";
 import { ensureStudentTeacherThread } from "@/lib/chat-threads";
 import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
+import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
+import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -54,6 +56,12 @@ export async function POST(_req: Request, { params }: Props) {
       student: true,
     },
   });
+
+  await syncTeacherRosterAfterStudentBooking(prisma, {
+    teacherId: booking.teacher.id,
+    studentUserId: booking.studentId,
+  });
+  revalidateDashboardStudentRosterPaths();
 
   const attendeeEmails = [updated.student.email, updated.teacher.user.email].filter(
     Boolean,

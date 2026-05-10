@@ -200,7 +200,7 @@
     },
     "studentsPage": {
       "title": "Student list",
-      "intro": "Add students by email so they can book you when you are hidden from the public teacher list. Pending invites activate when they sign in with that email.",
+      "intro": "Add students by email so they can book you when you are hidden from the public teacher list. Pending invites activate when they sign in with that email. Super-admins use the same list when they teach with a teacher profile.",
       "emailLabel": "Student email",
       "emailPlaceholder": "student@example.com",
       "add": "Add",
@@ -210,7 +210,13 @@
       "removeError": "Could not remove.",
       "loading": "Loading…",
       "empty": "No students yet. Add an email to invite someone.",
-      "pendingBadge": "Pending sign-up"
+      "pendingBadge": "Pending sign-up",
+      "openStudentProfile": "View student profile"
+    },
+    "studentProfilePage": {
+      "title": "Student profile",
+      "intro": "Information this student chose to share. It is the same view you see on a lesson booking.",
+      "backToList": "Back to student list"
     },
     "myTeachersPage": {
       "title": "My teachers",
@@ -239,6 +245,7 @@
       "studyLastHint": "Last practice: {when}",
       "rpgLine": "Study rank {rank} · {into} / {total} XP this rank",
       "profileCardEmpty": "Add a short introduction so teachers know you better.",
+      "teacherProfileCardEmpty": "Add your bio and teaching focus so students know what to expect.",
       "profileCardEdit": "Edit profile",
       "profileBioSeeMore": "See more",
       "profileBioSeeLess": "See less",

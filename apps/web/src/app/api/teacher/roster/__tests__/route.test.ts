@@ -19,14 +19,29 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
 
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/lib/reconcile-teacher-roster-from-bookings", () => ({
+  reconcileTeacherRosterFromBookings: vi.fn().mockResolvedValue(undefined),
+}));
 
 import { GET, POST } from "../route";
+import { reconcileTeacherRosterFromBookings } from "@/lib/reconcile-teacher-roster-from-bookings";
 
 describe("GET /api/teacher/roster", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "tu-1", role: Role.TEACHER } });
     prismaMock.teacherProfile.findUnique.mockResolvedValue({ id: "tp-1" });
+  });
+
+  test("allows SUPER_ADMIN with a teacher profile", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: Role.SUPER_ADMIN } });
+    prismaMock.teacherRosterEntry.findMany.mockResolvedValue([]);
+
+    const res = await GET();
+    expect(res.status).toBe(200);
+    expect(reconcileTeacherRosterFromBookings).toHaveBeenCalledWith(prismaMock, {
+      teacherProfileId: "tp-1",
+    });
   });
 
   test("returns entries for the signed-in teacher", async () => {
@@ -47,6 +62,9 @@ describe("GET /api/teacher/roster", () => {
 
     const res = await GET();
     expect(res.status).toBe(200);
+    expect(reconcileTeacherRosterFromBookings).toHaveBeenCalledWith(prismaMock, {
+      teacherProfileId: "tp-1",
+    });
     await expect(res.json()).resolves.toEqual({
       entries: [
         {
@@ -54,12 +72,14 @@ describe("GET /api/teacher/roster", () => {
           status: "active",
           displayName: "Sam",
           email: "sam@example.com",
+          studentUserId: "s1",
         },
         {
           id: "e2",
           status: "pending",
           displayName: null,
           email: "pending@example.com",
+          studentUserId: null,
         },
       ],
     });

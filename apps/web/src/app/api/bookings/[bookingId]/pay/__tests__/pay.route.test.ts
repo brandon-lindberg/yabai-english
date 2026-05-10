@@ -24,8 +24,15 @@ vi.mock("@/lib/google-calendar", () => ({
 vi.mock("@/lib/chat-threads", () => ({
   ensureStudentTeacherThread: vi.fn(),
 }));
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+vi.mock("@/lib/sync-teacher-roster-after-student-booking", () => ({
+  syncTeacherRosterAfterStudentBooking: vi.fn().mockResolvedValue(undefined),
+}));
 
 import { POST } from "@/app/api/bookings/[bookingId]/pay/route";
+import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 
 describe("POST /api/bookings/[bookingId]/pay — teacher notification", () => {
   const startsAt = new Date("2026-05-02T00:00:00Z");
@@ -74,6 +81,10 @@ describe("POST /api/bookings/[bookingId]/pay — teacher notification", () => {
     );
 
     expect(res.status).toBe(200);
+    expect(syncTeacherRosterAfterStudentBooking).toHaveBeenCalledWith(
+      prismaMock,
+      { teacherId: "teacher-profile-1", studentUserId: "student-1" },
+    );
 
     const teacherCalls = createUserNotificationMock.mock.calls
       .map((c) => c[0] as { userId: string; titleEn: string; titleJa: string; bodyEn?: string; bodyJa?: string })

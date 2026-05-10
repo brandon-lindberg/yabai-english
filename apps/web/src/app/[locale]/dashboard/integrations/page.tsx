@@ -13,6 +13,7 @@ import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
+import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 
 export default async function DashboardIntegrationsPage({
   searchParams,
@@ -43,7 +44,7 @@ export default async function DashboardIntegrationsPage({
         studentProfile: { select: { timezone: true } },
       },
     }),
-    session.user.role === "TEACHER"
+    isTeacherCabinetRole(session.user.role)
       ? prisma.teacherProfile.findUnique({
           where: { userId: session.user.id },
           select: { googleCalendarRefreshToken: true },
@@ -52,7 +53,7 @@ export default async function DashboardIntegrationsPage({
   ]);
 
   const calendarConnectedForEmbed =
-    session.user.role === "TEACHER"
+    isTeacherCabinetRole(session.user.role)
       ? isTeacherCalendarReady({
           calendarConnected: settings?.calendarConnected,
           legacyRefreshTokenPresent: Boolean(teacherLegacy?.googleCalendarRefreshToken),

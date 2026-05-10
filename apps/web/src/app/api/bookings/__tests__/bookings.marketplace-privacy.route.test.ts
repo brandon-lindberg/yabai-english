@@ -22,6 +22,10 @@ vi.mock("@/lib/notifications", () => ({
   createUserNotification: vi.fn(),
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { POST } from "@/app/api/bookings/route";
 
 const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -165,7 +169,16 @@ describe("POST /api/bookings marketplace privacy", () => {
 
     expect(res.status).toBe(200);
     expect(prismaMock.$transaction).toHaveBeenCalled();
-    expect(upsertMock).not.toHaveBeenCalled();
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          teacherId_studentId: {
+            teacherId: "teacher-profile-1",
+            studentId: "student-1",
+          },
+        },
+      }),
+    );
   });
 
   test("upserts roster inside transaction for public marketplace teacher", async () => {

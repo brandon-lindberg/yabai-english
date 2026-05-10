@@ -4,6 +4,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@/generated/prisma/client";
 import { normalizeRosterInviteEmail } from "@/lib/claim-teacher-roster-invites";
+import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
+import { reconcileTeacherRosterFromBookings } from "@/lib/reconcile-teacher-roster-from-bookings";
 
 const postSchema = z.object({
   email: z.string().email().max(320),
@@ -11,7 +13,7 @@ const postSchema = z.object({
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== Role.TEACHER) {
+  if (!session?.user?.id || !isTeacherCabinetRole(session.user.role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -22,6 +24,8 @@ export async function GET() {
   if (!profile) {
     return NextResponse.json({ error: "No teacher profile" }, { status: 404 });
   }
+
+  await reconcileTeacherRosterFromBookings(prisma, { teacherProfileId: profile.id });
 
   const entries = await prisma.teacherRosterEntry.findMany({
     where: { teacherId: profile.id },
@@ -37,13 +41,15 @@ export async function GET() {
       status: e.studentId ? ("active" as const) : ("pending" as const),
       displayName: e.student?.name ?? null,
       email: e.student?.email ?? e.invitedEmail,
+      /** Present when status is active; used for teacher dashboard student profile links. */
+      studentUserId: e.studentId,
     })),
   });
 }
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== Role.TEACHER) {
+  if (!session?.user?.id || !isTeacherCabinetRole(session.user.role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

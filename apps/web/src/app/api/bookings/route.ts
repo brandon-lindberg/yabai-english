@@ -22,7 +22,8 @@ import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
 import { BookingStatus, LessonTier } from "@/generated/prisma/client";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
-import { normalizeRosterInviteEmail } from "@/lib/claim-teacher-roster-invites";
+import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
+import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 
 const postSchema = z.object({
   lessonProductId: z.string().min(1),
@@ -342,37 +343,10 @@ export async function POST(req: Request) {
       include: { lessonProduct: true, teacher: { include: { user: true } } },
     });
 
-    if (!teacher.marketplaceHidden) {
-      await tx.teacherRosterEntry.upsert({
-        where: {
-          teacherId_studentId: {
-            teacherId: teacher.id,
-            studentId: session.user.id,
-          },
-        },
-        create: {
-          teacherId: teacher.id,
-          studentId: session.user.id,
-        },
-        update: {},
-      });
-      const studentEmail = await tx.user.findUnique({
-        where: { id: session.user.id },
-        select: { email: true },
-      });
-      if (studentEmail?.email) {
-        await tx.teacherRosterEntry.deleteMany({
-          where: {
-            teacherId: teacher.id,
-            studentId: null,
-            invitedEmail: {
-              equals: normalizeRosterInviteEmail(studentEmail.email),
-              mode: "insensitive",
-            },
-          },
-        });
-      }
-    }
+    await syncTeacherRosterAfterStudentBooking(tx, {
+      teacherId: teacher.id,
+      studentUserId: session.user.id,
+    });
 
     return created;
   }).catch((e) => {
@@ -395,6 +369,8 @@ export async function POST(req: Request) {
   }
 
   const confirmedBooking = booking as Exclude<typeof booking, { _err: string }>;
+
+  revalidateDashboardStudentRosterPaths();
 
   if (confirmedBooking.status === BookingStatus.PENDING_PAYMENT) {
     await createUserNotification({
