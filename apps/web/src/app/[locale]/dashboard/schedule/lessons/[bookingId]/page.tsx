@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { redirect } from "@/i18n/navigation";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
+import { TeacherBookingRescheduleForm } from "@/components/dashboard/teacher-booking-reschedule-form";
 
 export default async function LessonDetailPage({
   params,
@@ -41,6 +42,11 @@ export default async function LessonDetailPage({
       teacher: {
         include: {
           user: { select: { name: true, email: true } },
+          availabilitySlots: {
+            where: { active: true },
+            take: 1,
+            select: { timezone: true },
+          },
         },
       },
       invoice: { select: { id: true, paidAt: true } },
@@ -79,6 +85,8 @@ export default async function LessonDetailPage({
 
   const student = booking.student;
   const profile = student.studentProfile;
+  const teacherTimezone =
+    booking.teacher.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -137,7 +145,12 @@ export default async function LessonDetailPage({
           )}
         </div>
         {(booking.status === "CONFIRMED" || booking.status === "PENDING_PAYMENT") && (
-          <div className="mt-4">
+          <div className="mt-4 space-y-4">
+            <TeacherBookingRescheduleForm
+              bookingId={booking.id}
+              initialStartsAtIso={booking.startsAt.toISOString()}
+              teacherTimezone={teacherTimezone}
+            />
             <BookingCancelButton bookingId={booking.id} />
           </div>
         )}

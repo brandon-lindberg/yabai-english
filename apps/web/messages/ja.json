@@ -325,7 +325,16 @@
       "levelUnset": "未評価",
       "levelBeginner": "初級",
       "levelIntermediate": "中級",
-      "levelAdvanced": "上級"
+      "levelAdvanced": "上級",
+      "rescheduleTitle": "レッスン時間を変更",
+      "rescheduleHelp": "この予約の開始時刻を更新し、Google カレンダーが連携している場合は講師・受講生双方のカレンダーにも更新が送られます。",
+      "rescheduleLabel": "新しい開始（あなたのタイムゾーン）",
+      "rescheduleSubmit": "この時間で保存",
+      "rescheduleWorking": "保存中…",
+      "rescheduleError": "時間を更新できませんでした。もう一度お試しください。",
+      "rescheduleInvalidLocalTime": "有効な日付と時刻を入力してください。",
+      "rescheduleCalendarPartial": "予約の時間は保存されましたが、Google カレンダーの更新に失敗した可能性があります。連携設定をご確認ください。",
+      "rescheduleSuccess": "レッスン時間を更新しました。"
     },
     "teacherAvailability": {
       "sectionTitle": "出勤可能時間",

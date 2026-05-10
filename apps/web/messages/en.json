@@ -325,7 +325,16 @@
       "levelUnset": "Not assessed",
       "levelBeginner": "Beginner",
       "levelIntermediate": "Intermediate",
-      "levelAdvanced": "Advanced"
+      "levelAdvanced": "Advanced",
+      "rescheduleTitle": "Change lesson time",
+      "rescheduleHelp": "Updates this booking and sends updated times on Google Calendar to you and the student when calendars are connected.",
+      "rescheduleLabel": "New start (your timezone)",
+      "rescheduleSubmit": "Save new time",
+      "rescheduleWorking": "Saving…",
+      "rescheduleError": "Could not update the time. Try again.",
+      "rescheduleInvalidLocalTime": "Enter a valid date and time.",
+      "rescheduleCalendarPartial": "The time was saved, but Google Calendar may not have updated. Check Google integration settings.",
+      "rescheduleSuccess": "Lesson time updated."
     },
     "teacherAvailability": {
       "sectionTitle": "Availability",
