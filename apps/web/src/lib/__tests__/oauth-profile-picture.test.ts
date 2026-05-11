@@ -15,6 +15,21 @@ describe("pickOidcProfilePicture", () => {
     );
   });
 
+  test("matches Google OIDC userinfo-style payload", () => {
+    const googleUserInfo = {
+      sub: "123",
+      name: "Test User",
+      given_name: "Test",
+      family_name: "User",
+      picture: "https://lh3.googleusercontent.com/a/abc=s96-c",
+      email: "test@example.com",
+      email_verified: true,
+    };
+    expect(pickOidcProfilePicture(googleUserInfo)).toBe(
+      "https://lh3.googleusercontent.com/a/abc=s96-c",
+    );
+  });
+
   test("falls back to image when picture is absent", () => {
     expect(pickOidcProfilePicture({ image: "https://cdn.example/face.jpg" })).toBe(
       "https://cdn.example/face.jpg",

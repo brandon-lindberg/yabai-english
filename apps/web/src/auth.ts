@@ -25,13 +25,17 @@ const useDevCredentialsOnly =
 
 const providers = [];
 if (hasGoogleOAuth) {
-  providers.push(
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID ?? "missing-client-id",
-      clientSecret: process.env.AUTH_GOOGLE_SECRET ?? "missing-secret",
-      allowDangerousEmailAccountLinking: true,
-    }),
-  );
+  const googleOptions = {
+    clientId: process.env.AUTH_GOOGLE_ID ?? "missing-client-id",
+    clientSecret: process.env.AUTH_GOOGLE_SECRET ?? "missing-secret",
+    allowDangerousEmailAccountLinking: true,
+    // Google often omits `picture` from the ID token; Auth.js then only passes those
+    // claims into `callbacks.signIn` as `profile`. Fetch userinfo so `picture` exists
+    // and new/existing users get `User.image` populated and kept in sync.
+    idToken: false,
+  };
+  // `OAuthUserConfig` is typed from a union that omits OIDC-only `idToken`; runtime supports it.
+  providers.push(Google(googleOptions as Parameters<typeof Google>[0]));
 }
 if (useDevCredentialsOnly) {
   providers.push(
