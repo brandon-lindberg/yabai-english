@@ -12,6 +12,13 @@ type Entry = {
   studentUserId: string | null;
 };
 
+async function fetchTeacherRosterEntries(): Promise<Entry[]> {
+  const res = await fetch("/api/teacher/roster", { cache: "no-store" });
+  if (!res.ok) return [];
+  const body = (await res.json()) as { entries: Entry[] };
+  return body.entries;
+}
+
 export function TeacherRosterPanel() {
   const t = useTranslations("dashboard.studentsPage");
   const router = useRouter();
@@ -21,18 +28,18 @@ export function TeacherRosterPanel() {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/teacher/roster", { cache: "no-store" });
-    if (!res.ok) {
-      setEntries([]);
-      return;
-    }
-    const body = (await res.json()) as { entries: Entry[] };
-    setEntries(body.entries);
+    setEntries(await fetchTeacherRosterEntries());
   }, []);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    let cancelled = false;
+    void fetchTeacherRosterEntries().then((next) => {
+      if (!cancelled) setEntries(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const refresh = () => {
