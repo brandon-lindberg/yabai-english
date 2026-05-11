@@ -9,6 +9,7 @@ import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 import { getSessionMaxAgeSeconds } from "@/lib/session-timeout";
 import { claimPendingMemberships } from "@/lib/claim-pending-memberships";
 import { claimTeacherRosterInvites } from "@/lib/claim-teacher-roster-invites";
+import { pickOidcProfilePicture, syncUserImageIfChanged } from "@/lib/oauth-profile-picture";
 import { AccountStatus, Role, type OrgRole } from "@/generated/prisma/client";
 import { cookies } from "next/headers";
 
@@ -64,7 +65,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   providers,
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, account, profile }) {
       if (!user.id && !user.email) return true;
       const full =
         (user.id
@@ -93,6 +94,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           userId: full.id,
           email: user.email ?? null,
         });
+      }
+      if (full?.id && account?.provider === "google") {
+        const pictureUrl = pickOidcProfilePicture(profile);
+        await syncUserImageIfChanged(prisma, full.id, pictureUrl);
       }
       if (
         full?.role === Role.TEACHER ||
