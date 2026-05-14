@@ -17,7 +17,7 @@ export function SiteHeaderUserMenu({ role }: Props) {
 
   const showProfile =
     role === "STUDENT" || role === "TEACHER" || role === "SUPER_ADMIN";
-  const showIntegrations = role === "STUDENT" || role === "TEACHER" || role === "SUPER_ADMIN";
+  const showSettings = role === "STUDENT" || role === "TEACHER" || role === "SUPER_ADMIN";
 
   // Close menu when tapping outside (iOS Safari doesn't do this natively for <details>)
   useEffect(() => {
@@ -48,12 +48,12 @@ export function SiteHeaderUserMenu({ role }: Props) {
               {t("profile")}
             </Link>
           ) : null}
-          {showIntegrations ? (
+          {showSettings ? (
             <Link
-              href="/dashboard/integrations"
+              href="/dashboard/settings"
               className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-[var(--app-hover)]"
             >
-              {t("integrations")}
+              {t("settings")}
             </Link>
           ) : null}
         </div>

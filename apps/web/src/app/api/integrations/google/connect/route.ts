@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { buildGoogleConnectUrl } from "@/lib/google/oauth-service";
+import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
 
 const querySchema = z.object({
   feature: z.enum(["calendar", "drive", "meet"]).default("calendar"),
@@ -26,7 +27,7 @@ export async function GET(req: Request) {
     returnTo: parsed.data.returnTo,
   });
   if (!url) {
-    return NextResponse.redirect(new URL("/dashboard/integrations?google=misconfigured", req.url));
+    return NextResponse.redirect(new URL(`${DASHBOARD_GOOGLE_SETTINGS_PATH}?google=misconfigured`, req.url));
   }
 
   return NextResponse.redirect(url);

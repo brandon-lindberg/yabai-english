@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { buildGoogleConnectUrl } from "@/lib/google/oauth-service";
+import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
 
 export async function GET(req: Request) {
   const session = await auth();
@@ -11,7 +12,7 @@ export async function GET(req: Request) {
   const url = buildGoogleConnectUrl(req, {
     userId: session.user.id,
     feature: "calendar",
-    returnTo: "/dashboard/integrations",
+    returnTo: DASHBOARD_GOOGLE_SETTINGS_PATH,
   });
   if (!url) {
     return NextResponse.redirect(new URL("/dashboard?calendar=misconfigured", req.url));

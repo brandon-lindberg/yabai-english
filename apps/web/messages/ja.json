@@ -9,6 +9,7 @@
     "schedule": "スケジュール",
     "profile": "プロフィール",
     "integrations": "Google とカレンダー",
+    "settings": "設定",
     "accountMenu": "アカウント",
     "primaryNavAria": "メイン",
     "learn": "レッスン",
@@ -440,6 +441,10 @@
       "calendarPreviewTitle": "あなたのカレンダー",
       "calendarPreviewHint": "Google の埋め込み表示です。真っ白な場合は Google カレンダーで該当カレンダーの設定 → アクセス権限から「一般に公開」または埋め込みを許可するか、新しいタブで開いてください。",
       "openGoogleCalendar": "Google カレンダーを開く"
+    },
+    "settingsPage": {
+      "title": "設定",
+      "intro": "Google 連携やその他のアカウント設定です。今後、さらに項目を追加していきます。"
     },
     "teacherHome": {
       "title": "ダッシュボード",

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { handleGoogleCallback } from "@/lib/google/oauth-service";
+import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
 
 function resolvePublicBaseUrl(req: Request): string {
   return (
@@ -22,7 +23,7 @@ export async function GET(req: Request) {
   const state = searchParams.get("state");
   if (!code || !state) {
     return NextResponse.redirect(
-      new URL("/dashboard/integrations?google=failed", baseUrl),
+      new URL(`${DASHBOARD_GOOGLE_SETTINGS_PATH}?google=failed`, baseUrl),
     );
   }
 
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error("Google integration callback failed", error);
     return NextResponse.redirect(
-      new URL("/dashboard/integrations?google=failed", baseUrl),
+      new URL(`${DASHBOARD_GOOGLE_SETTINGS_PATH}?google=failed`, baseUrl),
     );
   }
 }

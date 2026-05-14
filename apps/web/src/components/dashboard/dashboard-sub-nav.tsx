@@ -11,7 +11,9 @@ type Tab =
   | "myTeachers"
   | "schedule"
   | "taxonomy"
-  | "invoices";
+  | "invoices"
+  /** Routes outside this nav (e.g. Settings from the account menu). */
+  | "none";
 
 function activeTab(pathname: string): Tab {
   if (pathname.includes("/dashboard/profile")) return "profile";
@@ -21,6 +23,8 @@ function activeTab(pathname: string): Tab {
   if (pathname.includes("/dashboard/schedule")) return "schedule";
   if (pathname.includes("/dashboard/taxonomy")) return "taxonomy";
   if (pathname.includes("/dashboard/invoices")) return "invoices";
+  if (pathname.includes("/dashboard/settings")) return "none";
+  if (pathname.includes("/dashboard/integrations")) return "none";
   return "overview";
 }
 

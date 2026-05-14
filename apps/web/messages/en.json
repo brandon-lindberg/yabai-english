@@ -9,6 +9,7 @@
     "schedule": "Schedule",
     "profile": "Profile",
     "integrations": "Google & calendar",
+    "settings": "Settings",
     "accountMenu": "Account",
     "primaryNavAria": "Main",
     "learn": "Learn",
@@ -440,6 +441,10 @@
       "calendarPreviewTitle": "Your calendar",
       "calendarPreviewHint": "This preview uses Google’s embed. If it looks empty, open Google Calendar → Settings for your calendar → Access permissions and allow embedding, or open your calendar in a new tab.",
       "openGoogleCalendar": "Open Google Calendar"
+    },
+    "settingsPage": {
+      "title": "Settings",
+      "intro": "Google connections and other account options. More preferences will appear here over time."
     },
     "teacherHome": {
       "title": "Dashboard",

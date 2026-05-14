@@ -6,7 +6,7 @@ describe("buildConnectHref", () => {
     const href = buildConnectHref("calendar");
     expect(href).toBe(
       "/api/integrations/google/connect?feature=calendar&returnTo=" +
-        encodeURIComponent("/dashboard/integrations"),
+        encodeURIComponent("/dashboard/settings"),
     );
   });
 
@@ -19,7 +19,7 @@ describe("buildConnectHref", () => {
     expect(href).toContain(
       "returnTo=" +
         encodeURIComponent(
-          "/dashboard/integrations?onboardingNext=" +
+          "/dashboard/settings?onboardingNext=" +
             encodeURIComponent("/onboarding/next"),
         ),
     );

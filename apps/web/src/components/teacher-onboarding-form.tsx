@@ -14,10 +14,10 @@ import {
   type TeacherOnboardingStep,
 } from "@/lib/teacher-onboarding-steps";
 
-const STEP_HREF: Record<TeacherOnboardingStep, "/dashboard/profile" | "/dashboard/integrations" | "/dashboard/schedule" | "/dashboard" | "/dashboard/schedule/completed" | "/learn/study"> =
+const STEP_HREF: Record<TeacherOnboardingStep, "/dashboard/profile" | "/dashboard/settings" | "/dashboard/schedule" | "/dashboard" | "/dashboard/schedule/completed" | "/learn/study"> =
   {
     profile: "/dashboard/profile",
-    integrations: "/dashboard/integrations",
+    integrations: "/dashboard/settings",
     availability: "/dashboard/schedule",
     students: "/dashboard",
     chat: "/dashboard",

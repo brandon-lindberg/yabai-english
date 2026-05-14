@@ -29,13 +29,13 @@ describe("google integration scope helpers", () => {
     const encoded = buildGoogleFeatureState({
       userId: "u_1",
       feature: "meet",
-      returnTo: "/dashboard/integrations",
+      returnTo: "/dashboard/settings",
     });
     const parsed = featureFromState(encoded);
     expect(parsed).toEqual({
       userId: "u_1",
       feature: "meet",
-      returnTo: "/dashboard/integrations",
+      returnTo: "/dashboard/settings",
     });
   });
 
@@ -70,16 +70,16 @@ describe("google integration scope helpers", () => {
 
 describe("buildPostCallbackReturnUrl", () => {
   test("appends google+feature to a plain path", () => {
-    const url = buildPostCallbackReturnUrl("/dashboard/integrations", {
+    const url = buildPostCallbackReturnUrl("/dashboard/settings", {
       google: "connected",
       feature: "calendar",
     });
-    expect(url).toBe("/dashboard/integrations?google=connected&feature=calendar");
+    expect(url).toBe("/dashboard/settings?google=connected&feature=calendar");
   });
 
   test("preserves existing onboardingNext query param when appending", () => {
     const returnTo =
-      "/dashboard/integrations?onboardingNext=%2Fonboarding%2Fnext";
+      "/dashboard/settings?onboardingNext=%2Fonboarding%2Fnext";
     const url = buildPostCallbackReturnUrl(returnTo, {
       google: "connected",
       feature: "calendar",
@@ -87,12 +87,12 @@ describe("buildPostCallbackReturnUrl", () => {
     expect(url).toContain("onboardingNext=%2Fonboarding%2Fnext");
     expect(url).toContain("google=connected");
     expect(url).toContain("feature=calendar");
-    expect(url.startsWith("/dashboard/integrations?")).toBe(true);
+    expect(url.startsWith("/dashboard/settings?")).toBe(true);
   });
 
   test("overwrites duplicate google/feature params on returnTo", () => {
     const returnTo =
-      "/dashboard/integrations?google=connected&feature=drive&onboardingNext=%2Fx";
+      "/dashboard/settings?google=connected&feature=drive&onboardingNext=%2Fx";
     const url = buildPostCallbackReturnUrl(returnTo, {
       google: "connected",
       feature: "calendar",
@@ -104,7 +104,7 @@ describe("buildPostCallbackReturnUrl", () => {
 
   test("ignores absolute URLs and keeps them relative", () => {
     const url = buildPostCallbackReturnUrl(
-      "/dashboard/integrations?onboardingNext=%2Fonboarding%2Fnext",
+      "/dashboard/settings?onboardingNext=%2Fonboarding%2Fnext",
       { google: "connected", feature: "calendar" },
     );
     expect(url.startsWith("/")).toBe(true);

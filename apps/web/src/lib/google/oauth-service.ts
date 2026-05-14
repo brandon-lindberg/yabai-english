@@ -9,6 +9,7 @@ import {
   scopesForFeature,
   type IntegrationFeature,
 } from "@/lib/google/integration";
+import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
 
 function resolveBaseUrl(req: Request): string {
   return (
@@ -40,7 +41,7 @@ export function buildGoogleConnectUrl(req: Request, params: {
   const state = buildGoogleFeatureState({
     userId: params.userId,
     feature: params.feature,
-    returnTo: params.returnTo ?? "/dashboard/integrations",
+    returnTo: params.returnTo ?? DASHBOARD_GOOGLE_SETTINGS_PATH,
   });
   return (
     "https://accounts.google.com/o/oauth2/v2/auth" +
@@ -58,7 +59,7 @@ export function buildGoogleConnectUrl(req: Request, params: {
 export async function handleGoogleCallback(req: Request, code: string, state: string) {
   const parsed = featureFromState(state);
   if (!parsed) {
-    return { ok: false as const, redirectTo: "/dashboard/integrations?google=invalid_state" };
+    return { ok: false as const, redirectTo: `${DASHBOARD_GOOGLE_SETTINGS_PATH}?google=invalid_state` };
   }
   const creds = requireGoogleClient();
   if (!creds) {

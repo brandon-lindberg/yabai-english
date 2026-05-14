@@ -2,9 +2,13 @@
 
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
 import { DashboardSubNav } from "../dashboard-sub-nav";
+
+const { usePathnameMock } = vi.hoisted(() => ({
+  usePathnameMock: vi.fn(() => "/en/dashboard/lessons"),
+}));
 
 vi.mock("@/i18n/navigation", () => ({
   Link: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
@@ -12,10 +16,14 @@ vi.mock("@/i18n/navigation", () => ({
       {children}
     </a>
   ),
-  usePathname: () => "/en/dashboard/lessons",
+  usePathname: () => usePathnameMock(),
 }));
 
 describe("DashboardSubNav", () => {
+  beforeEach(() => {
+    usePathnameMock.mockReturnValue("/en/dashboard/lessons");
+  });
+
   test("shows a teacher lessons and rates tab", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
@@ -65,5 +73,16 @@ describe("DashboardSubNav", () => {
       "href",
       "/dashboard/my-teachers",
     );
+  });
+
+  test("does not highlight Overview on Settings (outside sub-nav)", () => {
+    usePathnameMock.mockReturnValue("/en/dashboard/settings");
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <DashboardSubNav isTeacher />
+      </NextIntlClientProvider>,
+    );
+    const overview = screen.getByRole("link", { name: en.dashboard.nav.overview });
+    expect(overview.className).not.toContain("shadow-sm");
   });
 });

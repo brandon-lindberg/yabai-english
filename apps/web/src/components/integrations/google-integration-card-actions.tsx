@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
 
 type Props = {
   feature: "calendar" | "drive" | "meet";
@@ -15,7 +16,7 @@ export function buildConnectHref(
   onboardingNext?: string | null,
   onboardingStep?: string | null,
 ): string {
-  const basePath = "/dashboard/integrations";
+  const basePath = DASHBOARD_GOOGLE_SETTINGS_PATH;
   const returnParams = new URLSearchParams();
   if (onboardingNext) {
     returnParams.set("onboardingNext", onboardingNext);

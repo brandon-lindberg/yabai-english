@@ -24,7 +24,7 @@ const STUDENT_CHECKLIST_BASE: Array<{
   extraQuery?: Record<string, string>;
 }> = [
   { key: "profile", basePath: "/dashboard/profile" },
-  { key: "integrations", basePath: "/dashboard/integrations" },
+  { key: "integrations", basePath: "/dashboard/settings" },
   { key: "bookLesson", basePath: "/book" },
   { key: "chat", basePath: "/dashboard", extraQuery: { openChat: "1" } },
   { key: "placement", basePath: "/placement" },

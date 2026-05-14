@@ -26,6 +26,7 @@ import {
   summarizeStudentOnboardingProgress,
 } from "@/lib/student-onboarding-next-links";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
+import { TEACHER_HOME_SCHEDULE_HREFS, withDashboardOnboarding } from "@/lib/teacher-dashboard-home-links";
 
 export default async function DashboardPage({
   searchParams,
@@ -72,89 +73,77 @@ export default async function DashboardPage({
         <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
         <PageHeader title={t("teacherHome.title")} description={t("teacherHome.body")} />
         <div className="grid gap-4 sm:grid-cols-3">
-          <article className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+          <Link
+            href={withDashboardOnboarding(TEACHER_HOME_SCHEDULE_HREFS.upcoming, onboardingHref)}
+            aria-label={`${t("teacherHome.statUpcoming")}: ${teacherBookings.upcoming.length}`}
+            className="group block rounded-2xl border border-border bg-surface p-4 shadow-sm outline-none transition hover:border-foreground/20 hover:bg-[var(--app-hover)] focus-visible:ring-2 focus-visible:ring-foreground/25"
+          >
             <p className="text-xs font-medium uppercase tracking-wide text-muted">
               {t("teacherHome.statUpcoming")}
             </p>
-            <p className="mt-2 text-2xl font-semibold text-foreground">{teacherBookings.upcoming.length}</p>
-          </article>
-          <article className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
+              {teacherBookings.upcoming.length}
+            </p>
+          </Link>
+          <Link
+            href={withDashboardOnboarding(TEACHER_HOME_SCHEDULE_HREFS.completed, onboardingHref)}
+            aria-label={`${t("teacherHome.statCompleted")}: ${teacherBookings.completed.length}`}
+            className="group block rounded-2xl border border-border bg-surface p-4 shadow-sm outline-none transition hover:border-foreground/20 hover:bg-[var(--app-hover)] focus-visible:ring-2 focus-visible:ring-foreground/25"
+          >
             <p className="text-xs font-medium uppercase tracking-wide text-muted">
               {t("teacherHome.statCompleted")}
             </p>
-            <p className="mt-2 text-2xl font-semibold text-foreground">{teacherBookings.completed.length}</p>
-          </article>
-          <article className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
+              {teacherBookings.completed.length}
+            </p>
+          </Link>
+          <Link
+            href={withDashboardOnboarding(TEACHER_HOME_SCHEDULE_HREFS.availability, onboardingHref)}
+            aria-label={`${t("teacherHome.statSlots")}: ${teacherProfile?.availabilitySlots.length ?? 0}`}
+            className="group block rounded-2xl border border-border bg-surface p-4 shadow-sm outline-none transition hover:border-foreground/20 hover:bg-[var(--app-hover)] focus-visible:ring-2 focus-visible:ring-foreground/25"
+          >
             <p className="text-xs font-medium uppercase tracking-wide text-muted">
               {t("teacherHome.statSlots")}
             </p>
-            <p className="mt-2 text-2xl font-semibold text-foreground">
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
               {teacherProfile?.availabilitySlots.length ?? 0}
             </p>
-          </article>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href={
-              onboardingHref
-                ? `/dashboard/profile?onboardingNext=${encodeURIComponent(onboardingHref)}`
-                : "/dashboard/profile"
-            }
-            className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-          >
-            {t("teacherHome.editProfile")}
-          </Link>
-          <Link
-            href={
-              onboardingHref
-                ? `/dashboard/integrations?onboardingNext=${encodeURIComponent(onboardingHref)}`
-                : "/dashboard/integrations"
-            }
-            className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-          >
-            {t("teacherHome.googleIntegrations")}
-          </Link>
-          <Link
-            href={
-              onboardingHref
-                ? `/dashboard/schedule?onboardingNext=${encodeURIComponent(onboardingHref)}`
-                : "/dashboard/schedule"
-            }
-            className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-          >
-            {t("teacherHome.openSchedule")}
           </Link>
         </div>
         {isTeacherCabinetRole(session.user.role) && !calendarReady ? (
           <InlineAlert variant="info">
             <span className="text-foreground">{t("teacherHome.calendarSetupHint")} </span>
-            <Link href="/dashboard/integrations" className="font-semibold text-link hover:opacity-90">
-              {tCommon("integrations")}
+            <Link href="/dashboard/settings" className="font-semibold text-link hover:opacity-90">
+              {tCommon("settings")}
             </Link>
           </InlineAlert>
         ) : null}
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">{t("teacherHome.upcomingSection")}</h2>
-            <ul className="space-y-4">
+        <section className="space-y-4">
+          <h2 className="text-lg font-semibold leading-snug text-foreground">
+            {t("teacherHome.upcomingSection")}
+          </h2>
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(17.5rem,22rem)] lg:items-start lg:gap-x-8">
+            <ul className="min-w-0 list-none space-y-4 p-0">
               <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
             </ul>
-          </section>
-          <DashboardProfileSummary
-            name={
-              teacherProfile?.displayName ??
-              teacherProfile?.user.name ??
-              accountUser?.name ??
-              null
-            }
-            email={teacherProfile?.user.email ?? accountUser?.email ?? null}
-            image={teacherProfile?.user.image ?? accountUser?.image ?? null}
-            shortBio={teacherProfile?.bio ?? null}
-            rpg={null}
-            emptyBioLabel={th("teacherProfileCardEmpty")}
-          />
-        </div>
+            <aside className="min-w-0 self-start lg:sticky lg:top-24">
+              <DashboardProfileSummary
+                name={
+                  teacherProfile?.displayName ??
+                  teacherProfile?.user.name ??
+                  accountUser?.name ??
+                  null
+                }
+                email={teacherProfile?.user.email ?? accountUser?.email ?? null}
+                image={teacherProfile?.user.image ?? accountUser?.image ?? null}
+                shortBio={teacherProfile?.bio ?? null}
+                rpg={null}
+                emptyBioLabel={th("teacherProfileCardEmpty")}
+              />
+            </aside>
+          </div>
+        </section>
       </div>
     );
   }
@@ -259,10 +248,10 @@ export default async function DashboardPage({
               {tCommon("bookLesson")}
             </Link>
             <Link
-              href="/dashboard/integrations"
+              href="/dashboard/settings"
               className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
             >
-              {tCommon("integrations")}
+              {tCommon("settings")}
             </Link>
             {canStartPlacement ? (
               profile.placedLevel === "UNSET" ? (
