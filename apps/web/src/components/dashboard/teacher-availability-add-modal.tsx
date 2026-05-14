@@ -129,42 +129,42 @@ function TeacherAvailabilityAddModalInner({
       </h3>
       <p className="mt-1 text-sm text-muted">{subtitle}</p>
 
-        <div className="mt-4 flex items-start justify-between gap-3 border-b border-border pb-3">
-          <div className="min-w-0 flex-1">
+        <div className="mt-4 space-y-2 border-b border-border pb-3">
+          <div className="flex items-center gap-3">
             <p id="weekly-recurring-label" className="text-sm font-medium text-foreground">
               {tModal("repeatWeeklyLabel")}
             </p>
-            <p className="mt-0.5 text-xs text-muted">{tModal("repeatWeeklyHint")}</p>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={weeklyOnCalendarDay}
-            aria-labelledby="weekly-recurring-label"
-            onClick={() => {
-              setWeeklyOnCalendarDay((on) => {
-                const next = !on;
-                setDraft((d) => ({
-                  ...d,
-                  recurrence: next ? "WEEKLY" : "ONE_OFF",
-                  startsOn: dayKey,
-                  endsOn: next ? d.endsOn : null,
-                  dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, d.timezone),
-                }));
-                return next;
-              });
-            }}
-            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-              weeklyOnCalendarDay ? "bg-primary" : "bg-zinc-300 dark:bg-zinc-600"
-            }`}
-          >
-            <span
-              className={`pointer-events-none absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                weeklyOnCalendarDay ? "translate-x-[1.125rem]" : "translate-x-0"
+            <button
+              type="button"
+              role="switch"
+              aria-checked={weeklyOnCalendarDay}
+              aria-labelledby="weekly-recurring-label"
+              onClick={() => {
+                setWeeklyOnCalendarDay((on) => {
+                  const next = !on;
+                  setDraft((d) => ({
+                    ...d,
+                    recurrence: next ? "WEEKLY" : "ONE_OFF",
+                    startsOn: dayKey,
+                    endsOn: next ? d.endsOn : null,
+                    dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, d.timezone),
+                  }));
+                  return next;
+                });
+              }}
+              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border border-transparent leading-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                weeklyOnCalendarDay ? "bg-primary" : "bg-zinc-300 dark:bg-zinc-600"
               }`}
-              aria-hidden
-            />
-          </button>
+            >
+              <span
+                className={`pointer-events-none absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow transition-transform ${
+                  weeklyOnCalendarDay ? "translate-x-[1.125rem]" : "translate-x-0"
+                }`}
+                aria-hidden
+              />
+            </button>
+          </div>
+          <p className="text-xs text-muted">{tModal("repeatWeeklyHint")}</p>
         </div>
 
         <div className="mt-4 space-y-3">

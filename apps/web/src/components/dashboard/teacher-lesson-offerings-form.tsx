@@ -2,6 +2,13 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import {
+  type TeacherLessonRatePriceBasis,
+  convertTeacherRateInputBetweenBases,
+  taxIncludedRateFromTeacherInput,
+} from "@/lib/teacher-lesson-rate-basis";
+import { TeacherLessonRateBasisToggle } from "./teacher-lesson-rate-basis-toggle";
+import { TeacherLessonRateTaxBreakdown } from "./teacher-lesson-rate-tax-breakdown";
 
 const INDIVIDUAL_DURATIONS = [30, 40, 60, 90] as const;
 
@@ -59,6 +66,12 @@ function makeRowId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/** Aligns multi-line rate labels with single-line taxonomy labels; pairs with `RATE_CONTROL_HEIGHT`. */
+const RATE_FIELD_LABEL_ROW = "flex min-h-[3rem] items-end text-xs leading-snug text-muted";
+const RATE_CONTROL_HEIGHT =
+  "h-10 min-h-[2.5rem] rounded-xl border border-border px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
+const RATE_BREAKDOWN_SLOT = "min-h-[2.75rem] text-xs leading-snug text-muted";
+
 export function TeacherLessonOfferingsForm({
   initialRateYen,
   initialOffersFreeTrial,
@@ -108,6 +121,32 @@ export function TeacherLessonOfferingsForm({
   );
   const [offersFreeTrial, setOffersFreeTrial] = useState(initialOffersFreeTrial);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [ratePriceBasis, setRatePriceBasis] = useState<TeacherLessonRatePriceBasis>("tax_included");
+
+  function handleRatePriceBasisChange(next: TeacherLessonRatePriceBasis) {
+    if (next === ratePriceBasis) return;
+    setIndividualOffers((prev) =>
+      prev.map((row) => {
+        const n = Number.parseInt(row.rateYenInput.trim(), 10);
+        if (Number.isNaN(n) || n <= 0) return row;
+        return {
+          ...row,
+          rateYenInput: String(convertTeacherRateInputBetweenBases(n, ratePriceBasis, next)),
+        };
+      }),
+    );
+    setGroupOffers((prev) =>
+      prev.map((row) => {
+        const n = Number.parseInt(row.rateYenInput.trim(), 10);
+        if (Number.isNaN(n) || n <= 0) return row;
+        return {
+          ...row,
+          rateYenInput: String(convertTeacherRateInputBetweenBases(n, ratePriceBasis, next)),
+        };
+      }),
+    );
+    setRatePriceBasis(next);
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -115,11 +154,12 @@ export function TeacherLessonOfferingsForm({
     const lessonOfferings: LessonOfferingInput[] = [];
 
     for (const row of individualOffers) {
-      const rate = Number.parseInt(row.rateYenInput.trim(), 10);
-      if (Number.isNaN(rate) || rate <= 0 || !row.classLevelId || !row.classTypeId) {
+      const entered = Number.parseInt(row.rateYenInput.trim(), 10);
+      if (Number.isNaN(entered) || entered <= 0 || !row.classLevelId || !row.classTypeId) {
         setStatus("error");
         return;
       }
+      const rate = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
       lessonOfferings.push({
         durationMin: row.durationMin,
         rateYen: rate,
@@ -131,10 +171,10 @@ export function TeacherLessonOfferingsForm({
     }
 
     for (const group of groupOffers) {
-      const rate = Number.parseInt(group.rateYenInput.trim(), 10);
+      const entered = Number.parseInt(group.rateYenInput.trim(), 10);
       if (
-        Number.isNaN(rate) ||
-        rate <= 0 ||
+        Number.isNaN(entered) ||
+        entered <= 0 ||
         group.groupSize < 2 ||
         !group.classLevelId ||
         !group.classTypeId
@@ -142,6 +182,7 @@ export function TeacherLessonOfferingsForm({
         setStatus("error");
         return;
       }
+      const rate = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
       lessonOfferings.push({
         durationMin: group.durationMin,
         rateYen: rate,
@@ -198,6 +239,8 @@ export function TeacherLessonOfferingsForm({
         <p className="text-xs text-muted">{t("teacherRatesByDurationHelp")}</p>
         <p className="text-xs text-muted">{t("teacherLessonTypeForRateHelp")}</p>
 
+        <TeacherLessonRateBasisToggle basis={ratePriceBasis} onBasisChange={handleRatePriceBasisChange} />
+
         {individualOffers.length === 0 ? (
           <p className="text-xs text-muted">{t("teacherIndividualRatesEmpty")}</p>
         ) : (
@@ -205,10 +248,10 @@ export function TeacherLessonOfferingsForm({
             {individualOffers.map((row, index) => (
               <div
                 key={row.clientId}
-                className="flex flex-col gap-2 rounded-xl border border-border/80 bg-surface/60 p-3 sm:flex-row sm:flex-wrap sm:items-end"
+                className="flex flex-col gap-3 rounded-xl border border-border/80 bg-surface/60 p-3 sm:flex-row sm:items-start sm:gap-3"
               >
-                <label className="flex flex-col gap-1 text-xs text-foreground">
-                  <span className="text-muted">{t("teacherLessonLevelForRate")}</span>
+                <label className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <span className={RATE_FIELD_LABEL_ROW}>{t("teacherLessonLevelForRate")}</span>
                   <select
                     value={row.classLevelId}
                     onChange={(e) =>
@@ -218,7 +261,7 @@ export function TeacherLessonOfferingsForm({
                         ),
                       )
                     }
-                    className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+                    className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-background`}
                   >
                     {classLevels.map((opt) => (
                       <option key={opt.id} value={opt.id}>
@@ -227,8 +270,8 @@ export function TeacherLessonOfferingsForm({
                     ))}
                   </select>
                 </label>
-                <label className="flex flex-col gap-1 text-xs text-foreground">
-                  <span className="text-muted">{t("teacherLessonTypeForRate")}</span>
+                <label className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <span className={RATE_FIELD_LABEL_ROW}>{t("teacherLessonTypeForRate")}</span>
                   <select
                     value={row.classTypeId}
                     onChange={(e) =>
@@ -238,7 +281,7 @@ export function TeacherLessonOfferingsForm({
                         ),
                       )
                     }
-                    className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+                    className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-background`}
                   >
                     {classTypes.map((opt) => (
                       <option key={opt.id} value={opt.id}>
@@ -247,8 +290,8 @@ export function TeacherLessonOfferingsForm({
                     ))}
                   </select>
                 </label>
-                <label className="flex flex-col gap-1 text-xs text-foreground">
-                  <span className="text-muted">{t("teacherDurationLabel")}</span>
+                <label className="flex w-full flex-col gap-1.5 sm:w-[7.5rem] sm:flex-none">
+                  <span className={RATE_FIELD_LABEL_ROW}>{t("teacherDurationLabel")}</span>
                   <select
                     value={row.durationMin}
                     onChange={(e) =>
@@ -260,7 +303,7 @@ export function TeacherLessonOfferingsForm({
                         ),
                       )
                     }
-                    className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+                    className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-background`}
                   >
                     {INDIVIDUAL_DURATIONS.map((d) => (
                       <option key={d} value={d}>
@@ -269,8 +312,12 @@ export function TeacherLessonOfferingsForm({
                     ))}
                   </select>
                 </label>
-                <label className="flex flex-col gap-1 text-xs text-foreground">
-                  <span className="text-muted">{t("teacherRateYenLabel")}</span>
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-w-[11rem] sm:max-w-sm">
+                  <span className={RATE_FIELD_LABEL_ROW}>
+                    {ratePriceBasis === "tax_included"
+                      ? t("teacherRateYenLabelTaxIncluded")
+                      : t("teacherRateYenLabelTaxExclusive")}
+                  </span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -286,18 +333,24 @@ export function TeacherLessonOfferingsForm({
                       )
                     }
                     placeholder="3500"
-                    className="w-36 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
+                    className={`${RATE_CONTROL_HEIGHT} w-full max-w-full border-border bg-surface sm:max-w-none`}
                   />
-                </label>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setIndividualOffers((prev) => prev.filter((_, i) => i !== index))
-                  }
-                  className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
-                >
-                  {t("teacherIndividualRatesRemove")}
-                </button>
+                  <div className={RATE_BREAKDOWN_SLOT}>
+                    <TeacherLessonRateTaxBreakdown basis={ratePriceBasis} rateYenInput={row.rateYenInput} />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5 sm:shrink-0">
+                  <span className={`${RATE_FIELD_LABEL_ROW} hidden sm:flex`} aria-hidden />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setIndividualOffers((prev) => prev.filter((_, i) => i !== index))
+                    }
+                    className="inline-flex h-10 min-h-[2.5rem] w-full shrink-0 items-center justify-center rounded-full border border-border px-3 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)] sm:w-auto"
+                  >
+                    {t("teacherIndividualRatesRemove")}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -328,104 +381,133 @@ export function TeacherLessonOfferingsForm({
           </button>
         </div>
         <p className="text-xs text-muted">{t("teacherGroupRatesHelp")}</p>
+        <p className="text-xs text-muted">{t("teacherRatePriceBasisAppliesToGroupNote")}</p>
         {groupOffers.length === 0 ? (
           <p className="text-xs text-muted">{t("teacherGroupRatesEmpty")}</p>
         ) : (
           <div className="space-y-2">
             {groupOffers.map((group, index) => (
-              <div key={group.clientId} className="flex flex-wrap items-end gap-2">
-                <input
-                  type="number"
-                  min={2}
-                  value={group.groupSize}
-                  onChange={(e) =>
-                    setGroupOffers((prev) =>
-                      prev.map((row, i) =>
-                        i === index
-                          ? { ...row, groupSize: Number.parseInt(e.target.value || "2", 10) }
-                          : row,
-                      ),
-                    )
-                  }
-                  className="w-20 rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
-                />
-                <select
-                  value={group.classLevelId}
-                  onChange={(e) =>
-                    setGroupOffers((prev) =>
-                      prev.map((row, i) =>
-                        i === index ? { ...row, classLevelId: e.target.value } : row,
-                      ),
-                    )
-                  }
-                  className="rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
-                >
-                  {classLevels.map((opt) => (
-                    <option key={opt.id} value={opt.id}>
-                      {pickLabel(opt, locale)}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={group.classTypeId}
-                  onChange={(e) =>
-                    setGroupOffers((prev) =>
-                      prev.map((row, i) =>
-                        i === index ? { ...row, classTypeId: e.target.value } : row,
-                      ),
-                    )
-                  }
-                  className="rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
-                >
-                  {classTypes.map((opt) => (
-                    <option key={opt.id} value={opt.id}>
-                      {pickLabel(opt, locale)}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={group.durationMin}
-                  onChange={(e) =>
-                    setGroupOffers((prev) =>
-                      prev.map((row, i) =>
-                        i === index
-                          ? { ...row, durationMin: Number.parseInt(e.target.value, 10) }
-                          : row,
-                      ),
-                    )
-                  }
-                  className="rounded-xl border border-border bg-surface px-2 py-2 text-sm text-foreground"
-                >
-                  {INDIVIDUAL_DURATIONS.map((d) => (
-                    <option key={d} value={d}>
-                      {d} min
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={group.rateYenInput}
-                  onChange={(e) =>
-                    setGroupOffers((prev) =>
-                      prev.map((row, i) =>
-                        i === index
-                          ? { ...row, rateYenInput: e.target.value.replace(/\D/g, "") }
-                          : row,
-                      ),
-                    )
-                  }
-                  placeholder="8000"
-                  className="w-28 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
-                />
-                <button
-                  type="button"
-                  onClick={() => setGroupOffers((prev) => prev.filter((_, i) => i !== index))}
-                  className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
-                >
-                  {t("teacherGroupRatesRemove")}
-                </button>
+              <div
+                key={group.clientId}
+                className="flex flex-col gap-3 rounded-xl border border-border/80 bg-surface/60 p-3 sm:flex-row sm:items-start sm:gap-3"
+              >
+                <label className="flex w-full flex-col gap-1.5 sm:w-20 sm:flex-none">
+                  <span className={RATE_FIELD_LABEL_ROW}>{t("teacherGroupSizeLabel")}</span>
+                  <input
+                    type="number"
+                    min={2}
+                    value={group.groupSize}
+                    onChange={(e) =>
+                      setGroupOffers((prev) =>
+                        prev.map((row, i) =>
+                          i === index
+                            ? { ...row, groupSize: Number.parseInt(e.target.value || "2", 10) }
+                            : row,
+                        ),
+                      )
+                    }
+                    className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-surface`}
+                  />
+                </label>
+                <label className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <span className={RATE_FIELD_LABEL_ROW}>{t("teacherLessonLevelForRate")}</span>
+                  <select
+                    value={group.classLevelId}
+                    onChange={(e) =>
+                      setGroupOffers((prev) =>
+                        prev.map((row, i) =>
+                          i === index ? { ...row, classLevelId: e.target.value } : row,
+                        ),
+                      )
+                    }
+                    className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-surface`}
+                  >
+                    {classLevels.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {pickLabel(opt, locale)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <span className={RATE_FIELD_LABEL_ROW}>{t("teacherLessonTypeForRate")}</span>
+                  <select
+                    value={group.classTypeId}
+                    onChange={(e) =>
+                      setGroupOffers((prev) =>
+                        prev.map((row, i) =>
+                          i === index ? { ...row, classTypeId: e.target.value } : row,
+                        ),
+                      )
+                    }
+                    className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-surface`}
+                  >
+                    {classTypes.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {pickLabel(opt, locale)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex w-full flex-col gap-1.5 sm:w-[7.5rem] sm:flex-none">
+                  <span className={RATE_FIELD_LABEL_ROW}>{t("teacherDurationLabel")}</span>
+                  <select
+                    value={group.durationMin}
+                    onChange={(e) =>
+                      setGroupOffers((prev) =>
+                        prev.map((row, i) =>
+                          i === index
+                            ? { ...row, durationMin: Number.parseInt(e.target.value, 10) }
+                            : row,
+                        ),
+                      )
+                    }
+                    className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-surface`}
+                  >
+                    {INDIVIDUAL_DURATIONS.map((d) => (
+                      <option key={d} value={d}>
+                        {d} min
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-w-[11rem] sm:max-w-sm">
+                  <span className={RATE_FIELD_LABEL_ROW}>
+                    {ratePriceBasis === "tax_included"
+                      ? t("teacherRateYenLabelTaxIncluded")
+                      : t("teacherRateYenLabelTaxExclusive")}
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={group.rateYenInput}
+                    onChange={(e) =>
+                      setGroupOffers((prev) =>
+                        prev.map((row, i) =>
+                          i === index
+                            ? { ...row, rateYenInput: e.target.value.replace(/\D/g, "") }
+                            : row,
+                        ),
+                      )
+                    }
+                    placeholder="8000"
+                    className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-surface sm:max-w-none`}
+                  />
+                  <div className={RATE_BREAKDOWN_SLOT}>
+                    <TeacherLessonRateTaxBreakdown basis={ratePriceBasis} rateYenInput={group.rateYenInput} />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5 sm:shrink-0">
+                  <span className={`${RATE_FIELD_LABEL_ROW} hidden sm:flex`} aria-hidden />
+                  <button
+                    type="button"
+                    onClick={() => setGroupOffers((prev) => prev.filter((_, i) => i !== index))}
+                    className="inline-flex h-10 min-h-[2.5rem] w-full shrink-0 items-center justify-center rounded-full border border-border px-3 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)] sm:w-auto"
+                  >
+                    {t("teacherGroupRatesRemove")}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
