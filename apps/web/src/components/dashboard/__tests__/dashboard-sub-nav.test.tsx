@@ -43,6 +43,18 @@ describe("DashboardSubNav", () => {
     );
   });
 
+  test("shows invoices tab for teachers", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <DashboardSubNav isTeacher />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("link", { name: en.dashboard.nav.invoices })).toHaveAttribute(
+      "href",
+      "/dashboard/invoices",
+    );
+  });
+
   test("shows my teachers tab for students", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>

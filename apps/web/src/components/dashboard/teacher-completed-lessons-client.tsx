@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useId, useState } from "react";
+import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
 import { TeacherLessonCompletionNotesForm } from "@/components/dashboard/teacher-lesson-completion-notes-form";
 
 export type TeacherCompletedLessonItem = {
@@ -18,6 +19,7 @@ export type TeacherCompletedLessonItem = {
   smartNotesIds: string[];
   recordingIds: string[];
   hasSavedContent: boolean;
+  invoiceId: string | null;
 };
 
 type ViewMode = "cards" | "list";
@@ -32,6 +34,19 @@ function formatRange(locale: string, startsAtIso: string, endsAtIso: string) {
   const a = start.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" });
   const b = end.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" });
   return `${a} – ${b}`;
+}
+
+function LessonInvoiceLinks({ invoiceId }: { invoiceId: string }) {
+  const t = useTranslations("dashboard");
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      <InvoiceDownloadLinks
+        invoiceId={invoiceId}
+        englishLabel={t("downloadInvoiceEn")}
+        japaneseLabel={t("downloadInvoiceJa")}
+      />
+    </div>
+  );
 }
 
 export function TeacherCompletedLessonsClient({ lessons }: Props) {
@@ -125,6 +140,7 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
                     <p className="font-medium text-foreground">{lesson.studentDisplay}</p>
                     <p className="truncate text-sm text-muted">{title}</p>
                     <p className="text-xs text-muted">{range}</p>
+                    {lesson.invoiceId ? <LessonInvoiceLinks invoiceId={lesson.invoiceId} /> : null}
                     {lesson.hasSavedContent ? (
                       <span className="mt-1 inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
                         {t("completedLessonsHasNotes")}
@@ -201,6 +217,7 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
                   <p className="text-sm text-muted">
                     {t("studentLabel")}: {lesson.studentDisplay}
                   </p>
+                  {lesson.invoiceId ? <LessonInvoiceLinks invoiceId={lesson.invoiceId} /> : null}
                   {lesson.hasSavedContent ? (
                     <span className="inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
                       {t("completedLessonsHasNotes")}

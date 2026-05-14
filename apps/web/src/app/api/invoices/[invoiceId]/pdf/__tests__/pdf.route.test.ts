@@ -34,6 +34,7 @@ describe("GET /api/invoices/[invoiceId]/pdf", () => {
       booking: {
         startsAt: new Date("2026-05-10T00:00:00Z"),
         teacher: {
+          userId: "teacher-user-1",
           displayName: "Teacher A",
           user: { name: "Teacher User", email: "teacher@example.com" },
         },
@@ -44,6 +45,28 @@ describe("GET /api/invoices/[invoiceId]/pdf", () => {
         },
       },
     });
+  });
+
+  test("allows the owning teacher to download the PDF", async () => {
+    authMock.mockResolvedValue({ user: { id: "teacher-user-1" } });
+    const res = await GET(
+      new Request("http://localhost/api/invoices/invoice-1/pdf?lang=en"),
+      { params: Promise.resolve({ invoiceId: "invoice-1" }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(buildInvoicePdfMock).toHaveBeenCalled();
+  });
+
+  test("rejects users who are neither the student nor the owning teacher", async () => {
+    authMock.mockResolvedValue({ user: { id: "someone-else" } });
+    const res = await GET(
+      new Request("http://localhost/api/invoices/invoice-1/pdf?lang=en"),
+      { params: Promise.resolve({ invoiceId: "invoice-1" }) },
+    );
+
+    expect(res.status).toBe(404);
+    expect(buildInvoicePdfMock).not.toHaveBeenCalled();
   });
 
   test("passes Japanese invoice data to the PDF builder when lang=ja", async () => {

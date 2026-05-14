@@ -27,7 +27,9 @@ export async function GET(req: Request, { params }: Props) {
     },
   });
 
-  if (!invoice || invoice.studentId !== session.user.id) {
+  const isStudent = invoice?.studentId === session.user.id;
+  const isOwningTeacher = invoice?.booking?.teacher?.userId === session.user.id;
+  if (!invoice || (!isStudent && !isOwningTeacher)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

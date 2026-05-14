@@ -147,6 +147,14 @@
       "combinationsHelp": "Availability slots can be tagged with any combination below.",
       "combinationsEmpty": "Add at least one class level and one class type to enable combinations."
     },
+    "invoicesPage": {
+      "title": "Invoices",
+      "description": "Download a CSV of paid lesson invoices for your records. Amounts use the same 10% consumption tax breakdown as student PDF invoices.",
+      "studentFilterLabel": "Export for",
+      "optionAllStudents": "All students (one file)",
+      "downloadCsv": "Download CSV",
+      "csvHint": "Columns include invoice number, teacher and student names, lesson type, length, lesson date (Asia/Tokyo), amount before tax, tax, and total after tax."
+    },
     "title": "My dashboard",
     "upcoming": "Upcoming lessons",
     "noBookings": "No bookings yet.",
@@ -196,7 +204,8 @@
       "students": "Students",
       "myTeachers": "My teachers",
       "schedule": "Schedule",
-      "taxonomy": "Taxonomy"
+      "taxonomy": "Taxonomy",
+      "invoices": "Invoices"
     },
     "studentsPage": {
       "title": "Student list",

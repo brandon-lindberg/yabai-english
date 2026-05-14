@@ -147,6 +147,14 @@
       "combinationsHelp": "空き枠に以下のいずれかの組み合わせを設定できます。",
       "combinationsEmpty": "クラスレベルとクラスタイプを少なくとも1つずつ追加してください。"
     },
+    "invoicesPage": {
+      "title": "請求書・明細",
+      "description": "お支払い済みレッスンの請求データをCSVでダウンロードできます。税額の内訳は受講生向けPDF請求書と同じ10%の消費税計算です。",
+      "studentFilterLabel": "出力対象",
+      "optionAllStudents": "全受講生（1ファイル）",
+      "downloadCsv": "CSVをダウンロード",
+      "csvHint": "列には請求書番号、講師名・受講生名、レッスン種別、時間、レッスン日（Asia/Tokyo）、税抜金額、消費税、税込合計が含まれます。"
+    },
     "title": "マイページ",
     "upcoming": "予定のレッスン",
     "noBookings": "予約はまだありません。",
@@ -196,7 +204,8 @@
       "students": "受講生一覧",
       "myTeachers": "講師一覧",
       "schedule": "スケジュール",
-      "taxonomy": "クラス分類"
+      "taxonomy": "クラス分類",
+      "invoices": "請求書"
     },
     "studentsPage": {
       "title": "受講生一覧",

@@ -3,7 +3,15 @@
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
-type Tab = "overview" | "profile" | "lessons" | "students" | "myTeachers" | "schedule" | "taxonomy";
+type Tab =
+  | "overview"
+  | "profile"
+  | "lessons"
+  | "students"
+  | "myTeachers"
+  | "schedule"
+  | "taxonomy"
+  | "invoices";
 
 function activeTab(pathname: string): Tab {
   if (pathname.includes("/dashboard/profile")) return "profile";
@@ -12,6 +20,7 @@ function activeTab(pathname: string): Tab {
   if (pathname.includes("/dashboard/my-teachers")) return "myTeachers";
   if (pathname.includes("/dashboard/schedule")) return "schedule";
   if (pathname.includes("/dashboard/taxonomy")) return "taxonomy";
+  if (pathname.includes("/dashboard/invoices")) return "invoices";
   return "overview";
 }
 
@@ -52,6 +61,11 @@ export function DashboardSubNav({
       {isTeacher ? (
         <Link href="/dashboard/students" className={linkCn(tab === "students")}>
           {t("students")}
+        </Link>
+      ) : null}
+      {isTeacher ? (
+        <Link href="/dashboard/invoices" className={linkCn(tab === "invoices")}>
+          {t("invoices")}
         </Link>
       ) : null}
       {isStudent ? (

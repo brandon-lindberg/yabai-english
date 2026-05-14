@@ -24,6 +24,7 @@ function toClientLessons(completed: Completed): TeacherCompletedLessonItem[] {
     hasSavedContent: Boolean(
       (b.completionNotesMd ?? "").trim() || (b.externalTranscriptUrl ?? "").trim(),
     ),
+    invoiceId: b.invoice?.id ?? null,
   }));
 }
 
