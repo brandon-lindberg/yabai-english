@@ -1,13 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
-const { authMock, findUniqueMock, updateMock, deleteMeetLessonEventMock, revalidatePathMock } =
+const { authMock, findUniqueMock, updateMock, deleteMeetLessonEventMock, revalidatePathMock, issueRefundMock } =
   vi.hoisted(() => ({
     authMock: vi.fn(),
     findUniqueMock: vi.fn(),
     updateMock: vi.fn(),
     deleteMeetLessonEventMock: vi.fn(),
     revalidatePathMock: vi.fn(),
+    issueRefundMock: vi.fn(),
   }));
 
 vi.mock("@/auth", () => ({
@@ -29,6 +30,10 @@ vi.mock("@/lib/google-calendar", () => ({
 
 vi.mock("next/cache", () => ({
   revalidatePath: revalidatePathMock,
+}));
+
+vi.mock("@/lib/payment-refunds", () => ({
+  issueAutomaticRefundForBooking: issueRefundMock,
 }));
 
 import { POST } from "@/app/api/bookings/[bookingId]/cancel/route";
@@ -61,6 +66,7 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
     vi.useFakeTimers();
     vi.setSystemTime(t0);
     deleteMeetLessonEventMock.mockResolvedValue(true);
+    issueRefundMock.mockResolvedValue({ id: "refund-1", status: "SUCCEEDED" });
   });
 
   afterEach(() => {
@@ -162,6 +168,14 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
     );
     expect(revalidatePathMock).toHaveBeenCalledWith("/ja/dashboard");
     expect(revalidatePathMock).toHaveBeenCalledWith("/en/dashboard");
+    expect(issueRefundMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        booking,
+        actor: "STUDENT",
+        policy: expect.objectContaining({ refundEligible: true }),
+      }),
+    );
   });
 
   test("lets assigned teacher cancel with short-notice compensation flag", async () => {
@@ -183,6 +197,7 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
     const body = await res.json();
     expect(body.policy.studentCompensationFreeLesson).toBe(true);
     expect(body.policy.refundEligible).toBe(true);
+    expect(issueRefundMock).toHaveBeenCalled();
   });
 
   test("lets admin cancel any booking", async () => {

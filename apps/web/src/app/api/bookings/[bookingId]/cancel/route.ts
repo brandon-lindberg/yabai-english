@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { evaluateBookingCancellationPolicy } from "@/lib/booking-policy";
 import { deleteMeetLessonEvent } from "@/lib/google-calendar";
+import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -38,6 +39,17 @@ export async function POST(_req: Request, { params }: Props) {
           userId: true,
           googleCalendarRefreshToken: true,
           calendarId: true,
+        },
+      },
+      payments: {
+        where: { status: "SUCCEEDED" },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          id: true,
+          provider: true,
+          amountYen: true,
+          status: true,
         },
       },
     },
@@ -101,6 +113,14 @@ export async function POST(_req: Request, { params }: Props) {
       : Promise.resolve(false),
   ]);
 
+  const refund = policy.refundEligible
+    ? await issueAutomaticRefundForBooking(prisma, {
+        booking,
+        policy,
+        actor,
+      })
+    : null;
+
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`);
     revalidatePath(`/${locale}/dashboard/schedule`);
@@ -110,5 +130,6 @@ export async function POST(_req: Request, { params }: Props) {
     ok: true,
     booking: updated,
     policy,
+    refund,
   });
 }

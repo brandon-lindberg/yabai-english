@@ -12,19 +12,25 @@ export function CheckoutPayButton({ bookingId }: Props) {
   const t = useTranslations("booking");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onPay() {
     setLoading(true);
     setError(null);
+    if (!accepted) {
+      setError(t("acceptCheckoutTermsError"));
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`/api/bookings/${bookingId}/pay`, { method: "POST" });
-      const data = (await res.json()) as { error?: string };
+      const data = (await res.json()) as { error?: string; checkoutUrl?: string };
       if (!res.ok) {
         setError(data.error ?? t("paymentFailed"));
         return;
       }
-      router.push("/dashboard");
+      router.push(data.checkoutUrl ?? "/dashboard");
     } catch {
       setError(t("paymentFailed"));
     } finally {
@@ -39,10 +45,19 @@ export function CheckoutPayButton({ bookingId }: Props) {
           {error}
         </p>
       )}
+      <label className="flex items-start gap-2 text-sm text-muted">
+        <input
+          type="checkbox"
+          checked={accepted}
+          onChange={(e) => setAccepted(e.target.checked)}
+          className="mt-1"
+        />
+        <span>{t("acceptCheckoutTerms")}</span>
+      </label>
       <button
         type="button"
         onClick={onPay}
-        disabled={loading}
+        disabled={loading || !accepted}
         className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
       >
         {loading ? "…" : t("payNow")}

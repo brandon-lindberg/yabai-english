@@ -26,11 +26,15 @@ import { BookingStatus, LessonTier } from "@/generated/prisma/client";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
+import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
 
 const postSchema = z.object({
   lessonProductId: z.string().min(1),
   teacherProfileId: z.string().min(1).optional(),
   teacherLessonOfferingId: z.string().min(1).optional(),
+  paymentAccountId: z.string().min(1).optional(),
+  paymentProvider: z.enum(["STRIPE", "KOMOJU"]).optional(),
+  paymentMethod: z.enum(["CARD", "PAYPAY"]).optional(),
   startsAt: z.string().datetime(),
   manualOverride: z.boolean().optional(),
   manualOverrideReason: z.string().max(500).optional(),
@@ -56,6 +60,9 @@ export async function POST(req: Request) {
     teacherProfileId,
     teacherLessonOfferingId,
     startsAt,
+    paymentAccountId,
+    paymentProvider,
+    paymentMethod,
     manualOverride,
     manualOverrideReason,
   } = parsed.data;
@@ -109,6 +116,16 @@ export async function POST(req: Request) {
               },
             },
             lessonOfferings: { include: { classType: true } },
+            paymentAccounts: {
+              select: {
+                id: true,
+                provider: true,
+                status: true,
+                chargesEnabled: true,
+                payoutsEnabled: true,
+                methods: { select: { method: true, enabled: true } },
+              },
+            },
             availabilitySlots: {
               where: { active: true },
               select: {
@@ -141,6 +158,16 @@ export async function POST(req: Request) {
           },
         },
         lessonOfferings: { include: { classType: true } },
+        paymentAccounts: {
+          select: {
+            id: true,
+            provider: true,
+            status: true,
+            chargesEnabled: true,
+            payoutsEnabled: true,
+            methods: { select: { method: true, enabled: true } },
+          },
+        },
         availabilitySlots: {
           where: { active: true },
           select: {
@@ -346,6 +373,42 @@ export async function POST(req: Request) {
     );
   }
 
+  const teacherPaymentAccounts = (teacher as {
+    paymentAccounts?: Parameters<typeof getEnabledTeacherPaymentMethods>[0];
+  }).paymentAccounts;
+  const teacherPaymentPolicyAccepted = teacherPaymentAccounts
+    ? Boolean((teacher as { paymentPolicyAcceptedAt?: Date | null }).paymentPolicyAcceptedAt)
+    : true;
+  const enabledPaymentMethods = teacherPaymentAccounts
+    ? teacherPaymentPolicyAccepted
+      ? getEnabledTeacherPaymentMethods(teacherPaymentAccounts)
+      : []
+    : [
+        {
+          accountId: "",
+          provider: "STRIPE" as const,
+          method: "CARD" as const,
+          label: "Credit card",
+          logoLabel: "Stripe",
+          logoClassName: "bg-[#635bff] text-white",
+        },
+      ];
+  const selectedPaymentMethod = isFreeTrial
+    ? null
+    : enabledPaymentMethods.find((m) => {
+        if (paymentAccountId && m.accountId !== paymentAccountId) return false;
+        if (paymentProvider && m.provider !== paymentProvider) return false;
+        if (paymentMethod && m.method !== paymentMethod) return false;
+        return true;
+      }) ?? enabledPaymentMethods[0] ?? null;
+
+  if (!isFreeTrial && !selectedPaymentMethod) {
+    return NextResponse.json(
+      { error: "This teacher has not enabled payments yet." },
+      { status: 409 },
+    );
+  }
+
   const attendeeEmails = [
     student.email,
     teacher.user.email,
@@ -392,6 +455,31 @@ export async function POST(req: Request) {
       },
       include: { lessonProduct: true, teacher: { include: { user: true } } },
     });
+
+    if (flow.requiresPayment && selectedPaymentMethod && "payment" in tx) {
+      await tx.payment.create({
+        data: {
+          bookingId: created.id,
+          studentId: session.user.id,
+          teacherId: teacher.id,
+          teacherPaymentAccountId: selectedPaymentMethod.accountId,
+          provider: selectedPaymentMethod.provider,
+          method: selectedPaymentMethod.method,
+          amountYen: quotedPriceYen,
+          currency: "JPY",
+          status: "CREATED",
+          idempotencyKey: `booking:${created.id}`,
+          checkoutUrl: `/book/checkout/${created.id}`,
+          ledgerEntries: {
+            create: [
+              { type: "GROSS", amountYen: quotedPriceYen },
+              { type: "PLATFORM_FEE", amountYen: Math.floor(quotedPriceYen * 0.1) },
+              { type: "TEACHER_NET", amountYen: quotedPriceYen - Math.floor(quotedPriceYen * 0.1) },
+            ],
+          },
+        },
+      });
+    }
 
     await syncTeacherRosterAfterStudentBooking(tx, {
       teacherId: teacher.id,

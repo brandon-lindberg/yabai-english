@@ -341,6 +341,9 @@
       "subNavUpcoming": "Upcoming",
       "subNavCompleted": "Completed lessons",
       "availabilityIntro": "Set your availability and manage your weekly schedule.",
+      "availabilityPaymentRequiredTitle": "Payments required before availability",
+      "availabilityPaymentRequiredBody": "Connect at least one valid payment option and accept the teacher payment policy before publishing availability.",
+      "availabilityPaymentRequiredCta": "Open payment settings",
       "upcomingIntro": "View your upcoming booked lessons.",
       "ariaScheduleSections": "Schedule sections",
       "completedSectionTitle": "Completed lessons",
@@ -464,7 +467,13 @@
     },
     "settingsPage": {
       "title": "Settings",
-      "intro": "Google connections and other account options. More preferences will appear here over time."
+      "intro": "Google connections and other account options. More preferences will appear here over time.",
+      "paymentPolicyTitle": "Payment responsibilities",
+      "paymentPolicyIntro": "Teachers must accept these terms before paid lesson payment methods are shown to students.",
+      "paymentPolicyAccepted": "Payment policy accepted.",
+      "paymentPolicyAccept": "Accept payment policy",
+      "paymentPolicySaving": "Saving…",
+      "paymentPolicyError": "Could not save payment policy acceptance."
     },
     "teacherHome": {
       "title": "Dashboard",
@@ -653,6 +662,9 @@
     "checkoutSummary": "Confirm and pay to secure your lesson slot.",
     "teacher": "Teacher",
     "payNow": "Pay now",
+    "paymentMethod": "Payment method",
+    "acceptCheckoutTerms": "I confirm the lesson details, payment amount, cancellation policy, and marketplace payment policy. I understand the transaction is between me and the teacher, the platform facilitates the relationship, eligible refunds depend on teacher funding, and rescheduling does not create a refund entitlement.",
+    "acceptCheckoutTermsError": "Confirm the checkout terms before paying.",
     "paymentFailed": "Payment failed. Please try again.",
     "leadTimeError": "Bookings must be made at least 48 hours in advance.",
     "leadTimeNotice": "Only lesson slots at least 48 hours in advance are available for booking.",
@@ -671,6 +683,22 @@
     "selectedSlot": "Selected",
     "noSlotSelected": "No time selected yet",
     "reserved": "Reserved"
+  },
+  "paymentPolicy": {
+    "student": {
+      "title": "Marketplace payment policy",
+      "transaction": "Your transaction is between you and the teacher. English Studio Japan facilitates scheduling, checkout, and communication.",
+      "platformFee": "The platform keeps its 10% facilitation fee from the original transaction.",
+      "refunds": "Refunds are automatic only when the cancellation policy allows them. Rescheduling does not create a refund entitlement.",
+      "failure": "If a refund may fail or be delayed because the teacher's payment account lacks sufficient funds or has another processor issue, the teacher remains responsible for resolving the refund. The platform is not responsible for the teacher's failure to fund a refund except where required by law."
+    },
+    "teacher": {
+      "title": "Teacher payment responsibilities",
+      "transaction": "Students pay you for lessons through the platform. English Studio Japan facilitates the relationship and payment flow.",
+      "platformFee": "The platform keeps its 10% facilitation fee from the original transaction, including when a refund is later required.",
+      "refunds": "You are responsible for the full refund amount owed to the student under the cancellation policy.",
+      "failure": "If your processor balance, bank account, or payout setup prevents a refund from completing, you remain responsible for resolving the refund and your paid booking access may be restricted."
+    }
   },
   "placement": {
     "pageIntro": "About 15–25 minutes. Your answers help us suggest a starting level and lesson plan.",
@@ -847,6 +875,10 @@
       "profile": {
         "title": "Update your public profile",
         "body": "Add your bio and credentials so students know who they will learn with."
+      },
+      "payments": {
+        "title": "Connect payments",
+        "body": "Enable at least one payment processor before accepting paid lessons."
       },
       "integrations": {
         "title": "Connect Google",

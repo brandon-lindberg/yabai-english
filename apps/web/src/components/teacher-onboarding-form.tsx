@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
+import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 import {
   buildTeacherOnboardingContinueHref,
   parseCompletedTeacherOnboardingSteps,
@@ -17,6 +18,7 @@ import {
 const STEP_HREF: Record<TeacherOnboardingStep, "/dashboard/profile" | "/dashboard/settings" | "/dashboard/schedule" | "/dashboard" | "/dashboard/schedule/completed" | "/learn/study"> =
   {
     profile: "/dashboard/profile",
+    payments: "/dashboard/settings",
     integrations: "/dashboard/settings",
     availability: "/dashboard/schedule",
     students: "/dashboard",
@@ -41,6 +43,7 @@ export function TeacherOnboardingForm({
     completed.includes(step) || skipped.has(step);
   const [checked, setChecked] = useState<Record<TeacherOnboardingStep, boolean>>(() => ({
     profile: initial("profile"),
+    payments: initial("payments"),
     integrations: initial("integrations"),
     availability: initial("availability"),
     students: initial("students"),
@@ -172,6 +175,9 @@ export function TeacherOnboardingForm({
                       </>
                     ) : null}
                   </span>
+                  {step === "payments" ? (
+                    <PaymentPolicyNotice audience="teacher" className="mt-3" />
+                  ) : null}
                 </span>
               </label>
             </li>

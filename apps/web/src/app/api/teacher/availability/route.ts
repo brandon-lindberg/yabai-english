@@ -6,6 +6,7 @@ import { deriveMissingOfferingsFromSchedule } from "@/lib/schedule-offering-sync
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 import { dateOnlyToUtcDateInZone } from "@/lib/date-only-in-zone";
+import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
 
 export async function GET() {
   const session = await auth();
@@ -70,6 +71,17 @@ export async function PATCH(req: Request) {
     select: {
       id: true,
       rateYen: true,
+      paymentPolicyAcceptedAt: true,
+      paymentAccounts: {
+        select: {
+          id: true,
+          provider: true,
+          status: true,
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: { select: { method: true, enabled: true } },
+        },
+      },
       lessonOfferings: {
         select: {
           classTypeId: true,
@@ -87,6 +99,17 @@ export async function PATCH(req: Request) {
   // Defensively seed default taxonomy in case the teacher reached this PATCH
   // before the onboarding flow ran (e.g. legacy profile).
   await seedDefaultTeacherTaxonomy(prisma, profileSnapshot.id);
+
+  if (
+    parsed.data.length > 0 &&
+    (!profileSnapshot.paymentPolicyAcceptedAt ||
+      getEnabledTeacherPaymentMethods(profileSnapshot.paymentAccounts).length === 0)
+  ) {
+    return NextResponse.json(
+      { error: "Set up and accept payments before publishing availability." },
+      { status: 409 },
+    );
+  }
 
   // Validate that every classLevelId / classTypeId belongs to this teacher.
   const refLevelIds = Array.from(new Set(parsed.data.map((s) => s.classLevelId)));

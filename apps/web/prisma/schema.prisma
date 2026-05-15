@@ -127,6 +127,48 @@ enum AvailabilitySlotRecurrence {
   ONE_OFF
 }
 
+enum PaymentProvider {
+  STRIPE
+  KOMOJU
+}
+
+enum TeacherPaymentAccountStatus {
+  PENDING
+  ENABLED
+  DISABLED
+  REQUIREMENTS_DUE
+}
+
+enum TeacherPaymentMethodType {
+  CARD
+  PAYPAY
+}
+
+enum PaymentStatus {
+  CREATED
+  REQUIRES_ACTION
+  SUCCEEDED
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
+enum PaymentLedgerEntryType {
+  GROSS
+  PLATFORM_FEE
+  TEACHER_NET
+  PROCESSOR_FEE
+  REFUND
+  TRANSFER_REVERSAL
+}
+
+enum RefundStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  PENDING_RECOVERY
+}
+
 // --- NextAuth (Auth.js) ---
 model User {
   id            String        @id @default(cuid())
@@ -304,6 +346,7 @@ model TeacherProfile {
   offersFreeTrial            Boolean   @default(true)
   /// When true, profile is hidden from /book marketplace; only rostered students may book via direct link.
   marketplaceHidden          Boolean   @default(false)
+  paymentPolicyAcceptedAt    DateTime?
   onboardingCompletedAt      DateTime?
   /// Steps the teacher explicitly skipped from the onboarding wizard.
   skippedOnboardingSteps     String[]  @default([])
@@ -316,6 +359,40 @@ model TeacherProfile {
   studentLessonRateOverrides  TeacherStudentLessonRate[]
   classLevels                 TeacherClassLevel[]
   classTypes                  TeacherClassType[]
+  paymentAccounts             TeacherPaymentAccount[]
+}
+
+model TeacherPaymentAccount {
+  id                String                      @id @default(cuid())
+  teacherId         String
+  teacher           TeacherProfile              @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  provider          PaymentProvider
+  providerAccountId String?
+  status            TeacherPaymentAccountStatus @default(PENDING)
+  chargesEnabled    Boolean                     @default(false)
+  payoutsEnabled    Boolean                     @default(false)
+  requirementsDue   String[]                    @default([])
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+
+  methods TeacherPaymentMethod[]
+  payments Payment[]
+
+  @@unique([teacherId, provider])
+  @@index([teacherId, status])
+}
+
+model TeacherPaymentMethod {
+  id        String                   @id @default(cuid())
+  accountId String
+  account   TeacherPaymentAccount    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  method    TeacherPaymentMethodType
+  enabled   Boolean                  @default(true)
+  createdAt DateTime                 @default(now())
+  updatedAt DateTime                 @updatedAt
+
+  @@unique([accountId, method])
+  @@index([method, enabled])
 }
 
 /// Students (or pending email invites) allowed to book a marketplace teacher when hidden from the list.
@@ -514,6 +591,8 @@ model Booking {
   recordingIds          String[]      @default([])
   studentGoogleEventId  String?
   invoice               Invoice?
+  payments              Payment[]
+  refunds               Refund[]
 
   /// Teacher-written Markdown lesson notes (visible to student); edited after the lesson ends.
   completionNotesMd     String? @db.Text
@@ -539,6 +618,82 @@ model Invoice {
   createdAt DateTime @default(now())
 
   @@index([studentId, createdAt])
+}
+
+model Payment {
+  id                         String                   @id @default(cuid())
+  bookingId                  String?                  @unique
+  booking                    Booking?                 @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  studentId                  String
+  teacherId                  String
+  teacherPaymentAccountId    String?
+  teacherPaymentAccount      TeacherPaymentAccount?   @relation(fields: [teacherPaymentAccountId], references: [id], onDelete: SetNull)
+  provider                   PaymentProvider
+  method                     TeacherPaymentMethodType
+  amountYen                  Int
+  currency                   String                   @default("JPY")
+  status                     PaymentStatus            @default(CREATED)
+  providerCheckoutId         String?
+  providerPaymentId          String?
+  idempotencyKey             String                   @unique
+  checkoutUrl                String?
+  metadataJson               Json?
+  paidAt                     DateTime?
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+
+  ledgerEntries PaymentLedgerEntry[]
+  refunds       Refund[]
+
+  @@index([studentId, createdAt])
+  @@index([teacherId, createdAt])
+  @@index([provider, providerCheckoutId])
+  @@index([provider, providerPaymentId])
+}
+
+model PaymentLedgerEntry {
+  id        String                 @id @default(cuid())
+  paymentId String
+  payment   Payment                @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  type      PaymentLedgerEntryType
+  amountYen Int
+  note      String?
+  createdAt DateTime               @default(now())
+
+  @@index([paymentId, type])
+}
+
+model Refund {
+  id               String        @id @default(cuid())
+  bookingId        String
+  booking          Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  paymentId        String
+  payment          Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  provider         PaymentProvider
+  providerRefundId String?
+  amountYen        Int
+  status           RefundStatus  @default(PENDING)
+  actor            String
+  reason           String
+  policyJson       Json?
+  recoveryNote     String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([bookingId, createdAt])
+  @@index([paymentId, createdAt])
+  @@index([provider, providerRefundId])
+}
+
+model PaymentWebhookEvent {
+  id              String          @id @default(cuid())
+  provider        PaymentProvider
+  providerEventId String
+  eventType       String
+  processedAt     DateTime        @default(now())
+  payloadJson     Json?
+
+  @@unique([provider, providerEventId])
 }
 
 // --- Phase 2: Learning ---

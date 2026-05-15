@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import type { TeacherCard as TeacherCardData } from "@/lib/teacher-discovery";
 import { buildTeacherCardProfileHref } from "@/lib/teacher-card-href";
+import { PaymentMethodLogos } from "@/components/payment-method-logos";
 
 type Props = {
   teacher: TeacherCardData;
@@ -43,6 +44,7 @@ export function TeacherCard({
         {teacher.activeAvailabilityCount} available slot
         {teacher.activeAvailabilityCount === 1 ? "" : "s"}
       </p>
+      <PaymentMethodLogos methods={teacher.paymentMethods ?? []} className="mt-3" />
       <Link
         href={profileHref}
         className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"

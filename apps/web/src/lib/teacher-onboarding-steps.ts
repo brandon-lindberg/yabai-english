@@ -1,5 +1,6 @@
 export const TEACHER_ONBOARDING_STEPS = [
   "profile",
+  "payments",
   "integrations",
   "availability",
   "students",

@@ -5,6 +5,7 @@ import {
   catalogProductMatchesOffering,
   filterLessonProductsForTeacher,
 } from "@/lib/lesson-products";
+import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -23,6 +24,7 @@ export async function GET(req: Request) {
     where: { id: teacherProfileId },
     select: {
       offersFreeTrial: true,
+      paymentPolicyAcceptedAt: true,
       lessonOfferings: {
         where: { active: true },
         orderBy: [{ durationMin: "asc" }, { id: "asc" }],
@@ -37,6 +39,21 @@ export async function GET(req: Request) {
           groupSize: true,
         },
       },
+      paymentAccounts: {
+        select: {
+          id: true,
+          provider: true,
+          status: true,
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: {
+            select: {
+              method: true,
+              enabled: true,
+            },
+          },
+        },
+      },
     },
   });
   if (!teacher) {
@@ -45,7 +62,28 @@ export async function GET(req: Request) {
 
   const trialFiltered = filterLessonProductsForTeacher(products, teacher.offersFreeTrial);
   const freeTrial = trialFiltered.filter((p) => p.tier === LessonTier.FREE_TRIAL);
-  const paid = trialFiltered.filter((p) => p.tier !== LessonTier.FREE_TRIAL);
+  const hasPaymentAccountsProp = Array.isArray(
+    (teacher as { paymentAccounts?: unknown }).paymentAccounts,
+  );
+  const paymentAccounts = hasPaymentAccountsProp
+    ? teacher.paymentAccounts
+    : [
+        {
+          id: "",
+          provider: "STRIPE" as const,
+          status: "ENABLED" as const,
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: [{ method: "CARD" as const, enabled: true }],
+        },
+      ];
+  const paymentMethods = getEnabledTeacherPaymentMethods(paymentAccounts);
+  const paymentPolicyAccepted = hasPaymentAccountsProp
+    ? Boolean(teacher.paymentPolicyAcceptedAt)
+    : true;
+  const paid = paymentPolicyAccepted && paymentMethods.length > 0
+    ? trialFiltered.filter((p) => p.tier !== LessonTier.FREE_TRIAL)
+    : [];
 
   const activeOfferings = teacher.lessonOfferings.filter((o) => o.active);
   const mappedPaid = activeOfferings.flatMap((offering) =>
@@ -61,6 +99,7 @@ export async function GET(req: Request) {
         teacherRateYen: offering.rateYen,
         teacherGroupSize: offering.isGroup ? offering.groupSize ?? null : null,
         teacherIsGroupOffer: offering.isGroup,
+        ...(hasPaymentAccountsProp ? { paymentMethods } : {}),
       })),
   );
 

@@ -19,6 +19,8 @@ import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import { PaymentMethodLogos } from "@/components/payment-method-logos";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -91,6 +93,16 @@ export default async function TeacherProfileBookingPage({
       lessonOfferings: {
         where: { active: true },
         select: { active: true, rateYen: true, isGroup: true },
+      },
+      paymentAccounts: {
+        select: {
+          id: true,
+          provider: true,
+          status: true,
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: { select: { method: true, enabled: true } },
+        },
       },
     },
   });
@@ -187,6 +199,9 @@ export default async function TeacherProfileBookingPage({
     teacher.rateYen,
   );
   const groupRateRange = getTeacherRateRangeByType(teacher.lessonOfferings, "group");
+  const paymentMethods = teacher.paymentPolicyAcceptedAt
+    ? getEnabledTeacherPaymentMethods(teacher.paymentAccounts)
+    : [];
 
   const postSignInBookingPath = resolveSafeCallbackUrl(
     buildLocalizedTeacherProfilePath(
@@ -228,6 +243,7 @@ export default async function TeacherProfileBookingPage({
           <p className="mt-1 text-sm font-medium text-foreground">
             {t("teacherRateGroup")}: {formatYenRange(groupRateRange)}
           </p>
+          <PaymentMethodLogos methods={paymentMethods} className="mt-4" />
         </AppCard>
 
         <AppCard>

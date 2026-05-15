@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CheckoutPayButton } from "@/components/checkout-pay-button";
+import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -40,6 +41,7 @@ export default async function CheckoutPage({ params }: Props) {
         <p className="mt-3 text-lg font-bold text-foreground">
           JPY {booking.quotedPriceYen.toLocaleString()}
         </p>
+        <PaymentPolicyNotice audience="student" className="mt-4" />
         <div className="mt-4">
           <CheckoutPayButton bookingId={booking.id} />
         </div>

@@ -1,0 +1,31 @@
+// @vitest-environment jsdom
+
+import { render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import { describe, expect, test } from "vitest";
+import en from "../../../messages/en.json";
+import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
+
+describe("PaymentPolicyNotice", () => {
+  test("explains teacher refund responsibility", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <PaymentPolicyNotice audience="teacher" />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByText(/responsible for the full refund amount/i)).toBeTruthy();
+    expect(screen.getByText(/platform keeps its 10%/i)).toBeTruthy();
+  });
+
+  test("explains student marketplace transaction terms", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <PaymentPolicyNotice audience="student" />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByText(/transaction is between you and the teacher/i)).toBeTruthy();
+    expect(screen.getByText(/refund may fail or be delayed/i)).toBeTruthy();
+  });
+});

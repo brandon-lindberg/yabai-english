@@ -56,6 +56,7 @@ describe("POST /api/bookings pricing", () => {
       userId: "teacher-user-1",
       offersFreeTrial: true,
       marketplaceHidden: false,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
       rateYen: 3000,
       lessonOfferings: [
         {
@@ -124,6 +125,189 @@ describe("POST /api/bookings pricing", () => {
     });
     expect(prismaMock.$transaction).toHaveBeenCalled();
     expect(createUserNotificationMock).toHaveBeenCalled();
+  });
+
+  test("rejects paid booking when teacher has no enabled payment method", async () => {
+    prismaMock.teacherProfile.findFirst.mockResolvedValue({
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      offersFreeTrial: true,
+      marketplaceHidden: false,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
+      rateYen: 3000,
+      paymentAccounts: [],
+      lessonOfferings: [
+        {
+          id: "off-grammar-60",
+          durationMin: 60,
+          rateYen: 5000,
+          isGroup: false,
+          active: true,
+          classType: { code: "grammar" },
+        },
+      ],
+      user: { email: "teacher@example.com", organizationMemberships: [] },
+    });
+
+    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-60",
+          teacherProfileId: "teacher-profile-1",
+          teacherLessonOfferingId: "off-grammar-60",
+          startsAt,
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "This teacher has not enabled payments yet.",
+    });
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  test("rejects paid booking when teacher has not accepted payment policy", async () => {
+    prismaMock.teacherProfile.findFirst.mockResolvedValue({
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      offersFreeTrial: true,
+      marketplaceHidden: false,
+      paymentPolicyAcceptedAt: null,
+      rateYen: 3000,
+      paymentAccounts: [
+        {
+          id: "payacct-1",
+          provider: "STRIPE",
+          status: "ENABLED",
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: [{ method: "CARD", enabled: true }],
+        },
+      ],
+      lessonOfferings: [
+        {
+          id: "off-grammar-60",
+          durationMin: 60,
+          rateYen: 5000,
+          isGroup: false,
+          active: true,
+          classType: { code: "grammar" },
+        },
+      ],
+      user: { email: "teacher@example.com", organizationMemberships: [] },
+    });
+
+    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-60",
+          teacherProfileId: "teacher-profile-1",
+          teacherLessonOfferingId: "off-grammar-60",
+          startsAt,
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "This teacher has not enabled payments yet.",
+    });
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  test("creates pending payment row for the selected enabled teacher payment method", async () => {
+    prismaMock.teacherProfile.findFirst.mockResolvedValue({
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      offersFreeTrial: true,
+      marketplaceHidden: false,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
+      rateYen: 3000,
+      paymentAccounts: [
+        {
+          id: "payacct-1",
+          provider: "STRIPE",
+          status: "ENABLED",
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: [{ method: "CARD", enabled: true }],
+        },
+      ],
+      lessonOfferings: [
+        {
+          id: "off-grammar-60",
+          durationMin: 60,
+          rateYen: 5000,
+          isGroup: false,
+          active: true,
+          classType: { code: "grammar" },
+        },
+      ],
+      user: { email: "teacher@example.com", organizationMemberships: [] },
+    });
+    const paymentCreate = vi.fn().mockResolvedValue({});
+    prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb({
+        studentProfile: {
+          findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
+        },
+        booking: {
+          create: vi.fn().mockResolvedValue({
+            id: "booking-1",
+            status: BookingStatus.PENDING_PAYMENT,
+            quotedPriceYen: 5000,
+            lessonProduct: { nameEn: "Standard 60", nameJa: "標準 60" },
+            teacher: { user: { email: "teacher@example.com" } },
+          }),
+        },
+        payment: { create: paymentCreate },
+        teacherRosterEntry: {
+          upsert: vi.fn().mockResolvedValue({}),
+          deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
+        user: {
+          findUnique: vi.fn().mockResolvedValue({ email: "student@example.com" }),
+        },
+      }),
+    );
+
+    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-60",
+          teacherProfileId: "teacher-profile-1",
+          teacherLessonOfferingId: "off-grammar-60",
+          paymentAccountId: "payacct-1",
+          paymentProvider: "STRIPE",
+          paymentMethod: "CARD",
+          startsAt,
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(paymentCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          bookingId: "booking-1",
+          provider: "STRIPE",
+          method: "CARD",
+          teacherPaymentAccountId: "payacct-1",
+          amountYen: 5000,
+          status: "CREATED",
+        }),
+      }),
+    );
   });
 
   test("returns 409 when the teacher profile does not offer that lesson focus for the product", async () => {

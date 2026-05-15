@@ -78,6 +78,17 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     profileUpsertMock.mockResolvedValue({
       id: "tp-1",
       rateYen: 3500,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
+      paymentAccounts: [
+        {
+          id: "payacct-1",
+          provider: "STRIPE",
+          status: "ENABLED",
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: [{ method: "CARD", enabled: true }],
+        },
+      ],
       lessonOfferings: [
         {
           id: "off-conv-60",
@@ -211,6 +222,95 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     });
   });
 
+  test("blocks availability changes until teacher has a valid payment option", async () => {
+    profileUpsertMock.mockResolvedValue({
+      id: "tp-1",
+      rateYen: 3500,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
+      paymentAccounts: [],
+      lessonOfferings: [
+        {
+          id: "off-conv-60",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          active: true,
+          rateYen: 3500,
+          isGroup: false,
+          durationMin: 60,
+        },
+      ],
+    });
+
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          timezone: "Asia/Tokyo",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "Set up and accept payments before publishing availability.",
+    });
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  test("blocks availability changes until teacher accepts the payment policy", async () => {
+    profileUpsertMock.mockResolvedValue({
+      id: "tp-1",
+      rateYen: 3500,
+      paymentPolicyAcceptedAt: null,
+      paymentAccounts: [
+        {
+          id: "payacct-1",
+          provider: "STRIPE",
+          status: "ENABLED",
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: [{ method: "CARD", enabled: true }],
+        },
+      ],
+      lessonOfferings: [
+        {
+          id: "off-conv-60",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          active: true,
+          rateYen: 3500,
+          isGroup: false,
+          durationMin: 60,
+        },
+      ],
+    });
+
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          timezone: "Asia/Tokyo",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "Set up and accept payments before publishing availability.",
+    });
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
   test("does not create any new offerings when all schedule types are already covered", async () => {
     const res = await PATCH(
       patchRequest([
@@ -234,6 +334,17 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     profileUpsertMock.mockResolvedValue({
       id: "tp-1",
       rateYen: 4200,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
+      paymentAccounts: [
+        {
+          id: "payacct-1",
+          provider: "STRIPE",
+          status: "ENABLED",
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: [{ method: "CARD", enabled: true }],
+        },
+      ],
       lessonOfferings: [],
     });
 
@@ -270,6 +381,17 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     profileUpsertMock.mockResolvedValue({
       id: "tp-1",
       rateYen: 4200,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
+      paymentAccounts: [
+        {
+          id: "payacct-1",
+          provider: "STRIPE",
+          status: "ENABLED",
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: [{ method: "CARD", enabled: true }],
+        },
+      ],
       lessonOfferings: [],
     });
 

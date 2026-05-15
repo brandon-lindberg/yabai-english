@@ -29,6 +29,14 @@ type LessonProductOption = {
   teacherRateYen?: number | null;
   teacherGroupSize?: number | null;
   teacherIsGroupOffer?: boolean;
+  paymentMethods?: Array<{
+    accountId: string;
+    provider: "STRIPE" | "KOMOJU";
+    method: "CARD" | "PAYPAY";
+    label: string;
+    logoLabel: string;
+    logoClassName: string;
+  }>;
 };
 
 type Props = {
@@ -68,6 +76,7 @@ export function BookingForm({
   const router = useRouter();
   const [products, setProducts] = useState<LessonProductOption[]>([]);
   const [selectedOptionKey, setSelectedOptionKey] = useState<string>(ALL_LESSON_TYPES_KEY);
+  const [selectedPaymentKey, setSelectedPaymentKey] = useState("");
   const [startsAt, setStartsAt] = useState("");
   const [manualOverride, setManualOverride] = useState(false);
   const [manualOverrideReason, setManualOverrideReason] = useState("");
@@ -124,6 +133,23 @@ export function BookingForm({
   }, [selectedOptionKey, startsAt, presetSlots, products]);
 
   const effectiveProduct = selectedOption ?? resolvedProductForAllTypes;
+  const availablePaymentMethods = useMemo(
+    () => effectiveProduct?.paymentMethods ?? [],
+    [effectiveProduct],
+  );
+  const selectedPaymentMethod =
+    availablePaymentMethods.find((m) => paymentKey(m) === selectedPaymentKey) ??
+    availablePaymentMethods[0];
+
+  useEffect(() => {
+    if (availablePaymentMethods.length === 0) {
+      if (selectedPaymentKey) setSelectedPaymentKey("");
+      return;
+    }
+    if (!selectedPaymentKey || !availablePaymentMethods.some((m) => paymentKey(m) === selectedPaymentKey)) {
+      setSelectedPaymentKey(paymentKey(availablePaymentMethods[0]));
+    }
+  }, [availablePaymentMethods, selectedPaymentKey]);
 
   const filteredPresetSlots = useMemo(() => {
     if (!presetSlots) return presetSlots;
@@ -169,6 +195,9 @@ export function BookingForm({
         body: JSON.stringify({
           lessonProductId: effectiveProduct?.id ?? "",
           teacherLessonOfferingId: effectiveProduct?.teacherLessonOfferingId ?? undefined,
+          paymentAccountId: selectedPaymentMethod?.accountId,
+          paymentProvider: selectedPaymentMethod?.provider,
+          paymentMethod: selectedPaymentMethod?.method,
           startsAt: iso,
           teacherProfileId,
           manualOverride: canShowManualOverrideToggle(currentUserRole)
@@ -295,6 +324,40 @@ export function BookingForm({
           />
         </label>
       )}
+      {availablePaymentMethods.length > 0 ? (
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-foreground">{t("paymentMethod")}</legend>
+          <div className="flex flex-wrap gap-2">
+            {availablePaymentMethods.map((method) => {
+              const key = paymentKey(method);
+              const selected = selectedPaymentKey === key;
+              return (
+                <label
+                  key={key}
+                  className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+                    selected
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-background text-muted"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value={key}
+                    checked={selected}
+                    onChange={() => setSelectedPaymentKey(key)}
+                    className="sr-only"
+                  />
+                  <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${method.logoClassName}`}>
+                    {method.logoLabel}
+                  </span>
+                  <span>{method.label}</span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+      ) : null}
       {canShowManualOverrideToggle(currentUserRole) && (
         <div className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground">
           <label className="flex items-start gap-2">
@@ -342,6 +405,14 @@ export function BookingForm({
 
 function optionKey(p: LessonProductOption): string {
   return `${p.id}::${p.teacherLessonOfferingId ?? ""}`;
+}
+
+function paymentKey(method: {
+  accountId: string;
+  provider: string;
+  method: string;
+}): string {
+  return `${method.accountId}:${method.provider}:${method.method}`;
 }
 
 function buildProductOptionLabel(

@@ -2,14 +2,6 @@ import { NextResponse } from "next/server";
 import { BookingStatus } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { createMeetLessonEvent } from "@/lib/google-calendar";
-import { notifyBookingCalendarInviteFailure } from "@/lib/booking-calendar-failure";
-import { buildInvoiceNumber } from "@/lib/invoices";
-import { createUserNotification } from "@/lib/notifications";
-import { ensureStudentTeacherThread } from "@/lib/chat-threads";
-import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
-import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
-import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -25,18 +17,10 @@ export async function POST(_req: Request, { params }: Props) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
-      lessonProduct: true,
-      teacher: {
-        include: {
-          user: true,
-          availabilitySlots: {
-            where: { active: true },
-            take: 1,
-            select: { timezone: true },
-          },
-        },
+      payments: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
       },
-      student: true,
     },
   });
 
@@ -48,112 +32,28 @@ export async function POST(_req: Request, { params }: Props) {
     return NextResponse.json({ error: "Booking is not pending payment" }, { status: 409 });
   }
 
-  const updated = await prisma.booking.update({
-    where: { id: booking.id },
-    data: { status: BookingStatus.CONFIRMED },
-    include: {
-      lessonProduct: true,
-      teacher: { include: { user: true } },
-      student: true,
-    },
-  });
+  const payment = booking.payments?.[0];
+  if (!payment) {
+    return NextResponse.json({ error: "Payment session not found" }, { status: 409 });
+  }
 
-  await syncTeacherRosterAfterStudentBooking(prisma, {
-    teacherId: booking.teacher.id,
-    studentUserId: booking.studentId,
-  });
-  revalidateDashboardStudentRosterPaths();
-
-  const attendeeEmails = [updated.student.email, updated.teacher.user.email].filter(
-    Boolean,
-  ) as string[];
-  const meet = await createMeetLessonEvent({
-    organizerUserId: updated.teacher.userId,
-    refreshTokenEncrypted: updated.teacher.googleCalendarRefreshToken,
-    calendarId: updated.teacher.calendarId,
-    summary: `Lesson — ${updated.lessonProduct.nameEn}`,
-    start: updated.startsAt,
-    end: updated.endsAt,
-    attendeeEmails,
-  });
-
-  const finalBooking = await prisma.booking.update({
-    where: { id: updated.id },
+  const checkoutId =
+    payment.providerCheckoutId ?? `${payment.provider.toLowerCase()}_checkout_${payment.id}`;
+  const checkoutUrl = payment.checkoutUrl ?? `/book/checkout/${booking.id}`;
+  const updated = await prisma.payment.update({
+    where: { id: payment.id },
     data: {
-      meetUrl: meet.meetUrl ?? updated.meetUrl,
-      googleEventId: meet.googleEventId ?? updated.googleEventId,
-      googleCalendarId: updated.teacher.calendarId ?? "primary",
-      meetCode:
-        meet.meetUrl?.split("/").pop() ??
-        updated.meetUrl?.split("/").pop() ??
-        null,
-    },
-    include: {
-      lessonProduct: true,
-      teacher: { include: { user: true } },
-    },
-  });
-  if (!meet.googleEventId && meet.errorCode) {
-    await notifyBookingCalendarInviteFailure({
-      teacherUserId: updated.teacher.userId,
-      studentUserId: updated.studentId,
-      reason: meet.errorMessage,
-    });
-  }
-
-  const studentMirrorEvent = await createMeetLessonEvent({
-    organizerUserId: session.user.id,
-    refreshTokenEncrypted: null,
-    calendarId: "primary",
-    summary: `Lesson — ${updated.lessonProduct.nameEn}`,
-    start: updated.startsAt,
-    end: updated.endsAt,
-    attendeeEmails,
-    createMeetLink: false,
-  });
-  if (studentMirrorEvent.googleEventId) {
-    await prisma.booking.update({
-      where: { id: updated.id },
-      data: { studentGoogleEventId: studentMirrorEvent.googleEventId },
-    });
-  }
-
-  const now = new Date();
-  await prisma.invoice.upsert({
-    where: { bookingId: finalBooking.id },
-    create: {
-      bookingId: finalBooking.id,
-      studentId: session.user.id,
-      amountYen: finalBooking.quotedPriceYen,
-      invoiceNo: buildInvoiceNumber(now),
-      paidAt: now,
-    },
-    update: {
-      amountYen: finalBooking.quotedPriceYen,
-      paidAt: now,
+      status: "REQUIRES_ACTION",
+      providerCheckoutId: checkoutId,
+      checkoutUrl,
     },
   });
 
-  await ensureStudentTeacherThread(session.user.id, updated.teacher.userId);
-  await createUserNotification({
-    userId: session.user.id,
-    titleJa: "支払いが完了しました",
-    titleEn: "Payment completed",
-    bodyJa: "予約が確定されました。",
-    bodyEn: "Your booking is now confirmed.",
+  return NextResponse.json({
+    ok: true,
+    paymentId: updated.id,
+    provider: updated.provider,
+    method: updated.method,
+    checkoutUrl: updated.checkoutUrl,
   });
-
-  const teacherTimezone =
-    booking.teacher.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
-  const teacherNotification = buildTeacherBookingConfirmedNotification({
-    studentName: updated.student.name ?? null,
-    startsAt: updated.startsAt,
-    timezone: teacherTimezone,
-  });
-  await createUserNotification({
-    userId: updated.teacher.userId,
-    ...teacherNotification,
-  });
-
-  return NextResponse.json(finalBooking);
 }
