@@ -75,14 +75,13 @@ describe("DashboardSubNav", () => {
     );
   });
 
-  test("does not highlight Overview on Settings (outside sub-nav)", () => {
+  test("does not render on Settings because settings has its own tabs", () => {
     usePathnameMock.mockReturnValue("/en/dashboard/settings");
     render(
       <NextIntlClientProvider locale="en" messages={en}>
         <DashboardSubNav isTeacher />
       </NextIntlClientProvider>,
     );
-    const overview = screen.getByRole("link", { name: en.dashboard.nav.overview });
-    expect(overview.className).not.toContain("shadow-sm");
+    expect(screen.queryByRole("navigation", { name: en.dashboard.nav.ariaLabel })).toBeNull();
   });
 });

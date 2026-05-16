@@ -50,6 +50,12 @@ export async function POST(_req: Request, { params }: Props) {
           provider: true,
           amountYen: true,
           status: true,
+          providerPaymentId: true,
+          teacherPaymentAccount: {
+            select: {
+              providerAccountId: true,
+            },
+          },
         },
       },
     },

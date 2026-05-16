@@ -45,6 +45,20 @@ describe("POST /api/teacher/payment-policy", () => {
     });
   });
 
+  test("allows super admins who teach to accept the payment policy", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin-user-1", role: "SUPER_ADMIN" } });
+
+    const res = await POST();
+
+    expect(res.status).toBe(200);
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { userId: "admin-user-1" },
+        create: expect.objectContaining({ userId: "admin-user-1" }),
+      }),
+    );
+  });
+
   test("rejects non-teachers", async () => {
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
 

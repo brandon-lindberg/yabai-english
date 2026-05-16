@@ -39,6 +39,8 @@ export function DashboardSubNav({
   const tab = activeTab(pathname);
   const t = useTranslations("dashboard.nav");
 
+  if (tab === "none") return null;
+
   const linkCn = (active: boolean) =>
     `rounded-lg px-3 py-2 text-sm font-medium transition ${
       active

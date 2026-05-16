@@ -15,7 +15,8 @@ describe("PaymentPolicyNotice", () => {
     );
 
     expect(screen.getByText(/responsible for the full refund amount/i)).toBeTruthy();
-    expect(screen.getByText(/platform keeps its 10%/i)).toBeTruthy();
+    expect(screen.getByText(/20% for lessons 1-5/i)).toBeTruthy();
+    expect(screen.getByText(/not refunded unless/i)).toBeTruthy();
   });
 
   test("explains student marketplace transaction terms", () => {

@@ -7,7 +7,7 @@ describe("loadLegalMarkdown", () => {
     expect(terms).toContain("English Studio Japan");
     expect(terms).toContain("Limitation of liability");
     expect(terms).toContain("teacher is responsible for the full refund amount");
-    expect(terms).toContain("platform retains a 10% facilitation fee");
+    expect(terms).toContain("20% for lessons 1-5");
     expect(terms).toMatch(/COPPA|Children’s Online Privacy Protection Act/i);
     expect(terms).toMatch(/18 years of age/i);
 
@@ -23,7 +23,7 @@ describe("loadLegalMarkdown", () => {
     expect(terms).toContain("English Studio Japan");
     expect(terms).toContain("責任制限");
     expect(terms).toContain("受講生に返金すべき全額について講師が責任を負います");
-    expect(terms).toContain("10%の仲介手数料");
+    expect(terms).toContain("1〜5回目は20%");
     expect(terms).toContain("COPPA");
     expect(terms).toContain("満18歳以上");
 

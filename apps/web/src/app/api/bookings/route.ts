@@ -473,8 +473,6 @@ export async function POST(req: Request) {
           ledgerEntries: {
             create: [
               { type: "GROSS", amountYen: quotedPriceYen },
-              { type: "PLATFORM_FEE", amountYen: Math.floor(quotedPriceYen * 0.1) },
-              { type: "TEACHER_NET", amountYen: quotedPriceYen - Math.floor(quotedPriceYen * 0.1) },
             ],
           },
         },

@@ -305,6 +305,11 @@ describe("POST /api/bookings pricing", () => {
           teacherPaymentAccountId: "payacct-1",
           amountYen: 5000,
           status: "CREATED",
+          ledgerEntries: {
+            create: [
+              { type: "GROSS", amountYen: 5000 },
+            ],
+          },
         }),
       }),
     );

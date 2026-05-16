@@ -1,4 +1,5 @@
 import type { CancellationActor, CancellationPolicyResult } from "@/lib/booking-policy";
+import { createStripeRefundDirectCharge } from "@/lib/stripe/stripe-connect";
 
 type RefundPrisma = {
   refund: {
@@ -20,8 +21,18 @@ type RefundableBooking = {
     provider: "STRIPE" | "KOMOJU";
     amountYen: number;
     status: string;
+    providerPaymentId?: string | null;
+    teacherPaymentAccount?: {
+      providerAccountId?: string | null;
+    } | null;
   }>;
 };
+
+function mapStripeRefundStatus(status: string | null | undefined) {
+  if (status === "succeeded") return "SUCCEEDED" as const;
+  if (status === "pending" || status === "requires_action") return "PENDING" as const;
+  return "FAILED" as const;
+}
 
 export async function issueAutomaticRefundForBooking(
   prisma: RefundPrisma,
@@ -41,6 +52,55 @@ export async function issueAutomaticRefundForBooking(
   }
 
   const amountYen = input.booking.quotedPriceYen || payment.amountYen;
+  if (payment.provider === "STRIPE") {
+    const connectedAccountId = payment.teacherPaymentAccount?.providerAccountId;
+    if (!connectedAccountId || !payment.providerPaymentId) {
+      const refund = await prisma.refund.create({
+        data: {
+          bookingId: input.booking.id,
+          paymentId: payment.id,
+          provider: payment.provider,
+          amountYen,
+          status: "PENDING_RECOVERY",
+          actor: input.actor,
+          reason: "CANCELLATION_POLICY",
+          policyJson: input.policy,
+          recoveryNote: "Stripe direct-charge refund requires connected account and payment intent IDs.",
+        },
+      });
+      return refund;
+    }
+
+    const stripeRefund = await createStripeRefundDirectCharge({
+      connectedAccountId,
+      paymentIntentId: payment.providerPaymentId,
+      amountYen,
+      paymentId: payment.id,
+      bookingId: input.booking.id,
+    });
+    const refund = await prisma.refund.create({
+      data: {
+        bookingId: input.booking.id,
+        paymentId: payment.id,
+        provider: payment.provider,
+        providerRefundId: stripeRefund.id,
+        amountYen,
+        status: mapStripeRefundStatus(stripeRefund.status),
+        actor: input.actor,
+        reason: "CANCELLATION_POLICY",
+        policyJson: input.policy,
+      },
+    });
+
+    await prisma.paymentLedgerEntry.createMany({
+      data: [
+        { paymentId: payment.id, type: "REFUND", amountYen: -amountYen },
+      ],
+    });
+
+    return refund;
+  }
+
   const refund = await prisma.refund.create({
     data: {
       bookingId: input.booking.id,
