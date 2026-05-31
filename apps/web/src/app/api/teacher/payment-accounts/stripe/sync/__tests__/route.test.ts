@@ -93,4 +93,16 @@ describe("POST /api/teacher/payment-accounts/stripe/sync", () => {
       }),
     );
   });
+
+  test("does not sync a local dev Stripe account as a real Connect account", async () => {
+    prismaMock.teacherProfile.findUnique.mockResolvedValue({
+      id: "teacher-profile-1",
+      paymentAccounts: [{ id: "payacct-1", providerAccountId: "acct_local_teacher-profile-1" }],
+    });
+
+    const res = await POST();
+
+    expect(res.status).toBe(404);
+    expect(retrieveAccountMock).not.toHaveBeenCalled();
+  });
 });

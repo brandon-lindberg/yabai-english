@@ -98,6 +98,7 @@ export default async function TeacherProfileBookingPage({
         select: {
           id: true,
           provider: true,
+          providerAccountId: true,
           status: true,
           chargesEnabled: true,
           payoutsEnabled: true,

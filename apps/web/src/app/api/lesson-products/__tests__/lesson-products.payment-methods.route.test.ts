@@ -70,6 +70,7 @@ describe("GET /api/lesson-products payment method gating", () => {
         {
           id: "payacct-1",
           provider: "STRIPE",
+          providerAccountId: "acct_123",
           status: "ENABLED",
           chargesEnabled: true,
           payoutsEnabled: true,
@@ -117,6 +118,7 @@ describe("GET /api/lesson-products payment method gating", () => {
         {
           id: "payacct-1",
           provider: "STRIPE",
+          providerAccountId: "acct_123",
           status: "ENABLED",
           chargesEnabled: true,
           payoutsEnabled: true,

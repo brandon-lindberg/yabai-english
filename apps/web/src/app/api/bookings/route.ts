@@ -18,7 +18,6 @@ import {
   teacherHasOfferingForProduct,
 } from "@/lib/lesson-products";
 import { resolveQuotedPriceYen } from "@/lib/booking-price-resolution";
-import { bookingStartMatchesTeacherAvailability } from "@/lib/booking-availability-match";
 import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
@@ -27,6 +26,30 @@ import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-bo
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import { validateBookingAgainstTeacherAvailability } from "@/lib/booking-slot-validation";
+import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+
+const teacherAvailabilityInclude = {
+  availabilitySlots: {
+    where: { active: true },
+    select: {
+      id: true,
+      dayOfWeek: true,
+      startMin: true,
+      endMin: true,
+      timezone: true,
+      recurrence: true,
+      startsOn: true,
+      endsOn: true,
+      classLevelId: true,
+      classTypeId: true,
+      teacherLessonOfferingId: true,
+    },
+  },
+  availabilityOccurrenceSkips: {
+    select: { startsAtIso: true },
+  },
+} as const;
 
 const postSchema = z.object({
   lessonProductId: z.string().min(1),
@@ -120,29 +143,14 @@ export async function POST(req: Request) {
               select: {
                 id: true,
                 provider: true,
+                providerAccountId: true,
                 status: true,
                 chargesEnabled: true,
                 payoutsEnabled: true,
                 methods: { select: { method: true, enabled: true } },
               },
             },
-            availabilitySlots: {
-              where: { active: true },
-              select: {
-                dayOfWeek: true,
-                startMin: true,
-                endMin: true,
-                timezone: true,
-                recurrence: true,
-                startsOn: true,
-                endsOn: true,
-                classTypeId: true,
-                teacherLessonOfferingId: true,
-              },
-            },
-            availabilityOccurrenceSkips: {
-              select: { startsAtIso: true },
-            },
+            ...teacherAvailabilityInclude,
           },
         })
       : null) ??
@@ -162,29 +170,14 @@ export async function POST(req: Request) {
           select: {
             id: true,
             provider: true,
+            providerAccountId: true,
             status: true,
             chargesEnabled: true,
             payoutsEnabled: true,
             methods: { select: { method: true, enabled: true } },
           },
         },
-        availabilitySlots: {
-          where: { active: true },
-          select: {
-            dayOfWeek: true,
-            startMin: true,
-            endMin: true,
-            timezone: true,
-            recurrence: true,
-            startsOn: true,
-            endsOn: true,
-            classTypeId: true,
-            teacherLessonOfferingId: true,
-          },
-        },
-        availabilityOccurrenceSkips: {
-          select: { startsAtIso: true },
-        },
+        ...teacherAvailabilityInclude,
       },
     }));
 
@@ -244,30 +237,6 @@ export async function POST(req: Request) {
   if (!selectedOffering && !teacherHasOfferingForProduct(teacher.lessonOfferings, product)) {
     return NextResponse.json(
       { error: "This teacher does not offer this lesson type." },
-      { status: 409 },
-    );
-  }
-
-  if (
-    Array.isArray(teacher.availabilitySlots) &&
-    !bookingStartMatchesTeacherAvailability({
-      availabilitySlots: teacher.availabilitySlots,
-      startsAt: start,
-      durationMin: product.durationMin,
-      selectedOffering: selectedOffering
-        ? {
-            id: selectedOffering.id,
-            durationMin: selectedOffering.durationMin,
-            classTypeId: selectedOffering.classTypeId,
-          }
-        : null,
-      skippedStartsAtIso: new Set(
-        (teacher.availabilityOccurrenceSkips ?? []).map((skip) => skip.startsAtIso),
-      ),
-    })
-  ) {
-    return NextResponse.json(
-      { error: "Selected time is no longer available." },
       { status: 409 },
     );
   }
@@ -344,6 +313,32 @@ export async function POST(req: Request) {
   });
   if (!student?.studentProfile) {
     return NextResponse.json({ error: "No student profile" }, { status: 400 });
+  }
+
+  const slotValidation = validateBookingAgainstTeacherAvailability({
+    startsAtIso: start.toISOString(),
+    durationMin: product.durationMin,
+    availabilitySlots: teacher.availabilitySlots.map((slot) => ({
+      id: slot.id,
+      dayOfWeek: slot.dayOfWeek,
+      startMin: slot.startMin,
+      endMin: slot.endMin,
+      timezone: slot.timezone,
+      recurrence: slot.recurrence,
+      startsOn: dateOnlyInZone(slot.startsOn, slot.timezone),
+      endsOn: dateOnlyInZone(slot.endsOn, slot.timezone),
+      classLevelId: slot.classLevelId,
+      classTypeId: slot.classTypeId,
+    })),
+    occurrenceSkips: teacher.availabilityOccurrenceSkips.map((skip) => skip.startsAtIso),
+    viewerTimezone:
+      student.studentProfile.timezone ??
+      teacher.availabilitySlots[0]?.timezone ??
+      "Asia/Tokyo",
+    minimumLeadHours: canBypass && manualOverride ? 0 : 48,
+  });
+  if (!slotValidation.ok) {
+    return NextResponse.json({ error: slotValidation.error }, { status: 409 });
   }
 
   const isFreeTrial = product.tier === LessonTier.FREE_TRIAL;

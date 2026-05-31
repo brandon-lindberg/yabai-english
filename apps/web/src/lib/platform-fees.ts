@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
+import type { TeacherPlatformTier } from "@/generated/prisma/client";
 
-export const PLATFORM_FEE_POLICY_VERSION = "teacher-monthly-volume-v1";
+export const PLATFORM_FEE_POLICY_VERSION = "teacher-tiered-monthly-volume-v1";
 export const PLATFORM_FEE_TIME_ZONE = "Asia/Tokyo";
 
 type FeePrisma = {
@@ -13,13 +14,32 @@ type FeePrisma = {
       };
     }) => Promise<number>;
   };
+  teacherTierState?: {
+    findUnique: (args: {
+      where: { teacherId: string };
+      select: {
+        calculatedTier: true;
+        overrideTier: true;
+        overrideStartsAt: true;
+        overrideExpiresAt: true;
+      };
+    }) => Promise<TeacherTierStateLike | null>;
+  };
 };
 
 export type PlatformFeeCalculation = {
   feePolicyVersion: typeof PLATFORM_FEE_POLICY_VERSION;
+  teacherTier: TeacherPlatformTier;
   paidLessonOrdinal: number;
   rateBps: 2000 | 1500 | 1000;
   applicationFeeAmountYen: number;
+};
+
+export type TeacherTierStateLike = {
+  calculatedTier: TeacherPlatformTier;
+  overrideTier?: TeacherPlatformTier | null;
+  overrideStartsAt?: Date | null;
+  overrideExpiresAt?: Date | null;
 };
 
 export type PaymentMonthBounds = {
@@ -35,15 +55,60 @@ export function calculateMonthlyPlatformFee({
   amountYen: number;
   priorPaidLessons: number;
 }): PlatformFeeCalculation {
+  return calculateTieredPlatformFee({
+    amountYen,
+    priorPaidLessons,
+    teacherTier: "TIER_1",
+  });
+}
+
+export function calculateTieredPlatformFee({
+  amountYen,
+  priorPaidLessons,
+  teacherTier,
+}: {
+  amountYen: number;
+  priorPaidLessons: number;
+  teacherTier: TeacherPlatformTier;
+}): PlatformFeeCalculation {
   const paidLessonOrdinal = priorPaidLessons + 1;
-  const rateBps = paidLessonOrdinal <= 5 ? 2000 : paidLessonOrdinal <= 10 ? 1500 : 1000;
+  const rateBps = resolveTierRateBps(teacherTier, paidLessonOrdinal);
 
   return {
     feePolicyVersion: PLATFORM_FEE_POLICY_VERSION,
+    teacherTier,
     paidLessonOrdinal,
     rateBps,
     applicationFeeAmountYen: Math.floor((amountYen * rateBps) / 10_000),
   };
+}
+
+export function resolveTierRateBps(
+  teacherTier: TeacherPlatformTier,
+  paidLessonOrdinal: number,
+): 2000 | 1500 | 1000 {
+  if (teacherTier === "TIER_3") return 1000;
+  if (teacherTier === "TIER_2") {
+    return paidLessonOrdinal <= 10 ? 1500 : 1000;
+  }
+  return paidLessonOrdinal <= 5 ? 2000 : paidLessonOrdinal <= 10 ? 1500 : 1000;
+}
+
+export function resolveEffectiveTeacherTier(
+  state: TeacherTierStateLike | null | undefined,
+  at: Date,
+): { effectiveTier: TeacherPlatformTier; overrideActive: boolean } {
+  if (!state) {
+    return { effectiveTier: "TIER_1", overrideActive: false };
+  }
+
+  const overrideStarted = !state.overrideStartsAt || state.overrideStartsAt <= at;
+  const overrideUnexpired = !state.overrideExpiresAt || state.overrideExpiresAt > at;
+  if (state.overrideTier && overrideStarted && overrideUnexpired) {
+    return { effectiveTier: state.overrideTier, overrideActive: true };
+  }
+
+  return { effectiveTier: state.calculatedTier, overrideActive: false };
 }
 
 export function getTokyoPaymentMonthBounds(at: Date): PaymentMonthBounds {
@@ -99,10 +164,29 @@ export async function calculateMonthlyPlatformFeeForTeacher(
     teacherId,
     at,
   });
-  const fee = calculateMonthlyPlatformFee({ amountYen, priorPaidLessons });
+  const tierState = prisma.teacherTierState
+    ? await prisma.teacherTierState.findUnique({
+        where: { teacherId },
+        select: {
+          calculatedTier: true,
+          overrideTier: true,
+          overrideStartsAt: true,
+          overrideExpiresAt: true,
+        },
+      })
+    : null;
+  const { effectiveTier, overrideActive } = resolveEffectiveTeacherTier(tierState, at);
+  const fee = calculateTieredPlatformFee({
+    amountYen,
+    priorPaidLessons,
+    teacherTier: effectiveTier,
+  });
 
   return {
     ...fee,
     ...bounds,
+    calculatedTier: tierState?.calculatedTier ?? "TIER_1",
+    effectiveTier,
+    overrideActive,
   };
 }

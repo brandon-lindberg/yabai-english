@@ -185,6 +185,48 @@ describe("PATCH /api/teacher/profile", () => {
     expect(upsertMock).not.toHaveBeenCalled();
   });
 
+  test("rejects public fallback rates below ¥3000", async () => {
+    const res = await PATCH(
+      new Request("http://localhost/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rateYen: 2500 }),
+      }),
+    );
+
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toEqual({
+      error: "Public lesson rates must be at least ¥3,000.",
+    });
+    expect(upsertMock).not.toHaveBeenCalled();
+  });
+
+  test("rejects public lesson offerings below ¥3000", async () => {
+    const res = await PATCH(
+      new Request("http://localhost/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonOfferings: [
+            {
+              durationMin: 60,
+              rateYen: 2500,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lvl-int",
+            },
+          ],
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toEqual({
+      error: "Public lesson rates must be at least ¥3,000.",
+    });
+    expect(upsertMock).not.toHaveBeenCalled();
+  });
+
   test("provisions catalog products for replaced offerings so all become bookable", async () => {
     const res = await PATCH(
       new Request("http://localhost/api/teacher/profile", {

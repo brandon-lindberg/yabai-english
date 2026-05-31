@@ -27,7 +27,7 @@ export async function POST(_req: Request, { params }: Props) {
     where: { id: bookingId },
     include: {
       lessonProduct: true,
-      student: true,
+      student: { include: { studentProfile: { select: { stripeCustomerId: true } } } },
       teacher: { include: { user: true } },
       payments: {
         orderBy: { createdAt: "desc" },
@@ -99,6 +99,7 @@ export async function POST(_req: Request, { params }: Props) {
     at: new Date(),
   });
   const baseUrl = appUrl();
+  const stripeCustomerId = booking.student.studentProfile?.stripeCustomerId ?? null;
   const checkout = await createStripeCheckoutSessionDirectCharge({
     connectedAccountId,
     paymentId: payment.id,
@@ -107,6 +108,8 @@ export async function POST(_req: Request, { params }: Props) {
     applicationFeeAmountYen: fee.applicationFeeAmountYen,
     productName: booking.lessonProduct.nameEn,
     customerEmail: booking.student.email,
+    customerId: stripeCustomerId,
+    savePaymentMethod: !stripeCustomerId,
     successUrl: `${baseUrl}/book/checkout/${booking.id}?stripe=success&session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${baseUrl}/book/checkout/${booking.id}?stripe=cancelled`,
   });
@@ -147,6 +150,10 @@ export async function POST(_req: Request, { params }: Props) {
         chargeType: "DIRECT_CHARGE",
         connectedAccountId,
         feePolicyVersion: fee.feePolicyVersion,
+        calculatedTier: fee.calculatedTier,
+        effectiveTier: fee.effectiveTier,
+        teacherTier: fee.teacherTier,
+        overrideActive: fee.overrideActive,
         periodTimeZone: fee.periodTimeZone,
         periodStart: fee.periodStart.toISOString(),
         periodEnd: fee.periodEnd.toISOString(),

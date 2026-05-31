@@ -4,6 +4,10 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import {
+  canTeacherPublishAvailability,
+  resolveTeacherPublishAvailabilityOptions,
+} from "@/lib/payment-methods";
 
 const bodySchema = z.object({
   slotId: z.string().min(1),
@@ -28,6 +32,18 @@ export async function POST(req: Request) {
     where: { userId: session.user.id },
     select: {
       id: true,
+      paymentPolicyAcceptedAt: true,
+      paymentAccounts: {
+        select: {
+          id: true,
+          provider: true,
+          providerAccountId: true,
+          status: true,
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: { select: { method: true, enabled: true } },
+        },
+      },
       availabilitySlots: {
         where: { active: true },
         select: {
@@ -48,6 +64,19 @@ export async function POST(req: Request) {
 
   if (!profile?.id) {
     return NextResponse.json({ error: "No profile" }, { status: 404 });
+  }
+
+  if (
+    !canTeacherPublishAvailability(
+      profile.paymentPolicyAcceptedAt,
+      profile.paymentAccounts,
+      resolveTeacherPublishAvailabilityOptions(),
+    )
+  ) {
+    return NextResponse.json(
+      { error: "Finish Stripe setup and accept the payment policy before publishing availability." },
+      { status: 409 },
+    );
   }
 
   const viewerTz = profile.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";

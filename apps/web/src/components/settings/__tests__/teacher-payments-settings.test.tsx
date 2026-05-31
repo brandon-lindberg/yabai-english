@@ -6,9 +6,16 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
 import { TeacherPaymentsSettings } from "@/components/settings/teacher-payments-settings";
 
+const useSearchParamsMock = vi.fn(() => new URLSearchParams());
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => useSearchParamsMock(),
+}));
+
 describe("TeacherPaymentsSettings", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
+    useSearchParamsMock.mockReturnValue(new URLSearchParams());
   });
 
   test("shows connected payment method logos and policy status", () => {
@@ -36,6 +43,34 @@ describe("TeacherPaymentsSettings", () => {
     expect(screen.getByText(en.dashboard.settingsPage.paymentsConnectedTitle)).toBeTruthy();
     expect(screen.getByLabelText("Stripe available")).toBeTruthy();
     expect(screen.getByText(en.dashboard.settingsPage.paymentPolicyAccepted)).toBeTruthy();
+  });
+
+  test("does not present a local dev Stripe account as real Connect-ready", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherPaymentsSettings
+          paymentPolicyAcceptedAt="2026-05-15T00:00:00.000Z"
+          devPaymentsEnabled
+          stripeConnectEnabled={false}
+          accounts={[
+            {
+              id: "acct-1",
+              provider: "STRIPE",
+              status: "ENABLED",
+              chargesEnabled: true,
+              payoutsEnabled: true,
+              providerAccountId: "acct_local_teacher-profile-1",
+              methods: [{ method: "CARD", enabled: true }],
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.queryByLabelText("Stripe available")).toBeNull();
+    expect(screen.getByText(en.dashboard.settingsPage.paymentsNone)).toBeTruthy();
+    expect(screen.getByText(en.dashboard.settingsPage.paymentAccountLocalReady)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: en.dashboard.settingsPage.enableDevStripe })).toBeNull();
   });
 
   test("offers local dev payment setup when no method exists", () => {
@@ -71,7 +106,7 @@ describe("TeacherPaymentsSettings", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherPaymentsSettings
-          paymentPolicyAcceptedAt={null}
+          paymentPolicyAcceptedAt="2026-05-15T00:00:00.000Z"
           devPaymentsEnabled={false}
           stripeConnectEnabled
           accounts={[]}
@@ -80,6 +115,91 @@ describe("TeacherPaymentsSettings", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: en.dashboard.settingsPage.connectStripe }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith("/api/teacher/payment-accounts/stripe/connect", { method: "POST" });
+      expect(assignMock).toHaveBeenCalledWith("https://connect.stripe.com/setup/s/acct_123");
+    });
+  });
+
+  test("continues Stripe setup when a connected account is incomplete", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        onboardingUrl: "https://connect.stripe.com/setup/s/acct_123",
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const assignMock = vi.fn();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { assign: assignMock },
+    });
+
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherPaymentsSettings
+          paymentPolicyAcceptedAt="2026-05-15T00:00:00.000Z"
+          devPaymentsEnabled={false}
+          stripeConnectEnabled
+          accounts={[
+            {
+              id: "acct-1",
+              provider: "STRIPE",
+              status: "PENDING",
+              chargesEnabled: false,
+              payoutsEnabled: false,
+              providerAccountId: "acct_test",
+              methods: [{ method: "CARD", enabled: false }],
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: en.dashboard.settingsPage.continueStripeSetup }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith("/api/teacher/payment-accounts/stripe/connect", { method: "POST" });
+      expect(assignMock).toHaveBeenCalledWith("https://connect.stripe.com/setup/s/acct_123");
+    });
+  });
+
+  test("reopens Stripe setup automatically when Stripe sends the teacher back to refresh", async () => {
+    useSearchParamsMock.mockReturnValue(new URLSearchParams("stripe=refresh"));
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        onboardingUrl: "https://connect.stripe.com/setup/s/acct_123",
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const assignMock = vi.fn();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { assign: assignMock },
+    });
+
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherPaymentsSettings
+          paymentPolicyAcceptedAt={null}
+          devPaymentsEnabled={false}
+          stripeConnectEnabled
+          accounts={[
+            {
+              id: "acct-1",
+              provider: "STRIPE",
+              status: "PENDING",
+              chargesEnabled: false,
+              payoutsEnabled: false,
+              providerAccountId: "acct_test",
+              methods: [{ method: "CARD", enabled: false }],
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith("/api/teacher/payment-accounts/stripe/connect", { method: "POST" });
@@ -131,5 +251,33 @@ describe("TeacherPaymentsSettings", () => {
       expect(fetchMock).toHaveBeenCalledWith("/api/teacher/payment-accounts/stripe/sync", { method: "POST" });
       expect(screen.getByLabelText("Stripe available")).toBeTruthy();
     });
+  });
+
+  test("shows Stripe setup status card and hides connect when ready", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherPaymentsSettings
+          paymentPolicyAcceptedAt="2026-05-15T00:00:00.000Z"
+          devPaymentsEnabled={false}
+          stripeConnectEnabled
+          accounts={[
+            {
+              id: "acct-1",
+              provider: "STRIPE",
+              status: "ENABLED",
+              chargesEnabled: true,
+              payoutsEnabled: true,
+              providerAccountId: "acct_test",
+              methods: [{ method: "CARD", enabled: true }],
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByText(en.dashboard.settingsPage.stripeSetupTitle)).toBeTruthy();
+    expect(screen.getByText(en.dashboard.settingsPage.stripeSetupState_ready)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: en.dashboard.settingsPage.connectStripe })).toBeNull();
+    expect(screen.queryByRole("button", { name: en.dashboard.settingsPage.continueStripeSetup })).toBeNull();
   });
 });

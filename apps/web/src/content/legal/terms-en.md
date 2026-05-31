@@ -85,7 +85,7 @@ We are **not responsible** for third-party services, including outages, data los
 
 For marketplace lessons with independent teachers, the lesson transaction is between the student and the teacher. English Studio Japan facilitates discovery, scheduling, checkout, communication, and related platform operations. We are not the teacher's employer, agent, or guarantor of teacher payment obligations unless expressly required by applicable law.
 
-The platform fee is calculated per teacher payment month: 20% for lessons 1-5, 15% for lessons 6-10, and 10% from lesson 11 onward. If a lesson must be refunded under the cancellation policy, the teacher is responsible for the full refund amount owed to the student. The platform fee from the original transaction is not returned to the teacher as part of that teacher responsibility, unless we separately agree or applicable law requires otherwise.
+The platform fee is calculated according to the teacher's platform tier. Tier 1 applies 20% for lessons 1-5, 15% for lessons 6-10, and 10% from lesson 11 onward. Tier 2 applies 15% for lessons 1-10 and 10% from lesson 11 onward. Tier 3 applies a flat 10%. If a lesson must be refunded under the cancellation policy, the teacher is responsible for the full refund amount owed to the student. The platform fee from the original transaction is not returned to the teacher as part of that teacher responsibility, unless we separately agree or applicable law requires otherwise.
 
 Student refunds are automatic only when the cancellation policy allows them. Unless otherwise shown at checkout, cancellation more than 48 hours before the scheduled lesson start is eligible for refund. Rescheduling a lesson does not create a refund entitlement.
 

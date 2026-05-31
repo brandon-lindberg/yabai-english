@@ -4,13 +4,22 @@ import Stripe from "stripe";
 
 let stripeClient: Stripe | null = null;
 
+function isUsableStripeSecretKey(value: string | undefined | null): value is string {
+  if (!value) return false;
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  // Reject placeholder values like "sk_test_" / "sk_live_" with no body after the prefix.
+  if (/^sk_(test|live)_$/.test(trimmed)) return false;
+  return /^sk_(test|live)_[A-Za-z0-9]+/.test(trimmed);
+}
+
 export function stripeConnectConfigured() {
-  return Boolean(process.env.STRIPE_SECRET_KEY);
+  return isUsableStripeSecretKey(process.env.STRIPE_SECRET_KEY);
 }
 
 function stripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) {
+  if (!isUsableStripeSecretKey(secretKey)) {
     throw new Error("STRIPE_SECRET_KEY is not configured");
   }
   stripeClient ??= new Stripe(secretKey);
@@ -45,6 +54,47 @@ export async function retrieveStripeAccount(accountId: string) {
   return stripe().accounts.retrieve(accountId);
 }
 
+export async function createStripePlatformCustomer({ email, name }: { email?: string | null; name?: string | null }) {
+  return stripe().customers.create({
+    ...(email ? { email } : {}),
+    ...(name ? { name } : {}),
+  });
+}
+
+export async function createStripeSetupCheckoutSession({
+  customerId,
+  successUrl,
+  cancelUrl,
+}: {
+  customerId: string;
+  successUrl: string;
+  cancelUrl: string;
+}) {
+  return stripe().checkout.sessions.create({
+    mode: "setup",
+    customer: customerId,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+  });
+}
+
+export async function listStripeCustomerCardSummary(customerId: string) {
+  const methods = await stripe().paymentMethods.list({
+    customer: customerId,
+    type: "card",
+  });
+  const method = methods.data[0];
+  if (!method?.card) {
+    return null;
+  }
+  return {
+    brand: method.card.brand,
+    last4: method.card.last4,
+    expMonth: method.card.exp_month,
+    expYear: method.card.exp_year,
+  };
+}
+
 export async function createStripeCheckoutSessionDirectCharge({
   connectedAccountId,
   paymentId,
@@ -53,6 +103,8 @@ export async function createStripeCheckoutSessionDirectCharge({
   applicationFeeAmountYen,
   productName,
   customerEmail,
+  customerId,
+  savePaymentMethod = false,
   successUrl,
   cancelUrl,
 }: {
@@ -63,6 +115,8 @@ export async function createStripeCheckoutSessionDirectCharge({
   applicationFeeAmountYen: number;
   productName: string;
   customerEmail?: string | null;
+  customerId?: string | null;
+  savePaymentMethod?: boolean;
   successUrl: string;
   cancelUrl: string;
 }) {
@@ -83,6 +137,7 @@ export async function createStripeCheckoutSessionDirectCharge({
       ],
       payment_intent_data: {
         application_fee_amount: applicationFeeAmountYen,
+        ...(savePaymentMethod ? { setup_future_usage: "off_session" } : {}),
         metadata: {
           paymentId,
           bookingId,
@@ -92,7 +147,11 @@ export async function createStripeCheckoutSessionDirectCharge({
         paymentId,
         bookingId,
       },
-      ...(customerEmail ? { customer_email: customerEmail } : {}),
+      ...(customerId
+        ? { customer: customerId }
+        : customerEmail
+          ? { customer_email: customerEmail }
+          : {}),
       success_url: successUrl,
       cancel_url: cancelUrl,
     },

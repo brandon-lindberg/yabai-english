@@ -1,5 +1,29 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, afterEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus, LessonTier } from "@/generated/prisma/client";
+import { buildUpcomingSlotOptions } from "@/lib/availability";
+
+const BOOKING_NOW = new Date("2026-05-10T00:00:00.000Z");
+const testAvailabilitySlot = {
+  id: "slot-1",
+  dayOfWeek: 1,
+  startMin: 10 * 60,
+  endMin: 12 * 60,
+  timezone: "Asia/Tokyo",
+  recurrence: "WEEKLY" as const,
+  startsOn: null,
+  endsOn: null,
+  classLevelId: null,
+  classTypeId: null,
+};
+
+function validBookingStartsAtIso() {
+  return buildUpcomingSlotOptions({
+    availabilitySlots: [testAvailabilitySlot],
+    viewerTimezone: "Asia/Tokyo",
+    minimumLeadHours: 48,
+    now: BOOKING_NOW,
+  })[0]!.startsAtIso;
+}
 
 const {
   authMock,
@@ -41,6 +65,8 @@ import { POST } from "@/app/api/bookings/route";
 
 describe("POST /api/bookings pricing", () => {
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(BOOKING_NOW);
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
     prismaMock.lessonProduct.findFirst.mockResolvedValue({
@@ -68,6 +94,8 @@ describe("POST /api/bookings pricing", () => {
         },
       ],
       user: { email: "teacher@example.com", organizationMemberships: [] },
+      availabilitySlots: [testAvailabilitySlot],
+      availabilityOccurrenceSkips: [],
     });
     prismaMock.teacherRosterEntry.findFirst.mockResolvedValue(null);
     prismaMock.chatThread.findUnique.mockResolvedValue(null);
@@ -77,7 +105,7 @@ describe("POST /api/bookings pricing", () => {
     prismaMock.user.findUnique.mockResolvedValue({
       id: "student-1",
       email: "student@example.com",
-      studentProfile: { trialLessonUsedAt: null },
+      studentProfile: { trialLessonUsedAt: null, timezone: "Asia/Tokyo" },
     });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({
@@ -104,8 +132,12 @@ describe("POST /api/bookings pricing", () => {
     );
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   test("uses configured duration rate for pending payment booking", async () => {
-    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const startsAt = validBookingStartsAtIso();
     const res = await POST(
       new Request("http://localhost/api/bookings", {
         method: "POST",
@@ -147,9 +179,11 @@ describe("POST /api/bookings pricing", () => {
         },
       ],
       user: { email: "teacher@example.com", organizationMemberships: [] },
+      availabilitySlots: [testAvailabilitySlot],
+      availabilityOccurrenceSkips: [],
     });
 
-    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const startsAt = validBookingStartsAtIso();
     const res = await POST(
       new Request("http://localhost/api/bookings", {
         method: "POST",
@@ -182,6 +216,7 @@ describe("POST /api/bookings pricing", () => {
         {
           id: "payacct-1",
           provider: "STRIPE",
+          providerAccountId: "acct_123",
           status: "ENABLED",
           chargesEnabled: true,
           payoutsEnabled: true,
@@ -199,9 +234,11 @@ describe("POST /api/bookings pricing", () => {
         },
       ],
       user: { email: "teacher@example.com", organizationMemberships: [] },
+      availabilitySlots: [testAvailabilitySlot],
+      availabilityOccurrenceSkips: [],
     });
 
-    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const startsAt = validBookingStartsAtIso();
     const res = await POST(
       new Request("http://localhost/api/bookings", {
         method: "POST",
@@ -234,6 +271,7 @@ describe("POST /api/bookings pricing", () => {
         {
           id: "payacct-1",
           provider: "STRIPE",
+          providerAccountId: "acct_123",
           status: "ENABLED",
           chargesEnabled: true,
           payoutsEnabled: true,
@@ -251,6 +289,8 @@ describe("POST /api/bookings pricing", () => {
         },
       ],
       user: { email: "teacher@example.com", organizationMemberships: [] },
+      availabilitySlots: [testAvailabilitySlot],
+      availabilityOccurrenceSkips: [],
     });
     const paymentCreate = vi.fn().mockResolvedValue({});
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
@@ -278,7 +318,7 @@ describe("POST /api/bookings pricing", () => {
       }),
     );
 
-    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const startsAt = validBookingStartsAtIso();
     const res = await POST(
       new Request("http://localhost/api/bookings", {
         method: "POST",
@@ -340,8 +380,10 @@ describe("POST /api/bookings pricing", () => {
         },
       ],
       user: { email: "teacher@example.com", organizationMemberships: [] },
+      availabilitySlots: [testAvailabilitySlot],
+      availabilityOccurrenceSkips: [],
     });
-    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const startsAt = validBookingStartsAtIso();
     const res = await POST(
       new Request("http://localhost/api/bookings", {
         method: "POST",
@@ -394,6 +436,8 @@ describe("POST /api/bookings pricing", () => {
         },
       ],
       user: { email: "teacher@example.com", organizationMemberships: [] },
+      availabilitySlots: [testAvailabilitySlot],
+      availabilityOccurrenceSkips: [],
     });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({
@@ -418,7 +462,7 @@ describe("POST /api/bookings pricing", () => {
         },
       }),
     );
-    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const startsAt = validBookingStartsAtIso();
     const res = await POST(
       new Request("http://localhost/api/bookings", {
         method: "POST",
@@ -456,6 +500,8 @@ describe("POST /api/bookings pricing", () => {
         },
       ],
       user: { email: "teacher@example.com", organizationMemberships: [] },
+      availabilitySlots: [testAvailabilitySlot],
+      availabilityOccurrenceSkips: [],
     });
     const bookingCreate = vi.fn().mockResolvedValue({
       id: "booking-override",
@@ -480,7 +526,7 @@ describe("POST /api/bookings pricing", () => {
       }),
     );
 
-    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const startsAt = validBookingStartsAtIso();
     const res = await POST(
       new Request("http://localhost/api/bookings", {
         method: "POST",
@@ -540,6 +586,8 @@ describe("POST /api/bookings pricing", () => {
         },
       ],
       user: { email: "teacher@example.com", organizationMemberships: [] },
+      availabilitySlots: [testAvailabilitySlot],
+      availabilityOccurrenceSkips: [],
     });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({
@@ -564,7 +612,7 @@ describe("POST /api/bookings pricing", () => {
         },
       }),
     );
-    const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const startsAt = validBookingStartsAtIso();
     const res = await POST(
       new Request("http://localhost/api/bookings", {
         method: "POST",

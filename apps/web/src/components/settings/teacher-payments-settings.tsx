@@ -1,10 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { PaymentMethodLogos } from "@/components/payment-method-logos";
 import { TeacherPaymentPolicyForm } from "@/components/teacher-payment-policy-form";
-import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import { TeacherStripeSetupStatus } from "@/components/settings/teacher-stripe-setup-status";
+import {
+  getEnabledTeacherPaymentMethods,
+  isLocalDevStripeAccountReady,
+  isLocalStripeProviderAccount,
+  isStripeAccountReady,
+  isTeacherPaymentAccountReady,
+} from "@/lib/payment-methods";
+import { resolveTeacherStripeSetupState } from "@/lib/teacher-stripe-setup";
 
 type Provider = "STRIPE" | "KOMOJU";
 type AccountStatus = "PENDING" | "ENABLED" | "DISABLED" | "REQUIREMENTS_DUE";
@@ -17,6 +26,7 @@ export type TeacherPaymentsSettingsAccount = {
   status: AccountStatus;
   chargesEnabled: boolean;
   payoutsEnabled: boolean;
+  requirementsDue?: string[];
   methods: Array<{
     method: Method;
     enabled: boolean;
@@ -37,13 +47,23 @@ export function TeacherPaymentsSettings({
   stripeConnectEnabled,
 }: Props) {
   const t = useTranslations("dashboard.settingsPage");
+  const searchParams = useSearchParams();
+  const handledStripeReturnRef = useRef(false);
+  const policySectionRef = useRef<HTMLDivElement>(null);
   const [accounts, setAccounts] = useState(initialAccounts);
   const [savingDevMethod, setSavingDevMethod] = useState(false);
   const [connectingStripe, setConnectingStripe] = useState(false);
   const [refreshingStripe, setRefreshingStripe] = useState(false);
+  const [returnBanner, setReturnBanner] = useState<"checking" | "ready" | "incomplete" | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const enabledMethods = getEnabledTeacherPaymentMethods(accounts);
-  const stripeAccount = accounts.find((account) => account.provider === "STRIPE");
+  const hasLocalDevStripe = accounts.some(
+    (account) =>
+      account.provider === "STRIPE" &&
+      isLocalStripeProviderAccount(account.providerAccountId),
+  );
 
   async function enableDevStripe() {
     setSavingDevMethod(true);
@@ -104,10 +124,12 @@ export function TeacherPaymentsSettings({
   async function refreshStripe() {
     setRefreshingStripe(true);
     setError(null);
+    setReturnBanner("checking");
     try {
       const res = await fetch("/api/teacher/payment-accounts/stripe/sync", { method: "POST" });
       if (!res.ok) {
         setError(t("refreshStripeError"));
+        setReturnBanner("incomplete");
         return;
       }
       const data = (await res.json()) as { account?: TeacherPaymentsSettingsAccount };
@@ -118,13 +140,45 @@ export function TeacherPaymentsSettings({
             (account) => account.provider !== data.account!.provider && account.id !== data.account!.id,
           ),
         ]);
+        setReturnBanner(isStripeAccountReady(data.account) ? "ready" : "incomplete");
+      } else {
+        setReturnBanner("incomplete");
       }
     } catch {
       setError(t("refreshStripeError"));
+      setReturnBanner("incomplete");
     } finally {
       setRefreshingStripe(false);
     }
   }
+
+  useEffect(() => {
+    if (!stripeConnectEnabled || handledStripeReturnRef.current) {
+      return;
+    }
+
+    const stripeParam = searchParams.get("stripe");
+    if (stripeParam === "refresh") {
+      handledStripeReturnRef.current = true;
+      void connectStripe();
+      return;
+    }
+
+    if (stripeParam === "return") {
+      handledStripeReturnRef.current = true;
+      void refreshStripe();
+    }
+  }, [searchParams, stripeConnectEnabled]);
+
+  function focusPolicySection() {
+    policySectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  const setupState = resolveTeacherStripeSetupState({
+    paymentPolicyAcceptedAt,
+    accounts,
+    stripeConnectEnabled,
+  });
 
   return (
     <section className="space-y-6">
@@ -133,7 +187,27 @@ export function TeacherPaymentsSettings({
         <p className="mt-1 text-sm text-muted">{t("paymentsIntro")}</p>
       </div>
 
-      <TeacherPaymentPolicyForm acceptedAt={paymentPolicyAcceptedAt} />
+      {stripeConnectEnabled ? (
+        <TeacherStripeSetupStatus
+          paymentPolicyAcceptedAt={paymentPolicyAcceptedAt}
+          accounts={accounts}
+          stripeConnectEnabled={stripeConnectEnabled}
+          connectingStripe={connectingStripe}
+          refreshingStripe={refreshingStripe}
+          returnBanner={returnBanner}
+          onAcceptPolicyFocus={focusPolicySection}
+          onConnectStripe={() => {
+            void connectStripe();
+          }}
+          onRefreshStripe={() => {
+            void refreshStripe();
+          }}
+        />
+      ) : null}
+
+      <div ref={policySectionRef}>
+        <TeacherPaymentPolicyForm acceptedAt={paymentPolicyAcceptedAt} />
+      </div>
 
       <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
         <div>
@@ -150,21 +224,28 @@ export function TeacherPaymentsSettings({
         {accounts.length > 0 ? (
           <div className="space-y-2">
             {accounts.map((account) => {
-              const ready =
-                account.status === "ENABLED" && account.chargesEnabled && account.payoutsEnabled;
+              const ready = isTeacherPaymentAccountReady(account);
+              const localDevReady =
+                devPaymentsEnabled && isLocalDevStripeAccountReady(account);
               return (
                 <div
                   key={account.id}
                   className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
                 >
                   <p className="font-medium text-foreground">
-                    {t("paymentAccountStatus", {
-                      provider: account.provider,
-                      status: account.status,
-                    })}
+                    {account.provider === "STRIPE"
+                      ? t(`stripeAccountLabel_${account.status}`)
+                      : t("paymentAccountStatus", {
+                          provider: account.provider,
+                          status: account.status,
+                        })}
                   </p>
                   <p className="mt-1 text-xs text-muted">
-                    {ready ? t("paymentAccountReady") : t("paymentAccountNeedsSetup")}
+                    {ready
+                      ? t("paymentAccountReady")
+                      : localDevReady
+                        ? t("paymentAccountLocalReady")
+                        : t("paymentAccountNeedsSetup")}
                   </p>
                 </div>
               );
@@ -178,33 +259,7 @@ export function TeacherPaymentsSettings({
           </p>
         ) : null}
 
-        {stripeConnectEnabled ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                void connectStripe();
-              }}
-              disabled={connectingStripe}
-              className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
-            >
-              {t("connectStripe")}
-            </button>
-            {stripeAccount?.providerAccountId ? (
-              <button
-                type="button"
-                onClick={() => {
-                  void refreshStripe();
-                }}
-                disabled={refreshingStripe}
-                className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)] disabled:opacity-50"
-              >
-                {t("refreshStripe")}
-              </button>
-            ) : null}
-            <p className="basis-full text-xs text-muted">{t("connectStripeHelp")}</p>
-          </div>
-        ) : devPaymentsEnabled ? (
+        {!stripeConnectEnabled && devPaymentsEnabled && !hasLocalDevStripe ? (
           <div className="space-y-2">
             <button
               type="button"
@@ -218,9 +273,13 @@ export function TeacherPaymentsSettings({
             </button>
             <p className="text-xs text-muted">{t("enableDevStripeHelp")}</p>
           </div>
-        ) : (
+        ) : null}
+        {!stripeConnectEnabled && !devPaymentsEnabled ? (
           <p className="text-xs text-muted">{t("providerOnboardingPending")}</p>
-        )}
+        ) : null}
+        {setupState.state === "ready" ? (
+          <p className="text-xs text-foreground">{t("stripeSetupStudentsCanPay")}</p>
+        ) : null}
       </section>
     </section>
   );

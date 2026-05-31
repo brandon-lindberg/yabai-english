@@ -7,6 +7,7 @@ import {
   retrieveStripeAccount,
   stripeConnectConfigured,
 } from "@/lib/stripe/stripe-connect";
+import { isLocalStripeProviderAccount } from "@/lib/payment-methods";
 
 export async function POST() {
   if (!stripeConnectConfigured()) {
@@ -30,7 +31,11 @@ export async function POST() {
     },
   });
   const paymentAccount = teacherProfile?.paymentAccounts?.[0] ?? null;
-  if (!teacherProfile || !paymentAccount?.providerAccountId) {
+  if (
+    !teacherProfile ||
+    !paymentAccount?.providerAccountId ||
+    isLocalStripeProviderAccount(paymentAccount.providerAccountId)
+  ) {
     return NextResponse.json({ error: "Stripe account not connected" }, { status: 404 });
   }
 
@@ -69,6 +74,7 @@ export async function POST() {
       status: true,
       chargesEnabled: true,
       payoutsEnabled: true,
+      requirementsDue: true,
       methods: { select: { method: true, enabled: true } },
     },
   });

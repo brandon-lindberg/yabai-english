@@ -3,14 +3,15 @@
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
-type SettingsTab = "payments" | "google";
+type SettingsTab = "payments" | "tier" | "google";
 
 type Props = {
   activeTab: SettingsTab;
   showPayments?: boolean;
+  showTier?: boolean;
 };
 
-export function SettingsTabs({ activeTab, showPayments = false }: Props) {
+export function SettingsTabs({ activeTab, showPayments = false, showTier = false }: Props) {
   const t = useTranslations("dashboard.settingsPage");
 
   const linkClassName = (active: boolean) =>
@@ -32,6 +33,15 @@ export function SettingsTabs({ activeTab, showPayments = false }: Props) {
           aria-current={activeTab === "payments" ? "page" : undefined}
         >
           {t("tabPayments")}
+        </Link>
+      ) : null}
+      {showTier ? (
+        <Link
+          href="/dashboard/settings?tab=tier"
+          className={linkClassName(activeTab === "tier")}
+          aria-current={activeTab === "tier" ? "page" : undefined}
+        >
+          {t("tabTier")}
         </Link>
       ) : null}
       <Link

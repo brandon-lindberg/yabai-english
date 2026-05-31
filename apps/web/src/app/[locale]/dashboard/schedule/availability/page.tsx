@@ -6,7 +6,10 @@ import { TeacherAvailabilityCalendar } from "@/components/dashboard/teacher-avai
 import { AppCard } from "@/components/ui/app-card";
 import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
-import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import {
+  canTeacherPublishAvailability,
+  resolveTeacherPublishAvailabilityOptions,
+} from "@/lib/payment-methods";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
@@ -55,6 +58,7 @@ export default async function DashboardScheduleAvailabilityPage({
         select: {
           id: true,
           provider: true,
+          providerAccountId: true,
           status: true,
           chargesEnabled: true,
           payoutsEnabled: true,
@@ -81,9 +85,12 @@ export default async function DashboardScheduleAvailabilityPage({
   }
 
   const teacherBookings = await getTeacherBookingsForDashboard(prisma, profile.id);
-  const canPublishAvailability =
-    Boolean(profile.paymentPolicyAcceptedAt) &&
-    getEnabledTeacherPaymentMethods(profile.paymentAccounts).length > 0;
+  const publishAvailabilityOptions = resolveTeacherPublishAvailabilityOptions();
+  const canPublishAvailability = canTeacherPublishAvailability(
+    profile.paymentPolicyAcceptedAt,
+    profile.paymentAccounts,
+    publishAvailabilityOptions,
+  );
 
   return (
     <div className="space-y-8">
@@ -134,7 +141,7 @@ export default async function DashboardScheduleAvailabilityPage({
             </div>
             <PaymentPolicyNotice audience="teacher" />
             <Link
-              href="/dashboard/settings"
+              href="/dashboard/settings?tab=payments"
               className="inline-flex rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
             >
               {t("availabilityPaymentRequiredCta")}

@@ -83,6 +83,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
         {
           id: "payacct-1",
           provider: "STRIPE",
+          providerAccountId: "acct_123",
           status: "ENABLED",
           chargesEnabled: true,
           payoutsEnabled: true,
@@ -257,7 +258,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
 
     expect(res.status).toBe(409);
     await expect(res.json()).resolves.toEqual({
-      error: "Set up and accept payments before publishing availability.",
+      error: "Finish Stripe setup and accept the payment policy before publishing availability.",
     });
     expect(transactionMock).not.toHaveBeenCalled();
   });
@@ -271,6 +272,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
         {
           id: "payacct-1",
           provider: "STRIPE",
+          providerAccountId: "acct_123",
           status: "ENABLED",
           chargesEnabled: true,
           payoutsEnabled: true,
@@ -306,9 +308,197 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
 
     expect(res.status).toBe(409);
     await expect(res.json()).resolves.toEqual({
-      error: "Set up and accept payments before publishing availability.",
+      error: "Finish Stripe setup and accept the payment policy before publishing availability.",
     });
     expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  test("blocks availability changes until Stripe Connect onboarding is complete", async () => {
+    profileUpsertMock.mockResolvedValue({
+      id: "tp-1",
+      rateYen: 3500,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
+      paymentAccounts: [
+        {
+          id: "payacct-1",
+          provider: "STRIPE",
+          providerAccountId: "acct_123",
+          status: "PENDING",
+          chargesEnabled: false,
+          payoutsEnabled: false,
+          methods: [{ method: "CARD", enabled: false }],
+        },
+      ],
+      lessonOfferings: [
+        {
+          id: "off-conv-60",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          active: true,
+          rateYen: 3500,
+          isGroup: false,
+          durationMin: 60,
+        },
+      ],
+    });
+
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          timezone: "Asia/Tokyo",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "Finish Stripe setup and accept the payment policy before publishing availability.",
+    });
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  test("blocks availability changes when only a local dev Stripe account exists", async () => {
+    const previousStripeSecret = process.env.STRIPE_SECRET_KEY;
+    const previousDevBypass = process.env.DEV_AUTH_BYPASS;
+    process.env.STRIPE_SECRET_KEY = "sk_test";
+    delete process.env.DEV_AUTH_BYPASS;
+
+    profileUpsertMock.mockResolvedValue({
+      id: "tp-1",
+      rateYen: 3500,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
+      paymentAccounts: [
+        {
+          id: "payacct-1",
+          provider: "STRIPE",
+          providerAccountId: "acct_local_teacher-profile-1",
+          status: "ENABLED",
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: [{ method: "CARD", enabled: true }],
+        },
+      ],
+      lessonOfferings: [
+        {
+          id: "off-conv-60",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          active: true,
+          rateYen: 3500,
+          isGroup: false,
+          durationMin: 60,
+        },
+      ],
+    });
+
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          timezone: "Asia/Tokyo",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "Finish Stripe setup and accept the payment policy before publishing availability.",
+    });
+    expect(transactionMock).not.toHaveBeenCalled();
+
+    if (previousStripeSecret === undefined) {
+      delete process.env.STRIPE_SECRET_KEY;
+    } else {
+      process.env.STRIPE_SECRET_KEY = previousStripeSecret;
+    }
+    if (previousDevBypass === undefined) {
+      delete process.env.DEV_AUTH_BYPASS;
+    } else {
+      process.env.DEV_AUTH_BYPASS = previousDevBypass;
+    }
+  });
+
+  test("allows availability changes with local dev Stripe when dev payments are enabled", async () => {
+    const previousStripeSecret = process.env.STRIPE_SECRET_KEY;
+    const previousDevBypass = process.env.DEV_AUTH_BYPASS;
+  const previousNodeEnv = process.env.NODE_ENV;
+    delete process.env.STRIPE_SECRET_KEY;
+    process.env.DEV_AUTH_BYPASS = "true";
+    process.env.NODE_ENV = "development";
+
+    profileUpsertMock.mockResolvedValue({
+      id: "tp-1",
+      rateYen: 3500,
+      paymentPolicyAcceptedAt: new Date("2026-05-01T00:00:00.000Z"),
+      paymentAccounts: [
+        {
+          id: "payacct-1",
+          provider: "STRIPE",
+          providerAccountId: "acct_local_teacher-profile-1",
+          status: "ENABLED",
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: [{ method: "CARD", enabled: true }],
+        },
+      ],
+      lessonOfferings: [
+        {
+          id: "off-conv-60",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          active: true,
+          rateYen: 3500,
+          isGroup: false,
+          durationMin: 60,
+        },
+      ],
+    });
+
+    try {
+      const res = await PATCH(
+        patchRequest([
+          {
+            dayOfWeek: 1,
+            startMin: 10 * 60,
+            endMin: 11 * 60,
+            timezone: "Asia/Tokyo",
+            classLevelId: "lvl-int",
+            classTypeId: "ty-conv",
+            teacherLessonOfferingId: "off-conv-60",
+          },
+        ]),
+      );
+
+      expect(res.status).toBe(200);
+      expect(transactionMock).toHaveBeenCalled();
+    } finally {
+      if (previousStripeSecret === undefined) {
+        delete process.env.STRIPE_SECRET_KEY;
+      } else {
+        process.env.STRIPE_SECRET_KEY = previousStripeSecret;
+      }
+      if (previousDevBypass === undefined) {
+        delete process.env.DEV_AUTH_BYPASS;
+      } else {
+        process.env.DEV_AUTH_BYPASS = previousDevBypass;
+      }
+      if (previousNodeEnv === undefined) {
+        delete process.env.NODE_ENV;
+      } else {
+        process.env.NODE_ENV = previousNodeEnv;
+      }
+    }
   });
 
   test("does not create any new offerings when all schedule types are already covered", async () => {
@@ -339,6 +529,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
         {
           id: "payacct-1",
           provider: "STRIPE",
+          providerAccountId: "acct_123",
           status: "ENABLED",
           chargesEnabled: true,
           payoutsEnabled: true,
@@ -386,6 +577,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
         {
           id: "payacct-1",
           provider: "STRIPE",
+          providerAccountId: "acct_123",
           status: "ENABLED",
           chargesEnabled: true,
           payoutsEnabled: true,

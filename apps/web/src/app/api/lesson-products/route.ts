@@ -43,6 +43,7 @@ export async function GET(req: Request) {
         select: {
           id: true,
           provider: true,
+          providerAccountId: true,
           status: true,
           chargesEnabled: true,
           payoutsEnabled: true,
@@ -71,6 +72,7 @@ export async function GET(req: Request) {
         {
           id: "",
           provider: "STRIPE" as const,
+          providerAccountId: "acct_test_fallback",
           status: "ENABLED" as const,
           chargesEnabled: true,
           payoutsEnabled: true,

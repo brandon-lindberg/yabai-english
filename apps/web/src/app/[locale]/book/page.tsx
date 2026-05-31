@@ -80,6 +80,7 @@ export default async function BookPage({ searchParams }: Props) {
         select: {
           id: true,
           provider: true,
+          providerAccountId: true,
           status: true,
           chargesEnabled: true,
           payoutsEnabled: true,

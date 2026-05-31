@@ -7,6 +7,7 @@ import { ensureStudentTeacherThread } from "@/lib/chat-threads";
 import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
+import { initializeTeacherTierStateFromHistory } from "@/lib/teacher-tiers";
 
 export async function confirmPaidBookingFromPayment(bookingId: string) {
   const booking = await prisma.booking.findUnique({
@@ -125,6 +126,13 @@ export async function confirmPaidBookingFromPayment(bookingId: string) {
       paidAt: now,
     },
   });
+
+  if ("teacherTierState" in prisma) {
+    await initializeTeacherTierStateFromHistory(prisma as never, {
+      teacherId: booking.teacher.id,
+      paidAt: now,
+    });
+  }
 
   await ensureStudentTeacherThread(booking.studentId, updated.teacher.userId);
   await createUserNotification({

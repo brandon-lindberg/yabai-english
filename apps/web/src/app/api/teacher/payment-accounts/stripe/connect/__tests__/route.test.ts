@@ -69,4 +69,19 @@ describe("POST /api/teacher/payment-accounts/stripe/connect", () => {
       }),
     );
   });
+
+  test("does not reuse a local dev Stripe account for real Connect onboarding", async () => {
+    prismaMock.teacherProfile.findUnique.mockResolvedValue({
+      id: "teacher-profile-1",
+      paymentAccounts: [{ providerAccountId: "acct_local_teacher-profile-1" }],
+    });
+
+    const res = await POST();
+
+    expect(res.status).toBe(200);
+    expect(createConnectAccountMock).toHaveBeenCalledWith({ email: "teacher@example.com" });
+    expect(createAccountLinkMock).toHaveBeenCalledWith(
+      expect.objectContaining({ accountId: "acct_123" }),
+    );
+  });
 });

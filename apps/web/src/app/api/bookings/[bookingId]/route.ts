@@ -20,6 +20,33 @@ type Props = {
   params: Promise<{ bookingId: string }>;
 };
 
+export async function GET(_req: Request, { params }: Props) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { bookingId } = await params;
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    select: {
+      id: true,
+      status: true,
+      studentId: true,
+    },
+  });
+
+  if (!booking || booking.studentId !== session.user.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    ok: true,
+    bookingId: booking.id,
+    status: booking.status,
+  });
+}
+
 function resolveRescheduleActor(
   role: string,
   userId: string,

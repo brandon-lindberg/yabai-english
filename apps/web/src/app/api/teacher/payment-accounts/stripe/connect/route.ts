@@ -7,6 +7,7 @@ import {
   createStripeStandardAccount,
   stripeConnectConfigured,
 } from "@/lib/stripe/stripe-connect";
+import { isLocalStripeProviderAccount } from "@/lib/payment-methods";
 
 function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
@@ -38,7 +39,10 @@ export async function POST() {
     return NextResponse.json({ error: "Teacher profile not found" }, { status: 404 });
   }
 
-  const existingAccountId = teacherProfile.paymentAccounts?.[0]?.providerAccountId ?? null;
+  const storedAccountId = teacherProfile.paymentAccounts?.[0]?.providerAccountId ?? null;
+  const existingAccountId = isLocalStripeProviderAccount(storedAccountId)
+    ? null
+    : storedAccountId;
   const stripeAccount = existingAccountId
     ? { id: existingAccountId }
     : await createStripeStandardAccount({ email: session.user.email });

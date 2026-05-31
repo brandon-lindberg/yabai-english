@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
+import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
 
 const patchSchema = z.object({
   displayName: z.string().min(1).max(100).trim().optional(),
@@ -49,6 +50,19 @@ export async function PATCH(req: Request) {
 
   const userId = session.user.id;
   const data = parsed.data;
+  const fallbackRateCheck = validatePublicLessonRateYen(data.rateYen);
+  if (!fallbackRateCheck.ok) {
+    return NextResponse.json({ error: fallbackRateCheck.error }, { status: 400 });
+  }
+  const invalidOfferingRate = data.lessonOfferings?.find(
+    (offering) => !validatePublicLessonRateYen(offering.rateYen).ok,
+  );
+  if (invalidOfferingRate) {
+    return NextResponse.json(
+      { error: "Public lesson rates must be at least ¥3,000." },
+      { status: 400 },
+    );
+  }
 
   let profile;
   try {

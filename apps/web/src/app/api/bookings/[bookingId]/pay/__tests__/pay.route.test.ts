@@ -55,6 +55,7 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
         id: "student-1",
         email: "student@example.com",
         name: "Bob Student",
+        studentProfile: { stripeCustomerId: null },
       },
       payments: [
         {
@@ -87,7 +88,11 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
     prismaMock.paymentLedgerEntry.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.paymentLedgerEntry.createMany.mockResolvedValue({ count: 2 });
     calculateFeeMock.mockResolvedValue({
-      feePolicyVersion: "teacher-monthly-volume-v1",
+      feePolicyVersion: "teacher-tiered-monthly-volume-v1",
+      calculatedTier: "TIER_1",
+      effectiveTier: "TIER_2",
+      teacherTier: "TIER_2",
+      overrideActive: true,
       periodTimeZone: "Asia/Tokyo",
       periodStart: new Date("2026-04-30T15:00:00.000Z"),
       periodEnd: new Date("2026-05-31T15:00:00.000Z"),
@@ -134,6 +139,7 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
         amountYen: 3500,
         applicationFeeAmountYen: 525,
         customerEmail: "student@example.com",
+        savePaymentMethod: true,
       }),
     );
     expect(prismaMock.payment.update).toHaveBeenCalledWith({
@@ -145,7 +151,11 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
         checkoutUrl: "https://checkout.stripe.com/c/pay/cs_test_123",
         metadataJson: expect.objectContaining({
           chargeType: "DIRECT_CHARGE",
-          feePolicyVersion: "teacher-monthly-volume-v1",
+          feePolicyVersion: "teacher-tiered-monthly-volume-v1",
+          calculatedTier: "TIER_1",
+          effectiveTier: "TIER_2",
+          teacherTier: "TIER_2",
+          overrideActive: true,
           applicationFeeAmountYen: 525,
         }),
       }),
@@ -162,5 +172,70 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
         { paymentId: "payment-1", type: "TEACHER_NET", amountYen: 2975 },
       ],
     });
+  });
+
+  test("passes existing Stripe customer id and skips savePaymentMethod when student has one", async () => {
+    const baseBooking = {
+      id: "booking-1",
+      studentId: "student-1",
+      teacherId: "teacher-profile-1",
+      status: BookingStatus.PENDING_PAYMENT,
+      startsAt,
+      endsAt: new Date(startsAt.getTime() + 30 * 60 * 1000),
+      quotedPriceYen: 3500,
+      meetUrl: null,
+      googleEventId: null,
+      lessonProduct: { nameEn: "Standard 30", nameJa: "標準 30" },
+      teacher: {
+        id: "teacher-profile-1",
+        userId: "teacher-user-1",
+        calendarId: "primary",
+        googleCalendarRefreshToken: null,
+        availabilitySlots: [{ timezone: "Asia/Tokyo" }],
+        user: { email: "teacher@example.com" },
+      },
+      student: {
+        id: "student-1",
+        email: "student@example.com",
+        name: "Bob Student",
+        studentProfile: { stripeCustomerId: "cus_existing" },
+      },
+      payments: [
+        {
+          id: "payment-1",
+          bookingId: "booking-1",
+          teacherId: "teacher-profile-1",
+          teacherPaymentAccountId: "payacct-1",
+          provider: "STRIPE",
+          method: "CARD",
+          amountYen: 3500,
+          currency: "JPY",
+          status: "CREATED",
+          providerCheckoutId: null,
+          providerPaymentId: null,
+          checkoutUrl: "/book/checkout/booking-1",
+          metadataJson: null,
+          teacherPaymentAccount: {
+            id: "payacct-1",
+            provider: "STRIPE",
+            providerAccountId: "acct_123",
+          },
+        },
+      ],
+    };
+    prismaMock.booking.findUnique.mockResolvedValue(baseBooking);
+
+    const res = await POST(
+      new Request("http://localhost/api/bookings/booking-1/pay", { method: "POST" }),
+      { params: Promise.resolve({ bookingId: "booking-1" }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(createCheckoutMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerId: "cus_existing",
+        savePaymentMethod: false,
+      }),
+    );
   });
 });

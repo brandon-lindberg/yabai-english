@@ -7,6 +7,7 @@ import type {
 export type TeacherPaymentAccountLike = {
   id: string;
   provider: PaymentProvider;
+  providerAccountId?: string | null;
   status: TeacherPaymentAccountStatus;
   chargesEnabled: boolean;
   payoutsEnabled: boolean;
@@ -24,6 +25,77 @@ export type EnabledTeacherPaymentMethod = {
   logoLabel: string;
   logoClassName: string;
 };
+
+export function isLocalStripeProviderAccount(providerAccountId?: string | null): boolean {
+  return Boolean(providerAccountId?.startsWith("acct_local_"));
+}
+
+export function isTeacherPaymentAccountReady(account: TeacherPaymentAccountLike): boolean {
+  if (
+    account.status !== "ENABLED" ||
+    !account.chargesEnabled ||
+    !account.payoutsEnabled
+  ) {
+    return false;
+  }
+
+  if (
+    account.provider === "STRIPE" &&
+    (!account.providerAccountId || isLocalStripeProviderAccount(account.providerAccountId))
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+export function isStripeAccountReady(account: TeacherPaymentAccountLike): boolean {
+  return account.provider === "STRIPE" && isTeacherPaymentAccountReady(account);
+}
+
+export function isLocalDevStripeAccountReady(account: TeacherPaymentAccountLike): boolean {
+  return (
+    account.provider === "STRIPE" &&
+    isLocalStripeProviderAccount(account.providerAccountId) &&
+    account.status === "ENABLED" &&
+    account.chargesEnabled &&
+    account.payoutsEnabled
+  );
+}
+
+export type TeacherPublishAvailabilityOptions = {
+  allowLocalDevStripe?: boolean;
+};
+
+export function resolveTeacherPublishAvailabilityOptions(): TeacherPublishAvailabilityOptions {
+  const stripeConnectEnabled = Boolean(process.env.STRIPE_SECRET_KEY);
+  return {
+    allowLocalDevStripe:
+      process.env.NODE_ENV !== "production" &&
+      process.env.DEV_AUTH_BYPASS === "true" &&
+      !stripeConnectEnabled,
+  };
+}
+
+export function canTeacherPublishAvailability(
+  paymentPolicyAcceptedAt: Date | string | null | undefined,
+  accounts: TeacherPaymentAccountLike[],
+  options?: TeacherPublishAvailabilityOptions,
+): boolean {
+  if (!paymentPolicyAcceptedAt) {
+    return false;
+  }
+
+  if (accounts.some(isStripeAccountReady)) {
+    return true;
+  }
+
+  if (options?.allowLocalDevStripe && accounts.some(isLocalDevStripeAccountReady)) {
+    return true;
+  }
+
+  return false;
+}
 
 export function paymentMethodDisplay(method: TeacherPaymentMethodType): {
   label: string;
@@ -52,6 +124,13 @@ export function getEnabledTeacherPaymentMethods(
       account.status !== "ENABLED" ||
       !account.chargesEnabled ||
       !account.payoutsEnabled
+    ) {
+      return [];
+    }
+
+    if (
+      account.provider === "STRIPE" &&
+      (!account.providerAccountId || isLocalStripeProviderAccount(account.providerAccountId))
     ) {
       return [];
     }

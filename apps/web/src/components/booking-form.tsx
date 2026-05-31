@@ -8,6 +8,7 @@ import { canShowManualOverrideToggle } from "@/lib/manual-override";
 import { SlotSelectionCalendar } from "@/components/slot-selection-calendar";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BookingStepSection } from "@/components/booking/booking-step-section";
 import {
   ALL_LESSON_TYPES_KEY,
   filterSlotsForSelection,
@@ -49,20 +50,13 @@ type Props = {
     endsAtIso?: string;
     label: string;
     groupKey?: string;
-    /** TeacherClassType.id from the slot — used to filter against teacher offerings. */
     classTypeId?: string | null;
   }>;
-  /**
-   * Slots that other students have already booked. Rendered as non-interactive
-   * "Reserved" markers on the calendar. Pass only timing info — never student
-   * identities — so nothing leaks to other students viewing the booking page.
-   */
   bookedSlots?: Array<{
     startsAtIso: string;
     endsAtIso: string;
   }>;
 };
-
 
 export function BookingForm({
   teacherProfileId,
@@ -103,17 +97,21 @@ export function BookingForm({
 
   useEffect(() => {
     if (presetSlots && presetSlots.length > 0) {
-      setStartsAt(presetSlots[0].startsAtIso);
       setCalendarAnchor(presetSlots[0].startsAtIso);
     }
   }, [presetSlots]);
+
+  const selectedSlot = presetSlots?.find((slot) => slot.startsAtIso === startsAt);
+  const productsForSelectedSlot = useMemo(() => {
+    if (!selectedSlot) return products;
+    return products.filter((product) => slotMatchesProduct(selectedSlot, product));
+  }, [products, selectedSlot]);
 
   const selectedOption =
     selectedOptionKey === ALL_LESSON_TYPES_KEY
       ? undefined
       : products.find((p) => optionKey(p) === selectedOptionKey);
 
-  /** When "All lesson types" is selected, infer the catalog row from the chosen slot. */
   const resolvedProductForAllTypes = useMemo(() => {
     if (selectedOptionKey !== ALL_LESSON_TYPES_KEY || !startsAt || !presetSlots?.length) {
       return undefined;
@@ -183,6 +181,19 @@ export function BookingForm({
     if (!isSelectedBookable) setStartsAt("");
   }, [filteredPresetSlots, startsAt]);
 
+  const lessonStepDisabled = !startsAt;
+  const paymentStepDisabled = !effectiveProduct;
+  const formattedSelectedSlot = startsAt
+    ? new Date(startsAt).toLocaleString(locale, {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: viewerTimezone,
+      })
+    : null;
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
@@ -219,6 +230,10 @@ export function BookingForm({
           setMessage(t("teacherFreeTrialUnavailable"));
         } else if (data.error === "Manual override reason is required.") {
           setMessage(t("manualOverrideReasonError"));
+        } else if (data.error === "The selected time is not available.") {
+          setMessage(t("slotUnavailableError"));
+        } else if (data.error === "The lesson duration does not fit in the selected time slot.") {
+          setMessage(t("durationMismatchError"));
         } else {
           setMessage(mapBookingApiError(data.error ?? "Error"));
         }
@@ -236,55 +251,17 @@ export function BookingForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-sm">
-      <label className="block text-sm font-medium text-foreground">
-        {t("selectProduct")}
-        {productsLoading ? (
-          <div
-            data-testid="booking-products-loading"
-            aria-busy="true"
-            className="mt-1 space-y-2"
-          >
-            <Skeleton height="10" rounded="lg" />
-            <Skeleton height="3" width="1/3" />
-          </div>
-        ) : (
-          <select
-            className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
-            value={selectedOptionKey}
-            onChange={(e) => {
-              setSelectedOptionKey(e.target.value);
-              setStartsAt("");
-            }}
-          >
-            <option value={ALL_LESSON_TYPES_KEY}>{t("allLessonTypes")}</option>
-            {products.map((p) => (
-              <option key={optionKey(p)} value={optionKey(p)}>
-                {buildProductOptionLabel(p, locale, t)} — {p.durationMin}
-                {p.tier === "FREE_TRIAL" ? ` · ${t("freeTrialOption")}` : ""}
-              </option>
-            ))}
-          </select>
-        )}
-      </label>
       {filteredPresetSlots ? (
-        <div className="space-y-3">
-          <p className="text-sm font-medium text-foreground">{t("selectSlot")}</p>
+        <BookingStepSection step={1} title={t("stepChooseTimeTitle")} description={t("leadTimeNotice")}>
           {filteredPresetSlots.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border bg-background px-3 py-2 text-sm text-muted">
               {t("noAvailabilityYet")}
             </p>
           ) : (
             <>
-              <div className="mb-3 rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted">
-                {startsAt
-                  ? `${t("selectedSlot")}: ${new Date(startsAt).toLocaleString(locale, {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      timeZone: viewerTimezone,
-                    })}`
+              <div className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted">
+                {formattedSelectedSlot
+                  ? `${t("selectedSlot")}: ${formattedSelectedSlot}`
                   : t("noSlotSelected")}
               </div>
               <SlotSelectionCalendar
@@ -306,58 +283,126 @@ export function BookingForm({
                 selectedStartsAtIso={startsAt || null}
                 onSelectSlot={(iso) => {
                   setStartsAt(iso);
+                  setSelectedOptionKey(ALL_LESSON_TYPES_KEY);
                 }}
                 timeZone={viewerTimezone}
               />
             </>
           )}
-        </div>
+        </BookingStepSection>
       ) : (
-        <label className="block text-sm font-medium text-foreground">
-          {t("selectSlot")}
-          <input
-            type="datetime-local"
-            required
-            className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
-            value={startsAt}
-            onChange={(e) => setStartsAt(e.target.value)}
-          />
-        </label>
+        <BookingStepSection step={1} title={t("stepChooseTimeTitle")}>
+          <label className="block text-sm font-medium text-foreground">
+            {t("selectSlot")}
+            <input
+              type="datetime-local"
+              required
+              className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
+              value={startsAt}
+              onChange={(e) => setStartsAt(e.target.value)}
+            />
+          </label>
+        </BookingStepSection>
       )}
-      {availablePaymentMethods.length > 0 ? (
-        <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-foreground">{t("paymentMethod")}</legend>
-          <div className="flex flex-wrap gap-2">
-            {availablePaymentMethods.map((method) => {
-              const key = paymentKey(method);
-              const selected = selectedPaymentKey === key;
-              return (
-                <label
-                  key={key}
-                  className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
-                    selected
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-border bg-background text-muted"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value={key}
-                    checked={selected}
-                    onChange={() => setSelectedPaymentKey(key)}
-                    className="sr-only"
-                  />
-                  <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${method.logoClassName}`}>
-                    {method.logoLabel}
-                  </span>
-                  <span>{method.label}</span>
-                </label>
-              );
-            })}
+
+      <BookingStepSection
+        step={2}
+        title={t("stepChooseLessonTitle")}
+        description={lessonStepDisabled ? t("stepChooseLessonHint") : undefined}
+        disabled={lessonStepDisabled}
+      >
+        {productsLoading ? (
+          <div data-testid="booking-products-loading" aria-busy="true" className="space-y-2">
+            <Skeleton height="10" rounded="lg" />
+            <Skeleton height="3" width="1/3" />
           </div>
-        </fieldset>
+        ) : (
+          <select
+            className="block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground disabled:cursor-not-allowed"
+            value={selectedOptionKey}
+            disabled={lessonStepDisabled}
+            onChange={(e) => setSelectedOptionKey(e.target.value)}
+          >
+            <option value={ALL_LESSON_TYPES_KEY}>{t("allLessonTypes")}</option>
+            {productsForSelectedSlot.map((p) => (
+              <option key={optionKey(p)} value={optionKey(p)}>
+                {buildProductOptionLabel(p, locale, t)} — {p.durationMin}
+                {p.tier === "FREE_TRIAL" ? ` · ${t("freeTrialOption")}` : ""}
+              </option>
+            ))}
+          </select>
+        )}
+      </BookingStepSection>
+
+      {availablePaymentMethods.length > 0 ? (
+        <BookingStepSection
+          step={3}
+          title={t("stepChoosePaymentTitle")}
+          disabled={paymentStepDisabled}
+        >
+          <fieldset className="space-y-2" disabled={paymentStepDisabled}>
+            <legend className="sr-only">{t("paymentMethod")}</legend>
+            <div className="flex flex-wrap gap-2">
+              {availablePaymentMethods.map((method) => {
+                const key = paymentKey(method);
+                const selected = selectedPaymentKey === key;
+                return (
+                  <label
+                    key={key}
+                    className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+                      selected
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-border bg-background text-muted"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={key}
+                      checked={selected}
+                      onChange={() => setSelectedPaymentKey(key)}
+                      className="sr-only"
+                      disabled={paymentStepDisabled}
+                    />
+                    <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${method.logoClassName}`}>
+                      {method.logoLabel}
+                    </span>
+                    <span>{method.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        </BookingStepSection>
       ) : null}
+
+      <BookingStepSection
+        step={availablePaymentMethods.length > 0 ? 4 : 3}
+        title={t("stepReviewTitle")}
+        disabled={!startsAt || !effectiveProduct}
+      >
+        <dl className="space-y-2 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted">{t("selectSlot")}</dt>
+            <dd className="text-right text-foreground">{formattedSelectedSlot ?? t("noSlotSelected")}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted">{t("selectProduct")}</dt>
+            <dd className="text-right text-foreground">
+              {effectiveProduct
+                ? buildProductOptionLabel(effectiveProduct, locale, t)
+                : t("stepChooseLessonHint")}
+            </dd>
+          </div>
+          {selectedPaymentMethod ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">{t("paymentMethod")}</dt>
+              <dd className="text-right text-foreground">{selectedPaymentMethod.label}</dd>
+            </div>
+          ) : null}
+        </dl>
+      </BookingStepSection>
+
       {canShowManualOverrideToggle(currentUserRole) && (
         <div className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground">
           <label className="flex items-start gap-2">
@@ -368,9 +413,7 @@ export function BookingForm({
             />
             <span>
               {t("manualOverrideLabel")}
-              <span className="mt-0.5 block text-xs text-muted">
-                {t("manualOverrideHelp")}
-              </span>
+              <span className="mt-0.5 block text-xs text-muted">{t("manualOverrideHelp")}</span>
             </span>
           </label>
           {manualOverride && (
@@ -387,11 +430,11 @@ export function BookingForm({
           )}
         </div>
       )}
-      {message && (
+      {message ? (
         <p className="text-sm text-link" role="status">
           {message}
         </p>
-      )}
+      ) : null}
       <button
         type="submit"
         disabled={loading || productsLoading || !startsAt || !effectiveProduct}

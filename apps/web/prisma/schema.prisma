@@ -169,6 +169,35 @@ enum RefundStatus {
   PENDING_RECOVERY
 }
 
+enum TeacherPlatformTier {
+  TIER_1
+  TIER_2
+  TIER_3
+}
+
+enum TeacherTierEvaluationKind {
+  QUARTERLY
+  ANNUAL
+}
+
+enum TeacherTierEvaluationStatus {
+  APPLIED
+  NO_CHANGE
+  PENDING_ADMIN_APPROVAL
+  ADMIN_APPROVED
+  ADMIN_KEPT
+}
+
+enum TeacherTierAuditAction {
+  INITIALIZED
+  QUARTERLY_EVALUATED
+  ANNUAL_EVALUATED
+  ANNUAL_DEMOTION_APPROVED
+  ANNUAL_DEMOTION_KEPT
+  OVERRIDE_SET
+  OVERRIDE_REMOVED
+}
+
 // --- NextAuth (Auth.js) ---
 model User {
   id            String        @id @default(cuid())
@@ -326,6 +355,9 @@ model StudentProfile {
 
   /// Short self-introduction / goals; visible to teachers with other profile context.
   shortBio String? @db.VarChar(300)
+
+  /// Platform Stripe Customer for saved payment methods at checkout.
+  stripeCustomerId String? @unique
 }
 
 model TeacherProfile {
@@ -360,6 +392,73 @@ model TeacherProfile {
   classLevels                 TeacherClassLevel[]
   classTypes                  TeacherClassType[]
   paymentAccounts             TeacherPaymentAccount[]
+  tierState                   TeacherTierState?
+  tierEvaluations             TeacherTierEvaluation[]
+  tierAuditLogs               TeacherTierAuditLog[]
+}
+
+model TeacherTierState {
+  id                    String              @id @default(cuid())
+  teacherId             String              @unique
+  teacher               TeacherProfile      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  calculatedTier        TeacherPlatformTier @default(TIER_1)
+  effectiveTier         TeacherPlatformTier @default(TIER_1)
+  firstPaidLessonAt     DateTime?
+  tierYearStart         DateTime?
+  lastEvaluationAt      DateTime?
+  nextQuarterlyReviewAt DateTime?
+  nextAnnualReviewAt    DateTime?
+  overrideTier          TeacherPlatformTier?
+  overrideStartsAt      DateTime?
+  overrideExpiresAt     DateTime?
+  overrideNote          String?             @db.Text
+  overrideSetByUserId   String?
+  overrideSetAt         DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@index([effectiveTier])
+  @@index([nextQuarterlyReviewAt])
+  @@index([nextAnnualReviewAt])
+}
+
+model TeacherTierEvaluation {
+  id              String                      @id @default(cuid())
+  teacherId       String
+  teacher         TeacherProfile              @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  kind            TeacherTierEvaluationKind
+  periodStart     DateTime
+  periodEnd       DateTime
+  monthlyCountsJson Json
+  averageLessons  Float
+  recommendedTier TeacherPlatformTier
+  appliedTier     TeacherPlatformTier?
+  status          TeacherTierEvaluationStatus
+  reviewedByUserId String?
+  reviewedAt      DateTime?
+  reviewNote      String?                     @db.Text
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+
+  @@unique([teacherId, kind, periodStart, periodEnd])
+  @@index([status])
+  @@index([teacherId, createdAt])
+}
+
+model TeacherTierAuditLog {
+  id             String                 @id @default(cuid())
+  teacherId      String
+  teacher        TeacherProfile         @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  actorUserId    String?
+  action         TeacherTierAuditAction
+  previousTier   TeacherPlatformTier?
+  newTier        TeacherPlatformTier?
+  note           String?                @db.Text
+  metadataJson   Json?
+  createdAt      DateTime               @default(now())
+
+  @@index([teacherId, createdAt])
+  @@index([action])
 }
 
 model TeacherPaymentAccount {
@@ -534,6 +633,8 @@ model TeacherStudentLessonRate {
   teacherLessonOffering   TeacherLessonOffering @relation(fields: [teacherLessonOfferingId], references: [id], onDelete: Cascade)
   rateYen Int
   active Boolean @default(true)
+  note String? @db.Text
+  createdByAdminUserId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

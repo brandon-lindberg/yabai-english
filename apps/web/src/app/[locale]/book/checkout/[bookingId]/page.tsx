@@ -3,18 +3,21 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CheckoutPayButton } from "@/components/checkout-pay-button";
+import { CheckoutConfirmationPoll } from "@/components/booking/checkout-confirmation-poll";
 import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
+  searchParams: Promise<{ stripe?: string }>;
 };
 
-export default async function CheckoutPage({ params }: Props) {
+export default async function CheckoutPage({ params, searchParams }: Props) {
   const t = await getTranslations("booking");
   const session = await auth();
   if (!session?.user?.id) return null;
 
   const { bookingId } = await params;
+  const { stripe } = await searchParams;
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: { lessonProduct: true, teacher: { include: { user: true } } },
@@ -41,10 +44,19 @@ export default async function CheckoutPage({ params }: Props) {
         <p className="mt-3 text-lg font-bold text-foreground">
           JPY {booking.quotedPriceYen.toLocaleString()}
         </p>
-        <PaymentPolicyNotice audience="student" className="mt-4" />
-        <div className="mt-4">
-          <CheckoutPayButton bookingId={booking.id} />
-        </div>
+        <CheckoutConfirmationPoll
+          bookingId={booking.id}
+          initialStatus={booking.status}
+          stripeSuccess={stripe === "success"}
+        />
+        {booking.status === "PENDING_PAYMENT" ? (
+          <>
+            <PaymentPolicyNotice audience="student" className="mt-4" />
+            <div className="mt-4">
+              <CheckoutPayButton bookingId={booking.id} />
+            </div>
+          </>
+        ) : null}
       </div>
     </main>
   );

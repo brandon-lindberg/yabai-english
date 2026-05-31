@@ -6,7 +6,7 @@ import { deriveMissingOfferingsFromSchedule } from "@/lib/schedule-offering-sync
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 import { dateOnlyToUtcDateInZone } from "@/lib/date-only-in-zone";
-import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import { canTeacherPublishAvailability, resolveTeacherPublishAvailabilityOptions } from "@/lib/payment-methods";
 
 export async function GET() {
   const session = await auth();
@@ -76,6 +76,7 @@ export async function PATCH(req: Request) {
         select: {
           id: true,
           provider: true,
+          providerAccountId: true,
           status: true,
           chargesEnabled: true,
           payoutsEnabled: true,
@@ -102,11 +103,14 @@ export async function PATCH(req: Request) {
 
   if (
     parsed.data.length > 0 &&
-    (!profileSnapshot.paymentPolicyAcceptedAt ||
-      getEnabledTeacherPaymentMethods(profileSnapshot.paymentAccounts).length === 0)
+    !canTeacherPublishAvailability(
+      profileSnapshot.paymentPolicyAcceptedAt,
+      profileSnapshot.paymentAccounts,
+      resolveTeacherPublishAvailabilityOptions(),
+    )
   ) {
     return NextResponse.json(
-      { error: "Set up and accept payments before publishing availability." },
+      { error: "Finish Stripe setup and accept the payment policy before publishing availability." },
       { status: 409 },
     );
   }

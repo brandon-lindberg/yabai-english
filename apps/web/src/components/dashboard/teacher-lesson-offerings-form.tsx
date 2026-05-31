@@ -7,6 +7,10 @@ import {
   convertTeacherRateInputBetweenBases,
   taxIncludedRateFromTeacherInput,
 } from "@/lib/teacher-lesson-rate-basis";
+import {
+  MIN_PUBLIC_LESSON_RATE_YEN,
+  validatePublicLessonRateYen,
+} from "@/lib/lesson-rate-policy";
 import { TeacherLessonRateBasisToggle } from "./teacher-lesson-rate-basis-toggle";
 import { TeacherLessonRateTaxBreakdown } from "./teacher-lesson-rate-tax-breakdown";
 
@@ -160,6 +164,10 @@ export function TeacherLessonOfferingsForm({
         return;
       }
       const rate = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
+      if (!validatePublicLessonRateYen(rate).ok) {
+        setStatus("error");
+        return;
+      }
       lessonOfferings.push({
         durationMin: row.durationMin,
         rateYen: rate,
@@ -183,6 +191,10 @@ export function TeacherLessonOfferingsForm({
         return;
       }
       const rate = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
+      if (!validatePublicLessonRateYen(rate).ok) {
+        setStatus("error");
+        return;
+      }
       lessonOfferings.push({
         durationMin: group.durationMin,
         rateYen: rate,
@@ -237,6 +249,11 @@ export function TeacherLessonOfferingsForm({
           </button>
         </div>
         <p className="text-xs text-muted">{t("teacherRatesByDurationHelp")}</p>
+        <p className="text-xs text-muted">
+          {t("teacherMinimumRateHelp", {
+            amount: MIN_PUBLIC_LESSON_RATE_YEN.toLocaleString(),
+          })}
+        </p>
         <p className="text-xs text-muted">{t("teacherLessonTypeForRateHelp")}</p>
 
         <TeacherLessonRateBasisToggle basis={ratePriceBasis} onBasisChange={handleRatePriceBasisChange} />
