@@ -84,4 +84,14 @@ describe("shiftCalendarAnchor", () => {
     const next = shiftCalendarAnchor("2026-04-13T00:00:00.000Z", "week", 1);
     expect(next.startsWith("2026-04-20")).toBe(true);
   });
+
+  test("moves month anchor by one month without skipping short months", () => {
+    const next = shiftCalendarAnchor("2026-05-31T12:00:00.000Z", "month", 1);
+    expect(next.startsWith("2026-06")).toBe(true);
+  });
+
+  test("moves month anchor backward from month-end dates", () => {
+    const next = shiftCalendarAnchor("2026-03-31T12:00:00.000Z", "month", -1);
+    expect(next.startsWith("2026-02")).toBe(true);
+  });
 });

@@ -93,4 +93,41 @@ describe("TeacherAvailabilityGoogleMonth", () => {
     expect(bookingChip.textContent).toMatch(/Reserved/i);
     expect(bookingChip.textContent).toMatch(/Alex Student/);
   });
+
+  test("does not render availability chips when only a booking is provided for a slot time", () => {
+    const anchor = new Date(2026, 5, 10, 12, 0, 0).toISOString();
+    const monthCells = buildMonthCells(anchor, "en-US");
+    const headers = buildWeekdayColumnHeaders("en-US");
+    const sun = "2026-06-07";
+    const m = new Map<string, MonthDaySlotChip[]>();
+    m.set(sun, [
+      {
+        startsAtIso: `${sun}T01:30:00.000Z`,
+        endsAtIso: `${sun}T02:10:00.000Z`,
+        label: "Kana Minami Miura",
+        groupKey: "booking-1",
+        kind: "booking",
+      },
+    ]);
+
+    const { getByTestId, queryByTestId } = render(
+      <TeacherAvailabilityGoogleMonth
+        locale="en-US"
+        monthWeekdayHeaders={headers}
+        monthCells={monthCells}
+        slotsByDay={m}
+        focusedDayKey={sun}
+        selectedStartsAtIso={null}
+        selectedGroupKey={null}
+        onOpenDay={vi.fn()}
+        onSelectSlot={vi.fn()}
+        onCalendarAnchorChange={vi.fn()}
+        selectionStyle="neutral"
+        reservedLabel="Reserved"
+      />,
+    );
+
+    expect(getByTestId("month-booking-chip")).toBeInTheDocument();
+    expect(queryByTestId("month-slot-chip")).toBeNull();
+  });
 });

@@ -22,6 +22,7 @@ import {
   hasSlotMatchingAnchorDay,
 } from "@/lib/slot-calendar";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
+import { filterAvailabilityOverlappingBookings } from "@/lib/teacher-availability-display";
 import { placeSlotsOnDayColumn, placeSlotsOnWeekGrid } from "@/lib/time-grid-week";
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import type { CalendarViewMode } from "@/lib/calendar-view";
@@ -191,6 +192,11 @@ export function TeacherAvailabilityCalendar({
     }));
   }, [rules, teacherTz, skipSet, levelById, typeById, pickLabel]);
 
+  const displayCalendarSlots = useMemo(
+    () => filterAvailabilityOverlappingBookings(calendarSlots, bookings),
+    [calendarSlots, bookings],
+  );
+
   const anchorDayKey = useMemo(() => dayKeyFromIso(calendarAnchor), [calendarAnchor]);
 
   const bookingGridInputs = useMemo(
@@ -207,8 +213,8 @@ export function TeacherAvailabilityCalendar({
   );
 
   const weekAndDayGridInputs = useMemo(
-    () => [...calendarSlots, ...bookingGridInputs],
-    [calendarSlots, bookingGridInputs],
+    () => [...displayCalendarSlots, ...bookingGridInputs],
+    [displayCalendarSlots, bookingGridInputs],
   );
 
   const dayBlocks = useMemo(
@@ -221,7 +227,7 @@ export function TeacherAvailabilityCalendar({
 
   const slotsByDayForMonth = useMemo(() => {
     const m = new Map<string, MonthDaySlotChip[]>();
-    for (const s of calendarSlots) {
+    for (const s of displayCalendarSlots) {
       const dk = dayKeyFromIso(s.startsAtIso);
       const chip: MonthDaySlotChip = {
         startsAtIso: s.startsAtIso,
@@ -251,7 +257,7 @@ export function TeacherAvailabilityCalendar({
       list.sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
     }
     return m;
-  }, [calendarSlots, bookings]);
+  }, [displayCalendarSlots, bookings]);
 
   const weekDays = useMemo(() => buildWeekDays(calendarAnchor, locale), [calendarAnchor, locale]);
 
