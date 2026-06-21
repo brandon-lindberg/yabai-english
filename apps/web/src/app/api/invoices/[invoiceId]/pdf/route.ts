@@ -37,26 +37,19 @@ export async function GET(req: Request, { params }: Props) {
     invoice.student.name ?? invoice.student.email ?? "Student";
   const language = resolveInvoiceLanguage(req.url);
   const dateLocale = language === "ja" ? "ja-JP" : "en-US";
+  const lessonDate = formatInvoiceDisplayDate(invoice.booking.startsAt, dateLocale);
 
   const pdfBytes = await buildInvoicePdf({
     invoiceNo: invoice.invoiceNo,
     amountYen: invoice.amountYen,
-    paidAt: invoice.paidAt.toLocaleDateString(dateLocale, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
+    paidAt: lessonDate,
     studentName,
     className:
       language === "ja"
         ? invoice.booking.lessonProduct.nameJa
         : invoice.booking.lessonProduct.nameEn,
     durationMin: invoice.booking.lessonProduct.durationMin,
-    lessonDate: invoice.booking.startsAt.toLocaleDateString(dateLocale, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
+    lessonDate,
     language,
   });
 
@@ -71,4 +64,13 @@ export async function GET(req: Request, { params }: Props) {
 function resolveInvoiceLanguage(url: string): InvoicePdfLanguage {
   const lang = new URL(url).searchParams.get("lang");
   return lang === "ja" ? "ja" : "en";
+}
+
+function formatInvoiceDisplayDate(date: Date, locale: string): string {
+  return date.toLocaleDateString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "Asia/Tokyo",
+  });
 }
