@@ -4,8 +4,10 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { redirect } from "@/i18n/navigation";
+import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
+import { BookingCalendarRecoveryActions } from "@/components/dashboard/booking-calendar-recovery-actions";
 import { TeacherBookingRescheduleForm } from "@/components/dashboard/teacher-booking-reschedule-form";
 
 export default async function LessonDetailPage({
@@ -143,6 +145,33 @@ export default async function LessonDetailPage({
               </a>
             </div>
           )}
+          {booking.status === "CONFIRMED" && !booking.googleEventId ? (
+            <BookingCalendarRecoveryActions
+              bookingId={booking.id}
+              googleCalendarHref={buildGoogleCalendarUrl({
+                uid: `booking-${booking.id}@english-studio.local`,
+                title: `${booking.lessonProduct.nameEn} (${booking.lessonProduct.nameJa})`,
+                description: `Student: ${booking.student.name ?? booking.student.email}`,
+                location: booking.meetUrl ?? "English Studio lesson",
+                startsAt: booking.startsAt,
+                endsAt: booking.endsAt,
+              })}
+              connectHref={`/api/integrations/google/connect?feature=calendar&returnTo=${encodeURIComponent(
+                `/dashboard/schedule/lessons/${booking.id}`,
+              )}`}
+              canRetryInvite={isTeacher || isAdmin}
+              copy={{
+                title: t("calendarInviteMissingTitle"),
+                body: t("calendarInviteMissingBody"),
+                reconnect: t("reconnectGoogleCalendar"),
+                retry: t("createCalendarInvite"),
+                retrying: t("creatingCalendarInvite"),
+                retrySuccess: t("calendarInviteCreated"),
+                retryError: t("calendarInviteRetryError"),
+                addToGoogleCalendar: t("addToGoogleCalendar"),
+              }}
+            />
+          ) : null}
         </div>
         {(booking.status === "CONFIRMED" || booking.status === "PENDING_PAYMENT") && (
           <div className="mt-4 space-y-4">

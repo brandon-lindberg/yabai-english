@@ -6,7 +6,33 @@ import { prisma } from "@/lib/prisma";
 type MeetEventResult = {
   meetUrl: string | null;
   googleEventId: string | null;
+  errorCode?: string;
+  errorMessage?: string;
 };
+
+function errorMessage(err: unknown) {
+  return err instanceof Error ? err.message : String(err);
+}
+
+async function recordGoogleIntegrationError(
+  userId: string | undefined,
+  code: string,
+  err: unknown,
+) {
+  if (!userId) return;
+  try {
+    await prisma.googleIntegrationAccount.update({
+      where: { userId },
+      data: {
+        lastErrorCode: code,
+        lastErrorMessage: errorMessage(err).slice(0, 2000),
+        lastSyncedAt: new Date(),
+      },
+    });
+  } catch {
+    // Do not let diagnostic persistence break booking confirmation.
+  }
+}
 
 export async function createMeetLessonEvent(params: {
   organizerUserId?: string;
@@ -32,7 +58,12 @@ export async function createMeetLessonEvent(params: {
       }),
     ]);
     if (settings?.autoCreateMeetLink === false || settings?.calendarConnected === false) {
-      return { meetUrl: null, googleEventId: null };
+      return {
+        meetUrl: null,
+        googleEventId: null,
+        errorCode: "GOOGLE_CALENDAR_NOT_CONNECTED",
+        errorMessage: "Google Calendar is not connected.",
+      };
     }
     if (integration?.refreshToken && !integration.revoked) {
       refreshTokenEncrypted = integration.refreshToken;
@@ -43,42 +74,52 @@ export async function createMeetLessonEvent(params: {
   }
 
   if (!refreshTokenEncrypted) {
-    return { meetUrl: null, googleEventId: null };
+    return {
+      meetUrl: null,
+      googleEventId: null,
+      errorCode: "GOOGLE_CALENDAR_NOT_CONNECTED",
+      errorMessage: "Google Calendar is not connected.",
+    };
   }
 
   const clientId = process.env.AUTH_GOOGLE_ID;
   const clientSecret = process.env.AUTH_GOOGLE_SECRET;
   if (!clientId || !clientSecret) {
-    return { meetUrl: null, googleEventId: null };
-  }
-
-  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
-  const refresh = decryptRefreshToken(refreshTokenEncrypted);
-  oauth2Client.setCredentials({ refresh_token: refresh });
-
-  const cal = google.calendar({
-    version: "v3",
-    auth: oauth2Client,
-  });
-
-  const requestId = randomUUID();
-
-  const event: calendar_v3.Schema$Event = {
-    summary: params.summary,
-    start: { dateTime: params.start.toISOString() },
-    end: { dateTime: params.end.toISOString() },
-    attendees: params.attendeeEmails.map((email) => ({ email })),
-  };
-  if (params.createMeetLink !== false) {
-    event.conferenceData = {
-      createRequest: {
-        requestId,
-        conferenceSolutionKey: { type: "hangoutsMeet" },
-      },
+    return {
+      meetUrl: null,
+      googleEventId: null,
+      errorCode: "GOOGLE_CALENDAR_MISCONFIGURED",
+      errorMessage: "Google Calendar OAuth credentials are not configured.",
     };
   }
 
   try {
+    const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+    const refresh = decryptRefreshToken(refreshTokenEncrypted);
+    oauth2Client.setCredentials({ refresh_token: refresh });
+
+    const cal = google.calendar({
+      version: "v3",
+      auth: oauth2Client,
+    });
+
+    const requestId = randomUUID();
+
+    const event: calendar_v3.Schema$Event = {
+      summary: params.summary,
+      start: { dateTime: params.start.toISOString() },
+      end: { dateTime: params.end.toISOString() },
+      attendees: params.attendeeEmails.map((email) => ({ email })),
+    };
+    if (params.createMeetLink !== false) {
+      event.conferenceData = {
+        createRequest: {
+          requestId,
+          conferenceSolutionKey: { type: "hangoutsMeet" },
+        },
+      };
+    }
+
     const created = await cal.events.insert({
       calendarId,
       requestBody: event,
@@ -99,7 +140,17 @@ export async function createMeetLessonEvent(params: {
     };
   } catch (err) {
     console.error("Google Calendar create failed:", err);
-    return { meetUrl: null, googleEventId: null };
+    await recordGoogleIntegrationError(
+      params.organizerUserId,
+      "CALENDAR_CREATE_FAILED",
+      err,
+    );
+    return {
+      meetUrl: null,
+      googleEventId: null,
+      errorCode: "CALENDAR_CREATE_FAILED",
+      errorMessage: errorMessage(err),
+    };
   }
 }
 

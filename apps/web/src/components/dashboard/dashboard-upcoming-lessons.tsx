@@ -63,21 +63,23 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
                     japaneseLabel={t("downloadInvoiceJa")}
                   />
                 )}
-                <a
-                  href={buildGoogleCalendarUrl({
-                    uid: `booking-${b.id}@english-studio.local`,
-                    title: `${b.lessonProduct.nameEn} (${b.lessonProduct.nameJa})`,
-                    description: `${t("teacher")}: ${b.teacher.user.name ?? b.teacher.user.email}`,
-                    location: b.meetUrl ?? "English Studio lesson",
-                    startsAt: b.startsAt,
-                    endsAt: b.endsAt,
-                  })}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground hover:bg-[var(--app-hover)]"
-                >
-                  {t("addToGoogleCalendar")}
-                </a>
+                {b.status === "CONFIRMED" && !b.googleEventId && (
+                  <a
+                    href={buildGoogleCalendarUrl({
+                      uid: `booking-${b.id}@english-studio.local`,
+                      title: `${b.lessonProduct.nameEn} (${b.lessonProduct.nameJa})`,
+                      description: `${t("teacher")}: ${b.teacher.user.name ?? b.teacher.user.email}`,
+                      location: b.meetUrl ?? "English Studio lesson",
+                      startsAt: b.startsAt,
+                      endsAt: b.endsAt,
+                    })}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground hover:bg-[var(--app-hover)]"
+                  >
+                    {t("addToGoogleCalendar")}
+                  </a>
+                )}
                 <a
                   href={`/api/bookings/ics?bookingId=${b.id}`}
                   className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground hover:bg-[var(--app-hover)]"

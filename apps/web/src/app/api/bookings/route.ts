@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
+import { notifyBookingCalendarInviteFailure } from "@/lib/booking-calendar-failure";
 import { buildInvoiceNumber } from "@/lib/invoices";
 import { getBookingPaymentFlow } from "@/lib/payment-flow";
 import { createUserNotification } from "@/lib/notifications";
@@ -407,6 +408,12 @@ export async function POST(req: Request) {
         googleCalendarId: teacher.calendarId ?? "primary",
         meetCode,
       },
+    });
+  } else if (meet.errorCode) {
+    await notifyBookingCalendarInviteFailure({
+      teacherUserId: teacher.userId,
+      studentUserId: session.user.id,
+      reason: meet.errorMessage,
     });
   }
 

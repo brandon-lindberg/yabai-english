@@ -1,7 +1,9 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
+import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
+import { BookingCalendarRecoveryActions } from "@/components/dashboard/booking-calendar-recovery-actions";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 
 type Upcoming = Awaited<ReturnType<typeof getTeacherBookingsForDashboard>>["upcoming"];
@@ -80,6 +82,35 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
               )}
             </div>
           </div>
+          {b.status === "CONFIRMED" && !b.googleEventId ? (
+            <div className="mt-3">
+              <BookingCalendarRecoveryActions
+                bookingId={b.id}
+                googleCalendarHref={buildGoogleCalendarUrl({
+                  uid: `booking-${b.id}@english-studio.local`,
+                  title: `${b.lessonProduct.nameEn} (${b.lessonProduct.nameJa})`,
+                  description: `Student: ${b.student.name ?? b.student.email}`,
+                  location: b.meetUrl ?? "English Studio lesson",
+                  startsAt: b.startsAt,
+                  endsAt: b.endsAt,
+                })}
+                connectHref={`/api/integrations/google/connect?feature=calendar&returnTo=${encodeURIComponent(
+                  `/dashboard/schedule/lessons/${b.id}`,
+                )}`}
+                canRetryInvite
+                copy={{
+                  title: t("calendarInviteMissingTitle"),
+                  body: t("calendarInviteMissingBody"),
+                  reconnect: t("reconnectGoogleCalendar"),
+                  retry: t("createCalendarInvite"),
+                  retrying: t("creatingCalendarInvite"),
+                  retrySuccess: t("calendarInviteCreated"),
+                  retryError: t("calendarInviteRetryError"),
+                  addToGoogleCalendar: t("addToGoogleCalendar"),
+                }}
+              />
+            </div>
+          ) : null}
         </li>
       ))}
     </>
