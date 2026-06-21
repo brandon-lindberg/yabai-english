@@ -3,6 +3,7 @@ import { BookingStatus } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
+import { notifyBookingCalendarInviteFailure } from "@/lib/booking-calendar-failure";
 import { buildInvoiceNumber } from "@/lib/invoices";
 import { createUserNotification } from "@/lib/notifications";
 import { ensureStudentTeacherThread } from "@/lib/chat-threads";
@@ -92,6 +93,13 @@ export async function POST(_req: Request, { params }: Props) {
       teacher: { include: { user: true } },
     },
   });
+  if (!meet.googleEventId && meet.errorCode) {
+    await notifyBookingCalendarInviteFailure({
+      teacherUserId: updated.teacher.userId,
+      studentUserId: updated.studentId,
+      reason: meet.errorMessage,
+    });
+  }
 
   const studentMirrorEvent = await createMeetLessonEvent({
     organizerUserId: session.user.id,
