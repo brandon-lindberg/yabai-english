@@ -152,7 +152,7 @@ export function BookingForm({
   useEffect(() => {
     if (!filteredPresetSlots || !startsAt) return;
     const isSelectedBookable = filteredPresetSlots.some(
-      (slot) => slot.kind !== "booked" && slot.startsAtIso === startsAt,
+      (slot) => !("kind" in slot && slot.kind === "booked") && slot.startsAtIso === startsAt,
     );
     if (!isSelectedBookable) setStartsAt("");
   }, [filteredPresetSlots, startsAt]);
