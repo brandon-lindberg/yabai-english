@@ -26,8 +26,16 @@ export default async function DashboardSchedulePage({
   if (shouldLoadTeacherBookingsOnSchedule(session.user.role)) {
     const profile = await prisma.teacherProfile.findUnique({
       where: { userId: session.user.id },
-      select: { id: true },
+      select: {
+        id: true,
+        availabilitySlots: {
+          where: { active: true },
+          take: 1,
+          select: { timezone: true },
+        },
+      },
     });
+    const teacherTimeZone = profile?.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
 
     const teacherBookings = profile
       ? await getTeacherBookingsForDashboard(prisma, profile.id)
@@ -39,7 +47,10 @@ export default async function DashboardSchedulePage({
         <p className="text-muted">{t("upcomingIntro")}</p>
 
         {teacherBookings.scheduleItems.length > 0 ? (
-          <DashboardScheduleCalendar items={teacherBookings.scheduleItems} />
+          <DashboardScheduleCalendar
+            items={teacherBookings.scheduleItems}
+            timeZone={teacherTimeZone}
+          />
         ) : null}
         <ul className="space-y-4">
           <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
@@ -48,6 +59,11 @@ export default async function DashboardSchedulePage({
     );
   }
 
+  const studentProfile = await prisma.studentProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { timezone: true },
+  });
+  const studentTimeZone = studentProfile?.timezone ?? "Asia/Tokyo";
   const { upcoming, scheduleItems } = await getStudentBookingsForDashboard(prisma, session.user.id);
 
   return (
@@ -56,7 +72,7 @@ export default async function DashboardSchedulePage({
 
       <section>
         <h2 className="mb-3 text-lg font-semibold text-foreground">{td("upcoming")}</h2>
-        <DashboardScheduleCalendar items={scheduleItems} />
+        <DashboardScheduleCalendar items={scheduleItems} timeZone={studentTimeZone} />
         <ul className="mt-4 space-y-4">
           <DashboardUpcomingLessons upcoming={upcoming} />
         </ul>

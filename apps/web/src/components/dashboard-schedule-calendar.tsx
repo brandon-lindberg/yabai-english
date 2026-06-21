@@ -5,7 +5,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CalendarViewControls } from "@/components/calendar-view-controls";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
-import { buildMonthCells, buildWeekDays, buildWeekdayColumnHeaders, dayKeyFromIso } from "@/lib/slot-calendar";
+import {
+  buildMonthCells,
+  buildWeekDays,
+  buildWeekdayColumnHeaders,
+  dayKeyFromIso,
+  formatDayKeyLabel,
+} from "@/lib/slot-calendar";
 
 type DashboardScheduleItem = {
   id: string;
@@ -17,9 +23,18 @@ type DashboardScheduleItem = {
 
 type Props = {
   items: DashboardScheduleItem[];
+  timeZone: string;
 };
 
-export function DashboardScheduleCalendar({ items }: Props) {
+function formatTime(iso: string, locale: string, timeZone: string) {
+  return new Date(iso).toLocaleTimeString(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone,
+  });
+}
+
+export function DashboardScheduleCalendar({ items, timeZone }: Props) {
   const locale = useLocale();
   const isMobile = useIsMobile();
   const t = useTranslations("dashboard");
@@ -29,7 +44,7 @@ export function DashboardScheduleCalendar({ items }: Props) {
   const mapByDay = useMemo(() => {
     const map = new Map<string, DashboardScheduleItem[]>();
     for (const item of items) {
-      const key = dayKeyFromIso(item.startsAtIso);
+      const key = dayKeyFromIso(item.startsAtIso, timeZone);
       const list = map.get(key);
       if (list) list.push(item);
       else map.set(key, [item]);
@@ -38,20 +53,36 @@ export function DashboardScheduleCalendar({ items }: Props) {
       list.sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
     }
     return map;
-  }, [items]);
+  }, [items, timeZone]);
 
-  const anchor = new Date(anchorIso);
-  const anchorKey = dayKeyFromIso(anchorIso);
-  const weekDays = buildWeekDays(anchorIso, locale);
-  const monthCells = buildMonthCells(anchorIso, locale);
+  const anchorKey = dayKeyFromIso(anchorIso, timeZone);
+  const weekDays = buildWeekDays(anchorIso, locale, timeZone);
+  const monthCells = buildMonthCells(anchorIso, locale, timeZone);
   const monthWeekdayHeaders = useMemo(() => buildWeekdayColumnHeaders(locale), [locale]);
 
   const label =
     view === "month"
-      ? anchor.toLocaleDateString(locale, { month: "long", year: "numeric" })
+      ? new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone }).format(
+          new Date(anchorIso),
+        )
       : view === "week"
-        ? `${new Date(`${weekDays[0].dayKey}T00:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric" })} - ${new Date(`${weekDays[6].dayKey}T00:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`
-        : anchor.toLocaleDateString(locale, { weekday: "long", month: "short", day: "numeric", year: "numeric" });
+        ? `${formatDayKeyLabel(
+            weekDays[0].dayKey,
+            locale,
+            { month: "short", day: "numeric" },
+            timeZone,
+          )} - ${formatDayKeyLabel(
+            weekDays[6].dayKey,
+            locale,
+            { month: "short", day: "numeric", year: "numeric" },
+            timeZone,
+          )}`
+        : formatDayKeyLabel(
+            anchorKey,
+            locale,
+            { weekday: "long", month: "short", day: "numeric", year: "numeric" },
+            timeZone,
+          );
 
   return (
     <section className="mt-8 rounded-2xl border border-border bg-surface p-4">
@@ -82,8 +113,8 @@ export function DashboardScheduleCalendar({ items }: Props) {
             >
               <p className="text-sm font-semibold text-foreground">{item.title}</p>
               <p className="text-xs text-muted">
-                {new Date(item.startsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })} -{" "}
-                {new Date(item.endsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })} ·{" "}
+                {formatTime(item.startsAtIso, locale, timeZone)} -{" "}
+                {formatTime(item.endsAtIso, locale, timeZone)} ·{" "}
                 {item.teacherName}
               </p>
             </a>
@@ -101,11 +132,10 @@ export function DashboardScheduleCalendar({ items }: Props) {
           {weekDays.map((day) => {
             const key = day.dayKey;
             const dayItems = mapByDay.get(key) ?? [];
-            const date = new Date(`${day.dayKey}T00:00:00`);
             return (
               <div key={key} className="rounded-lg border border-border bg-surface p-2">
                 <p className="mb-2 border-b border-border pb-1 text-xs font-semibold text-muted">
-                  {day.shortLabel} {date.getDate()}
+                  {day.shortLabel} {Number(day.dayKey.slice(-2))}
                 </p>
                 <div className="space-y-1">
                   {dayItems.slice(0, 4).map((item) => (
@@ -115,10 +145,7 @@ export function DashboardScheduleCalendar({ items }: Props) {
                       className="block rounded-md border border-border bg-muted/25 px-2 py-1.5 text-xs transition hover:bg-muted/40"
                     >
                       <span className="block font-medium text-foreground">
-                        {new Date(item.startsAtIso).toLocaleTimeString(locale, {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {formatTime(item.startsAtIso, locale, timeZone)}
                       </span>
                       <span className="mt-0.5 block text-[11px] font-medium leading-tight text-foreground/70">
                         {t("slotReserved")}
@@ -143,11 +170,10 @@ export function DashboardScheduleCalendar({ items }: Props) {
           {weekDays.map((day) => {
             const key = day.dayKey;
             const dayItems = mapByDay.get(key) ?? [];
-            const date = new Date(`${day.dayKey}T00:00:00`);
             return (
               <div key={key} className="rounded-lg border border-border bg-surface p-3">
                 <p className="mb-1.5 text-sm font-semibold text-foreground">
-                  {day.shortLabel} {date.getDate()}
+                  {day.shortLabel} {Number(day.dayKey.slice(-2))}
                 </p>
                 {dayItems.length === 0 ? (
                   <p className="text-xs text-muted">{t("unavailableShort")}</p>
@@ -160,9 +186,9 @@ export function DashboardScheduleCalendar({ items }: Props) {
                         className="block rounded-md border border-border bg-muted/25 px-2.5 py-1.5 text-xs transition hover:bg-muted/40"
                       >
                         <span className="font-medium text-foreground">
-                          {new Date(item.startsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                          {formatTime(item.startsAtIso, locale, timeZone)}
                           {" - "}
-                          {new Date(item.endsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                          {formatTime(item.endsAtIso, locale, timeZone)}
                         </span>
                         {item.teacherName ? (
                           <span className="ml-2 text-foreground/70">{item.teacherName}</span>
@@ -224,10 +250,7 @@ export function DashboardScheduleCalendar({ items }: Props) {
                           className="w-full truncate rounded-md border border-border bg-muted/20 px-1.5 py-1 text-left text-[10px] font-medium leading-snug transition hover:bg-muted/35"
                         >
                           <span className="block truncate text-foreground">
-                            {new Date(item.startsAtIso).toLocaleTimeString(locale, {
-                              hour: "numeric",
-                              minute: "2-digit",
-                            })}
+                            {formatTime(item.startsAtIso, locale, timeZone)}
                           </span>
                           <span className="mt-0.5 block truncate text-[10px] font-medium leading-tight text-foreground/68">
                             {t("slotReserved")}
@@ -274,7 +297,6 @@ export function DashboardScheduleCalendar({ items }: Props) {
             ) : (
               daysWithLessons.map((cell) => {
                 const dayItems = mapByDay.get(cell.dayKey) ?? [];
-                const cellDate = new Date(`${cell.dayKey}T12:00:00`);
                 return (
                   <div key={cell.dayKey} className="rounded-lg border border-border bg-surface p-3">
                     <button
@@ -285,7 +307,12 @@ export function DashboardScheduleCalendar({ items }: Props) {
                       }}
                       className="mb-1.5 text-sm font-semibold text-foreground hover:underline"
                     >
-                      {cellDate.toLocaleDateString(locale, { weekday: "short", month: "short", day: "numeric" })}
+                      {formatDayKeyLabel(
+                        cell.dayKey,
+                        locale,
+                        { weekday: "short", month: "short", day: "numeric" },
+                        timeZone,
+                      )}
                     </button>
                     <div className="space-y-1.5">
                       {dayItems.map((item) => (
@@ -295,9 +322,9 @@ export function DashboardScheduleCalendar({ items }: Props) {
                           className="block rounded-md border border-border bg-muted/25 px-2.5 py-1.5 text-xs transition hover:bg-muted/40"
                         >
                           <span className="font-medium text-foreground">
-                            {new Date(item.startsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                            {formatTime(item.startsAtIso, locale, timeZone)}
                             {" - "}
-                            {new Date(item.endsAtIso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                            {formatTime(item.endsAtIso, locale, timeZone)}
                           </span>
                           {item.teacherName ? (
                             <span className="ml-2 text-foreground/70">{item.teacherName}</span>

@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 export type SlotOption = {
   startsAtIso: string;
   /** When set, month (and other compact) views can show a start–end time range. */
@@ -29,7 +31,12 @@ export type CalendarMonthCell = CalendarDay & {
   inCurrentMonth: boolean;
 };
 
-function toDayKey(date: Date) {
+function toDayKey(date: Date, timeZone?: string) {
+  if (timeZone) {
+    return DateTime.fromJSDate(date, { zone: "utc" })
+      .setZone(timeZone)
+      .toISODate()!;
+  }
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
@@ -40,8 +47,28 @@ function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-export function dayKeyFromIso(iso: string) {
-  return toDayKey(new Date(iso));
+function localDateTimeFromIso(iso: string, timeZone?: string) {
+  return DateTime.fromISO(iso, { zone: "utc" }).setZone(timeZone ?? "local");
+}
+
+export function formatDayKeyLabel(
+  dayKey: string,
+  locale: string,
+  options: Intl.DateTimeFormatOptions,
+  timeZone?: string,
+) {
+  if (timeZone) {
+    return DateTime.fromISO(dayKey, { zone: timeZone })
+      .setLocale(locale)
+      .toLocaleString(options);
+  }
+  return new Date(`${dayKey}T12:00:00.000Z`).toLocaleDateString(locale, {
+    ...options,
+  });
+}
+
+export function dayKeyFromIso(iso: string, timeZone?: string) {
+  return toDayKey(new Date(iso), timeZone);
 }
 
 /** True if any slot falls on the same local calendar day as `calendarAnchorIso`. */
@@ -85,7 +112,69 @@ export function groupSlotsByDay(slots: SlotOption[], locale: string) {
   return [...map.values()].sort((a, b) => a.dayKey.localeCompare(b.dayKey));
 }
 
-export function buildWeekDays(anchorIso: string, locale: string): CalendarDay[] {
+export function groupSlotsByDayInTimeZone(
+  slots: SlotOption[],
+  locale: string,
+  timeZone: string,
+) {
+  const map = new Map<string, SlotDayGroup>();
+
+  for (const slot of slots) {
+    const dayKey = dayKeyFromIso(slot.startsAtIso, timeZone);
+    const dayLabel = formatDayKeyLabel(
+      dayKey,
+      locale,
+      {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      },
+      timeZone,
+    );
+    const existing = map.get(dayKey);
+    if (existing) {
+      existing.slots.push(slot);
+    } else {
+      map.set(dayKey, { dayKey, dayLabel, slots: [slot] });
+    }
+  }
+
+  return [...map.values()].sort((a, b) => a.dayKey.localeCompare(b.dayKey));
+}
+
+export function buildWeekDays(anchorIso: string, locale: string, timeZone?: string): CalendarDay[] {
+  if (timeZone) {
+    const anchor = localDateTimeFromIso(anchorIso, timeZone).startOf("day");
+    const offsetToMonday = (anchor.weekday + 6) % 7;
+    const monday = anchor.minus({ days: offsetToMonday });
+
+    return Array.from({ length: 7 }, (_, index) => {
+      const day = monday.plus({ days: index });
+      const dayKey = day.toISODate()!;
+      return {
+        dayKey,
+        dayLabel: formatDayKeyLabel(
+          dayKey,
+          locale,
+          {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          },
+          timeZone,
+        ),
+        shortLabel: formatDayKeyLabel(
+          dayKey,
+          locale,
+          {
+            weekday: "short",
+          },
+          timeZone,
+        ),
+      };
+    });
+  }
+
   const anchor = startOfDay(new Date(anchorIso));
   const offsetToMonday = (anchor.getDay() + 6) % 7;
   const monday = new Date(anchor);
@@ -108,7 +197,34 @@ export function buildWeekDays(anchorIso: string, locale: string): CalendarDay[] 
   });
 }
 
-export function buildMonthCells(anchorIso: string, locale: string): CalendarMonthCell[] {
+export function buildMonthCells(anchorIso: string, locale: string, timeZone?: string): CalendarMonthCell[] {
+  if (timeZone) {
+    const anchor = localDateTimeFromIso(anchorIso, timeZone).startOf("day");
+    const firstOfMonth = anchor.startOf("month");
+    const offsetToMonday = (firstOfMonth.weekday + 6) % 7;
+    const gridStart = firstOfMonth.minus({ days: offsetToMonday });
+
+    return Array.from({ length: 42 }, (_, index) => {
+      const day = gridStart.plus({ days: index });
+      const dayKey = day.toISODate()!;
+      return {
+        dayKey,
+        dayLabel: formatDayKeyLabel(
+          dayKey,
+          locale,
+          {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          },
+          timeZone,
+        ),
+        shortLabel: String(day.day),
+        inCurrentMonth: day.month === anchor.month,
+      };
+    });
+  }
+
   const anchor = startOfDay(new Date(anchorIso));
   const firstOfMonth = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
   const offsetToMonday = (firstOfMonth.getDay() + 6) % 7;

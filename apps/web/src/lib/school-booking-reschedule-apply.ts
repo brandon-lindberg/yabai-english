@@ -6,6 +6,7 @@ import { patchMeetLessonEvent } from "@/lib/google-calendar";
 import { createUserNotification } from "@/lib/notifications";
 import { schoolClassRescheduledNotification } from "@/lib/reschedule-notification-copy";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
+import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 
 /** Shape required to validate conflicts and apply a school booking time change. */
 export type SchoolBookingReschedulePayload = {
@@ -95,8 +96,8 @@ export async function getSchoolBookingRescheduleConflictError(
   if (teacherSchoolSlots.length > 0) {
     const slotsForConflict = teacherSchoolSlots.map((s) => ({
       ...s,
-      startsOn: s.startsOn ? s.startsOn.toISOString().slice(0, 10) : null,
-      endsOn: s.endsOn ? s.endsOn.toISOString().slice(0, 10) : null,
+      startsOn: dateOnlyInZone(s.startsOn, s.timezone),
+      endsOn: dateOnlyInZone(s.endsOn, s.timezone),
     }));
     const slotOverlap = findOccurrenceConflict(
       slotsForConflict,

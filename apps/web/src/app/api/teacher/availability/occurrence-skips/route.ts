@@ -3,15 +3,12 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
+import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 
 const bodySchema = z.object({
   slotId: z.string().min(1),
   startsAtIso: z.string().min(10),
 });
-
-function dateOnlyFromDate(value: Date | null | undefined): string | null {
-  return value ? value.toISOString().slice(0, 10) : null;
-}
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -62,8 +59,8 @@ export async function POST(req: Request) {
       endMin: s.endMin,
       timezone: s.timezone,
       recurrence: s.recurrence,
-      startsOn: dateOnlyFromDate(s.startsOn),
-      endsOn: dateOnlyFromDate(s.endsOn),
+      startsOn: dateOnlyInZone(s.startsOn, s.timezone),
+      endsOn: dateOnlyInZone(s.endsOn, s.timezone),
       classLevelId: s.classLevelId,
       classTypeId: s.classTypeId,
     })),

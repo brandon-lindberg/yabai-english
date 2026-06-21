@@ -325,8 +325,38 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
         expect.objectContaining({
           teacherId: "tp-1",
           recurrence: "ONE_OFF",
-          startsOn: new Date("2026-05-15T00:00:00.000Z"),
-          endsOn: new Date("2026-05-15T00:00:00.000Z"),
+          startsOn: new Date("2026-05-14T15:00:00.000Z"),
+          endsOn: new Date("2026-05-14T15:00:00.000Z"),
+        }),
+      ],
+    });
+  });
+
+  test("persists teacher date bounds as local midnight in the selected timezone", async () => {
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 0,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          timezone: "America/New_York",
+          recurrence: "ONE_OFF",
+          startsOn: "2026-07-05",
+          endsOn: "2026-07-05",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(200);
+    expect(availabilityCreateManyMock).toHaveBeenCalledWith({
+      data: [
+        expect.objectContaining({
+          timezone: "America/New_York",
+          startsOn: new Date("2026-07-05T04:00:00.000Z"),
+          endsOn: new Date("2026-07-05T04:00:00.000Z"),
         }),
       ],
     });

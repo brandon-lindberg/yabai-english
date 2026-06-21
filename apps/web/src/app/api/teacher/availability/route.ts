@@ -5,11 +5,7 @@ import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import { deriveMissingOfferingsFromSchedule } from "@/lib/schedule-offering-sync";
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
-
-function parseDateOnly(value: string | null | undefined): Date | null {
-  if (!value) return null;
-  return new Date(`${value}T00:00:00.000Z`);
-}
+import { dateOnlyToUtcDateInZone } from "@/lib/date-only-in-zone";
 
 export async function GET() {
   const session = await auth();
@@ -176,8 +172,8 @@ export async function PATCH(req: Request) {
           endMin: slot.endMin,
           timezone: slot.timezone,
           recurrence: slot.recurrence ?? "WEEKLY",
-          startsOn: parseDateOnly(slot.startsOn),
-          endsOn: parseDateOnly(slot.endsOn),
+          startsOn: dateOnlyToUtcDateInZone(slot.startsOn, slot.timezone),
+          endsOn: dateOnlyToUtcDateInZone(slot.endsOn, slot.timezone),
           classLevelId: slot.classLevelId,
           classTypeId: slot.classTypeId,
           teacherLessonOfferingId: slot.teacherLessonOfferingId,

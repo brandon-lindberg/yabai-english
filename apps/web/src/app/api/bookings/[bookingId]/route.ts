@@ -10,6 +10,7 @@ import { patchMeetLessonEvent } from "@/lib/google-calendar";
 import { createUserNotification } from "@/lib/notifications";
 import { marketplaceBookingRescheduledNotification } from "@/lib/reschedule-notification-copy";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
+import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 
 const patchBodySchema = z.object({
   startsAt: z.string().datetime(),
@@ -139,8 +140,8 @@ export async function PATCH(req: Request, { params }: Props) {
   if (teacherSchoolSlots.length > 0) {
     const slotsForConflict = teacherSchoolSlots.map((s) => ({
       ...s,
-      startsOn: s.startsOn ? s.startsOn.toISOString().slice(0, 10) : null,
-      endsOn: s.endsOn ? s.endsOn.toISOString().slice(0, 10) : null,
+      startsOn: dateOnlyInZone(s.startsOn, s.timezone),
+      endsOn: dateOnlyInZone(s.endsOn, s.timezone),
     }));
     const schoolConflict = findOccurrenceConflict(
       slotsForConflict,

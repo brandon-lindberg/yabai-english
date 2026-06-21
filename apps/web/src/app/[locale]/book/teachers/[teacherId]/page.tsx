@@ -18,15 +18,12 @@ import { buildLocalizedTeacherProfilePath } from "@/lib/teacher-card-href";
 import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
+import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
   searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
 };
-
-function dateOnlyFromDate(value: Date | null | undefined): string | null {
-  return value ? value.toISOString().slice(0, 10) : null;
-}
 
 export default async function TeacherProfileBookingPage({
   params,
@@ -172,8 +169,8 @@ export default async function TeacherProfileBookingPage({
       endMin: slot.endMin,
       timezone: slot.timezone,
       recurrence: slot.recurrence,
-      startsOn: dateOnlyFromDate(slot.startsOn),
-      endsOn: dateOnlyFromDate(slot.endsOn),
+      startsOn: dateOnlyInZone(slot.startsOn, slot.timezone),
+      endsOn: dateOnlyInZone(slot.endsOn, slot.timezone),
       classLevelId: slot.classLevelId,
       classTypeId: slot.classTypeId,
     })),
