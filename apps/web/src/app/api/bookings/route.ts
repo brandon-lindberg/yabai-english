@@ -18,6 +18,7 @@ import {
   teacherHasOfferingForProduct,
 } from "@/lib/lesson-products";
 import { resolveQuotedPriceYen } from "@/lib/booking-price-resolution";
+import { bookingStartMatchesTeacherAvailability } from "@/lib/booking-availability-match";
 import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
@@ -110,8 +111,20 @@ export async function POST(req: Request) {
             lessonOfferings: { include: { classType: true } },
             availabilitySlots: {
               where: { active: true },
-              take: 1,
-              select: { timezone: true },
+              select: {
+                dayOfWeek: true,
+                startMin: true,
+                endMin: true,
+                timezone: true,
+                recurrence: true,
+                startsOn: true,
+                endsOn: true,
+                classTypeId: true,
+                teacherLessonOfferingId: true,
+              },
+            },
+            availabilityOccurrenceSkips: {
+              select: { startsAtIso: true },
             },
           },
         })
@@ -130,8 +143,20 @@ export async function POST(req: Request) {
         lessonOfferings: { include: { classType: true } },
         availabilitySlots: {
           where: { active: true },
-          take: 1,
-          select: { timezone: true },
+          select: {
+            dayOfWeek: true,
+            startMin: true,
+            endMin: true,
+            timezone: true,
+            recurrence: true,
+            startsOn: true,
+            endsOn: true,
+            classTypeId: true,
+            teacherLessonOfferingId: true,
+          },
+        },
+        availabilityOccurrenceSkips: {
+          select: { startsAtIso: true },
         },
       },
     }));
@@ -192,6 +217,30 @@ export async function POST(req: Request) {
   if (!selectedOffering && !teacherHasOfferingForProduct(teacher.lessonOfferings, product)) {
     return NextResponse.json(
       { error: "This teacher does not offer this lesson type." },
+      { status: 409 },
+    );
+  }
+
+  if (
+    Array.isArray(teacher.availabilitySlots) &&
+    !bookingStartMatchesTeacherAvailability({
+      availabilitySlots: teacher.availabilitySlots,
+      startsAt: start,
+      durationMin: product.durationMin,
+      selectedOffering: selectedOffering
+        ? {
+            id: selectedOffering.id,
+            durationMin: selectedOffering.durationMin,
+            classTypeId: selectedOffering.classTypeId,
+          }
+        : null,
+      skippedStartsAtIso: new Set(
+        (teacher.availabilityOccurrenceSkips ?? []).map((skip) => skip.startsAtIso),
+      ),
+    })
+  ) {
+    return NextResponse.json(
+      { error: "Selected time is no longer available." },
       { status: 409 },
     );
   }
