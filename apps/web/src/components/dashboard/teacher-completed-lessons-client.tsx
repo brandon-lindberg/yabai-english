@@ -125,29 +125,35 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
           if (viewMode === "list") {
             return (
               <li key={lesson.id} id={`booking-${lesson.id}`} className="bg-surface">
-                <button
-                  type="button"
-                  id={headerId}
-                  aria-expanded={expanded}
-                  aria-controls={panelId}
-                  onClick={() => toggle(lesson.id)}
-                  className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-[var(--app-hover)]"
-                >
-                  <span className="mt-0.5 shrink-0 text-muted" aria-hidden>
-                    {expanded ? "▼" : "▶"}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-foreground">{lesson.studentDisplay}</p>
-                    <p className="truncate text-sm text-muted">{title}</p>
-                    <p className="text-xs text-muted">{range}</p>
-                    {lesson.invoiceId ? <LessonInvoiceLinks invoiceId={lesson.invoiceId} /> : null}
-                    {lesson.hasSavedContent ? (
-                      <span className="mt-1 inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
-                        {t("completedLessonsHasNotes")}
-                      </span>
-                    ) : null}
-                  </div>
-                </button>
+                <div className="px-4 py-3 hover:bg-[var(--app-hover)]">
+                  <button
+                    type="button"
+                    id={headerId}
+                    aria-expanded={expanded}
+                    aria-controls={panelId}
+                    onClick={() => toggle(lesson.id)}
+                    className="flex w-full items-start gap-3 text-left"
+                  >
+                    <span className="mt-0.5 shrink-0 text-muted" aria-hidden>
+                      {expanded ? "▼" : "▶"}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-foreground">{lesson.studentDisplay}</p>
+                      <p className="truncate text-sm text-muted">{title}</p>
+                      <p className="text-xs text-muted">{range}</p>
+                      {lesson.hasSavedContent ? (
+                        <span className="mt-1 inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
+                          {t("completedLessonsHasNotes")}
+                        </span>
+                      ) : null}
+                    </div>
+                  </button>
+                  {lesson.invoiceId ? (
+                    <div className="pl-7">
+                      <LessonInvoiceLinks invoiceId={lesson.invoiceId} />
+                    </div>
+                  ) : null}
+                </div>
                 {expanded ? (
                   <div id={panelId} className="border-t border-border bg-background/40 px-4 py-3 pl-11">
                     {hasGoogleRecap ? (
@@ -200,31 +206,37 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
               id={`booking-${lesson.id}`}
               className="min-w-0 rounded-2xl border border-border bg-surface shadow-sm"
             >
-              <button
-                type="button"
-                id={headerId}
-                aria-expanded={expanded}
-                aria-controls={panelId}
-                onClick={() => toggle(lesson.id)}
-                className="flex w-full items-start gap-3 p-4 text-left hover:bg-[var(--app-hover)]"
-              >
-                <span className="mt-1 shrink-0 text-muted" aria-hidden>
-                  {expanded ? "▼" : "▶"}
-                </span>
-                <div className="min-w-0 flex-1 space-y-1">
-                  <p className="font-medium text-foreground">{title}</p>
-                  <p className="text-sm text-muted">{range}</p>
-                  <p className="text-sm text-muted">
-                    {t("studentLabel")}: {lesson.studentDisplay}
-                  </p>
-                  {lesson.invoiceId ? <LessonInvoiceLinks invoiceId={lesson.invoiceId} /> : null}
-                  {lesson.hasSavedContent ? (
-                    <span className="inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
-                      {t("completedLessonsHasNotes")}
-                    </span>
-                  ) : null}
-                </div>
-              </button>
+              <div className="p-4 hover:bg-[var(--app-hover)]">
+                <button
+                  type="button"
+                  id={headerId}
+                  aria-expanded={expanded}
+                  aria-controls={panelId}
+                  onClick={() => toggle(lesson.id)}
+                  className="flex w-full items-start gap-3 text-left"
+                >
+                  <span className="mt-1 shrink-0 text-muted" aria-hidden>
+                    {expanded ? "▼" : "▶"}
+                  </span>
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <p className="font-medium text-foreground">{title}</p>
+                    <p className="text-sm text-muted">{range}</p>
+                    <p className="text-sm text-muted">
+                      {t("studentLabel")}: {lesson.studentDisplay}
+                    </p>
+                    {lesson.hasSavedContent ? (
+                      <span className="inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
+                        {t("completedLessonsHasNotes")}
+                      </span>
+                    ) : null}
+                  </div>
+                </button>
+                {lesson.invoiceId ? (
+                  <div className="pl-7">
+                    <LessonInvoiceLinks invoiceId={lesson.invoiceId} />
+                  </div>
+                ) : null}
+              </div>
               {expanded ? (
                 <div id={panelId} className="border-t border-border px-4 pb-4 pt-3">
                   {hasGoogleRecap ? (

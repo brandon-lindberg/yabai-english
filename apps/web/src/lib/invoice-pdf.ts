@@ -90,7 +90,7 @@ export async function buildInvoicePdf(input: {
   const page = doc.addPage([595, 842]); // A4
   const language = input.language ?? "en";
   const copy = invoiceCopy[language];
-  const { font, fontBold } = await loadInvoiceFonts(doc, language);
+  const { font, fontBold, latinFont } = await loadInvoiceFonts(doc, language);
 
   const { width, height } = page.getSize();
   const margin = 50;
@@ -145,13 +145,7 @@ export async function buildInvoicePdf(input: {
     font: fontBold,
     color: navy,
   });
-  page.drawText(input.invoiceNo, {
-    x: width - margin - 110,
-    y: y - 28,
-    size: 10,
-    font,
-    color: black,
-  });
+  drawRightText(input.invoiceNo, width - margin, y - 28, 10, latinFont, black);
 
   y -= 72;
   page.drawLine({
@@ -373,11 +367,12 @@ export async function buildInvoicePdf(input: {
 async function loadInvoiceFonts(
   doc: PDFDocument,
   language: InvoicePdfLanguage,
-): Promise<{ font: PDFFont; fontBold: PDFFont }> {
+): Promise<{ font: PDFFont; fontBold: PDFFont; latinFont: PDFFont; latinFontBold: PDFFont }> {
+  const latinFont = await doc.embedFont(StandardFonts.Helvetica);
+  const latinFontBold = await doc.embedFont(StandardFonts.HelveticaBold);
+
   if (language === "en") {
-    const font = await doc.embedFont(StandardFonts.Helvetica);
-    const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
-    return { font, fontBold };
+    return { font: latinFont, fontBold: latinFontBold, latinFont, latinFontBold };
   }
 
   doc.registerFontkit(fontkit);
@@ -392,5 +387,5 @@ async function loadInvoiceFonts(
   const font = await doc.embedFont(regularBytes, { subset: false });
   const fontBold = await doc.embedFont(boldBytes, { subset: false });
 
-  return { font, fontBold };
+  return { font, fontBold, latinFont, latinFontBold };
 }

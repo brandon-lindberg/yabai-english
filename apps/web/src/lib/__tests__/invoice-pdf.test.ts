@@ -7,6 +7,7 @@ const { drawnTexts, drawnTextCalls } = vi.hoisted(() => ({
     x: number;
     size: number;
     width: number;
+    fontName: string;
   }>,
 }));
 
@@ -22,24 +23,39 @@ vi.mock("pdf-lib", () => ({
             options: {
               x: number;
               size: number;
-              font: { widthOfTextAtSize: (value: string, size: number) => number };
+              font: {
+                fontName?: string;
+                widthOfTextAtSize: (value: string, size: number) => number;
+              };
             },
           ) => {
-          drawnTexts.push(text);
+            drawnTexts.push(text);
             drawnTextCalls.push({
               text,
               x: options.x,
               size: options.size,
               width: options.font.widthOfTextAtSize(text, options.size),
+              fontName: options.font.fontName ?? "unknown",
             });
           },
         ),
         drawLine: vi.fn(),
         drawRectangle: vi.fn(),
       })),
-      embedFont: vi.fn(async () => ({
-        widthOfTextAtSize: (text: string, size: number) => text.length * size * 0.5,
-      })),
+      embedFont: vi.fn(async (fontSource: string | Uint8Array) => {
+        const fontName =
+          fontSource === "Helvetica"
+            ? "Helvetica"
+            : fontSource === "HelveticaBold"
+              ? "HelveticaBold"
+              : "Japanese";
+        const widthFactor = fontName.startsWith("Helvetica") ? 0.5 : 1.2;
+        return {
+          fontName,
+          widthOfTextAtSize: (text: string, size: number) =>
+            text.length * size * widthFactor,
+        };
+      }),
       save: vi.fn(async () => new Uint8Array([1, 2, 3])),
     })),
   },
@@ -135,5 +151,26 @@ describe("buildInvoicePdf", () => {
         "金額はすべて日本円 (JPY) です。",
       ]),
     );
+  });
+
+  test("keeps long Japanese invoice numbers inside the page using a Latin font", async () => {
+    const invoiceNo = "INV-20260621-235959-ABCDEFGH";
+
+    await buildInvoicePdf({
+      invoiceNo,
+      amountYen: 3300,
+      paidAt: "2026年6月21日",
+      studentName: "田中 ゆき",
+      className: "初級英会話",
+      durationMin: 30,
+      lessonDate: "2026年6月21日",
+      language: "ja",
+    });
+
+    const invoiceNoCall = drawnTextCalls.find((call) => call.text === invoiceNo);
+
+    expect(invoiceNoCall).toBeDefined();
+    expect(invoiceNoCall!.fontName).toBe("Helvetica");
+    expect(invoiceNoCall!.x + invoiceNoCall!.width).toBeLessThanOrEqual(545);
   });
 });
