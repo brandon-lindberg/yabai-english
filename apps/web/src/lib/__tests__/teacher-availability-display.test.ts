@@ -60,4 +60,26 @@ describe("filterAvailabilityOverlappingBookings", () => {
     ];
     expect(filterAvailabilityOverlappingBookings(availability, [])).toEqual(availability);
   });
+
+  test("can hide legacy timezone-shifted duplicate availability for teacher calendar display", () => {
+    const availability = [
+      {
+        startsAtIso: "2026-07-04T16:30:00.000Z",
+        endsAtIso: "2026-07-04T17:10:00.000Z",
+        label: "legacy shifted open slot",
+      },
+    ];
+    const bookings = [
+      {
+        startsAtIso: "2026-07-05T01:30:00.000Z",
+        endsAtIso: "2026-07-05T02:10:00.000Z",
+      },
+    ];
+
+    expect(
+      filterAvailabilityOverlappingBookings(availability, bookings, {
+        timezoneShiftCompatibility: { timeZone: "Asia/Tokyo" },
+      }),
+    ).toEqual([]);
+  });
 });

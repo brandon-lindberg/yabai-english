@@ -251,8 +251,11 @@ export function TeacherAvailabilityCalendar({
   }, [rules, teacherTz, skipSet, levelById, typeById, pickLabel]);
 
   const displayCalendarSlots = useMemo(
-    () => filterAvailabilityOverlappingBookings(calendarSlots, bookings),
-    [calendarSlots, bookings],
+    () =>
+      filterAvailabilityOverlappingBookings(calendarSlots, bookings, {
+        timezoneShiftCompatibility: { timeZone: teacherTz },
+      }),
+    [calendarSlots, bookings, teacherTz],
   );
 
   const anchorDayKey = useMemo(

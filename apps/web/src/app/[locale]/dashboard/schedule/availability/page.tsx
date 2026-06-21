@@ -95,12 +95,14 @@ export default async function DashboardScheduleAvailabilityPage({
         classLevels={profile.classLevels}
         classTypes={profile.classTypes}
         lessonOfferings={profile.lessonOfferings}
-        bookings={teacherBookings.upcoming.map((b) => ({
-          id: b.id,
-          startsAtIso: b.startsAt.toISOString(),
-          endsAtIso: b.endsAt.toISOString(),
-          studentLabel: b.student.name ?? b.student.email ?? "Student",
-        }))}
+        bookings={teacherBookings.bookings
+          .filter((b) => b.status !== "CANCELLED")
+          .map((b) => ({
+            id: b.id,
+            startsAtIso: b.startsAt.toISOString(),
+            endsAtIso: b.endsAt.toISOString(),
+            studentLabel: b.student.name ?? b.student.email ?? "Student",
+          }))}
       />
     </div>
   );
