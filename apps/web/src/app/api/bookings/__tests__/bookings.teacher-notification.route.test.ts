@@ -72,7 +72,20 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
           lessonType: "conversation",
         },
       ],
-      availabilitySlots: [{ timezone: "Asia/Tokyo" }],
+      availabilitySlots: [
+        {
+          dayOfWeek: 6,
+          startMin: 9 * 60,
+          endMin: 9 * 60 + 20,
+          timezone: "Asia/Tokyo",
+          recurrence: "WEEKLY",
+          startsOn: null,
+          endsOn: null,
+          classTypeId: null,
+          teacherLessonOfferingId: null,
+        },
+      ],
+      availabilityOccurrenceSkips: [],
       user: { email: "teacher@example.com", organizationMemberships: [] },
     });
     prismaMock.teacherRosterEntry.findFirst.mockResolvedValue(null);
@@ -173,7 +186,20 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
           lessonType: "grammar",
         },
       ],
-      availabilitySlots: [{ timezone: "Asia/Tokyo" }],
+      availabilitySlots: [
+        {
+          dayOfWeek: 6,
+          startMin: 9 * 60,
+          endMin: 9 * 60 + 30,
+          timezone: "Asia/Tokyo",
+          recurrence: "WEEKLY",
+          startsOn: null,
+          endsOn: null,
+          classTypeId: null,
+          teacherLessonOfferingId: null,
+        },
+      ],
+      availabilityOccurrenceSkips: [],
       user: { email: "teacher@example.com", organizationMemberships: [] },
     });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
