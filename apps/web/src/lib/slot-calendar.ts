@@ -67,6 +67,16 @@ export function formatDayKeyLabel(
   });
 }
 
+export function dayKeyToIsoAtNoon(dayKey: string, timeZone?: string) {
+  if (timeZone) {
+    return DateTime.fromISO(dayKey, { zone: timeZone })
+      .set({ hour: 12, minute: 0, second: 0, millisecond: 0 })
+      .toUTC()
+      .toISO()!;
+  }
+  return `${dayKey}T00:00:00.000Z`;
+}
+
 export function dayKeyFromIso(iso: string, timeZone?: string) {
   return toDayKey(new Date(iso), timeZone);
 }
@@ -75,9 +85,10 @@ export function dayKeyFromIso(iso: string, timeZone?: string) {
 export function hasSlotMatchingAnchorDay(
   slots: { startsAtIso: string }[],
   calendarAnchorIso: string,
+  timeZone?: string,
 ): boolean {
-  const anchorDayKey = dayKeyFromIso(calendarAnchorIso);
-  return slots.some((s) => dayKeyFromIso(s.startsAtIso) === anchorDayKey);
+  const anchorDayKey = dayKeyFromIso(calendarAnchorIso, timeZone);
+  return slots.some((s) => dayKeyFromIso(s.startsAtIso, timeZone) === anchorDayKey);
 }
 
 /** Monday → Sunday short weekday names for column headers (locale-aware). */

@@ -18,7 +18,9 @@ import {
   buildMonthCells,
   buildWeekdayColumnHeaders,
   buildWeekDays,
+  dayKeyToIsoAtNoon,
   dayKeyFromIso,
+  formatDayKeyLabel,
   hasSlotMatchingAnchorDay,
 } from "@/lib/slot-calendar";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
@@ -197,6 +199,15 @@ export function TeacherAvailabilityCalendar({
   }, [initialOccurrenceSkips]);
 
   const teacherTz = rules[0]?.timezone ?? defaultTimezone;
+  const formatCalendarTime = useCallback(
+    (iso: string) =>
+      new Date(iso).toLocaleTimeString(locale, {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: teacherTz,
+      }),
+    [locale, teacherTz],
+  );
 
   const skipSet = useMemo(() => new Set(occurrenceSkips), [occurrenceSkips]);
 
@@ -244,7 +255,10 @@ export function TeacherAvailabilityCalendar({
     [calendarSlots, bookings],
   );
 
-  const anchorDayKey = useMemo(() => dayKeyFromIso(calendarAnchor), [calendarAnchor]);
+  const anchorDayKey = useMemo(
+    () => dayKeyFromIso(calendarAnchor, teacherTz),
+    [calendarAnchor, teacherTz],
+  );
 
   const bookingGridInputs = useMemo(
     () =>
@@ -265,17 +279,20 @@ export function TeacherAvailabilityCalendar({
   );
 
   const dayBlocks = useMemo(
-    () => placeSlotsOnDayColumn(anchorDayKey, weekAndDayGridInputs),
-    [anchorDayKey, weekAndDayGridInputs],
+    () => placeSlotsOnDayColumn(anchorDayKey, weekAndDayGridInputs, teacherTz),
+    [anchorDayKey, weekAndDayGridInputs, teacherTz],
   );
 
-  const monthCells = useMemo(() => buildMonthCells(calendarAnchor, locale), [calendarAnchor, locale]);
+  const monthCells = useMemo(
+    () => buildMonthCells(calendarAnchor, locale, teacherTz),
+    [calendarAnchor, locale, teacherTz],
+  );
   const monthWeekdayHeaders = useMemo(() => buildWeekdayColumnHeaders(locale), [locale]);
 
   const slotsByDayForMonth = useMemo(() => {
     const m = new Map<string, MonthDaySlotChip[]>();
     for (const s of displayCalendarSlots) {
-      const dk = dayKeyFromIso(s.startsAtIso);
+      const dk = dayKeyFromIso(s.startsAtIso, teacherTz);
       const chip: MonthDaySlotChip = {
         startsAtIso: s.startsAtIso,
         endsAtIso: s.endsAtIso,
@@ -288,7 +305,7 @@ export function TeacherAvailabilityCalendar({
       else m.set(dk, [chip]);
     }
     for (const b of bookings) {
-      const dk = dayKeyFromIso(b.startsAtIso);
+      const dk = dayKeyFromIso(b.startsAtIso, teacherTz);
       const chip: MonthDaySlotChip = {
         startsAtIso: b.startsAtIso,
         endsAtIso: b.endsAtIso,
@@ -304,13 +321,16 @@ export function TeacherAvailabilityCalendar({
       list.sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
     }
     return m;
-  }, [displayCalendarSlots, bookings]);
+  }, [displayCalendarSlots, bookings, teacherTz]);
 
-  const weekDays = useMemo(() => buildWeekDays(calendarAnchor, locale), [calendarAnchor, locale]);
+  const weekDays = useMemo(
+    () => buildWeekDays(calendarAnchor, locale, teacherTz),
+    [calendarAnchor, locale, teacherTz],
+  );
 
   const blocksByDay = useMemo(
-    () => placeSlotsOnWeekGrid(weekDays.map((d) => d.dayKey), weekAndDayGridInputs),
-    [weekDays, weekAndDayGridInputs],
+    () => placeSlotsOnWeekGrid(weekDays.map((d) => d.dayKey), weekAndDayGridInputs, teacherTz),
+    [weekDays, weekAndDayGridInputs, teacherTz],
   );
 
   const weekTimeGrid = useMemo(
@@ -330,6 +350,7 @@ export function TeacherAvailabilityCalendar({
         onAddForDayKey={addForDayKey}
         selectionStyle="neutral"
         reservedBookingLabel={td("slotReserved")}
+        timeZone={teacherTz}
       />
     ),
     [
@@ -341,6 +362,7 @@ export function TeacherAvailabilityCalendar({
       t,
       addForDayKey,
       td,
+      teacherTz,
     ],
   );
 
@@ -362,24 +384,31 @@ export function TeacherAvailabilityCalendar({
   );
 
   const hasSlotsOnFocusDay = useMemo(
-    () => hasSlotMatchingAnchorDay(calendarSlots, calendarAnchor),
-    [calendarSlots, calendarAnchor],
+    () => hasSlotMatchingAnchorDay(calendarSlots, calendarAnchor, teacherTz),
+    [calendarSlots, calendarAnchor, teacherTz],
   );
 
   const focusDateLabel = useMemo(() => {
-    const dk = dayKeyFromIso(calendarAnchor);
-    return new Date(`${dk}T12:00:00`).toLocaleDateString(locale, {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  }, [calendarAnchor, locale]);
+    const dk = dayKeyFromIso(calendarAnchor, teacherTz);
+    return formatDayKeyLabel(
+      dk,
+      locale,
+      {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      },
+      teacherTz,
+    );
+  }, [calendarAnchor, locale, teacherTz]);
 
   const focusedMonthDayKey = useMemo(
     () =>
-      selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso) : dayKeyFromIso(calendarAnchor),
-    [selectedStartsAtIso, calendarAnchor],
+      selectedStartsAtIso
+        ? dayKeyFromIso(selectedStartsAtIso, teacherTz)
+        : dayKeyFromIso(calendarAnchor, teacherTz),
+    [selectedStartsAtIso, calendarAnchor, teacherTz],
   );
 
   const dayTimeGrid = useMemo(
@@ -401,6 +430,7 @@ export function TeacherAvailabilityCalendar({
         selectionStyle="neutral"
         reservedBookingLabel={td("slotReserved")}
         emptyLabel={t("noAvailabilityYet")}
+        timeZone={teacherTz}
         footer={
           <button
             type="button"
@@ -422,6 +452,7 @@ export function TeacherAvailabilityCalendar({
       t,
       addForDayKey,
       td,
+      teacherTz,
     ],
   );
 
@@ -436,7 +467,7 @@ export function TeacherAvailabilityCalendar({
         selectedStartsAtIso={selectedStartsAtIso}
         selectedGroupKey={selectedRuleId}
         onOpenDay={(dk) => {
-          setCalendarAnchor(`${dk}T00:00:00.000Z`);
+          setCalendarAnchor(dayKeyToIsoAtNoon(dk, teacherTz));
           setCalendarView("day");
         }}
         onAddForDayKey={addForDayKey}
@@ -448,6 +479,7 @@ export function TeacherAvailabilityCalendar({
         onCalendarAnchorChange={setCalendarAnchor}
         selectionStyle="neutral"
         reservedLabel={td("slotReserved")}
+        timeZone={teacherTz}
       />
     ),
     [
@@ -461,6 +493,7 @@ export function TeacherAvailabilityCalendar({
       t,
       addForDayKey,
       td,
+      teacherTz,
     ],
   );
 
@@ -474,12 +507,12 @@ export function TeacherAvailabilityCalendar({
       <div className="space-y-3" data-testid="mobile-week-view">
         {weekDays.map((day) => {
           const blocks = blocksByDay.get(day.dayKey) ?? [];
-          const dayDate = new Date(`${day.dayKey}T12:00:00`);
+          const dayOfMonth = Number(day.dayKey.slice(-2));
           return (
             <div key={day.dayKey} className="rounded-lg border border-border bg-surface p-3">
               <div className="mb-2 flex items-center justify-between">
                 <p className="text-sm font-semibold text-foreground">
-                  {day.shortLabel} {dayDate.getDate()}
+                  {day.shortLabel} {dayOfMonth}
                 </p>
                 <button
                     type="button"
@@ -501,9 +534,9 @@ export function TeacherAvailabilityCalendar({
                           className="rounded-md border border-amber-200/70 bg-amber-50/50 px-2.5 py-1.5 text-xs text-amber-950/90"
                         >
                           <span className="font-medium">
-                            {new Date(block.startsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                            {formatCalendarTime(block.startsAtIso)}
                             {" – "}
-                            {new Date(block.endsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                            {formatCalendarTime(block.endsAtIso)}
                           </span>
                           <span className="ml-2 text-amber-900/80">{td("slotReserved")}</span>
                           {block.subtitle ? <span className="ml-1 text-amber-900/65">· {block.subtitle}</span> : null}
@@ -525,9 +558,9 @@ export function TeacherAvailabilityCalendar({
                         className={`w-full rounded-md border px-2.5 py-1.5 text-left text-xs font-medium transition ${selected ? selRing : idleRing}`}
                         aria-pressed={selected}
                       >
-                        {new Date(block.startsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                        {formatCalendarTime(block.startsAtIso)}
                         {" – "}
-                        {new Date(block.endsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                        {formatCalendarTime(block.endsAtIso)}
                       </button>
                     );
                   })}
@@ -538,7 +571,16 @@ export function TeacherAvailabilityCalendar({
         })}
       </div>
     );
-  }, [weekDays, blocksByDay, locale, selectedStartsAtIso, selectedRuleId, t, td, addForDayKey]);
+  }, [
+    weekDays,
+    blocksByDay,
+    selectedStartsAtIso,
+    selectedRuleId,
+    t,
+    td,
+    addForDayKey,
+    formatCalendarTime,
+  ]);
 
   /* ── Mobile-friendly month view (agenda list for days with slots) ── */
   const mobileMonthView = useMemo(() => {
@@ -556,19 +598,23 @@ export function TeacherAvailabilityCalendar({
         ) : (
           daysWithContent.map((cell) => {
             const slots = slotsByDayForMonth.get(cell.dayKey) ?? [];
-            const cellDate = new Date(`${cell.dayKey}T12:00:00`);
-            const dateLabel = cellDate.toLocaleDateString(locale, {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            });
+            const dateLabel = formatDayKeyLabel(
+              cell.dayKey,
+              locale,
+              {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              },
+              teacherTz,
+            );
             return (
               <div key={cell.dayKey} className="rounded-lg border border-border bg-surface p-3">
                 <div className="mb-2 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => {
-                      setCalendarAnchor(`${cell.dayKey}T00:00:00.000Z`);
+                      setCalendarAnchor(dayKeyToIsoAtNoon(cell.dayKey, teacherTz));
                       setCalendarView("day");
                     }}
                     className="text-sm font-semibold text-foreground hover:underline"
@@ -592,9 +638,9 @@ export function TeacherAvailabilityCalendar({
                           className="rounded-md border border-amber-200/70 bg-amber-50/50 px-2.5 py-1.5 text-xs text-amber-950/90"
                         >
                           <span className="font-medium">
-                            {new Date(slot.startsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                            {formatCalendarTime(slot.startsAtIso)}
                             {" – "}
-                            {new Date(slot.endsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                            {formatCalendarTime(slot.endsAtIso)}
                           </span>
                           <span className="ml-2 text-amber-900/80">{td("slotReserved")}</span>
                           {slot.label ? <span className="ml-1 text-amber-900/65">· {slot.label}</span> : null}
@@ -616,9 +662,9 @@ export function TeacherAvailabilityCalendar({
                         className={`w-full rounded-md border px-2.5 py-1.5 text-left text-xs font-medium transition ${selected ? selRing : idleRing}`}
                         aria-pressed={selected}
                       >
-                        {new Date(slot.startsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                        {formatCalendarTime(slot.startsAtIso)}
                         {" – "}
-                        {new Date(slot.endsAtIso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}
+                        {formatCalendarTime(slot.endsAtIso)}
                       </button>
                     );
                   })}
@@ -629,7 +675,18 @@ export function TeacherAvailabilityCalendar({
         )}
       </div>
     );
-  }, [monthCells, slotsByDayForMonth, locale, selectedStartsAtIso, selectedRuleId, t, td, addForDayKey]);
+  }, [
+    monthCells,
+    slotsByDayForMonth,
+    locale,
+    selectedStartsAtIso,
+    selectedRuleId,
+    t,
+    td,
+    addForDayKey,
+    teacherTz,
+    formatCalendarTime,
+  ]);
 
   function patchSelected(
     patch: Partial<
@@ -783,6 +840,7 @@ export function TeacherAvailabilityCalendar({
                     day: "numeric",
                     hour: "2-digit",
                     minute: "2-digit",
+                    timeZone: teacherTz,
                   }),
                 })
               : t("currentAvailabilityPickHint")}
@@ -819,6 +877,7 @@ export function TeacherAvailabilityCalendar({
         selectionStyle="neutral"
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
+        timeZone={teacherTz}
       />
 
       <TeacherAvailabilityAddModal
@@ -856,12 +915,17 @@ export function TeacherAvailabilityCalendar({
         subtitle={
           monthAddDayKey
             ? t("monthAddModalSubtitle", {
-                date: new Date(`${monthAddDayKey}T12:00:00`).toLocaleDateString(locale, {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                }),
+                date: formatDayKeyLabel(
+                  monthAddDayKey,
+                  locale,
+                  {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  },
+                  teacherTz,
+                ),
               })
             : ""
         }

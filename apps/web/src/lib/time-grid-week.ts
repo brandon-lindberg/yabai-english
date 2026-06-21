@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import { dayKeyFromIso } from "@/lib/slot-calendar";
 
 export const MINUTES_PER_DAY = 24 * 60;
@@ -93,7 +94,11 @@ export function isTimeGridBlockSelected(
 }
 
 /** Minutes since local midnight for an instant (used for grid placement). */
-export function minutesSinceLocalMidnight(iso: string): number {
+export function minutesSinceLocalMidnight(iso: string, timeZone?: string): number {
+  if (timeZone) {
+    const dt = DateTime.fromISO(iso, { zone: "utc" }).setZone(timeZone);
+    return dt.hour * 60 + dt.minute + dt.second / 60;
+  }
   const d = new Date(iso);
   return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
 }
@@ -107,6 +112,7 @@ const MIN_BLOCK_HEIGHT_PCT = (15 / MINUTES_PER_DAY) * 100;
 export function placeSlotsOnWeekGrid(
   weekDayKeys: readonly string[],
   slots: readonly TimeGridSlotInput[],
+  timeZone?: string,
 ): Map<string, PlacedTimeGridBlock[]> {
   const allowed = new Set(weekDayKeys);
   const byDay = new Map<string, PlacedTimeGridBlock[]>();
@@ -115,12 +121,12 @@ export function placeSlotsOnWeekGrid(
   }
 
   for (const slot of slots) {
-    const dk = dayKeyFromIso(slot.startsAtIso);
+    const dk = dayKeyFromIso(slot.startsAtIso, timeZone);
     if (!allowed.has(dk)) continue;
 
-    let startMin = Math.floor(minutesSinceLocalMidnight(slot.startsAtIso));
-    let endMin = Math.ceil(minutesSinceLocalMidnight(slot.endsAtIso));
-    if (dayKeyFromIso(slot.endsAtIso) !== dk) {
+    let startMin = Math.floor(minutesSinceLocalMidnight(slot.startsAtIso, timeZone));
+    let endMin = Math.ceil(minutesSinceLocalMidnight(slot.endsAtIso, timeZone));
+    if (dayKeyFromIso(slot.endsAtIso, timeZone) !== dk) {
       endMin = MINUTES_PER_DAY;
     }
     startMin = Math.max(0, Math.min(MINUTES_PER_DAY, startMin));
@@ -157,8 +163,9 @@ export function placeSlotsOnWeekGrid(
 export function placeSlotsOnDayColumn(
   dayKey: string,
   slots: readonly TimeGridSlotInput[],
+  timeZone?: string,
 ): PlacedTimeGridBlock[] {
-  const map = placeSlotsOnWeekGrid([dayKey], slots);
+  const map = placeSlotsOnWeekGrid([dayKey], slots, timeZone);
   return map.get(dayKey) ?? [];
 }
 

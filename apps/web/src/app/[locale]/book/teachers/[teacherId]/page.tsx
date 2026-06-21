@@ -261,6 +261,7 @@ export default async function TeacherProfileBookingPage({
           <BookingForm
             teacherProfileId={teacher.id}
             currentUserRole={session.user.role}
+            viewerTimezone={viewerTimezone}
             presetSlots={slotOptions.map((slot) => ({
               startsAtIso: slot.startsAtIso,
               endsAtIso: slot.endsAtIso,

@@ -20,6 +20,7 @@ type Props = {
   selectionStyle?: "accent" | "neutral";
   /** Line shown on booked blocks (e.g. “Reserved”). */
   reservedBookingLabel?: string;
+  timeZone?: string;
 };
 
 export function TeacherAvailabilityTimeGridWeek({
@@ -35,6 +36,7 @@ export function TeacherAvailabilityTimeGridWeek({
   onAddForDayKey,
   selectionStyle = "accent",
   reservedBookingLabel,
+  timeZone,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const weekRangeKey = weekDays.map((d) => d.dayKey).join("|");
@@ -132,11 +134,13 @@ export function TeacherAvailabilityTimeGridWeek({
                             {new Date(block.startsAtIso).toLocaleTimeString(locale, {
                               hour: "numeric",
                               minute: "2-digit",
+                              timeZone,
                             })}
                             {" – "}
                             {new Date(block.endsAtIso).toLocaleTimeString(locale, {
                               hour: "numeric",
                               minute: "2-digit",
+                              timeZone,
                             })}
                           </span>
                           {reservedBookingLabel ? (
@@ -176,11 +180,13 @@ export function TeacherAvailabilityTimeGridWeek({
                           {new Date(block.startsAtIso).toLocaleTimeString(locale, {
                             hour: "numeric",
                             minute: "2-digit",
+                            timeZone,
                           })}
                           {" – "}
                           {new Date(block.endsAtIso).toLocaleTimeString(locale, {
                             hour: "numeric",
                             minute: "2-digit",
+                            timeZone,
                           })}
                         </span>
                       </button>

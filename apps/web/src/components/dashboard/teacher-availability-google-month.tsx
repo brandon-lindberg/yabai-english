@@ -28,6 +28,7 @@ type Props = {
   selectionStyle?: "accent" | "neutral";
   /** Shown on booking chips (e.g. “Reserved”). */
   reservedLabel: string;
+  timeZone?: string;
 };
 
 const MAX_CHIPS = 3;
@@ -75,6 +76,7 @@ export function TeacherAvailabilityGoogleMonth({
   onCalendarAnchorChange,
   selectionStyle = "accent",
   reservedLabel,
+  timeZone,
 }: Props) {
   const monthSelectedRing =
     selectionStyle === "neutral" ? "border-zinc-500 ring-1 ring-zinc-300" : "border-primary ring-1 ring-primary/25";
@@ -167,11 +169,13 @@ export function TeacherAvailabilityGoogleMonth({
                             {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                               hour: "numeric",
                               minute: "2-digit",
+                              timeZone,
                             })}
                             {" – "}
                             {new Date(slot.endsAtIso).toLocaleTimeString(locale, {
                               hour: "numeric",
                               minute: "2-digit",
+                              timeZone,
                             })}
                           </span>
                           <span className="mt-0.5 block truncate text-[8px] font-medium text-amber-900/85 dark:text-amber-100/90">
@@ -204,11 +208,13 @@ export function TeacherAvailabilityGoogleMonth({
                         {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                           hour: "numeric",
                           minute: "2-digit",
+                          timeZone,
                         })}
                         {" – "}
                         {new Date(slot.endsAtIso).toLocaleTimeString(locale, {
                           hour: "numeric",
                           minute: "2-digit",
+                          timeZone,
                         })}
                       </button>
                     );

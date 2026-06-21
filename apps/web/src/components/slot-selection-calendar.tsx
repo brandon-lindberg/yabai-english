@@ -5,8 +5,11 @@ import {
   buildMonthCells,
   buildWeekDays,
   buildWeekdayColumnHeaders,
+  dayKeyToIsoAtNoon,
   dayKeyFromIso,
+  formatDayKeyLabel,
   groupSlotsByDay,
+  groupSlotsByDayInTimeZone,
   type SlotOption,
 } from "@/lib/slot-calendar";
 import { CalendarViewControls } from "@/components/calendar-view-controls";
@@ -32,15 +35,22 @@ function pickMonthDayChips(slots: SlotOption[], max: number): SlotOption[] {
   return out;
 }
 
-function formatMonthChipTimeRange(locale: string, startsAtIso: string, endsAtIso?: string) {
+function formatMonthChipTimeRange(
+  locale: string,
+  startsAtIso: string,
+  endsAtIso?: string,
+  timeZone?: string,
+) {
   const start = new Date(startsAtIso).toLocaleTimeString(locale, {
     hour: "numeric",
     minute: "2-digit",
+    timeZone,
   });
   if (!endsAtIso) return start;
   const end = new Date(endsAtIso).toLocaleTimeString(locale, {
     hour: "numeric",
     minute: "2-digit",
+    timeZone,
   });
   return `${start} – ${end}`;
 }
@@ -92,6 +102,8 @@ type Props = {
   dayViewReplacement?: ReactElement | null;
   /** When set, replaces the default month grid with a custom surface (e.g. Google-style month). */
   monthViewReplacement?: ReactElement | null;
+  /** Calendar timezone for day grouping, navigation, and labels. Defaults to the browser timezone. */
+  timeZone?: string;
 };
 
 export function SlotSelectionCalendar({
@@ -114,6 +126,7 @@ export function SlotSelectionCalendar({
   weekViewReplacement = null,
   dayViewReplacement = null,
   monthViewReplacement = null,
+  timeZone,
 }: Props) {
   const daySelectedClass =
     selectionStyle === "neutral"
@@ -133,16 +146,19 @@ export function SlotSelectionCalendar({
     selectionStyle === "neutral"
       ? "border-border bg-background text-muted hover:bg-[var(--app-hover)]"
       : "border-border bg-surface text-foreground hover:bg-[var(--app-hover)]";
-  const groupedSlots = groupSlotsByDay(slots, locale);
+  const groupedSlots = timeZone
+    ? groupSlotsByDayInTimeZone(slots, locale, timeZone)
+    : groupSlotsByDay(slots, locale);
   const slotMap = new Map(groupedSlots.map((group) => [group.dayKey, group.slots]));
-  const slotSelectedDayKey = selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso) : "";
+  const slotSelectedDayKey = selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso, timeZone) : "";
+  const anchorDayKey = dayKeyFromIso(calendarAnchor, timeZone);
   /** In month view with custom day click, highlight anchor day when no slot is selected. */
   const monthCellSelectedDayKey =
     calendarView === "month" && onMonthDayClick
-      ? slotSelectedDayKey || dayKeyFromIso(calendarAnchor)
+      ? slotSelectedDayKey || anchorDayKey
       : slotSelectedDayKey;
-  const weekDays = buildWeekDays(calendarAnchor, locale);
-  const monthCells = buildMonthCells(calendarAnchor, locale);
+  const weekDays = buildWeekDays(calendarAnchor, locale, timeZone);
+  const monthCells = buildMonthCells(calendarAnchor, locale, timeZone);
   const monthWeekdayHeaders = useMemo(() => buildWeekdayColumnHeaders(locale), [locale]);
 
   function isSlotSelected(slot: SlotSelectionCalendarSlot) {
@@ -153,17 +169,27 @@ export function SlotSelectionCalendar({
   }
 
   function rangeLabel() {
+    const dayLabel = (dayKey: string, options: Intl.DateTimeFormatOptions) =>
+      formatDayKeyLabel(dayKey, locale, options, timeZone);
     const d = new Date(calendarAnchor);
     if (calendarView === "month") {
-      return d.toLocaleDateString(locale, { month: "long", year: "numeric" });
+      return dayLabel(anchorDayKey, { month: "long", year: "numeric" });
     }
     if (calendarView === "week") {
-      const from = weekDays[0]?.dayKey ? new Date(`${weekDays[0].dayKey}T00:00:00`) : null;
-      const to = weekDays[6]?.dayKey ? new Date(`${weekDays[6].dayKey}T00:00:00`) : null;
+      const from = weekDays[0]?.dayKey;
+      const to = weekDays[6]?.dayKey;
       if (!from || !to) return "";
-      return `${from.toLocaleDateString(locale, { month: "short", day: "numeric" })} - ${to.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`;
+      return `${dayLabel(from, { month: "short", day: "numeric" })} - ${dayLabel(to, { month: "short", day: "numeric", year: "numeric" })}`;
     }
-    return d.toLocaleDateString(locale, {
+    if (!timeZone) {
+      return d.toLocaleDateString(locale, {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+    return dayLabel(anchorDayKey, {
       weekday: "long",
       month: "short",
       day: "numeric",
@@ -183,10 +209,10 @@ export function SlotSelectionCalendar({
           view={calendarView}
           onViewChange={onCalendarViewChange}
           onPrevious={() =>
-            onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, -1))
+            onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, -1, timeZone))
           }
           onNext={() =>
-            onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, 1))
+            onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, 1, timeZone))
           }
           label={rangeLabel()}
           dayLabel={copy.calendarDay}
@@ -199,13 +225,13 @@ export function SlotSelectionCalendar({
       {calendarView === "day" &&
         (dayViewReplacement ?? (
           <>
-            {(slotMap.get(dayKeyFromIso(calendarAnchor)) ?? []).length === 0 ? (
+            {(slotMap.get(anchorDayKey) ?? []).length === 0 ? (
               <p className="rounded-lg border border-dashed border-zinc-300 px-3 py-6 text-center text-sm text-zinc-500">
                 {copy.noAvailabilityYet}
               </p>
             ) : (
               <div className="space-y-2">
-                {(slotMap.get(dayKeyFromIso(calendarAnchor)) ?? []).map((slot, idx) => {
+                {(slotMap.get(anchorDayKey) ?? []).map((slot, idx) => {
                   if (slot.kind === "booked") {
                     return (
                       <div
@@ -218,6 +244,7 @@ export function SlotSelectionCalendar({
                           {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                             hour: "2-digit",
                             minute: "2-digit",
+                            timeZone,
                           })}
                         </span>
                         <span className="truncate pl-3 text-xs uppercase tracking-wide text-zinc-500">
@@ -240,6 +267,7 @@ export function SlotSelectionCalendar({
                         {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                           hour: "2-digit",
                           minute: "2-digit",
+                          timeZone,
                         })}
                       </span>
                       <span className="truncate pl-3 text-xs text-zinc-500">{slot.label}</span>
@@ -249,7 +277,7 @@ export function SlotSelectionCalendar({
               </div>
             )}
             {dayViewExtra ? (
-              <div className="mt-3">{dayViewExtra({ dayKey: dayKeyFromIso(calendarAnchor) })}</div>
+              <div className="mt-3">{dayViewExtra({ dayKey: anchorDayKey })}</div>
             ) : null}
           </>
         ))}
@@ -258,7 +286,7 @@ export function SlotSelectionCalendar({
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-7">
             {weekDays.map((day) => {
               const daySlots = slotMap.get(day.dayKey) ?? [];
-              const dayDate = new Date(`${day.dayKey}T00:00:00`);
+              const dayOfMonth = Number(day.dayKey.slice(-2));
               return (
                 <div
                   key={day.dayKey}
@@ -268,7 +296,7 @@ export function SlotSelectionCalendar({
                 >
                   <div className="mb-2 flex items-start justify-between gap-1 border-b border-border pb-1">
                     <p className="text-xs font-semibold text-muted">
-                      {day.shortLabel} {dayDate.getDate()}
+                      {day.shortLabel} {dayOfMonth}
                     </p>
                     {onAddForDayKey && weekColumnAddLabel ? (
                       <button
@@ -294,6 +322,7 @@ export function SlotSelectionCalendar({
                               {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                                 hour: "2-digit",
                                 minute: "2-digit",
+                                timeZone,
                               })}
                             </span>
                             <span className="block text-[10px] uppercase tracking-wide">
@@ -320,6 +349,7 @@ export function SlotSelectionCalendar({
                             {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                               hour: "2-digit",
                               minute: "2-digit",
+                              timeZone,
                             })}
                           </span>
                         </button>
@@ -392,7 +422,7 @@ export function SlotSelectionCalendar({
                               onMonthDayClick(cell.dayKey);
                               return;
                             }
-                            onCalendarAnchorChange(`${cell.dayKey}T00:00:00.000Z`);
+                            onCalendarAnchorChange(dayKeyToIsoAtNoon(cell.dayKey, timeZone));
                             onCalendarViewChange("day");
                           }}
                           className="min-w-0 rounded px-0.5 text-left text-sm font-semibold hover:bg-[var(--app-hover)]"
@@ -421,6 +451,7 @@ export function SlotSelectionCalendar({
                               locale,
                               slot.startsAtIso,
                               slot.endsAtIso,
+                              timeZone,
                             );
                             return (
                               <div
@@ -453,7 +484,12 @@ export function SlotSelectionCalendar({
                                 selected ? monthChipSelectedClass : monthChipUnselectedClass
                               }`}
                             >
-                              {formatMonthChipTimeRange(locale, slot.startsAtIso, slot.endsAtIso)}
+                              {formatMonthChipTimeRange(
+                                locale,
+                                slot.startsAtIso,
+                                slot.endsAtIso,
+                                timeZone,
+                              )}
                             </button>
                           );
                         })}

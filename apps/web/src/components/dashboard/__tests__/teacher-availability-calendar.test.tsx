@@ -7,6 +7,7 @@ import en from "../../../../messages/en.json";
 import {
   TeacherAvailabilityCalendar,
   type InitialTeacherAvailabilitySlot,
+  type TeacherCalendarBooking,
 } from "../teacher-availability-calendar";
 
 const sampleLevels = [
@@ -36,18 +37,23 @@ async function flushPromises() {
 
 function renderTeacherCalendar({
   initialSlots = [],
+  bookings = [],
+  defaultTimezone = "UTC",
 }: {
   initialSlots?: InitialTeacherAvailabilitySlot[];
+  bookings?: TeacherCalendarBooking[];
+  defaultTimezone?: string;
 } = {}) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
       <TeacherAvailabilityCalendar
         initialSlots={initialSlots}
         initialOccurrenceSkips={[]}
-        defaultTimezone="UTC"
+        defaultTimezone={defaultTimezone}
         classLevels={sampleLevels}
         classTypes={sampleTypes}
         lessonOfferings={sampleOfferings}
+        bookings={bookings}
       />
     </NextIntlClientProvider>,
   );
@@ -181,5 +187,44 @@ describe("TeacherAvailabilityCalendar", () => {
       startsOn: "2026-04-16",
       endsOn: "2026-06-16",
     });
+  });
+
+  test("shows booked slots in the teacher timezone and hides matching availability", () => {
+    vi.setSystemTime(new Date("2026-07-01T00:00:00.000Z"));
+    renderTeacherCalendar({
+      defaultTimezone: "America/New_York",
+      initialSlots: [
+        {
+          id: "weekly-ny-1030",
+          dayOfWeek: 0,
+          startMin: 10 * 60 + 30,
+          endMin: 11 * 60 + 10,
+          timezone: "America/New_York",
+          recurrence: "WEEKLY",
+          startsOn: "2026-06-21",
+          endsOn: null,
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "offer-conv-60",
+          classLevel: sampleLevels[0],
+          classType: sampleTypes[0],
+        },
+      ],
+      bookings: [
+        {
+          id: "booking-1",
+          startsAtIso: "2026-07-05T14:30:00.000Z",
+          endsAtIso: "2026-07-05T15:10:00.000Z",
+          studentLabel: "Kana Miura",
+        },
+      ],
+    });
+
+    const july5 = document.querySelector('[data-month-day-cell="2026-07-05"]');
+    expect(july5).toBeTruthy();
+    expect(within(july5 as HTMLElement).getByTestId("month-booking-chip")).toBeInTheDocument();
+    expect(within(july5 as HTMLElement).queryByTestId("month-slot-chip")).toBeNull();
+    expect(july5!.textContent).toContain("10:30 AM");
+    expect(july5!.textContent).toContain("Reserved");
   });
 });

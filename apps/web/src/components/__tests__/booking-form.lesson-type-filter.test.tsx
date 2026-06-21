@@ -164,4 +164,64 @@ describe("BookingForm lesson type filter", () => {
     const bodyText = document.body.textContent ?? "";
     expect(bodyText).not.toMatch(/Alice|Brandon|Suzuki|StudentName/);
   });
+
+  test("overlapping booked slots remove open availability even when start times differ", async () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <BookingForm
+          teacherProfileId="t1"
+          currentUserRole="STUDENT"
+          viewerTimezone="Asia/Tokyo"
+          presetSlots={[
+            {
+              startsAtIso: "2026-05-04T01:30:00.000Z",
+              endsAtIso: "2026-05-04T02:10:00.000Z",
+              label: "Mon, May 4 10:30",
+              groupKey: "slot-conv",
+              classTypeId: "ty-conv",
+            },
+          ]}
+          bookedSlots={[
+            {
+              startsAtIso: "2026-05-04T01:45:00.000Z",
+              endsAtIso: "2026-05-04T02:00:00.000Z",
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    await screen.findByLabelText(en.booking.selectProduct);
+
+    expect(await screen.findByTestId("slot-reserved-week")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: en.booking.confirm })).toBeDisabled();
+    expect(document.body.textContent).not.toContain("10:30 AM");
+  });
+
+  test("renders availability in the student's viewer timezone", async () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <BookingForm
+          teacherProfileId="t1"
+          currentUserRole="STUDENT"
+          viewerTimezone="America/Toronto"
+          presetSlots={[
+            {
+              startsAtIso: "2026-07-05T01:30:00.000Z",
+              endsAtIso: "2026-07-05T02:10:00.000Z",
+              label: "Sat, Jul 4 21:30 - 22:10 (America/Toronto)",
+              groupKey: "slot-conv",
+              classTypeId: "ty-conv",
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    await screen.findByLabelText(en.booking.selectProduct);
+
+    expect((await screen.findAllByText(/9:30 PM/)).length).toBeGreaterThan(0);
+    expect(document.body.textContent).toContain("Jul 4");
+    expect(document.body.textContent).not.toContain("10:30 AM");
+  });
 });

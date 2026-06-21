@@ -13,6 +13,7 @@ import {
   filterSlotsForSelection,
   slotMatchesProduct,
 } from "@/lib/booking-lesson-type-filter";
+import { timeRangesOverlap } from "@/lib/teacher-availability-display";
 
 type LessonProductOption = {
   id: string;
@@ -33,6 +34,8 @@ type LessonProductOption = {
 type Props = {
   teacherProfileId?: string;
   currentUserRole?: "STUDENT" | "TEACHER" | "SUPER_ADMIN";
+  /** IANA timezone for the viewer selecting a slot. */
+  viewerTimezone?: string;
   presetSlots?: Array<{
     startsAtIso: string;
     endsAtIso?: string;
@@ -56,6 +59,7 @@ type Props = {
 export function BookingForm({
   teacherProfileId,
   currentUserRole = "STUDENT",
+  viewerTimezone,
   presetSlots,
   bookedSlots,
 }: Props) {
@@ -121,15 +125,18 @@ export function BookingForm({
 
   const effectiveProduct = selectedOption ?? resolvedProductForAllTypes;
 
-  const bookedStartsAtSet = useMemo(
-    () => new Set((bookedSlots ?? []).map((b) => b.startsAtIso)),
-    [bookedSlots],
-  );
-
   const filteredPresetSlots = useMemo(() => {
     if (!presetSlots) return presetSlots;
     const availability = filterSlotsForSelection(presetSlots, selectedOption).filter(
-      (s) => !bookedStartsAtSet.has(s.startsAtIso),
+      (s) =>
+        !(bookedSlots ?? []).some((booking) => {
+          if (booking.startsAtIso === s.startsAtIso) return true;
+          if (!s.endsAtIso) return false;
+          return timeRangesOverlap(
+            { startsAtIso: s.startsAtIso, endsAtIso: s.endsAtIso },
+            booking,
+          );
+        }),
     );
     const reservedMarkers = (bookedSlots ?? []).map((b) => ({
       startsAtIso: b.startsAtIso,
@@ -140,7 +147,15 @@ export function BookingForm({
     return [...availability, ...reservedMarkers].sort((a, b) =>
       a.startsAtIso.localeCompare(b.startsAtIso),
     );
-  }, [presetSlots, selectedOption, bookedSlots, bookedStartsAtSet, t]);
+  }, [presetSlots, selectedOption, bookedSlots, t]);
+
+  useEffect(() => {
+    if (!filteredPresetSlots || !startsAt) return;
+    const isSelectedBookable = filteredPresetSlots.some(
+      (slot) => slot.kind !== "booked" && slot.startsAtIso === startsAt,
+    );
+    if (!isSelectedBookable) setStartsAt("");
+  }, [filteredPresetSlots, startsAt]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -239,6 +254,7 @@ export function BookingForm({
                       day: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
+                      timeZone: viewerTimezone,
                     })}`
                   : t("noSlotSelected")}
               </div>
@@ -262,6 +278,7 @@ export function BookingForm({
                 onSelectSlot={(iso) => {
                   setStartsAt(iso);
                 }}
+                timeZone={viewerTimezone}
               />
             </>
           )}

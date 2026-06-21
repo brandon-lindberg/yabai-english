@@ -27,6 +27,7 @@ type Props = {
   emptyLabel: string;
   /** Line shown on booked blocks (e.g. “Reserved”). */
   reservedBookingLabel?: string;
+  timeZone?: string;
 };
 
 export function TeacherAvailabilityTimeGridDay({
@@ -45,6 +46,7 @@ export function TeacherAvailabilityTimeGridDay({
   footer,
   emptyLabel,
   reservedBookingLabel,
+  timeZone,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const dayHeightPx = 24 * hourPx;
@@ -137,11 +139,13 @@ export function TeacherAvailabilityTimeGridDay({
                         {new Date(block.startsAtIso).toLocaleTimeString(locale, {
                           hour: "numeric",
                           minute: "2-digit",
+                          timeZone,
                         })}
                         {" – "}
                         {new Date(block.endsAtIso).toLocaleTimeString(locale, {
                           hour: "numeric",
                           minute: "2-digit",
+                          timeZone,
                         })}
                       </span>
                       {reservedBookingLabel ? (
@@ -181,11 +185,13 @@ export function TeacherAvailabilityTimeGridDay({
                       {new Date(block.startsAtIso).toLocaleTimeString(locale, {
                         hour: "numeric",
                         minute: "2-digit",
+                        timeZone,
                       })}
                       {" – "}
                       {new Date(block.endsAtIso).toLocaleTimeString(locale, {
                         hour: "numeric",
                         minute: "2-digit",
+                        timeZone,
                       })}
                     </span>
                   </button>
