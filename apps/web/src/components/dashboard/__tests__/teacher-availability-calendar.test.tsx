@@ -4,7 +4,10 @@ import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../../messages/en.json";
-import { TeacherAvailabilityCalendar } from "../teacher-availability-calendar";
+import {
+  TeacherAvailabilityCalendar,
+  type InitialTeacherAvailabilitySlot,
+} from "../teacher-availability-calendar";
 
 const sampleLevels = [
   { id: "lvl-int", code: "intermediate", labelEn: "Intermediate", labelJa: null },
@@ -31,11 +34,15 @@ async function flushPromises() {
   await Promise.resolve();
 }
 
-function renderTeacherCalendar() {
+function renderTeacherCalendar({
+  initialSlots = [],
+}: {
+  initialSlots?: InitialTeacherAvailabilitySlot[];
+} = {}) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
       <TeacherAvailabilityCalendar
-        initialSlots={[]}
+        initialSlots={initialSlots}
         initialOccurrenceSkips={[]}
         defaultTimezone="UTC"
         classLevels={sampleLevels}
@@ -100,6 +107,46 @@ describe("TeacherAvailabilityCalendar", () => {
     expect(body[0]).toMatchObject({
       recurrence: "ONE_OFF",
       startsOn: "2026-04-16",
+    });
+  });
+
+  test("backfills legacy slots with a matching class offer so availability can be saved", async () => {
+    renderTeacherCalendar({
+      initialSlots: [
+        {
+          id: "legacy-slot-1",
+          dayOfWeek: 4,
+          startMin: 9 * 60,
+          endMin: 10 * 60,
+          timezone: "UTC",
+          recurrence: "WEEKLY",
+          startsOn: null,
+          endsOn: null,
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: null,
+          classLevel: sampleLevels[0],
+          classType: sampleTypes[0],
+        },
+      ],
+    });
+
+    const saveButton = screen.getByRole("button", {
+      name: en.dashboard.teacherAvailability.save,
+    });
+    expect(saveButton).toBeEnabled();
+
+    await act(async () => {
+      fireEvent.click(saveButton);
+      await flushPromises();
+    });
+
+    const [, init] = vi.mocked(fetch).mock.calls[0];
+    const body = JSON.parse(String(init?.body));
+    expect(body[0]).toMatchObject({
+      classLevelId: "lvl-int",
+      classTypeId: "ty-conv",
+      teacherLessonOfferingId: "offer-conv-60",
     });
   });
 

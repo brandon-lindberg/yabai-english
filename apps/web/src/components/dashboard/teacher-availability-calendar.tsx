@@ -98,6 +98,51 @@ function newRuleId() {
   return `new_${Math.random().toString(36).slice(2, 11)}`;
 }
 
+function findBestOfferingForSlot(
+  slot: InitialTeacherAvailabilitySlot,
+  lessonOfferings: TeacherLessonOfferingOption[],
+) {
+  const existing = slot.teacherLessonOfferingId
+    ? lessonOfferings.find((offer) => offer.id === slot.teacherLessonOfferingId)
+    : undefined;
+  if (existing) return existing;
+
+  const durationMin = slot.endMin - slot.startMin;
+  const matchesKnownTaxonomy = (offer: TeacherLessonOfferingOption) =>
+    (!slot.classLevelId || offer.classLevelId === slot.classLevelId) &&
+    (!slot.classTypeId || offer.classTypeId === slot.classTypeId);
+
+  return (
+    lessonOfferings.find(
+      (offer) => offer.durationMin === durationMin && matchesKnownTaxonomy(offer),
+    ) ??
+    lessonOfferings.find(matchesKnownTaxonomy) ??
+    lessonOfferings.find((offer) => offer.durationMin === durationMin) ??
+    lessonOfferings[0] ??
+    null
+  );
+}
+
+function normalizeLegacyAvailabilitySlots(
+  slots: InitialTeacherAvailabilitySlot[],
+  lessonOfferings: TeacherLessonOfferingOption[],
+): InitialTeacherAvailabilitySlot[] {
+  return slots.map((slot) => {
+    const offer = findBestOfferingForSlot(slot, lessonOfferings);
+    if (!offer) return slot;
+
+    return {
+      ...slot,
+      endMin: slot.startMin + offer.durationMin,
+      classLevelId: offer.classLevelId ?? slot.classLevelId,
+      classTypeId: offer.classTypeId ?? slot.classTypeId,
+      teacherLessonOfferingId: offer.id,
+      classLevel: offer.classLevel ?? slot.classLevel,
+      classType: offer.classType ?? slot.classType,
+    };
+  });
+}
+
 export function TeacherAvailabilityCalendar({
   initialSlots,
   initialOccurrenceSkips,
@@ -132,7 +177,9 @@ export function TeacherAvailabilityCalendar({
     },
     [pickLabel],
   );
-  const [rules, setRules] = useState<InitialTeacherAvailabilitySlot[]>(initialSlots);
+  const [rules, setRules] = useState<InitialTeacherAvailabilitySlot[]>(() =>
+    normalizeLegacyAvailabilitySlots(initialSlots, lessonOfferings),
+  );
   const [occurrenceSkips, setOccurrenceSkips] = useState<string[]>(initialOccurrenceSkips);
   const [calendarView, setCalendarView] = useState<CalendarViewMode>("month");
   const [calendarAnchor, setCalendarAnchor] = useState(new Date().toISOString());
