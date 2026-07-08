@@ -9,11 +9,15 @@ function createPrismaClient() {
   const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL,
   });
+  // Query logging is opt-in (PRISMA_LOG_QUERIES=true) because it floods the
+  // dev terminal and the browser console via Next's server-log forwarding.
   return new PrismaClient({
     adapter,
     log:
       process.env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
+        ? process.env.PRISMA_LOG_QUERIES === "true"
+          ? ["query", "error", "warn"]
+          : ["error", "warn"]
         : ["error"],
   });
 }

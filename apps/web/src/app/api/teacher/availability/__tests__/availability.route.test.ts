@@ -432,10 +432,9 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
   test("allows availability changes with local dev Stripe when dev payments are enabled", async () => {
     const previousStripeSecret = process.env.STRIPE_SECRET_KEY;
     const previousDevBypass = process.env.DEV_AUTH_BYPASS;
-  const previousNodeEnv = process.env.NODE_ENV;
     delete process.env.STRIPE_SECRET_KEY;
     process.env.DEV_AUTH_BYPASS = "true";
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
 
     profileUpsertMock.mockResolvedValue({
       id: "tp-1",
@@ -493,11 +492,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
       } else {
         process.env.DEV_AUTH_BYPASS = previousDevBypass;
       }
-      if (previousNodeEnv === undefined) {
-        delete process.env.NODE_ENV;
-      } else {
-        process.env.NODE_ENV = previousNodeEnv;
-      }
+      vi.unstubAllEnvs();
     }
   });
 

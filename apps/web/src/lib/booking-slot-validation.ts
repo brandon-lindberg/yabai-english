@@ -1,4 +1,5 @@
 import { buildUpcomingSlotOptions } from "@/lib/availability";
+import type { RecurrencePattern } from "@/lib/recurring-slot-occurrences";
 
 export type TeacherAvailabilitySlotInput = {
   id: string;
@@ -6,7 +7,7 @@ export type TeacherAvailabilitySlotInput = {
   startMin: number;
   endMin: number;
   timezone: string;
-  recurrence?: string | null;
+  recurrence?: RecurrencePattern | null;
   startsOn?: string | null;
   endsOn?: string | null;
   classLevelId: string | null;

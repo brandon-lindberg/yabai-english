@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { LessonTier } from "@/generated/prisma/client";
+import { buildUpcomingSlotOptions } from "@/lib/availability";
 
 const { authMock, prismaMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
@@ -28,7 +29,27 @@ vi.mock("next/cache", () => ({
 
 import { POST } from "@/app/api/bookings/route";
 
-const startsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+const BOOKING_NOW = new Date("2026-05-10T00:00:00.000Z");
+const testAvailabilitySlot = {
+  id: "slot-1",
+  dayOfWeek: 1,
+  startMin: 10 * 60,
+  endMin: 11 * 60,
+  timezone: "Asia/Tokyo",
+  recurrence: "WEEKLY" as const,
+  startsOn: null,
+  endsOn: null,
+  classLevelId: null,
+  classTypeId: null,
+};
+
+// A startsAt that lands exactly on the teacher's weekly slot, >48h ahead.
+const startsAt = buildUpcomingSlotOptions({
+  availabilitySlots: [testAvailabilitySlot],
+  viewerTimezone: "Asia/Tokyo",
+  minimumLeadHours: 48,
+  now: BOOKING_NOW,
+})[0]!.startsAtIso;
 
 function baseTeacher(overrides: Record<string, unknown> = {}) {
   return {
@@ -48,6 +69,8 @@ function baseTeacher(overrides: Record<string, unknown> = {}) {
       },
     ],
     user: { email: "teacher@example.com", organizationMemberships: [] },
+    availabilitySlots: [testAvailabilitySlot],
+    availabilityOccurrenceSkips: [],
     ...overrides,
   };
 }
@@ -55,6 +78,8 @@ function baseTeacher(overrides: Record<string, unknown> = {}) {
 describe("POST /api/bookings marketplace privacy", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(BOOKING_NOW);
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
     prismaMock.lessonProduct.findFirst.mockResolvedValue({
       id: "lp-60",
@@ -71,7 +96,7 @@ describe("POST /api/bookings marketplace privacy", () => {
     prismaMock.user.findUnique.mockResolvedValue({
       id: "student-1",
       email: "student@example.com",
-      studentProfile: { trialLessonUsedAt: null },
+      studentProfile: { trialLessonUsedAt: null, timezone: "Asia/Tokyo" },
     });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({
@@ -96,6 +121,10 @@ describe("POST /api/bookings marketplace privacy", () => {
         },
       }),
     );
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test("returns 403 when teacher is hidden from marketplace and student is not on roster", async () => {
