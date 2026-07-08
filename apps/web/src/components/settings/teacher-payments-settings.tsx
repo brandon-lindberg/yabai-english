@@ -103,7 +103,8 @@ export function TeacherPaymentsSettings({
     try {
       const res = await fetch("/api/teacher/payment-accounts/stripe/connect", { method: "POST" });
       if (!res.ok) {
-        setError(t("connectStripeError"));
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        setError(body?.error ?? t("connectStripeError"));
         return;
       }
       const data = (await res.json()) as {

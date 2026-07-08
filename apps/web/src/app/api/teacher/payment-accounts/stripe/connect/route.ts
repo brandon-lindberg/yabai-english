@@ -13,6 +13,19 @@ function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
 }
 
+/**
+ * Surfaces Stripe API rejections (e.g. Connect not enabled on the platform
+ * account) as a concise 502 instead of an unhandled 500 with a full error dump.
+ */
+function stripeErrorResponse(error: unknown) {
+  const message = error instanceof Error ? error.message : "Unknown Stripe error";
+  console.error("Stripe Connect onboarding failed:", message);
+  return NextResponse.json(
+    { error: `Stripe rejected the request: ${message}` },
+    { status: 502 },
+  );
+}
+
 export async function POST() {
   if (!stripeConnectConfigured()) {
     return NextResponse.json({ error: "Stripe is not configured" }, { status: 503 });
@@ -43,9 +56,16 @@ export async function POST() {
   const existingAccountId = isLocalStripeProviderAccount(storedAccountId)
     ? null
     : storedAccountId;
-  const stripeAccount = existingAccountId
-    ? { id: existingAccountId }
-    : await createStripeStandardAccount({ email: session.user.email });
+  let stripeAccount: { id: string };
+  if (existingAccountId) {
+    stripeAccount = { id: existingAccountId };
+  } else {
+    try {
+      stripeAccount = await createStripeStandardAccount({ email: session.user.email });
+    } catch (error) {
+      return stripeErrorResponse(error);
+    }
+  }
 
   const account = await prisma.teacherPaymentAccount.upsert({
     where: {
@@ -80,11 +100,16 @@ export async function POST() {
   });
 
   const baseUrl = appUrl();
-  const link = await createStripeAccountOnboardingLink({
-    accountId: stripeAccount.id,
-    refreshUrl: `${baseUrl}/dashboard/settings?tab=payments&stripe=refresh`,
-    returnUrl: `${baseUrl}/dashboard/settings?tab=payments&stripe=return`,
-  });
+  let link: { url: string };
+  try {
+    link = await createStripeAccountOnboardingLink({
+      accountId: stripeAccount.id,
+      refreshUrl: `${baseUrl}/dashboard/settings?tab=payments&stripe=refresh`,
+      returnUrl: `${baseUrl}/dashboard/settings?tab=payments&stripe=return`,
+    });
+  } catch (error) {
+    return stripeErrorResponse(error);
+  }
 
   return NextResponse.json({
     ok: true,

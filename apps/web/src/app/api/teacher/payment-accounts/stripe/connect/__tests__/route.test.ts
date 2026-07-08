@@ -70,6 +70,32 @@ describe("POST /api/teacher/payment-accounts/stripe/connect", () => {
     );
   });
 
+  test("returns 502 with the Stripe message when Stripe rejects account creation", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const stripeError = Object.assign(
+      new Error(
+        "You can only create new accounts if you've signed up for Connect, which you can do at https://dashboard.stripe.com/connect.",
+      ),
+      { type: "StripeInvalidRequestError" },
+    );
+    createConnectAccountMock.mockRejectedValue(stripeError);
+
+    const res = await POST();
+
+    expect(res.status).toBe(502);
+    await expect(res.json()).resolves.toEqual({
+      error:
+        "Stripe rejected the request: You can only create new accounts if you've signed up for Connect, which you can do at https://dashboard.stripe.com/connect.",
+    });
+    expect(prismaMock.teacherPaymentAccount.upsert).not.toHaveBeenCalled();
+    // Logs a single concise line, not the full Stripe error object.
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Stripe Connect onboarding failed:",
+      stripeError.message,
+    );
+    consoleErrorSpy.mockRestore();
+  });
+
   test("does not reuse a local dev Stripe account for real Connect onboarding", async () => {
     prismaMock.teacherProfile.findUnique.mockResolvedValue({
       id: "teacher-profile-1",
