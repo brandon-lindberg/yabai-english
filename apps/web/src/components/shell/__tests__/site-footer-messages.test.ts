@@ -12,6 +12,14 @@ describe("site footer copy", () => {
     expect(ja.common.footerCopyright).toContain("{year}");
   });
 
+  test("operator line names Yabai Studios in both locales", () => {
+    // Stripe requires the website to visibly match the registered business
+    // name (Yabai Studios), which operates English Studio Japan.
+    expect(en.common.footerOperatedBy).toContain("Yabai Studios");
+    expect(en.common.footerOperatedBy).toContain("English Studio Japan");
+    expect(ja.common.footerOperatedBy).toContain("Yabai Studios");
+  });
+
   test("legal footer link labels exist", () => {
     expect(en.legal.footerTermsLink).toBeTruthy();
     expect(en.legal.footerPrivacyLink).toBeTruthy();

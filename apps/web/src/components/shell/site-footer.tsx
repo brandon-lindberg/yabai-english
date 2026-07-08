@@ -13,6 +13,7 @@ export async function SiteFooter() {
     >
       <div className="mx-auto flex min-w-0 max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 py-8 text-center text-xs text-muted sm:gap-x-6 sm:px-6">
         <span className="text-muted">{t("footerCopyright", { year })}</span>
+        <span className="text-muted">{t("footerOperatedBy")}</span>
         <Link
           href="/contact"
           className="font-medium text-muted underline-offset-4 transition-colors hover:text-foreground hover:underline"
