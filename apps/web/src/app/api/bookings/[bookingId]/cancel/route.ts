@@ -39,6 +39,7 @@ export async function POST(_req: Request, { params }: Props) {
           userId: true,
           googleCalendarRefreshToken: true,
           calendarId: true,
+          refundFeePassedToStudent: true,
         },
       },
       payments: {
@@ -124,6 +125,7 @@ export async function POST(_req: Request, { params }: Props) {
         booking,
         policy,
         actor,
+        refundFeePassedToStudent: booking.teacher.refundFeePassedToStudent,
       })
     : null;
 

@@ -18,6 +18,13 @@ const webhookSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  // Simulator endpoint for local/dev payment flows. It can mark arbitrary
+  // payments as paid, so it must never be reachable in production; real
+  // Stripe events go through /api/payments/webhooks/stripe.
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   const body = await req.text();
   if (!paymentWebhookSecretConfigured()) {
     return NextResponse.json({ error: "Payment webhook secret is not configured" }, { status: 503 });

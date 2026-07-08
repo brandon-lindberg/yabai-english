@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 const { prismaMock, constructEventMock, confirmPaidBookingMock } = vi.hoisted(() => ({
   prismaMock: {
     paymentWebhookEvent: { createMany: vi.fn() },
-    payment: { update: vi.fn() },
+    payment: { update: vi.fn(), updateMany: vi.fn() },
     teacherPaymentAccount: { findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     teacherPaymentMethod: { upsert: vi.fn(), updateMany: vi.fn() },
   },
@@ -84,6 +84,138 @@ describe("POST /api/payments/webhooks/stripe", () => {
       }),
     });
     expect(confirmPaidBookingMock).toHaveBeenCalledWith("booking-1");
+  });
+
+  test("does not confirm booking when checkout.session.completed is not yet paid", async () => {
+    constructEventMock.mockReturnValue({
+      id: "evt_unpaid",
+      type: "checkout.session.completed",
+      account: "acct_123",
+      data: {
+        object: {
+          id: "cs_123",
+          payment_intent: "pi_123",
+          payment_status: "unpaid",
+          metadata: {
+            paymentId: "payment-1",
+            bookingId: "booking-1",
+          },
+        },
+      },
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/payments/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": "sig_123" },
+        body: "{}",
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toEqual(
+      expect.objectContaining({ ok: true, pendingPayment: true }),
+    );
+    expect(prismaMock.payment.update).not.toHaveBeenCalled();
+    expect(confirmPaidBookingMock).not.toHaveBeenCalled();
+  });
+
+  test("confirms booking from checkout.session.async_payment_succeeded", async () => {
+    constructEventMock.mockReturnValue({
+      id: "evt_async_ok",
+      type: "checkout.session.async_payment_succeeded",
+      account: "acct_123",
+      data: {
+        object: {
+          id: "cs_123",
+          payment_intent: "pi_123",
+          payment_status: "paid",
+          metadata: {
+            paymentId: "payment-1",
+            bookingId: "booking-1",
+          },
+        },
+      },
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/payments/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": "sig_123" },
+        body: "{}",
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.payment.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "payment-1" },
+        data: expect.objectContaining({ status: "SUCCEEDED" }),
+      }),
+    );
+    expect(confirmPaidBookingMock).toHaveBeenCalledWith("booking-1");
+  });
+
+  test("marks payment failed on checkout.session.async_payment_failed", async () => {
+    prismaMock.payment.updateMany.mockResolvedValue({ count: 1 });
+    constructEventMock.mockReturnValue({
+      id: "evt_async_fail",
+      type: "checkout.session.async_payment_failed",
+      account: "acct_123",
+      data: {
+        object: {
+          id: "cs_123",
+          metadata: {
+            paymentId: "payment-1",
+            bookingId: "booking-1",
+          },
+        },
+      },
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/payments/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": "sig_123" },
+        body: "{}",
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.payment.updateMany).toHaveBeenCalledWith({
+      where: { id: "payment-1", status: { not: "SUCCEEDED" } },
+      data: expect.objectContaining({ status: "FAILED" }),
+    });
+    expect(confirmPaidBookingMock).not.toHaveBeenCalled();
+  });
+
+  test("checkout.session.expired never overwrites a succeeded payment", async () => {
+    prismaMock.payment.updateMany.mockResolvedValue({ count: 0 });
+    constructEventMock.mockReturnValue({
+      id: "evt_expired",
+      type: "checkout.session.expired",
+      data: {
+        object: {
+          id: "cs_123",
+          metadata: { paymentId: "payment-1" },
+        },
+      },
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/payments/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": "sig_123" },
+        body: "{}",
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.payment.updateMany).toHaveBeenCalledWith({
+      where: { id: "payment-1", status: { not: "SUCCEEDED" } },
+      data: expect.objectContaining({ status: "EXPIRED" }),
+    });
+    expect(prismaMock.payment.update).not.toHaveBeenCalled();
   });
 
   test("duplicate Stripe event is harmless", async () => {

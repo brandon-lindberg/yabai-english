@@ -36,6 +36,7 @@ describe("POST /api/payments/webhooks", () => {
 
   afterEach(() => {
     process.env.PAYMENT_WEBHOOK_SECRET = previousSecret;
+    vi.unstubAllEnvs();
   });
 
   function signedRequest(body: object) {
@@ -90,6 +91,25 @@ describe("POST /api/payments/webhooks", () => {
 
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({ ok: true, duplicate: true });
+    expect(prismaMock.payment.update).not.toHaveBeenCalled();
+    expect(confirmPaidBookingMock).not.toHaveBeenCalled();
+  });
+
+  test("is disabled in production even with a valid signature", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    const res = await POST(
+      signedRequest({
+        provider: "STRIPE",
+        eventId: "evt-1",
+        eventType: "checkout.session.completed",
+        paymentId: "payment-1",
+        status: "SUCCEEDED",
+      }),
+    );
+
+    expect(res.status).toBe(404);
+    expect(prismaMock.paymentWebhookEvent.createMany).not.toHaveBeenCalled();
     expect(prismaMock.payment.update).not.toHaveBeenCalled();
     expect(confirmPaidBookingMock).not.toHaveBeenCalled();
   });

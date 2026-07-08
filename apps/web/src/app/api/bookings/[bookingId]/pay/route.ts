@@ -3,6 +3,7 @@ import { BookingStatus } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { calculateMonthlyPlatformFeeForTeacher } from "@/lib/platform-fees";
+import { isLocalStripeProviderAccount } from "@/lib/payment-methods";
 import {
   createStripeCheckoutSessionDirectCharge,
   stripeConnectConfigured,
@@ -27,7 +28,7 @@ export async function POST(_req: Request, { params }: Props) {
     where: { id: bookingId },
     include: {
       lessonProduct: true,
-      student: { include: { studentProfile: { select: { stripeCustomerId: true } } } },
+      student: true,
       teacher: { include: { user: true } },
       payments: {
         orderBy: { createdAt: "desc" },
@@ -89,7 +90,7 @@ export async function POST(_req: Request, { params }: Props) {
   }
 
   const connectedAccountId = payment.teacherPaymentAccount?.providerAccountId;
-  if (!connectedAccountId) {
+  if (!connectedAccountId || isLocalStripeProviderAccount(connectedAccountId)) {
     return NextResponse.json({ error: "Teacher Stripe account is not connected" }, { status: 409 });
   }
 
@@ -99,7 +100,6 @@ export async function POST(_req: Request, { params }: Props) {
     at: new Date(),
   });
   const baseUrl = appUrl();
-  const stripeCustomerId = booking.student.studentProfile?.stripeCustomerId ?? null;
   const checkout = await createStripeCheckoutSessionDirectCharge({
     connectedAccountId,
     paymentId: payment.id,
@@ -108,8 +108,6 @@ export async function POST(_req: Request, { params }: Props) {
     applicationFeeAmountYen: fee.applicationFeeAmountYen,
     productName: booking.lessonProduct.nameEn,
     customerEmail: booking.student.email,
-    customerId: stripeCustomerId,
-    savePaymentMethod: !stripeCustomerId,
     successUrl: `${baseUrl}/book/checkout/${booking.id}?stripe=success&session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${baseUrl}/book/checkout/${booking.id}?stripe=cancelled`,
   });
@@ -122,46 +120,48 @@ export async function POST(_req: Request, { params }: Props) {
     return NextResponse.json({ error: "Stripe checkout URL was not returned" }, { status: 502 });
   }
 
-  await prisma.paymentLedgerEntry.deleteMany({
-    where: {
-      paymentId: payment.id,
-      type: { in: ["PLATFORM_FEE", "TEACHER_NET"] },
-    },
-  });
-  await prisma.paymentLedgerEntry.createMany({
-    data: [
-      { paymentId: payment.id, type: "PLATFORM_FEE", amountYen: fee.applicationFeeAmountYen },
-      {
+  const updated = await prisma.$transaction(async (tx) => {
+    await tx.paymentLedgerEntry.deleteMany({
+      where: {
         paymentId: payment.id,
-        type: "TEACHER_NET",
-        amountYen: payment.amountYen - fee.applicationFeeAmountYen,
+        type: { in: ["PLATFORM_FEE", "TEACHER_NET"] },
       },
-    ],
-  });
+    });
+    await tx.paymentLedgerEntry.createMany({
+      data: [
+        { paymentId: payment.id, type: "PLATFORM_FEE", amountYen: fee.applicationFeeAmountYen },
+        {
+          paymentId: payment.id,
+          type: "TEACHER_NET",
+          amountYen: payment.amountYen - fee.applicationFeeAmountYen,
+        },
+      ],
+    });
 
-  const updated = await prisma.payment.update({
-    where: { id: payment.id },
-    data: {
-      status: "REQUIRES_ACTION",
-      providerCheckoutId: checkout.id,
-      providerPaymentId: paymentIntentId,
-      checkoutUrl,
-      metadataJson: {
-        chargeType: "DIRECT_CHARGE",
-        connectedAccountId,
-        feePolicyVersion: fee.feePolicyVersion,
-        calculatedTier: fee.calculatedTier,
-        effectiveTier: fee.effectiveTier,
-        teacherTier: fee.teacherTier,
-        overrideActive: fee.overrideActive,
-        periodTimeZone: fee.periodTimeZone,
-        periodStart: fee.periodStart.toISOString(),
-        periodEnd: fee.periodEnd.toISOString(),
-        paidLessonOrdinal: fee.paidLessonOrdinal,
-        rateBps: fee.rateBps,
-        applicationFeeAmountYen: fee.applicationFeeAmountYen,
+    return tx.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: "REQUIRES_ACTION",
+        providerCheckoutId: checkout.id,
+        providerPaymentId: paymentIntentId,
+        checkoutUrl,
+        metadataJson: {
+          chargeType: "DIRECT_CHARGE",
+          connectedAccountId,
+          feePolicyVersion: fee.feePolicyVersion,
+          calculatedTier: fee.calculatedTier,
+          effectiveTier: fee.effectiveTier,
+          teacherTier: fee.teacherTier,
+          overrideActive: fee.overrideActive,
+          periodTimeZone: fee.periodTimeZone,
+          periodStart: fee.periodStart.toISOString(),
+          periodEnd: fee.periodEnd.toISOString(),
+          paidLessonOrdinal: fee.paidLessonOrdinal,
+          rateBps: fee.rateBps,
+          applicationFeeAmountYen: fee.applicationFeeAmountYen,
+        },
       },
-    },
+    });
   });
 
   return NextResponse.json({

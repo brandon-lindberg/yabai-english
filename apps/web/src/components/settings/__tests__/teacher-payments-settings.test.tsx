@@ -253,6 +253,80 @@ describe("TeacherPaymentsSettings", () => {
     });
   });
 
+  test("lets the teacher pass the refund processing fee to the student", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ok: true, teacherProfileId: "tp-1" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherPaymentsSettings
+          paymentPolicyAcceptedAt="2026-05-15T00:00:00.000Z"
+          devPaymentsEnabled={false}
+          stripeConnectEnabled
+          refundFeePassedToStudent={false}
+          accounts={[
+            {
+              id: "acct-1",
+              provider: "STRIPE",
+              status: "ENABLED",
+              chargesEnabled: true,
+              payoutsEnabled: true,
+              providerAccountId: "acct_test",
+              methods: [{ method: "CARD", enabled: true }],
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByText(en.dashboard.settingsPage.refundFeeTitle)).toBeTruthy();
+    const toggle = screen.getByRole("checkbox", {
+      name: en.dashboard.settingsPage.refundFeePassToStudentLabel,
+    });
+    expect((toggle as HTMLInputElement).checked).toBe(false);
+
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith("/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refundFeePassedToStudent: true }),
+      });
+      expect((toggle as HTMLInputElement).checked).toBe(true);
+    });
+  });
+
+  test("reverts the refund fee toggle when saving fails", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherPaymentsSettings
+          paymentPolicyAcceptedAt="2026-05-15T00:00:00.000Z"
+          devPaymentsEnabled={false}
+          stripeConnectEnabled
+          refundFeePassedToStudent={false}
+          accounts={[]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    const toggle = screen.getByRole("checkbox", {
+      name: en.dashboard.settingsPage.refundFeePassToStudentLabel,
+    });
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      expect((toggle as HTMLInputElement).checked).toBe(false);
+      expect(screen.getByText(en.dashboard.settingsPage.refundFeeSaveError)).toBeTruthy();
+    });
+  });
+
   test("shows Stripe setup status card and hides connect when ready", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>

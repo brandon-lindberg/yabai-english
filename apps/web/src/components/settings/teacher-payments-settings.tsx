@@ -38,6 +38,7 @@ type Props = {
   accounts: TeacherPaymentsSettingsAccount[];
   devPaymentsEnabled: boolean;
   stripeConnectEnabled: boolean;
+  refundFeePassedToStudent?: boolean;
 };
 
 export function TeacherPaymentsSettings({
@@ -45,6 +46,7 @@ export function TeacherPaymentsSettings({
   accounts: initialAccounts,
   devPaymentsEnabled,
   stripeConnectEnabled,
+  refundFeePassedToStudent: initialRefundFeePassedToStudent = false,
 }: Props) {
   const t = useTranslations("dashboard.settingsPage");
   const searchParams = useSearchParams();
@@ -58,6 +60,11 @@ export function TeacherPaymentsSettings({
     null,
   );
   const [error, setError] = useState<string | null>(null);
+  const [refundFeePassedToStudent, setRefundFeePassedToStudent] = useState(
+    initialRefundFeePassedToStudent,
+  );
+  const [savingRefundFee, setSavingRefundFee] = useState(false);
+  const [refundFeeError, setRefundFeeError] = useState<string | null>(null);
   const enabledMethods = getEnabledTeacherPaymentMethods(accounts);
   const hasLocalDevStripe = accounts.some(
     (account) =>
@@ -149,6 +156,28 @@ export function TeacherPaymentsSettings({
       setReturnBanner("incomplete");
     } finally {
       setRefreshingStripe(false);
+    }
+  }
+
+  async function saveRefundFeePreference(nextValue: boolean) {
+    setSavingRefundFee(true);
+    setRefundFeeError(null);
+    setRefundFeePassedToStudent(nextValue);
+    try {
+      const res = await fetch("/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refundFeePassedToStudent: nextValue }),
+      });
+      if (!res.ok) {
+        setRefundFeePassedToStudent(!nextValue);
+        setRefundFeeError(t("refundFeeSaveError"));
+      }
+    } catch {
+      setRefundFeePassedToStudent(!nextValue);
+      setRefundFeeError(t("refundFeeSaveError"));
+    } finally {
+      setSavingRefundFee(false);
     }
   }
 
@@ -279,6 +308,38 @@ export function TeacherPaymentsSettings({
         ) : null}
         {setupState.state === "ready" ? (
           <p className="text-xs text-foreground">{t("stripeSetupStudentsCanPay")}</p>
+        ) : null}
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">{t("refundFeeTitle")}</h3>
+          <p className="mt-1 text-sm text-muted">{t("refundFeeIntro")}</p>
+        </div>
+        <label className="flex items-start gap-3 text-sm text-foreground">
+          <input
+            type="checkbox"
+            aria-label={t("refundFeePassToStudentLabel")}
+            checked={refundFeePassedToStudent}
+            disabled={savingRefundFee}
+            onChange={(event) => {
+              void saveRefundFeePreference(event.target.checked);
+            }}
+            className="mt-0.5 h-4 w-4 rounded border-border accent-[var(--app-primary,#4f46e5)]"
+          />
+          <span>
+            <span className="font-medium">{t("refundFeePassToStudentLabel")}</span>
+            <span className="mt-0.5 block text-xs text-muted">
+              {refundFeePassedToStudent
+                ? t("refundFeePassToStudentHelp")
+                : t("refundFeeTeacherCoversHelp")}
+            </span>
+          </span>
+        </label>
+        {refundFeeError ? (
+          <p className="text-sm" style={{ color: "var(--app-danger)" }}>
+            {refundFeeError}
+          </p>
         ) : null}
       </section>
     </section>

@@ -54,47 +54,6 @@ export async function retrieveStripeAccount(accountId: string) {
   return stripe().accounts.retrieve(accountId);
 }
 
-export async function createStripePlatformCustomer({ email, name }: { email?: string | null; name?: string | null }) {
-  return stripe().customers.create({
-    ...(email ? { email } : {}),
-    ...(name ? { name } : {}),
-  });
-}
-
-export async function createStripeSetupCheckoutSession({
-  customerId,
-  successUrl,
-  cancelUrl,
-}: {
-  customerId: string;
-  successUrl: string;
-  cancelUrl: string;
-}) {
-  return stripe().checkout.sessions.create({
-    mode: "setup",
-    customer: customerId,
-    success_url: successUrl,
-    cancel_url: cancelUrl,
-  });
-}
-
-export async function listStripeCustomerCardSummary(customerId: string) {
-  const methods = await stripe().paymentMethods.list({
-    customer: customerId,
-    type: "card",
-  });
-  const method = methods.data[0];
-  if (!method?.card) {
-    return null;
-  }
-  return {
-    brand: method.card.brand,
-    last4: method.card.last4,
-    expMonth: method.card.exp_month,
-    expYear: method.card.exp_year,
-  };
-}
-
 export async function createStripeCheckoutSessionDirectCharge({
   connectedAccountId,
   paymentId,
@@ -103,8 +62,6 @@ export async function createStripeCheckoutSessionDirectCharge({
   applicationFeeAmountYen,
   productName,
   customerEmail,
-  customerId,
-  savePaymentMethod = false,
   successUrl,
   cancelUrl,
 }: {
@@ -115,8 +72,6 @@ export async function createStripeCheckoutSessionDirectCharge({
   applicationFeeAmountYen: number;
   productName: string;
   customerEmail?: string | null;
-  customerId?: string | null;
-  savePaymentMethod?: boolean;
   successUrl: string;
   cancelUrl: string;
 }) {
@@ -137,7 +92,6 @@ export async function createStripeCheckoutSessionDirectCharge({
       ],
       payment_intent_data: {
         application_fee_amount: applicationFeeAmountYen,
-        ...(savePaymentMethod ? { setup_future_usage: "off_session" } : {}),
         metadata: {
           paymentId,
           bookingId,
@@ -147,11 +101,7 @@ export async function createStripeCheckoutSessionDirectCharge({
         paymentId,
         bookingId,
       },
-      ...(customerId
-        ? { customer: customerId }
-        : customerEmail
-          ? { customer_email: customerEmail }
-          : {}),
+      ...(customerEmail ? { customer_email: customerEmail } : {}),
       success_url: successUrl,
       cancel_url: cancelUrl,
     },
@@ -165,6 +115,56 @@ export function constructStripeWebhookEvent(rawBody: string, signature: string) 
     throw new Error("STRIPE_WEBHOOK_SECRET is not configured");
   }
   return stripe().webhooks.constructEvent(rawBody, signature, webhookSecret);
+}
+
+/**
+ * Refunds the platform's application fee for a direct charge back to the
+ * connected account, keeping `keepYen` as the platform's processing fee.
+ * Returns null when there is nothing to refund.
+ */
+export async function createStripeApplicationFeeRefundKeepingProcessingFee({
+  connectedAccountId,
+  paymentIntentId,
+  keepYen,
+  paymentId,
+  bookingId,
+}: {
+  connectedAccountId: string;
+  paymentIntentId: string;
+  keepYen: number;
+  paymentId: string;
+  bookingId: string;
+}) {
+  const intent = await stripe().paymentIntents.retrieve(
+    paymentIntentId,
+    { expand: ["latest_charge"] },
+    { stripeAccount: connectedAccountId },
+  );
+  const charge =
+    typeof intent.latest_charge === "object" && intent.latest_charge !== null
+      ? intent.latest_charge
+      : null;
+  const applicationFeeId =
+    typeof charge?.application_fee === "string"
+      ? charge.application_fee
+      : charge?.application_fee?.id ?? null;
+  if (!applicationFeeId) {
+    return null;
+  }
+
+  const applicationFee = await stripe().applicationFees.retrieve(applicationFeeId);
+  const refundableYen = applicationFee.amount - applicationFee.amount_refunded - keepYen;
+  if (refundableYen <= 0) {
+    return null;
+  }
+
+  return stripe().applicationFees.createRefund(applicationFeeId, {
+    amount: refundableYen,
+    metadata: {
+      paymentId,
+      bookingId,
+    },
+  });
 }
 
 export async function createStripeRefundDirectCharge({

@@ -355,9 +355,6 @@ model StudentProfile {
 
   /// Short self-introduction / goals; visible to teachers with other profile context.
   shortBio String? @db.VarChar(300)
-
-  /// Platform Stripe Customer for saved payment methods at checkout.
-  stripeCustomerId String? @unique
 }
 
 model TeacherProfile {
@@ -379,6 +376,9 @@ model TeacherProfile {
   /// When true, profile is hidden from /book marketplace; only rostered students may book via direct link.
   marketplaceHidden          Boolean   @default(false)
   paymentPolicyAcceptedAt    DateTime?
+  /// When true, the 10% refund processing fee is deducted from the student's refund
+  /// instead of being covered by the teacher.
+  refundFeePassedToStudent   Boolean   @default(false)
   onboardingCompletedAt      DateTime?
   /// Steps the teacher explicitly skipped from the onboarding wizard.
   skippedOnboardingSteps     String[]  @default([])

@@ -102,6 +102,12 @@ async function handleCheckoutSessionCompleted(event: StripeEventLike) {
     return NextResponse.json({ error: "Stripe session missing payment metadata" }, { status: 400 });
   }
 
+  // Delayed payment methods complete the session before money moves; wait for
+  // checkout.session.async_payment_succeeded before confirming the booking.
+  if (stringValue(session.payment_status) !== "paid") {
+    return NextResponse.json({ ok: true, pendingPayment: true });
+  }
+
   const paymentIntent =
     typeof session.payment_intent === "string"
       ? session.payment_intent
@@ -144,14 +150,30 @@ async function handleCheckoutSessionExpired(event: StripeEventLike) {
   const paymentId = stringValue(metadata.paymentId);
   if (!paymentId) return NextResponse.json({ ok: true, ignored: true });
 
-  await prisma.payment.update({
-    where: { id: paymentId },
+  await prisma.payment.updateMany({
+    where: { id: paymentId, status: { not: "SUCCEEDED" } },
     data: {
       status: "EXPIRED",
       providerCheckoutId: stringValue(session.id),
     },
   });
   return NextResponse.json({ ok: true, paymentStatus: "EXPIRED" });
+}
+
+async function handleCheckoutSessionAsyncPaymentFailed(event: StripeEventLike) {
+  const session = event.data.object;
+  const metadata = (session.metadata ?? {}) as Record<string, unknown>;
+  const paymentId = stringValue(metadata.paymentId);
+  if (!paymentId) return NextResponse.json({ ok: true, ignored: true });
+
+  await prisma.payment.updateMany({
+    where: { id: paymentId, status: { not: "SUCCEEDED" } },
+    data: {
+      status: "FAILED",
+      providerCheckoutId: stringValue(session.id),
+    },
+  });
+  return NextResponse.json({ ok: true, paymentStatus: "FAILED" });
 }
 
 export async function POST(req: Request) {
@@ -181,8 +203,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, duplicate: true });
   }
 
-  if (event.type === "checkout.session.completed") {
+  if (
+    event.type === "checkout.session.completed" ||
+    event.type === "checkout.session.async_payment_succeeded"
+  ) {
     return handleCheckoutSessionCompleted(event);
+  }
+  if (event.type === "checkout.session.async_payment_failed") {
+    return handleCheckoutSessionAsyncPaymentFailed(event);
   }
   if (event.type === "checkout.session.expired") {
     return handleCheckoutSessionExpired(event);

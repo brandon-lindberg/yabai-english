@@ -7,7 +7,6 @@ import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { GoogleIntegrationsSettingsContent } from "@/components/dashboard/google-integrations-settings-content";
 import { SettingsTabs } from "@/components/settings/settings-tabs";
 import { TeacherPaymentsSettings } from "@/components/settings/teacher-payments-settings";
-import { StudentPaymentsSettings } from "@/components/settings/student-payments-settings";
 import { TeacherTierSettings } from "@/components/settings/teacher-tier-settings";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { resolveEffectiveTeacherTier } from "@/lib/platform-fees";
@@ -30,14 +29,12 @@ export default async function DashboardSettingsPage({
   const { onboardingNext, onboardingStep, tab } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
   const isTeacher = isTeacherCabinetRole(session.user.role);
-  const isStudent = session.user.role === "STUDENT";
   const stripeConnectEnabled = Boolean(process.env.STRIPE_SECRET_KEY);
   const showTeacherPayments = isTeacher;
-  const showStudentPayments = isStudent && stripeConnectEnabled;
   const activeTab =
     showTeacherPayments && tab === "tier"
       ? "tier"
-      : (showTeacherPayments || showStudentPayments) && tab !== "google"
+      : showTeacherPayments && tab !== "google"
         ? "payments"
         : "google";
   const teacherProfile = showTeacherPayments
@@ -45,6 +42,7 @@ export default async function DashboardSettingsPage({
         where: { userId: session.user.id },
         select: {
           paymentPolicyAcceptedAt: true,
+          refundFeePassedToStudent: true,
           tierState: true,
           tierEvaluations: {
             orderBy: { createdAt: "desc" },
@@ -91,7 +89,7 @@ export default async function DashboardSettingsPage({
       <PageHeader title={t("title")} description={t("intro")} />
       <SettingsTabs
         activeTab={activeTab}
-        showPayments={showTeacherPayments || showStudentPayments}
+        showPayments={showTeacherPayments}
         showTier={showTeacherPayments}
       />
       {activeTab === "payments" && teacherProfile ? (
@@ -100,10 +98,8 @@ export default async function DashboardSettingsPage({
           accounts={teacherProfile.paymentAccounts}
           devPaymentsEnabled={devPaymentsEnabled}
           stripeConnectEnabled={stripeConnectEnabled}
+          refundFeePassedToStudent={teacherProfile.refundFeePassedToStudent}
         />
-      ) : null}
-      {activeTab === "payments" && showStudentPayments ? (
-        <StudentPaymentsSettings stripeConnectEnabled={stripeConnectEnabled} />
       ) : null}
       {activeTab === "tier" && teacherProfile ? (
         <TeacherTierSettings
