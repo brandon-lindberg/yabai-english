@@ -29,5 +29,7 @@ describe("PaymentPolicyNotice", () => {
 
     expect(screen.getByText(/transaction is between you and the teacher/i)).toBeTruthy();
     expect(screen.getByText(/refund may fail or be delayed/i)).toBeTruthy();
+    expect(screen.queryByText(/Tier 1 uses 20% for lessons 1-5/i)).toBeNull();
+    expect(screen.queryByText(/platform fee depends on the teacher/i)).toBeNull();
   });
 });

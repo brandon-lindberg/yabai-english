@@ -1,14 +1,13 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CheckoutPayButton } from "@/components/checkout-pay-button";
-import { CheckoutConfirmationPoll } from "@/components/booking/checkout-confirmation-poll";
 import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
-  searchParams: Promise<{ stripe?: string }>;
+  searchParams: Promise<{ stripe?: string; session_id?: string }>;
 };
 
 export default async function CheckoutPage({ params, searchParams }: Props) {
@@ -17,7 +16,12 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   if (!session?.user?.id) return null;
 
   const { bookingId } = await params;
-  const { stripe } = await searchParams;
+  const { stripe, session_id: sessionId } = await searchParams;
+
+  if (stripe === "success" && sessionId) {
+    redirect(`/book/checkout/${bookingId}/success?session_id=${encodeURIComponent(sessionId)}`);
+  }
+
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: { lessonProduct: true, teacher: { include: { user: true } } },
@@ -25,6 +29,10 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
 
   if (!booking || booking.studentId !== session.user.id) {
     notFound();
+  }
+
+  if (booking.status === "CONFIRMED") {
+    redirect(`/book/checkout/${bookingId}/success?session_id=confirmed`);
   }
 
   return (
@@ -44,11 +52,11 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
         <p className="mt-3 text-lg font-bold text-foreground">
           JPY {booking.quotedPriceYen.toLocaleString()}
         </p>
-        <CheckoutConfirmationPoll
-          bookingId={booking.id}
-          initialStatus={booking.status}
-          stripeSuccess={stripe === "success"}
-        />
+        {stripe === "cancelled" ? (
+          <p className="mt-4 rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted">
+            {t("checkoutCancelled")}
+          </p>
+        ) : null}
         {booking.status === "PENDING_PAYMENT" ? (
           <>
             <PaymentPolicyNotice audience="student" className="mt-4" />

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { prismaMock, constructEventMock, confirmPaidBookingMock } = vi.hoisted(() => ({
+const { prismaMock, constructEventMock, confirmFromCheckoutMock } = vi.hoisted(() => ({
   prismaMock: {
     paymentWebhookEvent: { createMany: vi.fn() },
     payment: { update: vi.fn(), updateMany: vi.fn() },
@@ -8,15 +8,15 @@ const { prismaMock, constructEventMock, confirmPaidBookingMock } = vi.hoisted(()
     teacherPaymentMethod: { upsert: vi.fn(), updateMany: vi.fn() },
   },
   constructEventMock: vi.fn(),
-  confirmPaidBookingMock: vi.fn(),
+  confirmFromCheckoutMock: vi.fn(),
 }));
 
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/stripe/stripe-connect", () => ({
   constructStripeWebhookEvent: constructEventMock,
 }));
-vi.mock("@/lib/booking-payment-confirmation", () => ({
-  confirmPaidBookingFromPayment: confirmPaidBookingMock,
+vi.mock("@/lib/stripe/confirm-booking-from-stripe-checkout", () => ({
+  confirmBookingFromStripeCheckoutSession: confirmFromCheckoutMock,
 }));
 
 import { POST } from "@/app/api/payments/webhooks/stripe/route";
@@ -25,14 +25,10 @@ describe("POST /api/payments/webhooks/stripe", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     prismaMock.paymentWebhookEvent.createMany.mockResolvedValue({ count: 1 });
-    prismaMock.payment.update.mockResolvedValue({
-      id: "payment-1",
-      bookingId: "booking-1",
-      status: "SUCCEEDED",
-    });
-    confirmPaidBookingMock.mockResolvedValue({
+    confirmFromCheckoutMock.mockResolvedValue({
       ok: true,
-      booking: { id: "booking-1", status: "CONFIRMED" },
+      bookingStatus: "CONFIRMED",
+      alreadyConfirmed: false,
     });
   });
 
@@ -74,16 +70,16 @@ describe("POST /api/payments/webhooks/stripe", () => {
         skipDuplicates: true,
       }),
     );
-    expect(prismaMock.payment.update).toHaveBeenCalledWith({
-      where: { id: "payment-1" },
-      data: expect.objectContaining({
-        status: "SUCCEEDED",
-        providerCheckoutId: "cs_123",
-        providerPaymentId: "pi_123",
-        paidAt: expect.any(Date),
+    expect(confirmFromCheckoutMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "cs_123",
+        payment_status: "paid",
+        metadata: {
+          paymentId: "payment-1",
+          bookingId: "booking-1",
+        },
       }),
-    });
-    expect(confirmPaidBookingMock).toHaveBeenCalledWith("booking-1");
+    );
   });
 
   test("does not confirm booking when checkout.session.completed is not yet paid", async () => {
@@ -117,7 +113,7 @@ describe("POST /api/payments/webhooks/stripe", () => {
       expect.objectContaining({ ok: true, pendingPayment: true }),
     );
     expect(prismaMock.payment.update).not.toHaveBeenCalled();
-    expect(confirmPaidBookingMock).not.toHaveBeenCalled();
+    expect(confirmFromCheckoutMock).not.toHaveBeenCalled();
   });
 
   test("confirms booking from checkout.session.async_payment_succeeded", async () => {
@@ -147,13 +143,12 @@ describe("POST /api/payments/webhooks/stripe", () => {
     );
 
     expect(res.status).toBe(200);
-    expect(prismaMock.payment.update).toHaveBeenCalledWith(
+    expect(confirmFromCheckoutMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: "payment-1" },
-        data: expect.objectContaining({ status: "SUCCEEDED" }),
+        id: "cs_123",
+        payment_status: "paid",
       }),
     );
-    expect(confirmPaidBookingMock).toHaveBeenCalledWith("booking-1");
   });
 
   test("marks payment failed on checkout.session.async_payment_failed", async () => {
@@ -186,7 +181,7 @@ describe("POST /api/payments/webhooks/stripe", () => {
       where: { id: "payment-1", status: { not: "SUCCEEDED" } },
       data: expect.objectContaining({ status: "FAILED" }),
     });
-    expect(confirmPaidBookingMock).not.toHaveBeenCalled();
+    expect(confirmFromCheckoutMock).not.toHaveBeenCalled();
   });
 
   test("checkout.session.expired never overwrites a succeeded payment", async () => {
@@ -237,7 +232,7 @@ describe("POST /api/payments/webhooks/stripe", () => {
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({ ok: true, duplicate: true });
     expect(prismaMock.payment.update).not.toHaveBeenCalled();
-    expect(confirmPaidBookingMock).not.toHaveBeenCalled();
+    expect(confirmFromCheckoutMock).not.toHaveBeenCalled();
   });
 
   test("account.updated syncs connected account readiness", async () => {

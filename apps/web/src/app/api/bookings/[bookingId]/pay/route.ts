@@ -108,7 +108,7 @@ export async function POST(_req: Request, { params }: Props) {
     applicationFeeAmountYen: fee.applicationFeeAmountYen,
     productName: booking.lessonProduct.nameEn,
     customerEmail: booking.student.email,
-    successUrl: `${baseUrl}/book/checkout/${booking.id}?stripe=success&session_id={CHECKOUT_SESSION_ID}`,
+    successUrl: `${baseUrl}/book/checkout/${booking.id}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${baseUrl}/book/checkout/${booking.id}?stripe=cancelled`,
   });
   const paymentIntentId =

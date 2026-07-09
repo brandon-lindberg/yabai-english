@@ -9,7 +9,10 @@ type Props = {
 
 export function PaymentPolicyNotice({ audience, className = "" }: Props) {
   const t = useTranslations(`paymentPolicy.${audience}`);
-  const items = ["transaction", "platformFee", "refunds", "failure"] as const;
+  const items =
+    audience === "student"
+      ? (["transaction", "refunds", "failure"] as const)
+      : (["transaction", "platformFee", "refunds", "failure"] as const);
 
   return (
     <section

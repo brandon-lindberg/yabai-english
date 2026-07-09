@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { confirmPaidBookingFromPayment } from "@/lib/booking-payment-confirmation";
 import { resolveStripeAccountStatus } from "@/lib/stripe/stripe-account-status";
 import { constructStripeWebhookEvent } from "@/lib/stripe/stripe-connect";
+import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-booking-from-stripe-checkout";
 
 type StripeEventLike = {
   id: string;
@@ -108,39 +108,20 @@ async function handleCheckoutSessionCompleted(event: StripeEventLike) {
     return NextResponse.json({ ok: true, pendingPayment: true });
   }
 
-  const paymentIntent =
-    typeof session.payment_intent === "string"
-      ? session.payment_intent
-      : typeof session.payment_intent === "object" &&
-          session.payment_intent !== null &&
-          "id" in session.payment_intent
-        ? stringValue((session.payment_intent as { id?: unknown }).id)
-        : null;
-
-  const payment = await prisma.payment.update({
-    where: { id: paymentId },
-    data: {
-      status: "SUCCEEDED",
-      providerCheckoutId: stringValue(session.id),
-      providerPaymentId: paymentIntent,
-      paidAt: new Date(),
-    },
+  const result = await confirmBookingFromStripeCheckoutSession({
+    id: stringValue(session.id) ?? "",
+    payment_status: stringValue(session.payment_status),
+    metadata: metadata as Record<string, string | undefined>,
+    payment_intent: session.payment_intent as string | { id?: string } | null | undefined,
   });
-
-  if (!payment.bookingId) {
-    return NextResponse.json({ error: "Payment has no booking" }, { status: 409 });
-  }
-
-  const result = await confirmPaidBookingFromPayment(payment.bookingId);
   if (!result.ok) {
     return NextResponse.json({ error: result.reason }, { status: 409 });
   }
 
   return NextResponse.json({
     ok: true,
-    paymentStatus: payment.status,
-    bookingId: result.booking.id,
-    bookingStatus: result.booking.status,
+    bookingStatus: result.bookingStatus,
+    alreadyConfirmed: result.alreadyConfirmed,
   });
 }
 

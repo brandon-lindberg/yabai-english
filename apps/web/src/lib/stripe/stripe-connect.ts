@@ -117,6 +117,20 @@ export function constructStripeWebhookEvent(rawBody: string, signature: string) 
   return stripe().webhooks.constructEvent(rawBody, signature, webhookSecret);
 }
 
+export async function retrieveStripeCheckoutSession({
+  sessionId,
+  connectedAccountId,
+}: {
+  sessionId: string;
+  connectedAccountId: string;
+}) {
+  return stripe().checkout.sessions.retrieve(
+    sessionId,
+    {},
+    { stripeAccount: connectedAccountId },
+  );
+}
+
 /**
  * Refunds the platform's application fee for a direct charge back to the
  * connected account, keeping `keepYen` as the platform's processing fee.
