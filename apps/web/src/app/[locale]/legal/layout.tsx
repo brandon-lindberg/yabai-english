@@ -18,6 +18,30 @@ export default async function LegalLayout({ children }: { children: ReactNode })
           {t("navTerms")}
         </Link>
         <Link
+          href="/legal/terms/teachers"
+          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+        >
+          {t("navTermsTeachers")}
+        </Link>
+        <Link
+          href="/legal/terms/students"
+          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+        >
+          {t("navTermsStudents")}
+        </Link>
+        <Link
+          href="/legal/refund/teachers"
+          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+        >
+          {t("navRefundTeachers")}
+        </Link>
+        <Link
+          href="/legal/refund/students"
+          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+        >
+          {t("navRefundStudents")}
+        </Link>
+        <Link
           href="/legal/privacy"
           className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
         >

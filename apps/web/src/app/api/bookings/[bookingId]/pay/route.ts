@@ -17,11 +17,31 @@ function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
 }
 
-export async function POST(_req: Request, { params }: Props) {
+export async function POST(req: Request, { params }: Props) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const body = (await req.json().catch(() => ({}))) as { acceptedMarketplaceTerms?: boolean };
+  if (!body.acceptedMarketplaceTerms) {
+    return NextResponse.json(
+      { error: "Student marketplace terms must be accepted before payment" },
+      { status: 400 },
+    );
+  }
+
+  const acceptedAt = new Date();
+  await prisma.studentProfile.upsert({
+    where: { userId: session.user.id },
+    create: {
+      userId: session.user.id,
+      marketplaceTermsAcceptedAt: acceptedAt,
+    },
+    update: {
+      marketplaceTermsAcceptedAt: acceptedAt,
+    },
+  });
 
   const { bookingId } = await params;
   const booking = await prisma.booking.findUnique({

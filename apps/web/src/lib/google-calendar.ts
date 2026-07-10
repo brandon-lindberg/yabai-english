@@ -14,19 +14,33 @@ function errorMessage(err: unknown) {
   return err instanceof Error ? err.message : String(err);
 }
 
+function isInvalidGrant(err: unknown): boolean {
+  if (!(err && typeof err === "object")) return false;
+  const candidate = err as {
+    message?: string;
+    response?: { data?: { error?: string } };
+  };
+  return (
+    candidate.message?.includes("invalid_grant") === true ||
+    candidate.response?.data?.error === "invalid_grant"
+  );
+}
+
 async function recordGoogleIntegrationError(
   userId: string | undefined,
   code: string,
   err: unknown,
 ) {
   if (!userId) return;
+  const invalidGrant = isInvalidGrant(err);
   try {
     await prisma.googleIntegrationAccount.update({
       where: { userId },
       data: {
-        lastErrorCode: code,
+        lastErrorCode: invalidGrant ? "GOOGLE_INVALID_GRANT" : code,
         lastErrorMessage: errorMessage(err).slice(0, 2000),
         lastSyncedAt: new Date(),
+        ...(invalidGrant ? { revoked: true } : {}),
       },
     });
   } catch {
@@ -139,16 +153,20 @@ export async function createMeetLessonEvent(params: {
       googleEventId: created.data.id ?? null,
     };
   } catch (err) {
-    console.error("Google Calendar create failed:", err);
+    if (isInvalidGrant(err)) {
+      console.warn("Google Calendar token expired; reconnect required.");
+    } else {
+      console.error("Google Calendar create failed:", err);
+    }
     await recordGoogleIntegrationError(
       params.organizerUserId,
-      "CALENDAR_CREATE_FAILED",
+      isInvalidGrant(err) ? "GOOGLE_INVALID_GRANT" : "CALENDAR_CREATE_FAILED",
       err,
     );
     return {
       meetUrl: null,
       googleEventId: null,
-      errorCode: "CALENDAR_CREATE_FAILED",
+      errorCode: isInvalidGrant(err) ? "GOOGLE_INVALID_GRANT" : "CALENDAR_CREATE_FAILED",
       errorMessage: errorMessage(err),
     };
   }

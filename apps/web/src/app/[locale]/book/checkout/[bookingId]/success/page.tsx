@@ -1,9 +1,11 @@
 import { notFound, redirect } from "next/navigation";
+import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { finalizeStripeCheckoutReturn } from "@/lib/stripe/finalize-stripe-checkout-return";
+import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -30,10 +32,17 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
     if (!sessionId || sessionId === "confirmed") {
       redirect(`/book/checkout/${bookingId}`);
     }
-    const result = await finalizeStripeCheckoutReturn({ bookingId, sessionId });
+    const result = await finalizeStripeCheckoutReturn({
+      bookingId,
+      sessionId,
+      revalidateRoster: false,
+    });
     if (!result.ok) {
       redirect(`/book/checkout/${bookingId}/payment-failed?reason=${result.reason}`);
     }
+    after(() => {
+      revalidateDashboardStudentRosterPaths();
+    });
     booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: { lessonProduct: true, teacher: { include: { user: true } } },

@@ -5,9 +5,11 @@ import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-bo
 export async function finalizeStripeCheckoutReturn({
   bookingId,
   sessionId,
+  revalidateRoster = true,
 }: {
   bookingId: string;
   sessionId: string;
+  revalidateRoster?: boolean;
 }) {
   if (!stripeConnectConfigured()) {
     return { ok: false as const, reason: "STRIPE_NOT_CONFIGURED" as const };
@@ -38,12 +40,15 @@ export async function finalizeStripeCheckoutReturn({
     connectedAccountId,
   });
 
-  const result = await confirmBookingFromStripeCheckoutSession({
-    id: checkoutSession.id,
-    payment_status: checkoutSession.payment_status,
-    metadata: checkoutSession.metadata,
-    payment_intent: checkoutSession.payment_intent,
-  });
+  const result = await confirmBookingFromStripeCheckoutSession(
+    {
+      id: checkoutSession.id,
+      payment_status: checkoutSession.payment_status,
+      metadata: checkoutSession.metadata,
+      payment_intent: checkoutSession.payment_intent,
+    },
+    { revalidateRoster },
+  );
 
   return result.ok
     ? { ok: true as const, bookingStatus: result.bookingStatus }

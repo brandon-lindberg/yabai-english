@@ -64,7 +64,23 @@ describe("confirmBookingFromStripeCheckoutSession", () => {
         }),
       }),
     );
-    expect(confirmPaidBookingMock).toHaveBeenCalledWith("booking-1");
+    expect(confirmPaidBookingMock).toHaveBeenCalledWith("booking-1", {});
+  });
+
+  test("forwards roster revalidation options to booking confirmation", async () => {
+    await confirmBookingFromStripeCheckoutSession(
+      {
+        id: "cs_test_123",
+        payment_status: "paid",
+        metadata: { paymentId: "pay-1", bookingId: "booking-1" },
+        payment_intent: "pi_test_123",
+      },
+      { revalidateRoster: false },
+    );
+
+    expect(confirmPaidBookingMock).toHaveBeenCalledWith("booking-1", {
+      revalidateRoster: false,
+    });
   });
 
   test("rejects unpaid checkout sessions", async () => {

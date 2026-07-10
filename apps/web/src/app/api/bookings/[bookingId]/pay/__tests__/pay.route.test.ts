@@ -9,6 +9,7 @@ const { authMock, prismaMock, createCheckoutMock, calculateFeeMock } = vi.hoiste
       booking: { findUnique: vi.fn() },
       payment: { update: vi.fn() },
       paymentLedgerEntry: { deleteMany: vi.fn(), createMany: vi.fn() },
+      studentProfile: { upsert: vi.fn() },
     },
     createCheckoutMock: vi.fn(),
     calculateFeeMock: vi.fn(),
@@ -91,6 +92,7 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
     }));
     prismaMock.paymentLedgerEntry.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.paymentLedgerEntry.createMany.mockResolvedValue({ count: 2 });
+    prismaMock.studentProfile.upsert.mockResolvedValue({ id: "student-profile-1" });
     prismaMock.$transaction.mockImplementation(
       async (callback: (tx: typeof prismaMock) => Promise<unknown>) => callback(prismaMock),
     );
@@ -116,7 +118,11 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
 
   test("starts direct-charge Stripe checkout without confirming the booking", async () => {
     const res = await POST(
-      new Request("http://localhost/api/bookings/booking-1/pay", { method: "POST" }),
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
       { params: Promise.resolve({ bookingId: "booking-1" }) },
     );
 
@@ -130,6 +136,16 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
         checkoutUrl: "https://checkout.stripe.com/c/pay/cs_test_123",
       }),
     );
+    expect(prismaMock.studentProfile.upsert).toHaveBeenCalledWith({
+      where: { userId: "student-1" },
+      create: expect.objectContaining({
+        userId: "student-1",
+        marketplaceTermsAcceptedAt: expect.any(Date),
+      }),
+      update: expect.objectContaining({
+        marketplaceTermsAcceptedAt: expect.any(Date),
+      }),
+    });
     expect(calculateFeeMock).toHaveBeenCalledWith(
       expect.anything(),
       {
@@ -182,7 +198,11 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
 
   test("never passes platform customer or card-saving flags to the connected-account checkout", async () => {
     const res = await POST(
-      new Request("http://localhost/api/bookings/booking-1/pay", { method: "POST" }),
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
       { params: Promise.resolve({ bookingId: "booking-1" }) },
     );
 
@@ -194,12 +214,31 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
 
   test("writes the fee ledger and payment update atomically", async () => {
     const res = await POST(
-      new Request("http://localhost/api/bookings/booking-1/pay", { method: "POST" }),
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
       { params: Promise.resolve({ bookingId: "booking-1" }) },
     );
 
     expect(res.status).toBe(200);
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+  });
+
+  test("rejects checkout when marketplace terms are not accepted", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: false }),
+      }),
+      { params: Promise.resolve({ bookingId: "booking-1" }) },
+    );
+
+    expect(res.status).toBe(400);
+    expect(createCheckoutMock).not.toHaveBeenCalled();
+    expect(prismaMock.studentProfile.upsert).not.toHaveBeenCalled();
   });
 
   test("rejects local dev Stripe accounts as not connected", async () => {
@@ -208,7 +247,11 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
     prismaMock.booking.findUnique.mockResolvedValue(booking);
 
     const res = await POST(
-      new Request("http://localhost/api/bookings/booking-1/pay", { method: "POST" }),
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
       { params: Promise.resolve({ bookingId: "booking-1" }) },
     );
 

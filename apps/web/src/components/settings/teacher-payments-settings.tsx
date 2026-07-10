@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { PaymentMethodLogos } from "@/components/payment-method-logos";
 import { TeacherPaymentPolicyForm } from "@/components/teacher-payment-policy-form";
+import { TeacherMarketplaceEconomicsNotice } from "@/components/settings/teacher-marketplace-economics-notice";
 import { TeacherStripeSetupStatus } from "@/components/settings/teacher-stripe-setup-status";
 import {
   getEnabledTeacherPaymentMethods,
@@ -234,6 +235,8 @@ export function TeacherPaymentsSettings({
           }}
         />
       ) : null}
+
+      <TeacherMarketplaceEconomicsNotice />
 
       <div ref={policySectionRef}>
         <TeacherPaymentPolicyForm acceptedAt={paymentPolicyAcceptedAt} />

@@ -44,3 +44,22 @@ describe("isLegalLocale", () => {
     expect(isLegalLocale("fr")).toBe(false);
   });
 });
+
+describe("role-specific legal documents", () => {
+  test("loads teacher and student marketplace terms and refund policies", async () => {
+    const teacherTerms = await loadLegalMarkdown("terms-teachers", "en");
+    expect(teacherTerms).toContain("Teacher Marketplace Terms");
+    expect(teacherTerms).toContain("Tier 1");
+
+    const studentTerms = await loadLegalMarkdown("terms-students", "en");
+    expect(studentTerms).toContain("Student Marketplace Terms");
+
+    const teacherRefund = await loadLegalMarkdown("refund-teachers", "en");
+    expect(teacherRefund).toContain("keeps the platform fee");
+
+    const studentRefund = await loadLegalMarkdown("refund-students", "en");
+    expect(studentRefund).toContain("Student Refund Policy");
+    expect(studentRefund).not.toMatch(/platform fee/i);
+    expect(studentRefund).toContain("10%");
+  });
+});

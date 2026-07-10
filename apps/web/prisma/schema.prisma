@@ -348,6 +348,8 @@ model StudentProfile {
   notifyPayments         Boolean   @default(true)
   termsAcceptedAt        DateTime?
   privacyAcceptedAt      DateTime?
+  /// Accepted student marketplace terms and refund policy before booking paid lessons.
+  marketplaceTermsAcceptedAt DateTime?
   recordingConsentAt     DateTime?
   onboardingCompletedAt  DateTime?
   /// Steps the student explicitly skipped from the onboarding checklist.
@@ -376,8 +378,8 @@ model TeacherProfile {
   /// When true, profile is hidden from /book marketplace; only rostered students may book via direct link.
   marketplaceHidden          Boolean   @default(false)
   paymentPolicyAcceptedAt    DateTime?
-  /// When true, the 10% refund processing fee is deducted from the student's refund
-  /// instead of being covered by the teacher.
+  /// When true, the flat 10% refund processing fee is deducted from the student's
+  /// refund on student-initiated cancellations instead of being covered by the teacher.
   refundFeePassedToStudent   Boolean   @default(false)
   onboardingCompletedAt      DateTime?
   /// Steps the teacher explicitly skipped from the onboarding wizard.

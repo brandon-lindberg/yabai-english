@@ -9,7 +9,56 @@ import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { initializeTeacherTierStateFromHistory } from "@/lib/teacher-tiers";
 
-export async function confirmPaidBookingFromPayment(bookingId: string) {
+type MirrorLessonEventParams = {
+  studentUserId: string;
+  summary: string;
+  startsAt: Date;
+  endsAt: Date;
+  attendeeEmails: string[];
+};
+
+export async function maybeCreateStudentMirrorLessonEvent({
+  studentUserId,
+  summary,
+  startsAt,
+  endsAt,
+  attendeeEmails,
+}: MirrorLessonEventParams) {
+  const [settings, integration] = await Promise.all([
+    prisma.googleIntegrationSettings.findUnique({
+      where: { userId: studentUserId },
+      select: { calendarConnected: true },
+    }),
+    prisma.googleIntegrationAccount.findUnique({
+      where: { userId: studentUserId },
+      select: { refreshToken: true, revoked: true },
+    }),
+  ]);
+
+  if (
+    settings?.calendarConnected !== true ||
+    !integration?.refreshToken ||
+    integration.revoked
+  ) {
+    return { meetUrl: null, googleEventId: null };
+  }
+
+  return createMeetLessonEvent({
+    organizerUserId: studentUserId,
+    refreshTokenEncrypted: null,
+    calendarId: "primary",
+    summary,
+    start: startsAt,
+    end: endsAt,
+    attendeeEmails,
+    createMeetLink: false,
+  });
+}
+
+export async function confirmPaidBookingFromPayment(
+  bookingId: string,
+  options: { revalidateRoster?: boolean } = {},
+) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
@@ -61,7 +110,9 @@ export async function confirmPaidBookingFromPayment(bookingId: string) {
     teacherId: booking.teacher.id,
     studentUserId: booking.studentId,
   });
-  revalidateDashboardStudentRosterPaths();
+  if (options.revalidateRoster !== false) {
+    revalidateDashboardStudentRosterPaths();
+  }
 
   const attendeeEmails = [updated.student.email, updated.teacher.user.email].filter(
     Boolean,
@@ -94,15 +145,12 @@ export async function confirmPaidBookingFromPayment(bookingId: string) {
     },
   });
 
-  const studentMirrorEvent = await createMeetLessonEvent({
-    organizerUserId: booking.studentId,
-    refreshTokenEncrypted: null,
-    calendarId: "primary",
+  const studentMirrorEvent = await maybeCreateStudentMirrorLessonEvent({
+    studentUserId: booking.studentId,
     summary: `Lesson — ${updated.lessonProduct.nameEn}`,
-    start: updated.startsAt,
-    end: updated.endsAt,
+    startsAt: updated.startsAt,
+    endsAt: updated.endsAt,
     attendeeEmails,
-    createMeetLink: false,
   });
   if (studentMirrorEvent.googleEventId) {
     await prisma.booking.update({

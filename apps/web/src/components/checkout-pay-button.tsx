@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { CheckoutTermsAgreementLabel } from "@/components/checkout-terms-agreement-label";
 
 type Props = {
   bookingId: string;
@@ -24,7 +25,11 @@ export function CheckoutPayButton({ bookingId }: Props) {
       return;
     }
     try {
-      const res = await fetch(`/api/bookings/${bookingId}/pay`, { method: "POST" });
+      const res = await fetch(`/api/bookings/${bookingId}/pay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      });
       const data = (await res.json()) as { error?: string; checkoutUrl?: string };
       if (!res.ok) {
         setError(data.error ?? t("paymentFailed"));
@@ -52,7 +57,7 @@ export function CheckoutPayButton({ bookingId }: Props) {
           onChange={(e) => setAccepted(e.target.checked)}
           className="mt-1"
         />
-        <span>{t("acceptCheckoutTerms")}</span>
+        <CheckoutTermsAgreementLabel />
       </label>
       <button
         type="button"

@@ -30,6 +30,7 @@ export type ConfirmBookingFromStripeCheckoutResult =
  */
 export async function confirmBookingFromStripeCheckoutSession(
   session: StripeCheckoutSessionSnapshot,
+  options: { revalidateRoster?: boolean } = {},
 ): Promise<ConfirmBookingFromStripeCheckoutResult> {
   const paymentId = session.metadata?.paymentId;
   const bookingId = session.metadata?.bookingId;
@@ -81,7 +82,7 @@ export async function confirmBookingFromStripeCheckoutSession(
     });
   }
 
-  const result = await confirmPaidBookingFromPayment(bookingId);
+  const result = await confirmPaidBookingFromPayment(bookingId, options);
   if (!result.ok) {
     if (alreadyConfirmed || result.reason === "INVALID_STATUS") {
       return { ok: true, bookingStatus: "CONFIRMED", alreadyConfirmed: true };
