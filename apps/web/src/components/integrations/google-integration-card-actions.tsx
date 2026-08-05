@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   feature: "calendar" | "drive" | "meet";
@@ -53,7 +54,7 @@ export function GoogleIntegrationCardActions({
     <div className="mt-3 flex gap-2">
       <a
         href={buildConnectHref(feature, onboardingNext, onboardingStep)}
-        className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+        className={buttonClasses({ size: "md" })}
       >
         {connected ? "Reconnect" : "Connect"}
       </a>

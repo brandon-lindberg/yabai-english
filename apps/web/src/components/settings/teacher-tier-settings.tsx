@@ -26,17 +26,17 @@ type Props = {
 const TIER_META: Record<TeacherPlatformTier, { label: string; className: string; schedule: string }> = {
   TIER_1: {
     label: "Tier 1",
-    className: "border-amber-200 bg-amber-50 text-amber-900",
+    className: "border-border bg-[var(--app-hover)] text-foreground",
     schedule: "Lessons 1-5: 20%, 6-10: 15%, 11+: 10%",
   },
   TIER_2: {
     label: "Tier 2",
-    className: "border-sky-200 bg-sky-50 text-sky-900",
+    className: "border-border bg-[var(--app-hover)] text-foreground",
     schedule: "Lessons 1-10: 15%, 11+: 10%",
   },
   TIER_3: {
     label: "Tier 3",
-    className: "border-emerald-200 bg-emerald-50 text-emerald-900",
+    className: "border-border bg-[var(--app-hover)] text-foreground",
     schedule: "Flat 10%",
   },
 };

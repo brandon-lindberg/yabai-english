@@ -55,13 +55,13 @@ export function BookingCalendarRecoveryActions({
   }
 
   return (
-    <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
+    <div className="rounded-lg border border-[var(--app-warn-border)] bg-[var(--app-warn-bg)] p-3 text-sm text-[var(--app-warn-text)]">
       <p className="font-semibold">{copy.title}</p>
       <p className="mt-1">{copy.body}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <a
           href={connectHref}
-          className="inline-flex rounded-full bg-amber-900 px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+          className="inline-flex min-h-9 items-center rounded-full bg-[var(--app-warn-text)] px-3 py-1.5 text-xs font-semibold text-[var(--storm-paper)] hover:opacity-90"
         >
           {copy.reconnect}
         </a>
@@ -70,7 +70,7 @@ export function BookingCalendarRecoveryActions({
             type="button"
             disabled={busy}
             onClick={retryInvite}
-            className="inline-flex rounded-full border border-amber-400 bg-white px-3 py-1.5 text-xs font-semibold text-amber-950 hover:bg-amber-100 disabled:opacity-60"
+            className="inline-flex min-h-9 items-center rounded-full border border-[var(--app-warn-border)] bg-surface px-3 py-1.5 text-xs font-semibold text-[var(--app-warn-text)] hover:bg-[var(--app-warn-bg)] disabled:opacity-60"
           >
             {busy ? copy.retrying : copy.retry}
           </button>
@@ -79,7 +79,7 @@ export function BookingCalendarRecoveryActions({
           href={googleCalendarHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex rounded-full border border-amber-400 bg-white px-3 py-1.5 text-xs font-semibold text-amber-950 hover:bg-amber-100"
+          className="inline-flex min-h-9 items-center rounded-full border border-[var(--app-warn-border)] bg-surface px-3 py-1.5 text-xs font-semibold text-[var(--app-warn-text)] hover:bg-[var(--app-warn-bg)]"
         >
           {copy.addToGoogleCalendar}
         </a>

@@ -20,33 +20,33 @@ export function PlacementBankQuestionCard({
   correctIndex,
 }: PlacementBankQuestionCardProps) {
   return (
-    <article className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+    <article className="rounded-lg border border-border bg-surface p-4 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted">
         {question.cefrBand} · {question.section} · {question.id}
       </p>
-      <p className="mt-2 text-sm font-medium text-neutral-600 dark:text-neutral-400">
+      <p className="mt-2 text-sm font-medium text-muted">
         {placementTextToReact(question.instructionEn)}
       </p>
-      <p className="mt-2 text-base text-neutral-900 dark:text-neutral-100">
+      <p className="mt-2 text-base text-foreground">
         {placementTextToReact(question.questionEn)}
       </p>
       {showJapanese ? (
         <>
-          <p className="mt-2 text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <p className="mt-2 text-sm font-medium text-muted">
             {placementTextToReact(question.instructionJa)}
           </p>
-          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+          <p className="mt-1 text-sm text-foreground">
             {placementTextToReact(question.questionJa)}
           </p>
         </>
       ) : null}
-      <ul className="mt-3 list-inside list-decimal space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
+      <ul className="mt-3 list-inside list-decimal space-y-1 text-sm text-foreground">
         {question.optionsEn.map((opt, i) => (
           <li key={i}>{placementTextToReact(opt)}</li>
         ))}
       </ul>
       {showCorrectIndex && correctIndex !== undefined ? (
-        <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">Correct index (review): {correctIndex}</p>
+        <p className="mt-2 text-xs text-[var(--app-warn-text)]">Correct index (review): {correctIndex}</p>
       ) : null}
     </article>
   );

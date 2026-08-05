@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -30,7 +31,7 @@ export default async function CheckoutPaymentFailedPage({ params }: Props) {
         <p className="mt-2 text-sm text-muted">{t("checkoutPaymentConfirmed")}</p>
         <Link
           href={`/dashboard/schedule/lessons/${booking.id}`}
-          className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={`mt-6 ${buttonClasses({ size: "lg" })}`}
         >
           {t("checkoutSuccessViewBooking")}
         </Link>
@@ -45,7 +46,7 @@ export default async function CheckoutPaymentFailedPage({ params }: Props) {
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href={`/book/checkout/${booking.id}`}
-          className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={buttonClasses({ size: "lg" })}
         >
           {t("checkoutFailedRetry")}
         </Link>

@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { AppCard } from "@/components/ui/app-card";
 import { Link } from "@/i18n/navigation";
 import { isOrgWideRole } from "@/lib/org-authorization";
+import { buttonClasses } from "@/components/ui/button";
 
 async function fetchOrg(orgId: string) {
   const session = await auth();
@@ -108,7 +109,7 @@ export default async function OrgDashboardPage({
           {canManageOrg && (
             <Link
               href={`/org/${orgId}/schools`}
-              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              className={buttonClasses()}
             >
               {t("addSchool")}
             </Link>

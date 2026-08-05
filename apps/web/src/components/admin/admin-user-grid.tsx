@@ -421,7 +421,7 @@ export function AdminUserGrid({
 
       <div className="overflow-x-auto rounded-xl border border-border">
         <table
-          className="w-full min-w-[720px] border-collapse text-left text-sm"
+          className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums"
           aria-busy={loading || undefined}
         >
           <thead>

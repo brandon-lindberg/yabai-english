@@ -14,6 +14,7 @@ import {
 } from "@/lib/slot-calendar";
 import { CalendarViewControls } from "@/components/calendar-view-controls";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
+import { slotClasses } from "@/components/ui/slot-state";
 
 const MAX_MONTH_CHIPS = 3;
 
@@ -128,24 +129,14 @@ export function SlotSelectionCalendar({
   monthViewReplacement = null,
   timeZone,
 }: Props) {
-  const daySelectedClass =
-    selectionStyle === "neutral"
-      ? "border-zinc-400 bg-zinc-100 text-zinc-900 ring-1 ring-zinc-300"
-      : "border-primary bg-primary/10 text-zinc-900 ring-1 ring-primary/30";
-  const weekSelectedClass =
-    selectionStyle === "neutral"
-      ? "border-zinc-400 bg-zinc-200 text-zinc-900 shadow-sm"
-      : "border-primary bg-primary text-primary-foreground shadow-sm";
-  const monthSelectedRing =
-    selectionStyle === "neutral" ? "border-zinc-500 ring-1 ring-zinc-300" : "border-primary ring-1 ring-primary/25";
-  const monthChipSelectedClass =
-    selectionStyle === "neutral"
-      ? "border-zinc-400 bg-zinc-200 text-zinc-900"
-      : "border-primary bg-primary/10 text-foreground";
-  const monthChipUnselectedClass =
-    selectionStyle === "neutral"
-      ? "border-border bg-background text-muted hover:bg-[var(--app-hover)]"
-      : "border-border bg-surface text-foreground hover:bg-[var(--app-hover)]";
+  // Students and teachers now read the same slot vocabulary: an open slot is a
+  // dashed outline, the one you picked is ringed in ink. See ui/slot-state.
+  void selectionStyle;
+  const daySelectedClass = slotClasses({ kind: "open", selected: true });
+  const weekSelectedClass = slotClasses({ kind: "open", selected: true });
+  const monthSelectedRing = "border-foreground ring-1 ring-foreground";
+  const monthChipSelectedClass = slotClasses({ kind: "open", selected: true });
+  const monthChipUnselectedClass = slotClasses({ kind: "open" });
   const groupedSlots = timeZone
     ? groupSlotsByDayInTimeZone(slots, locale, timeZone)
     : groupSlotsByDay(slots, locale);
@@ -200,11 +191,11 @@ export function SlotSelectionCalendar({
   const rootClassName =
     variant === "embedded"
       ? "rounded-none border-0 bg-transparent p-0 shadow-none"
-      : "rounded-2xl border border-zinc-200 bg-zinc-50 p-4 shadow-sm";
+      : "rounded-2xl border border-border bg-surface p-4 shadow-sm";
 
   return (
     <div className={rootClassName}>
-      <div className="mb-4 border-b border-zinc-200 pb-3">
+      <div className="mb-4 border-b border-border pb-3">
         <CalendarViewControls
           view={calendarView}
           onViewChange={onCalendarViewChange}
@@ -226,7 +217,7 @@ export function SlotSelectionCalendar({
         (dayViewReplacement ?? (
           <>
             {(slotMap.get(anchorDayKey) ?? []).length === 0 ? (
-              <p className="rounded-lg border border-dashed border-zinc-300 px-3 py-6 text-center text-sm text-zinc-500">
+              <p className="rounded-lg border border-dashed border-border px-3 py-6 text-center text-sm text-muted">
                 {copy.noAvailabilityYet}
               </p>
             ) : (
@@ -238,7 +229,7 @@ export function SlotSelectionCalendar({
                         key={`reserved:${slot.startsAtIso}:${idx}`}
                         data-testid="slot-reserved"
                         aria-disabled="true"
-                        className="flex w-full items-center justify-between rounded-lg border border-dashed border-zinc-300 bg-zinc-100 px-3 py-2 text-left text-sm text-zinc-500"
+                        className="flex w-full items-center justify-between rounded-lg border border-dashed border-border bg-[var(--app-hover)] px-3 py-2 text-left text-sm text-muted"
                       >
                         <span className="font-medium">
                           {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
@@ -247,7 +238,7 @@ export function SlotSelectionCalendar({
                             timeZone,
                           })}
                         </span>
-                        <span className="truncate pl-3 text-xs uppercase tracking-wide text-zinc-500">
+                        <span className="truncate pl-3 text-xs uppercase tracking-wide text-muted">
                           {slot.label}
                         </span>
                       </div>
@@ -259,8 +250,8 @@ export function SlotSelectionCalendar({
                       key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
                       type="button"
                       onClick={() => onSelectSlot(slot.startsAtIso, slot.groupKey)}
-                      className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition ${
-                        selected ? daySelectedClass : "border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-100"
+                      className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm tabular-nums ${
+                        selected ? daySelectedClass : slotClasses({ kind: "open" })
                       }`}
                     >
                       <span className="font-medium">
@@ -270,7 +261,7 @@ export function SlotSelectionCalendar({
                           timeZone,
                         })}
                       </span>
-                      <span className="truncate pl-3 text-xs text-zinc-500">{slot.label}</span>
+                      <span className="truncate pl-3 text-xs text-muted">{slot.label}</span>
                     </button>
                   );
                 })}
@@ -340,8 +331,8 @@ export function SlotSelectionCalendar({
                             onSelectSlot(slot.startsAtIso, slot.groupKey);
                             onCalendarAnchorChange(slot.startsAtIso);
                           }}
-                          className={`w-full rounded-md border px-2 py-1 text-xs transition ${
-                            selected ? weekSelectedClass : "border-border bg-surface text-foreground hover:bg-[var(--app-hover)]"
+                          className={`w-full rounded-md px-2 py-1 text-xs tabular-nums ${
+                            selected ? weekSelectedClass : slotClasses({ kind: "open" })
                           }`}
                           aria-pressed={selected}
                         >
@@ -459,10 +450,10 @@ export function SlotSelectionCalendar({
                                 data-testid="slot-reserved-month"
                                 role="status"
                                 aria-label={`${slot.label}: ${range}`}
-                                className="w-full truncate rounded border border-dashed border-amber-300/80 bg-amber-50 px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-amber-950 shadow-sm dark:border-amber-600/50 dark:bg-amber-950/30 dark:text-amber-100"
+                                className="w-full truncate rounded border border-dashed border-[var(--storm-silver)] bg-[var(--app-hover)] px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-foreground"
                               >
                                 <span className="font-semibold">{range}</span>
-                                <span className="mt-0.5 block truncate text-[9px] font-semibold text-amber-900 dark:text-amber-50">
+                                <span className="mt-0.5 block truncate text-[9px] font-semibold text-foreground">
                                   {slot.label}
                                 </span>
                               </div>
@@ -480,7 +471,7 @@ export function SlotSelectionCalendar({
                                 onSelectSlot(slot.startsAtIso, slot.groupKey);
                                 onCalendarAnchorChange(slot.startsAtIso);
                               }}
-                              className={`w-full truncate rounded border px-1 py-0.5 text-left text-[9px] font-medium leading-tight shadow-sm ${
+                              className={`w-full truncate rounded px-1 py-0.5 text-left text-[9px] font-medium leading-tight tabular-nums ${
                                 selected ? monthChipSelectedClass : monthChipUnselectedClass
                               }`}
                             >

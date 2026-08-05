@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { buttonClasses } from "@/components/ui/button";
 
 type Variant = "primary" | "ghost";
 
@@ -26,7 +27,7 @@ type Props = {
 
 const VARIANT_CLASSNAMES: Record<Variant, string> = {
   primary:
-    "inline-flex whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60",
+    buttonClasses({ className: "whitespace-nowrap" }),
   ghost:
     "inline-flex whitespace-nowrap rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)] disabled:opacity-60",
 };

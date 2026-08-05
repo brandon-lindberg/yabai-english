@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
+import { FormStatus } from "@/components/ui/form-status";
 
 type SchoolData = {
   name: string;
@@ -84,17 +86,18 @@ export function SchoolSettingsForm({ orgId, schoolId }: Props) {
           </div>
         </div>
 
-        {status === "error" && (
-          <p className="text-sm text-[var(--app-danger)]">{t("error")}</p>
-        )}
-        {status === "saved" && (
-          <p className="text-sm text-muted">{t("saved")}</p>
-        )}
+        <FormStatus
+          state={status}
+          savingLabel={t("saving")}
+          savedLabel={t("saved")}
+          errorLabel={t("error")}
+          className="text-sm"
+        />
 
         <button
           type="submit"
           disabled={status === "saving"}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses()}
         >
           {status === "saving" ? t("saving") : t("save")}
         </button>

@@ -19,6 +19,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { buttonClasses } from "@/components/ui/button";
 
 function SortableChip({ id, label }: { id: string; label: string }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -90,7 +91,7 @@ export function StudyReorderExercise({
         type="button"
         disabled={disabled}
         onClick={() => onCheck(orderedIds)}
-        className="rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-40"
+        className={buttonClasses()}
       >
         {t("reorderCheck")}
       </button>

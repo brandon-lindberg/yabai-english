@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { buttonClasses } from "@/components/ui/button";
 
 function formatPlacementEligibleDate(iso: string, locale: string): string {
   const d = new Date(iso);
@@ -216,7 +217,7 @@ export function PlacementQuiz() {
         <p className="mt-2 text-sm text-muted">{t("cooldownBody", { date: dateLabel })}</p>
         <Link
           href="/dashboard"
-          className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={`mt-6 ${buttonClasses({ size: "lg" })}`}
         >
           {t("cooldownBack")}
         </Link>
@@ -298,7 +299,7 @@ export function PlacementQuiz() {
         <button
           type="button"
           onClick={() => router.push("/dashboard")}
-          className="mt-6 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={buttonClasses({ size: "lg", className: "mt-6" })}
         >
           {t("backToDashboard")}
         </button>
@@ -348,7 +349,7 @@ export function PlacementQuiz() {
             type="button"
             disabled={submitting || remainingSec === 0}
             onClick={() => void onFinish(false)}
-            className="mt-3 w-full rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            className={buttonClasses({ size: "md", className: "mt-3 w-full" })}
           >
             {t("submitPlacement")}
           </button>

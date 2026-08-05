@@ -14,6 +14,7 @@ import {
   TEACHER_ONBOARDING_STEPS,
   type TeacherOnboardingStep,
 } from "@/lib/teacher-onboarding-steps";
+import { buttonClasses } from "@/components/ui/button";
 
 const STEP_HREF: Record<TeacherOnboardingStep, "/dashboard/profile" | "/dashboard/settings" | "/dashboard/schedule" | "/dashboard" | "/dashboard/schedule/completed" | "/learn/study"> =
   {
@@ -204,7 +205,7 @@ export function TeacherOnboardingForm({
           <button
             type="submit"
             disabled={!complete || saving}
-            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            className={buttonClasses()}
           >
             {saving ? "…" : t("teacherFinish")}
           </button>

@@ -28,6 +28,7 @@ import { filterAvailabilityOverlappingBookings } from "@/lib/teacher-availabilit
 import { placeSlotsOnDayColumn, placeSlotsOnWeekGrid } from "@/lib/time-grid-week";
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import type { CalendarViewMode } from "@/lib/calendar-view";
+import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
 
 type TeacherAvailabilityRecurrence = "WEEKLY" | "ONE_OFF";
 
@@ -438,7 +439,7 @@ export function TeacherAvailabilityCalendar({
           <button
             type="button"
             onClick={() => setMonthAddDayKey(anchorDayKey)}
-            className="w-full rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground hover:bg-zinc-100"
+            className="w-full rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
             {t("addForThisDay")}
           </button>
@@ -502,10 +503,8 @@ export function TeacherAvailabilityCalendar({
 
   /* ── Mobile-friendly week view (stacked day cards) ── */
   const mobileWeekView = useMemo(() => {
-    const selRing =
-      "border-zinc-500 bg-zinc-200 text-zinc-900";
-    const idleRing =
-      "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50";
+    const selRing = slotClasses({ kind: "open", selected: true });
+    const idleRing = slotClasses({ kind: "open" });
     return (
       <div className="space-y-3" data-testid="mobile-week-view">
         {weekDays.map((day) => {
@@ -520,7 +519,7 @@ export function TeacherAvailabilityCalendar({
                 <button
                     type="button"
                     onClick={() => addForDayKey(day.dayKey)}
-                    className="rounded border border-border bg-surface px-2 py-0.5 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                    className="inline-flex min-h-8 items-center rounded border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
                   >
                     {t("addForDay")}
                   </button>
@@ -534,15 +533,15 @@ export function TeacherAvailabilityCalendar({
                       return (
                         <div
                           key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
-                          className="rounded-md border border-amber-200/70 bg-amber-50/50 px-2.5 py-1.5 text-xs text-amber-950/90"
+                          className={`rounded-md px-2.5 py-1.5 text-xs ${SLOT_BOOKED}`}
                         >
                           <span className="font-medium">
                             {formatCalendarTime(block.startsAtIso)}
                             {" – "}
                             {formatCalendarTime(block.endsAtIso)}
                           </span>
-                          <span className="ml-2 text-amber-900/80">{td("slotReserved")}</span>
-                          {block.subtitle ? <span className="ml-1 text-amber-900/65">· {block.subtitle}</span> : null}
+                          <span className="ml-2 text-[var(--app-canvas)]/75">{td("slotReserved")}</span>
+                          {block.subtitle ? <span className="ml-1 text-[var(--app-canvas)]/75">· {block.subtitle}</span> : null}
                         </div>
                       );
                     }
@@ -558,7 +557,7 @@ export function TeacherAvailabilityCalendar({
                           setSelectedRuleId(block.groupKey ?? null);
                           setCalendarAnchor(block.startsAtIso);
                         }}
-                        className={`w-full rounded-md border px-2.5 py-1.5 text-left text-xs font-medium transition ${selected ? selRing : idleRing}`}
+                        className={`w-full rounded-md px-2.5 py-1.5 text-left text-xs font-medium ${SLOT_FIGURE} ${selected ? selRing : idleRing}`}
                         aria-pressed={selected}
                       >
                         {formatCalendarTime(block.startsAtIso)}
@@ -587,8 +586,8 @@ export function TeacherAvailabilityCalendar({
 
   /* ── Mobile-friendly month view (agenda list for days with slots) ── */
   const mobileMonthView = useMemo(() => {
-    const selRing = "border-zinc-500 bg-zinc-200 text-zinc-900";
-    const idleRing = "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50";
+    const selRing = slotClasses({ kind: "open", selected: true });
+    const idleRing = slotClasses({ kind: "open" });
     const daysWithContent = monthCells.filter(
       (cell) => cell.inCurrentMonth && (slotsByDayForMonth.get(cell.dayKey)?.length ?? 0) > 0,
     );
@@ -627,7 +626,7 @@ export function TeacherAvailabilityCalendar({
                   <button
                       type="button"
                       onClick={() => addForDayKey(cell.dayKey)}
-                      className="rounded border border-border bg-surface px-2 py-0.5 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                      className="inline-flex min-h-8 items-center rounded border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
                     >
                       {t("addForDay")}
                     </button>
@@ -638,15 +637,15 @@ export function TeacherAvailabilityCalendar({
                       return (
                         <div
                           key={`booking-${slot.startsAtIso}-${slot.groupKey ?? ""}`}
-                          className="rounded-md border border-amber-200/70 bg-amber-50/50 px-2.5 py-1.5 text-xs text-amber-950/90"
+                          className={`rounded-md px-2.5 py-1.5 text-xs ${SLOT_BOOKED}`}
                         >
                           <span className="font-medium">
                             {formatCalendarTime(slot.startsAtIso)}
                             {" – "}
                             {formatCalendarTime(slot.endsAtIso)}
                           </span>
-                          <span className="ml-2 text-amber-900/80">{td("slotReserved")}</span>
-                          {slot.label ? <span className="ml-1 text-amber-900/65">· {slot.label}</span> : null}
+                          <span className="ml-2 text-[var(--app-canvas)]/75">{td("slotReserved")}</span>
+                          {slot.label ? <span className="ml-1 text-muted">· {slot.label}</span> : null}
                         </div>
                       );
                     }
@@ -662,7 +661,7 @@ export function TeacherAvailabilityCalendar({
                           setSelectedRuleId(slot.groupKey ?? null);
                           setCalendarAnchor(slot.startsAtIso);
                         }}
-                        className={`w-full rounded-md border px-2.5 py-1.5 text-left text-xs font-medium transition ${selected ? selRing : idleRing}`}
+                        className={`w-full rounded-md px-2.5 py-1.5 text-left text-xs font-medium ${SLOT_FIGURE} ${selected ? selRing : idleRing}`}
                         aria-pressed={selected}
                       >
                         {formatCalendarTime(slot.startsAtIso)}
@@ -1121,7 +1120,7 @@ export function TeacherAvailabilityCalendar({
           {status === "saving" ? t("saving") : t("save")}
         </button>
         {status === "saved" ? (
-          <span className="text-sm text-green-600 dark:text-green-400">{t("saved")}</span>
+          <span className="text-sm text-foreground">{t("saved")}</span>
         ) : null}
         {status === "error" ? (
           <span className="text-sm text-destructive">{saveErrorMessage ?? t("error")}</span>

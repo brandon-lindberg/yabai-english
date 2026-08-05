@@ -16,6 +16,7 @@ import { appPathForLocale } from "@/lib/i18n-app-path";
 import { authSignInHref } from "@/lib/auth-sign-in-href";
 import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import { buttonClasses } from "@/components/ui/button";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -128,14 +129,14 @@ export default async function BookPage({ searchParams }: Props) {
                       pathname: "/auth/signin",
                       query: { callbackUrl: bookHomeCallback },
                     }}
-                    className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                    className={buttonClasses({ variant: "secondary" })}
                   >
                     {t("guestEmptySignIn")}
                   </Link>
                 ) : (
                   <Link
                     href="/dashboard"
-                    className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                    className={buttonClasses({ variant: "secondary" })}
                   >
                     {t("backToDashboard")}
                   </Link>

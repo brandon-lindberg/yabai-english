@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { StudentBioMdxEditor } from "@/components/dashboard/student-bio-mdx-editor";
 import { STUDENT_SHORT_BIO_MAX_CHARS } from "@/lib/student-short-bio";
+import { FormStatus } from "@/components/ui/form-status";
 
 type Props = {
   /** When display name was suggested because profile name was empty */
@@ -145,7 +146,7 @@ export function DashboardProfileForm({
             shortBio.length >= STUDENT_SHORT_BIO_MAX_CHARS
               ? "font-medium text-destructive"
               : shortBio.length > STUDENT_SHORT_BIO_MAX_CHARS * 0.85
-                ? "text-amber-700 dark:text-amber-400"
+                ? "text-[var(--app-warn-text)]"
                 : "text-muted"
           }`}
           aria-live="polite"
@@ -162,8 +163,13 @@ export function DashboardProfileForm({
         >
           {status === "saving" ? t("saving") : t("save")}
         </button>
-        {status === "saved" ? <span className="text-sm text-green-600 dark:text-green-400">{t("saved")}</span> : null}
-        {status === "error" ? <span className="text-sm text-destructive">{t("error")}</span> : null}
+        <FormStatus
+          state={status}
+          savingLabel={t("saving")}
+          savedLabel={t("saved")}
+          errorLabel={t("error")}
+          className="text-sm"
+        />
       </div>
     </form>
   );

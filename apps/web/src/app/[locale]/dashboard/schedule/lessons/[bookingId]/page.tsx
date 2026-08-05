@@ -121,12 +121,12 @@ export default async function LessonDetailPage({
             <span
               className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                 booking.status === "CONFIRMED"
-                  ? "bg-green-100 text-green-800"
+                  ? "bg-[var(--app-hover)] text-foreground"
                   : booking.status === "PENDING_PAYMENT"
-                    ? "bg-amber-100 text-amber-800"
+                    ? "bg-[var(--app-hover)] text-muted"
                     : booking.status === "CANCELLED"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-zinc-100 text-zinc-800"
+                      ? "bg-[var(--app-danger)]/10 text-[var(--app-danger)]"
+                      : "bg-[var(--app-hover)] text-foreground"
               }`}
             >
               {statusLabels[booking.status] ?? booking.status}

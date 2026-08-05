@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
 
 type Member = {
   id: string;
@@ -59,7 +60,7 @@ export function SchoolMembersView({ orgId, schoolId }: Props) {
       <div className="mb-4 flex justify-end">
         <button
           onClick={() => setShowInvite(!showInvite)}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={buttonClasses()}
         >
           {t("invite")}
         </button>
@@ -86,7 +87,7 @@ export function SchoolMembersView({ orgId, schoolId }: Props) {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className={buttonClasses()}
             >
               {t("invite")}
             </button>

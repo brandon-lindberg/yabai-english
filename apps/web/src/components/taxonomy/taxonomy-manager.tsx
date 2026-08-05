@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
 
 export type TaxonomyItem = {
   id: string;
@@ -297,7 +298,7 @@ function TaxonomySection({
         <button
           type="button"
           onClick={() => setShowAdd((v) => !v)}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={buttonClasses()}
         >
           {addLabel}
         </button>
@@ -344,7 +345,7 @@ function TaxonomySection({
             <button
               type="submit"
               disabled={saving}
-              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className={buttonClasses()}
             >
               {saving ? t("saving") : t("save")}
             </button>
@@ -355,7 +356,7 @@ function TaxonomySection({
                 setDraft(emptyDraft);
                 setError("");
               }}
-              className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+              className={buttonClasses({ variant: "secondary" })}
             >
               {t("cancel")}
             </button>

@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { StudyLevelCode } from "@/generated/prisma/browser";
 import { Skeleton } from "@/components/ui/skeleton";
+import { buttonClasses } from "@/components/ui/button";
 
 export type StudyQueueFocus = "mixed" | "weak" | "mastered";
 
@@ -210,7 +211,7 @@ export function StudyPracticeSession({
   }
 
   if (error) {
-    return <p className="text-sm text-red-600">{error}</p>;
+    return <p className="text-sm text-[var(--app-danger)]">{error}</p>;
   }
 
   if (finished) {
@@ -225,13 +226,13 @@ export function StudyPracticeSession({
           <button
             type="button"
             onClick={() => void loadQueue()}
-            className="rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background"
+            className={buttonClasses()}
           >
             {t("nextCard")}
           </button>
           <Link
             href="/learn/study"
-            className="rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground"
+            className={buttonClasses({ variant: "secondary" })}
           >
             {t("backToHub")}
           </Link>
@@ -292,10 +293,18 @@ export function StudyPracticeSession({
         </span>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-8">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">{promptLabel}</p>
-        <p className="mt-3 whitespace-pre-line text-xl font-semibold text-foreground sm:text-2xl">{current.frontJa}</p>
-        <p className="mt-4 text-sm font-medium text-foreground sm:mt-6">{taskHint}</p>
+      <div className="rounded-2xl border border-border bg-surface p-4 sm:p-8">
+        {/*
+          The Japanese prompt is the content of this screen, not a caption, so it
+          is set at display scale. The uppercase tracked label that used to sit
+          above it was an eyebrow — banned outright by the craft floor — and it
+          is now a screen-reader label, which is the only job it was doing.
+        */}
+        <p className="sr-only">{promptLabel}</p>
+        <p className="whitespace-pre-line text-[clamp(1.5rem,4.5vw,2.5rem)] font-black leading-[1.25] tracking-[-0.02em] text-foreground">
+          {current.frontJa}
+        </p>
+        <p className="mt-4 text-base font-medium text-foreground sm:mt-6">{taskHint}</p>
         {current.kind === "reorder" ? (
           <div className="mt-6">
             <StudyReorderExercise
@@ -320,12 +329,12 @@ export function StudyPracticeSession({
       </div>
 
       {feedback === "correct" ? (
-        <p className="rounded-xl bg-green-500/15 px-4 py-3 text-center text-sm font-medium text-green-800 dark:text-green-300">
+        <p className="rounded-xl bg-[var(--app-hover)] px-4 py-3 text-center text-sm font-medium text-foreground">
           {t("feedbackCorrect")}
         </p>
       ) : null}
       {feedback === "wrong" ? (
-        <div className="rounded-xl bg-red-500/15 px-4 py-3 text-center text-sm text-red-900 dark:text-red-200">
+        <div className="rounded-xl bg-[var(--app-danger)]/15 px-4 py-3 text-center text-sm text-[var(--app-danger)]">
           <p className="font-medium">{t("feedbackWrong")}</p>
           {lastCorrectAnswer ? (
             <p className="mt-1 whitespace-pre-line text-muted-foreground">

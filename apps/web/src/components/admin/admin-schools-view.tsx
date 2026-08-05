@@ -230,7 +230,7 @@ function OrgCard({
               type="button"
               onClick={deleteOrg}
               disabled={!canConfirm || deleting}
-              className="rounded-md bg-[var(--app-danger)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-40"
+              className="rounded-md bg-[var(--app-danger)] px-3 py-1.5 text-xs font-semibold text-[var(--app-on-accent)] hover:opacity-90 disabled:opacity-40"
             >
               {deleting ? t("deleting") : t("confirmDeleteCta")}
             </button>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { DateTime } from "luxon";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   bookingId: string;
@@ -79,7 +80,7 @@ export function TeacherBookingRescheduleForm({
         </p>
       ) : null}
       {success && !error ? (
-        <p className="text-xs text-green-700 dark:text-green-400" role="status">
+        <p className="text-xs text-foreground" role="status">
           {t("rescheduleSuccess")}
         </p>
       ) : null}
@@ -98,7 +99,7 @@ export function TeacherBookingRescheduleForm({
         <button
           type="submit"
           disabled={loading}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses()}
         >
           {loading ? t("rescheduleWorking") : t("rescheduleSubmit")}
         </button>

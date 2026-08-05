@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { DashboardProfileBioPreview } from "@/components/dashboard/dashboard-profile-bio-preview";
-import { bookingStatusKey } from "@/lib/booking-status";
+import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
+import { Status } from "@/components/ui/status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
@@ -61,9 +62,7 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
                 {t("teacher")}: {b.teacher.user.name ?? b.teacher.user.email}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">
-                  {t(bookingStatusKey(b.status))}
-                </span>
+                <Status tone={bookingStatusTone(b.status)}>{t(bookingStatusKey(b.status))}</Status>
                 {b.invoice ? (
                   <InvoiceDownloadLinks
                     invoiceId={b.invoice.id}

@@ -11,6 +11,7 @@ import {
   type SchoolSlotForOccurrences,
 } from "@/lib/school-schedule-occurrences";
 import { weekdayLabel } from "@/lib/weekdays";
+import { buttonClasses } from "@/components/ui/button";
 
 type Taxonomy = {
   id: string;
@@ -227,7 +228,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
           type="button"
           onClick={() => setShowCreate(true)}
           disabled={taxonomyMissing}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses()}
         >
           {t("addSlot")}
         </button>
@@ -533,14 +534,14 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                className={buttonClasses()}
               >
                 {saving ? t("creating") : t("create")}
               </button>
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                className={buttonClasses({ variant: "secondary" })}
               >
                 {t("cancel")}
               </button>

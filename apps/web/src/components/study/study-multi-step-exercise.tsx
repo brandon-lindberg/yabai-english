@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { buttonClasses } from "@/components/ui/button";
 
 export function StudyMultiStepExercise({
   cardId,
@@ -52,7 +53,7 @@ export function StudyMultiStepExercise({
           type="button"
           disabled={disabled || !(answers[step] ?? "").trim()}
           onClick={() => setStep((s) => Math.min(s + 1, steps.length - 1))}
-          className="rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-40"
+          className={buttonClasses()}
         >
           {t("nextStep")}
         </button>
@@ -61,7 +62,7 @@ export function StudyMultiStepExercise({
           type="button"
           disabled={disabled || steps.some((_, i) => !(answers[i] ?? "").trim())}
           onClick={() => onSubmit(answers)}
-          className="rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-40"
+          className={buttonClasses()}
         >
           {t("submitAnswers")}
         </button>

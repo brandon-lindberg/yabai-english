@@ -103,7 +103,7 @@ export function TeacherLessonCompletionNotesForm({
           {status === "saving" ? t("lessonNotesSaving") : t("lessonNotesSave")}
         </button>
         {status === "saved" ? (
-          <span className="text-sm text-green-600 dark:text-green-400">{t("lessonNotesSaved")}</span>
+          <span className="text-sm text-foreground">{t("lessonNotesSaved")}</span>
         ) : null}
         {status === "error" ? (
           <span className="text-sm text-destructive">{t("lessonNotesError")}</span>

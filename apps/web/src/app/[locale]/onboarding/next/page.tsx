@@ -9,6 +9,7 @@ import {
   computeStudentOnboardingCompletion,
   summarizeStudentOnboardingProgress,
 } from "@/lib/student-onboarding-next-links";
+import { buttonClasses } from "@/components/ui/button";
 
 export default async function OnboardingNextPage() {
   const locale = await getLocale();
@@ -122,7 +123,7 @@ export default async function OnboardingNextPage() {
               className={
                 "mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full border text-xs font-bold " +
                 (item.completed
-                  ? "border-green-600/50 bg-green-500/15 text-green-700 dark:text-green-400"
+                  ? "border-border bg-[var(--app-hover)] text-foreground"
                   : "border-border bg-surface text-muted")
               }
             >
@@ -136,7 +137,7 @@ export default async function OnboardingNextPage() {
                 <div className="flex items-center gap-2">
                   <p className="text-base font-semibold text-foreground">{title}</p>
                   {item.completed ? (
-                    <span className="inline-flex items-center rounded-full bg-green-500/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-green-700 dark:text-green-400">
+                    <span className="inline-flex items-center rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-foreground">
                       {t("completedLabel")}
                     </span>
                   ) : null}
@@ -156,7 +157,7 @@ export default async function OnboardingNextPage() {
                 className={
                   "rounded-2xl border p-5 opacity-70 " +
                   (item.completed
-                    ? "border-green-600/40 bg-green-500/5"
+                    ? "border-border bg-[var(--app-hover)]"
                     : "border-dashed border-border bg-surface")
                 }
               >
@@ -175,7 +176,7 @@ export default async function OnboardingNextPage() {
               className={
                 "block rounded-2xl border p-5 text-foreground hover:bg-[var(--app-hover)] " +
                 (item.completed
-                  ? "border-green-600/40 bg-green-500/5"
+                  ? "border-border bg-[var(--app-hover)]"
                   : "border-border bg-surface")
               }
             >
@@ -194,7 +195,7 @@ export default async function OnboardingNextPage() {
             <a
               href={`/${locale}/dashboard`}
               data-testid="student-onboarding-finish"
-              className="inline-flex rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              className={buttonClasses({ size: "lg" })}
             >
               {t("finishOnboarding")}
             </a>

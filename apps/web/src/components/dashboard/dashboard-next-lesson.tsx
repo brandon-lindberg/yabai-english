@@ -1,13 +1,26 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { bookingStatusKey } from "@/lib/booking-status";
+import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
-import { AppCard } from "@/components/ui/app-card";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
+import { Status } from "@/components/ui/status";
+import { buttonClasses } from "@/components/ui/button";
 
 type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
 
+/**
+ * The dashboard's focal moment.
+ *
+ * Previously this was one card in a two-up grid, equal in weight to the profile
+ * summary. It is not equal: it is the single thing a student opens the dashboard
+ * to find out. So it loses the card, takes the page's full measure, and sets the
+ * time at display scale.
+ *
+ * The heading is screen-reader-only on purpose. A small "Next lesson" label sat
+ * above a large date would be an eyebrow, which the craft floor bans outright —
+ * the date carries its own weight, and the landmark stays properly labelled.
+ */
 export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) {
   const locale = await getLocale();
   const t = await getTranslations("dashboard");
@@ -16,56 +29,59 @@ export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) 
 
   if (!next) {
     return (
-      <AppCard className="border-dashed border-border/80 bg-surface/80">
-        <h2 className="text-lg font-semibold text-foreground">{th("nextLessonTitle")}</h2>
-        <p className="mt-2 text-sm text-muted">{th("noNextLesson")}</p>
-        <Link
-          href="/book"
-          className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-        >
+      <section className="border-t border-border pt-6" aria-labelledby="next-lesson-heading">
+        <h2 id="next-lesson-heading" className="text-xl font-bold tracking-[-0.02em] text-foreground">
+          {th("nextLessonTitle")}
+        </h2>
+        <p className="mt-2 max-w-[52ch] text-base text-muted">{th("noNextLesson")}</p>
+        <Link href="/book" className={`mt-5 ${buttonClasses({ size: "lg" })}`}>
           {th("bookCta")}
         </Link>
-      </AppCard>
+      </section>
     );
   }
 
   return (
-    <AppCard>
-      <h2 className="text-lg font-semibold text-foreground">{th("nextLessonTitle")}</h2>
-      <p className="mt-2 font-medium text-foreground">
+    <section className="border-t border-border pt-6" aria-labelledby="next-lesson-heading">
+      <h2 id="next-lesson-heading" className="sr-only">
+        {th("nextLessonTitle")}
+      </h2>
+
+      <LocalBookingDateTimeRange
+        locale={locale}
+        startsAtIso={next.startsAt.toISOString()}
+        endsAtIso={next.endsAt.toISOString()}
+        className="block text-[clamp(1.75rem,4.5vw,3.25rem)] font-black leading-[1.05] tracking-[-0.035em] tabular-nums text-foreground"
+      />
+
+      {/* The teacher, named and prominent: continuity with one person is the
+          product's whole thesis, and it was previously a grey "Teacher: x" line. */}
+      <p className="mt-3 text-lg font-bold tracking-[-0.02em] text-foreground">
+        {next.teacher.user.name ?? next.teacher.user.email}
+      </p>
+      <p className="mt-0.5 text-sm text-muted">
         {next.lessonProduct.nameJa} / {next.lessonProduct.nameEn}
       </p>
-      <p className="mt-1 text-sm text-muted">
-        <LocalBookingDateTimeRange
-          locale={locale}
-          startsAtIso={next.startsAt.toISOString()}
-          endsAtIso={next.endsAt.toISOString()}
-        />
-      </p>
-      <p className="mt-1 text-sm text-muted">
-        {t("teacher")}: {next.teacher.user.name ?? next.teacher.user.email}
-      </p>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">
-          {t(bookingStatusKey(next.status))}
-        </span>
-        {next.meetUrl && next.status === "CONFIRMED" && (
+
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <Status tone={bookingStatusTone(next.status)}>{t(bookingStatusKey(next.status))}</Status>
+        {next.meetUrl && next.status === "CONFIRMED" ? (
           <a
             href={next.meetUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-semibold text-link hover:opacity-90"
+            className={buttonClasses({ size: "sm" })}
           >
             {t("meetLink")}
           </a>
-        )}
-        <Link href="/dashboard/schedule" className="text-sm text-link">
+        ) : null}
+        <Link href="/dashboard/schedule" className={buttonClasses({ variant: "ghost", size: "sm" })}>
           {th("fullSchedule")}
         </Link>
-        {(next.status === "CONFIRMED" || next.status === "PENDING_PAYMENT") && (
+        {next.status === "CONFIRMED" || next.status === "PENDING_PAYMENT" ? (
           <BookingCancelButton bookingId={next.id} />
-        )}
+        ) : null}
       </div>
-    </AppCard>
+    </section>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
 
 type Member = {
   id: string;
@@ -89,7 +90,7 @@ export function OrgMembersList({ orgId }: Props) {
         <div className="ml-auto">
           <button
             onClick={() => setShowInvite(!showInvite)}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            className={buttonClasses()}
           >
             {t("invite")}
           </button>
@@ -147,14 +148,14 @@ export function OrgMembersList({ orgId }: Props) {
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                className={buttonClasses()}
               >
                 {saving ? t("sending") : t("send")}
               </button>
               <button
                 type="button"
                 onClick={() => setShowInvite(false)}
-                className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                className={buttonClasses({ variant: "secondary" })}
               >
                 {t("cancel")}
               </button>

@@ -5,6 +5,7 @@ import { DashboardScheduleSubNav } from "@/components/dashboard/dashboard-schedu
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { shouldLoadTeacherBookingsOnSchedule } from "@/lib/dashboard/schedule-view-role";
+import { buttonClasses } from "@/components/ui/button";
 
 export default async function DashboardScheduleLayout({ children }: { children: ReactNode }) {
   const t = await getTranslations("dashboard.schedulePage");
@@ -40,7 +41,7 @@ export default async function DashboardScheduleLayout({ children }: { children: 
         ) : (
           <Link
             href="/book"
-            className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            className={buttonClasses({ size: "md", className: "shrink-0" })}
           >
             {tCommon("bookLesson")}
           </Link>

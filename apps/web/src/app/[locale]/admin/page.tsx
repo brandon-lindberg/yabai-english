@@ -1,9 +1,11 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminPlacementReviewForm } from "@/components/admin-placement-review-form";
+import { LocalDateTime } from "@/components/local-datetime";
 
 export default async function AdminPage() {
+  const locale = await getLocale();
   const t = await getTranslations("admin");
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "SUPER_ADMIN") return null;
@@ -43,7 +45,10 @@ export default async function AdminPage() {
                 {b.lessonProduct.nameEn} — {b.student.name ?? b.student.email}
               </p>
               <p className="text-muted">
-                {b.startsAt.toLocaleString()} — {b.status}
+                {/* Viewer's timezone: this was the server's. */}
+                <LocalDateTime iso={b.startsAt.toISOString()} locale={locale} className="tabular-nums" />
+                {" — "}
+                {b.status}
               </p>
               {b.meetUrl && (
                 <a

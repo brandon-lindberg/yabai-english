@@ -3,9 +3,10 @@ import { getTranslations } from "next-intl/server";
 export async function LandingTrust() {
   const t = await getTranslations("landing");
 
+  /* The page's close: a ruled footnote, not another panel. */
   return (
-    <section className="mt-14 rounded-2xl border border-border bg-[var(--app-chip)] px-5 py-4 sm:px-6">
-      <p className="text-sm leading-relaxed text-foreground">{t("trustLine")}</p>
+    <section className="mt-20 border-t border-border pt-6">
+      <p className="max-w-[70ch] text-sm leading-relaxed text-muted">{t("trustLine")}</p>
     </section>
   );
 }

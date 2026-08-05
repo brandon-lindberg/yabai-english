@@ -7,6 +7,7 @@ import {
   type TeacherStripeSetupAccount,
 } from "@/lib/teacher-stripe-setup";
 import { StripeBrandButton } from "@/components/stripe/stripe-brand-button";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   paymentPolicyAcceptedAt: string | null;
@@ -122,7 +123,7 @@ export function TeacherStripeSetupStatus({
           <button
             type="button"
             onClick={onAcceptPolicyFocus}
-            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            className={buttonClasses({ size: "lg" })}
           >
             {t("stripeSetupAcceptPolicyCta")}
           </button>

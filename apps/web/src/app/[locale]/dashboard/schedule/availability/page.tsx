@@ -13,6 +13,7 @@ import {
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { buttonClasses } from "@/components/ui/button";
 
 export default async function DashboardScheduleAvailabilityPage({
   searchParams,
@@ -142,7 +143,7 @@ export default async function DashboardScheduleAvailabilityPage({
             <PaymentPolicyNotice audience="teacher" />
             <Link
               href="/dashboard/settings?tab=payments"
-              className="inline-flex rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              className={buttonClasses({ size: "lg" })}
             >
               {t("availabilityPaymentRequiredCta")}
             </Link>

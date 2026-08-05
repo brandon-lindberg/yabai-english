@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   token: string;
@@ -55,7 +56,7 @@ export function OrgInviteAccept({
             type="button"
             onClick={handleAccept}
             disabled={saving}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            className={buttonClasses()}
           >
             {saving ? t("accepting") : t("accept")}
           </button>

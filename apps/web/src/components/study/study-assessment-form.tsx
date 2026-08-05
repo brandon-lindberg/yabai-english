@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
+import { buttonClasses } from "@/components/ui/button";
 
 type Item = { id: string; promptJa: string; promptEn: string; options: string[] };
 
@@ -124,7 +125,7 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
   }
 
   if (error && !items.length) {
-    return <p className="text-sm text-red-600">{error}</p>;
+    return <p className="text-sm text-[var(--app-danger)]">{error}</p>;
   }
 
   if (result) {
@@ -138,7 +139,7 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
         </p>
         <Link
           href="/learn/study"
-          className="mt-6 inline-block rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background"
+          className={`mt-6 ${buttonClasses()}`}
         >
           {t("backToHub")}
         </Link>
@@ -178,7 +179,7 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
           </div>
         </fieldset>
       ))}
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--app-danger)]">{error}</p> : null}
       <button
         type="button"
         disabled={submitting || Object.keys(answers).length < items.length}

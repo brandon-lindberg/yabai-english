@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   acceptedAt: string | null;
@@ -93,7 +94,7 @@ export function TeacherPaymentPolicyForm({ acceptedAt }: Props) {
               void onAccept();
             }}
             disabled={saving || !checked}
-            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            className={buttonClasses()}
           >
             {saving ? t("paymentPolicySaving") : t("paymentPolicyAccept")}
           </button>

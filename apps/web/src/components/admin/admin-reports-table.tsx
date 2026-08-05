@@ -53,7 +53,7 @@ export function AdminReportsTable() {
         aria-label={t("loading")}
         data-testid="admin-reports-loading"
       >
-        <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+        <table className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums">
           <thead>
             <tr className="border-b border-border bg-[var(--app-hover)]">
               <th className="px-3 py-2">{t("thread")}</th>
@@ -102,7 +102,7 @@ export function AdminReportsTable() {
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border">
-      <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+      <table className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums">
         <thead>
           <tr className="border-b border-border bg-[var(--app-hover)]">
             <th className="px-3 py-2">{t("thread")}</th>

@@ -5,6 +5,16 @@
   Storage key: english-platform-theme (light | dark), set by theme-init-script + ThemeToggle.
 */
 
+/*
+  Bind Tailwind's `dark:` variant to our own theme switch.
+
+  Without this, Tailwind v4 compiles `dark:` to @media (prefers-color-scheme: dark),
+  which tracks the OS and ignores html[data-theme]. The CSS variables below would
+  flip on toggle while every `dark:` utility stayed put — so a user on a light OS
+  who selected dark got dark surfaces with light-mode utility colors on top.
+*/
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* ------------------------------------------------------------------ */
 /*  Light (default before + after script)                              */
 /* ------------------------------------------------------------------ */
@@ -13,40 +23,52 @@
 html[data-theme="light"] {
   color-scheme: light;
 
-  --app-canvas: #eef2f7;
+  /* Storm values. Silver and rain are DECORATIVE — they carry dispersal marks,
+     dividers and spent glyphs. They are not text colors: rain is 3.00:1 on paper
+     and silver 1.53:1. Text uses --app-text / --app-muted, which are verified. */
+  --storm-paper: #fafaf8;
+  --storm-ink: #0a0a0a;
+  --storm-silver: #c9cdd1;
+  --storm-rain: #8d9299;
+  --storm-mist: #edeeee;
+
+  --app-canvas: #fafaf8;
   --app-surface: #ffffff;
-  --app-elevated: #f8fafc;
-  --app-hover: #e8eef5;
-  --app-text: #0f172a;
-  --app-muted: #64748b;
-  --app-border: #e2e8f0;
-  --app-header-border: #d1dae6;
+  --app-elevated: #f4f4f2;
+  --app-hover: #edeeee;
+  --app-text: #0a0a0a;
+  --app-muted: #666b72; /* 5.14:1 on canvas */
+  --app-border: #e4e5e3;
+  --app-header-border: #d6d7d4;
 
   /* Skeleton loading: must be visibly darker than --app-canvas + --app-surface
      so placeholders are obvious. Highlight is the shimmer peak. */
-  --app-skeleton-base: #cbd5e1;
-  --app-skeleton-highlight: #eef3f9;
+  --app-skeleton-base: #dcddda;
+  --app-skeleton-highlight: #f2f2f0;
 
-  --app-primary: #0d9488;
-  --app-primary-fg: #ffffff;
-  --app-link: #0f766e;
-  --app-accent: #0369a1;
-  --app-chip: #ccfbf1;
+  /* Primary is ink on paper: the board's solid black button. 18.94:1. */
+  --app-primary: #0a0a0a;
+  --app-primary-fg: #fafaf8;
+  --app-link: #0a0a0a;
+  --app-accent: #0a0a0a;
+  --app-chip: #edeeee;
 
-  --app-success-bg: #ecfdf5;
-  --app-success-border: #6ee7b7;
-  --app-success-text: #065f46;
-  --app-warn-bg: #fffbeb;
-  --app-warn-border: #fcd34d;
-  --app-warn-text: #92400e;
-  --app-warning-bg: #fffbeb;
-  --app-warning-border: #fcd34d;
-  --app-warning-text: #92400e;
-  --app-danger: #b91c1c;
+  /* Success in this world is "settled", not green — it stays monochrome.
+     Only warn (amber) and danger (red) are allowed to carry hue. */
+  --app-success-bg: #edeeee;
+  --app-success-border: #c9cdd1;
+  --app-success-text: #0a0a0a;
+  --app-warn-bg: #fdf6e8;
+  --app-warn-border: #e0b050;
+  --app-warn-text: #96580a; /* 5.44:1 */
+  --app-warning-bg: #fdf6e8;
+  --app-warning-border: #e0b050;
+  --app-warning-text: #96580a;
+  --app-danger: #b91c1c; /* 6.19:1 */
   --app-destructive: #b91c1c;
-  --app-on-accent: #ffffff;
+  --app-on-accent: #fafaf8;
 
-  --app-focus-ring: #0d9488;
+  --app-focus-ring: #0a0a0a;
 }
 
 /* ------------------------------------------------------------------ */
@@ -56,38 +78,46 @@ html[data-theme="light"] {
 html[data-theme="dark"] {
   color-scheme: dark;
 
-  --app-canvas: #0c1222;
-  --app-surface: #141b2d;
-  --app-elevated: #1a2336;
-  --app-hover: #1e293b;
-  --app-text: #f1f5f9;
-  --app-muted: #94a3b8;
-  --app-border: #273549;
-  --app-header-border: #334155;
+  /* Storm at night: the ground becomes ink and the type becomes paper.
+     The value ladder inverts intact, so status never depends on hue. */
+  --storm-paper: #fafaf8;
+  --storm-ink: #0a0a0a;
+  --storm-silver: #6a7078;
+  --storm-rain: #4a4f56;
+  --storm-mist: #1a1a1d;
 
-  --app-skeleton-base: #2a3a52;
-  --app-skeleton-highlight: #3a4c66;
+  --app-canvas: #0c0c0d;
+  --app-surface: #141416;
+  --app-elevated: #1a1a1d;
+  --app-hover: #232327;
+  --app-text: #fafaf8;
+  --app-muted: #9aa0a8; /* 7.42:1 on canvas */
+  --app-border: #2a2a2e;
+  --app-header-border: #3a3a40;
 
-  --app-primary: #2dd4bf;
-  --app-primary-fg: #042f2e;
-  --app-link: #5eead4;
-  --app-accent: #38bdf8;
-  --app-chip: #134e4a;
+  --app-skeleton-base: #26262a;
+  --app-skeleton-highlight: #35353b;
 
-  --app-success-bg: #052e1a;
-  --app-success-border: #34d399;
-  --app-success-text: #a7f3d0;
-  --app-warn-bg: #2a1f0c;
-  --app-warn-border: #fbbf24;
-  --app-warn-text: #fde68a;
-  --app-warning-bg: #2a1f0c;
-  --app-warning-border: #fbbf24;
-  --app-warning-text: #fde68a;
-  --app-danger: #f87171;
+  --app-primary: #fafaf8;
+  --app-primary-fg: #0a0a0a;
+  --app-link: #fafaf8;
+  --app-accent: #fafaf8;
+  --app-chip: #232327;
+
+  --app-success-bg: #1a1a1d;
+  --app-success-border: #3a3a40;
+  --app-success-text: #fafaf8;
+  --app-warn-bg: #2a2109;
+  --app-warn-border: #a57c1e;
+  --app-warn-text: #fbbf24; /* 11.71:1 */
+  --app-warning-bg: #2a2109;
+  --app-warning-border: #a57c1e;
+  --app-warning-text: #fbbf24;
+  --app-danger: #f87171; /* 7.07:1 */
   --app-destructive: #f87171;
-  --app-on-accent: #0f172a;
+  --app-on-accent: #0a0a0a;
 
-  --app-focus-ring: #2dd4bf;
+  --app-focus-ring: #fafaf8;
 }
 
 /* ================================================================== */
@@ -108,7 +138,16 @@ html[data-theme="dark"] {
   --color-chip: var(--app-chip);
   --color-success: var(--app-success-text);
   --color-destructive: var(--app-destructive);
-  --font-sans: var(--font-geist-sans);
+  --color-warn: var(--app-warn-text);
+
+  /* Storm marks. Decorative only — see the note in :root. */
+  --color-silver: var(--storm-silver);
+  --color-rain: var(--storm-rain);
+  --color-mist: var(--storm-mist);
+
+  /* Archivo carries Latin, M PLUS 1 carries Japanese. The browser falls back
+     per glyph, so one stack sets both scripts at matching optical weight. */
+  --font-sans: var(--font-archivo), var(--font-mplus1);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -143,6 +182,55 @@ html[data-theme="dark"] {
 @media (prefers-reduced-motion: reduce) {
   .app-skeleton {
     animation: none;
+  }
+}
+
+/* ================================================================== */
+/*  Storm — the settle                                                 */
+/* ================================================================== */
+
+/*
+  The world's one authored moment: type condensing out of weather when a state
+  actually settles (a booking confirms, a card is learned). Transform and
+  opacity only, so it composites; it never animates layout.
+
+  Reserved for state changes. It must not run on hover, on press, or on mount
+  of a dense grid — see the note in components/ui/button.tsx.
+*/
+@keyframes storm-settle {
+  from {
+    opacity: 0;
+    transform: translate3d(0.5em, -0.15em, 0) rotate(6deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.storm-settle-char {
+  display: inline-block;
+  white-space: pre;
+  animation: storm-settle 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/*
+  Reduced motion gets a real alternative, not a kill: the settle still reads as
+  a change of state, it just arrives as a single quiet fade instead of scattered
+  characters, and every character lands at once.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .storm-settle-char {
+    animation: storm-settle-quiet 1ms linear both;
+    animation-delay: 0ms !important;
+  }
+  @keyframes storm-settle-quiet {
+    from {
+      opacity: 0.6;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }
 

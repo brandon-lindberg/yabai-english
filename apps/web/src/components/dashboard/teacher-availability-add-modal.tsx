@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
 import { weekdayLabel } from "@/lib/weekdays";
+import { buttonClasses } from "@/components/ui/button";
 
 export type TaxonomyOption = {
   id: string;
@@ -153,11 +154,11 @@ function TeacherAvailabilityAddModalInner({
                 });
               }}
               className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border border-transparent leading-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                weeklyOnCalendarDay ? "bg-primary" : "bg-zinc-300 dark:bg-zinc-600"
+                weeklyOnCalendarDay ? "bg-primary" : "bg-border"
               }`}
             >
               <span
-                className={`pointer-events-none absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow transition-transform ${
+                className={`pointer-events-none absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-surface shadow transition-transform ${
                   weeklyOnCalendarDay ? "translate-x-[1.125rem]" : "translate-x-0"
                 }`}
                 aria-hidden
@@ -357,7 +358,7 @@ function TeacherAvailabilityAddModalInner({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+            className={buttonClasses({ variant: "secondary" })}
           >
             {cancelLabel}
           </button>
@@ -374,7 +375,7 @@ function TeacherAvailabilityAddModalInner({
               onConfirm(draft);
               onClose();
             }}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
+            className={buttonClasses({ size: "md" })}
           >
             {confirmLabel}
           </button>
@@ -404,7 +405,7 @@ export function TeacherAvailabilityAddModal(props: Props) {
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-[var(--storm-ink)]/40"
         aria-label={props.cancelLabel}
         onClick={props.onClose}
       />

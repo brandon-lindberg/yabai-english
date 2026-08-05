@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
 
 const GOALS = [
   { id: "conversation", labelKey: "goalConversation" },
@@ -278,7 +279,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
           {step < STEP_COUNT - 1 ? (
             <button
               type="button"
-              className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className={buttonClasses({ size: "lg" })}
               disabled={!canAdvanceFromStep(step)}
               onClick={() => setStep((s) => Math.min(STEP_COUNT - 1, s + 1))}
             >
@@ -288,7 +289,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
             <button
               type="submit"
               disabled={saving || !canSubmit}
-              className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className={buttonClasses({ size: "lg" })}
             >
               {saving ? "…" : t("submit")}
             </button>

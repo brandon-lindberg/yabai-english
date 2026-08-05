@@ -51,7 +51,7 @@ export function TeacherAvailabilityRemoveModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-[var(--storm-ink)]/40"
         aria-label={cancelLabel}
         onClick={onClose}
       />

@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
+import { FormStatus } from "@/components/ui/form-status";
 
 type Props = {
   showGooglePrefillHint?: boolean;
@@ -225,8 +226,13 @@ export function TeacherProfileForm({
         >
           {status === "saving" ? t("saving") : t("save")}
         </button>
-        {status === "saved" ? <span className="text-sm text-green-600 dark:text-green-400">{t("saved")}</span> : null}
-        {status === "error" ? <span className="text-sm text-destructive">{t("error")}</span> : null}
+        <FormStatus
+          state={status}
+          savingLabel={t("saving")}
+          savedLabel={t("saved")}
+          errorLabel={t("error")}
+          className="text-sm"
+        />
       </div>
     </form>
   );

@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   hasGoogleOAuth: boolean;
@@ -75,12 +76,12 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }
           disabled={googleLoading}
           aria-busy={googleLoading}
           aria-label="Sign in with Google"
-          className="group flex w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-border bg-white px-4 py-3 text-sm font-semibold text-[#1f1f1f] shadow-sm transition duration-150 ease-out hover:-translate-y-0.5 hover:border-[#cbd5e1] hover:bg-[#f8f9fa] hover:shadow-md active:translate-y-0 active:scale-[0.99] active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 dark:bg-[var(--app-elevated)] dark:text-foreground dark:hover:bg-[var(--app-hover)]"
+          className="group flex w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-[#1f1f1f] shadow-sm transition duration-150 ease-out hover:-translate-y-0.5 hover:border-[#cbd5e1] hover:bg-[#f8f9fa] hover:shadow-md active:translate-y-0 active:scale-[0.99] active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75"
         >
           {googleLoading ? (
             <span
               aria-hidden="true"
-              className="h-5 w-5 animate-spin rounded-full border-2 border-[#1f1f1f]/20 border-t-[#1f1f1f] dark:border-foreground/20 dark:border-t-foreground"
+              className="h-5 w-5 animate-spin rounded-full border-2 border-[#1f1f1f]/20 border-t-[#1f1f1f]"
             />
           ) : (
             <svg
@@ -162,7 +163,7 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className={buttonClasses({ size: "lg", fullWidth: true })}
             >
               {loading ? "…" : t("signInWithEmail")}
             </button>

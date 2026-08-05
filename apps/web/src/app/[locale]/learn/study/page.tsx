@@ -70,7 +70,7 @@ export default async function StudyHubPage({
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {level.assessmentPassedAt ? (
-                    <span className="rounded-full bg-green-500/15 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400">
+                    <span className="rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs font-medium text-foreground">
                       {t("passed")}
                     </span>
                   ) : null}
@@ -113,7 +113,7 @@ export default async function StudyHubPage({
                     {level.practice.weakCount > 0 ? (
                       <Link
                         href={`/learn/study/${level.levelCode}/practice?focus=weak`}
-                        className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-medium text-foreground"
+                        className="rounded-xl border border-border bg-[var(--app-hover)] px-4 py-2 text-sm font-medium text-foreground"
                       >
                         {t("practiceWeak")} ({level.practice.weakCount})
                       </Link>
@@ -121,7 +121,7 @@ export default async function StudyHubPage({
                     {level.practice.masteredCount > 0 ? (
                       <Link
                         href={`/learn/study/${level.levelCode}/practice?focus=mastered`}
-                        className="rounded-xl border border-green-600/30 bg-green-500/10 px-4 py-2 text-sm font-medium text-foreground"
+                        className="rounded-xl border border-border bg-[var(--app-hover)] px-4 py-2 text-sm font-medium text-foreground"
                       >
                         {t("practiceMastered")} ({level.practice.masteredCount})
                       </Link>

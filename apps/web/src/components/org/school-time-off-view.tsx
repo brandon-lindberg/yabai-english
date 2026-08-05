@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
 
 type TimeOffRequest = {
   id: string;
@@ -99,8 +100,8 @@ export function SchoolTimeOffView({
 
   const statusColors: Record<string, string> = {
     PENDING: "border-[var(--app-warning-border)] bg-[var(--app-warning-bg)] text-[var(--app-warning-text)]",
-    APPROVED: "border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
-    DENIED: "border-red-300 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300",
+    APPROVED: "border-border bg-[var(--app-hover)] text-foreground",
+    DENIED: "border-[var(--app-danger)] bg-[var(--app-danger)]/10 text-[var(--app-danger)]",
   };
 
   return (
@@ -109,7 +110,7 @@ export function SchoolTimeOffView({
         <div className="mb-4 flex justify-end">
           <button
             onClick={() => setShowCreate(!showCreate)}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            className={buttonClasses()}
           >
             {t("request")}
           </button>
@@ -160,7 +161,7 @@ export function SchoolTimeOffView({
             <button
               type="submit"
               disabled={saving}
-              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className={buttonClasses()}
             >
               {saving ? t("submitting") : t("submit")}
             </button>
@@ -195,7 +196,7 @@ export function SchoolTimeOffView({
                   <div className="flex gap-1">
                     <button
                       onClick={() => handleReview(r.id, "APPROVED")}
-                      className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground hover:opacity-90"
+                      className={buttonClasses({ size: "sm" })}
                     >
                       {t("approve")}
                     </button>

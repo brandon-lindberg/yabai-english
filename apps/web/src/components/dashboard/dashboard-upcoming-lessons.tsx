@@ -1,11 +1,13 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { bookingStatusKey } from "@/lib/booking-status";
+import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
+import { Status } from "@/components/ui/status";
+import { buttonClasses } from "@/components/ui/button";
 
 type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
 
@@ -45,13 +47,11 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
                 {t("teacher")}: {b.teacher.user.name ?? b.teacher.user.email}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">
-                  {t(bookingStatusKey(b.status))}
-                </span>
+                <Status tone={bookingStatusTone(b.status)}>{t(bookingStatusKey(b.status))}</Status>
                 {b.status === "PENDING_PAYMENT" && (
                   <Link
                     href={`/book/checkout/${b.id}`}
-                    className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:opacity-90"
+                    className={buttonClasses({ size: "sm" })}
                   >
                     {t("completePayment")}
                   </Link>
@@ -75,14 +75,14 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
                     })}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground hover:bg-[var(--app-hover)]"
+                    className={buttonClasses({ variant: "secondary", size: "sm" })}
                   >
                     {t("addToGoogleCalendar")}
                   </a>
                 )}
                 <a
                   href={`/api/bookings/ics?bookingId=${b.id}`}
-                  className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground hover:bg-[var(--app-hover)]"
+                  className={buttonClasses({ variant: "secondary", size: "sm" })}
                 >
                   {t("downloadIcs")}
                 </a>

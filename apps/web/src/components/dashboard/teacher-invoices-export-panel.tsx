@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
+import { buttonClasses } from "@/components/ui/button";
 
 export type TeacherInvoiceStudentOption = {
   id: string;
@@ -9,7 +10,7 @@ export type TeacherInvoiceStudentOption = {
 };
 
 const invoiceLinkClassName =
-  "inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90";
+  buttonClasses();
 
 export function TeacherInvoicesExportPanel({
   studentOptions,

@@ -198,7 +198,7 @@ export function AdminTeacherTiersView({ rows }: Props) {
             </div>
           </div>
           {row.pendingEvaluationId ? (
-            <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-[var(--app-warn-border)] bg-[var(--app-warn-bg)] p-3 text-sm text-[var(--app-warn-text)]">
               <span className="font-medium">Annual demotion pending admin decision.</span>
               <button
                 type="button"

@@ -27,6 +27,7 @@ import {
 } from "@/lib/student-onboarding-next-links";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { TEACHER_HOME_SCHEDULE_HREFS, withDashboardOnboarding } from "@/lib/teacher-dashboard-home-links";
+import { buttonClasses } from "@/components/ui/button";
 
 export default async function DashboardPage({
   searchParams,
@@ -243,13 +244,13 @@ export default async function DashboardPage({
           <div className="flex flex-wrap gap-2">
             <Link
               href="/book"
-              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              className={buttonClasses()}
             >
               {tCommon("bookLesson")}
             </Link>
             <Link
               href="/dashboard/settings"
-              className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+              className={buttonClasses({ variant: "secondary" })}
             >
               {tCommon("settings")}
             </Link>
@@ -257,14 +258,14 @@ export default async function DashboardPage({
               profile.placedLevel === "UNSET" ? (
                 <Link
                   href="/placement"
-                  className="rounded-full border border-border bg-[var(--app-chip)] px-4 py-2 text-sm font-semibold text-foreground hover:opacity-90"
+                  className={buttonClasses({ variant: "secondary" })}
                 >
                   {t("placementCta")}
                 </Link>
               ) : (
                 <Link
                   href="/placement"
-                  className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted hover:bg-[var(--app-hover)]"
+                  className={buttonClasses({ variant: "ghost" })}
                 >
                   {t("retakePlacement")}
                 </Link>
@@ -274,16 +275,18 @@ export default async function DashboardPage({
         </AppCard>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <DashboardNextLesson upcoming={upcoming} />
-        <DashboardProfileSummary
-          name={user?.name ?? null}
-          email={user?.email ?? null}
-          image={user?.image ?? null}
-          shortBio={user?.studentProfile?.shortBio ?? null}
-          rpg={overview?.rpg ?? null}
-        />
-      </div>
+      {/* The next lesson is what a student opens this page to find out, so it
+          takes the full measure rather than sharing a two-up grid with the
+          profile summary as though the two were equally important. */}
+      <DashboardNextLesson upcoming={upcoming} />
+
+      <DashboardProfileSummary
+        name={user?.name ?? null}
+        email={user?.email ?? null}
+        image={user?.image ?? null}
+        shortBio={user?.studentProfile?.shortBio ?? null}
+        rpg={overview?.rpg ?? null}
+      />
 
       {overview ? <DashboardStudyHighlight overview={overview} resume={resume} /> : null}
 

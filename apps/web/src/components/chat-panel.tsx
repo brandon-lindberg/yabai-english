@@ -8,6 +8,7 @@ import { subscribeRealtime } from "@/lib/realtime-client";
 import { ChatModerationMenu } from "@/components/chat-moderation-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UnreadBadge } from "@/components/unread-badge";
+import { buttonClasses } from "@/components/ui/button";
 
 type ThreadItem = {
   id: string;
@@ -1017,7 +1018,7 @@ export function ChatPanel() {
                                       void archiveConversation(thread.id);
                                     }
                                   }}
-                                  className="flex h-[calc(100%-6px)] w-[92px] cursor-pointer items-center justify-center rounded-xl bg-red-500 px-2 text-center text-xs font-semibold text-white"
+                                  className="flex h-[calc(100%-6px)] w-[92px] cursor-pointer items-center justify-center rounded-xl bg-[var(--app-danger)]/15 px-2 text-center text-xs font-semibold text-[var(--app-on-accent)]"
                                 >
                                   {t("archiveConversation")}
                                 </div>
@@ -1131,7 +1132,7 @@ export function ChatPanel() {
                       type="button"
                       onClick={() => void sendBroadcast()}
                       disabled={broadcastBusy || !draft.trim()}
-                      className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                      className={buttonClasses()}
                     >
                       {broadcastBusy ? t("broadcastSending") : t("broadcastSend")}
                     </button>
@@ -1174,7 +1175,7 @@ export function ChatPanel() {
                           type="button"
                           onClick={() => void sendDirectMessage()}
                           disabled={!draft.trim() || !directTargetThreadId}
-                          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                          className={buttonClasses()}
                         >
                           {t("directSend")}
                         </button>
@@ -1227,7 +1228,7 @@ export function ChatPanel() {
                 </label>
               )}
               {isBlocked && (
-                <p className="mb-2 rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700">
+                <p className="mb-2 rounded-lg border border-[var(--app-danger)] bg-[var(--app-danger)]/10 px-2 py-1 text-xs text-[var(--app-danger)]">
                   {t("blockedHint")}
                 </p>
               )}
@@ -1366,7 +1367,7 @@ export function ChatPanel() {
                   type="button"
                   onClick={() => void send()}
                   disabled={!canSend || isBlocked || (isAdminViewer && adminMode === "review")}
-                  className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                  className={buttonClasses()}
                 >
                   {t("send")}
                 </button>

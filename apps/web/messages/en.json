@@ -809,7 +809,9 @@
     "unavailableShort": "Unavailable",
     "selectedSlot": "Selected",
     "noSlotSelected": "No time selected yet",
-    "reserved": "Reserved"
+    "reserved": "Reserved",
+    "teacherCardViewProfile": "View profile",
+    "teacherCardAvailableSlots": "{count, plural, one {# available slot} other {# available slots}}"
   },
   "paymentPolicy": {
     "student": {

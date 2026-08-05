@@ -78,7 +78,7 @@ export function ChatModerationMenu({
             type="button"
             role="menuitem"
             disabled={blockDisabled}
-            className={`${itemClass} text-red-700`}
+            className={`${itemClass} text-[var(--app-danger)]`}
             onClick={() => runAction(onBlock)}
           >
             {blockLabel}
@@ -96,7 +96,7 @@ export function ChatModerationMenu({
             type="button"
             role="menuitem"
             disabled={reportDisabled}
-            className={`${itemClass} text-red-700`}
+            className={`${itemClass} text-[var(--app-danger)]`}
             onClick={() => runAction(onReport)}
           >
             {reportLabel}

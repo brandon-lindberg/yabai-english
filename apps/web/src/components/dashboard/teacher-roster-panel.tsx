@@ -145,7 +145,7 @@ export function TeacherRosterPanel() {
                       {row.displayName ?? row.email ?? "—"}
                     </span>
                     {row.status === "pending" ? (
-                      <span className="ml-2 inline-block rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-800 dark:text-amber-200">
+                      <span className="ml-2 inline-block rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs text-muted">
                         {t("pendingBadge")}
                       </span>
                     ) : null}

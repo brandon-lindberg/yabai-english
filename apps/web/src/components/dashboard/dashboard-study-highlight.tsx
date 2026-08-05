@@ -1,8 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { buttonClasses } from "@/components/ui/button";
 import type { StudyResumeInfo } from "@/lib/dashboard/study-resume";
 import type { getStudyTrackOverview } from "@/lib/study/get-overview";
+import { StudyLastHint } from "@/components/dashboard/study-last-hint";
 
 type Overview = NonNullable<Awaited<ReturnType<typeof getStudyTrackOverview>>>;
 
@@ -53,15 +55,17 @@ export async function DashboardStudyHighlight({
           ) : (
             <Link
               href={`/learn/study/${focus.levelCode}/practice`}
-              className="mt-3 inline-flex rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background hover:opacity-90"
+              className={`mt-3 ${buttonClasses({ size: "sm" })}`}
             >
               {t("studyOpen")}
             </Link>
           )}
           {resume ? (
-            <p className="mt-2 text-xs text-muted">
-              {t("studyLastHint", { when: resume.lastStudiedAt.toLocaleString() })}
-            </p>
+            <StudyLastHint
+              iso={resume.lastStudiedAt.toISOString()}
+              locale={locale}
+              className="mt-2 text-xs text-muted"
+            />
           ) : null}
         </div>
       ) : (

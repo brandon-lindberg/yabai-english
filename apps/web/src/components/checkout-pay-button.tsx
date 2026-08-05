@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { CheckoutTermsAgreementLabel } from "@/components/checkout-terms-agreement-label";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   bookingId: string;
@@ -63,7 +64,7 @@ export function CheckoutPayButton({ bookingId }: Props) {
         type="button"
         onClick={onPay}
         disabled={loading || !accepted}
-        className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+        className={buttonClasses({ size: "lg" })}
       >
         {loading ? "…" : t("payNow")}
       </button>

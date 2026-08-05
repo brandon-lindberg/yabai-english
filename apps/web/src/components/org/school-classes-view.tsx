@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
 
 type TaxonomyLabel = {
   labelEn: string;
@@ -84,7 +85,7 @@ export function SchoolClassesView({ orgId, schoolId }: Props) {
                           href={c.meetUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-full bg-primary px-3 py-0.5 text-xs font-semibold text-primary-foreground hover:opacity-90"
+                          className={buttonClasses({ size: "sm" })}
                         >
                           {t("join")}
                         </a>

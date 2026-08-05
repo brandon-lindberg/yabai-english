@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
+import { formatYen } from "@/lib/format-money";
 
 type Pricing = {
   id: string;
@@ -16,6 +18,7 @@ type Pricing = {
 type Props = { orgId: string; schoolId: string };
 
 export function SchoolPricingView({ orgId, schoolId }: Props) {
+  const locale = useLocale();
   const t = useTranslations("org.school.pricingPage");
   const [items, setItems] = useState<Pricing[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -72,7 +75,7 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
       <div className="mb-4 flex justify-end">
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={buttonClasses()}
         >
           {t("addPricing")}
         </button>
@@ -122,14 +125,14 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                className={buttonClasses()}
               >
                 {saving ? t("creating") : t("create")}
               </button>
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                className={buttonClasses({ variant: "secondary" })}
               >
                 {t("cancel")}
               </button>
@@ -153,7 +156,7 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-semibold text-foreground">¥{p.priceYen.toLocaleString()}</span>
+                <span className="font-semibold tabular-nums text-foreground">{formatYen(p.priceYen, locale)}</span>
                 <span className="rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs">
                   {p.isGroup ? t("group") : t("individual")}
                 </span>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { CalendarMonthCell } from "@/lib/slot-calendar";
+import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
 
 export type MonthDaySlotChip = {
   startsAtIso: string;
@@ -78,31 +79,26 @@ export function TeacherAvailabilityGoogleMonth({
   reservedLabel,
   timeZone,
 }: Props) {
-  const monthSelectedRing =
-    selectionStyle === "neutral" ? "border-zinc-500 ring-1 ring-zinc-300" : "border-primary ring-1 ring-primary/25";
-  const chipOn =
-    selectionStyle === "neutral"
-      ? "border-zinc-500 bg-zinc-200 text-zinc-900"
-      : "border-primary bg-primary/15 text-blue-900";
-  const chipOff =
-    selectionStyle === "neutral"
-      ? "border-zinc-200 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
-      : "border-blue-100 bg-blue-50 text-blue-900 hover:bg-blue-100";
+  // Monochrome world: state is carried by the shared value ladder, not a hue.
+  void selectionStyle;
+  const monthSelectedRing = "border-foreground ring-1 ring-foreground";
+  const chipOn = slotClasses({ kind: "open", selected: true });
+  const chipOff = slotClasses({ kind: "open" });
 
   return (
     <div className="overflow-x-auto pb-1" data-testid="google-month-grid">
       <div className="min-w-[720px]">
-        <div className="mb-2 grid grid-cols-7 gap-px bg-zinc-200">
+        <div className="mb-2 grid grid-cols-7 gap-px bg-border">
           {monthWeekdayHeaders.map((day, index) => (
             <p
               key={`${day}-${index}`}
-              className="bg-zinc-50 py-1.5 text-center text-[11px] font-semibold text-zinc-600"
+              className="bg-surface py-1.5 text-center text-[11px] font-semibold text-muted"
             >
               {day}
             </p>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-px bg-zinc-200">
+        <div className="grid grid-cols-7 gap-px bg-border">
           {monthCells.map((cell) => {
             const raw = slotsByDay.get(cell.dayKey) ?? [];
             const sorted = [...raw].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
@@ -120,15 +116,15 @@ export function TeacherAvailabilityGoogleMonth({
                 key={cell.dayKey}
                 data-month-day-cell={cell.dayKey}
                 className={`flex min-h-[96px] flex-col border border-transparent p-1 text-left text-xs transition ${
-                  isSelected ? monthSelectedRing : "border-zinc-100"
+                  isSelected ? monthSelectedRing : "border-border"
                 } ${
                   !cell.inCurrentMonth
-                    ? "bg-zinc-50/90 text-zinc-400"
+                    ? "bg-surface text-muted"
                     : isAvailable
-                      ? "bg-white text-zinc-900"
+                      ? "bg-surface text-foreground"
                       : isUnavailable
-                        ? "bg-white text-zinc-500"
-                        : "bg-zinc-50/80 text-zinc-400"
+                        ? "bg-surface text-muted"
+                        : "bg-surface text-muted"
                 }`}
               >
                 <div className="flex items-start justify-between gap-0.5">
@@ -136,7 +132,7 @@ export function TeacherAvailabilityGoogleMonth({
                     type="button"
                     data-day-key={cell.dayKey}
                     onClick={() => onOpenDay(cell.dayKey)}
-                    className="min-w-0 rounded px-0.5 text-left text-sm font-semibold hover:bg-zinc-100"
+                    className="inline-flex min-h-6 min-w-6 items-center rounded px-1 text-left text-sm font-semibold tabular-nums hover:bg-[var(--app-hover)]"
                   >
                     {cell.shortLabel}
                   </button>
@@ -149,7 +145,7 @@ export function TeacherAvailabilityGoogleMonth({
                         e.stopPropagation();
                         onAddForDayKey!(cell.dayKey);
                       }}
-                      className="shrink-0 rounded border border-zinc-200 bg-white px-1 py-0.5 text-[9px] font-semibold text-zinc-700 shadow-sm hover:bg-zinc-100"
+                      className="inline-flex min-h-6 min-w-6 shrink-0 items-center justify-center rounded border border-border bg-surface px-1.5 py-1 text-[10px] font-semibold text-foreground hover:bg-[var(--app-hover)]"
                     >
                       {addLabel}
                     </button>
@@ -163,9 +159,9 @@ export function TeacherAvailabilityGoogleMonth({
                           key={`booking-${slot.startsAtIso}-${slot.groupKey ?? ""}`}
                           data-testid="month-booking-chip"
                           data-starts-at={slot.startsAtIso}
-                          className="w-full truncate rounded-md border border-amber-200/70 bg-amber-50/50 px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-amber-950/90 dark:border-amber-800/40 dark:bg-amber-950/25 dark:text-amber-50/95"
+                          className={`w-full truncate rounded-md px-1 py-0.5 text-left text-[9px] font-medium leading-tight ${SLOT_BOOKED}`}
                         >
-                          <span className="block truncate font-medium text-amber-950 dark:text-amber-50">
+                          <span className="block truncate font-semibold tabular-nums">
                             {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
                               hour: "numeric",
                               minute: "2-digit",
@@ -178,11 +174,11 @@ export function TeacherAvailabilityGoogleMonth({
                               timeZone,
                             })}
                           </span>
-                          <span className="mt-0.5 block truncate text-[8px] font-medium text-amber-900/85 dark:text-amber-100/90">
+                          <span className="mt-0.5 block truncate text-[8px] font-medium text-[var(--app-canvas)]/75">
                             {reservedLabel}
                           </span>
                           {slot.label ? (
-                            <span className="mt-0.5 block truncate text-[8px] text-amber-900/70 dark:text-amber-100/75">
+                            <span className="mt-0.5 block truncate text-[8px] text-[var(--app-canvas)]/75">
                               {slot.label}
                             </span>
                           ) : null}
@@ -201,7 +197,7 @@ export function TeacherAvailabilityGoogleMonth({
                           onSelectSlot(slot.startsAtIso, slot.groupKey);
                           onCalendarAnchorChange(slot.startsAtIso);
                         }}
-                        className={`w-full truncate rounded border px-1 py-0.5 text-left text-[9px] font-medium leading-tight shadow-sm ${
+                        className={`w-full truncate rounded px-1 py-0.5 text-left text-[9px] font-medium leading-tight ${SLOT_FIGURE} ${
                           sel ? chipOn : chipOff
                         }`}
                       >
@@ -220,7 +216,7 @@ export function TeacherAvailabilityGoogleMonth({
                     );
                   })}
                   {more > 0 ? (
-                    <p className="px-0.5 text-[9px] font-medium text-zinc-500">+{more} more</p>
+                    <p className="px-0.5 text-[9px] font-medium text-muted">+{more} more</p>
                   ) : null}
                 </div>
               </div>

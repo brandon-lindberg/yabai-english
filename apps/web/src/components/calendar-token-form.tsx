@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { buttonClasses } from "@/components/ui/button";
 
 export function CalendarTokenForm() {
   const [token, setToken] = useState("");
@@ -48,7 +49,7 @@ export function CalendarTokenForm() {
       <button
         type="submit"
         disabled={loading}
-        className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+        className={buttonClasses({ size: "md" })}
       >
         Save token
       </button>

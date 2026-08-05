@@ -1,18 +1,37 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo, M_PLUS_1, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import { THEME_INIT_SCRIPT } from "@/lib/theme-init-script";
 import { SwRegister } from "@/components/sw-register";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/** Latin + display voice. Variable, so every weight step is one file. */
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+/**
+ * Japanese. Chosen over Zen Kaku Gothic New because at weight 900 it holds the
+ * same stroke density as Archivo 900 — Zen Kaku renders visibly lighter beside
+ * it, which would undercut every display line in a mixed ja/en heading.
+ * Not preloaded: the JP glyph set ships as many unicode-range slices and
+ * preloading them all would cost more than it saves.
+ */
+const mplus1 = M_PLUS_1({
+  variable: "--font-mplus1",
+  weight: ["400", "500", "700", "900"],
+  subsets: ["latin"],
+  display: "swap",
+  preload: false,
+});
+
+/** Tabular figures for schedule and invoice data only, never as decoration. */
+const jetbrainsMono = JetBrains_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -36,16 +55,18 @@ export const metadata: Metadata = {
   },
 };
 
-/** Mobile baseline ~iPhone 14 (390 CSS px); explicit viewport avoids odd zoom/layout in Safari. */
+/**
+ * Mobile baseline ~iPhone 14 (390 CSS px); explicit viewport avoids odd zoom/layout in Safari.
+ * Pinch-zoom stays enabled: locking it fails WCAG 1.4.4. The iOS focus-zoom this
+ * originally guarded against is already handled by the 16px form-control rule below.
+ */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0d9488" },
-    { media: "(prefers-color-scheme: dark)", color: "#0c1222" },
+    { media: "(prefers-color-scheme: light)", color: "#fafaf8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0c0d" },
   ],
 };
 
@@ -57,7 +78,7 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${archivo.variable} ${mplus1.variable} ${jetbrainsMono.variable} antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-dvh flex-col overflow-x-clip bg-transparent text-foreground">

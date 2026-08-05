@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
 
 function normalizeSlugInput(raw: string): string {
   return raw
@@ -80,7 +81,7 @@ export function OrgSchoolsList({ orgId }: Props) {
       <div className="mb-4 flex justify-end">
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={buttonClasses()}
         >
           {t("addSchool")}
         </button>
@@ -132,14 +133,14 @@ export function OrgSchoolsList({ orgId }: Props) {
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                className={buttonClasses()}
               >
                 {saving ? t("creating") : t("create")}
               </button>
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                className={buttonClasses({ variant: "secondary" })}
               >
                 {t("cancel")}
               </button>
