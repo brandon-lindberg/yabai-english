@@ -12,3 +12,11 @@ dist
 # Product notes — keep local only (already in .gitignore; if Git still tracked it, run: git rm --cached PRODUCT_REQUIREMENTS.md)
 PRODUCT_REQUIREMENTS.md
 
+# impeccable design skills — payload is ~3.2MB per harness, so it stays out of git.
+# Set up locally with: npx impeccable install
+# The hooks in .claude/settings.json and .cursor/hooks.json ARE tracked; both are
+# guarded, so they no-op for anyone who hasn't run the installer.
+.claude/skills/impeccable/
+.cursor/skills/impeccable/
+.cursor/agents/impeccable-*.md
+
