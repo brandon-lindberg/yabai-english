@@ -184,7 +184,7 @@ export function PlacementQuiz() {
         {/* Progress */}
         <Skeleton height="3" width="1/4" />
         {/* Question card — mirrors the real quiz layout */}
-        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
+        <div className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
           {/* Instruction */}
           <Skeleton height="3" width="full" />
           <div className="mt-1">
@@ -212,7 +212,7 @@ export function PlacementQuiz() {
   if (cooldownEligibleAt) {
     const dateLabel = formatPlacementEligibleDate(cooldownEligibleAt, locale);
     return (
-      <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
         <p className="text-base font-semibold text-foreground">{t("cooldownTitle")}</p>
         <p className="mt-2 text-sm text-muted">{t("cooldownBody", { date: dateLabel })}</p>
         <Link
@@ -318,7 +318,7 @@ export function PlacementQuiz() {
         {t("progress", { current: progressCurrent, total: progressTotal })}
       </p>
       {!objectiveComplete && q ? (
-        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
+        <div className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
           <p className="text-sm font-medium text-muted">
             {placementTextToReact(isJa ? q.instructionJa : q.instructionEn)}
           </p>
@@ -342,7 +342,7 @@ export function PlacementQuiz() {
           </ul>
         </div>
       ) : (
-        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
+        <div className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
           <p className="text-base font-medium text-foreground">{t("objectiveComplete")}</p>
           <p className="mt-2 text-xs text-muted">{t("submitWhenReady")}</p>
           <button

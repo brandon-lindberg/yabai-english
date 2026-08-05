@@ -17,7 +17,7 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
 
   if (upcoming.length === 0) {
     return (
-      <li className="rounded-2xl border border-dashed border-border bg-surface p-6 text-muted">
+      <li className="border-t border-border py-6 text-muted">
         {t("noBookings")}
       </li>
     );
@@ -29,7 +29,7 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
         <li
           key={b.id}
           id={`booking-${b.id}`}
-          className="rounded-2xl border border-border bg-surface p-4 shadow-sm"
+          className="border-t border-border pt-4"
         >
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>

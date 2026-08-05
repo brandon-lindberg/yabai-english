@@ -140,7 +140,7 @@ export function TeacherProfileForm({
         </p>
       ) : null}
 
-      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-surface/40 p-4 text-sm">
+      <label className="flex cursor-pointer items-start gap-3 border-y border-border py-4 text-sm">
         <input
           type="checkbox"
           checked={marketplaceHidden}

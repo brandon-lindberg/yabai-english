@@ -15,7 +15,7 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
 
   if (completed.length === 0) {
     return (
-      <li className="rounded-2xl border border-dashed border-border bg-surface p-6 text-muted">
+      <li className="border-t border-border py-6 text-muted">
         {t("schedulePage.completedEmpty")}
       </li>
     );
@@ -45,7 +45,7 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
           <li
             key={b.id}
             id={`booking-${b.id}`}
-            className="rounded-2xl border border-border bg-surface p-4 shadow-sm"
+            className="border-t border-border pt-4"
           >
             <div className="flex flex-col gap-1">
               <p className="font-medium text-foreground">

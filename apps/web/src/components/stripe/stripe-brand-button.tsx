@@ -43,7 +43,7 @@ export const StripeBrandButton = forwardRef<HTMLButtonElement, Props>(
         ref={ref}
         type="button"
         disabled={disabled || loading}
-        className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+        className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
         style={{ backgroundColor: background }}
         onMouseEnter={(e) => {
           if (!disabled && !loading) {

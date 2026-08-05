@@ -226,9 +226,9 @@ export function TeacherLessonOfferingsForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <section className="space-y-3 rounded-xl border border-border bg-background p-4">
+      <section className="space-y-3 border-t border-border pt-6">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold text-foreground">{t("teacherRatesByDurationTitle")}</h3>
+          <h3 className="text-base font-bold tracking-[-0.02em] text-foreground">{t("teacherRatesByDurationTitle")}</h3>
           <button
             type="button"
             onClick={() =>
@@ -265,7 +265,7 @@ export function TeacherLessonOfferingsForm({
             {individualOffers.map((row, index) => (
               <div
                 key={row.clientId}
-                className="flex flex-col gap-3 rounded-xl border border-border/80 bg-surface/60 p-3 sm:flex-row sm:items-start sm:gap-3"
+                className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-start sm:gap-3"
               >
                 <label className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <span className={RATE_FIELD_LABEL_ROW}>{t("teacherLessonLevelForRate")}</span>
@@ -374,9 +374,9 @@ export function TeacherLessonOfferingsForm({
         )}
       </section>
 
-      <section className="space-y-3 rounded-xl border border-border bg-background p-4">
+      <section className="space-y-3 border-t border-border pt-6">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold text-foreground">{t("teacherGroupRatesTitle")}</h3>
+          <h3 className="text-base font-bold tracking-[-0.02em] text-foreground">{t("teacherGroupRatesTitle")}</h3>
           <button
             type="button"
             onClick={() =>
@@ -406,7 +406,7 @@ export function TeacherLessonOfferingsForm({
             {groupOffers.map((group, index) => (
               <div
                 key={group.clientId}
-                className="flex flex-col gap-3 rounded-xl border border-border/80 bg-surface/60 p-3 sm:flex-row sm:items-start sm:gap-3"
+                className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-start sm:gap-3"
               >
                 <label className="flex w-full flex-col gap-1.5 sm:w-20 sm:flex-none">
                   <span className={RATE_FIELD_LABEL_ROW}>{t("teacherGroupSizeLabel")}</span>
@@ -531,7 +531,7 @@ export function TeacherLessonOfferingsForm({
         )}
       </section>
 
-      <label className="flex items-start gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground">
+      <label className="flex items-start gap-2 py-2 text-sm text-foreground">
         <input
           type="checkbox"
           checked={offersFreeTrial}

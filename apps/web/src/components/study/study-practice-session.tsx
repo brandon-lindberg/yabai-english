@@ -162,7 +162,7 @@ export function StudyPracticeSession({
         data-testid="study-practice-loading"
       >
         {/* XP bar */}
-        <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+        <div className="rounded-2xl border border-border bg-surface p-5">
           <Skeleton height="4" width="1/2" />
           <div className="mt-1">
             <Skeleton height="3" width="1/3" />
@@ -180,7 +180,7 @@ export function StudyPracticeSession({
           <Skeleton height="3" width="1/3" className="!w-36" />
         </div>
         {/* Flashcard */}
-        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-8">
+        <div className="rounded-2xl border border-border bg-surface p-4 sm:p-8">
           <Skeleton height="3" width="1/4" />
           <div className="mt-3 min-h-[6rem] sm:min-h-[8rem]">
             <Skeleton height="8" width="3/4" />
@@ -216,7 +216,7 @@ export function StudyPracticeSession({
 
   if (finished) {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6 text-center shadow-sm">
+      <div className="rounded-2xl border border-border bg-surface p-6 text-center">
         <p className="text-lg font-semibold text-foreground">{t("sessionDone")}</p>
         <p className="mt-2 text-muted">{t("sessionXp", { xp: sessionXp })}</p>
         <p className="mt-1 text-sm text-muted">
@@ -249,7 +249,7 @@ export function StudyPracticeSession({
           ? t("queueEmptyMastered")
           : t("sessionEmpty");
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+      <div className="rounded-2xl border border-border bg-surface p-6">
         <p className="text-muted">{emptyMsg}</p>
         <Link href="/learn/study" className="mt-4 inline-block text-link">
           {t("backToHub")}

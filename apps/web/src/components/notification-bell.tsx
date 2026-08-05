@@ -121,7 +121,7 @@ export function NotificationBell() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-border bg-surface p-3 shadow-sm">
+        <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-border bg-surface p-3">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-semibold text-foreground">{t("notifications")}</p>
             <div className="flex flex-wrap items-center gap-2">

@@ -38,7 +38,7 @@ export function SiteHeaderUserMenu({ role }: Props) {
           ▾
         </span>
       </summary>
-      <div className="absolute right-0 top-11 z-[60] w-[min(18rem,calc(100vw-2rem))] rounded-xl border border-border bg-surface p-3 shadow-lg">
+      <div className="absolute right-0 top-11 z-[60] w-[min(18rem,calc(100vw-2rem))] rounded-xl border border-border bg-surface p-3">
         <div className="space-y-1 border-b border-border pb-3">
           {showProfile ? (
             <Link

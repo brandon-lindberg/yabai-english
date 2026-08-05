@@ -142,7 +142,7 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
                       <p className="truncate text-sm text-muted">{title}</p>
                       <p className="text-xs text-muted">{range}</p>
                       {lesson.hasSavedContent ? (
-                        <span className="mt-1 inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
+                        <span className="mt-1 inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium text-muted">
                           {t("completedLessonsHasNotes")}
                         </span>
                       ) : null}
@@ -204,7 +204,7 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
             <li
               key={lesson.id}
               id={`booking-${lesson.id}`}
-              className="min-w-0 rounded-2xl border border-border bg-surface shadow-sm"
+              className="min-w-0 border-t border-border"
             >
               <div className="p-4 hover:bg-[var(--app-hover)]">
                 <button
@@ -225,7 +225,7 @@ export function TeacherCompletedLessonsClient({ lessons }: Props) {
                       {t("studentLabel")}: {lesson.studentDisplay}
                     </p>
                     {lesson.hasSavedContent ? (
-                      <span className="inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
+                      <span className="inline-block rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium text-muted">
                         {t("completedLessonsHasNotes")}
                       </span>
                     ) : null}

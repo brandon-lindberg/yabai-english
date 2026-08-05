@@ -50,7 +50,7 @@ function QuickReviewFlipCard({
           disabled={disabled}
           inert={flipped}
           onClick={() => setFlipped(true)}
-          className="absolute inset-0 flex flex-col items-stretch rounded-2xl border-2 border-border bg-background px-2 py-3 text-center shadow-md [backface-visibility:hidden] disabled:opacity-50"
+          className="absolute inset-0 flex flex-col items-stretch rounded-2xl border-2 border-border bg-background px-2 py-3 text-center [backface-visibility:hidden] disabled:opacity-50"
         >
           <span className="flex min-h-0 flex-1 items-center justify-center px-1">
             <span className="line-clamp-6 whitespace-pre-line text-sm font-medium leading-snug text-foreground">
@@ -64,7 +64,7 @@ function QuickReviewFlipCard({
           onClick={() => {
             if (!disabled) setFlipped(false);
           }}
-          className="absolute inset-0 flex cursor-pointer flex-col rounded-2xl border-2 border-border bg-muted/25 px-2 py-2 text-center shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)]"
+          className="absolute inset-0 flex cursor-pointer flex-col rounded-2xl border-2 border-border bg-muted/25 px-2 py-2 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]"
         >
           {/*
             A real control rather than a hint: the whole face stays clickable for
@@ -170,7 +170,7 @@ export function DashboardQuickReview({
 
   if (initialCards.length === 0 && cards.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-surface/60 p-5 text-sm text-muted">
+      <div className="border-t border-border py-5 text-sm text-muted">
         {t("empty")}
       </div>
     );
@@ -178,7 +178,7 @@ export function DashboardQuickReview({
 
   if (cards.length === 0) {
     return (
-      <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <section className="border-t border-border pt-5">
         <h2 className="text-lg font-semibold text-foreground">{t("title")}</h2>
         <p className="mt-2 text-sm text-muted">{t("clearedForToday")}</p>
         <p className="mt-1 text-xs text-muted">
@@ -189,7 +189,7 @@ export function DashboardQuickReview({
   }
 
   return (
-    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+    <section className="border-t border-border pt-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-lg font-semibold text-foreground">{t("title")}</h2>
         <p className="text-xs text-muted">

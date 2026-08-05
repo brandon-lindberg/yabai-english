@@ -23,7 +23,7 @@ export async function DashboardStudyHighlight({
     : overview.levels.find((l) => !l.locked) ?? null;
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+    <div className="border-t border-border pt-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h2 className="text-lg font-semibold text-foreground">{t("studyTitle")}</h2>
         <Link href="/learn/study" className="text-sm font-medium text-link">

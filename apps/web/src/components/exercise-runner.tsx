@@ -57,7 +57,7 @@ export function ExerciseRunner({ exercise }: Props) {
         : (content.promptEn ?? content.promptJa ?? "");
 
     return (
-      <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <div className="rounded-2xl border border-border bg-surface p-5">
         <p className="font-medium text-foreground">{prompt}</p>
         <ul className="mt-4 space-y-2">
           {content.options.map((opt, idx) => {

@@ -28,6 +28,8 @@ import {
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { TEACHER_HOME_SCHEDULE_HREFS, withDashboardOnboarding } from "@/lib/teacher-dashboard-home-links";
 import { buttonClasses } from "@/components/ui/button";
+import { StatLedger } from "@/components/ui/stat-ledger";
+import { Section } from "@/components/ui/section";
 
 export default async function DashboardPage({
   searchParams,
@@ -73,44 +75,52 @@ export default async function DashboardPage({
       <div className="space-y-8">
         <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
         <PageHeader title={t("teacherHome.title")} description={t("teacherHome.body")} />
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Link
-            href={withDashboardOnboarding(TEACHER_HOME_SCHEDULE_HREFS.upcoming, onboardingHref)}
-            aria-label={`${t("teacherHome.statUpcoming")}: ${teacherBookings.upcoming.length}`}
-            className="group block rounded-2xl border border-border bg-surface p-4 shadow-sm outline-none transition hover:border-foreground/20 hover:bg-[var(--app-hover)] focus-visible:ring-2 focus-visible:ring-foreground/25"
-          >
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">
-              {t("teacherHome.statUpcoming")}
-            </p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
-              {teacherBookings.upcoming.length}
-            </p>
-          </Link>
-          <Link
-            href={withDashboardOnboarding(TEACHER_HOME_SCHEDULE_HREFS.completed, onboardingHref)}
-            aria-label={`${t("teacherHome.statCompleted")}: ${teacherBookings.completed.length}`}
-            className="group block rounded-2xl border border-border bg-surface p-4 shadow-sm outline-none transition hover:border-foreground/20 hover:bg-[var(--app-hover)] focus-visible:ring-2 focus-visible:ring-foreground/25"
-          >
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">
-              {t("teacherHome.statCompleted")}
-            </p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
-              {teacherBookings.completed.length}
-            </p>
-          </Link>
-          <Link
-            href={withDashboardOnboarding(TEACHER_HOME_SCHEDULE_HREFS.availability, onboardingHref)}
-            aria-label={`${t("teacherHome.statSlots")}: ${teacherProfile?.availabilitySlots.length ?? 0}`}
-            className="group block rounded-2xl border border-border bg-surface p-4 shadow-sm outline-none transition hover:border-foreground/20 hover:bg-[var(--app-hover)] focus-visible:ring-2 focus-visible:ring-foreground/25"
-          >
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">
-              {t("teacherHome.statSlots")}
-            </p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
-              {teacherProfile?.availabilitySlots.length ?? 0}
-            </p>
-          </Link>
-        </div>
+        <StatLedger
+          stats={[
+            {
+              label: t("teacherHome.statUpcoming"),
+              value: teacherBookings.upcoming.length,
+              render: ({ className, children }) => (
+                <Link
+                  href={withDashboardOnboarding(TEACHER_HOME_SCHEDULE_HREFS.upcoming, onboardingHref)}
+                  aria-label={`${t("teacherHome.statUpcoming")}: ${teacherBookings.upcoming.length}`}
+                  className={className}
+                >
+                  {children}
+                </Link>
+              ),
+            },
+            {
+              label: t("teacherHome.statCompleted"),
+              value: teacherBookings.completed.length,
+              render: ({ className, children }) => (
+                <Link
+                  href={withDashboardOnboarding(TEACHER_HOME_SCHEDULE_HREFS.completed, onboardingHref)}
+                  aria-label={`${t("teacherHome.statCompleted")}: ${teacherBookings.completed.length}`}
+                  className={className}
+                >
+                  {children}
+                </Link>
+              ),
+            },
+            {
+              label: t("teacherHome.statSlots"),
+              value: teacherProfile?.availabilitySlots.length ?? 0,
+              render: ({ className, children }) => (
+                <Link
+                  href={withDashboardOnboarding(
+                    TEACHER_HOME_SCHEDULE_HREFS.availability,
+                    onboardingHref,
+                  )}
+                  aria-label={`${t("teacherHome.statSlots")}: ${teacherProfile?.availabilitySlots.length ?? 0}`}
+                  className={className}
+                >
+                  {children}
+                </Link>
+              ),
+            },
+          ]}
+        />
         {isTeacherCabinetRole(session.user.role) && !calendarReady ? (
           <InlineAlert variant="info">
             <span className="text-foreground">{t("teacherHome.calendarSetupHint")} </span>
@@ -120,12 +130,9 @@ export default async function DashboardPage({
           </InlineAlert>
         ) : null}
 
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold leading-snug text-foreground">
-            {t("teacherHome.upcomingSection")}
-          </h2>
+        <Section title={t("teacherHome.upcomingSection")}>
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(17.5rem,22rem)] lg:items-start lg:gap-x-8">
-            <ul className="min-w-0 list-none space-y-4 p-0">
+            <ul className="min-w-0 list-none border-t border-border p-0">
               <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
             </ul>
             <aside className="min-w-0 self-start lg:sticky lg:top-24">
@@ -144,7 +151,7 @@ export default async function DashboardPage({
               />
             </aside>
           </div>
-        </section>
+        </Section>
       </div>
     );
   }

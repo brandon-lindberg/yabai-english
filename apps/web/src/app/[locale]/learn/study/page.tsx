@@ -62,7 +62,7 @@ export default async function StudyHubPage({
           return (
             <article
               key={level.id}
-              className="rounded-2xl border border-border bg-surface p-5 shadow-sm"
+              className="rounded-2xl border border-border bg-surface p-5"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>

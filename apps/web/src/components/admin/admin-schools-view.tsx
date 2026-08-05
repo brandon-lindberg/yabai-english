@@ -114,7 +114,7 @@ function CreateOrgForm({ onCreated }: { onCreated: () => void }) {
   return (
     <form
       onSubmit={submit}
-      className="rounded-xl border border-border bg-surface p-4 shadow-sm"
+      className="rounded-xl border border-border bg-surface p-4"
     >
       <h2 className="text-lg font-semibold text-foreground">{t("createTitle")}</h2>
       <p className="mt-1 text-xs text-muted">{t("createHelp")}</p>
@@ -189,7 +189,7 @@ function OrgCard({
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+    <section className="rounded-xl border border-border bg-surface p-4">
       <header className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 className="text-lg font-semibold text-foreground">{org.name}</h2>
@@ -635,7 +635,7 @@ function UserEmailCombobox({
       {showDropdown && (
         <ul
           role="listbox"
-          className="absolute left-0 right-0 z-10 mt-1 max-h-64 overflow-auto rounded-md border border-border bg-background py-1 shadow-lg"
+          className="absolute left-0 right-0 z-10 mt-1 max-h-64 overflow-auto rounded-md border border-border bg-background py-1"
         >
           {loading && results.length === 0 && (
             <li className="px-3 py-2 text-xs text-muted">{t("searching")}</li>

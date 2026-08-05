@@ -100,7 +100,7 @@ export default async function LessonDetailPage({
       </Link>
 
       {/* Lesson info */}
-      <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <section className="rounded-2xl border border-border bg-surface p-5">
         <h1 className="text-lg font-semibold text-foreground">
           {booking.lessonProduct.nameJa} / {booking.lessonProduct.nameEn}
         </h1>
@@ -186,7 +186,7 @@ export default async function LessonDetailPage({
       </section>
 
       {/* Student profile */}
-      <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <section className="rounded-2xl border border-border bg-surface p-5">
         <h2 className="text-base font-semibold text-foreground">{tLesson("studentProfile")}</h2>
         <div className="mt-3 space-y-3">
           <div className="flex items-center gap-3">

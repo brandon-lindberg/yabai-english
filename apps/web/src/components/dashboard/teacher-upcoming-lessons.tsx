@@ -21,7 +21,7 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
   };
 
   if (upcoming.length === 0) {
-    return <li className="rounded-2xl border border-dashed border-border bg-surface p-6 text-muted">{t("noBookings")}</li>;
+    return <li className="border-b border-border py-6 text-muted">{t("noBookings")}</li>;
   }
 
   return (
@@ -30,14 +30,16 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
         <li
           key={b.id}
           id={`booking-${b.id}`}
-          className="scroll-mt-24 rounded-2xl border-2 border-transparent bg-surface p-4 shadow-sm ring-1 ring-border transition-colors duration-300 target:border-primary target:ring-primary/30"
+          className="scroll-mt-24 border-b border-border py-4 transition-colors duration-300 target:bg-[var(--app-hover)]"
         >
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          {/* gap-6 on the row: without it the lesson title butts straight into
+              the action column with no separation once the title runs long. */}
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
             <Link
               href={`/dashboard/schedule/lessons/${b.id}`}
               className="min-w-0 flex-1 hover:opacity-80"
             >
-              <p className="font-medium text-foreground">
+              <p className="font-bold tracking-[-0.02em] text-foreground">
                 {b.lessonProduct.nameJa} / {b.lessonProduct.nameEn}
               </p>
               <p className="text-sm text-muted">

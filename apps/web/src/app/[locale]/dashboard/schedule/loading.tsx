@@ -68,7 +68,7 @@ export default function Loading() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
+              className="rounded-2xl border border-border bg-surface p-5 sm:p-6"
             >
               <Skeleton height="4" width="full" />
               <div className="mt-2">

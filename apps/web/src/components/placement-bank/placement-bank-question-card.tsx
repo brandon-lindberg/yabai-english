@@ -20,7 +20,7 @@ export function PlacementBankQuestionCard({
   correctIndex,
 }: PlacementBankQuestionCardProps) {
   return (
-    <article className="rounded-lg border border-border bg-surface p-4 shadow-sm">
+    <article className="rounded-lg border border-border bg-surface p-4">
       <p className="text-xs font-medium uppercase tracking-wide text-muted">
         {question.cefrBand} · {question.section} · {question.id}
       </p>

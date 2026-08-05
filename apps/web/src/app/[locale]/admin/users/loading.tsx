@@ -5,7 +5,7 @@ export default function Loading() {
     <main role="status" aria-busy="true" aria-label="Loading users">
       <Skeleton height="8" width="1/4" />
 
-      <div className="mt-6 rounded-2xl border border-border bg-surface p-4 shadow-sm">
+      <div className="mt-6 rounded-2xl border border-border bg-surface p-4">
         {/* Search + filter bar */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex-1">

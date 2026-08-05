@@ -29,7 +29,7 @@ export async function DashboardProfileSummary({
   const bioEmptyLabel = emptyBioLabel ?? t("profileCardEmpty");
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+    <div className="border-t border-border pt-5">
       <div className="flex items-start gap-4">
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-border bg-foreground/5">
           {image ? (
@@ -42,7 +42,7 @@ export async function DashboardProfileSummary({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-foreground">{display}</p>
+          <p className="truncate text-base font-bold tracking-[-0.02em] text-foreground">{display}</p>
           <DashboardProfileBioPreview
             key={shortBio ?? ""}
             markdown={shortBio ?? ""}

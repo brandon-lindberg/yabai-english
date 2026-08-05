@@ -72,7 +72,7 @@ export function ChatModerationMenu({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-50 mt-1 min-w-[11rem] rounded-xl border border-border bg-surface py-1 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-1 min-w-[11rem] rounded-xl border border-border bg-surface py-1"
         >
           <button
             type="button"

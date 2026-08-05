@@ -55,7 +55,7 @@ export function TeacherAvailabilityRemoveModal({
         aria-label={cancelLabel}
         onClick={onClose}
       />
-      <div className="relative z-[101] w-full max-w-md rounded-2xl border border-border bg-surface p-5 shadow-xl">
+      <div className="relative z-[101] w-full max-w-md rounded-2xl border border-border bg-surface p-5">
         <h3 id="teacher-availability-remove-title" className="text-lg font-semibold text-foreground">
           {title}
         </h3>

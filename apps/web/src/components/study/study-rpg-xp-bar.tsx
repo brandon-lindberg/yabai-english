@@ -18,7 +18,7 @@ export function StudyRpgXpBar({
 }: Props) {
   const pct = Math.min(100, Math.max(0, progressPercent));
   const isCard = variant === "card";
-  const rootClass = [isCard ? "rounded-2xl border border-border bg-surface p-4 shadow-sm" : "mt-3 space-y-2", className]
+  const rootClass = [isCard ? "rounded-2xl border border-border bg-surface p-4" : "mt-3 space-y-2", className]
     .filter(Boolean)
     .join(" ");
 

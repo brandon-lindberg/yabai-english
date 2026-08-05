@@ -71,7 +71,7 @@ export function TeacherAvailabilityTimeGridDay({
         ref={scrollRef}
         className="min-h-0 flex-1 overflow-y-auto overflow-x-auto pb-1"
       >
-        <div className="flex min-w-[280px] gap-0 rounded-lg border border-border bg-surface shadow-sm">
+        <div className="flex min-w-[280px] gap-0 rounded-lg border border-border bg-surface">
           <div className="w-14 shrink-0 border-r border-border bg-surface text-right text-[10px] text-muted">
             <div className="sticky top-0 z-20 h-[52px] border-b border-border bg-surface" />
             <div style={{ height: dayHeightPx }} className="relative">
@@ -171,7 +171,7 @@ export function TeacherAvailabilityTimeGridDay({
                       onSelectSlot(block.startsAtIso, block.groupKey);
                       onCalendarAnchorChange(block.startsAtIso);
                     }}
-                    className={`absolute right-1 left-1 overflow-hidden rounded border px-1.5 py-1 text-left text-xs leading-tight shadow-sm transition ${
+                    className={`absolute right-1 left-1 overflow-hidden rounded border px-1.5 py-1 text-left text-xs leading-tight transition ${
                       selected ? weekSelectedClass : weekIdleClass
                     }`}
                     style={{

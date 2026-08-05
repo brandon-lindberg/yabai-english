@@ -116,7 +116,7 @@ export function TeacherRosterPanel() {
       </form>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      <div className="rounded-xl border border-border">
+      <div className="border-t border-border">
         {entries.length === 0 ? (
           <p className="p-4 text-sm text-muted">{t("empty")}</p>
         ) : (

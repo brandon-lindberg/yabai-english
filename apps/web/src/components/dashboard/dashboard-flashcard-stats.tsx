@@ -14,7 +14,7 @@ export async function DashboardFlashcardStats({ trackPractice }: { trackPractice
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+    <div className="border-t border-border pt-5">
       <h2 className="text-lg font-semibold text-foreground">{t("flashcardStatsTitle")}</h2>
       <p className="mt-1 text-xs text-muted">{t("flashcardStatsIntro")}</p>
       <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">

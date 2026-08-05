@@ -163,7 +163,7 @@ export function SkeletonCard({
     <div
       data-testid="skeleton-card"
       className={[
-        "rounded-2xl border border-border bg-surface shadow-sm",
+        "rounded-2xl border border-border bg-surface",
         CARD_PAD[padding],
         className,
       ]

@@ -191,7 +191,7 @@ export function SlotSelectionCalendar({
   const rootClassName =
     variant === "embedded"
       ? "rounded-none border-0 bg-transparent p-0 shadow-none"
-      : "rounded-2xl border border-border bg-surface p-4 shadow-sm";
+      : "rounded-2xl border border-border bg-surface p-4";
 
   return (
     <div className={rootClassName}>
@@ -429,7 +429,7 @@ export function SlotSelectionCalendar({
                               e.stopPropagation();
                               onAddForDayKey!(cell.dayKey);
                             }}
-                            className="shrink-0 rounded border border-border bg-surface px-1 py-0.5 text-[9px] font-semibold text-foreground shadow-sm hover:bg-[var(--app-hover)]"
+                            className="shrink-0 rounded border border-border bg-surface px-1 py-0.5 text-[9px] font-semibold text-foreground hover:bg-[var(--app-hover)]"
                           >
                             {weekColumnAddLabel}
                           </button>

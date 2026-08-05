@@ -90,7 +90,7 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
         {Array.from({ length: 3 }).map((_, idx) => (
           <fieldset
             key={idx}
-            className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5"
+            className="rounded-2xl border border-border bg-surface p-4 sm:p-5"
           >
             {/* Question number */}
             <Skeleton height="3" width="1/4" className="!w-24" />
@@ -130,7 +130,7 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
 
   if (result) {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
+      <div className="rounded-2xl border border-border bg-surface p-6">
         <p className="text-lg font-semibold text-foreground">
           {t("scoreResult", { score: result.score })}
         </p>
@@ -153,7 +153,7 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
         Pass mark: {passingScore}% · {items.length} questions
       </p>
       {items.map((item, idx) => (
-        <fieldset key={item.id} className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
+        <fieldset key={item.id} className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
           <legend className="px-1 text-xs font-medium text-muted">
             {t("questionOf", { n: idx + 1, total: items.length })}
           </legend>

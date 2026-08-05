@@ -409,7 +409,7 @@ export function TeacherAvailabilityAddModal(props: Props) {
         aria-label={props.cancelLabel}
         onClick={props.onClose}
       />
-      <div className="relative z-[101] w-full max-w-md rounded-2xl border border-border bg-surface p-5 shadow-xl">
+      <div className="relative z-[101] w-full max-w-md rounded-2xl border border-border bg-surface p-5">
         <TeacherAvailabilityAddModalInner {...props} dayKey={props.dayKey} />
       </div>
     </div>

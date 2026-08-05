@@ -250,7 +250,7 @@ export function BookingForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-sm">
+    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border bg-surface p-6">
       {filteredPresetSlots ? (
         <BookingStepSection step={1} title={t("stepChooseTimeTitle")} description={t("leadTimeNotice")}>
           {filteredPresetSlots.length === 0 ? (

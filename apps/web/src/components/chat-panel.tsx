@@ -627,7 +627,7 @@ export function ChatPanel() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] right-[max(1.25rem,env(safe-area-inset-right,0px))] z-40 flex h-11 max-w-[10rem] items-center justify-center gap-1.5 rounded-full border border-border bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-md ring-1 ring-black/5 hover:opacity-90 ${
+        className={`fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] right-[max(1.25rem,env(safe-area-inset-right,0px))] z-40 flex h-11 max-w-[10rem] items-center justify-center gap-1.5 rounded-full border border-border bg-primary px-4 text-sm font-semibold text-primary-foreground ring-1 ring-black/5 hover:opacity-90 ${
           open ? "hidden" : ""
         }`}
         aria-label={open ? t("close") : t("open")}

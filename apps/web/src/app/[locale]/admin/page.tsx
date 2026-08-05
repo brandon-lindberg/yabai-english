@@ -39,7 +39,7 @@ export default async function AdminPage() {
           {bookings.map((b) => (
             <li
               key={b.id}
-              className="rounded-xl border border-border bg-surface p-4 text-sm shadow-sm"
+              className="rounded-xl border border-border bg-surface p-4 text-sm"
             >
               <p className="font-medium text-foreground">
                 {b.lessonProduct.nameEn} — {b.student.name ?? b.student.email}

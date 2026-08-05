@@ -20,7 +20,7 @@ export default function Loading() {
       </div>
 
       {/* Filter bar */}
-      <div className="mt-6 rounded-2xl border border-border bg-surface p-4 shadow-sm">
+      <div className="mt-6 rounded-2xl border border-border bg-surface p-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex-1">
             <Skeleton height="10" width="full" rounded="xl" />
@@ -35,7 +35,7 @@ export default function Loading() {
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
+            className="rounded-2xl border border-border bg-surface p-5 sm:p-6"
           >
             <div className="flex items-start gap-4">
               <SkeletonAvatar size="lg" />

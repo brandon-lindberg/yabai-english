@@ -76,7 +76,7 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }
           disabled={googleLoading}
           aria-busy={googleLoading}
           aria-label="Sign in with Google"
-          className="group flex w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-[#1f1f1f] shadow-sm transition duration-150 ease-out hover:-translate-y-0.5 hover:border-[#cbd5e1] hover:bg-[#f8f9fa] hover:shadow-md active:translate-y-0 active:scale-[0.99] active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75"
+          className="group flex w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-[#1f1f1f] transition duration-150 ease-out hover:-translate-y-0.5 hover:border-[#cbd5e1] hover:bg-[#f8f9fa] hover: active:translate-y-0 active:scale-[0.99] active: focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75"
         >
           {googleLoading ? (
             <span
@@ -151,7 +151,7 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2 text-foreground shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2 text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                 placeholder="you@example.com"
               />
             </label>

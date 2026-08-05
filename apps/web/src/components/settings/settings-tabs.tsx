@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { SubNav, SubNavLink } from "@/components/ui/sub-nav";
 
 type SettingsTab = "payments" | "tier" | "google";
 
@@ -14,43 +15,36 @@ type Props = {
 export function SettingsTabs({ activeTab, showPayments = false, showTier = false }: Props) {
   const t = useTranslations("dashboard.settingsPage");
 
-  const linkClassName = (active: boolean) =>
-    `rounded-lg px-3 py-2 text-sm font-medium transition ${
-      active
-        ? "bg-[var(--app-hover)] text-foreground shadow-sm"
-        : "text-muted hover:bg-[var(--app-hover)]/60 hover:text-foreground"
-    }`;
-
   return (
-    <nav
-      aria-label={t("tabsAriaLabel")}
-      className="flex flex-wrap gap-1 rounded-xl border border-border bg-surface/60 p-1"
-    >
+    <SubNav label={t("tabsAriaLabel")}>
       {showPayments ? (
-        <Link
-          href="/dashboard/settings?tab=payments"
-          className={linkClassName(activeTab === "payments")}
-          aria-current={activeTab === "payments" ? "page" : undefined}
-        >
-          {t("tabPayments")}
-        </Link>
+        <SubNavLink
+          active={activeTab === "payments"}
+          render={(p) => (
+            <Link href="/dashboard/settings?tab=payments" {...p}>
+              {t("tabPayments")}
+            </Link>
+          )}
+        />
       ) : null}
       {showTier ? (
-        <Link
-          href="/dashboard/settings?tab=tier"
-          className={linkClassName(activeTab === "tier")}
-          aria-current={activeTab === "tier" ? "page" : undefined}
-        >
-          {t("tabTier")}
-        </Link>
+        <SubNavLink
+          active={activeTab === "tier"}
+          render={(p) => (
+            <Link href="/dashboard/settings?tab=tier" {...p}>
+              {t("tabTier")}
+            </Link>
+          )}
+        />
       ) : null}
-      <Link
-        href="/dashboard/settings?tab=google"
-        className={linkClassName(activeTab === "google")}
-        aria-current={activeTab === "google" ? "page" : undefined}
-      >
-        {t("tabGoogle")}
-      </Link>
-    </nav>
+      <SubNavLink
+        active={activeTab === "google"}
+        render={(p) => (
+          <Link href="/dashboard/settings?tab=google" {...p}>
+            {t("tabGoogle")}
+          </Link>
+        )}
+      />
+    </SubNav>
   );
 }

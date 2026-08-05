@@ -60,7 +60,7 @@ export function TeacherAvailabilityTimeGridWeek({
       className="max-h-[min(70vh,1200px)] overflow-y-auto overflow-x-auto pb-1"
       data-testid="time-grid-week"
     >
-      <div className="flex min-w-[640px] gap-0 rounded-lg border border-border bg-surface shadow-sm">
+      <div className="flex min-w-[640px] gap-0 rounded-lg border border-border bg-surface">
         <div className="w-10 shrink-0 border-r border-border bg-background text-right text-[10px] text-muted sm:w-14">
           {/* Matches the day-header height exactly (it previously padded 52px
               against a 44px header on mobile, so the hours sat a row low) and
@@ -171,7 +171,7 @@ export function TeacherAvailabilityTimeGridWeek({
                           onSelectSlot(block.startsAtIso, block.groupKey);
                           onCalendarAnchorChange(block.startsAtIso);
                         }}
-                        className={`absolute right-0.5 left-0.5 overflow-hidden rounded border px-1 py-0.5 text-left text-[10px] leading-tight shadow-sm transition ${
+                        className={`absolute right-0.5 left-0.5 overflow-hidden rounded border px-1 py-0.5 text-left text-[10px] leading-tight transition ${
                           selected ? weekSelectedClass : weekIdleClass
                         }`}
                         style={{

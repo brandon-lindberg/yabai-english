@@ -15,6 +15,14 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/**
+ * Primary navigation, set as type rather than as filled pills.
+ *
+ * The pill version gave the active item its own rounded container, so the
+ * header carried a small box on every screen. Weight and ink do that job here:
+ * the current section is bold and full-contrast, the rest are muted. It also
+ * gains `aria-current="page"`, which the colour-only version never exposed.
+ */
 export function SiteHeaderPrimaryNav({ links }: Props) {
   const pathname = usePathname();
   const t = useTranslations("common");
@@ -23,7 +31,7 @@ export function SiteHeaderPrimaryNav({ links }: Props) {
 
   return (
     <nav
-      className="hidden min-w-0 items-center gap-0.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] md:flex md:flex-1 md:justify-center lg:justify-start [&::-webkit-scrollbar]:hidden"
+      className="hidden min-w-0 items-center gap-6 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] md:flex md:flex-1 md:justify-center lg:justify-start [&::-webkit-scrollbar]:hidden"
       aria-label={t("primaryNavAria")}
     >
       {links.map((item) => {
@@ -32,10 +40,11 @@ export function SiteHeaderPrimaryNav({ links }: Props) {
           <Link
             key={item.id}
             href={item.href}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+            aria-current={active ? "page" : undefined}
+            className={`whitespace-nowrap text-sm transition-colors ${
               active
-                ? "bg-[var(--app-hover)] text-foreground"
-                : "text-muted hover:bg-[var(--app-hover)] hover:text-foreground"
+                ? "font-bold text-foreground"
+                : "font-medium text-muted hover:text-foreground"
             }`}
           >
             {t(item.labelKey)}
@@ -55,7 +64,7 @@ export function SiteHeaderMobileNav({ links }: Props) {
 
   return (
     <nav
-      className="flex items-center gap-1 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
+      className="flex items-center gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
       aria-label={t("primaryNavAria")}
     >
       {links.map((item) => {
@@ -64,10 +73,9 @@ export function SiteHeaderMobileNav({ links }: Props) {
           <Link
             key={item.id}
             href={item.href}
-            className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition ${
-              active
-                ? "bg-[var(--app-hover)] text-foreground"
-                : "text-muted hover:bg-[var(--app-hover)] hover:text-foreground"
+            aria-current={active ? "page" : undefined}
+            className={`shrink-0 whitespace-nowrap text-xs transition-colors ${
+              active ? "font-bold text-foreground" : "font-medium text-muted hover:text-foreground"
             }`}
           >
             {t(item.labelKey)}

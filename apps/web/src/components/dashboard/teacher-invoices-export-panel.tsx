@@ -23,7 +23,7 @@ export function TeacherInvoicesExportPanel({
   const exportHref = `/api/teacher/invoices/export?studentId=${encodeURIComponent(studentId)}`;
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-surface p-5 shadow-sm">
+    <div className="space-y-4 border-t border-border pt-6">
       <div className="space-y-2">
         <label htmlFor={selectId} className="block text-sm font-medium text-foreground">
           {t("studentFilterLabel")}

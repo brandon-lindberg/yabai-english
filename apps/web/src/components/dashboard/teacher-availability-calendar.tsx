@@ -825,11 +825,11 @@ export function TeacherAvailabilityCalendar({
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border bg-surface p-4">
+    <section className="space-y-4 border-t border-border pt-4">
       <h2 className="text-lg font-semibold text-foreground">{t("sectionTitle")}</h2>
 
       {hasSlotsOnFocusDay ? (
-        <div className="rounded-lg border border-border bg-muted/20 px-3 py-3">
+        <div className="border-t border-border px-0 py-3">
           <h3 className="text-sm font-semibold text-foreground">
             {t("currentAvailabilityForDate", { date: focusDateLabel })}
           </h3>
@@ -940,7 +940,7 @@ export function TeacherAvailabilityCalendar({
       />
 
       {selectedRule ? (
-        <div className="space-y-3 rounded-xl border border-border bg-background p-3">
+        <div className="space-y-3 border-t border-border pt-3">
           {selectedRule.recurrence === "ONE_OFF" ? (
             <label className="block text-xs text-muted">
               {t("date")}
