@@ -15,6 +15,23 @@ import type { ReactNode } from "react";
  * keep their own typed `Link`, so route literals stay type-checked.
  */
 
+/**
+ * The tab's own look, shared by anything that switches between sibling views:
+ * the six sub-navs and the calendars' day/week/month switcher.
+ *
+ * It lives here rather than inside `SubNavLink` because the calendar's tabs are
+ * buttons, not links — same vocabulary, different semantics. Two copies of these
+ * classes is how they would drift.
+ */
+export function tabClasses(active: boolean) {
+  return [
+    "-mb-px block whitespace-nowrap border-b-2 pb-3 pt-1 text-sm font-semibold transition-colors",
+    active
+      ? "border-foreground text-foreground"
+      : "border-transparent text-muted hover:border-[var(--app-muted)] hover:text-foreground",
+  ].join(" ");
+}
+
 export function SubNav({ label, children }: { label: string; children: ReactNode }) {
   return (
     <nav
@@ -55,12 +72,7 @@ export function SubNavLink({
   return (
     <li>
       {render({
-        className: [
-          "-mb-px block whitespace-nowrap border-b-2 pb-3 pt-1 text-sm font-semibold transition-colors",
-          active
-            ? "border-foreground text-foreground"
-            : "border-transparent text-muted hover:border-[var(--app-muted)] hover:text-foreground",
-        ].join(" "),
+        className: tabClasses(active),
         "aria-current": active ? "page" : undefined,
       })}
     </li>

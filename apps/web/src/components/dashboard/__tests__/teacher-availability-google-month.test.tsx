@@ -41,7 +41,6 @@ describe("TeacherAvailabilityGoogleMonth", () => {
         onOpenDay={vi.fn()}
         onSelectSlot={onSelect}
         onCalendarAnchorChange={onAnchor}
-        selectionStyle="neutral"
         reservedLabel="Reserved"
       />,
     );
@@ -83,7 +82,6 @@ describe("TeacherAvailabilityGoogleMonth", () => {
         onOpenDay={vi.fn()}
         onSelectSlot={onSelect}
         onCalendarAnchorChange={vi.fn()}
-        selectionStyle="neutral"
         reservedLabel="Reserved"
       />,
     );
@@ -122,7 +120,6 @@ describe("TeacherAvailabilityGoogleMonth", () => {
         onOpenDay={vi.fn()}
         onSelectSlot={vi.fn()}
         onCalendarAnchorChange={vi.fn()}
-        selectionStyle="neutral"
         reservedLabel="Reserved"
       />,
     );

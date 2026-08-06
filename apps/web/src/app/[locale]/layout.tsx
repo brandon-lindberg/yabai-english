@@ -37,7 +37,18 @@ export default async function LocaleLayout({ children, params }: Props) {
           <HiddenAccountGuard />
           <IdleLogoutGuard />
           <SiteHeader />
-          <div className="flex min-h-0 flex-1 flex-col overflow-x-clip">{children}</div>
+          {/*
+            `[&>main]:w-full` is load-bearing. Pages centre themselves with
+            `mx-auto max-w-*`, and auto margins on a flex item's cross axis
+            switch off `align-items: stretch` — so every `main` in the app was
+            sized by its *content* instead of its container, capped by its
+            max-width. A page whose widest element was narrow rendered narrow:
+            the month calendar shrank `main` from 1024px to 822px, and the page
+            visibly changed width when you switched from week to month.
+          */}
+          <div className="flex min-h-0 flex-1 flex-col overflow-x-clip [&>main]:w-full">
+            {children}
+          </div>
           <SiteFooter />
           <ChatPanel />
         </div>

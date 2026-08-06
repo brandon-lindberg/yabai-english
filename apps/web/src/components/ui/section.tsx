@@ -27,6 +27,14 @@ type Props = {
   size?: "lg" | "md" | "sm";
   /** Drop the top rule when the section is first in a run. */
   ruled?: boolean;
+  /**
+   * Position in an ordered run of steps (the booking flow). Renders as a figure
+   * in the gutter — never as an uppercase "STEP 1" eyebrow above the heading,
+   * which is the pattern DESIGN.md §4 bans.
+   */
+  index?: number;
+  /** Not yet reachable: dimmed, and announced as such. */
+  disabled?: boolean;
   className?: string;
   children: ReactNode;
 };
@@ -44,20 +52,48 @@ export function Section({
   as: Heading = "h2",
   size = "md",
   ruled = true,
+  index,
+  disabled = false,
   className = "",
   children,
 }: Props) {
   return (
+    /*
+      No `aria-disabled` here: it is not a valid property of the implicit
+      `region` role, and it was never what conveyed the state anyway. A step
+      that is not ready says so twice already — its controls are genuinely
+      `disabled`, and its description says what to do first.
+    */
     <section
-      className={[ruled ? "border-t border-border pt-6" : "", className].filter(Boolean).join(" ")}
+      className={[
+        ruled ? "border-t border-border pt-6" : "",
+        disabled ? "opacity-60" : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {title || actions ? (
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-          <div className="min-w-0">
-            {title ? <Heading className={`${titleSize[size]} text-foreground`}>{title}</Heading> : null}
-            {description ? (
-              <p className="mt-1.5 max-w-[62ch] text-sm leading-relaxed text-muted">{description}</p>
+          <div className="flex min-w-0 items-baseline gap-3">
+            {index != null ? (
+              <span
+                aria-hidden="true"
+                className="shrink-0 text-lg font-black tabular-nums leading-none text-muted"
+              >
+                {index}
+              </span>
             ) : null}
+            <div className="min-w-0">
+              {title ? (
+                <Heading className={`${titleSize[size]} text-foreground`}>{title}</Heading>
+              ) : null}
+              {description ? (
+                <p className="mt-1.5 max-w-[62ch] text-sm leading-relaxed text-muted">
+                  {description}
+                </p>
+              ) : null}
+            </div>
           </div>
           {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
         </div>

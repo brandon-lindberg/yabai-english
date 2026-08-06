@@ -209,7 +209,7 @@ describe("SlotSelectionCalendar", () => {
     expect(onCalendarViewChange).toHaveBeenCalledWith("day");
   });
 
-  test("embedded variant drops outer card padding and border", () => {
+  test("the calendar is not a card — it takes the structure of wherever it sits", () => {
     const { container } = render(
       <SlotSelectionCalendar
         locale="en-US"
@@ -221,14 +221,16 @@ describe("SlotSelectionCalendar", () => {
         onCalendarAnchorChange={vi.fn()}
         selectedStartsAtIso={null}
         onSelectSlot={vi.fn()}
-        variant="embedded"
       />,
     );
 
+    // It used to wrap itself in `rounded-2xl border bg-surface p-4`, which meant
+    // every host had to opt out of a card it never asked for (the old
+    // `variant="embedded"` escape hatch). Structure belongs to the page.
     const root = container.firstElementChild;
     expect(root?.className).not.toMatch(/rounded-2xl/);
-    expect(root?.className).not.toMatch(/p-4/);
-    expect(root?.className).toMatch(/p-0/);
+    expect(root?.className).not.toMatch(/\bborder\b/);
+    expect(root?.className).not.toMatch(/\bp-4\b/);
   });
 
   test("day view renders kind=booked slots as non-clickable 'Reserved' markers", () => {

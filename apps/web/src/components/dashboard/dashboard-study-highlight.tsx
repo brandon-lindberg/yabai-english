@@ -39,7 +39,7 @@ export async function DashboardStudyHighlight({
       </p>
 
       {focus ? (
-        <div className="mt-4 rounded-xl bg-foreground/5 px-3 py-3">
+        <div className="mt-4 border-t border-border pt-3">
           <p className="text-xs font-medium text-muted">{t("studyResume")}</p>
           <p className="mt-1 text-sm font-semibold text-foreground">
             {locale === "ja" ? focus.titleJa : focus.titleEn}

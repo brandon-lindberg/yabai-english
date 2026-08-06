@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { authSignInHref } from "@/lib/auth-sign-in-href";
+import { Field, Input } from "@/components/ui/field";
 
 type Props = {
   specialty: string;
@@ -36,30 +37,42 @@ export function TeacherFilterBar({ specialty, language, guestLocked = false }: P
     router.replace(query ? `${pathname}?${query}` : pathname);
   }
 
+  /*
+    Both labels and both placeholders were hard-coded English in a product whose
+    audience reads Japanese — the only untranslated strings left on this screen.
+    The specialty label reuses `booking.teacherSpecialties`, already used on the
+    teacher profile for exactly this word.
+
+    No card: two fields above a list do not need a tray around them, and the
+    box was competing with the rows it filters.
+  */
   return (
-    <div className="space-y-2">
-      {guestLocked ? (
-        <p className="text-xs text-muted">{t("guestFilterHint")}</p>
-      ) : null}
-      <div className="grid gap-3 rounded-2xl border border-border bg-surface p-4 sm:grid-cols-2">
-        <label className="text-sm font-medium text-foreground">
-          Specialty
-          <input
-            className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
-            defaultValue={specialty}
-            placeholder="conversation, business, exam..."
-            onBlur={(e) => update({ specialty: e.target.value })}
-          />
-        </label>
-        <label className="text-sm font-medium text-foreground">
-          Instruction language
-          <input
-            className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm uppercase text-foreground"
-            defaultValue={language}
-            placeholder="JP or EN"
-            onBlur={(e) => update({ language: e.target.value })}
-          />
-        </label>
+    <div className="space-y-3">
+      {guestLocked ? <p className="text-sm text-muted">{t("guestFilterHint")}</p> : null}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t("teacherSpecialties")}>
+          {(field) => (
+            <Input
+              {...field}
+              defaultValue={specialty}
+              placeholder={t("filterSpecialtyPlaceholder")}
+              onBlur={(e) => update({ specialty: e.target.value })}
+            />
+          )}
+        </Field>
+        <Field label={t("filterLanguageLabel")}>
+          {(field) => (
+            <Input
+              {...field}
+              defaultValue={language}
+              placeholder={t("filterLanguagePlaceholder")}
+              /* Uppercase the value the filter actually sends, not the hint
+                 telling you what to type. */
+              className="uppercase placeholder:normal-case"
+              onBlur={(e) => update({ language: e.target.value })}
+            />
+          )}
+        </Field>
       </div>
     </div>
   );

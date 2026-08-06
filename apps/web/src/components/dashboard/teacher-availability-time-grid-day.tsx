@@ -23,7 +23,6 @@ type Props = {
   onCalendarAnchorChange: (iso: string) => void;
   weekColumnAddLabel?: string;
   onAddForDayKey?: (dayKey: string) => void;
-  selectionStyle?: "accent" | "neutral";
   footer?: ReactNode;
   emptyLabel: string;
   /** Line shown on booked blocks (e.g. “Reserved”). */
@@ -43,7 +42,6 @@ export function TeacherAvailabilityTimeGridDay({
   onCalendarAnchorChange,
   weekColumnAddLabel,
   onAddForDayKey,
-  selectionStyle = "accent",
   footer,
   emptyLabel,
   reservedBookingLabel,
@@ -52,10 +50,6 @@ export function TeacherAvailabilityTimeGridDay({
   const scrollRef = useRef<HTMLDivElement>(null);
   const dayHeightPx = 24 * hourPx;
   const hours = hourGutterLabels(locale);
-  // `selectionStyle` no longer changes the palette: the world is monochrome and
-  // slot state is carried by the shared value ladder. The prop stays for API
-  // compatibility with the calendar container.
-  void selectionStyle;
   const weekSelectedClass = slotClasses({ kind: "open", selected: true });
   const weekIdleClass = slotClasses({ kind: "open" });
 

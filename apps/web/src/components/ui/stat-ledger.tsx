@@ -23,7 +23,25 @@ export type Stat = {
   render?: (props: { className: string; children: ReactNode }) => ReactNode;
 };
 
-export function StatLedger({ stats, className = "" }: { stats: Stat[]; className?: string }) {
+export function StatLedger({
+  stats,
+  size = "lg",
+  className = "",
+}: {
+  stats: Stat[];
+  /**
+   * `lg` is the page-level ledger. `sm` is for secondary rollups that sit
+   * inside a section and must not out-shout the page's own focal figure.
+   */
+  size?: "lg" | "sm";
+  className?: string;
+}) {
+  const figure =
+    size === "lg"
+      ? "text-[clamp(2rem,5vw,3.25rem)] leading-none"
+      : "text-[clamp(1.25rem,3vw,1.75rem)] leading-none";
+  const pad = size === "lg" ? "py-6" : "py-4";
+
   return (
     <dl
       className={["grid border-y border-border", className].filter(Boolean).join(" ")}
@@ -31,7 +49,8 @@ export function StatLedger({ stats, className = "" }: { stats: Stat[]; className
     >
       {stats.map((stat, i) => {
         const cellClass = [
-          "group block py-6 outline-none transition-colors",
+          "group block outline-none transition-colors",
+          pad,
           i > 0 ? "border-l border-border pl-4 sm:pl-6" : "pr-4",
           stat.render ? "hover:bg-[var(--app-hover)] focus-visible:bg-[var(--app-hover)]" : "",
         ]
@@ -40,10 +59,10 @@ export function StatLedger({ stats, className = "" }: { stats: Stat[]; className
 
         const body = (
           <>
-            <dd className="text-[clamp(2rem,5vw,3.25rem)] font-black leading-none tracking-[-0.035em] tabular-nums text-foreground">
+            <dd className={`${figure} font-black tracking-[-0.035em] tabular-nums text-foreground`}>
               {stat.value}
             </dd>
-            <dt className="mt-2 text-sm leading-snug text-muted">{stat.label}</dt>
+            <dt className={`mt-2 leading-snug text-muted ${size === "lg" ? "text-sm" : "text-xs"}`}>{stat.label}</dt>
           </>
         );
 

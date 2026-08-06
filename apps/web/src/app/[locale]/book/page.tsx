@@ -9,6 +9,7 @@ import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DataList } from "@/components/ui/data-row";
 import { Link } from "@/i18n/navigation";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
@@ -116,43 +117,42 @@ export default async function BookPage({ searchParams }: Props) {
       <div className="mt-6">
         <TeacherFilterBar specialty={specialty} language={language} guestLocked={guest} />
       </div>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      {/* A ruled list, not a card grid: teachers are compared against each other,
+          and a column of rates only lines up if the rows share an edge. */}
+      <div className="mt-8">
         {filtered.length === 0 ? (
-          <div className="sm:col-span-2">
-            <EmptyState
-              title={t("noTeachersFound")}
-              description={t("teacherBrowseSubtitle")}
-              action={
-                guest ? (
-                  <Link
-                    href={{
-                      pathname: "/auth/signin",
-                      query: { callbackUrl: bookHomeCallback },
-                    }}
-                    className={buttonClasses({ variant: "secondary" })}
-                  >
-                    {t("guestEmptySignIn")}
-                  </Link>
-                ) : (
-                  <Link
-                    href="/dashboard"
-                    className={buttonClasses({ variant: "secondary" })}
-                  >
-                    {t("backToDashboard")}
-                  </Link>
-                )
-              }
-            />
-          </div>
+          <EmptyState
+            title={t("noTeachersFound")}
+            description={t("teacherBrowseSubtitle")}
+            action={
+              guest ? (
+                <Link
+                  href={{
+                    pathname: "/auth/signin",
+                    query: { callbackUrl: bookHomeCallback },
+                  }}
+                  className={buttonClasses({ variant: "secondary" })}
+                >
+                  {t("guestEmptySignIn")}
+                </Link>
+              ) : (
+                <Link href="/dashboard" className={buttonClasses({ variant: "secondary" })}>
+                  {t("backToDashboard")}
+                </Link>
+              )
+            }
+          />
         ) : (
-          filtered.map((teacher) => (
-            <TeacherCard
-              key={teacher.id}
-              teacher={teacher}
-              onboardingNext={onboardingHref}
-              onboardingStep={params.onboardingStep ?? null}
-            />
-          ))
+          <DataList>
+            {filtered.map((teacher) => (
+              <TeacherCard
+                key={teacher.id}
+                teacher={teacher}
+                onboardingNext={onboardingHref}
+                onboardingStep={params.onboardingStep ?? null}
+              />
+            ))}
+          </DataList>
         )}
       </div>
     </main>

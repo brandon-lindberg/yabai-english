@@ -18,7 +18,6 @@ type Props = {
   onCalendarAnchorChange: (iso: string) => void;
   weekColumnAddLabel?: string;
   onAddForDayKey?: (dayKey: string) => void;
-  selectionStyle?: "accent" | "neutral";
   /** Line shown on booked blocks (e.g. “Reserved”). */
   reservedBookingLabel?: string;
   timeZone?: string;
@@ -35,7 +34,6 @@ export function TeacherAvailabilityTimeGridWeek({
   onCalendarAnchorChange,
   weekColumnAddLabel,
   onAddForDayKey,
-  selectionStyle = "accent",
   reservedBookingLabel,
   timeZone,
 }: Props) {
@@ -43,8 +41,6 @@ export function TeacherAvailabilityTimeGridWeek({
   const weekRangeKey = weekDays.map((d) => d.dayKey).join("|");
   const dayHeightPx = 24 * hourPx;
   const hours = hourGutterLabels(locale);
-  // Monochrome world: state is carried by the shared value ladder, not a hue.
-  void selectionStyle;
   const weekSelectedClass = slotClasses({ kind: "open", selected: true });
   const weekIdleClass = slotClasses({ kind: "open" });
 

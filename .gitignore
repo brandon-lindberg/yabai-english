@@ -20,3 +20,9 @@ PRODUCT_REQUIREMENTS.md
 .cursor/skills/impeccable/
 .cursor/agents/impeccable-*.md
 
+
+# Impeccable product context — local only
+PRODUCT.md
+
+# Impeccable working state (hook cache, decision-page sessions)
+.impeccable/

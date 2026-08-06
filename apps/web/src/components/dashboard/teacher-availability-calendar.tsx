@@ -352,7 +352,6 @@ export function TeacherAvailabilityCalendar({
         onCalendarAnchorChange={setCalendarAnchor}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
-        selectionStyle="neutral"
         reservedBookingLabel={td("slotReserved")}
         timeZone={teacherTz}
       />
@@ -431,7 +430,6 @@ export function TeacherAvailabilityCalendar({
         onCalendarAnchorChange={setCalendarAnchor}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
-        selectionStyle="neutral"
         reservedBookingLabel={td("slotReserved")}
         emptyLabel={t("noAvailabilityYet")}
         timeZone={teacherTz}
@@ -481,7 +479,6 @@ export function TeacherAvailabilityCalendar({
           setSelectedRuleId(groupKey ?? null);
         }}
         onCalendarAnchorChange={setCalendarAnchor}
-        selectionStyle="neutral"
         reservedLabel={td("slotReserved")}
         timeZone={teacherTz}
       />
@@ -851,7 +848,6 @@ export function TeacherAvailabilityCalendar({
       ) : null}
 
       <SlotSelectionCalendar
-        variant="embedded"
         weekViewReplacement={isMobile ? mobileWeekView : weekTimeGrid}
         dayViewReplacement={dayTimeGrid}
         monthViewReplacement={isMobile ? mobileMonthView : monthGoogle}
@@ -876,7 +872,6 @@ export function TeacherAvailabilityCalendar({
           setSelectedStartsAtIso(iso);
           setSelectedRuleId(groupKey ?? null);
         }}
-        selectionStyle="neutral"
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
         timeZone={teacherTz}

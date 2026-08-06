@@ -811,7 +811,10 @@
     "noSlotSelected": "時間がまだ選択されていません",
     "reserved": "予約済み",
     "teacherCardViewProfile": "プロフィールを見る",
-    "teacherCardAvailableSlots": "空き枠 {count}件"
+    "teacherCardAvailableSlots": "空き枠 {count}件",
+    "filterLanguageLabel": "指導言語",
+    "filterSpecialtyPlaceholder": "日常会話、ビジネス、試験対策など",
+    "filterLanguagePlaceholder": "JP または EN"
   },
   "paymentPolicy": {
     "student": {

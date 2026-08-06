@@ -8,7 +8,10 @@ import { canShowManualOverrideToggle } from "@/lib/manual-override";
 import { SlotSelectionCalendar } from "@/components/slot-selection-calendar";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookingStepSection } from "@/components/booking/booking-step-section";
+import { Section } from "@/components/ui/section";
+import { Button } from "@/components/ui/button";
+import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Status } from "@/components/ui/status";
 import {
   ALL_LESSON_TYPES_KEY,
   filterSlotsForSelection,
@@ -78,7 +81,12 @@ export function BookingForm({
   const [calendarAnchor, setCalendarAnchor] = useState(
     presetSlots?.[0]?.startsAtIso ?? new Date().toISOString(),
   );
-  const [message, setMessage] = useState<string | null>(null);
+  /**
+   * Errors used to render in the link colour, which read as "here is something
+   * to click" rather than "this did not work". Tone is carried alongside the
+   * text so the status ladder can say which of the two it is.
+   */
+  const [message, setMessage] = useState<{ text: string; tone: "error" | "settled" } | null>(null);
   const [loading, setLoading] = useState(false);
   const [productsLoading, setProductsLoading] = useState(true);
 
@@ -224,18 +232,19 @@ export function BookingForm({
         checkoutUrl?: string;
       };
       if (!res.ok) {
+        const fail = (text: string) => setMessage({ text, tone: "error" });
         if (data.error === "Bookings must be made at least 48 hours in advance.") {
-          setMessage(t("leadTimeError"));
+          fail(t("leadTimeError"));
         } else if (data.error === "This teacher does not offer a free trial lesson.") {
-          setMessage(t("teacherFreeTrialUnavailable"));
+          fail(t("teacherFreeTrialUnavailable"));
         } else if (data.error === "Manual override reason is required.") {
-          setMessage(t("manualOverrideReasonError"));
+          fail(t("manualOverrideReasonError"));
         } else if (data.error === "The selected time is not available.") {
-          setMessage(t("slotUnavailableError"));
+          fail(t("slotUnavailableError"));
         } else if (data.error === "The lesson duration does not fit in the selected time slot.") {
-          setMessage(t("durationMismatchError"));
+          fail(t("durationMismatchError"));
         } else {
-          setMessage(mapBookingApiError(data.error ?? "Error"));
+          fail(mapBookingApiError(data.error ?? "Error"));
         }
         return;
       }
@@ -243,27 +252,44 @@ export function BookingForm({
         router.push(data.checkoutUrl);
         return;
       }
-      setMessage(t("success"));
+      setMessage({ text: t("success"), tone: "settled" });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border bg-surface p-6">
+    /* No card around the form: it is the page's whole purpose, so a border
+       around it only says "this is a thing on a page" — which the page already
+       says. The steps are ruled instead, so the flow reads as a sequence. */
+    <form onSubmit={onSubmit} className="space-y-8">
       {filteredPresetSlots ? (
-        <BookingStepSection step={1} title={t("stepChooseTimeTitle")} description={t("leadTimeNotice")}>
+        <Section
+          index={1}
+          title={t("stepChooseTimeTitle")}
+          description={t("leadTimeNotice")}
+          ruled={false}
+        >
           {filteredPresetSlots.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border bg-background px-3 py-2 text-sm text-muted">
+            <p className="border-y border-border py-6 text-center text-sm text-muted">
               {t("noAvailabilityYet")}
             </p>
           ) : (
             <>
-              <div className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted">
-                {formattedSelectedSlot
-                  ? `${t("selectedSlot")}: ${formattedSelectedSlot}`
-                  : t("noSlotSelected")}
-              </div>
+              {/* The chosen time is the fact the rest of the form depends on, so
+                  it lands at figure scale — but only once it is real. An empty
+                  placeholder at that size would out-shout the step's own
+                  heading while saying nothing. */}
+              <p className="mb-6 border-b border-border pb-4">
+                <span className="block text-sm text-muted">{t("selectedSlot")}</span>
+                {formattedSelectedSlot ? (
+                  <span className="mt-1 block text-xl font-black tracking-[-0.02em] tabular-nums text-foreground sm:text-2xl">
+                    {formattedSelectedSlot}
+                  </span>
+                ) : (
+                  <span className="mt-1 block text-muted">{t("noSlotSelected")}</span>
+                )}
+              </p>
               <SlotSelectionCalendar
                 locale={locale}
                 copy={{
@@ -289,24 +315,25 @@ export function BookingForm({
               />
             </>
           )}
-        </BookingStepSection>
+        </Section>
       ) : (
-        <BookingStepSection step={1} title={t("stepChooseTimeTitle")}>
-          <label className="block text-sm font-medium text-foreground">
-            {t("selectSlot")}
-            <input
-              type="datetime-local"
-              required
-              className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
-              value={startsAt}
-              onChange={(e) => setStartsAt(e.target.value)}
-            />
-          </label>
-        </BookingStepSection>
+        <Section index={1} title={t("stepChooseTimeTitle")} ruled={false}>
+          <Field label={t("selectSlot")}>
+            {(field) => (
+              <Input
+                {...field}
+                type="datetime-local"
+                required
+                value={startsAt}
+                onChange={(e) => setStartsAt(e.target.value)}
+              />
+            )}
+          </Field>
+        </Section>
       )}
 
-      <BookingStepSection
-        step={2}
+      <Section
+        index={2}
         title={t("stepChooseLessonTitle")}
         description={lessonStepDisabled ? t("stepChooseLessonHint") : undefined}
         disabled={lessonStepDisabled}
@@ -317,9 +344,8 @@ export function BookingForm({
             <Skeleton height="3" width="1/3" />
           </div>
         ) : (
-          <select
+          <Select
             aria-label={t("selectProduct")}
-            className="block w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground disabled:cursor-not-allowed"
             value={selectedOptionKey}
             disabled={lessonStepDisabled}
             onChange={(e) => setSelectedOptionKey(e.target.value)}
@@ -331,16 +357,12 @@ export function BookingForm({
                 {p.tier === "FREE_TRIAL" ? ` · ${t("freeTrialOption")}` : ""}
               </option>
             ))}
-          </select>
+          </Select>
         )}
-      </BookingStepSection>
+      </Section>
 
       {availablePaymentMethods.length > 0 ? (
-        <BookingStepSection
-          step={3}
-          title={t("stepChoosePaymentTitle")}
-          disabled={paymentStepDisabled}
-        >
+        <Section index={3} title={t("stepChoosePaymentTitle")} disabled={paymentStepDisabled}>
           <fieldset className="space-y-2" disabled={paymentStepDisabled}>
             <legend className="sr-only">{t("paymentMethod")}</legend>
             <div className="flex flex-wrap gap-2">
@@ -350,10 +372,13 @@ export function BookingForm({
                 return (
                   <label
                     key={key}
-                    className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+                    /* Selection is a ring in ink, the same mark the slot picker
+                       uses — not a tinted fill, which was the only place in the
+                       flow where "chosen" was said with colour. */
+                    className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
                       selected
-                        ? "border-primary bg-primary/10 text-foreground"
-                        : "border-border bg-background text-muted"
+                        ? "border-foreground text-foreground ring-2 ring-foreground"
+                        : "border-border text-muted hover:bg-[var(--app-hover)]"
                     }`}
                   >
                     <input
@@ -374,43 +399,52 @@ export function BookingForm({
               })}
             </div>
           </fieldset>
-        </BookingStepSection>
+        </Section>
       ) : null}
 
-      <BookingStepSection
-        step={availablePaymentMethods.length > 0 ? 4 : 3}
+      <Section
+        index={availablePaymentMethods.length > 0 ? 4 : 3}
         title={t("stepReviewTitle")}
         disabled={!startsAt || !effectiveProduct}
       >
-        <dl className="space-y-2 text-sm">
-          <div className="flex justify-between gap-4">
+        {/* The same ruled key/value list the checkout summary uses, so the last
+            thing you read before booking matches the first thing you read after. */}
+        <dl className="border-t border-border text-sm">
+          <div className="flex justify-between gap-6 border-b border-border py-3">
             <dt className="text-muted">{t("selectSlot")}</dt>
-            <dd className="text-right text-foreground">{formattedSelectedSlot ?? t("noSlotSelected")}</dd>
+            <dd className="text-right font-medium tabular-nums text-foreground">
+              {formattedSelectedSlot ?? t("noSlotSelected")}
+            </dd>
           </div>
-          <div className="flex justify-between gap-4">
+          <div className="flex justify-between gap-6 border-b border-border py-3">
             <dt className="text-muted">{t("selectProduct")}</dt>
-            <dd className="text-right text-foreground">
+            <dd className="text-right font-medium text-foreground">
               {effectiveProduct
                 ? buildProductOptionLabel(effectiveProduct, locale, t)
                 : t("stepChooseLessonHint")}
             </dd>
           </div>
           {selectedPaymentMethod ? (
-            <div className="flex justify-between gap-4">
+            <div className="flex justify-between gap-6 border-b border-border py-3">
               <dt className="text-muted">{t("paymentMethod")}</dt>
-              <dd className="text-right text-foreground">{selectedPaymentMethod.label}</dd>
+              <dd className="text-right font-medium text-foreground">
+                {selectedPaymentMethod.label}
+              </dd>
             </div>
           ) : null}
         </dl>
-      </BookingStepSection>
+      </Section>
 
       {canShowManualOverrideToggle(currentUserRole) && (
-        <div className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground">
-          <label className="flex items-start gap-2">
+        /* Staff-only escape hatch. It stays an inset panel because it genuinely
+           sits apart from the student's flow rather than in sequence with it. */
+        <div className="rounded-xl border border-border px-4 py-3 text-sm text-foreground">
+          <label className="flex items-start gap-2.5">
             <input
               type="checkbox"
               checked={manualOverride}
               onChange={(e) => setManualOverride(e.target.checked)}
+              className="mt-0.5"
             />
             <span>
               {t("manualOverrideLabel")}
@@ -418,31 +452,35 @@ export function BookingForm({
             </span>
           </label>
           {manualOverride && (
-            <label className="mt-3 block text-xs text-muted">
-              {t("manualOverrideReasonLabel")}
-              <textarea
-                value={manualOverrideReason}
-                onChange={(e) => setManualOverrideReason(e.target.value)}
-                className="mt-1 min-h-20 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
-                placeholder={t("manualOverrideReasonPlaceholder")}
-                required
-              />
-            </label>
+            <Field label={t("manualOverrideReasonLabel")} className="mt-3">
+              {(field) => (
+                <Textarea
+                  {...field}
+                  rows={3}
+                  value={manualOverrideReason}
+                  onChange={(e) => setManualOverrideReason(e.target.value)}
+                  placeholder={t("manualOverrideReasonPlaceholder")}
+                  required
+                />
+              )}
+            </Field>
           )}
         </div>
       )}
       {message ? (
-        <p className="text-sm text-link" role="status">
-          {message}
+        <p role={message.tone === "error" ? "alert" : "status"}>
+          <Status tone={message.tone}>{message.text}</Status>
         </p>
       ) : null}
-      <button
+      <Button
         type="submit"
-        disabled={loading || productsLoading || !startsAt || !effectiveProduct}
-        className="w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+        size="lg"
+        fullWidth
+        loading={loading}
+        disabled={productsLoading || !startsAt || !effectiveProduct}
       >
         {t("confirm")}
-      </button>
+      </Button>
     </form>
   );
 }

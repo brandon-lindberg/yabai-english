@@ -87,7 +87,11 @@ export default function RootLayout({
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
         />
-        <div className="flex min-h-0 flex-1 flex-col overflow-x-clip">{children}</div>
+        {/* See the note in [locale]/layout.tsx: `mx-auto` on a flex child kills
+            cross-axis stretch, so `main` needs its width stated. */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-x-clip [&>main]:w-full">
+          {children}
+        </div>
         <SwRegister />
       </body>
     </html>

@@ -1,10 +1,9 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { DashboardProfileBioPreview } from "@/components/dashboard/dashboard-profile-bio-preview";
 import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
-import { Status } from "@/components/ui/status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
-import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
+import { LessonListEmpty, LessonRow } from "@/components/dashboard/lesson-row";
 
 type Completed = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["completed"];
 
@@ -14,11 +13,7 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
   const ts = await getTranslations("dashboard.schedulePage");
 
   if (completed.length === 0) {
-    return (
-      <li className="border-t border-border py-6 text-muted">
-        {t("schedulePage.completedEmpty")}
-      </li>
-    );
+    return <LessonListEmpty>{t("schedulePage.completedEmpty")}</LessonListEmpty>;
   }
 
   return (
@@ -32,9 +27,7 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
         const transcriptRefs = b.transcriptArtifactIds ?? [];
         const smartNoteRefs = b.smartNotesIds ?? [];
         const recordingRefs = b.recordingIds ?? [];
-        const hasTranscript = transcriptUrl.length > 0;
-        const hasNotes = notesMd.length > 0;
-        const showTeacherMaterials = hasTranscript || hasNotes;
+        const showTeacherMaterials = transcriptUrl.length > 0 || notesMd.length > 0;
         const showGoogleRecap =
           notesDocUrl.length > 0 ||
           transcriptRefs.length > 0 ||
@@ -42,93 +35,86 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
           recordingRefs.length > 0;
 
         return (
-          <li
+          <LessonRow
             key={b.id}
-            id={`booking-${b.id}`}
-            className="border-t border-border pt-4"
-          >
-            <div className="flex flex-col gap-1">
-              <p className="font-medium text-foreground">
-                {b.lessonProduct.nameJa} / {b.lessonProduct.nameEn}
-              </p>
-              <p className="text-sm text-muted">
-                <LocalBookingDateTimeRange
-                  locale={locale}
-                  startsAtIso={b.startsAt.toISOString()}
-                  endsAtIso={b.endsAt.toISOString()}
+            bookingId={b.id}
+            locale={locale}
+            lessonNameJa={b.lessonProduct.nameJa}
+            lessonNameEn={b.lessonProduct.nameEn}
+            startsAtIso={b.startsAt.toISOString()}
+            endsAtIso={b.endsAt.toISOString()}
+            counterpartLabel={t("teacher")}
+            counterpartName={b.teacher.user.name ?? b.teacher.user.email ?? "—"}
+            status={{ tone: bookingStatusTone(b.status), label: t(bookingStatusKey(b.status)) }}
+            inlineActions={
+              b.invoice ? (
+                <InvoiceDownloadLinks
+                  invoiceId={b.invoice.id}
+                  englishLabel={t("downloadInvoiceEn")}
+                  japaneseLabel={t("downloadInvoiceJa")}
                 />
-              </p>
-              <p className="text-sm text-muted">
-                {t("teacher")}: {b.teacher.user.name ?? b.teacher.user.email}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Status tone={bookingStatusTone(b.status)}>{t(bookingStatusKey(b.status))}</Status>
-                {b.invoice ? (
-                  <InvoiceDownloadLinks
-                    invoiceId={b.invoice.id}
-                    englishLabel={t("downloadInvoiceEn")}
-                    japaneseLabel={t("downloadInvoiceJa")}
-                  />
+              ) : null
+            }
+          >
+            {showTeacherMaterials ? (
+              <div className="space-y-2">
+                {transcriptUrl ? (
+                  <p className="text-sm">
+                    <a
+                      href={transcriptUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-link underline hover:opacity-90"
+                    >
+                      {ts("transcriptLinkStudentCta")}
+                    </a>
+                  </p>
+                ) : null}
+                {notesMd ? (
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">
+                      {ts("lessonNotesReadLabel")}
+                    </p>
+                    <DashboardProfileBioPreview markdown={notesMd} emptyLabel="" />
+                  </div>
                 ) : null}
               </div>
-              {showTeacherMaterials ? (
-                <div className="mt-3 space-y-2">
-                  {hasTranscript ? (
-                    <p className="text-sm">
-                      <a
-                        href={transcriptUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-semibold text-link underline hover:opacity-90"
-                      >
-                        {ts("transcriptLinkStudentCta")}
-                      </a>
-                    </p>
-                  ) : null}
-                  {hasNotes ? (
-                    <div>
-                      <p className="text-xs font-medium text-foreground">{ts("lessonNotesReadLabel")}</p>
-                      <DashboardProfileBioPreview markdown={notesMd} emptyLabel="" />
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-              {showGoogleRecap ? (
-                <div className="mt-3 space-y-2">
-                  <p className="text-xs font-medium text-foreground">
-                    {ts("googleRecapSectionLabel")}
+            ) : null}
+            {showGoogleRecap ? (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs font-semibold text-foreground">
+                  {ts("googleRecapSectionLabel")}
+                </p>
+                {notesDocUrl ? (
+                  <p className="text-sm">
+                    <a
+                      href={notesDocUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-link underline hover:opacity-90"
+                    >
+                      {ts("googleDocNotesCta")}
+                    </a>
                   </p>
-                  {notesDocUrl ? (
-                    <p className="text-sm">
-                      <a
-                        href={notesDocUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-semibold text-link underline hover:opacity-90"
-                      >
-                        {ts("googleDocNotesCta")}
-                      </a>
-                    </p>
-                  ) : null}
-                  {transcriptRefs.length > 0 ? (
-                    <p className="text-xs text-muted">
-                      {ts("syncedTranscriptRefsLabel")}: {transcriptRefs.join(", ")}
-                    </p>
-                  ) : null}
-                  {smartNoteRefs.length > 0 ? (
-                    <p className="text-xs text-muted">
-                      {ts("syncedSmartNotesRefsLabel")}: {smartNoteRefs.join(", ")}
-                    </p>
-                  ) : null}
-                  {recordingRefs.length > 0 ? (
-                    <p className="text-xs text-muted">
-                      {ts("syncedRecordingRefsLabel")}: {recordingRefs.join(", ")}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          </li>
+                ) : null}
+                {transcriptRefs.length > 0 ? (
+                  <p className="text-xs text-muted">
+                    {ts("syncedTranscriptRefsLabel")}: {transcriptRefs.join(", ")}
+                  </p>
+                ) : null}
+                {smartNoteRefs.length > 0 ? (
+                  <p className="text-xs text-muted">
+                    {ts("syncedSmartNotesRefsLabel")}: {smartNoteRefs.join(", ")}
+                  </p>
+                ) : null}
+                {recordingRefs.length > 0 ? (
+                  <p className="text-xs text-muted">
+                    {ts("syncedRecordingRefsLabel")}: {recordingRefs.join(", ")}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </LessonRow>
         );
       })}
     </>

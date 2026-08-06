@@ -34,7 +34,6 @@ describe("TeacherAvailabilityTimeGridDay", () => {
         selectedGroupKey={null}
         onSelectSlot={onSelect}
         onCalendarAnchorChange={onAnchor}
-        selectionStyle="neutral"
         emptyLabel="Empty day"
       />,
     );

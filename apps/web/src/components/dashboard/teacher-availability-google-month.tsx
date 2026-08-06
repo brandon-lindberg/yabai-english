@@ -26,7 +26,6 @@ type Props = {
   addLabel?: string;
   onSelectSlot: (startsAtIso: string, groupKey?: string) => void;
   onCalendarAnchorChange: (iso: string) => void;
-  selectionStyle?: "accent" | "neutral";
   /** Shown on booking chips (e.g. “Reserved”). */
   reservedLabel: string;
   timeZone?: string;
@@ -75,12 +74,9 @@ export function TeacherAvailabilityGoogleMonth({
   addLabel,
   onSelectSlot,
   onCalendarAnchorChange,
-  selectionStyle = "accent",
   reservedLabel,
   timeZone,
 }: Props) {
-  // Monochrome world: state is carried by the shared value ladder, not a hue.
-  void selectionStyle;
   const monthSelectedRing = "border-foreground ring-1 ring-foreground";
   const chipOn = slotClasses({ kind: "open", selected: true });
   const chipOff = slotClasses({ kind: "open" });

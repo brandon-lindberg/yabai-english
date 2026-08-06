@@ -244,7 +244,6 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
         <p className="text-sm text-muted">{t("loading")}</p>
       ) : (
         <SlotSelectionCalendar
-          variant="embedded"
           locale={locale}
           copy={{
             noAvailabilityYet: t("noSlots"),

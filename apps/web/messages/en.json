@@ -811,7 +811,10 @@
     "noSlotSelected": "No time selected yet",
     "reserved": "Reserved",
     "teacherCardViewProfile": "View profile",
-    "teacherCardAvailableSlots": "{count, plural, one {# available slot} other {# available slots}}"
+    "teacherCardAvailableSlots": "{count, plural, one {# available slot} other {# available slots}}",
+    "filterLanguageLabel": "Instruction language",
+    "filterSpecialtyPlaceholder": "conversation, business, exam…",
+    "filterLanguagePlaceholder": "JP or EN"
   },
   "paymentPolicy": {
     "student": {

@@ -12,7 +12,12 @@ import {
   groupSlotsByDayInTimeZone,
   type SlotOption,
 } from "@/lib/slot-calendar";
-import { CalendarViewControls } from "@/components/calendar-view-controls";
+import {
+  CalendarEmpty,
+  CalendarFrame,
+  CalendarMonthGrid,
+  CalendarWeekColumns,
+} from "@/components/ui/calendar-frame";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
 import { slotClasses } from "@/components/ui/slot-state";
 
@@ -90,13 +95,6 @@ type Props = {
   onMonthDayClick?: (dayKey: string) => void;
   /** Rendered below the day view slot list (e.g. “Add” for that calendar day). */
   dayViewExtra?: (ctx: { dayKey: string }) => ReactNode;
-  /** "neutral" avoids strong primary/red selection styling (e.g. teacher availability). */
-  selectionStyle?: "accent" | "neutral";
-  /**
-   * Use inside an outer card (e.g. teacher dashboard) to avoid double border/padding
-   * that shrinks the grid.
-   */
-  variant?: "default" | "embedded";
   /** When set, replaces the default week list with a custom surface (e.g. time-grid week). */
   weekViewReplacement?: ReactElement | null;
   /** When set, replaces the default day list with a custom surface (e.g. time-grid day). */
@@ -122,21 +120,13 @@ export function SlotSelectionCalendar({
   onAddForDayKey,
   onMonthDayClick,
   dayViewExtra,
-  selectionStyle = "accent",
-  variant = "default",
   weekViewReplacement = null,
   dayViewReplacement = null,
   monthViewReplacement = null,
   timeZone,
 }: Props) {
-  // Students and teachers now read the same slot vocabulary: an open slot is a
+  // Students and teachers read the same slot vocabulary: an open slot is a
   // dashed outline, the one you picked is ringed in ink. See ui/slot-state.
-  void selectionStyle;
-  const daySelectedClass = slotClasses({ kind: "open", selected: true });
-  const weekSelectedClass = slotClasses({ kind: "open", selected: true });
-  const monthSelectedRing = "border-foreground ring-1 ring-foreground";
-  const monthChipSelectedClass = slotClasses({ kind: "open", selected: true });
-  const monthChipUnselectedClass = slotClasses({ kind: "open" });
   const groupedSlots = timeZone
     ? groupSlotsByDayInTimeZone(slots, locale, timeZone)
     : groupSlotsByDay(slots, locale);
@@ -157,6 +147,14 @@ export function SlotSelectionCalendar({
       return slot.groupKey === selectedGroupKey;
     }
     return slot.startsAtIso === selectedStartsAtIso;
+  }
+
+  function slotTime(iso: string) {
+    return new Date(iso).toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone,
+    });
   }
 
   function rangeLabel() {
@@ -188,38 +186,24 @@ export function SlotSelectionCalendar({
     });
   }
 
-  const rootClassName =
-    variant === "embedded"
-      ? "rounded-none border-0 bg-transparent p-0 shadow-none"
-      : "rounded-2xl border border-border bg-surface p-4";
-
   return (
-    <div className={rootClassName}>
-      <div className="mb-4 border-b border-border pb-3">
-        <CalendarViewControls
-          view={calendarView}
-          onViewChange={onCalendarViewChange}
-          onPrevious={() =>
-            onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, -1, timeZone))
-          }
-          onNext={() =>
-            onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, 1, timeZone))
-          }
-          label={rangeLabel()}
-          dayLabel={copy.calendarDay}
-          weekLabel={copy.calendarWeek}
-          monthLabel={copy.calendarMonth}
-          previousLabel={copy.previous}
-          nextLabel={copy.next}
-        />
-      </div>
+    <CalendarFrame
+      label={rangeLabel()}
+      view={calendarView}
+      onViewChange={onCalendarViewChange}
+      onPrevious={() =>
+        onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, -1, timeZone))
+      }
+      onNext={() =>
+        onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, 1, timeZone))
+      }
+      copy={copy}
+    >
       {calendarView === "day" &&
         (dayViewReplacement ?? (
           <>
             {(slotMap.get(anchorDayKey) ?? []).length === 0 ? (
-              <p className="rounded-lg border border-dashed border-border px-3 py-6 text-center text-sm text-muted">
-                {copy.noAvailabilityYet}
-              </p>
+              <CalendarEmpty>{copy.noAvailabilityYet}</CalendarEmpty>
             ) : (
               <div className="space-y-2">
                 {(slotMap.get(anchorDayKey) ?? []).map((slot, idx) => {
@@ -229,18 +213,12 @@ export function SlotSelectionCalendar({
                         key={`reserved:${slot.startsAtIso}:${idx}`}
                         data-testid="slot-reserved"
                         aria-disabled="true"
-                        className="flex w-full items-center justify-between rounded-lg border border-dashed border-border bg-[var(--app-hover)] px-3 py-2 text-left text-sm text-muted"
+                        className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm tabular-nums ${slotClasses(
+                          { kind: "booked" },
+                        )}`}
                       >
-                        <span className="font-medium">
-                          {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            timeZone,
-                          })}
-                        </span>
-                        <span className="truncate pl-3 text-xs uppercase tracking-wide text-muted">
-                          {slot.label}
-                        </span>
+                        <span className="font-semibold">{slotTime(slot.startsAtIso)}</span>
+                        <span className="truncate pl-3 text-xs">{slot.label}</span>
                       </div>
                     );
                   }
@@ -250,17 +228,12 @@ export function SlotSelectionCalendar({
                       key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
                       type="button"
                       onClick={() => onSelectSlot(slot.startsAtIso, slot.groupKey)}
-                      className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm tabular-nums ${
-                        selected ? daySelectedClass : slotClasses({ kind: "open" })
-                      }`}
+                      className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm tabular-nums ${slotClasses(
+                        { kind: "open", selected },
+                      )}`}
+                      aria-pressed={selected}
                     >
-                      <span className="font-medium">
-                        {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          timeZone,
-                        })}
-                      </span>
+                      <span className="font-semibold">{slotTime(slot.startsAtIso)}</span>
                       <span className="truncate pl-3 text-xs text-muted">{slot.label}</span>
                     </button>
                   );
@@ -272,229 +245,173 @@ export function SlotSelectionCalendar({
             ) : null}
           </>
         ))}
+
       {calendarView === "week" &&
         (weekViewReplacement ?? (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-7">
-            {weekDays.map((day) => {
+          <CalendarWeekColumns
+            days={weekDays}
+            dayAction={
+              onAddForDayKey && weekColumnAddLabel
+                ? (day) => (
+                    <button
+                      type="button"
+                      onClick={() => onAddForDayKey(day.dayKey)}
+                      className="shrink-0 rounded-md border border-border px-1.5 py-0.5 text-[10px] font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                    >
+                      {weekColumnAddLabel}
+                    </button>
+                  )
+                : undefined
+            }
+            renderDay={(day) => {
               const daySlots = slotMap.get(day.dayKey) ?? [];
-              const dayOfMonth = Number(day.dayKey.slice(-2));
+              if (daySlots.length === 0) {
+                return <CalendarEmpty size="cell">{copy.unavailableShort}</CalendarEmpty>;
+              }
               return (
-                <div
-                  key={day.dayKey}
-                  className={`rounded-lg border p-2 ${
-                    daySlots.length > 0 ? "border-border bg-surface" : "border-border bg-background"
-                  }`}
-                >
-                  <div className="mb-2 flex items-start justify-between gap-1 border-b border-border pb-1">
-                    <p className="text-xs font-semibold text-muted">
-                      {day.shortLabel} {dayOfMonth}
-                    </p>
-                    {onAddForDayKey && weekColumnAddLabel ? (
+                <>
+                  {daySlots.slice(0, 5).map((slot, idx) => {
+                    if (slot.kind === "booked") {
+                      return (
+                        <div
+                          key={`reserved:${slot.startsAtIso}:${idx}`}
+                          data-testid="slot-reserved-week"
+                          aria-disabled="true"
+                          className={`w-full rounded-md px-2 py-1 text-xs tabular-nums ${slotClasses({
+                            kind: "booked",
+                          })}`}
+                        >
+                          <span className="block whitespace-nowrap font-semibold">
+                            {slotTime(slot.startsAtIso)}
+                          </span>
+                          <span className="block truncate text-[10px]">{slot.label}</span>
+                        </div>
+                      );
+                    }
+                    const selected = isSlotSelected(slot);
+                    return (
+                      <button
+                        key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
+                        type="button"
+                        onClick={() => {
+                          onSelectSlot(slot.startsAtIso, slot.groupKey);
+                          onCalendarAnchorChange(slot.startsAtIso);
+                        }}
+                        className={`w-full rounded-md px-2 py-1 text-xs tabular-nums ${slotClasses({
+                          kind: "open",
+                          selected,
+                        })}`}
+                        aria-pressed={selected}
+                      >
+                        <span className="whitespace-nowrap font-semibold">
+                          {slotTime(slot.startsAtIso)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  {daySlots.length > 5 ? (
+                    <p className="text-center text-[10px] text-muted">+{daySlots.length - 5}</p>
+                  ) : null}
+                </>
+              );
+            }}
+          />
+        ))}
+
+      {calendarView === "month" &&
+        (monthViewReplacement ?? (
+          <CalendarMonthGrid
+            testId="slot-calendar-month-grid"
+            cells={monthCells}
+            weekdayHeaders={monthWeekdayHeaders}
+            isSelected={(cell) => monthCellSelectedDayKey === cell.dayKey}
+            isQuiet={(cell) => !(slotMap.get(cell.dayKey) ?? []).some((s) => s.kind !== "booked")}
+            onDayClick={(cell) => {
+              if (onMonthDayClick) {
+                onMonthDayClick(cell.dayKey);
+                return;
+              }
+              onCalendarAnchorChange(dayKeyToIsoAtNoon(cell.dayKey, timeZone));
+              onCalendarViewChange("day");
+            }}
+            dayAction={
+              onAddForDayKey && weekColumnAddLabel
+                ? (cell) =>
+                    cell.inCurrentMonth ? (
                       <button
                         type="button"
-                        onClick={() => onAddForDayKey(day.dayKey)}
-                        className="shrink-0 rounded-md border border-border bg-surface px-1.5 py-0.5 text-[10px] font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                        data-month-day-add={cell.dayKey}
+                        title={weekColumnAddLabel}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onAddForDayKey(cell.dayKey);
+                        }}
+                        className="shrink-0 rounded border border-border px-1 py-0.5 text-[9px] font-semibold text-foreground hover:bg-[var(--app-hover)]"
                       >
                         {weekColumnAddLabel}
                       </button>
-                    ) : null}
-                  </div>
-                  <div className="space-y-1">
-                    {daySlots.slice(0, 5).map((slot, idx) => {
-                      if (slot.kind === "booked") {
-                        return (
-                          <div
-                            key={`reserved:${slot.startsAtIso}:${idx}`}
-                            data-testid="slot-reserved-week"
-                            aria-disabled="true"
-                            className="w-full rounded-md border border-dashed border-border bg-background px-2 py-1 text-xs text-muted"
-                          >
-                            <span className="block whitespace-nowrap font-medium">
-                              {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                timeZone,
-                              })}
-                            </span>
-                            <span className="block text-[10px] uppercase tracking-wide">
-                              {slot.label}
-                            </span>
-                          </div>
-                        );
-                      }
-                      const selected = isSlotSelected(slot);
+                    ) : null
+                : undefined
+            }
+            renderCell={(cell) => {
+              const raw = slotMap.get(cell.dayKey) ?? [];
+              const sorted = [...raw].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
+              const chips = pickMonthDayChips(sorted, MAX_MONTH_CHIPS);
+              const more = sorted.length - chips.length;
+              return (
+                <>
+                  {chips.map((slot, idx) => {
+                    const range = formatMonthChipTimeRange(
+                      locale,
+                      slot.startsAtIso,
+                      slot.endsAtIso,
+                      timeZone,
+                    );
+                    if (slot.kind === "booked") {
                       return (
-                        <button
-                          key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
-                          type="button"
-                          onClick={() => {
-                            onSelectSlot(slot.startsAtIso, slot.groupKey);
-                            onCalendarAnchorChange(slot.startsAtIso);
-                          }}
-                          className={`w-full rounded-md px-2 py-1 text-xs tabular-nums ${
-                            selected ? weekSelectedClass : slotClasses({ kind: "open" })
-                          }`}
-                          aria-pressed={selected}
+                        <div
+                          key={`reserved:${slot.startsAtIso}:${idx}`}
+                          data-testid="slot-reserved-month"
+                          role="status"
+                          aria-label={`${slot.label}: ${range}`}
+                          className={`w-full truncate rounded px-1 py-0.5 text-left text-[9px] font-semibold leading-tight tabular-nums ${slotClasses(
+                            { kind: "booked" },
+                          )}`}
                         >
-                          <span className="whitespace-nowrap font-medium">
-                            {new Date(slot.startsAtIso).toLocaleTimeString(locale, {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              timeZone,
-                            })}
-                          </span>
-                        </button>
+                          <span>{range}</span>
+                          <span className="mt-0.5 block truncate">{slot.label}</span>
+                        </div>
                       );
-                    })}
-                    {daySlots.length > 5 && (
-                      <p className="text-center text-[10px] text-muted">+{daySlots.length - 5}</p>
-                    )}
-                    {daySlots.length === 0 && (
-                      <p className="rounded-md border border-border bg-background px-2 py-1 text-center text-[11px] leading-4 text-muted">
-                        {copy.unavailableShort}
-                      </p>
-                    )}
-                  </div>
-                </div>
+                    }
+                    const selected = isSlotSelected(slot);
+                    return (
+                      <button
+                        key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
+                        type="button"
+                        data-testid="month-slot-chip"
+                        data-starts-at={slot.startsAtIso}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectSlot(slot.startsAtIso, slot.groupKey);
+                          onCalendarAnchorChange(slot.startsAtIso);
+                        }}
+                        className={`w-full truncate rounded px-1 py-0.5 text-left text-[9px] font-semibold leading-tight tabular-nums ${slotClasses(
+                          { kind: "open", selected },
+                        )}`}
+                        aria-pressed={selected}
+                      >
+                        {range}
+                      </button>
+                    );
+                  })}
+                  {more > 0 ? (
+                    <p className="px-0.5 text-[9px] font-medium text-muted">+{more} more</p>
+                  ) : null}
+                </>
               );
-            })}
-          </div>
+            }}
+          />
         ))}
-      {calendarView === "month" &&
-        (monthViewReplacement ?? (
-          <div className="overflow-x-auto pb-1" data-testid="slot-calendar-month-grid">
-            <div className="min-w-[720px]">
-              <div className="mb-2 grid grid-cols-7 gap-px bg-border">
-                {monthWeekdayHeaders.map((day, index) => (
-                  <p
-                    key={`${day}-${index}`}
-                    className="bg-background py-1.5 text-center text-[11px] font-semibold text-muted"
-                  >
-                    {day}
-                  </p>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-px bg-border">
-                {monthCells.map((cell) => {
-                  const isSelected = monthCellSelectedDayKey === cell.dayKey;
-                  const raw = slotMap.get(cell.dayKey) ?? [];
-                  const sorted = [...raw].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
-                  const chips = pickMonthDayChips(sorted, MAX_MONTH_CHIPS);
-                  const more = sorted.length - chips.length;
-                  const bookableSlots = sorted.filter((s) => s.kind !== "booked");
-                  const hasBookable = bookableSlots.length > 0;
-                  const isAvailable = cell.inCurrentMonth && hasBookable;
-                  const isUnavailable = cell.inCurrentMonth && !hasBookable;
-                  const showMonthAdd = Boolean(
-                    onAddForDayKey && weekColumnAddLabel && cell.inCurrentMonth,
-                  );
-                  return (
-                    <div
-                      key={cell.dayKey}
-                      data-month-day-cell={cell.dayKey}
-                      className={`flex min-h-[96px] flex-col border p-1 text-left text-xs transition ${
-                        isSelected ? monthSelectedRing : "border-border"
-                      } ${
-                        !cell.inCurrentMonth
-                          ? "bg-[var(--app-canvas)] text-muted/50"
-                          : isAvailable
-                            ? "bg-surface text-foreground"
-                            : isUnavailable
-                              ? "bg-background text-muted"
-                              : "bg-[var(--app-canvas)] text-muted/50"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-0.5">
-                        <button
-                          type="button"
-                          data-day-key={cell.dayKey}
-                          onClick={() => {
-                            if (onMonthDayClick) {
-                              onMonthDayClick(cell.dayKey);
-                              return;
-                            }
-                            onCalendarAnchorChange(dayKeyToIsoAtNoon(cell.dayKey, timeZone));
-                            onCalendarViewChange("day");
-                          }}
-                          className="min-w-0 rounded px-0.5 text-left text-sm font-semibold hover:bg-[var(--app-hover)]"
-                        >
-                          {cell.shortLabel}
-                        </button>
-                        {showMonthAdd ? (
-                          <button
-                            type="button"
-                            data-month-day-add={cell.dayKey}
-                            title={weekColumnAddLabel}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onAddForDayKey!(cell.dayKey);
-                            }}
-                            className="shrink-0 rounded border border-border bg-surface px-1 py-0.5 text-[9px] font-semibold text-foreground hover:bg-[var(--app-hover)]"
-                          >
-                            {weekColumnAddLabel}
-                          </button>
-                        ) : null}
-                      </div>
-                      <div className="mt-1 flex min-h-0 flex-1 flex-col gap-0.5">
-                        {chips.map((slot, idx) => {
-                          if (slot.kind === "booked") {
-                            const range = formatMonthChipTimeRange(
-                              locale,
-                              slot.startsAtIso,
-                              slot.endsAtIso,
-                              timeZone,
-                            );
-                            return (
-                              <div
-                                key={`reserved:${slot.startsAtIso}:${idx}`}
-                                data-testid="slot-reserved-month"
-                                role="status"
-                                aria-label={`${slot.label}: ${range}`}
-                                className="w-full truncate rounded border border-dashed border-[var(--storm-silver)] bg-[var(--app-hover)] px-1 py-0.5 text-left text-[9px] font-medium leading-tight text-foreground"
-                              >
-                                <span className="font-semibold">{range}</span>
-                                <span className="mt-0.5 block truncate text-[9px] font-semibold text-foreground">
-                                  {slot.label}
-                                </span>
-                              </div>
-                            );
-                          }
-                          const selected = isSlotSelected(slot);
-                          return (
-                            <button
-                              key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
-                              type="button"
-                              data-testid="month-slot-chip"
-                              data-starts-at={slot.startsAtIso}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onSelectSlot(slot.startsAtIso, slot.groupKey);
-                                onCalendarAnchorChange(slot.startsAtIso);
-                              }}
-                              className={`w-full truncate rounded px-1 py-0.5 text-left text-[9px] font-medium leading-tight tabular-nums ${
-                                selected ? monthChipSelectedClass : monthChipUnselectedClass
-                              }`}
-                            >
-                              {formatMonthChipTimeRange(
-                                locale,
-                                slot.startsAtIso,
-                                slot.endsAtIso,
-                                timeZone,
-                              )}
-                            </button>
-                          );
-                        })}
-                        {more > 0 ? (
-                          <p className="px-0.5 text-[9px] font-medium text-muted">+{more} more</p>
-                        ) : null}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        ))}
-    </div>
+    </CalendarFrame>
   );
 }

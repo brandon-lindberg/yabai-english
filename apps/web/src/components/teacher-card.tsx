@@ -4,7 +4,17 @@ import type { TeacherCard as TeacherCardData } from "@/lib/teacher-discovery";
 import { buildTeacherCardProfileHref } from "@/lib/teacher-card-href";
 import { PaymentMethodLogos } from "@/components/payment-method-logos";
 import { buttonClasses } from "@/components/ui/button";
+import { DataRow } from "@/components/ui/data-row";
 import { formatYen } from "@/lib/format-money";
+
+/**
+ * One teacher in the browse list.
+ *
+ * This was a bordered card in a two-up grid, so choosing a teacher meant
+ * comparing figures that never lined up in a column. As a ruled row the rates
+ * stack into one right-hand column and can actually be compared down the page —
+ * which is the whole job of this screen.
+ */
 
 type Props = {
   teacher: TeacherCardData;
@@ -27,35 +37,52 @@ export async function TeacherCard({
   ) as "/book/teachers/[teacherId]";
 
   return (
-    <article className="rounded-2xl border border-border bg-surface p-5 transition-colors hover:bg-[var(--app-hover)]">
-      <div className="mb-3 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-border bg-background text-xs text-muted">
-        {teacher.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={teacher.imageUrl} alt={teacher.displayName} className="h-full w-full object-cover" />
-        ) : (
-          teacher.displayName.slice(0, 2).toUpperCase()
-        )}
+    <DataRow
+      actions={
+        <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
+          <p className="text-right">
+            <span className="block text-lg font-black tabular-nums leading-none text-foreground">
+              {teacher.rateYen ? formatYen(teacher.rateYen, locale) : "—"}
+            </span>
+            {/* Was hard-coded English ("N available slots") in a product whose
+                audience reads Japanese. ICU handles the plural in en, the 件
+                counter in ja. */}
+            <span className="mt-1 block text-xs text-muted">
+              {t("teacherCardAvailableSlots", { count: teacher.activeAvailabilityCount })}
+            </span>
+          </p>
+          <Link href={profileHref} className={buttonClasses({ size: "sm" })}>
+            {t("teacherCardViewProfile")}
+          </Link>
+        </div>
+      }
+    >
+      <div className="flex items-start gap-4">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border text-xs font-semibold text-muted">
+          {teacher.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={teacher.imageUrl}
+              alt={teacher.displayName}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            teacher.displayName.slice(0, 2).toUpperCase()
+          )}
+        </span>
+        <div className="min-w-0">
+          <h2 className="text-lg font-bold tracking-[-0.02em] text-foreground">
+            {teacher.displayName}
+          </h2>
+          <p className="mt-0.5 text-sm text-muted">
+            {teacher.countryOfOrigin ?? "—"} · {teacher.instructionLanguages.join(", ")}
+          </p>
+          {teacher.specialties.length > 0 ? (
+            <p className="mt-1 text-sm text-muted">{teacher.specialties.join(" · ")}</p>
+          ) : null}
+          <PaymentMethodLogos methods={teacher.paymentMethods ?? []} className="mt-3" />
+        </div>
       </div>
-      <h2 className="text-lg font-bold tracking-[-0.02em] text-foreground">{teacher.displayName}</h2>
-      <p className="mt-1 text-sm text-muted">
-        {teacher.countryOfOrigin ?? "—"} · {teacher.instructionLanguages.join(", ")}
-      </p>
-      {teacher.specialties.length > 0 && (
-        <p className="mt-2 text-sm text-muted">{teacher.specialties.join(" · ")}</p>
-      )}
-      <p className="mt-2 text-base font-semibold tabular-nums text-foreground">
-        {teacher.rateYen ? formatYen(teacher.rateYen, locale) : "—"}
-      </p>
-      {/* Was hard-coded English ("N available slots") in a product whose audience
-          reads Japanese. Now translated, with the plural handled by ICU in en and
-          the 件 counter in ja, matching the conventions already in messages/. */}
-      <p className="mt-1 text-xs text-muted">
-        {t("teacherCardAvailableSlots", { count: teacher.activeAvailabilityCount })}
-      </p>
-      <PaymentMethodLogos methods={teacher.paymentMethods ?? []} className="mt-3" />
-      <Link href={profileHref} className={`mt-4 ${buttonClasses()}`}>
-        {t("teacherCardViewProfile")}
-      </Link>
-    </article>
+    </DataRow>
   );
 }

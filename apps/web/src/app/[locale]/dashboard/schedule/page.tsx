@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -9,6 +10,17 @@ import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { shouldLoadTeacherBookingsOnSchedule } from "@/lib/dashboard/schedule-view-role";
+import { Section } from "@/components/ui/section";
+
+/**
+ * One schedule, two roles.
+ *
+ * A teacher's schedule and a student's schedule are the same page: a calendar
+ * of what is booked, then the list of those lessons. Only the data source, the
+ * intro line and the row's actions differ. The two branches had each grown
+ * their own heading, spacing and calendar placement, which is why the same
+ * feature read as two different screens depending on who signed in.
+ */
 
 export default async function DashboardSchedulePage({
   searchParams,
@@ -23,6 +35,11 @@ export default async function DashboardSchedulePage({
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
 
+  let intro: string;
+  let timeZone: string;
+  let scheduleItems: Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["scheduleItems"];
+  let lessons: ReactNode;
+
   if (shouldLoadTeacherBookingsOnSchedule(session.user.role)) {
     const profile = await prisma.teacherProfile.findUnique({
       where: { userId: session.user.id },
@@ -35,48 +52,39 @@ export default async function DashboardSchedulePage({
         },
       },
     });
-    const teacherTimeZone = profile?.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
-
     const teacherBookings = profile
       ? await getTeacherBookingsForDashboard(prisma, profile.id)
       : { bookings: [], upcoming: [], completed: [], scheduleItems: [] };
 
-    return (
-      <div className="space-y-8">
-        <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
-        <p className="text-muted">{t("upcomingIntro")}</p>
+    intro = t("upcomingIntro");
+    timeZone = profile?.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
+    scheduleItems = teacherBookings.scheduleItems;
+    lessons = <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />;
+  } else {
+    const studentProfile = await prisma.studentProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { timezone: true },
+    });
+    const student = await getStudentBookingsForDashboard(prisma, session.user.id);
 
-        {teacherBookings.scheduleItems.length > 0 ? (
-          <DashboardScheduleCalendar
-            items={teacherBookings.scheduleItems}
-            timeZone={teacherTimeZone}
-          />
-        ) : null}
-        <ul className="space-y-4">
-          <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />
-        </ul>
-      </div>
-    );
+    intro = t("intro");
+    timeZone = studentProfile?.timezone ?? "Asia/Tokyo";
+    scheduleItems = student.scheduleItems;
+    lessons = <DashboardUpcomingLessons upcoming={student.upcoming} />;
   }
 
-  const studentProfile = await prisma.studentProfile.findUnique({
-    where: { userId: session.user.id },
-    select: { timezone: true },
-  });
-  const studentTimeZone = studentProfile?.timezone ?? "Asia/Tokyo";
-  const { upcoming, scheduleItems } = await getStudentBookingsForDashboard(prisma, session.user.id);
-
   return (
-    <div className="space-y-8">
-      <p className="text-muted">{t("intro")}</p>
+    <div className="space-y-10">
+      <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
+      <p className="max-w-[62ch] text-muted">{intro}</p>
 
-      <section>
-        <h2 className="mb-3 text-lg font-semibold text-foreground">{td("upcoming")}</h2>
-        <DashboardScheduleCalendar items={scheduleItems} timeZone={studentTimeZone} />
-        <ul className="mt-4 space-y-4">
-          <DashboardUpcomingLessons upcoming={upcoming} />
-        </ul>
-      </section>
+      {scheduleItems.length > 0 ? (
+        <DashboardScheduleCalendar items={scheduleItems} timeZone={timeZone} />
+      ) : null}
+
+      <Section title={td("upcoming")} ruled={scheduleItems.length > 0}>
+        <ul className="list-none border-t border-border p-0">{lessons}</ul>
+      </Section>
     </div>
   );
 }

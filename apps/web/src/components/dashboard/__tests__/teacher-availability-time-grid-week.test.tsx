@@ -37,7 +37,6 @@ describe("TeacherAvailabilityTimeGridWeek", () => {
         selectedGroupKey={null}
         onSelectSlot={onSelect}
         onCalendarAnchorChange={onAnchor}
-        selectionStyle="neutral"
       />,
     );
 
@@ -81,7 +80,6 @@ describe("TeacherAvailabilityTimeGridWeek", () => {
         selectedGroupKey={null}
         onSelectSlot={onSelect}
         onCalendarAnchorChange={onAnchor}
-        selectionStyle="neutral"
       />,
     );
 
