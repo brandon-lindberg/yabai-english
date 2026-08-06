@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
+import { buttonClasses } from "@/components/ui/button";
 
 type Entry = {
   id: string;
@@ -109,7 +110,7 @@ export function TeacherRosterPanel() {
         <button
           type="submit"
           disabled={busy}
-          className="rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses()}
         >
           {busy ? t("adding") : t("add")}
         </button>

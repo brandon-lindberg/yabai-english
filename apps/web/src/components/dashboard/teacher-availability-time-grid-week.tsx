@@ -5,6 +5,7 @@ import type { CalendarDay } from "@/lib/slot-calendar";
 import type { PlacedTimeGridBlock } from "@/lib/time-grid-week";
 import { hourGutterLabels, initialScrollTopForTimeGrid, isTimeGridBlockSelected } from "@/lib/time-grid-week";
 import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { TimeGridSlotBlock } from "@/components/dashboard/time-grid-slot-block";
 
 type Props = {
   locale: string;
@@ -158,38 +159,24 @@ export function TeacherAvailabilityTimeGridWeek({
                     }
                     const selected = isTimeGridBlockSelected(block, selectedStartsAtIso, selectedGroupKey);
                     return (
-                      <button
+                      <TimeGridSlotBlock
                         key={`${block.startsAtIso}-${block.groupKey ?? ""}`}
-                        type="button"
-                        data-testid="time-grid-block"
-                        data-starts-at={block.startsAtIso}
-                        onClick={() => {
+                        startsAtIso={block.startsAtIso}
+                        endsAtIso={block.endsAtIso}
+                        topPct={block.topPct}
+                        heightPct={block.heightPct}
+                        selected={selected}
+                        selectedClass={weekSelectedClass}
+                        idleClass={weekIdleClass}
+                        testId="time-grid-block"
+          density="week"
+                        locale={locale}
+                        timeZone={timeZone}
+                        onSelect={() => {
                           onSelectSlot(block.startsAtIso, block.groupKey);
                           onCalendarAnchorChange(block.startsAtIso);
                         }}
-                        className={`absolute right-0.5 left-0.5 overflow-hidden rounded border px-1 py-0.5 text-left text-[10px] leading-tight transition ${
-                          selected ? weekSelectedClass : weekIdleClass
-                        }`}
-                        style={{
-                          top: `${block.topPct}%`,
-                          height: `${block.heightPct}%`,
-                        }}
-                        aria-pressed={selected}
-                      >
-                        <span className={`block truncate font-semibold ${SLOT_FIGURE}`}>
-                          {new Date(block.startsAtIso).toLocaleTimeString(locale, {
-                            hour: "numeric",
-                            minute: "2-digit",
-                            timeZone,
-                          })}
-                          {" – "}
-                          {new Date(block.endsAtIso).toLocaleTimeString(locale, {
-                            hour: "numeric",
-                            minute: "2-digit",
-                            timeZone,
-                          })}
-                        </span>
-                      </button>
+                      />
                     );
                   })}
                 </div>

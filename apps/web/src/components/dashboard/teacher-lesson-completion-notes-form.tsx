@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { StudentBioMdxEditor } from "@/components/dashboard/student-bio-mdx-editor";
 import { BOOKING_COMPLETION_NOTES_MD_MAX } from "@/lib/booking-completion-notes";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   bookingId: string;
@@ -98,7 +99,7 @@ export function TeacherLessonCompletionNotesForm({
         <button
           type="submit"
           disabled={status === "saving"}
-          className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses()}
         >
           {status === "saving" ? t("lessonNotesSaving") : t("lessonNotesSave")}
         </button>

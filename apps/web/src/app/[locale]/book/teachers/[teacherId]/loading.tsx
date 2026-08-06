@@ -15,7 +15,7 @@ export default function Loading() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* Profile card */}
-        <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+        <div className="border-y border-border p-5 sm:p-6">
           <div className="flex items-start gap-4">
             <SkeletonAvatar size="xl" />
             <div className="min-w-0 flex-1">
@@ -38,7 +38,7 @@ export default function Loading() {
         </div>
 
         {/* Time slots card */}
-        <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+        <div className="border-y border-border p-5 sm:p-6">
           <Skeleton height="5" width="1/2" />
           <div className="mt-4 space-y-2">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -54,7 +54,7 @@ export default function Loading() {
       <div className="mt-8 space-y-4">
         <Skeleton height="6" width="1/3" />
         <Skeleton height="4" width="full" />
-        <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8">
+        <div className="border-y border-border p-6 sm:p-8">
           <div className="space-y-4">
             <div className="rounded-xl border border-border px-3 py-2.5">
               <Skeleton height="5" width="2/3" />

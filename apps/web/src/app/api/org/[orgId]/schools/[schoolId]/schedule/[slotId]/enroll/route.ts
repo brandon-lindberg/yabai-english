@@ -5,9 +5,9 @@ import { prisma } from "@/lib/prisma";
 import {
   isOrgWideAdmin,
   isSchoolAdmin,
-  type MembershipForAuth,
 } from "@/lib/org-authorization";
 import { canEnrollStudent } from "@/lib/school-enrollment";
+import { getSchoolCallerMembership } from "@/lib/org/caller-membership";
 
 const enrollSchema = z.object({
   studentMembershipId: z.string().min(1),
@@ -17,30 +17,6 @@ type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string; slotId: string }>;
 };
 
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-  schoolId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: {
-      userId,
-      organizationId: orgId,
-      status: "ACTIVE",
-      OR: [{ schoolId: null }, { schoolId }],
-    },
-    select: {
-      id: true,
-      organizationId: true,
-      userId: true,
-      schoolId: true,
-      orgRole: true,
-      status: true,
-    },
-    orderBy: { orgRole: "asc" },
-  });
-}
-
 export async function POST(req: Request, ctx: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -48,7 +24,7 @@ export async function POST(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId, slotId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
 
   if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

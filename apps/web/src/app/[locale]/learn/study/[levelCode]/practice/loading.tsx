@@ -22,7 +22,7 @@ export default function Loading() {
       </div>
 
       {/* ── XP bar card ── */}
-      <div className="mt-6 rounded-2xl border border-border bg-surface p-5">
+      <div className="mt-6 border-y border-border p-5">
         <Skeleton height="4" width="1/2" />
         <div className="mt-1">
           <Skeleton height="3" width="1/3" />
@@ -42,7 +42,7 @@ export default function Loading() {
       </div>
 
       {/* ── Flashcard ── */}
-      <div className="mt-6 rounded-2xl border border-border bg-surface p-4 sm:p-8">
+      <div className="mt-6 border-y border-border p-4 sm:p-8">
         <Skeleton height="3" width="1/4" />
         <div className="mt-3 min-h-[6rem] sm:min-h-[8rem]">
           <Skeleton height="8" width="3/4" />
@@ -60,7 +60,7 @@ export default function Loading() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl border border-border bg-surface px-4 py-4"
+            className="border-y border-border px-4 py-4"
           >
             <Skeleton height="4" width="3/4" />
             <div className="mt-1">

@@ -6,10 +6,10 @@ import {
   isOrgWideAdmin,
   isSchoolAdmin,
   canRequestTimeOff,
-  type MembershipForAuth,
 } from "@/lib/org-authorization";
 import { validateTimeOffRequest } from "@/lib/school-time-off";
 import { notifySchoolAdmins } from "@/lib/school-admin-notify";
+import { getSchoolCallerMembership } from "@/lib/org/caller-membership";
 
 const createTimeOffSchema = z.object({
   startDate: z.string().transform((s) => new Date(s)),
@@ -21,30 +21,6 @@ type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string }>;
 };
 
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-  schoolId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: {
-      userId,
-      organizationId: orgId,
-      status: "ACTIVE",
-      OR: [{ schoolId: null }, { schoolId }],
-    },
-    select: {
-      id: true,
-      organizationId: true,
-      userId: true,
-      schoolId: true,
-      orgRole: true,
-      status: true,
-    },
-    orderBy: { orgRole: "asc" },
-  });
-}
-
 export async function POST(req: Request, ctx: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -52,7 +28,7 @@ export async function POST(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
 
   if (!caller || !canRequestTimeOff(caller)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -118,7 +94,7 @@ export async function GET(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
 
   if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

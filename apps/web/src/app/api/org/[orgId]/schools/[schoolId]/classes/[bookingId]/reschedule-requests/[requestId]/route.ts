@@ -12,7 +12,7 @@ import {
   getSchoolBookingRescheduleConflictError,
   type SchoolBookingReschedulePayload,
 } from "@/lib/school-booking-reschedule-apply";
-import type { MembershipForAuth } from "@/lib/org-authorization";
+import { getSchoolCallerMembership } from "@/lib/org/caller-membership";
 
 const patchBodySchema = z.object({
   action: z.enum(["approve", "reject"]),
@@ -27,30 +27,6 @@ type RouteContext = {
     requestId: string;
   }>;
 };
-
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-  schoolId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: {
-      userId,
-      organizationId: orgId,
-      status: "ACTIVE",
-      OR: [{ schoolId: null }, { schoolId }],
-    },
-    select: {
-      id: true,
-      organizationId: true,
-      userId: true,
-      schoolId: true,
-      orgRole: true,
-      status: true,
-    },
-    orderBy: { orgRole: "asc" },
-  });
-}
 
 export async function PATCH(req: Request, ctx: RouteContext) {
   const session = await auth();
@@ -99,7 +75,7 @@ export async function PATCH(req: Request, ctx: RouteContext) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
   if (!caller || !canDirectRescheduleSchoolClassBooking(caller, schoolId)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

@@ -5,6 +5,7 @@ import { DateTime } from "luxon";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { buttonClasses } from "@/components/ui/button";
+import { Status } from "@/components/ui/status";
 
 type Props = {
   bookingId: string;
@@ -75,8 +76,8 @@ export function TeacherBookingRescheduleForm({
       <h2 className="text-sm font-semibold text-foreground">{t("rescheduleTitle")}</h2>
       <p className="text-xs text-muted">{t("rescheduleHelp")}</p>
       {error ? (
-        <p className="text-xs" style={{ color: "var(--app-danger)" }} role="alert">
-          {error}
+        <p role="alert">
+          <Status tone="error">{error}</Status>
         </p>
       ) : null}
       {success && !error ? (

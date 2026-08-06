@@ -9,6 +9,7 @@ import {
   isTimeGridBlockSelected,
 } from "@/lib/time-grid-week";
 import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { TimeGridSlotBlock } from "@/components/dashboard/time-grid-slot-block";
 
 type Props = {
   locale: string;
@@ -156,38 +157,24 @@ export function TeacherAvailabilityTimeGridDay({
                 }
                 const selected = isTimeGridBlockSelected(block, selectedStartsAtIso, selectedGroupKey);
                 return (
-                  <button
+                  <TimeGridSlotBlock
                     key={`${block.startsAtIso}-${block.groupKey ?? ""}`}
-                    type="button"
-                    data-testid="time-grid-day-block"
-                    data-starts-at={block.startsAtIso}
-                    onClick={() => {
+                    startsAtIso={block.startsAtIso}
+                    endsAtIso={block.endsAtIso}
+                    topPct={block.topPct}
+                    heightPct={block.heightPct}
+                    selected={selected}
+                    selectedClass={weekSelectedClass}
+                    idleClass={weekIdleClass}
+                    testId="time-grid-day-block"
+          density="day"
+                    locale={locale}
+                    timeZone={timeZone}
+                    onSelect={() => {
                       onSelectSlot(block.startsAtIso, block.groupKey);
                       onCalendarAnchorChange(block.startsAtIso);
                     }}
-                    className={`absolute right-1 left-1 overflow-hidden rounded border px-1.5 py-1 text-left text-xs leading-tight transition ${
-                      selected ? weekSelectedClass : weekIdleClass
-                    }`}
-                    style={{
-                      top: `${block.topPct}%`,
-                      height: `${block.heightPct}%`,
-                    }}
-                    aria-pressed={selected}
-                  >
-                    <span className={`block truncate font-semibold ${SLOT_FIGURE}`}>
-                      {new Date(block.startsAtIso).toLocaleTimeString(locale, {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        timeZone,
-                      })}
-                      {" – "}
-                      {new Date(block.endsAtIso).toLocaleTimeString(locale, {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        timeZone,
-                      })}
-                    </span>
-                  </button>
+                  />
                 );
               })}
             </div>

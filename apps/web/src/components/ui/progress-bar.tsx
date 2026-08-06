@@ -14,6 +14,7 @@ export function ProgressBar({
   label,
   valueText,
   size = "md",
+  testId,
   className = "",
 }: {
   percent: number;
@@ -22,6 +23,8 @@ export function ProgressBar({
   /** Spoken value, when a bare percentage would be less useful than "3 of 24". */
   valueText?: string;
   size?: "md" | "sm";
+  /** Preserves an existing hook when replacing a hand-built bar. */
+  testId?: string;
   className?: string;
 }) {
   const pct = Math.min(100, Math.max(0, percent));
@@ -34,6 +37,7 @@ export function ProgressBar({
       ]
         .filter(Boolean)
         .join(" ")}
+      data-testid={testId}
       role="progressbar"
       aria-label={label}
       aria-valuemin={0}

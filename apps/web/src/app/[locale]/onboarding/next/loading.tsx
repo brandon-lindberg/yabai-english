@@ -26,7 +26,7 @@ export default function Loading() {
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-5"
+            className="flex items-start gap-3 border-y border-border p-5"
           >
             <Skeleton height="6" width="1/4" rounded="full" className="!h-6 !w-6 shrink-0" />
             <div className="min-w-0 flex-1">

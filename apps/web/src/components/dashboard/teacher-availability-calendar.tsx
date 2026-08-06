@@ -29,6 +29,7 @@ import { placeSlotsOnDayColumn, placeSlotsOnWeekGrid } from "@/lib/time-grid-wee
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { buttonClasses } from "@/components/ui/button";
 
 type TeacherAvailabilityRecurrence = "WEEKLY" | "ONE_OFF";
 
@@ -1110,7 +1111,7 @@ export function TeacherAvailabilityCalendar({
           type="button"
           onClick={() => void save()}
           disabled={status === "saving" || invalidSlotRanges || invalidDateRanges || hasInvalidLessonMeta}
-          className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses()}
         >
           {status === "saving" ? t("saving") : t("save")}
         </button>

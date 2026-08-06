@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { CheckoutTermsAgreementLabel } from "@/components/checkout-terms-agreement-label";
 import { buttonClasses } from "@/components/ui/button";
+import { Status } from "@/components/ui/status";
 
 type Props = {
   bookingId: string;
@@ -47,8 +48,8 @@ export function CheckoutPayButton({ bookingId }: Props) {
   return (
     <div className="space-y-3">
       {error && (
-        <p className="text-sm" style={{ color: "var(--app-danger)" }}>
-          {error}
+        <p role="alert">
+          <Status tone="error">{error}</Status>
         </p>
       )}
       <label className="flex items-start gap-2 text-sm text-muted">

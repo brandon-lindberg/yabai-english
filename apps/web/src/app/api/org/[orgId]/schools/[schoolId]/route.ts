@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { isOrgWideAdmin, isSchoolAdmin, type MembershipForAuth } from "@/lib/org-authorization";
+import { isOrgWideAdmin, isSchoolAdmin } from "@/lib/org-authorization";
+import { getSchoolCallerMembership } from "@/lib/org/caller-membership";
 
 const updateSchoolSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
@@ -14,24 +15,6 @@ const updateSchoolSchema = z.object({
 
 type RouteContext = { params: Promise<{ orgId: string; schoolId: string }> };
 
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-  schoolId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: {
-      userId, organizationId: orgId, status: "ACTIVE",
-      OR: [{ schoolId: null }, { schoolId }],
-    },
-    select: {
-      id: true, organizationId: true, userId: true,
-      schoolId: true, orgRole: true, status: true,
-    },
-    orderBy: { orgRole: "asc" },
-  });
-}
-
 export async function GET(req: Request, ctx: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -39,7 +22,7 @@ export async function GET(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
   if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -67,7 +50,7 @@ export async function PATCH(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
   if (!caller || (!isOrgWideAdmin(caller) && !isSchoolAdmin(caller, schoolId))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

@@ -9,7 +9,7 @@ export default function Loading() {
         <Skeleton height="6" width="1/4" />
         <ul className="mt-4 space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <li key={i} className="rounded-xl border border-border bg-surface p-4">
+            <li key={i} className="border-t border-border pt-6">
               <Skeleton height="4" width="full" />
               <div className="mt-1">
                 <Skeleton height="3" width="3/4" />
@@ -26,7 +26,7 @@ export default function Loading() {
         <Skeleton height="6" width="1/3" />
         <div className="mt-4 space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-border bg-surface p-4">
+            <div key={i} className="border-t border-border pt-6">
               <Skeleton height="4" width="2/3" />
               <div className="mt-2 space-y-1">
                 <Skeleton height="3" width="full" />

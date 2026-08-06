@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { Status } from "@/components/ui/status";
 
 type Props = {
   bookingId: string;
@@ -36,8 +37,8 @@ export function BookingCancelButton({ bookingId }: Props) {
   return (
     <div className="inline-flex flex-col items-start gap-1">
       {error ? (
-        <p className="max-w-xs text-xs" style={{ color: "var(--app-danger)" }} role="alert">
-          {error}
+        <p role="alert">
+          <Status tone="error">{error}</Status>
         </p>
       ) : null}
       <button

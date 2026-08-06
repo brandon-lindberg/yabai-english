@@ -10,6 +10,7 @@ import {
   summarizeStudentOnboardingProgress,
 } from "@/lib/student-onboarding-next-links";
 import { buttonClasses } from "@/components/ui/button";
+import { ProgressBar } from "@/components/ui/progress-bar";
 
 export default async function OnboardingNextPage() {
   const locale = await getLocale();
@@ -96,16 +97,23 @@ export default async function OnboardingNextPage() {
         className="mt-6 flex items-center gap-3"
         data-testid="student-onboarding-progress"
       >
-        <div
-          className="h-2 flex-1 overflow-hidden rounded-full bg-border"
-          aria-hidden
-        >
-          <div
-            data-testid="student-onboarding-progress-bar"
-            className="h-full rounded-full bg-primary transition-[width] duration-300"
-            style={{ width: `${progress.percent}%` }}
-          />
-        </div>
+        {/* Was a hand-built bar marked `aria-hidden` with no `role="progressbar"`
+            anywhere, so the value was never announced — the same gap the two
+            onboarding wizards had. This is the shared bar. */}
+        <ProgressBar
+          testId="student-onboarding-progress-bar"
+          percent={progress.percent}
+          label={t("progressSummary", {
+            current: progress.completed,
+            total: progress.total,
+          })}
+          valueText={t("progressSummary", {
+            current: progress.completed,
+            total: progress.total,
+          })}
+          size="sm"
+          className="flex-1"
+        />
         <p className="text-xs font-medium text-muted" data-testid="student-onboarding-progress-label">
           {t("progressSummary", { current: progress.completed, total: progress.total })}
         </p>
