@@ -880,7 +880,11 @@
   },
   "learn": {
     "title": "学習",
-    "courses": "コース"
+    "courses": "コース",
+    "answerCorrect": "正解",
+    "answerWrong": "惜しい。次に進みましょう。",
+    "attemptFailed": "解答を記録できませんでした。もう一度お試しください。",
+    "unsupportedExercise": "この形式の問題はまだ利用できません（{type}）。"
   },
   "study": {
     "title": "フラッシュカード",
@@ -926,7 +930,9 @@
     "practiceMixed": "ミックス",
     "practiceFocusHint": "苦手だけを集中的に、または習得カードだけを復習できます。",
     "queueEmptyWeak": "まだ苦手カードがありません。練習を続けましょう。",
-    "queueEmptyMastered": "まだ習得カードがありません。連続正解で習得度を上げましょう。"
+    "queueEmptyMastered": "まだ習得カードがありません。連続正解で習得度を上げましょう。",
+    "passMarkLabel": "合格ライン：{score}%",
+    "questionCount": "{count}問"
   },
   "onboarding": {
     "title": "English Studio へようこそ",

@@ -10,7 +10,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { StudyLevelCode } from "@/generated/prisma/browser";
 import { Skeleton } from "@/components/ui/skeleton";
-import { buttonClasses } from "@/components/ui/button";
+import { Button, buttonClasses } from "@/components/ui/button";
+import { Choice, ChoiceList } from "@/components/ui/choice";
+import { Outcome } from "@/components/ui/outcome";
+import { Status } from "@/components/ui/status";
 
 export type StudyQueueFocus = "mixed" | "weak" | "mastered";
 
@@ -162,27 +165,23 @@ export function StudyPracticeSession({
         data-testid="study-practice-loading"
       >
         {/* XP bar */}
-        <div className="rounded-2xl border border-border bg-surface p-5">
+        <div className="border-y border-border py-4">
           <Skeleton height="4" width="1/2" />
-          <div className="mt-1">
-            <Skeleton height="3" width="1/3" />
-          </div>
-          <div className="mt-2">
+          <div className="mt-3">
             <Skeleton height="3" width="full" rounded="full" />
           </div>
-          <div className="mt-1">
+          <div className="mt-2">
             <Skeleton height="3" width="2/3" />
           </div>
         </div>
         {/* Progress + score */}
-        <div className="flex flex-wrap justify-between gap-2 text-xs text-muted">
+        <div className="flex flex-wrap justify-between gap-2">
           <Skeleton height="3" width="1/4" className="!w-12" />
           <Skeleton height="3" width="1/3" className="!w-36" />
         </div>
         {/* Flashcard */}
         <div className="rounded-2xl border border-border bg-surface p-4 sm:p-8">
-          <Skeleton height="3" width="1/4" />
-          <div className="mt-3 min-h-[6rem] sm:min-h-[8rem]">
+          <div className="min-h-[6rem] sm:min-h-[8rem]">
             <Skeleton height="8" width="3/4" />
             <div className="mt-3">
               <Skeleton height="6" width="1/2" />
@@ -195,14 +194,8 @@ export function StudyPracticeSession({
         {/* Answer options */}
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-border bg-surface px-4 py-4"
-            >
+            <div key={i} className="rounded-xl border border-border px-4 py-3">
               <Skeleton height="4" width="3/4" />
-              <div className="mt-1">
-                <Skeleton height="3" width="1/2" />
-              </div>
             </div>
           ))}
         </div>
@@ -211,33 +204,31 @@ export function StudyPracticeSession({
   }
 
   if (error) {
-    return <p className="text-sm text-[var(--app-danger)]">{error}</p>;
+    return (
+      <p role="alert">
+        <Status tone="error">{error}</Status>
+      </p>
+    );
   }
 
   if (finished) {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6 text-center">
-        <p className="text-lg font-semibold text-foreground">{t("sessionDone")}</p>
-        <p className="mt-2 text-muted">{t("sessionXp", { xp: sessionXp })}</p>
-        <p className="mt-1 text-sm text-muted">
-          {t("sessionScore", { correct: sessionCorrect, wrong: sessionWrong })}
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => void loadQueue()}
-            className={buttonClasses()}
-          >
-            {t("nextCard")}
-          </button>
-          <Link
-            href="/learn/study"
-            className={buttonClasses({ variant: "secondary" })}
-          >
-            {t("backToHub")}
-          </Link>
-        </div>
-      </div>
+      /* The XP earned is what the session was for, so it is the figure. It used
+         to be the second grey line under a bold "Session complete". */
+      <Outcome
+        title={t("sessionDone")}
+        figure={sessionXp}
+        figureLabel={t("sessionXp", { xp: sessionXp })}
+        description={t("sessionScore", { correct: sessionCorrect, wrong: sessionWrong })}
+        actions={
+          <>
+            <Button onClick={() => void loadQueue()}>{t("nextCard")}</Button>
+            <Link href="/learn/study" className={buttonClasses({ variant: "secondary" })}>
+              {t("backToHub")}
+            </Link>
+          </>
+        }
+      />
     );
   }
 
@@ -249,12 +240,14 @@ export function StudyPracticeSession({
           ? t("queueEmptyMastered")
           : t("sessionEmpty");
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6">
-        <p className="text-muted">{emptyMsg}</p>
-        <Link href="/learn/study" className="mt-4 inline-block text-link">
-          {t("backToHub")}
-        </Link>
-      </div>
+      <Outcome
+        title={emptyMsg}
+        actions={
+          <Link href="/learn/study" className={buttonClasses({ variant: "secondary" })}>
+            {t("backToHub")}
+          </Link>
+        }
+      />
     );
   }
 
@@ -284,12 +277,13 @@ export function StudyPracticeSession({
         progressPercent={rpg.progressPercent}
       />
 
-      <div className="flex flex-wrap justify-between gap-2 text-xs text-muted">
-        <span>
+      <div className="flex flex-wrap justify-between gap-2 text-sm text-muted">
+        <span className="font-medium tabular-nums">
           {index + 1} / {cards.length}
         </span>
-        <span>
-          {t("sessionXp", { xp: sessionXp })} · {t("sessionScore", { correct: sessionCorrect, wrong: sessionWrong })}
+        <span className="tabular-nums">
+          {t("sessionXp", { xp: sessionXp })} ·{" "}
+          {t("sessionScore", { correct: sessionCorrect, wrong: sessionWrong })}
         </span>
       </div>
 
@@ -319,7 +313,6 @@ export function StudyPracticeSession({
           <div className="mt-6">
             <StudyMultiStepExercise
               key={current.id}
-              cardId={current.id}
               steps={current.steps}
               disabled={submitting}
               onSubmit={(answers) => void submitMultiStep(answers)}
@@ -328,16 +321,15 @@ export function StudyPracticeSession({
         ) : null}
       </div>
 
-      {feedback === "correct" ? (
-        <p className="rounded-xl bg-[var(--app-hover)] px-4 py-3 text-center text-sm font-medium text-foreground">
-          {t("feedbackCorrect")}
-        </p>
-      ) : null}
-      {feedback === "wrong" ? (
-        <div className="rounded-xl bg-[var(--app-danger)]/15 px-4 py-3 text-center text-sm text-[var(--app-danger)]">
-          <p className="font-medium">{t("feedbackWrong")}</p>
-          {lastCorrectAnswer ? (
-            <p className="mt-1 whitespace-pre-line text-muted-foreground">
+      {/* Feedback is a live region: it appears and is gone in 900ms, so a screen
+          reader has to be told rather than left to find it. */}
+      {feedback ? (
+        <div role="status" aria-live="assertive" className="text-center">
+          <Status tone={feedback === "correct" ? "settled" : "error"}>
+            {feedback === "correct" ? t("feedbackCorrect") : t("feedbackWrong")}
+          </Status>
+          {feedback === "wrong" && lastCorrectAnswer ? (
+            <p className="mt-2 whitespace-pre-line text-sm text-muted">
               {t("correctWas", { answer: lastCorrectAnswer })}
             </p>
           ) : null}
@@ -345,21 +337,17 @@ export function StudyPracticeSession({
       ) : null}
 
       {!feedback && current.kind === "mcq" ? (
-        <div
-          className={`grid gap-2 ${current.options.length <= 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"}`}
-        >
+        <ChoiceList columns={current.options.length <= 3 ? 3 : 2}>
           {current.options.map((opt) => (
-            <button
+            <Choice
               key={`${current.id}-${opt}`}
-              type="button"
               disabled={submitting}
-              onClick={() => void submitMcq(opt)}
-              className="rounded-xl border border-border bg-surface px-4 py-4 text-left text-sm font-medium text-foreground transition hover:bg-foreground/5 disabled:opacity-50"
+              onSelect={() => void submitMcq(opt)}
             >
               {opt}
-            </button>
+            </Choice>
           ))}
-        </div>
+        </ChoiceList>
       ) : null}
     </div>
   );

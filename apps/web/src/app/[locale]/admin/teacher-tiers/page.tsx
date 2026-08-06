@@ -8,9 +8,13 @@ import {
 
 export default async function AdminTeacherTiersPage() {
   const t = await getTranslations("admin.teacherTiersPage");
+  // `select`, not `include`: this reads every teacher on the platform, and
+  // `include` pulled each one's `googleCalendarRefreshToken` with them.
   const teachers = await prisma.teacherProfile.findMany({
     orderBy: { userId: "asc" },
-    include: {
+    select: {
+      id: true,
+      displayName: true,
       user: { select: { name: true, email: true } },
       tierState: true,
       tierEvaluations: {

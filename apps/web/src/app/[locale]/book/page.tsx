@@ -71,12 +71,27 @@ export default async function BookPage({ searchParams }: Props) {
     session?.user?.id && session.user.role === "STUDENT"
       ? session.user.id
       : null;
+  /*
+    `select`, not `include`. This is a student browsing other people's profiles,
+    and `include` returns every scalar the model has — which here means every
+    listed teacher's `googleCalendarRefreshToken` was read into memory on each
+    page load. Nothing rendered it, but the only thing standing between that
+    token and the page was the mapping below remembering not to spread.
+  */
   const teacherProfiles = await prisma.teacherProfile.findMany({
     where: marketplaceTeacherWhere(viewerStudentId),
-    include: {
-      user: true,
+    select: {
+      id: true,
+      displayName: true,
+      countryOfOrigin: true,
+      specialties: true,
+      instructionLanguages: true,
+      rateYen: true,
+      paymentPolicyAcceptedAt: true,
+      user: { select: { name: true, image: true } },
       availabilitySlots: {
         where: { active: true },
+        select: { id: true },
       },
       paymentAccounts: {
         select: {

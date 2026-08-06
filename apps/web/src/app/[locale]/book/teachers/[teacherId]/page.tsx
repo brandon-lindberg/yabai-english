@@ -69,11 +69,30 @@ export default async function TeacherProfileBookingPage({
     redirect({ href: redirectHref, locale });
   }
 
+  /*
+    `select`, not `include`: a student viewing someone else's profile has no
+    business loading that teacher's `googleCalendarRefreshToken`, which is what
+    `include` returned. Same reason `user` is narrowed — `include` there pulled
+    the teacher's email and account status into the page's data as well.
+  */
   const teacher = await prisma.teacherProfile.findUnique({
     where: { id: teacherId },
-    include: {
+    select: {
+      id: true,
+      userId: true,
+      displayName: true,
+      bio: true,
+      credentials: true,
+      countryOfOrigin: true,
+      specialties: true,
+      instructionLanguages: true,
+      rateYen: true,
+      marketplaceHidden: true,
+      paymentPolicyAcceptedAt: true,
       user: {
-        include: {
+        select: {
+          name: true,
+          image: true,
           organizationMemberships: {
             where: { status: "ACTIVE" },
             select: { id: true },
@@ -84,7 +103,17 @@ export default async function TeacherProfileBookingPage({
       availabilitySlots: {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
-        include: {
+        select: {
+          id: true,
+          dayOfWeek: true,
+          startMin: true,
+          endMin: true,
+          timezone: true,
+          recurrence: true,
+          startsOn: true,
+          endsOn: true,
+          classLevelId: true,
+          classTypeId: true,
           classLevel: { select: { labelEn: true, labelJa: true } },
           classType: { select: { labelEn: true, labelJa: true } },
         },

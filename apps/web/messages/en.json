@@ -880,7 +880,11 @@
   },
   "learn": {
     "title": "Learn",
-    "courses": "Courses"
+    "courses": "Courses",
+    "answerCorrect": "Correct",
+    "answerWrong": "Not quite — try the next one.",
+    "attemptFailed": "We could not record that answer. Please try again.",
+    "unsupportedExercise": "This exercise type is not available yet ({type})."
   },
   "study": {
     "title": "Flashcards",
@@ -926,7 +930,9 @@
     "practiceMixed": "Mixed queue",
     "practiceFocusHint": "Target weak cards for extra repeats, or review mastered cards.",
     "queueEmptyWeak": "No weak cards yet — keep practicing!",
-    "queueEmptyMastered": "No mastered cards yet — answer a few correctly in a row to build mastery."
+    "queueEmptyMastered": "No mastered cards yet — answer a few correctly in a row to build mastery.",
+    "passMarkLabel": "Pass mark: {score}%",
+    "questionCount": "{count, plural, one {# question} other {# questions}}"
   },
   "onboarding": {
     "title": "Welcome to English Studio",

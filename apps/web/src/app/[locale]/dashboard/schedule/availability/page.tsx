@@ -33,9 +33,13 @@ export default async function DashboardScheduleAvailabilityPage({
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
 
+  // `select`, not `include`: this page needs none of the profile's scalars
+  // beyond the two below, and `include` was reading the refresh token with them.
   const profile = await prisma.teacherProfile.findUnique({
     where: { userId: session.user.id },
-    include: {
+    select: {
+      id: true,
+      paymentPolicyAcceptedAt: true,
       availabilitySlots: {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],

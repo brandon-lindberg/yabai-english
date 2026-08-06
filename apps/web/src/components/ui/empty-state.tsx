@@ -1,17 +1,19 @@
 import type { ReactNode } from "react";
+import { Outcome } from "@/components/ui/outcome";
 
-type Props = {
+/**
+ * An empty list is one kind of outcome, so it renders as one. This name is kept
+ * because "nothing here yet" is a narrower, clearer thing to reach for at a
+ * call site than the general panel — but there is only one implementation.
+ */
+export function EmptyState({
+  title,
+  description,
+  action,
+}: {
   title: string;
   description?: string | null;
   action?: ReactNode;
-};
-
-export function EmptyState({ title, description, action }: Props) {
-  return (
-    <div className="border-t border-border py-10 text-center">
-      <p className="text-base font-bold tracking-[-0.02em] text-foreground">{title}</p>
-      {description ? <p className="mt-2 text-sm text-muted">{description}</p> : null}
-      {action ? <div className="mt-5 flex justify-center">{action}</div> : null}
-    </div>
-  );
+}) {
+  return <Outcome title={title} description={description} actions={action} />;
 }

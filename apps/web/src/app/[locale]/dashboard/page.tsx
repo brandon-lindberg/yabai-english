@@ -48,9 +48,20 @@ export default async function DashboardPage({
     const [teacherProfile, googleSettings, accountUser] = await Promise.all([
       prisma.teacherProfile.findUnique({
         where: { userId: session.user.id },
-        include: {
-          user: true,
-          availabilitySlots: { where: { active: true } },
+        /*
+          `select`, not `include`. The refresh token is named here because this
+          page genuinely needs it — but only as a boolean, for the legacy
+          calendar-readiness fallback. Naming it keeps it greppable and stops
+          the query from picking up whatever sensitive column the model gains
+          next.
+        */
+        select: {
+          id: true,
+          displayName: true,
+          bio: true,
+          googleCalendarRefreshToken: true,
+          user: { select: { name: true, email: true, image: true } },
+          availabilitySlots: { where: { active: true }, select: { id: true } },
         },
       }),
       prisma.googleIntegrationSettings.findUnique({

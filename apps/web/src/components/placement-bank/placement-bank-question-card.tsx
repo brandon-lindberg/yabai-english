@@ -1,5 +1,6 @@
 import { placementTextToReact } from "@/lib/placement-question-display";
 import type { PlacementQuestionPublic } from "@/lib/placement-test";
+import { Status } from "@/components/ui/status";
 
 type PlacementBankQuestionCardProps = {
   question: PlacementQuestionPublic;
@@ -20,10 +21,10 @@ export function PlacementBankQuestionCard({
   correctIndex,
 }: PlacementBankQuestionCardProps) {
   return (
-    <article className="rounded-lg border border-border bg-surface p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">
-        {question.cefrBand} · {question.section} · {question.id}
-      </p>
+    <article className="border-b border-border py-5">
+      {/* Was an uppercase tracked line above the content — an eyebrow, which
+          DESIGN.md §4 bans. It is metadata about the item, so it reads beneath
+          it in the same weight as everything else that is not the question. */}
       <p className="mt-2 text-sm font-medium text-muted">
         {placementTextToReact(question.instructionEn)}
       </p>
@@ -40,13 +41,18 @@ export function PlacementBankQuestionCard({
           </p>
         </>
       ) : null}
-      <ul className="mt-3 list-inside list-decimal space-y-1 text-sm text-foreground">
+      <ol className="mt-3 list-inside list-decimal space-y-1 text-sm text-foreground">
         {question.optionsEn.map((opt, i) => (
           <li key={i}>{placementTextToReact(opt)}</li>
         ))}
-      </ul>
+      </ol>
+      <p className="mt-3 text-xs tabular-nums text-muted">
+        {question.cefrBand} · {question.section} · {question.id}
+      </p>
       {showCorrectIndex && correctIndex !== undefined ? (
-        <p className="mt-2 text-xs text-[var(--app-warn-text)]">Correct index (review): {correctIndex}</p>
+        <p className="mt-2">
+          <Status tone="warn">Correct index (review): {correctIndex}</Status>
+        </p>
       ) : null}
     </article>
   );

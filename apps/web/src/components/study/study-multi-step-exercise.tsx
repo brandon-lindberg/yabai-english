@@ -2,15 +2,16 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { buttonClasses } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { Field, Textarea } from "@/components/ui/field";
 
 export function StudyMultiStepExercise({
-  cardId,
   steps,
   disabled,
   onSubmit,
 }: {
-  cardId: string;
+  /* `cardId` used to be threaded in purely to hand-build a unique textarea id.
+     `Field` generates one, so the prop is gone rather than left unused. */
   steps: { prompt: string }[];
   disabled: boolean;
   onSubmit: (answers: string[]) => void;
@@ -33,39 +34,35 @@ export function StudyMultiStepExercise({
 
   return (
     <div className="space-y-4">
-      <p className="text-xs font-medium text-muted">
+      <p className="text-sm font-medium tabular-nums text-muted">
         {t("stepProgress", { n: step + 1, total: steps.length })}
       </p>
       <p className="whitespace-pre-line text-base font-medium text-foreground">{current.prompt}</p>
-      <label className="block text-xs font-medium text-muted" htmlFor={`study-step-${cardId}-${step}`}>
-        {t("yourAnswer")}
-      </label>
-      <textarea
-        id={`study-step-${cardId}-${step}`}
-        rows={4}
-        disabled={disabled}
-        value={answers[step] ?? ""}
-        onChange={(e) => setPart(step, e.target.value)}
-        className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 disabled:opacity-50"
-      />
+      <Field label={t("yourAnswer")}>
+        {(field) => (
+          <Textarea
+            {...field}
+            rows={4}
+            disabled={disabled}
+            value={answers[step] ?? ""}
+            onChange={(e) => setPart(step, e.target.value)}
+          />
+        )}
+      </Field>
       {!isLast ? (
-        <button
-          type="button"
+        <Button
           disabled={disabled || !(answers[step] ?? "").trim()}
           onClick={() => setStep((s) => Math.min(s + 1, steps.length - 1))}
-          className={buttonClasses()}
         >
           {t("nextStep")}
-        </button>
+        </Button>
       ) : (
-        <button
-          type="button"
+        <Button
           disabled={disabled || steps.some((_, i) => !(answers[i] ?? "").trim())}
           onClick={() => onSubmit(answers)}
-          className={buttonClasses()}
         >
           {t("submitAnswers")}
-        </button>
+        </Button>
       )}
     </div>
   );
