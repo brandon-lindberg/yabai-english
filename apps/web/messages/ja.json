@@ -345,7 +345,13 @@
       "teacherPreviewWhenHidden": "公開一覧に表示されないため、受講生一覧にいる方にこのリンクを共有してください。",
       "teacherMarketplaceHiddenLabel": "公開の講師一覧に自分を表示しない",
       "teacherMarketplaceHiddenHelp": "オンにすると、「受講生一覧」で追加した受講生だけが予約ページを開いて予約できます。",
-      "prefillFromGoogle": "ログイン（Google）の情報を表示しています。保存前に編集できます。"
+      "prefillFromGoogle": "ログイン（Google）の情報を表示しています。保存前に編集できます。",
+      "editProfile": "プロフィールを編集",
+      "cancelEdit": "キャンセル",
+      "notSet": "未設定",
+      "profileVisible": "講師一覧に表示中",
+      "profileHidden": "講師一覧で非表示",
+      "emptyProfileHint": "プロフィールが未入力です。自己紹介と経歴を追加すると、受講生が予約前にあなたのことを知ることができます。"
     },
     "schedulePage": {
       "title": "スケジュール",
@@ -382,11 +388,8 @@
       "syncedSmartNotesRefsLabel": "同期済みスマートノート参照 ID",
       "syncedRecordingRefsLabel": "同期済み録画参照 ID",
       "lessonNotesEmptyStudent": "このレッスンにはまだメモがありません。",
-      "completedLessonsViewToggle": "表示形式",
-      "completedLessonsViewCards": "カード",
-      "completedLessonsViewList": "リスト",
-      "completedLessonsSortHint": "受講生名順、同一受講生では新しい日時が上です。",
-      "completedLessonsHasNotes": "メモまたはリンクあり"
+      "completedLessonsHasNotes": "メモまたはリンクあり",
+      "completedLessonsCount": "{count}件"
     },
     "lessonDetail": {
       "backToSchedule": "スケジュールに戻る",

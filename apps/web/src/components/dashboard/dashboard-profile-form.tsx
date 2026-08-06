@@ -7,6 +7,9 @@ import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { StudentBioMdxEditor } from "@/components/dashboard/student-bio-mdx-editor";
 import { STUDENT_SHORT_BIO_MAX_CHARS } from "@/lib/student-short-bio";
 import { FormStatus } from "@/components/ui/form-status";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
 
 type Props = {
   /** When display name was suggested because profile name was empty */
@@ -54,14 +57,6 @@ export function DashboardProfileForm({
         ? new URLSearchParams(window.location.search).get("onboardingNext")
         : null;
     const redirectTarget = postSaveRedirect ?? qsRedirect;
-    if (typeof window !== "undefined") {
-      console.info("[onboarding][student-profile-save]", {
-        currentUrl: window.location.href,
-        postSaveRedirect,
-        qsRedirect,
-        redirectTarget,
-      });
-    }
     if (redirectTarget) {
       try {
         router.push(decodeURIComponent(redirectTarget) as "/onboarding/next");
@@ -74,41 +69,27 @@ export function DashboardProfileForm({
     setTimeout(() => setStatus("idle"), 2000);
   }
 
-  const display = name.trim() || "—";
-  const initial = display.slice(0, 2).toUpperCase();
-
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="flex items-start gap-4">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-foreground/5">
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <span className="flex h-full w-full items-center justify-center text-lg font-semibold text-muted">
-              {initial}
-            </span>
-          )}
-        </div>
+        <Avatar src={avatarUrl} name={name} size="lg" />
         <p className="text-sm text-muted">{t("avatarHelp")}</p>
       </div>
 
-      <div>
-        <label htmlFor="student-name" className="block text-sm font-medium text-foreground">
-          {t("displayName")}
-        </label>
-        {showGooglePrefillHint ? (
-          <p className="mt-0.5 text-xs text-muted">{t("prefillFromGoogle")}</p>
-        ) : null}
-        <input
-          id="student-name"
-          name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          maxLength={100}
-          className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
-        />
-      </div>
+      <Field
+        label={t("displayName")}
+        hint={showGooglePrefillHint ? t("prefillFromGoogle") : null}
+      >
+        {(control) => (
+          <Input
+            {...control}
+            name="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={100}
+          />
+        )}
+      </Field>
 
       <div>
         <span id="student-short-bio-label" className="block text-sm font-medium text-foreground">
@@ -156,13 +137,9 @@ export function DashboardProfileForm({
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={status === "saving"}
-          className="rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-50"
-        >
-          {status === "saving" ? t("saving") : t("save")}
-        </button>
+        <Button type="submit" loading={status === "saving"}>
+          {t("save")}
+        </Button>
         <FormStatus
           state={status}
           savingLabel={t("saving")}

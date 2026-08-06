@@ -345,7 +345,13 @@
       "teacherPreviewWhenHidden": "Share this link with students on your list — you are hidden from the public teacher list.",
       "teacherMarketplaceHiddenLabel": "Hide my profile from the public teacher list",
       "teacherMarketplaceHiddenHelp": "When enabled, only students you add under “Students” can open your booking page and schedule with you.",
-      "prefillFromGoogle": "Suggested from your sign-in (Google) — you can edit before saving."
+      "prefillFromGoogle": "Suggested from your sign-in (Google) — you can edit before saving.",
+      "editProfile": "Edit profile",
+      "cancelEdit": "Cancel",
+      "notSet": "Not set yet",
+      "profileVisible": "Visible in the teacher list",
+      "profileHidden": "Hidden from the teacher list",
+      "emptyProfileHint": "Your profile is empty. Add a bio and credentials so students know who they are booking."
     },
     "schedulePage": {
       "title": "Schedule",
@@ -382,11 +388,8 @@
       "syncedSmartNotesRefsLabel": "Synced smart notes reference IDs",
       "syncedRecordingRefsLabel": "Synced recording reference IDs",
       "lessonNotesEmptyStudent": "Your teacher has not added notes for this lesson yet.",
-      "completedLessonsViewToggle": "Lesson layout",
-      "completedLessonsViewCards": "Cards",
-      "completedLessonsViewList": "List",
-      "completedLessonsSortHint": "Sorted by student, then newest lesson first.",
-      "completedLessonsHasNotes": "Saved notes or link"
+      "completedLessonsHasNotes": "Saved notes or link",
+      "completedLessonsCount": "{count, plural, one {# lesson} other {# lessons}}"
     },
     "lessonDetail": {
       "backToSchedule": "Back to schedule",
