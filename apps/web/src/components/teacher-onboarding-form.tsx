@@ -15,6 +15,8 @@ import {
   type TeacherOnboardingStep,
 } from "@/lib/teacher-onboarding-steps";
 import { buttonClasses } from "@/components/ui/button";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { Status } from "@/components/ui/status";
 
 const STEP_HREF: Record<TeacherOnboardingStep, "/dashboard/profile" | "/dashboard/settings" | "/dashboard/schedule" | "/dashboard" | "/dashboard/schedule/completed" | "/learn/study"> =
   {
@@ -120,22 +122,26 @@ export function TeacherOnboardingForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium text-muted">
+      {/* Same shared bar as the student wizard, study and placement. */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium tabular-nums text-muted">
           {t("wizardProgress", {
             current: completedCount,
             total: TEACHER_ONBOARDING_STEPS.length,
           })}
         </p>
-        <div
-          className="h-1.5 max-w-[12rem] flex-1 overflow-hidden rounded-full bg-border"
-          aria-hidden
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
+        <ProgressBar
+          percent={progressPct}
+          label={t("wizardProgress", {
+            current: completedCount,
+            total: TEACHER_ONBOARDING_STEPS.length,
+          })}
+          valueText={t("wizardProgress", {
+            current: completedCount,
+            total: TEACHER_ONBOARDING_STEPS.length,
+          })}
+          size="sm"
+        />
       </div>
       <AppCard>
         <ul className="space-y-3">
@@ -186,8 +192,8 @@ export function TeacherOnboardingForm({
         </ul>
       </AppCard>
       {error ? (
-        <p className="text-sm" style={{ color: "var(--app-danger)" }}>
-          {error}
+        <p role="alert">
+          <Status tone="error">{error}</Status>
         </p>
       ) : null}
       <div className="flex flex-col items-start gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">

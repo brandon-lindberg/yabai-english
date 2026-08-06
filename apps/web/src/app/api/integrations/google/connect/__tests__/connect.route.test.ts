@@ -9,6 +9,7 @@ vi.mock("@/auth", () => ({
 }));
 
 import { GET } from "@/app/api/integrations/google/connect/route";
+import { ALL_GOOGLE_SCOPES } from "@/lib/google/integration";
 
 describe("GET /api/integrations/google/connect", () => {
   const oldClientId = process.env.AUTH_GOOGLE_ID;
@@ -28,13 +29,29 @@ describe("GET /api/integrations/google/connect", () => {
     expect(res.status).toBe(401);
   });
 
-  test("redirects to OAuth with selected feature scopes", async () => {
+  test("one connect request asks for every scope", async () => {
     authMock.mockResolvedValue({ user: { id: "u_1" } });
-    const res = await GET(new Request("http://localhost/api/integrations/google/connect?feature=drive"));
+    const res = await GET(new Request("http://localhost/api/integrations/google/connect"));
     expect(res.status).toBe(307);
-    const location = res.headers.get("location") ?? "";
+    const location = decodeURIComponent(res.headers.get("location") ?? "");
     expect(location).toContain("https://accounts.google.com/o/oauth2/v2/auth");
-    expect(decodeURIComponent(location)).toContain("https://www.googleapis.com/auth/drive.file");
+    for (const scope of ALL_GOOGLE_SCOPES) {
+      expect(location).toContain(scope);
+    }
+  });
+
+  test("an older ?feature= link still grants everything", async () => {
+    // Deep links from booking recovery prompts and lesson rows predate the
+    // single connection and are still in the wild.
+    authMock.mockResolvedValue({ user: { id: "u_1" } });
+    const res = await GET(
+      new Request("http://localhost/api/integrations/google/connect?feature=calendar"),
+    );
+    expect(res.status).toBe(307);
+    const location = decodeURIComponent(res.headers.get("location") ?? "");
+    for (const scope of ALL_GOOGLE_SCOPES) {
+      expect(location).toContain(scope);
+    }
   });
 
   afterAll(() => {

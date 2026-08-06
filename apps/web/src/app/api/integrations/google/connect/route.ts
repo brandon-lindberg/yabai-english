@@ -4,8 +4,15 @@ import { auth } from "@/auth";
 import { buildGoogleConnectUrl } from "@/lib/google/oauth-service";
 import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
 
+/*
+  Connecting Google is one action.
+
+  `feature` used to select which scopes to request. It is no longer part of the
+  schema — zod strips unknown keys, so the older `?feature=calendar` links that
+  still exist (the booking calendar recovery prompt, lesson rows) keep working
+  and simply grant everything, which is what their user wanted anyway.
+*/
 const querySchema = z.object({
-  feature: z.enum(["calendar", "drive", "meet"]).default("calendar"),
   returnTo: z.string().optional(),
 });
 
@@ -23,7 +30,6 @@ export async function GET(req: Request) {
 
   const url = buildGoogleConnectUrl(req, {
     userId: session.user.id,
-    feature: parsed.data.feature,
     returnTo: parsed.data.returnTo,
   });
   if (!url) {

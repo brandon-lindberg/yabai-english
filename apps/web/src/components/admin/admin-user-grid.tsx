@@ -389,7 +389,7 @@ export function AdminUserGrid({
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-surface p-3">
+      <div className="border-t border-border pt-4">
         <p className="mb-2 text-xs font-medium text-muted">{t("columnsLabel")}</p>
         <div className="flex flex-wrap gap-3 text-sm">
           {table.getAllLeafColumns().map((col) => {

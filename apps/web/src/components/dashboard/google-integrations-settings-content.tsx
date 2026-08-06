@@ -1,13 +1,14 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { GoogleIdentityStatusCard } from "@/components/integrations/google-identity-status-card";
-import { CalendarIntegrationCard } from "@/components/integrations/calendar-integration-card";
-import { DriveDocsIntegrationCard } from "@/components/integrations/drive-docs-integration-card";
-import { MeetArtifactsIntegrationCard } from "@/components/integrations/meet-artifacts-integration-card";
+import { IntegrationRow } from "@/components/integrations/integration-row";
+import { GoogleIntegrationCardActions } from "@/components/integrations/google-integration-card-actions";
 import { GoogleCalendarEmbed } from "@/components/integrations/google-calendar-embed";
+import { DataList } from "@/components/ui/data-row";
+import { Section } from "@/components/ui/section";
 import { getTranslations } from "next-intl/server";
 import { buildGoogleCalendarEmbedSrc } from "@/lib/google-calendar-embed";
 import { isTeacherCalendarReady } from "@/lib/teacher-calendar-status";
+import { hasAllGoogleScopes } from "@/lib/google/integration";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
@@ -29,9 +30,13 @@ export async function GoogleIntegrationsSettingsContent({ searchParams }: { sear
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
   const locale = await getLocale();
 
-  const [settings, userExtras, teacherLegacy] = await Promise.all([
+  const [settings, account, userExtras, teacherLegacy] = await Promise.all([
     prisma.googleIntegrationSettings.findUnique({
       where: { userId: session.user.id },
+    }),
+    prisma.googleIntegrationAccount.findUnique({
+      where: { userId: session.user.id },
+      select: { grantedScopes: true, revoked: true },
     }),
     prisma.user.findUnique({
       where: { id: session.user.id },
@@ -56,7 +61,21 @@ export async function GoogleIntegrationsSettingsContent({ searchParams }: { sear
         })
       : Boolean(settings?.calendarConnected);
 
-  if (onboardingHref && (googleStatus === "connected" || settings?.calendarConnected || settings?.driveConnected)) {
+  /*
+    Connected at all, and connected with everything, are different questions.
+
+    Users who linked Google under the old per-feature flow hold a partial grant.
+    Rather than migrate their rows, the row below reads the scopes Google
+    actually returned and offers to reconnect — the only thing that can add a
+    missing scope.
+  */
+  const grantedScopes = account && !account.revoked ? account.grantedScopes : [];
+  const googleConnected =
+    grantedScopes.length > 0 ||
+    Boolean(settings?.calendarConnected || settings?.driveConnected || settings?.meetConnected);
+  const googlePartial = googleConnected && !hasAllGoogleScopes(grantedScopes);
+
+  if (onboardingHref && (googleStatus === "connected" || googleConnected)) {
     redirect({ href: onboardingHref as "/onboarding/next", locale });
   }
 
@@ -73,29 +92,57 @@ export async function GoogleIntegrationsSettingsContent({ searchParams }: { sear
 
   return (
     <>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <GoogleIdentityStatusCard email={session.user.email} name={session.user.name} />
-        <CalendarIntegrationCard
-          connected={settings?.calendarConnected ?? false}
-          onboardingNext={onboardingHref}
-          onboardingStep={onboardingStep ?? null}
+      {/* One connection, one row. Connecting Google is a single decision, so it
+          is a single control — not three buttons a teacher has to reason about. */}
+      <DataList>
+        <IntegrationRow
+          name={t("identityName")}
+          description={t("identityDesc", {
+            who: session.user.name || session.user.email || t("googleUser"),
+          })}
         />
-        <DriveDocsIntegrationCard
-          connected={settings?.driveConnected ?? false}
-          onboardingNext={onboardingHref}
-          onboardingStep={onboardingStep ?? null}
+        <IntegrationRow
+          name={t("googleName")}
+          description={
+            googleConnected
+              ? googlePartial
+                ? t("googlePartialDesc")
+                : t("googleConnectedDesc")
+              : t("googleDisconnectedDesc")
+          }
+          connected={googleConnected && !googlePartial}
+          connectedLabel={t("connected")}
+          disconnectedLabel={googleConnected ? t("partiallyConnected") : t("notConnected")}
+          /*
+            Shown only once connected: before that there is nothing to report,
+            and three greyed-out lines would read as three things to do — which
+            is the choice this screen exists to remove.
+          */
+          capabilities={
+            googleConnected
+              ? [
+                  { label: t("capabilityCalendar"), enabled: settings?.calendarConnected ?? false },
+                  { label: t("capabilityDrive"), enabled: settings?.driveConnected ?? false },
+                  { label: t("capabilityMeet"), enabled: settings?.meetConnected ?? false },
+                ]
+              : undefined
+          }
+          actions={
+            <GoogleIntegrationCardActions
+              connected={googleConnected}
+              onboardingNext={onboardingHref}
+              onboardingStep={onboardingStep ?? null}
+            />
+          }
         />
-        <MeetArtifactsIntegrationCard
-          connected={settings?.meetConnected ?? false}
-          onboardingNext={onboardingHref}
-          onboardingStep={onboardingStep ?? null}
-        />
-      </div>
+      </DataList>
 
       {embedSrc ? (
-        <section className="space-y-3">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <h2 className="text-lg font-semibold text-foreground">{t("calendarPreviewTitle")}</h2>
+        <Section
+          title={t("calendarPreviewTitle")}
+          description={t("calendarPreviewHint")}
+          className="mt-10"
+          actions={
             <a
               href="https://calendar.google.com/calendar"
               target="_blank"
@@ -104,10 +151,10 @@ export async function GoogleIntegrationsSettingsContent({ searchParams }: { sear
             >
               {t("openGoogleCalendar")}
             </a>
-          </div>
-          <p className="text-xs text-muted">{t("calendarPreviewHint")}</p>
+          }
+        >
           <GoogleCalendarEmbed src={embedSrc} title={t("calendarPreviewTitle")} />
-        </section>
+        </Section>
       ) : null}
     </>
   );

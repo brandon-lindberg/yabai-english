@@ -4,7 +4,11 @@ import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
-import { buttonClasses } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
+import { InlineAlert } from "@/components/ui/inline-alert";
+import { Section } from "@/components/ui/section";
+import { Status } from "@/components/ui/status";
 
 type Props = {
   hasGoogleOAuth: boolean;
@@ -45,25 +49,19 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">{t("signInTitle")}</h1>
-        <p className="mt-2 text-sm text-muted">{t("signInSubtitle")}</p>
+        <h1 className="text-[clamp(2rem,5vw,3rem)] font-black leading-[0.95] tracking-[-0.04em] text-foreground">
+          {t("signInTitle")}
+        </h1>
+        <p className="mt-3 text-muted">{t("signInSubtitle")}</p>
         {hasGoogleOAuth ? (
           <p className="mt-3 text-sm leading-relaxed text-muted">{t("googleIntro")}</p>
         ) : null}
       </div>
 
       {devEmailSignIn && (
-        <p
-          className="rounded-xl border px-4 py-3 text-sm"
-          style={{
-            borderColor: "var(--app-warn-border)",
-            background: "var(--app-warn-bg)",
-            color: "var(--app-warn-text)",
-          }}
-          role="status"
-        >
+        <InlineAlert variant="warning" role="status">
           {t("devBypassBanner")}
-        </p>
+        </InlineAlert>
       )}
 
       {hasGoogleOAuth && (
@@ -76,7 +74,16 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }
           disabled={googleLoading}
           aria-busy={googleLoading}
           aria-label="Sign in with Google"
-          className="group flex w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-[#1f1f1f] transition duration-150 ease-out hover:-translate-y-0.5 hover:border-[#cbd5e1] hover:bg-[#f8f9fa] hover: active:translate-y-0 active:scale-[0.99] active: focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75"
+          /*
+            Google's button keeps its own light chrome in both themes — it is
+            their brand mark and must stay legible against it, so the ink here
+            is deliberately fixed rather than themed.
+
+            The class list previously contained a bare `hover:` and `active:`,
+            left behind when the shadows were stripped. Tailwind emits nothing
+            for a variant with no utility, so they were silently dead.
+          */
+          className="group flex min-h-12 w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-[#dadce0] bg-white px-4 py-3 text-sm font-semibold text-[#1f1f1f] transition duration-150 ease-out hover:bg-[#f8f9fa] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 motion-reduce:transition-none"
         >
           {googleLoading ? (
             <span
@@ -112,63 +119,38 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }
       )}
 
       {!hasGoogleOAuth && !devEmailSignIn && (
-        <div
-          className="rounded-xl border px-3 py-2 text-sm"
-          role="alert"
-          style={{
-            borderColor: "var(--app-danger)",
-            color: "var(--app-danger)",
-            background: "var(--app-warn-bg)",
-          }}
-        >
-          {t("misconfigured")}
-        </div>
+        <p role="alert">
+          <Status tone="error">{t("misconfigured")}</Status>
+        </p>
       )}
 
       {devEmailSignIn && (
-        <div className="border-t border-border pt-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">
-            {t("devSectionLabel")}
-          </p>
+        /* `devSectionLabel` was an uppercase tracked line above the form — an
+           eyebrow. It is the section's heading, so it is one. */
+        <Section title={t("devSectionLabel")} size="sm">
           <form onSubmit={onDevSubmit} className="space-y-4">
-            <p
-              className="rounded-lg border px-3 py-2 text-xs"
-              style={{
-                borderColor: "var(--app-warn-border)",
-                background: "var(--app-warn-bg)",
-                color: "var(--app-warn-text)",
-              }}
-            >
-              {t("devOnlyHint")}{" "}
-              <span className="font-mono">{t("devSeedTeacherEmail")}</span>
-            </p>
-            <label className="block text-sm font-medium text-foreground">
-              {t("email")}
-              <input
-                type="email"
-                name="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2 text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                placeholder="you@example.com"
-              />
-            </label>
-            {error && (
-              <p className="text-sm" style={{ color: "var(--app-danger)" }} role="alert">
-                {error}
-              </p>
-            )}
-            <button
-              type="submit"
-              disabled={loading}
-              className={buttonClasses({ size: "lg", fullWidth: true })}
-            >
-              {loading ? "…" : t("signInWithEmail")}
-            </button>
+            <InlineAlert variant="warning">
+              {t("devOnlyHint")} <span className="font-mono">{t("devSeedTeacherEmail")}</span>
+            </InlineAlert>
+            <Field label={t("email")} error={error}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                />
+              )}
+            </Field>
+            <Button type="submit" size="lg" fullWidth loading={loading}>
+              {t("signInWithEmail")}
+            </Button>
           </form>
-        </div>
+        </Section>
       )}
 
       <p className="text-center">

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { Section } from "@/components/ui/section";
 
 const legalLinkClassName =
   "font-medium text-link underline-offset-4 hover:underline";
@@ -10,45 +11,39 @@ export function TeacherMarketplaceEconomicsNotice() {
   const t = useTranslations("dashboard.settingsPage.marketplaceEconomics");
 
   return (
-    <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
-      <div>
-        <h3 className="text-base font-semibold text-foreground">{t("title")}</h3>
-        <p className="mt-1 text-sm text-muted">{t("intro")}</p>
-      </div>
-
-      <div>
-        <h4 className="text-sm font-semibold text-foreground">{t("tierTitle")}</h4>
-        <p className="mt-1 text-sm text-muted">{t("tierIntro")}</p>
-        <div className="mt-3 overflow-x-auto">
+    <Section title={t("title")} description={t("intro")}>
+      <Section title={t("tierTitle")} description={t("tierIntro")} size="sm" ruled={false}>
+        <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
-                <th className="py-2 pr-4 font-semibold">{t("tierColumn")}</th>
-                <th className="py-2 font-semibold">{t("feeColumn")}</th>
+              {/* Was an uppercase tracked header row — an eyebrow by another
+                  name. A table header is already a header; weight says so. */}
+              <tr className="border-b border-border text-sm text-muted">
+                <th scope="col" className="py-2 pr-6 font-semibold">
+                  {t("tierColumn")}
+                </th>
+                <th scope="col" className="py-2 font-semibold">
+                  {t("feeColumn")}
+                </th>
               </tr>
             </thead>
             <tbody className="text-foreground">
-              <tr className="border-b border-border">
-                <td className="py-2 pr-4 font-medium">Tier 1</td>
-                <td className="py-2">{t("tier1Schedule")}</td>
-              </tr>
-              <tr className="border-b border-border">
-                <td className="py-2 pr-4 font-medium">Tier 2</td>
-                <td className="py-2">{t("tier2Schedule")}</td>
-              </tr>
-              <tr>
-                <td className="py-2 pr-4 font-medium">Tier 3</td>
-                <td className="py-2">{t("tier3Schedule")}</td>
-              </tr>
+              {(["tier1Schedule", "tier2Schedule", "tier3Schedule"] as const).map((key, i) => (
+                <tr key={key} className="border-b border-border">
+                  <th scope="row" className="py-2.5 pr-6 text-left font-bold">
+                    Tier {i + 1}
+                  </th>
+                  <td className="py-2.5">{t(key)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-xs text-muted">{t("tierReviewNote")}</p>
-      </div>
+        <p className="mt-3 text-sm text-muted">{t("tierReviewNote")}</p>
+      </Section>
 
-      <div>
-        <h4 className="text-sm font-semibold text-foreground">{t("refundTitle")}</h4>
-        <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted">
+      <Section title={t("refundTitle")} size="sm" className="mt-8">
+        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted">
           <li>{t("refundPlatformFee")}</li>
           <li>{t("refundTeacherDefault")}</li>
           <li>{t("refundPassThrough")}</li>
@@ -75,7 +70,7 @@ export function TeacherMarketplaceEconomicsNotice() {
           </Link>
           {t("refundDocsSuffix")}
         </p>
-      </div>
-    </section>
+      </Section>
+    </Section>
   );
 }

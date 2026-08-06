@@ -35,6 +35,19 @@ function controlClasses(invalid: boolean, className: string) {
     .join(" ");
 }
 
+/**
+ * The control look, for the few places that cannot use `Input`/`Select` —
+ * a control inside a table cell, or one whose label is supplied by a column
+ * header rather than a `Field`.
+ *
+ * Six components had each declared their own `inputCn` string, all subtly
+ * different and all drifting from the primitives. Prefer `Field` + `Input`;
+ * reach for this only when there is genuinely no label to attach.
+ */
+export function controlClass(className = "") {
+  return controlClasses(false, className);
+}
+
 type FieldProps = {
   label: string;
   /** Rendered below the control unless an error replaces it. */

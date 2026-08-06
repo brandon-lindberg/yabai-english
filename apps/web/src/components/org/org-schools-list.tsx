@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
 import { buttonClasses } from "@/components/ui/button";
+import { controlClass } from "@/components/ui/field";
 
 function normalizeSlugInput(raw: string): string {
   return raw
@@ -73,9 +74,6 @@ export function OrgSchoolsList({ orgId }: Props) {
     setSaving(false);
   }
 
-  const inputCn =
-    "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
-
   return (
     <div>
       <div className="mb-4 flex justify-end">
@@ -98,7 +96,7 @@ export function OrgSchoolsList({ orgId }: Props) {
                 {t("schoolName")}
               </label>
               <input
-                className={inputCn}
+                className={controlClass()}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t("schoolNamePlaceholder")}
@@ -110,7 +108,7 @@ export function OrgSchoolsList({ orgId }: Props) {
                 {t("schoolSlug")}
               </label>
               <input
-                className={inputCn}
+                className={controlClass()}
                 value={slug}
                 onChange={(e) => setSlug(normalizeSlugInput(e.target.value))}
                 onBlur={() => setSlug((s) => finalizeSlug(s))}
@@ -152,7 +150,7 @@ export function OrgSchoolsList({ orgId }: Props) {
       {schools.length === 0 ? (
         <p className="text-sm text-muted">{t("noSchools")}</p>
       ) : (
-        <div className="divide-y divide-border rounded-xl border border-border bg-surface">
+        <div className="divide-y divide-border border-y border-border">
           {schools.map((school) => (
             <Link
               key={school.id}

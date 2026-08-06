@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
 import { buttonClasses } from "@/components/ui/button";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { Status } from "@/components/ui/status";
 
 const GOALS = [
   { id: "conversation", labelKey: "goalConversation" },
@@ -110,19 +112,20 @@ export function OnboardingForm({ initialTimezone }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium text-muted">
+      {/* Was a hand-built bar marked `aria-hidden`, so the only progress signal
+          a screen reader got was the text beside it. `ProgressBar` carries the
+          value properly, and is the same bar the study and placement screens
+          use. */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium tabular-nums text-muted">
           {t("wizardProgress", { current: step + 1, total: STEP_COUNT })}
         </p>
-        <div
-          className="h-1.5 max-w-[10rem] flex-1 overflow-hidden rounded-full bg-border"
-          aria-hidden
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300"
-            style={{ width: `${((step + 1) / STEP_COUNT) * 100}%` }}
-          />
-        </div>
+        <ProgressBar
+          percent={((step + 1) / STEP_COUNT) * 100}
+          label={t("wizardProgress", { current: step + 1, total: STEP_COUNT })}
+          valueText={t("wizardProgress", { current: step + 1, total: STEP_COUNT })}
+          size="sm"
+        />
       </div>
 
       <AppCard>
@@ -262,9 +265,9 @@ export function OnboardingForm({ initialTimezone }: Props) {
         ) : null}
 
         {error ? (
-          <p className="mt-4 text-sm" style={{ color: "var(--app-danger)" }}>
-            {error}
-          </p>
+          <p role="alert">
+          <Status tone="error">{error}</Status>
+        </p>
         ) : null}
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3">

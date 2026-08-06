@@ -80,7 +80,7 @@ export function AdminTeacherTiersView({ rows }: Props) {
 
   return (
     <div className="space-y-3">
-      <section className="rounded-xl border border-border bg-surface p-4">
+      <section className="border-t border-border pt-6">
         <h2 className="font-semibold text-foreground">Legacy student rate override</h2>
         <p className="mt-1 text-sm text-muted">
           SUPER_ADMIN-only. Use this for student-specific rates below the public ¥3,000 minimum.
@@ -142,7 +142,7 @@ export function AdminTeacherTiersView({ rows }: Props) {
         </button>
       </section>
       {rows.map((row) => (
-        <section key={row.teacherId} className="rounded-xl border border-border bg-surface p-4">
+        <section key={row.teacherId} className="border-t border-border pt-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="font-semibold text-foreground">{row.name}</h2>

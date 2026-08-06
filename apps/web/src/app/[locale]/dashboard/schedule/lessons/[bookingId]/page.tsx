@@ -156,7 +156,7 @@ export default async function LessonDetailPage({
                 startsAt: booking.startsAt,
                 endsAt: booking.endsAt,
               })}
-              connectHref={`/api/integrations/google/connect?feature=calendar&returnTo=${encodeURIComponent(
+              connectHref={`/api/integrations/google/connect?returnTo=${encodeURIComponent(
                 `/dashboard/schedule/lessons/${booking.id}`,
               )}`}
               canRetryInvite={isTeacher || isAdmin}

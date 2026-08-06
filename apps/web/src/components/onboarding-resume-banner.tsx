@@ -12,7 +12,7 @@ export async function OnboardingResumeBanner({
   if (!href) return null;
   const t = await getTranslations("onboarding");
   return (
-    <div className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-6 flex flex-col gap-3 border-y border-border py-3 sm:flex-row sm:items-center sm:justify-between">
       <p className="min-w-0 text-sm text-foreground">
         {t("resumeHint")}{" "}
         <Link

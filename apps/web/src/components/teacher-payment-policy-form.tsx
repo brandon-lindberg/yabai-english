@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 import { buttonClasses } from "@/components/ui/button";
+import { Status } from "@/components/ui/status";
 
 type Props = {
   acceptedAt: string | null;
@@ -43,15 +44,15 @@ export function TeacherPaymentPolicyForm({ acceptedAt }: Props) {
   }
 
   return (
-    <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
+    <section className="space-y-3 border-t border-border pt-6">
       <div>
         <h2 className="text-base font-semibold text-foreground">{t("paymentPolicyTitle")}</h2>
         <p className="mt-1 text-sm text-muted">{t("paymentPolicyIntro")}</p>
       </div>
       <PaymentPolicyNotice audience="teacher" />
       {error ? (
-        <p className="text-sm" style={{ color: "var(--app-danger)" }}>
-          {error}
+        <p role="alert">
+          <Status tone="error">{error}</Status>
         </p>
       ) : null}
       {accepted ? (

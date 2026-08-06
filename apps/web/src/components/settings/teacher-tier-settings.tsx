@@ -1,4 +1,11 @@
+"use client";
+
+import { useFormatter, useTranslations } from "next-intl";
 import type { TeacherPlatformTier } from "@/generated/prisma/client";
+import { DataList, DataRow } from "@/components/ui/data-row";
+import { Section } from "@/components/ui/section";
+import { StatLedger } from "@/components/ui/stat-ledger";
+import { Status } from "@/components/ui/status";
 
 type TierSource = "CALCULATED" | "OVERRIDE";
 
@@ -23,28 +30,24 @@ type Props = {
   evaluations: TeacherTierSettingsEvaluation[];
 };
 
-const TIER_META: Record<TeacherPlatformTier, { label: string; className: string; schedule: string }> = {
-  TIER_1: {
-    label: "Tier 1",
-    className: "border-border bg-[var(--app-hover)] text-foreground",
-    schedule: "Lessons 1-5: 20%, 6-10: 15%, 11+: 10%",
-  },
-  TIER_2: {
-    label: "Tier 2",
-    className: "border-border bg-[var(--app-hover)] text-foreground",
-    schedule: "Lessons 1-10: 15%, 11+: 10%",
-  },
-  TIER_3: {
-    label: "Tier 3",
-    className: "border-border bg-[var(--app-hover)] text-foreground",
-    schedule: "Flat 10%",
-  },
+const TIER_LABEL: Record<TeacherPlatformTier, string> = {
+  TIER_1: "Tier 1",
+  TIER_2: "Tier 2",
+  TIER_3: "Tier 3",
 };
 
-function formatDate(value: string | null) {
-  if (!value) return "Not started";
-  return new Date(value).toLocaleDateString();
-}
+/**
+ * The fee schedule per tier is already written, and translated, in the
+ * marketplace economics notice. It is the same fact, so it is read from the
+ * same keys rather than restated here in English — which is what this
+ * component used to do, in a `TIER_META` table whose three `className` entries
+ * were also identical to each other.
+ */
+const TIER_SCHEDULE_KEY: Record<TeacherPlatformTier, "tier1Schedule" | "tier2Schedule" | "tier3Schedule"> = {
+  TIER_1: "tier1Schedule",
+  TIER_2: "tier2Schedule",
+  TIER_3: "tier3Schedule",
+};
 
 export function TeacherTierSettings({
   calculatedTier,
@@ -56,75 +59,86 @@ export function TeacherTierSettings({
   overrideExpiresAt,
   evaluations,
 }: Props) {
-  const meta = TIER_META[effectiveTier];
-  return (
-    <section className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">Platform tier</h2>
-        <p className="mt-1 text-sm text-muted">
-          Your tier controls the platform fee for future paid lessons.
-        </p>
-      </div>
+  const t = useTranslations("dashboard.settingsPage.tierSettings");
+  const te = useTranslations("dashboard.settingsPage.marketplaceEconomics");
+  const format = useFormatter();
 
-      <section className={`rounded-xl border p-4 ${meta.className}`}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide">Current tier</p>
-            <h3 className="mt-1 text-2xl font-bold">{meta.label}</h3>
-          </div>
-          <div className="rounded-full border border-current px-3 py-1 text-xs font-semibold">
-            {source === "OVERRIDE" ? "Admin override" : "Calculated"}
-          </div>
-        </div>
-        <p className="mt-3 text-sm">{meta.schedule}</p>
+  // Was `new Date(value).toLocaleDateString()` with no locale — the server and
+  // the browser could disagree, and a Japanese reader got US formatting.
+  const formatDate = (value: string | null) =>
+    value ? format.dateTime(new Date(value), { dateStyle: "medium" }) : t("notStarted");
+
+  return (
+    <Section title={t("title")} description={t("intro")} size="lg" ruled={false}>
+      {/* The tier is the answer this page exists to give, so it carries itself
+          at figure scale. It used to sit under an uppercase "CURRENT TIER"
+          eyebrow inside a tinted box. */}
+      <div className="border-y border-border py-6">
+        <p className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="text-[clamp(2rem,6vw,3rem)] font-black leading-none tracking-[-0.04em] text-foreground">
+            {TIER_LABEL[effectiveTier]}
+          </span>
+          <Status tone={source === "OVERRIDE" ? "warn" : "settled"}>
+            {source === "OVERRIDE" ? t("sourceOverride") : t("sourceCalculated")}
+          </Status>
+        </p>
+        <p className="mt-3 text-sm text-muted">{t("currentTier")}</p>
+        <p className="mt-3 max-w-[62ch] leading-relaxed text-foreground">
+          {te(TIER_SCHEDULE_KEY[effectiveTier])}
+        </p>
         {source === "OVERRIDE" ? (
-          <p className="mt-2 text-xs">
-            Override expiry: {overrideExpiresAt ? formatDate(overrideExpiresAt) : "No expiry"}
+          <p className="mt-2 text-sm text-muted">
+            {overrideExpiresAt
+              ? t("overrideExpiry", { date: formatDate(overrideExpiresAt) })
+              : t("overrideNoExpiry")}
           </p>
         ) : null}
-      </section>
-
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-xs text-muted">Calculated tier</p>
-          <p className="mt-1 font-semibold text-foreground">{TIER_META[calculatedTier].label}</p>
-        </div>
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-xs text-muted">Tier clock started</p>
-          <p className="mt-1 font-semibold text-foreground">{formatDate(firstPaidLessonAt)}</p>
-        </div>
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-xs text-muted">Next review</p>
-          <p className="mt-1 font-semibold text-foreground">
-            {formatDate(nextQuarterlyReviewAt)}
-          </p>
-          <p className="mt-1 text-xs text-muted">Annual: {formatDate(nextAnnualReviewAt)}</p>
-        </div>
       </div>
 
-      <section className="rounded-xl border border-border bg-surface p-4">
-        <h3 className="text-base font-semibold text-foreground">Recent evaluations</h3>
+      {/* Three equal bordered boxes with a label above a value is the stat-card
+          template the ledger exists to replace. */}
+      <StatLedger
+        size="sm"
+        className="mt-8"
+        stats={[
+          { label: t("calculatedTier"), value: TIER_LABEL[calculatedTier] },
+          { label: t("clockStarted"), value: formatDate(firstPaidLessonAt) },
+          { label: t("nextReview"), value: formatDate(nextQuarterlyReviewAt) },
+        ]}
+      />
+      <p className="mt-2 text-sm text-muted">
+        {t("annualReview", { date: formatDate(nextAnnualReviewAt) })}
+      </p>
+
+      <Section title={t("evaluationsTitle")} className="mt-10">
         {evaluations.length === 0 ? (
-          <p className="mt-2 text-sm text-muted">
-            No tier evaluations yet. The first review happens after three paid-lesson months.
-          </p>
+          <p className="border-y border-border py-6 text-sm text-muted">{t("evaluationsEmpty")}</p>
         ) : (
-          <div className="mt-3 divide-y divide-border text-sm">
+          <DataList>
             {evaluations.map((evaluation) => (
-              <div key={evaluation.id} className="grid gap-2 py-3 sm:grid-cols-4">
-                <p className="font-medium text-foreground">{evaluation.kind}</p>
-                <p className="text-muted">
-                  {formatDate(evaluation.periodStart)} - {formatDate(evaluation.periodEnd)}
+              <DataRow
+                key={evaluation.id}
+                actions={
+                  <span className="text-right">
+                    <span className="block text-sm font-semibold text-foreground">
+                      {t("evaluationRecommends", {
+                        tier: TIER_LABEL[evaluation.recommendedTier],
+                      })}
+                    </span>
+                    <span className="mt-0.5 block text-sm text-muted">{evaluation.status}</span>
+                  </span>
+                }
+              >
+                <p className="font-semibold text-foreground">{evaluation.kind}</p>
+                <p className="mt-0.5 text-sm tabular-nums text-muted">
+                  {formatDate(evaluation.periodStart)} – {formatDate(evaluation.periodEnd)} ·{" "}
+                  {t("evaluationAverage", { count: evaluation.averageLessons.toFixed(1) })}
                 </p>
-                <p className="text-muted">Average {evaluation.averageLessons.toFixed(1)}</p>
-                <p className="text-muted">
-                  {TIER_META[evaluation.recommendedTier].label} / {evaluation.status}
-                </p>
-              </div>
+              </DataRow>
             ))}
-          </div>
+          </DataList>
         )}
-      </section>
-    </section>
+      </Section>
+    </Section>
   );
 }

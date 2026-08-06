@@ -473,10 +473,26 @@
     },
     "integrationsPage": {
       "title": "Google connections",
-      "intro": "Connect only what you need. Calendar is used for Meet links; Drive and Meet artifacts are optional for lesson materials.",
+      "intro": "Connect your Google account once. English Studio then creates Calendar events with Meet links for your lessons, and can sync lesson notes and meeting recaps to your own Drive.",
       "calendarPreviewTitle": "Your calendar",
       "calendarPreviewHint": "This preview uses Google’s embed. If it looks empty, open Google Calendar → Settings for your calendar → Access permissions and allow embedding, or open your calendar in a new tab.",
-      "openGoogleCalendar": "Open Google Calendar"
+      "openGoogleCalendar": "Open Google Calendar",
+      "identityName": "Google identity",
+      "identityDesc": "Signed in as {who}. Base sign-in uses identity scopes only (openid, email, profile).",
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "connect": "Connect",
+      "reconnect": "Reconnect",
+      "disconnect": "Disconnect",
+      "googleUser": "Google user",
+      "googleName": "Google",
+      "googleConnectedDesc": "Connected. Lessons create Calendar events with Meet links, and lesson notes and recaps can sync to your Drive.",
+      "googleDisconnectedDesc": "Connect once to create Calendar events with Meet links, and to sync lesson notes and meeting recaps to your own Drive.",
+      "googlePartialDesc": "Connected, with some permissions not granted. Anything switched off below stays off until you reconnect and allow it.",
+      "partiallyConnected": "Partly connected",
+      "capabilityCalendar": "Calendar events and Meet links",
+      "capabilityDrive": "Lesson notes in Drive",
+      "capabilityMeet": "Meeting recaps and recordings"
     },
     "settingsPage": {
       "title": "Settings",
@@ -573,6 +589,24 @@
         "refundDocsJoiner": "and the",
         "refundDocsRefundLink": "Teacher Refund Policy",
         "refundDocsSuffix": "."
+      },
+      "tierSettings": {
+        "title": "Platform tier",
+        "intro": "Your tier controls the platform fee for future paid lessons.",
+        "currentTier": "Current tier",
+        "sourceOverride": "Admin override",
+        "sourceCalculated": "Calculated",
+        "overrideExpiry": "Override expires {date}",
+        "overrideNoExpiry": "Override does not expire",
+        "calculatedTier": "Calculated tier",
+        "clockStarted": "Tier clock started",
+        "nextReview": "Next review",
+        "annualReview": "Annual review {date}",
+        "notStarted": "Not started",
+        "evaluationsTitle": "Recent evaluations",
+        "evaluationsEmpty": "No tier evaluations yet. The first review happens after three paid-lesson months.",
+        "evaluationAverage": "Average {count} lessons",
+        "evaluationRecommends": "Recommends {tier}"
       }
     },
     "teacherHome": {
@@ -1342,7 +1376,16 @@
         "pendingApplications": "{count} pending",
         "approve": "Approve",
         "deny": "Deny",
-        "noApplications": "No pending applications."
+        "noApplications": "No pending applications.",
+        "inviteTitle": "Invite to this school",
+        "inviteEmail": "Email address",
+        "inviteEmailPlaceholder": "teacher@example.com",
+        "inviteRole": "Role",
+        "send": "Send invite",
+        "sending": "Sending…",
+        "cancel": "Cancel",
+        "inviteError": "Could not send that invite.",
+        "inviteSent": "Invite sent."
       },
       "pricingPage": {
         "title": "Pricing",
@@ -1452,6 +1495,19 @@
       "invalid": "This invitation link is invalid.",
       "alreadyUsed": "This invitation has already been used.",
       "expired": "This invitation has expired."
+    },
+    "roles": {
+      "OWNER": "Owner",
+      "ORG_ADMIN": "Org admin",
+      "SCHOOL_ADMIN": "School admin",
+      "TEACHER": "Teacher",
+      "STUDENT": "Student"
+    },
+    "memberStatus": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "INVITED": "Invited",
+      "PENDING_APPROVAL": "Awaiting approval"
     }
   }
 }

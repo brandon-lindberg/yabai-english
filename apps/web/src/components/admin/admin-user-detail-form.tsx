@@ -218,7 +218,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
         aria-label={t("loading")}
         data-testid="admin-user-detail-loading"
       >
-        <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
+        <section className="space-y-4 border-t border-border pt-6">
           <Skeleton height="6" width="1/3" />
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="space-y-2">
@@ -229,7 +229,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
             </div>
           ))}
         </section>
-        <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
+        <section className="space-y-4 border-t border-border pt-6">
           <Skeleton height="6" width="1/3" />
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="space-y-2">
@@ -256,7 +256,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
       {error ? <p className="text-sm text-[var(--app-warning-text)]">{error}</p> : null}
       {statusMsg ? <p className="text-sm text-muted">{statusMsg}</p> : null}
 
-      <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
+      <section className="space-y-4 border-t border-border pt-6">
         <h2 className="text-lg font-semibold text-foreground">{t("sectionUser")}</h2>
         <label className="block text-sm">
           <span className="text-muted">{t("name")}</span>
@@ -314,7 +314,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
       </section>
 
       {role === Role.STUDENT ? (
-        <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
+        <section className="space-y-4 border-t border-border pt-6">
           <h2 className="text-lg font-semibold text-foreground">{t("sectionStudent")}</h2>
           <label className="block text-sm">
             <span className="text-muted">{t("timezone")}</span>
@@ -384,7 +384,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
       ) : null}
 
       {role === Role.TEACHER ? (
-        <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
+        <section className="space-y-4 border-t border-border pt-6">
           <h2 className="text-lg font-semibold text-foreground">{t("sectionTeacher")}</h2>
           <label className="block text-sm">
             <span className="text-muted">{t("displayName")}</span>

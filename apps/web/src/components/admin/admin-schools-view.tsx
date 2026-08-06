@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Field, Input, controlClass } from "@/components/ui/field";
 
 function normalizeSlugInput(raw: string): string {
   return raw
@@ -114,20 +115,20 @@ function CreateOrgForm({ onCreated }: { onCreated: () => void }) {
   return (
     <form
       onSubmit={submit}
-      className="rounded-xl border border-border bg-surface p-4"
+      className="border-t border-border pt-6"
     >
       <h2 className="text-lg font-semibold text-foreground">{t("createTitle")}</h2>
       <p className="mt-1 text-xs text-muted">{t("createHelp")}</p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Field label={t("orgName")} value={name} onChange={setName} required />
-        <Field label={t("orgSlug")} value={slug} onChange={setSlug} required slug />
-        <Field
+        <AdminField label={t("orgName")} value={name} onChange={setName} required />
+        <AdminField label={t("orgSlug")} value={slug} onChange={setSlug} required slug />
+        <AdminField
           label={t("schoolName")}
           value={schoolName}
           onChange={setSchoolName}
           required
         />
-        <Field
+        <AdminField
           label={t("schoolSlugOptional")}
           value={schoolSlug}
           onChange={setSchoolSlug}
@@ -189,7 +190,7 @@ function OrgCard({
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4">
+    <section className="border-t border-border pt-6">
       <header className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 className="text-lg font-semibold text-foreground">{org.name}</h2>
@@ -337,8 +338,8 @@ function AddSchoolForm({
   return (
     <form onSubmit={submit} className="mt-3 space-y-2 rounded-lg border border-dashed border-border p-3">
       <p className="text-xs font-semibold text-muted">{t("addSchoolTitle")}</p>
-      <Field label={t("schoolName")} value={name} onChange={setName} required compact />
-      <Field label={t("schoolSlugOptional")} value={slug} onChange={setSlug} compact slug />
+      <AdminField label={t("schoolName")} value={name} onChange={setName} required />
+      <AdminField label={t("schoolSlugOptional")} value={slug} onChange={setSlug} slug />
       {error && <p className="text-xs text-[var(--app-danger)]">{error}</p>}
       <button
         type="submit"
@@ -400,7 +401,6 @@ function AssignRoleForm({
         value={email}
         onChange={setEmail}
         required
-        compact
       />
       <div>
         <label className="block text-xs font-medium text-muted">{t("role")}</label>
@@ -446,14 +446,21 @@ function AssignRoleForm({
   );
 }
 
-function Field({
+/**
+ * A text field that also knows about slugs.
+ *
+ * This was called `Field` and shadowed `ui/field`'s `Field` inside this file —
+ * two components, one name, different APIs. It now builds on the shared
+ * primitives and keeps only what is genuinely its own: slug normalisation on
+ * change, finalisation on blur, and the preview/error that go with them.
+ */
+function AdminField({
   label,
   value,
   onChange,
   type = "text",
   required,
   fullWidth,
-  compact,
   slug,
 }: {
   label: string;
@@ -462,41 +469,34 @@ function Field({
   type?: string;
   required?: boolean;
   fullWidth?: boolean;
-  compact?: boolean;
   slug?: boolean;
 }) {
   const t = useTranslations("admin.schoolsPage");
   const finalized = slug ? finalizeSlug(value) : value;
   const showPreview = slug && value.length > 0 && finalized !== value;
   const showEmptyError = slug && required && value.length > 0 && finalized.length === 0;
+
   return (
-    <div className={fullWidth ? "sm:col-span-2" : undefined}>
-      <label className="block text-xs font-medium text-muted">{label}</label>
-      <input
-        type={type}
-        required={required}
-        value={value}
-        onChange={(e) =>
-          onChange(slug ? normalizeSlugInput(e.target.value) : e.target.value)
-        }
-        onBlur={() => {
-          if (slug) onChange(finalizeSlug(value));
-        }}
-        className={`mt-1 w-full rounded-md border border-border bg-background px-2 ${
-          compact ? "py-1 text-sm" : "py-2 text-sm"
-        }`}
-      />
-      {showEmptyError && (
-        <p className="mt-1 text-xs text-[var(--app-danger)]">
-          {t("slugInvalidEmpty")}
-        </p>
+    <Field
+      label={label}
+      required={required}
+      className={fullWidth ? "sm:col-span-2" : undefined}
+      error={showEmptyError ? t("slugInvalidEmpty") : null}
+      hint={showPreview ? `${t("slugPreview")}: ${finalized}` : null}
+    >
+      {(control) => (
+        <Input
+          {...control}
+          type={type}
+          required={required}
+          value={value}
+          onChange={(e) => onChange(slug ? normalizeSlugInput(e.target.value) : e.target.value)}
+          onBlur={() => {
+            if (slug) onChange(finalizeSlug(value));
+          }}
+        />
       )}
-      {showPreview && !showEmptyError && (
-        <p className="mt-1 text-xs text-muted">
-          {t("slugPreview")}: <code className="text-foreground">{finalized}</code>
-        </p>
-      )}
-    </div>
+    </Field>
   );
 }
 
@@ -512,14 +512,12 @@ function UserEmailCombobox({
   onChange,
   required,
   fullWidth,
-  compact,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   required?: boolean;
   fullWidth?: boolean;
-  compact?: boolean;
 }) {
   const t = useTranslations("admin.schoolsPage");
   const [open, setOpen] = useState(false);
@@ -628,9 +626,7 @@ function UserEmailCombobox({
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         autoComplete="off"
-        className={`mt-1 w-full rounded-md border border-border bg-background px-2 ${
-          compact ? "py-1 text-sm" : "py-2 text-sm"
-        }`}
+        className={controlClass()}
       />
       {showDropdown && (
         <ul

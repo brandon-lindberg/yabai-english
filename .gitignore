@@ -26,3 +26,6 @@ PRODUCT.md
 
 # Impeccable working state (hook cache, decision-page sessions)
 .impeccable/
+
+# Redesign checkpoint screenshots (local only)
+.design-screenshots/

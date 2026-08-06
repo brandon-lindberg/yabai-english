@@ -473,10 +473,26 @@
     },
     "integrationsPage": {
       "title": "Google 連携",
-      "intro": "必要なものだけを接続します。Meet リンクにはカレンダーが使われます。Drive や Meet の成果物は教材用の任意連携です。",
+      "intro": "Google アカウントを一度連携するだけです。レッスンの予定を Meet リンク付きで Google カレンダーに作成し、レッスンメモや議事録をご自身の Drive に同期できます。",
       "calendarPreviewTitle": "あなたのカレンダー",
       "calendarPreviewHint": "Google の埋め込み表示です。真っ白な場合は Google カレンダーで該当カレンダーの設定 → アクセス権限から「一般に公開」または埋め込みを許可するか、新しいタブで開いてください。",
-      "openGoogleCalendar": "Google カレンダーを開く"
+      "openGoogleCalendar": "Google カレンダーを開く",
+      "identityName": "Google アカウント",
+      "identityDesc": "{who} としてログイン中。ログインには識別情報のスコープ（openid、email、profile）のみを使用します。",
+      "connected": "連携済み",
+      "notConnected": "未連携",
+      "connect": "連携する",
+      "reconnect": "再連携する",
+      "disconnect": "連携を解除",
+      "googleUser": "Google ユーザー",
+      "googleName": "Google",
+      "googleConnectedDesc": "連携済み。レッスンごとに Meet リンク付きのカレンダー予定を作成し、レッスンメモや議事録を Drive に同期できます。",
+      "googleDisconnectedDesc": "一度連携するだけで、Meet リンク付きのカレンダー予定の作成と、レッスンメモ・議事録の Drive への同期ができます。",
+      "googlePartialDesc": "連携済みですが、一部の権限が許可されていません。下でオフになっている機能は、再連携して許可するまで使用できません。",
+      "partiallyConnected": "一部のみ連携",
+      "capabilityCalendar": "カレンダーの予定と Meet リンク",
+      "capabilityDrive": "Drive 内のレッスンメモ",
+      "capabilityMeet": "ミーティングの記録と録画"
     },
     "settingsPage": {
       "title": "設定",
@@ -573,6 +589,24 @@
         "refundDocsJoiner": "および",
         "refundDocsRefundLink": "講師向け返金ポリシー",
         "refundDocsSuffix": "をご覧ください。"
+      },
+      "tierSettings": {
+        "title": "プラットフォームティア",
+        "intro": "ティアによって、今後の有料レッスンのプラットフォーム手数料が決まります。",
+        "currentTier": "現在のティア",
+        "sourceOverride": "管理者による設定",
+        "sourceCalculated": "自動判定",
+        "overrideExpiry": "{date} に設定が解除されます",
+        "overrideNoExpiry": "設定に期限はありません",
+        "calculatedTier": "自動判定のティア",
+        "clockStarted": "ティア計算の開始日",
+        "nextReview": "次回の見直し",
+        "annualReview": "年次見直し {date}",
+        "notStarted": "未開始",
+        "evaluationsTitle": "最近の見直し",
+        "evaluationsEmpty": "まだ見直しはありません。最初の見直しは有料レッスンが3か月分たまった後に行われます。",
+        "evaluationAverage": "平均 {count} レッスン",
+        "evaluationRecommends": "推奨：{tier}"
       }
     },
     "teacherHome": {
@@ -1342,7 +1376,16 @@
         "pendingApplications": "{count} 件保留中",
         "approve": "承認",
         "deny": "却下",
-        "noApplications": "保留中の申請はありません。"
+        "noApplications": "保留中の申請はありません。",
+        "inviteTitle": "このスクールに招待",
+        "inviteEmail": "メールアドレス",
+        "inviteEmailPlaceholder": "teacher@example.com",
+        "inviteRole": "役割",
+        "send": "招待を送信",
+        "sending": "送信中…",
+        "cancel": "キャンセル",
+        "inviteError": "招待を送信できませんでした。",
+        "inviteSent": "招待を送信しました。"
       },
       "pricingPage": {
         "title": "料金設定",
@@ -1452,6 +1495,19 @@
       "invalid": "招待リンクが無効です。",
       "alreadyUsed": "この招待はすでに使用されています。",
       "expired": "この招待は期限切れです。"
+    },
+    "roles": {
+      "OWNER": "オーナー",
+      "ORG_ADMIN": "組織管理者",
+      "SCHOOL_ADMIN": "スクール管理者",
+      "TEACHER": "講師",
+      "STUDENT": "受講生"
+    },
+    "memberStatus": {
+      "ACTIVE": "有効",
+      "INACTIVE": "無効",
+      "INVITED": "招待済み",
+      "PENDING_APPROVAL": "承認待ち"
     }
   }
 }

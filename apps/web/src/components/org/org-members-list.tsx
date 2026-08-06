@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { AppCard } from "@/components/ui/app-card";
-import { buttonClasses } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { DataList } from "@/components/ui/data-row";
+import { Status } from "@/components/ui/status";
+import { MemberRow } from "@/components/org/member-row";
+import { MemberInviteForm } from "@/components/org/member-invite-form";
+import { ORG_INVITE_ROLES } from "@/lib/org/invite-roles";
 
 type Member = {
   id: string;
@@ -16,59 +20,43 @@ type Member = {
 
 type School = { id: string; name: string };
 
-type Props = { orgId: string };
-
-export function OrgMembersList({ orgId }: Props) {
+export function OrgMembersList({ orgId }: { orgId: string }) {
   const t = useTranslations("org.membersPage");
+  const tr = useTranslations("org.roles");
+  const ts = useTranslations("org.memberStatus");
   const [members, setMembers] = useState<Member[]>([]);
   const [schools, setSchools] = useState<School[]>([]);
   const [showInvite, setShowInvite] = useState(false);
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("TEACHER");
-  const [schoolId, setSchoolId] = useState("");
-  const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
-    fetch(`/api/org/${orgId}/members`)
+    void fetch(`/api/org/${orgId}/members`)
       .then((r) => r.json())
       .then((d) => setMembers(d.members ?? []));
-    fetch(`/api/org/${orgId}/schools`)
+    void fetch(`/api/org/${orgId}/schools`)
       .then((r) => r.json())
       .then((d) => setSchools(d.schools ?? []));
   }, [orgId]);
 
-  async function handleInvite(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setFeedback("");
-
+  async function handleInvite(input: { email: string; role: string; schoolId: string }) {
     const res = await fetch(`/api/org/${orgId}/members`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, orgRole: role, schoolId }),
+      body: JSON.stringify({ email: input.email, orgRole: input.role, schoolId: input.schoolId }),
     });
-
-    if (!res.ok) {
-      setFeedback(t("inviteError"));
-      setSaving(false);
-      return;
-    }
+    if (!res.ok) return false;
 
     const { membership } = await res.json();
     setMembers((prev) => [membership, ...prev]);
     setShowInvite(false);
-    setEmail("");
-    setSaving(false);
     setFeedback(t("inviteSent"));
     setTimeout(() => setFeedback(""), 3000);
+    return true;
   }
 
   async function handleRemove(memberId: string) {
     if (!confirm(t("removeConfirm"))) return;
-    const res = await fetch(`/api/org/${orgId}/members/${memberId}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(`/api/org/${orgId}/members/${memberId}`, { method: "DELETE" });
     if (res.ok) {
       setMembers((prev) => prev.filter((m) => m.id !== memberId));
     } else {
@@ -76,143 +64,64 @@ export function OrgMembersList({ orgId }: Props) {
     }
   }
 
-  const inputCn =
-    "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
-  const selectCn =
-    "rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
-
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        {feedback && (
-          <p className="text-sm text-muted">{feedback}</p>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        {feedback ? (
+          <p role="status">
+            <Status tone="settled">{feedback}</Status>
+          </p>
+        ) : (
+          <span />
         )}
-        <div className="ml-auto">
-          <button
-            onClick={() => setShowInvite(!showInvite)}
-            className={buttonClasses()}
-          >
-            {t("invite")}
-          </button>
-        </div>
+        <Button onClick={() => setShowInvite(!showInvite)}>{t("invite")}</Button>
       </div>
 
-      {showInvite && (
-        <AppCard className="mb-6">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">
-            {t("inviteTitle")}
-          </h3>
-          <form onSubmit={handleInvite} className="space-y-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
-                {t("inviteEmail")}
-              </label>
-              <input
-                type="email"
-                className={inputCn}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t("inviteEmailPlaceholder")}
-                required
-              />
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("inviteRole")}
-                </label>
-                <select className={selectCn} value={role} onChange={(e) => setRole(e.target.value)}>
-                  <option value="SCHOOL_ADMIN">School Admin</option>
-                  <option value="TEACHER">Teacher</option>
-                  <option value="STUDENT">Student</option>
-                </select>
-              </div>
-              <div className="flex-1">
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("inviteSchool")}
-                </label>
-                <select
-                  className={selectCn}
-                  value={schoolId}
-                  onChange={(e) => setSchoolId(e.target.value)}
-                  required
-                >
-                  <option value="">{t("inviteSelectSchool")}</option>
-                  {schools.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className={buttonClasses()}
-              >
-                {saving ? t("sending") : t("send")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowInvite(false)}
-                className={buttonClasses({ variant: "secondary" })}
-              >
-                {t("cancel")}
-              </button>
-            </div>
-          </form>
-        </AppCard>
-      )}
+      {showInvite ? (
+        <MemberInviteForm
+          roles={ORG_INVITE_ROLES.map((role) => ({ value: role, label: tr(role) }))}
+          schools={schools}
+          copy={{
+            title: t("inviteTitle"),
+            email: t("inviteEmail"),
+            emailPlaceholder: t("inviteEmailPlaceholder"),
+            role: t("inviteRole"),
+            school: t("inviteSchool"),
+            selectSchool: t("inviteSelectSchool"),
+            send: t("send"),
+            sending: t("sending"),
+            cancel: t("cancel"),
+            error: t("inviteError"),
+          }}
+          onInvite={handleInvite}
+          onCancel={() => setShowInvite(false)}
+        />
+      ) : null}
 
       {members.length === 0 ? (
-        <p className="text-sm text-muted">{t("noMembers")}</p>
+        <p className="border-y border-border py-6 text-sm text-muted">{t("noMembers")}</p>
       ) : (
-        <div className="divide-y divide-border rounded-xl border border-border bg-surface">
+        <DataList>
           {members.map((m) => (
-            <div
+            <MemberRow
               key={m.id}
-              className="flex items-center justify-between px-4 py-3 text-sm"
-            >
-              <div className="flex items-center gap-3">
-                {m.user.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={m.user.image}
-                    alt=""
-                    className="h-8 w-8 rounded-full"
-                  />
-                ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--app-hover)] text-xs font-medium text-muted">
-                    {(m.user.name ?? m.user.email ?? "?")[0]?.toUpperCase()}
-                  </div>
-                )}
-                <div>
-                  <p className="font-medium text-foreground">
-                    {m.user.name ?? m.user.email}
-                  </p>
-                  <p className="text-xs text-muted">{m.user.email}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs font-medium text-foreground">
-                  {m.orgRole}
-                </span>
-                <span className="text-xs text-muted">
-                  {m.schoolId ? (m as { school?: { name: string } }).school?.name : t("orgWide")}
-                </span>
-                <span className="text-xs text-muted">{m.status}</span>
-                {m.orgRole !== "OWNER" && (
-                  <button
-                    onClick={() => handleRemove(m.id)}
-                    className="text-xs text-[var(--app-danger)] hover:underline"
-                  >
+              name={m.user.name ?? m.user.email ?? ""}
+              email={m.user.email}
+              imageUrl={m.user.image}
+              role={tr(m.orgRole as never)}
+              status={m.status}
+              statusLabel={ts(m.status as never)}
+              meta={m.schoolId ? m.school?.name : t("orgWide")}
+              actions={
+                m.orgRole !== "OWNER" ? (
+                  <Button variant="destructive" size="sm" onClick={() => handleRemove(m.id)}>
                     {t("remove")}
-                  </button>
-                )}
-              </div>
-            </div>
+                  </Button>
+                ) : null
+              }
+            />
           ))}
-        </div>
+        </DataList>
       )}
     </div>
   );

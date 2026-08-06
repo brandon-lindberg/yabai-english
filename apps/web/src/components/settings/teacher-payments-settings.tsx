@@ -16,6 +16,7 @@ import {
 } from "@/lib/payment-methods";
 import { resolveTeacherStripeSetupState } from "@/lib/teacher-stripe-setup";
 import { buttonClasses } from "@/components/ui/button";
+import { Status } from "@/components/ui/status";
 
 type Provider = "STRIPE" | "KOMOJU";
 type AccountStatus = "PENDING" | "ENABLED" | "DISABLED" | "REQUIREMENTS_DUE";
@@ -243,7 +244,7 @@ export function TeacherPaymentsSettings({
         <TeacherPaymentPolicyForm acceptedAt={paymentPolicyAcceptedAt} />
       </div>
 
-      <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
+      <section className="space-y-3 border-t border-border pt-6">
         <div>
           <h3 className="text-base font-semibold text-foreground">{t("paymentsConnectedTitle")}</h3>
           <p className="mt-1 text-sm text-muted">{t("paymentsAvailableToStudents")}</p>
@@ -288,9 +289,9 @@ export function TeacherPaymentsSettings({
         ) : null}
 
         {error ? (
-          <p className="text-sm" style={{ color: "var(--app-danger)" }}>
-            {error}
-          </p>
+          <p role="alert">
+          <Status tone="error">{error}</Status>
+        </p>
         ) : null}
 
         {!stripeConnectEnabled && devPaymentsEnabled && !hasLocalDevStripe ? (
@@ -316,7 +317,7 @@ export function TeacherPaymentsSettings({
         ) : null}
       </section>
 
-      <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
+      <section className="space-y-3 border-t border-border pt-6">
         <div>
           <h3 className="text-base font-semibold text-foreground">{t("refundFeeTitle")}</h3>
           <p className="mt-1 text-sm text-muted">{t("refundFeeIntro")}</p>
@@ -342,9 +343,9 @@ export function TeacherPaymentsSettings({
           </span>
         </label>
         {refundFeeError ? (
-          <p className="text-sm" style={{ color: "var(--app-danger)" }}>
-            {refundFeeError}
-          </p>
+          <p role="alert">
+          <Status tone="error">{refundFeeError}</Status>
+        </p>
         ) : null}
       </section>
     </section>

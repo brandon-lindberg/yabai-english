@@ -10,7 +10,7 @@ type Props = {
  */
 export function GoogleCalendarEmbed({ src, title }: Props) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+    <div className="overflow-hidden rounded-xl border border-border">
       <iframe
         title={title}
         src={src}

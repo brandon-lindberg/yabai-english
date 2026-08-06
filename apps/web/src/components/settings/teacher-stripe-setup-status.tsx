@@ -60,7 +60,7 @@ export function TeacherStripeSetupStatus({
 
   return (
     <section
-      className="space-y-3 rounded-xl border border-border bg-surface p-4"
+      className="space-y-3 border-t border-border pt-6"
       aria-labelledby="teacher-stripe-setup-title"
     >
       <div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
 import { buttonClasses } from "@/components/ui/button";
+import { controlClass } from "@/components/ui/field";
 
 type TimeOffRequest = {
   id: string;
@@ -95,9 +96,6 @@ export function SchoolTimeOffView({
     }
   }
 
-  const inputCn =
-    "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
-
   const statusColors: Record<string, string> = {
     PENDING: "border-[var(--app-warning-border)] bg-[var(--app-warning-bg)] text-[var(--app-warning-text)]",
     APPROVED: "border-border bg-[var(--app-hover)] text-foreground",
@@ -127,7 +125,7 @@ export function SchoolTimeOffView({
                 </label>
                 <input
                   type="date"
-                  className={inputCn}
+                  className={controlClass()}
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   required
@@ -139,7 +137,7 @@ export function SchoolTimeOffView({
                 </label>
                 <input
                   type="date"
-                  className={inputCn}
+                  className={controlClass()}
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   required
@@ -151,7 +149,7 @@ export function SchoolTimeOffView({
                 {t("reason")}
               </label>
               <input
-                className={inputCn}
+                className={controlClass()}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={t("reviewNotePlaceholder")}
@@ -172,7 +170,7 @@ export function SchoolTimeOffView({
       {requests.length === 0 ? (
         <p className="text-sm text-muted">{t("noRequests")}</p>
       ) : (
-        <div className="divide-y divide-border rounded-xl border border-border bg-surface">
+        <div className="divide-y divide-border border-y border-border">
           {requests.map((r) => (
             <div key={r.id} className="flex items-center justify-between px-4 py-3 text-sm">
               <div className="flex items-center gap-4">

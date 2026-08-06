@@ -20,22 +20,33 @@ describe("POST /api/integrations/google/disconnect", () => {
 
   test("requires auth", async () => {
     authMock.mockResolvedValue(null);
-    const res = await POST(new Request("http://localhost/api/integrations/google/disconnect", { method: "POST" }));
-    expect(res.status).toBe(401);
+    expect((await POST()).status).toBe(401);
   });
 
-  test("disconnects a single feature", async () => {
+  test("clears every capability and revokes the account", async () => {
+    // Partial disconnection used to flip one boolean while the underlying grant
+    // stayed live, so the app claimed not to have access it still held.
     authMock.mockResolvedValue({ user: { id: "u_1" } });
     prismaMock.googleIntegrationSettings.upsert.mockResolvedValue({});
-    const res = await POST(
-      new Request("http://localhost/api/integrations/google/disconnect", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ feature: "calendar" }),
+    prismaMock.googleIntegrationAccount.updateMany.mockResolvedValue({ count: 1 });
+
+    const res = await POST();
+
+    expect(res.status).toBe(200);
+    const cleared = {
+      calendarConnected: false,
+      driveConnected: false,
+      meetConnected: false,
+      artifactSyncEnabled: false,
+    };
+    expect(prismaMock.googleIntegrationSettings.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ update: cleared }),
+    );
+    expect(prismaMock.googleIntegrationAccount.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { userId: "u_1" },
+        data: expect.objectContaining({ revoked: true }),
       }),
     );
-    expect(res.status).toBe(200);
-    expect(prismaMock.googleIntegrationSettings.upsert).toHaveBeenCalled();
-    expect(prismaMock.googleIntegrationAccount.updateMany).not.toHaveBeenCalled();
   });
 });

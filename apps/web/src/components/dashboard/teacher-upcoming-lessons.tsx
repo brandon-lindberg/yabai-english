@@ -82,7 +82,7 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
                   startsAt: b.startsAt,
                   endsAt: b.endsAt,
                 })}
-                connectHref={`/api/integrations/google/connect?feature=calendar&returnTo=${encodeURIComponent(
+                connectHref={`/api/integrations/google/connect?returnTo=${encodeURIComponent(
                   `/dashboard/schedule/lessons/${b.id}`,
                 )}`}
                 canRetryInvite

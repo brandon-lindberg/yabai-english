@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
 import { buttonClasses } from "@/components/ui/button";
+import { controlClass } from "@/components/ui/field";
 
 export type TaxonomyItem = {
   id: string;
@@ -20,9 +21,6 @@ type DraftForm = {
 };
 
 const emptyDraft: DraftForm = { labelEn: "", labelJa: "" };
-
-const inputCn =
-  "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
 
 type SortKey = "sortOrder" | "code" | "labelEn";
 type SortDir = "asc" | "desc";
@@ -316,7 +314,7 @@ function TaxonomySection({
               </label>
               <input
                 id={labelEnId}
-                className={inputCn}
+                className={controlClass()}
                 value={draft.labelEn}
                 onChange={(e) => setDraft({ ...draft, labelEn: e.target.value })}
                 placeholder={labelEnPlaceholder}
@@ -332,7 +330,7 @@ function TaxonomySection({
               </label>
               <input
                 id={labelJaId}
-                className={inputCn}
+                className={controlClass()}
                 value={draft.labelJa}
                 onChange={(e) => setDraft({ ...draft, labelJa: e.target.value })}
                 placeholder={labelJaPlaceholder}
@@ -391,7 +389,7 @@ function TaxonomySection({
                   dir={sortDir}
                   onClick={() => toggleSort("labelEn")}
                 />
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wide text-muted">
+                <th className="px-4 py-2 text-right text-sm font-semibold text-muted">
                   {t("actionsColumn")}
                 </th>
               </tr>
@@ -478,11 +476,11 @@ function SortHeader({
 }) {
   const indicator = active ? (dir === "asc" ? " ▲" : " ▼") : "";
   return (
-    <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted">
+    <th className="px-4 py-2 text-sm font-semibold text-muted">
       <button
         type="button"
         onClick={onClick}
-        className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted hover:text-foreground"
+        className="flex items-center gap-1 text-sm font-semibold text-muted hover:text-foreground"
       >
         {label}
         {indicator && <span aria-hidden>{indicator}</span>}

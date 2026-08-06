@@ -12,6 +12,7 @@ import {
 } from "@/lib/school-schedule-occurrences";
 import { weekdayLabel } from "@/lib/weekdays";
 import { buttonClasses } from "@/components/ui/button";
+import { controlClass } from "@/components/ui/field";
 
 type Taxonomy = {
   id: string;
@@ -213,15 +214,11 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
     setSelectedStartsAtIso(null);
   }
 
-  const inputCn =
-    "w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
-  const selectCn = inputCn;
-
   const taxonomyMissing =
     !loading && (classLevels.length === 0 || classTypes.length === 0);
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border bg-surface p-4">
+    <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-foreground">{t("title")}</h2>
         <button
@@ -314,7 +311,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
               <label className="text-xs text-muted">
                 {t("dayOfWeek")}
                 <select
-                  className={selectCn}
+                  className={controlClass()}
                   value={draft.dayOfWeek}
                   onChange={(e) =>
                     setDraft({ ...draft, dayOfWeek: Number(e.target.value) })
@@ -331,7 +328,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                 {t("startTime")}
                 <input
                   type="time"
-                  className={inputCn}
+                  className={controlClass()}
                   value={toTime(draft.startMin)}
                   onChange={(e) =>
                     setDraft({ ...draft, startMin: parseTime(e.target.value) })
@@ -342,7 +339,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                 {t("endTime")}
                 <input
                   type="time"
-                  className={inputCn}
+                  className={controlClass()}
                   value={toTime(draft.endMin)}
                   onChange={(e) =>
                     setDraft({ ...draft, endMin: parseTime(e.target.value) })
@@ -356,7 +353,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                 {t("duration")}
                 <input
                   type="number"
-                  className={inputCn}
+                  className={controlClass()}
                   value={draft.durationMin}
                   min={1}
                   onChange={(e) =>
@@ -368,7 +365,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                 {t("capacity")}
                 <input
                   type="number"
-                  className={inputCn}
+                  className={controlClass()}
                   value={draft.capacity}
                   min={1}
                   max={100}
@@ -383,7 +380,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
               <label className="text-xs text-muted">
                 {t("recurrence")}
                 <select
-                  className={selectCn}
+                  className={controlClass()}
                   value={draft.recurrence}
                   onChange={(e) =>
                     setDraft({
@@ -402,7 +399,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                   {t("oneOffDate")}
                   <input
                     type="date"
-                    className={inputCn}
+                    className={controlClass()}
                     value={draft.startsOn}
                     onChange={(e) =>
                       setDraft({ ...draft, startsOn: e.target.value })
@@ -451,7 +448,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                   {t("startsOn")}
                   <input
                     type="date"
-                    className={inputCn}
+                    className={controlClass()}
                     value={draft.startsOn}
                     onChange={(e) =>
                       setDraft({ ...draft, startsOn: e.target.value })
@@ -462,7 +459,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
                   {t("endsOn")}
                   <input
                     type="date"
-                    className={inputCn}
+                    className={controlClass()}
                     value={draft.endsOn}
                     onChange={(e) =>
                       setDraft({ ...draft, endsOn: e.target.value })
@@ -476,7 +473,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
               <label className="text-xs text-muted">
                 {t("classLevel")}
                 <select
-                  className={selectCn}
+                  className={controlClass()}
                   value={draft.classLevelId}
                   required
                   onChange={(e) =>
@@ -501,7 +498,7 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
               <label className="text-xs text-muted">
                 {t("classType")}
                 <select
-                  className={selectCn}
+                  className={controlClass()}
                   value={draft.classTypeId}
                   required
                   onChange={(e) =>

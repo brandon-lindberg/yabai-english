@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
 import { buttonClasses } from "@/components/ui/button";
 import { formatYen } from "@/lib/format-money";
+import { controlClass } from "@/components/ui/field";
 
 type Pricing = {
   id: string;
@@ -67,9 +68,6 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
     setSaving(false);
   }
 
-  const inputCn =
-    "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
-
   return (
     <div>
       <div className="mb-4 flex justify-end">
@@ -91,7 +89,7 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
                 </label>
                 <input
                   type="number"
-                  className={inputCn}
+                  className={controlClass()}
                   value={form.durationMin}
                   onChange={(e) => setForm({ ...form, durationMin: Number(e.target.value) })}
                   min={1}
@@ -104,7 +102,7 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
                 </label>
                 <input
                   type="number"
-                  className={inputCn}
+                  className={controlClass()}
                   value={form.priceYen}
                   onChange={(e) => setForm({ ...form, priceYen: Number(e.target.value) })}
                   min={0}
@@ -144,7 +142,7 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
       {items.length === 0 ? (
         <p className="text-sm text-muted">{t("noPricing")}</p>
       ) : (
-        <div className="divide-y divide-border rounded-xl border border-border bg-surface">
+        <div className="divide-y divide-border border-y border-border">
           {items.map((p) => (
             <div key={p.id} className="flex items-center justify-between px-4 py-3 text-sm">
               <div className="flex items-center gap-4">
