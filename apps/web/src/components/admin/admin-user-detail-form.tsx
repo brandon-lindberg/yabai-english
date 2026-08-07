@@ -5,7 +5,23 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { AdminTeacherProfileDto } from "@/lib/admin-user-dto";
+import { Button } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
+import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Section } from "@/components/ui/section";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Status } from "@/components/ui/status";
+
+const LOCALES = ["ja", "en"] as const;
+const ROLES = [Role.STUDENT, Role.TEACHER, Role.SUPER_ADMIN] as const;
+const ACCOUNT_STATUSES = [AccountStatus.ACTIVE, AccountStatus.HIDDEN] as const;
+const PLACED_LEVELS = [
+  PlacedLevel.UNSET,
+  PlacedLevel.BEGINNER,
+  PlacedLevel.INTERMEDIATE,
+  PlacedLevel.ADVANCED,
+] as const;
 
 type StudentProfileDto = {
   id: string;
@@ -193,13 +209,8 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
     }
   }
 
+  /** `ConfirmDelete` owns the typed-confirmation guard; this only performs it. */
   async function remove() {
-    const typed = window.prompt(t("deleteConfirm"));
-    if (typed === null) return;
-    if (typed.trim().toLowerCase() !== (email.trim().toLowerCase() || "")) {
-      setError("Email did not match.");
-      return;
-    }
     const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
     const data = (await res.json()) as { error?: string };
     if (!res.ok) {
@@ -248,253 +259,262 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
     );
   }
   if (loadError) {
-    return <p className="text-sm text-[var(--app-warning-text)]">{error}</p>;
+    return (
+      <p role="alert">
+        <Status tone="error">{error}</Status>
+      </p>
+    );
   }
 
   return (
     <div className="space-y-10">
-      {error ? <p className="text-sm text-[var(--app-warning-text)]">{error}</p> : null}
-      {statusMsg ? <p className="text-sm text-muted">{statusMsg}</p> : null}
+      {error ? (
+        <p role="alert">
+          <Status tone="error">{error}</Status>
+        </p>
+      ) : null}
+      {statusMsg ? (
+        <p role="status">
+          <Status tone="settled">{statusMsg}</Status>
+        </p>
+      ) : null}
 
-      <section className="space-y-4 border-t border-border pt-6">
-        <h2 className="text-lg font-semibold text-foreground">{t("sectionUser")}</h2>
-        <label className="block text-sm">
-          <span className="text-muted">{t("name")}</span>
-          <input
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="text-muted">{t("email")}</span>
-          <input
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="text-muted">{t("locale")}</span>
-          <input
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-            value={locale}
-            onChange={(e) => setLocale(e.target.value)}
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="text-muted">{t("role")}</span>
-          <select
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-            value={role}
-            onChange={(e) => setRole(e.target.value as Role)}
-          >
-            {[Role.STUDENT, Role.TEACHER, Role.SUPER_ADMIN].map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block text-sm">
-          <span className="text-muted">{t("accountStatus")}</span>
-          <select
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-            value={accountStatus}
-            onChange={(e) => setAccountStatus(e.target.value as AccountStatus)}
-          >
-            {[AccountStatus.ACTIVE, AccountStatus.HIDDEN].map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
-        </label>
-      </section>
+      <Section title={t("sectionUser")}>
+        <div className="space-y-4">
+          <Field label={t("name")}>
+            {(field) => (
+              <Input {...field} value={name} onChange={(e) => setName(e.target.value)} />
+            )}
+          </Field>
+          <Field label={t("email")}>
+            {(field) => (
+              <Input
+                {...field}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            )}
+          </Field>
+          <Field label={t("locale")}>
+            {(field) => (
+              <Select
+                {...field}
+                value={locale}
+                onChange={(e) => setLocale(e.target.value)}
+              >
+                {LOCALES.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+          <Field label={t("role")}>
+            {(field) => (
+              <Select
+                {...field}
+                value={role}
+                onChange={(e) => setRole(e.target.value as Role)}
+              >
+                {ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+          <Field label={t("accountStatus")}>
+            {(field) => (
+              <Select
+                {...field}
+                value={accountStatus}
+                onChange={(e) => setAccountStatus(e.target.value as AccountStatus)}
+              >
+                {ACCOUNT_STATUSES.map((a) => (
+                  <option key={a} value={a}>
+                    {a}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        </div>
+      </Section>
 
       {role === Role.STUDENT ? (
-        <section className="space-y-4 border-t border-border pt-6">
-          <h2 className="text-lg font-semibold text-foreground">{t("sectionStudent")}</h2>
-          <label className="block text-sm">
-            <span className="text-muted">{t("timezone")}</span>
-            <input
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              value={stuTz}
-              onChange={(e) => setStuTz(e.target.value)}
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("shortBio")}</span>
-            <textarea
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              rows={3}
-              value={stuBio}
-              onChange={(e) => setStuBio(e.target.value)}
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("placedLevel")}</span>
-            <select
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              value={placedLevel}
-              onChange={(e) => setPlacedLevel(e.target.value as PlacedLevel)}
-            >
-              {(
-                [
-                  PlacedLevel.UNSET,
-                  PlacedLevel.BEGINNER,
-                  PlacedLevel.INTERMEDIATE,
-                  PlacedLevel.ADVANCED,
-                ] as const
-              ).map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("placedSubLevel")}</span>
-            <input
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              value={placedSub}
-              onChange={(e) => setPlacedSub(e.target.value)}
-              inputMode="numeric"
-            />
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={needsReview}
-              onChange={(e) => setNeedsReview(e.target.checked)}
-            />
-            <span>{t("placementNeedsReview")}</span>
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("placementReviewReason")}</span>
-            <textarea
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              rows={2}
-              value={reviewReason}
-              onChange={(e) => setReviewReason(e.target.value)}
-            />
-          </label>
-        </section>
+        <Section title={t("sectionStudent")}>
+          <div className="space-y-4">
+            <Field label={t("timezone")}>
+              {(field) => (
+                <Input {...field} value={stuTz} onChange={(e) => setStuTz(e.target.value)} />
+              )}
+            </Field>
+            <Field label={t("shortBio")}>
+              {(field) => (
+                <Textarea
+                  {...field}
+                  rows={3}
+                  value={stuBio}
+                  onChange={(e) => setStuBio(e.target.value)}
+                />
+              )}
+            </Field>
+            <Field label={t("placedLevel")}>
+              {(field) => (
+                <Select
+                  {...field}
+                  value={placedLevel}
+                  onChange={(e) => setPlacedLevel(e.target.value as PlacedLevel)}
+                >
+                  {PLACED_LEVELS.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+            <Field label={t("placedSubLevel")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  inputMode="numeric"
+                  value={placedSub}
+                  onChange={(e) => setPlacedSub(e.target.value)}
+                />
+              )}
+            </Field>
+            <CheckRow checked={needsReview} onChange={setNeedsReview}>
+              {t("placementNeedsReview")}
+            </CheckRow>
+            <Field label={t("placementReviewReason")}>
+              {(field) => (
+                <Textarea
+                  {...field}
+                  rows={2}
+                  value={reviewReason}
+                  onChange={(e) => setReviewReason(e.target.value)}
+                />
+              )}
+            </Field>
+          </div>
+        </Section>
       ) : null}
 
       {role === Role.TEACHER ? (
-        <section className="space-y-4 border-t border-border pt-6">
-          <h2 className="text-lg font-semibold text-foreground">{t("sectionTeacher")}</h2>
-          <label className="block text-sm">
-            <span className="text-muted">{t("displayName")}</span>
-            <input
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("bio")}</span>
-            <textarea
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              rows={4}
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("countryOfOrigin")}</span>
-            <input
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("credentials")}</span>
-            <textarea
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              rows={3}
-              value={credentials}
-              onChange={(e) => setCredentials(e.target.value)}
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("rateYen")}</span>
-            <input
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              value={rateYen}
-              onChange={(e) => setRateYen(e.target.value)}
-              inputMode="numeric"
-            />
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={offersTrial}
-              onChange={(e) => setOffersTrial(e.target.checked)}
-            />
-            <span>{t("offersFreeTrial")}</span>
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("specialties")}</span>
-            <input
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              value={specialties}
-              onChange={(e) => setSpecialties(e.target.value)}
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="text-muted">{t("instructionLanguages")}</span>
-            <input
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-              value={instrLangs}
-              onChange={(e) => setInstrLangs(e.target.value)}
-            />
-          </label>
-          <p className="text-xs text-muted">
-            {t("calendarConnected")}: {calendarConnected ? tg("yes") : tg("no")}
-          </p>
-        </section>
+        <Section title={t("sectionTeacher")}>
+          <div className="space-y-4">
+            <Field label={t("displayName")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                />
+              )}
+            </Field>
+            <Field label={t("bio")}>
+              {(field) => (
+                <Textarea
+                  {...field}
+                  rows={4}
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                />
+              )}
+            </Field>
+            <Field label={t("countryOfOrigin")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                />
+              )}
+            </Field>
+            <Field label={t("credentials")}>
+              {(field) => (
+                <Textarea
+                  {...field}
+                  rows={3}
+                  value={credentials}
+                  onChange={(e) => setCredentials(e.target.value)}
+                />
+              )}
+            </Field>
+            <Field label={t("rateYen")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  inputMode="numeric"
+                  value={rateYen}
+                  onChange={(e) => setRateYen(e.target.value)}
+                />
+              )}
+            </Field>
+            <CheckRow checked={offersTrial} onChange={setOffersTrial}>
+              {t("offersFreeTrial")}
+            </CheckRow>
+            <Field label={t("specialties")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={specialties}
+                  onChange={(e) => setSpecialties(e.target.value)}
+                />
+              )}
+            </Field>
+            <Field label={t("instructionLanguages")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={instrLangs}
+                  onChange={(e) => setInstrLangs(e.target.value)}
+                />
+              )}
+            </Field>
+            <p className="text-sm text-muted">
+              {t("calendarConnected")}: {calendarConnected ? tg("yes") : tg("no")}
+            </p>
+          </div>
+        </Section>
       ) : null}
 
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-[var(--app-on-accent)] disabled:opacity-50"
-          disabled={saving}
-          onClick={() => void save()}
-        >
+      <div className="flex flex-wrap items-start gap-3 border-t border-border pt-6">
+        <Button loading={saving} onClick={() => void save()}>
           {saving ? t("saving") : t("save")}
-        </button>
-        {accountStatus === AccountStatus.ACTIVE ? (
-          <button
-            type="button"
-            className="rounded-full border border-border px-4 py-2 text-sm"
-            disabled={saving}
-            onClick={() => void setHidden(AccountStatus.HIDDEN)}
-          >
-            {t("hide")}
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="rounded-full border border-border px-4 py-2 text-sm"
-            disabled={saving}
-            onClick={() => void setHidden(AccountStatus.ACTIVE)}
-          >
-            {t("unhide")}
-          </button>
-        )}
-        <button
-          type="button"
-          className="rounded-full border border-[var(--app-warning-border)] px-4 py-2 text-sm text-[var(--app-warning-text)]"
+        </Button>
+        <Button
+          variant="secondary"
           disabled={saving}
-          onClick={() => void remove()}
+          onClick={() =>
+            void setHidden(
+              accountStatus === AccountStatus.ACTIVE
+                ? AccountStatus.HIDDEN
+                : AccountStatus.ACTIVE,
+            )
+          }
         >
-          {t("delete")}
-        </button>
+          {accountStatus === AccountStatus.ACTIVE ? t("hide") : t("unhide")}
+        </Button>
+        {/*
+          Deleting a user was styled amber, the colour this world reserves for
+          attention — the same weight as "calendar not connected". It is the one
+          irreversible control on the page.
+        */}
+        <ConfirmDelete
+          triggerLabel={t("delete")}
+          prompt={t("deleteConfirm")}
+          expected={email}
+          confirmLabel={t("delete")}
+          cancelLabel={t("cancel")}
+          busy={saving}
+          busyLabel={t("saving")}
+          onConfirm={() => void remove()}
+        />
       </div>
     </div>
   );

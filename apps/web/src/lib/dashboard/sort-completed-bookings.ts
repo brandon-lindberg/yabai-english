@@ -8,7 +8,7 @@
  * question from either side, so it takes an accessor for the counterpart.
  *
  * Sorting by name and then grouping consecutive runs keeps the two decisions
- * separate: this decides the order, `groupLessonsByCounterpart` trusts it.
+ * separate: this decides the order, `groupConsecutive` trusts it.
  */
 export function sortCompletedByCounterpart<T extends { startsAt: Date }>(
   completed: T[],

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { Field, Input, controlClass } from "@/components/ui/field";
 
 function normalizeSlugInput(raw: string): string {
@@ -163,14 +164,9 @@ function OrgCard({
 }) {
   const t = useTranslations("admin.schoolsPage");
   const [deleting, setDeleting] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirm, setConfirm] = useState("");
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const canConfirm = confirm === org.slug;
-
   async function deleteOrg() {
-    if (!canConfirm) return;
     setDeleteError(null);
     setDeleting(true);
     const res = await fetch(`/api/org/${org.id}`, { method: "DELETE" });
@@ -183,12 +179,6 @@ function OrgCard({
     onChanged();
   }
 
-  function closeConfirm() {
-    setConfirmOpen(false);
-    setConfirm("");
-    setDeleteError(null);
-  }
-
   return (
     <section className="border-t border-border pt-6">
       <header className="flex flex-wrap items-start justify-between gap-2">
@@ -198,54 +188,21 @@ function OrgCard({
             {t("orgSlug")}: <code>{org.slug}</code> · TZ {org.timezone}
           </p>
         </div>
-        {!confirmOpen && (
-          <button
-            type="button"
-            onClick={() => setConfirmOpen(true)}
-            className="rounded-md border border-[var(--app-danger)] px-3 py-1 text-xs font-semibold text-[var(--app-danger)] hover:bg-[var(--app-danger)]/10"
-          >
-            {t("deleteOrg")}
-          </button>
-        )}
+        <ConfirmDelete
+          triggerLabel={t("deleteOrg")}
+          prompt={t.rich("deleteConfirmPrompt", {
+          slug: org.slug,
+          code: (chunks) => <code className="font-semibold">{chunks}</code>,
+          })}
+          expected={org.slug}
+          confirmLabel={t("confirmDeleteCta")}
+          cancelLabel={t("cancel")}
+          busy={deleting}
+          busyLabel={t("deleting")}
+          error={deleteError}
+          onConfirm={() => void deleteOrg()}
+        />
       </header>
-      {confirmOpen && (
-        <div className="mt-3 rounded-lg border border-[var(--app-danger)] bg-[var(--app-danger)]/10 p-3">
-          <p className="text-sm text-foreground">
-            {t.rich("deleteConfirmPrompt", {
-              slug: org.slug,
-              code: (chunks) => <code className="font-semibold">{chunks}</code>,
-            })}
-          </p>
-          <input
-            autoFocus
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            placeholder={org.slug}
-            className="mt-2 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
-          />
-          {deleteError && (
-            <p className="mt-2 text-sm text-[var(--app-danger)]">{deleteError}</p>
-          )}
-          <div className="mt-3 flex gap-2">
-            <button
-              type="button"
-              onClick={deleteOrg}
-              disabled={!canConfirm || deleting}
-              className="rounded-md bg-[var(--app-danger)] px-3 py-1.5 text-xs font-semibold text-[var(--app-on-accent)] hover:opacity-90 disabled:opacity-40"
-            >
-              {deleting ? t("deleting") : t("confirmDeleteCta")}
-            </button>
-            <button
-              type="button"
-              onClick={closeConfirm}
-              disabled={deleting}
-              className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
-            >
-              {t("cancel")}
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <div>

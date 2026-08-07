@@ -6,7 +6,7 @@ import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-li
 import { TeacherLessonCompletionNotesForm } from "@/components/dashboard/teacher-lesson-completion-notes-form";
 import { formatLessonRange } from "@/lib/format-lesson-datetime";
 import { Status } from "@/components/ui/status";
-import { LessonHistory } from "@/components/dashboard/lesson-history";
+import { GroupedList } from "@/components/ui/grouped-list";
 
 /**
  * A teacher's teaching history.
@@ -72,13 +72,13 @@ export function TeacherCompletedLessonsClient({
   }, []);
 
   return (
-    <LessonHistory
-      lessons={lessons}
-      counterpartOf={(lesson) => lesson.studentDisplay}
+    <GroupedList
+      items={lessons}
+      labelOf={(lesson) => lesson.studentDisplay}
       keyOf={(lesson) => lesson.id}
       countLabel={(count) => t("completedLessonsCount", { count })}
       empty={null}
-      renderLesson={(lesson) => {
+      renderItem={(lesson) => {
               const expanded = expandedId === lesson.id;
               const panelId = `${groupId}-panel-${lesson.id}`;
               const notesDocUrl = lesson.notesDocId

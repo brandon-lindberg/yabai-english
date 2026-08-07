@@ -155,10 +155,59 @@ matrix and both redirect destinations. Mutation-tested three ways — widening
 `schoolAdmin` to teachers, changing the non-member destination, and moving the
 viewer lookup before the auth guard each fail exactly one test.
 
-### 6. Raw form controls — ~110 remaining
+### 6. Raw form controls — 97 → 77, admin 30 → 10 ⬅ partly done
 
-Concentrated in admin and org forms. Accessible and tokenised, but not on
-`Field`/`Input`, so label wiring and error handling are re-implemented per form.
+Concentrated in admin and org forms. Tokenised, but not on `Field`/`Input`, so
+label wiring and error handling are re-implemented per form.
+
+Done in the admin sweep below. **Still open:** 20 in `components/org` (12 of
+them in `school-schedule-calendar`), 10 in `components/admin`, and the rest
+across `teacher-availability-*` (20) and `chat-panel` (6).
+
+### 9. Admin screens — ✅ done (reported, not found by the audit)
+
+Raised directly: *"the booking list runs way too long and has no order or
+sorting so it is completely difficult to navigate. The placement queue and
+student section are all legacy code."* All correct, and the flow audit had
+missed the whole surface — it mapped admin as "out of scope for the three
+flows" and never looked inside.
+
+**The overview was three stacked lists with no controls.** Fifty bookings in one
+column; the placement queue; and then *every student again*, each row carrying
+an inline level form. That was a third place to edit a placement, after the
+students grid and the user detail page, and the worst of the three. The students
+section is now a link to the screen that already searches, sorts and paginates.
+
+**Bookings** now split upcoming from past, group by day through the same
+`GroupedList` the lesson histories use, and filter by status or by name. The
+date was previously restated in full on every row; the day is the heading now,
+so a row carries only the clock. Rows show a status on the value ladder instead
+of raw `CONFIRMED` text.
+
+Two things surfaced while rebuilding it:
+
+- `include: { student: true }` on the booking query returned every column of the
+  user record — including whatever secret the model gains next — to render a
+  name. Same class as the `/api/courses` leak, on an authenticated page.
+- Day grouping depends on the **viewer's** timezone. Formatting with the runtime
+  default would file the same lesson under two different headings either side of
+  hydration. The list now waits for the real zone rather than guessing, using a
+  `useBrowserTimezone` hook that replaces three separate copies of that read.
+
+**The placement review form** was a grey box nested in each row — a card inside a
+list inside a card — holding an unlabelled `<select>`, `<textarea>` and
+hand-styled button. It also sat in `components/` while every other admin
+component is in `components/admin/`, which is why sweeps kept missing it.
+
+**`admin-user-detail-form`** was the single largest offender at 19 raw controls,
+each with the same three hand-written lines. Now `Field`/`Input`/`Select`/
+`Textarea`/`CheckRow`. Two fixes worth naming: deleting a user was styled amber
+— the colour this world reserves for attention, the same weight as "calendar not
+connected" — and is now destructive; and it confirmed through `window.prompt`,
+which is unthemed, gives a screen reader nothing, and on a phone is a system
+dialog unrelated to the page. That and the organization view's hand-built
+equivalent are now one `ConfirmDelete`, which disables the button until the
+typed name matches rather than failing after the fact.
 
 ### 7. Lesson detail page — ✅ resolved while doing #2
 

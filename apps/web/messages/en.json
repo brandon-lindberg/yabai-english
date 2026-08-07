@@ -749,7 +749,8 @@
       "specialties": "Specialties (comma-separated)",
       "instructionLanguages": "Instruction languages (comma-separated)",
       "loading": "Loading…",
-      "calendarConnected": "Google Calendar connected"
+      "calendarConnected": "Google Calendar connected",
+      "cancel": "Cancel"
     },
     "grid": {
       "colActions": "",
@@ -780,6 +781,41 @@
       "next": "Next",
       "yes": "Yes",
       "no": "No"
+    },
+    "placementReview": {
+      "levelLabel": "Placement level for {name}",
+      "noteLabel": "Review note for {name}",
+      "notePlaceholder": "Review note (optional)",
+      "apply": "Apply",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "error": "Could not save. Try again.",
+      "level": {
+        "BEGINNER": "Beginner",
+        "INTERMEDIATE": "Intermediate",
+        "ADVANCED": "Advanced"
+      }
+    },
+    "bookingsPanel": {
+      "scopeUpcoming": "Upcoming",
+      "scopePast": "Past",
+      "statusLabel": "Status",
+      "statusAll": "All statuses",
+      "searchLabel": "Search bookings",
+      "searchPlaceholder": "Student, teacher or lesson",
+      "countLabel": "{count, plural, one {# booking} other {# bookings}}",
+      "emptyUpcoming": "No upcoming bookings match this filter.",
+      "emptyPast": "No past bookings match this filter.",
+      "showing": "Showing {shown} of {total}",
+      "joinCta": "Meet",
+      "reviewQueueLink": "Placement review queue",
+      "allStudentsCta": "Open the students list"
+    },
+    "overview": {
+      "statUpcoming": "Upcoming bookings",
+      "statNeedsReview": "Awaiting placement review",
+      "statStudents": "Students",
+      "studentsHint": "Search, sort and edit every student on the students screen."
     }
   },
   "booking": {

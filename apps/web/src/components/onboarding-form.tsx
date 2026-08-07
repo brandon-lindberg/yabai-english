@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
 import { useOnboardingSubmit } from "@/hooks/use-onboarding-submit";
 import { buttonClasses } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
@@ -21,24 +22,6 @@ const GOALS = [
 ] as const;
 
 const STEP_COUNT = 4;
-
-/**
- * The browser's IANA timezone, or `null` on the server where it is unknowable.
- *
- * A store rather than an effect: it can only be read on the client, but it also
- * never changes during a session, so `subscribe` has nothing to listen to. The
- * server snapshot is `null` so the first paint matches the markup and React
- * re-renders once with the real value.
- */
-const NEVER_CHANGES = () => () => {};
-
-function useBrowserTimezone(): string | null {
-  return useSyncExternalStore(
-    NEVER_CHANGES,
-    () => Intl.DateTimeFormat().resolvedOptions().timeZone || null,
-    () => null,
-  );
-}
 
 /** Four steps, one shape: a legend, then the controls under it. */
 function WizardStep({ legend, children }: { legend: string; children: ReactNode }) {

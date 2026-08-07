@@ -4,7 +4,7 @@ import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
 import { LessonListEmpty, LessonRow } from "@/components/dashboard/lesson-row";
-import { LessonHistory } from "@/components/dashboard/lesson-history";
+import { GroupedList } from "@/components/ui/grouped-list";
 
 type Completed = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["completed"];
 
@@ -14,16 +14,16 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
   const ts = await getTranslations("dashboard.schedulePage");
 
   return (
-    <LessonHistory
-      lessons={completed}
+    <GroupedList
+      items={completed}
       // Grouped by teacher, the same way the teacher's history groups by
       // student. This list used to be flat, so twenty lessons across three
       // teachers read as twenty undifferentiated rows.
-      counterpartOf={(b) => b.teacher.user.name ?? b.teacher.user.email ?? "\u2014"}
+      labelOf={(b) => b.teacher.user.name ?? b.teacher.user.email ?? "\u2014"}
       keyOf={(b) => b.id}
       countLabel={(count) => ts("completedLessonsCount", { count })}
       empty={<LessonListEmpty>{t("schedulePage.completedEmpty")}</LessonListEmpty>}
-      renderLesson={(b) => {
+      renderItem={(b) => {
         const transcriptUrl = b.externalTranscriptUrl?.trim() ?? "";
         const notesMd = (b.completionNotesMd ?? "").trim();
         const notesDocUrl = b.notesDocId

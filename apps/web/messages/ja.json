@@ -749,7 +749,8 @@
       "specialties": "専門（カンマ区切り）",
       "instructionLanguages": "指導言語（カンマ区切り）",
       "loading": "読み込み中…",
-      "calendarConnected": "Googleカレンダー連携済み"
+      "calendarConnected": "Googleカレンダー連携済み",
+      "cancel": "キャンセル"
     },
     "grid": {
       "colActions": "",
@@ -780,6 +781,41 @@
       "next": "次へ",
       "yes": "はい",
       "no": "いいえ"
+    },
+    "placementReview": {
+      "levelLabel": "{name} さんのレベル",
+      "noteLabel": "{name} さんのレビューメモ",
+      "notePlaceholder": "レビューメモ（任意）",
+      "apply": "適用",
+      "saving": "保存中…",
+      "saved": "保存しました",
+      "error": "保存できませんでした。もう一度お試しください。",
+      "level": {
+        "BEGINNER": "初級",
+        "INTERMEDIATE": "中級",
+        "ADVANCED": "上級"
+      }
+    },
+    "bookingsPanel": {
+      "scopeUpcoming": "今後",
+      "scopePast": "過去",
+      "statusLabel": "ステータス",
+      "statusAll": "すべてのステータス",
+      "searchLabel": "予約を検索",
+      "searchPlaceholder": "受講生・講師・レッスン名",
+      "countLabel": "{count}件の予約",
+      "emptyUpcoming": "この条件に一致する今後の予約はありません。",
+      "emptyPast": "この条件に一致する過去の予約はありません。",
+      "showing": "{total}件中 {shown}件を表示",
+      "joinCta": "Meet",
+      "reviewQueueLink": "レベル判定レビュー待ち",
+      "allStudentsCta": "受講生一覧を開く"
+    },
+    "overview": {
+      "statUpcoming": "今後の予約",
+      "statNeedsReview": "レベル判定レビュー待ち",
+      "statStudents": "受講生",
+      "studentsHint": "受講生の検索・並べ替え・編集は受講生画面で行えます。"
     }
   },
   "booking": {
