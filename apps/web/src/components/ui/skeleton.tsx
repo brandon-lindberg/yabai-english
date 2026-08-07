@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+
 
 /**
  * Shared skeleton primitives driven by the `animate-shimmer` utility defined in
@@ -139,43 +139,5 @@ export function SkeletonButton({
       rounded="full"
       className={className}
     />
-  );
-}
-
-type SkeletonCardProps = {
-  children?: ReactNode;
-  className?: string;
-  padding?: "sm" | "md" | "lg";
-};
-
-const CARD_PAD = {
-  sm: "p-4",
-  md: "p-5 sm:p-6",
-  lg: "p-6 sm:p-8",
-};
-
-export function SkeletonCard({
-  children,
-  className,
-  padding = "md",
-}: SkeletonCardProps) {
-  return (
-    <div
-      data-testid="skeleton-card"
-      className={[
-        "rounded-2xl border border-border bg-surface",
-        CARD_PAD[padding],
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      {children ?? (
-        <div className="space-y-3">
-          <Skeleton height="5" width="1/2" />
-          <SkeletonText lines={3} />
-        </div>
-      )}
-    </div>
   );
 }

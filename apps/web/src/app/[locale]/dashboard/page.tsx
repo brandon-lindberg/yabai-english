@@ -233,7 +233,7 @@ export default async function DashboardPage({
     <div className="space-y-10">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       {showResumeOnboardingLink ? (
-        <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-y border-border py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-foreground">
             {tOnboarding("resumeHint")}
           </p>

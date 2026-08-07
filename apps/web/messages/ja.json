@@ -28,7 +28,8 @@
     "footerOperatedBy": "運営: Yabai Studios",
     "footerContact": "お問い合わせ",
     "footerAria": "サイトフッター",
-    "org": "組織"
+    "org": "組織",
+    "notificationsWithCount": "通知（未読 {count} 件）"
   },
   "contact": {
     "metaTitle": "お問い合わせ — English Studio Japan",
@@ -351,7 +352,8 @@
       "notSet": "未設定",
       "profileVisible": "講師一覧に表示中",
       "profileHidden": "講師一覧で非表示",
-      "emptyProfileHint": "プロフィールが未入力です。自己紹介と経歴を追加すると、受講生が予約前にあなたのことを知ることができます。"
+      "emptyProfileHint": "プロフィールが未入力です。自己紹介と経歴を追加すると、受講生が予約前にあなたのことを知ることができます。",
+      "emptyStudentProfileHint": "プロフィールが未入力です。自己紹介を追加すると、講師がレッスンの目的を把握しやすくなります。"
     },
     "schedulePage": {
       "title": "スケジュール",

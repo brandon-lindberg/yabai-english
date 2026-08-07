@@ -28,12 +28,12 @@ export default async function DashboardMyTeachersPage() {
       {teachers.length === 0 ? (
         <p className="text-sm text-muted">{t("empty")}</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="list-none border-t border-border p-0">
           {teachers.map((row) => (
             <li key={row.rosterEntryId}>
               <Link
                 href={`/book/teachers/${row.teacherProfileId}`}
-                className="block rounded-xl border border-border bg-surface/60 px-4 py-3 text-sm font-medium text-foreground hover:bg-[var(--app-hover)]"
+                className="block border-b border-border py-3 font-medium text-foreground transition-colors hover:bg-[var(--app-hover)]"
               >
                 {row.displayName}
               </Link>

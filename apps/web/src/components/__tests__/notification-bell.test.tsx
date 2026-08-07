@@ -160,7 +160,10 @@ describe("NotificationBell", () => {
 
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(0));
 
-    fireEvent.click(screen.getByRole("button", { name: en.common.notifications }));
+    // Matched loosely: the bell's accessible name carries the unread count
+    // ("Notifications (2 unread)") so a screen reader hears it without opening
+    // the panel. This test is about open/close, not the wording.
+    fireEvent.click(screen.getByRole("button", { name: /Notifications/ }));
     expect(screen.getByText(en.common.markAllRead)).toBeInTheDocument();
 
     fireEvent.pointerDown(screen.getByRole("button", { name: "outside-target" }));

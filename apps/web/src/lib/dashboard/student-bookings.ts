@@ -1,5 +1,6 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
+import { sortStudentCompletedBookings } from "@/lib/dashboard/sort-completed-bookings";
 
 export async function getStudentBookingsForDashboard(prisma: PrismaClient, studentId: string) {
   const bookings = await prisma.booking.findMany({
@@ -14,6 +15,8 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
 
   const now = new Date();
   const { upcoming, completed } = groupBookingsForDashboard(bookings, now);
+  // By teacher, then newest first — the order the grouped history relies on.
+  const completedSorted = sortStudentCompletedBookings(completed);
   const scheduleItems = upcoming.map((b) => ({
     id: b.id,
     startsAtIso: b.startsAt.toISOString(),
@@ -22,5 +25,5 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
     teacherName: b.teacher.user.name ?? b.teacher.user.email ?? "",
   }));
 
-  return { bookings, upcoming, completed, scheduleItems };
+  return { bookings, upcoming, completed: completedSorted, scheduleItems };
 }

@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
-import { sortTeacherCompletedBookings } from "@/lib/dashboard/sort-teacher-completed-bookings";
+import { sortTeacherCompletedBookings } from "@/lib/dashboard/sort-completed-bookings";
 
 type TeacherScheduleBooking = {
   id: string;

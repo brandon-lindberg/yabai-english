@@ -3,12 +3,10 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
-import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
-import { FormStatus, type SaveState } from "@/components/ui/form-status";
-import { InlineAlert } from "@/components/ui/inline-alert";
+import type { SaveState } from "@/components/ui/form-status";
 import { Status } from "@/components/ui/status";
+import { ProfileSurface } from "@/components/dashboard/profile-surface";
 
 /**
  * A teacher's public profile — shown as a profile, edited on request.
@@ -72,29 +70,12 @@ export function TeacherProfileForm({
   const [draft, setDraft] = useState(saved);
   const [status, setStatus] = useState<SaveState>("idle");
 
-  /*
-    Nothing written yet means nothing to look at, so a new teacher — and anyone
-    arriving mid-onboarding — lands in edit mode rather than on an empty page.
-  */
   const isEmpty = !saved.displayName && !saved.bio && !saved.credentials;
-  const [editing, setEditing] = useState(isEmpty || Boolean(postSaveRedirect));
 
   const set = (key: keyof typeof draft, value: string | boolean) =>
     setDraft((prev) => ({ ...prev, [key]: value }));
 
-  function startEditing() {
-    setDraft(saved);
-    setStatus("idle");
-    setEditing(true);
-  }
-
-  function cancelEditing() {
-    setDraft(saved);
-    setStatus("idle");
-    setEditing(false);
-  }
-
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent): Promise<boolean> {
     e.preventDefault();
     setStatus("saving");
 
@@ -120,7 +101,7 @@ export function TeacherProfileForm({
 
     if (!response.ok) {
       setStatus("error");
-      return;
+      return false;
     }
 
     const body = (await response.json().catch(() => null)) as { teacherProfileId?: string } | null;
@@ -135,77 +116,79 @@ export function TeacherProfileForm({
     const redirectTarget = postSaveRedirect ?? qsRedirect;
     if (redirectTarget) {
       router.push(decodeURIComponent(redirectTarget) as "/onboarding/teacher");
-      return;
+      return false;
     }
 
     setStatus("saved");
-    setEditing(false);
     setTimeout(() => setStatus("idle"), 2000);
+    return true;
   }
 
   const publicLink = teacherProfileId ? (
-    <Link
-      href={`/book/teachers/${teacherProfileId}`}
-      className="text-sm font-medium text-link underline-offset-4 hover:underline"
-    >
-      {saved.marketplaceHidden ? t("teacherPreviewWhenHidden") : t("teacherPreviewPublic")}
-    </Link>
+    <p>
+      <Link
+        href={`/book/teachers/${teacherProfileId}`}
+        className="text-sm font-medium text-link underline-offset-4 hover:underline"
+      >
+        {saved.marketplaceHidden ? t("teacherPreviewWhenHidden") : t("teacherPreviewPublic")}
+      </Link>
+    </p>
   ) : null;
 
-  if (!editing) {
-    const languages = saved.instructionLanguages.trim();
-    const specialties = saved.specialties.trim();
-    const subtitle = [saved.countryOfOrigin.trim(), languages].filter(Boolean).join(" · ");
-
-    return (
-      <div className="space-y-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex min-w-0 items-start gap-4">
-            <Avatar src={avatarUrl} name={saved.displayName} size="lg" />
-            <div className="min-w-0">
-              <h2 className="text-[clamp(1.75rem,4vw,2.5rem)] font-black leading-[1.05] tracking-[-0.03em] text-foreground">
-                {saved.displayName || t("notSet")}
-              </h2>
-              {subtitle ? <p className="mt-1 text-muted">{subtitle}</p> : null}
-              <p className="mt-3">
-                <Status tone={saved.marketplaceHidden ? "spent" : "settled"}>
-                  {saved.marketplaceHidden ? t("profileHidden") : t("profileVisible")}
-                </Status>
-              </p>
-            </div>
-          </div>
-          <Button onClick={startEditing}>{t("editProfile")}</Button>
-        </div>
-
-        <FormStatus
-          state={status}
-          savingLabel={t("saving")}
-          savedLabel={t("saved")}
-          errorLabel={t("error")}
-        />
-
-        <dl className="border-t border-border">
-          <ProfileEntry label={t("teacherCredentials")} value={saved.credentials} empty={t("notSet")} />
-          <ProfileEntry label={t("teacherBio")} value={saved.bio} empty={t("notSet")} />
-          <ProfileEntry label={tb("teacherSpecialties")} value={specialties} empty={t("notSet")} />
-        </dl>
-
-        {publicLink ? <p>{publicLink}</p> : null}
-        <p className="text-sm text-muted">{t("avatarHelp")}</p>
-      </div>
-    );
-  }
+  const languages = saved.instructionLanguages.trim();
+  const subtitle = [saved.countryOfOrigin.trim(), languages].filter(Boolean).join(" \u00b7 ");
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="flex items-start gap-4">
-        <Avatar src={avatarUrl} name={draft.displayName} size="lg" />
-        <p className="text-sm text-muted">{t("avatarHelp")}</p>
-      </div>
-
-      {isEmpty ? <InlineAlert>{t("emptyProfileHint")}</InlineAlert> : null}
-      {publicLink ? <p>{publicLink}</p> : null}
-
+    <ProfileSurface
+      avatarUrl={avatarUrl}
+      name={saved.displayName}
+      subtitle={subtitle || null}
+      headerStatus={
+        <Status tone={saved.marketplaceHidden ? "spent" : "settled"}>
+          {saved.marketplaceHidden ? t("profileHidden") : t("profileVisible")}
+        </Status>
+      }
+      avatarHelp={t("avatarHelp")}
+      emptyHint={t("emptyProfileHint")}
+      isEmpty={isEmpty}
+      startInEdit={Boolean(postSaveRedirect)}
+      saveState={status}
+      footer={publicLink}
+      copy={{
+        edit: t("editProfile"),
+        cancel: t("cancelEdit"),
+        save: t("save"),
+        saving: t("saving"),
+        saved: t("saved"),
+        error: t("error"),
+        notSet: t("notSet"),
+      }}
+      entries={[
+        {
+          label: t("teacherCredentials"),
+          value: saved.credentials,
+          empty: !saved.credentials.trim(),
+        },
+        { label: t("teacherBio"), value: saved.bio, empty: !saved.bio.trim() },
+        {
+          // Reading a profile and filling one in want different labels: the form
+          // says "Specialties (comma separated)", the profile just says
+          // "Specialties".
+          label: tb("teacherSpecialties"),
+          value: saved.specialties,
+          empty: !saved.specialties.trim(),
+        },
+      ]}
+      onSave={onSubmit}
+      onStartEdit={() => {
+        setDraft(saved);
+        setStatus("idle");
+      }}
+      onCancelEdit={() => {
+        setDraft(saved);
+        setStatus("idle");
+      }}
+    >
       <label className="flex cursor-pointer items-start gap-3 border-y border-border py-4 text-sm">
         <input
           type="checkbox"
@@ -289,47 +272,6 @@ export function TeacherProfileForm({
           )}
         </Field>
       </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" loading={status === "saving"}>
-          {t("save")}
-        </Button>
-        {isEmpty ? null : (
-          <Button type="button" variant="secondary" onClick={cancelEditing}>
-            {t("cancelEdit")}
-          </Button>
-        )}
-        <FormStatus
-          state={status}
-          savingLabel={t("saving")}
-          savedLabel={t("saved")}
-          errorLabel={t("error")}
-        />
-      </div>
-    </form>
-  );
-}
-
-/** One field as students read it — or one muted line saying it is not filled in. */
-function ProfileEntry({
-  label,
-  value,
-  empty,
-}: {
-  label: string;
-  value: string;
-  empty: string;
-}) {
-  return (
-    <div className="border-b border-border py-4">
-      <dt className="text-sm text-muted">{label}</dt>
-      <dd
-        className={`mt-1 max-w-[68ch] whitespace-pre-line leading-relaxed ${
-          value ? "text-foreground" : "text-muted"
-        }`}
-      >
-        {value || empty}
-      </dd>
-    </div>
+    </ProfileSurface>
   );
 }

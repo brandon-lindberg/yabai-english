@@ -168,11 +168,45 @@ focus-zoom it was guarding against is handled by the 16px form-control rule.
 
 ---
 
-## 8. Known gaps
+## 8. Where this landed
 
-- Study surfaces and teacher ops still carry their **pre-redesign compositions**.
-  They are tokenised, accessible and on the primitives, but not recomposed.
-- Admin and org/school received cross-cutting fixes only — no recomposition.
+Every surface has been recomposed. The banned-pattern audit across all 241
+components reads:
+
+| Pattern | Count |
+|---|---|
+| Eyebrows | **0** |
+| Shadows | **0** |
+| Inline colour styles | **0** |
+| Local input-class constants | **0** |
+| Card chrome | 11 — all legitimate |
+
+The eleven remaining cards are the surfaces §4 explicitly allows: the flashcard
+and its loading skeleton, the modal primitive and the two availability modals,
+and three floating dropdowns (notifications, chat moderation, the user menu). A
+floating surface needs an edge; page structure does not.
+
+### Duplication
+
+Measured with `jscpd`, not by eye — the first pass at this was done by reading
+screens, which found what was visible rather than what was large.
+
+| | Before | After |
+|---|---|---|
+| Clones | 104 | **71** |
+| Duplicated lines | 2,185 | **1,210** |
+| % of codebase | 4.01% | **2.25%** |
+
+The biggest finds were in the API layer, not the UI: twenty routes each
+declaring their own `getCallerMembership`, eight taxonomy CRUD routes that were
+identical apart from a comment, and three copies of the Google credential
+preamble. Re-run `npx jscpd src --min-lines 12 --min-tokens 70` to check the
+number rather than trusting a claim about it.
+
+## 9. Known gaps
+
 - The impeccable **finish-reviewer pass has not been run**.
-- `dashboard-quick-review`, `chat-panel` and the study components remain the
-  largest un-reviewed client components.
+- ~110 raw `<input>`/`<select>` elements remain, mostly in admin and org forms.
+  They are accessible and tokenised but do not use `Field`/`Input`.
+- One pre-existing `next-intl` ESM test suite fails to load under Vitest;
+  unrelated to any of this work.

@@ -39,7 +39,7 @@ export default async function AdminPage() {
           {bookings.map((b) => (
             <li
               key={b.id}
-              className="rounded-xl border border-border bg-surface p-4 text-sm"
+              className="border-t border-border pt-4 text-sm"
             >
               <p className="font-medium text-foreground">
                 {b.lessonProduct.nameEn} — {b.student.name ?? b.student.email}
@@ -72,7 +72,7 @@ export default async function AdminPage() {
             {t("noReviewItems")}
           </p>
         ) : (
-          <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface">
+          <ul className="mt-4 divide-y divide-border border-y border-border">
             {reviewQueue.map((s) => (
               <li key={s.id} className="px-4 py-3 text-sm">
                 <div className="flex items-start justify-between gap-3">
@@ -98,7 +98,7 @@ export default async function AdminPage() {
 
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-foreground">{t("students")}</h2>
-        <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface">
+        <ul className="mt-4 divide-y divide-border border-y border-border">
           {students.map((s) => (
             <li key={s.id} className="flex justify-between px-4 py-3 text-sm">
               <span className="text-foreground">

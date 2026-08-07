@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { sortTeacherCompletedBookings } from "@/lib/dashboard/sort-teacher-completed-bookings";
+import { sortTeacherCompletedBookings } from "@/lib/dashboard/sort-completed-bookings";
 
 function row(student: { name: string | null; email: string | null }, startsAt: string, id: string) {
   return {

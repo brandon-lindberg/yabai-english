@@ -11,6 +11,7 @@ import {
 } from "@/lib/student-onboarding-next-links";
 import { buttonClasses } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { Status } from "@/components/ui/status";
 
 export default async function OnboardingNextPage() {
   const locale = await getLocale();
@@ -119,7 +120,7 @@ export default async function OnboardingNextPage() {
         </p>
       </section>
 
-      <div className="mt-6 space-y-3">
+      <div className="mt-6 border-t border-border">
         {studentChecklist.map((item) => {
           const title = t(`studentSteps.${item.key}.title`);
           const body = t(`studentSteps.${item.key}.body`);
@@ -145,9 +146,7 @@ export default async function OnboardingNextPage() {
                 <div className="flex items-center gap-2">
                   <p className="text-base font-semibold text-foreground">{title}</p>
                   {item.completed ? (
-                    <span className="inline-flex items-center rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-foreground">
-                      {t("completedLabel")}
-                    </span>
+                    <Status tone="settled">{t("completedLabel")}</Status>
                   ) : null}
                 </div>
                 <p className="mt-1 text-sm text-muted">{body}</p>
@@ -162,12 +161,7 @@ export default async function OnboardingNextPage() {
                 data-testid={`step-card-${item.key}`}
                 data-completed={item.completed ? "true" : "false"}
                 aria-label={item.completed ? `${title} (${t("completedLabel")})` : title}
-                className={
-                  "rounded-2xl border p-5 opacity-70 " +
-                  (item.completed
-                    ? "border-border bg-[var(--app-hover)]"
-                    : "border-dashed border-border bg-surface")
-                }
+                className="border-b border-border py-5 opacity-60"
               >
                 {Content}
               </div>
@@ -181,12 +175,7 @@ export default async function OnboardingNextPage() {
               data-testid={`step-card-${item.key}`}
               data-completed={item.completed ? "true" : "false"}
               aria-label={item.completed ? `${title} (${t("completedLabel")})` : title}
-              className={
-                "block rounded-2xl border p-5 text-foreground hover:bg-[var(--app-hover)] " +
-                (item.completed
-                  ? "border-border bg-[var(--app-hover)]"
-                  : "border-border bg-surface")
-              }
+              className="block border-b border-border py-5 text-foreground transition-colors hover:bg-[var(--app-hover)]"
             >
               {Content}
             </a>

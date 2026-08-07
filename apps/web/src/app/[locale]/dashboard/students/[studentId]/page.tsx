@@ -107,7 +107,7 @@ export default async function TeacherViewStudentProfilePage({ params }: Props) {
         <p className="mt-2 text-sm text-muted">{t("intro")}</p>
       </header>
 
-      <section className="rounded-2xl border border-border bg-surface p-5">
+      <section className="border-t border-border pt-6">
         <h2 className="text-base font-semibold text-foreground">{tLesson("studentProfile")}</h2>
         <div className="mt-3 space-y-3">
           <div className="flex items-center gap-3">

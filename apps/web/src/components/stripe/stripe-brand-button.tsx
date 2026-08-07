@@ -13,6 +13,7 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 const STRIPE_PURPLE = "#635BFF";
 const STRIPE_PURPLE_HOVER = "#5851DB";
 const STRIPE_NAVY = "#0A2540";
+const STRIPE_NAVY_HOVER = "#08203A";
 
 function StripeWordmark({ height = 14 }: { height?: number }) {
   return (
@@ -35,24 +36,36 @@ export const StripeBrandButton = forwardRef<HTMLButtonElement, Props>(
     ref,
   ) {
     const isSecondary = variant === "secondary";
-    const background = isSecondary ? STRIPE_NAVY : STRIPE_PURPLE;
-    const hoverBackground = isSecondary ? "#08203A" : STRIPE_PURPLE_HOVER;
 
+    /*
+      Stripe's brand colours are fixed in both themes — this is their mark, and
+      it has to stay legible against it. That part is deliberate.
+
+      The hover, however, was implemented with `onMouseEnter`/`onMouseLeave`
+      handlers that assigned `style.backgroundColor` directly. That is CSS
+      written in JavaScript: it never fired for keyboard focus, it stuck on
+      touch devices where there is no mouse-leave, and it fought the `disabled`
+      state. The colours are custom properties now and the states are real CSS.
+    */
     return (
       <button
         ref={ref}
         type="button"
         disabled={disabled || loading}
-        className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
-        style={{ backgroundColor: background }}
-        onMouseEnter={(e) => {
-          if (!disabled && !loading) {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor = hoverBackground;
-          }
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.backgroundColor = background;
-        }}
+        style={
+          {
+            "--stripe-bg": isSecondary ? STRIPE_NAVY : STRIPE_PURPLE,
+            "--stripe-bg-hover": isSecondary ? STRIPE_NAVY_HOVER : STRIPE_PURPLE_HOVER,
+          } as React.CSSProperties
+        }
+        className={
+          "inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--stripe-bg)] px-4 py-2 " +
+          "text-sm font-semibold text-white transition-colors duration-150 " +
+          "hover:bg-[var(--stripe-bg-hover)] focus-visible:bg-[var(--stripe-bg-hover)] " +
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 " +
+          "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--stripe-bg)] " +
+          `motion-reduce:transition-none ${className}`
+        }
         {...rest}
       >
         <span>{prefixLabel}</span>

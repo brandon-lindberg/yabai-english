@@ -4,6 +4,7 @@ import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
 import { LessonListEmpty, LessonRow } from "@/components/dashboard/lesson-row";
+import { LessonHistory } from "@/components/dashboard/lesson-history";
 
 type Completed = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["completed"];
 
@@ -12,13 +13,17 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
   const t = await getTranslations("dashboard");
   const ts = await getTranslations("dashboard.schedulePage");
 
-  if (completed.length === 0) {
-    return <LessonListEmpty>{t("schedulePage.completedEmpty")}</LessonListEmpty>;
-  }
-
   return (
-    <>
-      {completed.map((b) => {
+    <LessonHistory
+      lessons={completed}
+      // Grouped by teacher, the same way the teacher's history groups by
+      // student. This list used to be flat, so twenty lessons across three
+      // teachers read as twenty undifferentiated rows.
+      counterpartOf={(b) => b.teacher.user.name ?? b.teacher.user.email ?? "\u2014"}
+      keyOf={(b) => b.id}
+      countLabel={(count) => ts("completedLessonsCount", { count })}
+      empty={<LessonListEmpty>{t("schedulePage.completedEmpty")}</LessonListEmpty>}
+      renderLesson={(b) => {
         const transcriptUrl = b.externalTranscriptUrl?.trim() ?? "";
         const notesMd = (b.completionNotesMd ?? "").trim();
         const notesDocUrl = b.notesDocId
@@ -43,8 +48,6 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
             lessonNameEn={b.lessonProduct.nameEn}
             startsAtIso={b.startsAt.toISOString()}
             endsAtIso={b.endsAt.toISOString()}
-            counterpartLabel={t("teacher")}
-            counterpartName={b.teacher.user.name ?? b.teacher.user.email ?? "—"}
             status={{ tone: bookingStatusTone(b.status), label: t(bookingStatusKey(b.status)) }}
             inlineActions={
               b.invoice ? (
@@ -116,7 +119,7 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
             ) : null}
           </LessonRow>
         );
-      })}
-    </>
+      }}
+    />
   );
 }

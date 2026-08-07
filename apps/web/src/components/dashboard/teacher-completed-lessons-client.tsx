@@ -6,6 +6,7 @@ import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-li
 import { TeacherLessonCompletionNotesForm } from "@/components/dashboard/teacher-lesson-completion-notes-form";
 import { formatLessonRange } from "@/lib/format-lesson-datetime";
 import { Status } from "@/components/ui/status";
+import { LessonHistory } from "@/components/dashboard/lesson-history";
 
 /**
  * A teacher's teaching history.
@@ -40,24 +41,6 @@ export type TeacherCompletedLessonItem = {
   invoiceId: string | null;
 };
 
-type StudentGroup = { key: string; student: string; lessons: TeacherCompletedLessonItem[] };
-
-/**
- * Group consecutive runs by student. The server already sorts by student then
- * date, so a run is a group — no re-sorting, and the caller's order is kept.
- */
-function groupByStudent(lessons: TeacherCompletedLessonItem[]): StudentGroup[] {
-  const groups: StudentGroup[] = [];
-  for (const lesson of lessons) {
-    const last = groups[groups.length - 1];
-    if (last && last.student === lesson.studentDisplay) last.lessons.push(lesson);
-    // Keyed by the run's first lesson, not the name: the same student can
-    // appear in two separate runs, and two groups keyed by name collide.
-    else groups.push({ key: lesson.id, student: lesson.studentDisplay, lessons: [lesson] });
-  }
-  return groups;
-}
-
 function Chevron({ open }: { open: boolean }) {
   return (
     <svg
@@ -89,18 +72,13 @@ export function TeacherCompletedLessonsClient({
   }, []);
 
   return (
-    <div className="space-y-10">
-      {groupByStudent(lessons).map((group) => (
-        <section key={group.key}>
-          <h3 className="border-b border-border pb-2 text-lg font-bold tracking-[-0.02em] text-foreground">
-            {group.student}{" "}
-            <span className="ml-1 text-sm font-medium tabular-nums text-muted">
-              {t("completedLessonsCount", { count: group.lessons.length })}
-            </span>
-          </h3>
-
-          <ul className="list-none p-0">
-            {group.lessons.map((lesson) => {
+    <LessonHistory
+      lessons={lessons}
+      counterpartOf={(lesson) => lesson.studentDisplay}
+      keyOf={(lesson) => lesson.id}
+      countLabel={(count) => t("completedLessonsCount", { count })}
+      empty={null}
+      renderLesson={(lesson) => {
               const expanded = expandedId === lesson.id;
               const panelId = `${groupId}-panel-${lesson.id}`;
               const notesDocUrl = lesson.notesDocId
@@ -201,11 +179,8 @@ export function TeacherCompletedLessonsClient({
                     </div>
                   ) : null}
                 </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
-    </div>
+        );
+      }}
+    />
   );
 }

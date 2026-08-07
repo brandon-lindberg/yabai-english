@@ -26,8 +26,12 @@ type Props = {
   startsAtIso: string;
   endsAtIso: string;
   /** e.g. "Teacher" on student lists, "Student" on teacher lists. */
-  counterpartLabel: string;
-  counterpartName: string;
+  /**
+   * The other person in the lesson. Omitted when the row already sits under a
+   * heading naming them — a grouped history repeats it on every row otherwise.
+   */
+  counterpartLabel?: string;
+  counterpartName?: string;
   status?: { tone: StatusTone; label: string };
   /** Small supporting line under the counterpart, e.g. a student's goals. */
   meta?: ReactNode;
@@ -76,9 +80,12 @@ export function LessonRow({
             separator={separator}
             className="mt-0.5 block text-sm tabular-nums text-muted"
           />
-          <p className="text-sm text-muted">
-            {counterpartLabel}: {counterpartName}
-          </p>
+          {counterpartName ? (
+            <p className="text-sm text-muted">
+              {counterpartLabel ? `${counterpartLabel}: ` : ""}
+              {counterpartName}
+            </p>
+          ) : null}
           {meta ? <div className="text-xs text-muted">{meta}</div> : null}
           {status || inlineActions ? (
             <div className="mt-2 flex flex-wrap items-center gap-3">

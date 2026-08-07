@@ -28,7 +28,8 @@
     "footerOperatedBy": "English Studio Japan is operated by Yabai Studios",
     "footerContact": "Contact us",
     "footerAria": "Site footer",
-    "org": "Organization"
+    "org": "Organization",
+    "notificationsWithCount": "Notifications ({count} unread)"
   },
   "contact": {
     "metaTitle": "Contact — English Studio Japan",
@@ -351,7 +352,8 @@
       "notSet": "Not set yet",
       "profileVisible": "Visible in the teacher list",
       "profileHidden": "Hidden from the teacher list",
-      "emptyProfileHint": "Your profile is empty. Add a bio and credentials so students know who they are booking."
+      "emptyProfileHint": "Your profile is empty. Add a bio and credentials so students know who they are booking.",
+      "emptyStudentProfileHint": "Your profile is empty. Add an introduction so teachers know what you want from lessons."
     },
     "schedulePage": {
       "title": "Schedule",

@@ -109,13 +109,22 @@ export function NotificationBell() {
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        aria-label={t("notifications")}
+        aria-label={
+          unreadCount > 0 ? t("notificationsWithCount", { count: unreadCount }) : t("notifications")
+        }
+        aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-full border border-border bg-surface px-2.5 py-1.5 text-sm text-foreground hover:bg-[var(--app-hover)]"
+        /* `min-h-11` clears the 44px comfortable touch target the emoji-sized
+           button did not. The count is `aria-hidden` because the button's own
+           label already states it — otherwise it is read twice. */
+        className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-border text-base text-foreground transition-colors hover:bg-[var(--app-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
       >
-        🔔
+        <span aria-hidden="true">🔔</span>
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
+          <span
+            aria-hidden="true"
+            className="absolute -right-0.5 -top-0.5 min-w-[1.125rem] rounded-full bg-primary px-1 text-center text-[10px] font-bold leading-[1.125rem] tabular-nums text-primary-foreground"
+          >
             {unreadCount}
           </span>
         )}

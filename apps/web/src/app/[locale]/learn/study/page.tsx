@@ -56,14 +56,11 @@ export default async function StudyHubPage({
         />
       </div>
 
-      <section className="mt-8 space-y-4">
+      <section className="mt-8 border-t border-border">
         {overview.levels.map((level) => {
           const title = locale === "ja" ? level.titleJa : level.titleEn;
           return (
-            <article
-              key={level.id}
-              className="rounded-2xl border border-border bg-surface p-5"
-            >
+            <article key={level.id} className="border-b border-border py-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold text-foreground">{title}</h2>
