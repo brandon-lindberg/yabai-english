@@ -734,7 +734,9 @@
       "teacherReport": "Teacher report",
       "thread": "Thread",
       "when": "Updated",
-      "empty": "No reported threads."
+      "empty": "No reported threads.",
+      "studentAbbr": "S",
+      "teacherAbbr": "T"
     },
     "userDetail": {
       "title": "User",
@@ -801,7 +803,10 @@
       "prev": "Previous",
       "next": "Next",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "sortAsc": "ascending",
+      "sortDesc": "descending",
+      "sortSummary": "Sorted by {field}, {direction}"
     },
     "placementReview": {
       "levelLabel": "Placement level for {name}",

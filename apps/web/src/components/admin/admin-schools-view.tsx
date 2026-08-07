@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ConfirmDelete } from "@/components/ui/confirm-delete";
+import { Button } from "@/components/ui/button";
+import { DataList, DataRow } from "@/components/ui/data-row";
 import { Field, Input, Select } from "@/components/ui/field";
+import { Status } from "@/components/ui/status";
 
 function normalizeSlugInput(raw: string): string {
   return raw
@@ -143,14 +146,17 @@ function CreateOrgForm({ onCreated }: { onCreated: () => void }) {
           fullWidth
         />
       </div>
-      {error && <p className="mt-3 text-sm text-[var(--app-danger)]">{error}</p>}
-      <button
-        type="submit"
-        disabled={busy}
-        className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
-      >
+      {error ? (
+        <p role="alert">
+          <Status tone="error">{error}</Status>
+        </p>
+      ) : null}
+      {/* Three different hand-rolled submit buttons lived in this file —
+          `rounded-lg … py-2 text-sm` here and `rounded-md … py-1 text-xs`
+          twice below, the latter about 26px tall. */}
+      <Button type="submit" loading={busy} className="mt-4">
         {busy ? t("saving") : t("createCta")}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -207,43 +213,46 @@ function OrgCard({
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <div>
           <h3 className="text-sm font-semibold text-foreground">{t("schoolsTitle")}</h3>
-          <ul className="mt-2 space-y-2">
+          {/* Was one bordered card per school — a stack of trays where a
+              ruled list reads as one list. */}
+          <DataList className="mt-2">
             {org.schools.map((s) => (
-              <li
-                key={s.id}
-                className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
-              >
-                <p className="font-medium text-foreground">
-                  {s.name}{" "}
-                  <span className="text-xs text-muted">
-                    · <code>{s.slug}</code> · {s.memberCount} {t("members")}
-                  </span>
+              <DataRow key={s.id}>
+                <p className="font-medium text-foreground">{s.name}</p>
+                <p className="mt-0.5 text-sm text-muted">
+                  <code>{s.slug}</code> · {s.memberCount} {t("members")}
                 </p>
-              </li>
+              </DataRow>
             ))}
-          </ul>
+          </DataList>
           <AddSchoolForm orgId={org.id} onAdded={onChanged} />
         </div>
 
         <div>
           <h3 className="text-sm font-semibold text-foreground">{t("membersTitle")}</h3>
-          <ul className="mt-2 space-y-1 text-sm">
+          {/* Was an unruled list sitting beside a ruled one, in the same row of
+              the same grid — two treatments for two lists of equal weight. */}
+          <DataList className="mt-2">
             {org.memberships.map((m) => {
               const schoolName = m.schoolId
                 ? (org.schools.find((s) => s.id === m.schoolId)?.name ?? m.schoolId)
                 : t("orgWide");
               return (
-                <li key={m.id} className="flex justify-between gap-2 text-sm">
-                  <span className="text-foreground">
+                <DataRow
+                  key={m.id}
+                  actions={
+                    <span className="text-sm text-muted">
+                      {m.orgRole} · {schoolName}
+                    </span>
+                  }
+                >
+                  <p className="font-medium text-foreground">
                     {m.user?.name ?? m.user?.email ?? m.user?.id ?? ""}
-                  </span>
-                  <span className="text-xs text-muted">
-                    {m.orgRole} · {schoolName}
-                  </span>
-                </li>
+                  </p>
+                </DataRow>
               );
             })}
-          </ul>
+          </DataList>
           <AssignRoleForm
             orgId={org.id}
             schools={org.schools}
@@ -292,19 +301,23 @@ function AddSchoolForm({
     onAdded();
   }
 
+  /*
+    Was a dashed box inside a column inside a section — a container three deep.
+    Structure here comes from a rule and space.
+  */
   return (
-    <form onSubmit={submit} className="mt-3 space-y-2 rounded-lg border border-dashed border-border p-3">
-      <p className="text-xs font-semibold text-muted">{t("addSchoolTitle")}</p>
+    <form onSubmit={submit} className="mt-4 space-y-3 border-t border-border pt-4">
+      <p className="text-sm font-semibold text-foreground">{t("addSchoolTitle")}</p>
       <AdminField label={t("schoolName")} value={name} onChange={setName} required />
       <AdminField label={t("schoolSlugOptional")} value={slug} onChange={setSlug} slug />
-      {error && <p className="text-xs text-[var(--app-danger)]">{error}</p>}
-      <button
-        type="submit"
-        disabled={busy}
-        className="rounded-md bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
-      >
+      {error ? (
+        <p role="alert">
+          <Status tone="error">{error}</Status>
+        </p>
+      ) : null}
+      <Button type="submit" size="sm" loading={busy}>
         {busy ? t("saving") : t("addSchoolCta")}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -351,8 +364,8 @@ function AssignRoleForm({
   }
 
   return (
-    <form onSubmit={submit} className="mt-3 space-y-2 rounded-lg border border-dashed border-border p-3">
-      <p className="text-xs font-semibold text-muted">{t("assignRoleTitle")}</p>
+    <form onSubmit={submit} className="mt-4 space-y-3 border-t border-border pt-4">
+      <p className="text-sm font-semibold text-foreground">{t("assignRoleTitle")}</p>
       <UserEmailCombobox
         label={t("userEmail")}
         value={email}
@@ -395,14 +408,14 @@ function AssignRoleForm({
           )}
         </Field>
       )}
-      {error && <p className="text-xs text-[var(--app-danger)]">{error}</p>}
-      <button
-        type="submit"
-        disabled={busy || (!orgWide && !schoolId)}
-        className="rounded-md bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
-      >
+      {error ? (
+        <p role="alert">
+          <Status tone="error">{error}</Status>
+        </p>
+      ) : null}
+      <Button type="submit" size="sm" loading={busy} disabled={!orgWide && !schoolId}>
         {busy ? t("saving") : t("assignRoleCta")}
-      </button>
+      </Button>
     </form>
   );
 }

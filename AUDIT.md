@@ -325,6 +325,32 @@ earns its place is a content question, so it is noted here rather than deleted.
 
 ---
 
+### 11. The rest of the admin screens — ✅ done
+
+Reported after #9: *"some of the components are just terrible."* Correct — #9
+had only rebuilt the overview and the user detail form.
+
+**`admin-schools-view`** (630 ln) held **three different hand-rolled submit
+buttons** — `rounded-lg … py-2 text-sm` for one and `rounded-md … py-1 text-xs`
+for the other two, the latter about 26px tall. It also nested dashed boxes
+inside columns inside sections (a container three deep), rendered one bordered
+card per school, and printed four errors as bare red paragraphs with nothing to
+announce them. Its two side-by-side lists had different treatments — Schools
+ruled, Members not — in the same row of the same grid.
+
+**`admin-reports-table`** called `new Date(...).toLocaleString()` with no
+arguments three times: the *browser's* locale rather than the app's, in whatever
+zone the runtime happened to be in. Its load error was styled amber — attention,
+the same weight as "calendar not connected" — and it labelled the two parties
+with hardcoded English initials, `S:` and `T:`.
+
+**`admin-user-grid`** paginated with hand-rolled ~28px buttons, and printed its
+sort state as the raw identifier: *"Sort: createdAt desc"*. Worse, five sortable
+columns carried **no `aria-sort` at all** — nothing told a screen reader which
+column was in force or which way round, and the header buttons reordered the
+table silently. Guarded now with three tests; removing the attribute fails
+exactly two of them.
+
 ## Still open
 
 - The impeccable finish-reviewer pass (DESIGN.md §9) has still not been run.

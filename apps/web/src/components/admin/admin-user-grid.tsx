@@ -11,6 +11,7 @@ import { AccountStatus, Role } from "@/generated/prisma/browser";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckRow } from "@/components/ui/check-row";
 import { Field, Input } from "@/components/ui/field";
@@ -65,6 +66,15 @@ type SortValue =
   | "accountStatus_asc";
 
 const columnHelper = createColumnHelper<AdminUserListItem>();
+
+/** The sort control printed the raw enum — "Sort: createdAt desc". */
+const SORT_FIELD_LABEL_KEY = {
+  createdAt: "colCreated",
+  email: "colEmail",
+  name: "colName",
+  role: "colRole",
+  accountStatus: "colStatus",
+} as const;
 
 /** Maps TanStack column id → `admin.grid` translation key */
 const COLUMN_LABEL_KEY: Partial<
@@ -204,6 +214,11 @@ export function AdminUserGrid({
 
     return () => ac.abort();
   }, [page, pageSize, qDebounced, roleFilter, sort, t]);
+
+  const [sortField, sortDirection] = sort.split("_") as [
+    "createdAt" | "email" | "name" | "role" | "accountStatus",
+    "asc" | "desc",
+  ];
 
   const cycleSort = useCallback(
     (field: "createdAt" | "email" | "name" | "role" | "accountStatus") => {
@@ -389,7 +404,10 @@ export function AdminUserGrid({
           )}
         </Field>
         <p className="text-sm text-muted">
-          {t("sortLabel")}: {sort.replace("_", " ")}
+          {t("sortSummary", {
+            field: t(SORT_FIELD_LABEL_KEY[sortField]),
+            direction: t(sortDirection === "asc" ? "sortAsc" : "sortDesc"),
+          })}
         </p>
       </div>
 
@@ -430,7 +448,22 @@ export function AdminUserGrid({
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id} className="border-b border-border bg-[var(--app-hover)]">
                 {hg.headers.map((header) => (
-                  <th key={header.id} className="px-3 py-2 font-semibold text-foreground">
+                  /*
+                    `aria-sort` was absent everywhere: five sortable columns, and
+                    nothing told a screen reader which one was in force or which
+                    way round. The buttons changed the data silently.
+                  */
+                  <th
+                    key={header.id}
+                    aria-sort={
+                      header.column.id === sortField
+                        ? sortDirection === "asc"
+                          ? "ascending"
+                          : "descending"
+                        : undefined
+                    }
+                    className="px-3 py-2 font-semibold text-foreground"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -472,22 +505,24 @@ export function AdminUserGrid({
           {t("pageInfo", { page, totalPages, total })}
         </p>
         <div className="flex gap-2">
-          <button
-            type="button"
-            className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+          {/* Hand-rolled at `py-1` — about 28px, under the 36px `sm` floor and
+              well under a comfortable target. */}
+          <Button
+            variant="secondary"
+            size="sm"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
             {t("prev")}
-          </button>
-          <button
-            type="button"
-            className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
             {t("next")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

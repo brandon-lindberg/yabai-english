@@ -1,9 +1,11 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
+import { LocalDateTime } from "@/components/local-datetime";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Status } from "@/components/ui/status";
 import { actionLinkClass } from "@/components/ui/inline-link";
 
 type ThreadRow = {
@@ -19,6 +21,7 @@ type ThreadRow = {
 
 export function AdminReportsTable() {
   const t = useTranslations("admin.reportsPage");
+  const locale = useLocale();
   const [items, setItems] = useState<ThreadRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,7 +98,13 @@ export function AdminReportsTable() {
     );
   }
   if (error) {
-    return <p className="text-sm text-[var(--app-warning-text)]">{error}</p>;
+    // Was amber — the colour this world reserves for attention, the same
+    // weight as "calendar not connected". A failed load is an error.
+    return (
+      <p role="alert">
+        <Status tone="error">{error}</Status>
+      </p>
+    );
   }
   if (items.length === 0) {
     return <p className="text-sm text-muted">{t("empty")}</p>;
@@ -118,7 +127,7 @@ export function AdminReportsTable() {
               <td className="px-3 py-2 align-top">
                 <div className="space-y-1">
                   <div>
-                    <span className="text-muted">S: </span>
+                    <span className="text-muted">{t("studentAbbr")}: </span>
                     <Link
                       href={`/admin/users/${row.student.id}`}
                       className={actionLinkClass}
@@ -127,7 +136,7 @@ export function AdminReportsTable() {
                     </Link>
                   </div>
                   <div>
-                    <span className="text-muted">T: </span>
+                    <span className="text-muted">{t("teacherAbbr")}: </span>
                     <Link
                       href={`/admin/users/${row.teacher.id}`}
                       className={actionLinkClass}
@@ -140,7 +149,9 @@ export function AdminReportsTable() {
               <td className="px-3 py-2 align-top text-xs">
                 {row.studentReportedAt ? (
                   <>
-                    <p>{new Date(row.studentReportedAt).toLocaleString()}</p>
+                    <p>
+                      <LocalDateTime iso={row.studentReportedAt} locale={locale} />
+                    </p>
                     <p className="mt-1 whitespace-pre-wrap text-muted">
                       {row.studentReportReason ?? "—"}
                     </p>
@@ -152,7 +163,9 @@ export function AdminReportsTable() {
               <td className="px-3 py-2 align-top text-xs">
                 {row.teacherReportedAt ? (
                   <>
-                    <p>{new Date(row.teacherReportedAt).toLocaleString()}</p>
+                    <p>
+                      <LocalDateTime iso={row.teacherReportedAt} locale={locale} />
+                    </p>
                     <p className="mt-1 whitespace-pre-wrap text-muted">
                       {row.teacherReportReason ?? "—"}
                     </p>
@@ -162,7 +175,7 @@ export function AdminReportsTable() {
                 )}
               </td>
               <td className="px-3 py-2 text-xs text-muted">
-                {new Date(row.updatedAt).toLocaleString()}
+                <LocalDateTime iso={row.updatedAt} locale={locale} />
               </td>
             </tr>
           ))}

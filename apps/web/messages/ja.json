@@ -734,7 +734,9 @@
       "teacherReport": "講師からの通報",
       "thread": "スレッド",
       "when": "更新",
-      "empty": "通報されたスレッドはありません。"
+      "empty": "通報されたスレッドはありません。",
+      "studentAbbr": "受",
+      "teacherAbbr": "講"
     },
     "userDetail": {
       "title": "ユーザー",
@@ -801,7 +803,10 @@
       "prev": "前へ",
       "next": "次へ",
       "yes": "はい",
-      "no": "いいえ"
+      "no": "いいえ",
+      "sortAsc": "昇順",
+      "sortDesc": "降順",
+      "sortSummary": "{field}（{direction}）で並べ替え"
     },
     "placementReview": {
       "levelLabel": "{name} さんのレベル",
