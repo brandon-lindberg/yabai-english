@@ -1,48 +1,74 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
+import type { BookingStatus } from "@/generated/prisma/enums";
 import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
-import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 import { Status } from "@/components/ui/status";
 import { buttonClasses } from "@/components/ui/button";
 
-type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
-
 /**
- * The dashboard's focal moment.
+ * The dashboard's focal moment, for whoever is looking at it.
  *
- * Previously this was one card in a two-up grid, equal in weight to the profile
- * summary. It is not equal: it is the single thing a student opens the dashboard
- * to find out. So it loses the card, takes the page's full measure, and sets the
- * time at display scale.
+ * This was written for students, typed to the student booking query, and its
+ * own comment asserted that the next lesson is "the single thing a student
+ * opens the dashboard to find out" — without ever asking whether that is also
+ * true of a teacher. It is. The teacher dashboard opened on a ledger of counts
+ * and buried the next lesson in a list.
  *
- * The heading is screen-reader-only on purpose. A small "Next lesson" label sat
- * above a large date would be an eyebrow, which the craft floor bans outright —
- * the date carries its own weight, and the landmark stays properly labelled.
+ * So the shape is normalised: whoever the other person is, they are the
+ * counterpart. What differs between the flows is only what to offer when there
+ * is no next lesson — a student books one, a teacher opens their availability.
  */
-export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) {
+
+export type NextLessonView = {
+  id: string;
+  startsAt: Date;
+  endsAt: Date;
+  /** The other person: the teacher for a student, the student for a teacher. */
+  counterpartName: string;
+  lessonNameJa: string;
+  lessonNameEn: string;
+  status: BookingStatus;
+  meetUrl: string | null;
+};
+
+export async function DashboardNextLesson({
+  next,
+  emptyMessage,
+  emptyAction,
+}: {
+  next: NextLessonView | null;
+  emptyMessage: string;
+  emptyAction: ReactNode;
+}) {
   const locale = await getLocale();
   const t = await getTranslations("dashboard");
   const th = await getTranslations("dashboard.highlights");
-  const next = upcoming[0];
 
   if (!next) {
     return (
       <section className="border-t border-border pt-6" aria-labelledby="next-lesson-heading">
-        <h2 id="next-lesson-heading" className="text-xl font-bold tracking-[-0.02em] text-foreground">
+        <h2
+          id="next-lesson-heading"
+          className="text-xl font-bold tracking-[-0.02em] text-foreground"
+        >
           {th("nextLessonTitle")}
         </h2>
-        <p className="mt-2 max-w-[52ch] text-base text-muted">{th("noNextLesson")}</p>
-        <Link href="/book" className={`mt-5 ${buttonClasses({ size: "lg" })}`}>
-          {th("bookCta")}
-        </Link>
+        <p className="mt-2 max-w-[52ch] text-base text-muted">{emptyMessage}</p>
+        <div className="mt-5">{emptyAction}</div>
       </section>
     );
   }
 
   return (
     <section className="border-t border-border pt-6" aria-labelledby="next-lesson-heading">
+      {/*
+        The heading is screen-reader-only on purpose. A small "Next lesson"
+        label above a large date would be an eyebrow, which DESIGN.md §4 bans —
+        the date carries its own weight and the landmark stays labelled.
+      */}
       <h2 id="next-lesson-heading" className="sr-only">
         {th("nextLessonTitle")}
       </h2>
@@ -54,13 +80,13 @@ export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) 
         className="block text-[clamp(1.75rem,4.5vw,3.25rem)] font-black leading-[1.05] tracking-[-0.035em] tabular-nums text-foreground"
       />
 
-      {/* The teacher, named and prominent: continuity with one person is the
-          product's whole thesis, and it was previously a grey "Teacher: x" line. */}
+      {/* The other person, named and prominent: continuity with one person is
+          the product's whole thesis, and it was previously a grey line. */}
       <p className="mt-3 text-lg font-bold tracking-[-0.02em] text-foreground">
-        {next.teacher.user.name ?? next.teacher.user.email}
+        {next.counterpartName}
       </p>
       <p className="mt-0.5 text-sm text-muted">
-        {next.lessonProduct.nameJa} / {next.lessonProduct.nameEn}
+        {next.lessonNameJa} / {next.lessonNameEn}
       </p>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">

@@ -286,7 +286,12 @@
       "flashcardAvgTime": "平均回答時間",
       "flashcardSeconds": "{sec} 秒",
       "flashcardWeak": "苦手カード",
-      "flashcardMastered": "習得カード"
+      "flashcardMastered": "習得カード",
+      "noNextLessonTeacher": "予約済みのレッスンはまだありません。",
+      "openAvailabilityCta": "空き時間を設定",
+      "statUpcoming": "今後のレッスン",
+      "statCompleted": "完了したレッスン",
+      "statRank": "学習ランク"
     },
     "profilePage": {
       "title": "プロフィール",

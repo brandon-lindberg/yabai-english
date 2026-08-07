@@ -286,7 +286,12 @@
       "flashcardAvgTime": "Avg. time to answer",
       "flashcardSeconds": "{sec} s",
       "flashcardWeak": "Weak cards",
-      "flashcardMastered": "Mastered cards"
+      "flashcardMastered": "Mastered cards",
+      "noNextLessonTeacher": "No upcoming lessons booked yet.",
+      "openAvailabilityCta": "Set your availability",
+      "statUpcoming": "Upcoming lessons",
+      "statCompleted": "Lessons completed",
+      "statRank": "Study rank"
     },
     "profilePage": {
       "title": "Profile",
