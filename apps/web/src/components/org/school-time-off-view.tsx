@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
 import { buttonClasses } from "@/components/ui/button";
-import { controlClass } from "@/components/ui/field";
+import { Field, Input } from "@/components/ui/field";
+import { Status } from "@/components/ui/status";
 
 type TimeOffRequest = {
   id: string;
@@ -118,44 +119,51 @@ export function SchoolTimeOffView({
       {canRequest && showCreate && (
         <AppCard className="mb-6">
           <form onSubmit={handleCreate} className="space-y-4">
+            {/*
+              These labels had no `htmlFor` and did not wrap their input, so
+              nothing connected them: clicking a label did nothing, and a screen
+              reader reached three unlabelled boxes. `Field` generates the id and
+              ties them together.
+            */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("startDate")}
-                </label>
-                <input
-                  type="date"
-                  className={controlClass()}
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("endDate")}
-                </label>
-                <input
-                  type="date"
-                  className={controlClass()}
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                />
-              </div>
+              <Field label={t("startDate")} required>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="date"
+                    required
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                )}
+              </Field>
+              <Field label={t("endDate")} required>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="date"
+                    required
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                )}
+              </Field>
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
-                {t("reason")}
-              </label>
-              <input
-                className={controlClass()}
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={t("reviewNotePlaceholder")}
-              />
-            </div>
-            {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
+            <Field label={t("reason")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder={t("reviewNotePlaceholder")}
+                />
+              )}
+            </Field>
+            {error ? (
+              <p role="alert">
+                <Status tone="error">{error}</Status>
+              </p>
+            ) : null}
             <button
               type="submit"
               disabled={saving}

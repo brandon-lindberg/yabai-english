@@ -5,7 +5,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
 import { buttonClasses } from "@/components/ui/button";
 import { formatYen } from "@/lib/format-money";
-import { controlClass } from "@/components/ui/field";
+import { CheckRow } from "@/components/ui/check-row";
+import { Field, Input } from "@/components/ui/field";
+import { Status } from "@/components/ui/status";
 
 type Pricing = {
   id: string;
@@ -82,43 +84,45 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
       {showCreate && (
         <AppCard className="mb-6">
           <form onSubmit={handleCreate} className="space-y-4">
+            {/* Same detached labels as the time-off form: no `htmlFor`, no
+                wrapping, so neither control had a name. */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("duration")}
-                </label>
-                <input
-                  type="number"
-                  className={controlClass()}
-                  value={form.durationMin}
-                  onChange={(e) => setForm({ ...form, durationMin: Number(e.target.value) })}
-                  min={1}
-                  required
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("price")}
-                </label>
-                <input
-                  type="number"
-                  className={controlClass()}
-                  value={form.priceYen}
-                  onChange={(e) => setForm({ ...form, priceYen: Number(e.target.value) })}
-                  min={0}
-                  required
-                />
-              </div>
+              <Field label={t("duration")} required>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="number"
+                    min={1}
+                    required
+                    value={form.durationMin}
+                    onChange={(e) => setForm({ ...form, durationMin: Number(e.target.value) })}
+                  />
+                )}
+              </Field>
+              <Field label={t("price")} required>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="number"
+                    min={0}
+                    required
+                    value={form.priceYen}
+                    onChange={(e) => setForm({ ...form, priceYen: Number(e.target.value) })}
+                  />
+                )}
+              </Field>
             </div>
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="checkbox"
-                checked={form.isGroup}
-                onChange={(e) => setForm({ ...form, isGroup: e.target.checked })}
-              />
+            <CheckRow
+              checked={form.isGroup}
+              onChange={(next) => setForm({ ...form, isGroup: next })}
+            >
               {t("group")}
-            </label>
-            {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
+            </CheckRow>
+            {error ? (
+              <p role="alert">
+                <Status tone="error">{error}</Status>
+              </p>
+            ) : null}
             <div className="flex gap-2">
               <button
                 type="submit"

@@ -5,6 +5,7 @@ import { DateTime } from "luxon";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { buttonClasses } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
 import { Status } from "@/components/ui/status";
 
 type Props = {
@@ -86,17 +87,18 @@ export function TeacherBookingRescheduleForm({
         </p>
       ) : null}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-        <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs font-medium text-muted">
-          {t("rescheduleLabel")}
-          <input
-            type="datetime-local"
-            value={value}
-            onChange={(ev) => setValue(ev.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
-            disabled={loading}
-            required
-          />
-        </label>
+        <Field label={t("rescheduleLabel")} required className="min-w-0 flex-1">
+          {(field) => (
+            <Input
+              {...field}
+              type="datetime-local"
+              value={value}
+              onChange={(ev) => setValue(ev.target.value)}
+              disabled={loading}
+              required
+            />
+          )}
+        </Field>
         <button
           type="submit"
           disabled={loading}

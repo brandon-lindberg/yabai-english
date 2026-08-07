@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { CheckoutTermsAgreementLabel } from "@/components/checkout-terms-agreement-label";
 import { buttonClasses } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
 import { Status } from "@/components/ui/status";
 
 type Props = {
@@ -52,15 +53,9 @@ export function CheckoutPayButton({ bookingId }: Props) {
           <Status tone="error">{error}</Status>
         </p>
       )}
-      <label className="flex items-start gap-2 text-sm text-muted">
-        <input
-          type="checkbox"
-          checked={accepted}
-          onChange={(e) => setAccepted(e.target.checked)}
-          className="mt-1"
-        />
+      <CheckRow checked={accepted} onChange={setAccepted}>
         <CheckoutTermsAgreementLabel />
-      </label>
+      </CheckRow>
       <button
         type="button"
         onClick={onPay}

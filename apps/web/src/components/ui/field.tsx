@@ -80,21 +80,30 @@ export function Field({
 
   return (
     <div className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}>
-      <label
-        htmlFor={id}
-        className={
-          hideLabel
-            ? "sr-only"
-            : "text-sm font-medium text-foreground"
-        }
-      >
-        {label}
-        {required ? (
-          <span className="ml-1 text-[var(--app-danger)]" aria-hidden="true">
-            *
-          </span>
-        ) : null}
-      </label>
+      {/*
+        The required marker sits beside the label, not inside it. It is
+        decorative — `required` on the control is what carries the meaning — so
+        it is `aria-hidden`, and the accessible name is the label alone either
+        way. But a `*` inside the element puts it in the label's textContent,
+        which is what `getByLabelText` matches on, so every required field in
+        the app became unfindable by its own label. Outside, both agree.
+      */}
+      {hideLabel ? (
+        <label htmlFor={id} className="sr-only">
+          {label}
+        </label>
+      ) : (
+        <span className="flex items-baseline gap-1">
+          <label htmlFor={id} className="text-sm font-medium text-foreground">
+            {label}
+          </label>
+          {required ? (
+            <span className="text-[var(--app-danger)]" aria-hidden="true">
+              *
+            </span>
+          ) : null}
+        </span>
+      )}
 
       {children({
         id,
@@ -147,3 +156,26 @@ export function Select({
     </select>
   );
 }
+
+/**
+ * Raw controls that deliberately stay raw.
+ *
+ * After the sweep, fourteen `<input>`/`<select>`/`<textarea>` remain outside
+ * these primitives. Each is here on purpose:
+ *
+ * - **Radio groups** — `teacher-lesson-rate-basis-toggle`, `booking-form`'s
+ *   payment method. A radio group's name belongs on a `<fieldset>`/`<legend>`,
+ *   not on each input; `Field` labels one control, which is the wrong shape.
+ * - **The grid rate rows** — `teacher-lesson-offer-row`, and the group-size
+ *   field that lines up beside them. `RATE_FIELD_LABEL_ROW` bottom-aligns
+ *   labels across a row so controls stay level however the text wraps. `Field`
+ *   stacks each label against its own control and would break that alignment.
+ * - **The checklist mark** — `onboarding-checklist`. The checkbox *is* the
+ *   status mark inside a rich row, sized and positioned to match the read-only
+ *   circle it replaces, and named from the row's title.
+ * - **The chat composers and admin search** — `chat-panel`. Placeholder-and-send
+ *   controls in a dense panel, now carrying `aria-label`.
+ *
+ * Everything else goes through `Field`. Reach for `controlClass` only when
+ * there is genuinely no label to attach.
+ */

@@ -12,7 +12,9 @@ import {
 } from "@/lib/school-schedule-occurrences";
 import { weekdayLabel } from "@/lib/weekdays";
 import { buttonClasses } from "@/components/ui/button";
-import { controlClass } from "@/components/ui/field";
+import { CheckRow } from "@/components/ui/check-row";
+import { Field, Input, Select } from "@/components/ui/field";
+import { Status } from "@/components/ui/status";
 
 type Taxonomy = {
   id: string;
@@ -302,236 +304,245 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
       ) : null}
 
       {showCreate && (
+        /*
+          Every control here was a bare `<label className="text-xs text-muted">`
+          wrapping its input — implicit association, which works, but a label a
+          third smaller and two shades lighter than the labels on every other
+          form in the app, with nowhere to hang a hint or an error. `Field` owns
+          that wiring, and the empty-taxonomy notices become real hints instead
+          of loose spans.
+        */
         <div className="rounded-xl border border-border bg-background p-4">
           <h3 className="mb-3 text-sm font-semibold text-foreground">
             {t("createTitle")}
           </h3>
-          <form onSubmit={handleCreate} className="space-y-3">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <label className="text-xs text-muted">
-                {t("dayOfWeek")}
-                <select
-                  className={controlClass()}
-                  value={draft.dayOfWeek}
-                  onChange={(e) =>
-                    setDraft({ ...draft, dayOfWeek: Number(e.target.value) })
-                  }
-                >
-                  {[0, 1, 2, 3, 4, 5, 6].map((d) => (
-                    <option key={d} value={d}>
-                      {weekdayLabel(d, locale)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-xs text-muted">
-                {t("startTime")}
-                <input
-                  type="time"
-                  className={controlClass()}
-                  value={toTime(draft.startMin)}
-                  onChange={(e) =>
-                    setDraft({ ...draft, startMin: parseTime(e.target.value) })
-                  }
-                />
-              </label>
-              <label className="text-xs text-muted">
-                {t("endTime")}
-                <input
-                  type="time"
-                  className={controlClass()}
-                  value={toTime(draft.endMin)}
-                  onChange={(e) =>
-                    setDraft({ ...draft, endMin: parseTime(e.target.value) })
-                  }
-                />
-              </label>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              <label className="text-xs text-muted">
-                {t("duration")}
-                <input
-                  type="number"
-                  className={controlClass()}
-                  value={draft.durationMin}
-                  min={1}
-                  onChange={(e) =>
-                    setDraft({ ...draft, durationMin: Number(e.target.value) })
-                  }
-                />
-              </label>
-              <label className="text-xs text-muted">
-                {t("capacity")}
-                <input
-                  type="number"
-                  className={controlClass()}
-                  value={draft.capacity}
-                  min={1}
-                  max={100}
-                  onChange={(e) =>
-                    setDraft({ ...draft, capacity: Number(e.target.value) })
-                  }
-                />
-              </label>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="text-xs text-muted">
-                {t("recurrence")}
-                <select
-                  className={controlClass()}
-                  value={draft.recurrence}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      recurrence: e.target.value as RecurrenceValue,
-                    })
-                  }
-                >
-                  <option value="WEEKLY">{t("recurrenceWeekly")}</option>
-                  <option value="DAILY">{t("recurrenceDaily")}</option>
-                  <option value="ONE_OFF">{t("recurrenceOneOff")}</option>
-                </select>
-              </label>
-              {draft.recurrence === "ONE_OFF" ? (
-                <label className="text-xs text-muted">
-                  {t("oneOffDate")}
-                  <input
-                    type="date"
-                    className={controlClass()}
-                    value={draft.startsOn}
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field label={t("dayOfWeek")}>
+                {(field) => (
+                  <Select
+                    {...field}
+                    value={draft.dayOfWeek}
                     onChange={(e) =>
-                      setDraft({ ...draft, startsOn: e.target.value })
+                      setDraft({ ...draft, dayOfWeek: Number(e.target.value) })
                     }
-                    required
+                  >
+                    {[0, 1, 2, 3, 4, 5, 6].map((d) => (
+                      <option key={d} value={d}>
+                        {weekdayLabel(d, locale)}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+              <Field label={t("startTime")}>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="time"
+                    value={toTime(draft.startMin)}
+                    onChange={(e) =>
+                      setDraft({ ...draft, startMin: parseTime(e.target.value) })
+                    }
                   />
-                </label>
+                )}
+              </Field>
+              <Field label={t("endTime")}>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="time"
+                    value={toTime(draft.endMin)}
+                    onChange={(e) =>
+                      setDraft({ ...draft, endMin: parseTime(e.target.value) })
+                    }
+                  />
+                )}
+              </Field>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field label={t("duration")}>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="number"
+                    min={1}
+                    value={draft.durationMin}
+                    onChange={(e) =>
+                      setDraft({ ...draft, durationMin: Number(e.target.value) })
+                    }
+                  />
+                )}
+              </Field>
+              <Field label={t("capacity")}>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={draft.capacity}
+                    onChange={(e) =>
+                      setDraft({ ...draft, capacity: Number(e.target.value) })
+                    }
+                  />
+                )}
+              </Field>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("recurrence")}>
+                {(field) => (
+                  <Select
+                    {...field}
+                    value={draft.recurrence}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        recurrence: e.target.value as RecurrenceValue,
+                      })
+                    }
+                  >
+                    <option value="WEEKLY">{t("recurrenceWeekly")}</option>
+                    <option value="DAILY">{t("recurrenceDaily")}</option>
+                    <option value="ONE_OFF">{t("recurrenceOneOff")}</option>
+                  </Select>
+                )}
+              </Field>
+              {draft.recurrence === "ONE_OFF" ? (
+                <Field label={t("oneOffDate")} required>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      required
+                      value={draft.startsOn}
+                      onChange={(e) =>
+                        setDraft({ ...draft, startsOn: e.target.value })
+                      }
+                    />
+                  )}
+                </Field>
               ) : null}
             </div>
 
             {draft.recurrence === "WEEKLY" ? (
-              <fieldset className="rounded-lg border border-border p-3">
-                <legend className="px-1 text-xs text-muted">
+              <fieldset>
+                <legend className="text-sm font-medium text-foreground">
                   {t("daysOfWeek")}
                 </legend>
-                <div className="flex flex-wrap gap-3">
-                  {dayOptions.map(({ value, label }) => {
-                    const checked = draft.daysOfWeek.includes(value);
-                    return (
-                      <label
-                        key={value}
-                        className="inline-flex items-center gap-1 text-xs text-foreground"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          aria-label={label}
-                          onChange={(e) => {
-                            const next = e.target.checked
-                              ? [...draft.daysOfWeek, value]
-                              : draft.daysOfWeek.filter((x) => x !== value);
-                            setDraft({ ...draft, daysOfWeek: next });
-                          }}
-                        />
-                        {label}
-                      </label>
-                    );
-                  })}
+                <div className="mt-1 flex flex-wrap gap-x-5">
+                  {dayOptions.map(({ value, label }) => (
+                    <CheckRow
+                      key={value}
+                      checked={draft.daysOfWeek.includes(value)}
+                      onChange={(next) =>
+                        setDraft({
+                          ...draft,
+                          daysOfWeek: next
+                            ? [...draft.daysOfWeek, value]
+                            : draft.daysOfWeek.filter((x) => x !== value),
+                        })
+                      }
+                    >
+                      {label}
+                    </CheckRow>
+                  ))}
                 </div>
               </fieldset>
             ) : null}
 
             {draft.recurrence !== "ONE_OFF" ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-xs text-muted">
-                  {t("startsOn")}
-                  <input
-                    type="date"
-                    className={controlClass()}
-                    value={draft.startsOn}
-                    onChange={(e) =>
-                      setDraft({ ...draft, startsOn: e.target.value })
-                    }
-                  />
-                </label>
-                <label className="text-xs text-muted">
-                  {t("endsOn")}
-                  <input
-                    type="date"
-                    className={controlClass()}
-                    value={draft.endsOn}
-                    onChange={(e) =>
-                      setDraft({ ...draft, endsOn: e.target.value })
-                    }
-                  />
-                </label>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={t("startsOn")}>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      value={draft.startsOn}
+                      onChange={(e) =>
+                        setDraft({ ...draft, startsOn: e.target.value })
+                      }
+                    />
+                  )}
+                </Field>
+                <Field label={t("endsOn")}>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      value={draft.endsOn}
+                      onChange={(e) =>
+                        setDraft({ ...draft, endsOn: e.target.value })
+                      }
+                    />
+                  )}
+                </Field>
               </div>
             ) : null}
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="text-xs text-muted">
-                {t("classLevel")}
-                <select
-                  className={controlClass()}
-                  value={draft.classLevelId}
-                  required
-                  onChange={(e) =>
-                    setDraft({ ...draft, classLevelId: e.target.value })
-                  }
-                >
-                  <option value="" disabled>
-                    {t("classLevelPlaceholder")}
-                  </option>
-                  {classLevels.map((lvl) => (
-                    <option key={lvl.id} value={lvl.id}>
-                      {pickTaxonomyLabel(lvl, locale)}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label={t("classLevel")}
+                required
+                hint={classLevels.length === 0 ? t("noClassLevels") : null}
+              >
+                {(field) => (
+                  <Select
+                    {...field}
+                    required
+                    value={draft.classLevelId}
+                    onChange={(e) =>
+                      setDraft({ ...draft, classLevelId: e.target.value })
+                    }
+                  >
+                    <option value="" disabled>
+                      {t("classLevelPlaceholder")}
                     </option>
-                  ))}
-                </select>
-                {classLevels.length === 0 ? (
-                  <span className="mt-1 block text-[11px] text-muted">
-                    {t("noClassLevels")}
-                  </span>
-                ) : null}
-              </label>
-              <label className="text-xs text-muted">
-                {t("classType")}
-                <select
-                  className={controlClass()}
-                  value={draft.classTypeId}
-                  required
-                  onChange={(e) =>
-                    setDraft({ ...draft, classTypeId: e.target.value })
-                  }
-                >
-                  <option value="" disabled>
-                    {t("classTypePlaceholder")}
-                  </option>
-                  {classTypes.map((ty) => (
-                    <option key={ty.id} value={ty.id}>
-                      {pickTaxonomyLabel(ty, locale)}
+                    {classLevels.map((lvl) => (
+                      <option key={lvl.id} value={lvl.id}>
+                        {pickTaxonomyLabel(lvl, locale)}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+              <Field
+                label={t("classType")}
+                required
+                hint={classTypes.length === 0 ? t("noClassTypes") : null}
+              >
+                {(field) => (
+                  <Select
+                    {...field}
+                    required
+                    value={draft.classTypeId}
+                    onChange={(e) =>
+                      setDraft({ ...draft, classTypeId: e.target.value })
+                    }
+                  >
+                    <option value="" disabled>
+                      {t("classTypePlaceholder")}
                     </option>
-                  ))}
-                </select>
-                {classTypes.length === 0 ? (
-                  <span className="mt-1 block text-[11px] text-muted">
-                    {t("noClassTypes")}
-                  </span>
-                ) : null}
-              </label>
+                    {classTypes.map((ty) => (
+                      <option key={ty.id} value={ty.id}>
+                        {pickTaxonomyLabel(ty, locale)}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
             </div>
 
-            {error && (
-              <p className="text-sm text-[var(--app-danger)]">{error}</p>
-            )}
+            {error ? (
+              <p role="alert">
+                <Status tone="error">{error}</Status>
+              </p>
+            ) : null}
 
             <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className={buttonClasses()}
-              >
+              <button type="submit" disabled={saving} className={buttonClasses()}>
                 {saving ? t("creating") : t("create")}
               </button>
               <button

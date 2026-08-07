@@ -199,9 +199,9 @@ describe("SchoolScheduleCalendar", () => {
       screen.getByRole("button", { name: en.org.school.schedulePage.addSlot }),
     );
 
-    const levelSelect = (await screen.findByLabelText(
-      en.org.school.schedulePage.classLevel,
-    )) as HTMLSelectElement;
+    const levelSelect = (await screen.findByRole("combobox", {
+      name: en.org.school.schedulePage.classLevel,
+    })) as HTMLSelectElement;
     const optionTexts = Array.from(levelSelect.options).map((o) => o.text);
     expect(optionTexts).toContain("Year 1");
     expect(optionTexts).toContain("Beginner");
@@ -219,19 +219,25 @@ describe("SchoolScheduleCalendar", () => {
       screen.getByRole("button", { name: en.org.school.schedulePage.addSlot }),
     );
 
-    const dayInput = screen.getByLabelText(
-      en.org.school.schedulePage.dayOfWeek,
-    ) as HTMLSelectElement;
+    /*
+      By role and accessible name, not by the label's raw text. Required fields
+      render a `*` inside the <label>, marked aria-hidden so it stays out of the
+      accessible name — but `getByLabelText` reads textContent and sees it.
+      Role queries use the real name computation, which is the thing under test.
+    */
+    const dayInput = screen.getByRole("combobox", {
+      name: en.org.school.schedulePage.dayOfWeek,
+    }) as HTMLSelectElement;
     fireEvent.change(dayInput, { target: { value: "2" } });
 
-    const levelSelect = screen.getByLabelText(
-      en.org.school.schedulePage.classLevel,
-    ) as HTMLSelectElement;
+    const levelSelect = screen.getByRole("combobox", {
+      name: en.org.school.schedulePage.classLevel,
+    }) as HTMLSelectElement;
     fireEvent.change(levelSelect, { target: { value: "lvl-2" } });
 
-    const typeSelect = screen.getByLabelText(
-      en.org.school.schedulePage.classType,
-    ) as HTMLSelectElement;
+    const typeSelect = screen.getByRole("combobox", {
+      name: en.org.school.schedulePage.classType,
+    }) as HTMLSelectElement;
     fireEvent.change(typeSelect, { target: { value: "type-2" } });
 
     fireEvent.click(
@@ -261,9 +267,9 @@ describe("SchoolScheduleCalendar", () => {
       screen.getByRole("button", { name: en.org.school.schedulePage.addSlot }),
     );
 
-    const recurrence = (await screen.findByLabelText(
-      en.org.school.schedulePage.recurrence,
-    )) as HTMLSelectElement;
+    const recurrence = (await screen.findByRole("combobox", {
+      name: en.org.school.schedulePage.recurrence,
+    })) as HTMLSelectElement;
     const optionTexts = Array.from(recurrence.options).map((o) => o.text);
     expect(optionTexts).toContain(en.org.school.schedulePage.recurrenceWeekly);
     expect(optionTexts).toContain(en.org.school.schedulePage.recurrenceDaily);
@@ -283,11 +289,11 @@ describe("SchoolScheduleCalendar", () => {
 
     // Class level/type are required: pick them first.
     fireEvent.change(
-      await screen.findByLabelText(en.org.school.schedulePage.classLevel),
+      await screen.findByRole("combobox", { name: en.org.school.schedulePage.classLevel }),
       { target: { value: "lvl-1" } },
     );
     fireEvent.change(
-      await screen.findByLabelText(en.org.school.schedulePage.classType),
+      await screen.findByRole("combobox", { name: en.org.school.schedulePage.classType }),
       { target: { value: "type-1" } },
     );
 
@@ -328,19 +334,21 @@ describe("SchoolScheduleCalendar", () => {
     );
 
     fireEvent.change(
-      await screen.findByLabelText(en.org.school.schedulePage.classLevel),
+      await screen.findByRole("combobox", { name: en.org.school.schedulePage.classLevel }),
       { target: { value: "lvl-1" } },
     );
     fireEvent.change(
-      await screen.findByLabelText(en.org.school.schedulePage.classType),
+      await screen.findByRole("combobox", { name: en.org.school.schedulePage.classType }),
       { target: { value: "type-1" } },
     );
 
-    const recurrence = (await screen.findByLabelText(
-      en.org.school.schedulePage.recurrence,
-    )) as HTMLSelectElement;
+    const recurrence = (await screen.findByRole("combobox", {
+      name: en.org.school.schedulePage.recurrence,
+    })) as HTMLSelectElement;
     fireEvent.change(recurrence, { target: { value: "ONE_OFF" } });
 
+    // `input type="date"` has no implicit ARIA role, so this one stays a label
+    // query — which works again now the required marker sits outside <label>.
     const date = (await screen.findByLabelText(
       en.org.school.schedulePage.oneOffDate,
     )) as HTMLInputElement;

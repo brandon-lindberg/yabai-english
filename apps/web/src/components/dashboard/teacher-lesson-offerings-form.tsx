@@ -13,6 +13,7 @@ import {
 } from "@/lib/lesson-rate-policy";
 import { TeacherLessonRateBasisToggle } from "./teacher-lesson-rate-basis-toggle";
 import { buttonClasses } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
 import {
   TeacherLessonOfferRow,
   RATE_FIELD_LABEL_ROW,
@@ -376,18 +377,13 @@ export function TeacherLessonOfferingsForm({
         )}
       </section>
 
-      <label className="flex items-start gap-2 py-2 text-sm text-foreground">
-        <input
-          type="checkbox"
-          checked={offersFreeTrial}
-          onChange={(e) => setOffersFreeTrial(e.target.checked)}
-          className="mt-0.5"
-        />
-        <span>
-          <span className="font-medium text-foreground">{t("teacherOffersFreeTrialLabel")}</span>
-          <span className="mt-0.5 block text-xs text-muted">{t("teacherOffersFreeTrialHelp")}</span>
-        </span>
-      </label>
+      <CheckRow
+        checked={offersFreeTrial}
+        onChange={setOffersFreeTrial}
+        description={t("teacherOffersFreeTrialHelp")}
+      >
+        <span className="font-medium text-foreground">{t("teacherOffersFreeTrialLabel")}</span>
+      </CheckRow>
 
       <div className="flex items-center gap-3">
         <button

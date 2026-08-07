@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
 import { buttonClasses } from "@/components/ui/button";
-import { controlClass } from "@/components/ui/field";
+import { Field, Input } from "@/components/ui/field";
 
 export type TaxonomyItem = {
   id: string;
@@ -200,8 +200,6 @@ function TaxonomySection({
   const [sortKey, setSortKey] = useState<SortKey>("sortOrder");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  const labelEnId = useId();
-  const labelJaId = useId();
 
   const sortedItems = useMemo(() => {
     const copy = [...items];
@@ -304,40 +302,33 @@ function TaxonomySection({
 
       {showAdd && (
         <form onSubmit={handleSave} className="mb-4 space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor={labelEnId}
-                className="mb-1 block text-sm font-medium text-foreground"
-              >
-                {t("name")}
-              </label>
-              <input
-                id={labelEnId}
-                className={controlClass()}
-                value={draft.labelEn}
-                onChange={(e) => setDraft({ ...draft, labelEn: e.target.value })}
-                placeholder={labelEnPlaceholder}
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor={labelJaId}
-                className="mb-1 block text-sm font-medium text-foreground"
-              >
-                {t("nameJa")}
-              </label>
-              <input
-                id={labelJaId}
-                className={controlClass()}
-                value={draft.labelJa}
-                onChange={(e) => setDraft({ ...draft, labelJa: e.target.value })}
-                placeholder={labelJaPlaceholder}
-              />
-            </div>
+          {/* These were correctly wired by hand — explicit ids, real `htmlFor`
+              — which is exactly the work `Field` exists to stop repeating. The
+              shared help line becomes the English field's hint so it is
+              announced with the control rather than read as loose text. */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t("name")} hint={t("nameHelp")} required>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={draft.labelEn}
+                  onChange={(e) => setDraft({ ...draft, labelEn: e.target.value })}
+                  placeholder={labelEnPlaceholder}
+                  required
+                />
+              )}
+            </Field>
+            <Field label={t("nameJa")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={draft.labelJa}
+                  onChange={(e) => setDraft({ ...draft, labelJa: e.target.value })}
+                  placeholder={labelJaPlaceholder}
+                />
+              )}
+            </Field>
           </div>
-          <p className="text-xs text-muted">{t("nameHelp")}</p>
           {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
           <div className="flex gap-2">
             <button

@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { buttonClasses } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
 
 type Entry = {
   id: string;
@@ -95,18 +96,19 @@ export function TeacherRosterPanel() {
   return (
     <div className="space-y-6">
       <form onSubmit={addStudent} className="flex flex-wrap items-end gap-3">
-        <label className="block min-w-[240px] flex-1 space-y-1 text-sm">
-          <span className="font-medium text-foreground">{t("emailLabel")}</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-            placeholder={t("emailPlaceholder")}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
-          />
-        </label>
+        <Field label={t("emailLabel")} required className="min-w-[240px] flex-1">
+          {(field) => (
+            <Input
+              {...field}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              placeholder={t("emailPlaceholder")}
+            />
+          )}
+        </Field>
         <button
           type="submit"
           disabled={busy}

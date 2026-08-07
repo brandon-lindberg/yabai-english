@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Field, Input, Textarea } from "@/components/ui/field";
+import { CheckRow } from "@/components/ui/check-row";
 import type { SaveState } from "@/components/ui/form-status";
 import { Status } from "@/components/ui/status";
 import { ProfileSurface } from "@/components/dashboard/profile-surface";
@@ -189,18 +190,14 @@ export function TeacherProfileForm({
         setStatus("idle");
       }}
     >
-      <label className="flex cursor-pointer items-start gap-3 border-y border-border py-4 text-sm">
-        <input
-          type="checkbox"
-          checked={draft.marketplaceHidden}
-          onChange={(e) => set("marketplaceHidden", e.target.checked)}
-          className="mt-1 size-4 rounded border-border"
-        />
-        <span>
-          <span className="font-medium text-foreground">{t("teacherMarketplaceHiddenLabel")}</span>
-          <span className="mt-1 block text-muted">{t("teacherMarketplaceHiddenHelp")}</span>
-        </span>
-      </label>
+      <CheckRow
+        checked={draft.marketplaceHidden}
+        onChange={(next) => set("marketplaceHidden", next)}
+        className="border-y border-border py-4"
+        description={t("teacherMarketplaceHiddenHelp")}
+      >
+        <span className="font-medium text-foreground">{t("teacherMarketplaceHiddenLabel")}</span>
+      </CheckRow>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field

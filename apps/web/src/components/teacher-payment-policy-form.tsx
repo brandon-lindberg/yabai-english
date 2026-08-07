@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 import { buttonClasses } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
 import { inlineLinkClass } from "@/components/ui/inline-link";
 import { Status } from "@/components/ui/status";
 
@@ -57,13 +58,7 @@ export function TeacherPaymentPolicyForm({ acceptedAt }: Props) {
         <p className="text-sm font-medium text-foreground">{t("paymentPolicyAccepted")}</p>
       ) : (
         <div className="space-y-3">
-          <label className="flex items-start gap-2 text-sm text-foreground">
-            <input
-              type="checkbox"
-              className="mt-1"
-              checked={checked}
-              onChange={(event) => setChecked(event.target.checked)}
-            />
+          <CheckRow checked={checked} onChange={setChecked}>
             <span className="leading-relaxed">
               {t("paymentPolicyAcceptCheckboxPrefix")}
               {t("paymentPolicyAcceptCheckboxPrefix") ? " " : null}
@@ -86,7 +81,7 @@ export function TeacherPaymentPolicyForm({ acceptedAt }: Props) {
               </Link>
               {t("paymentPolicyAcceptCheckboxSuffix")}
             </span>
-          </label>
+          </CheckRow>
           <button
             type="button"
             onClick={() => {

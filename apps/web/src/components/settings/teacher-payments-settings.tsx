@@ -16,6 +16,7 @@ import {
 } from "@/lib/payment-methods";
 import { resolveTeacherStripeSetupState } from "@/lib/teacher-stripe-setup";
 import { buttonClasses } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
 import { Status } from "@/components/ui/status";
 
 type Provider = "STRIPE" | "KOMOJU";
@@ -322,26 +323,23 @@ export function TeacherPaymentsSettings({
           <h3 className="text-base font-semibold text-foreground">{t("refundFeeTitle")}</h3>
           <p className="mt-1 text-sm text-muted">{t("refundFeeIntro")}</p>
         </div>
-        <label className="flex items-start gap-3 text-sm text-foreground">
-          <input
-            type="checkbox"
-            aria-label={t("refundFeePassToStudentLabel")}
-            checked={refundFeePassedToStudent}
-            disabled={savingRefundFee}
-            onChange={(event) => {
-              void saveRefundFeePreference(event.target.checked);
-            }}
-            className="mt-0.5 h-4 w-4 rounded border-border accent-[var(--app-primary,#4f46e5)]"
-          />
-          <span>
-            <span className="font-medium">{t("refundFeePassToStudentLabel")}</span>
-            <span className="mt-0.5 block text-xs text-muted">
-              {refundFeePassedToStudent
-                ? t("refundFeePassToStudentHelp")
-                : t("refundFeeTeacherCoversHelp")}
-            </span>
-          </span>
-        </label>
+        {/* The box carried `accent-[var(--app-primary,#4f46e5)]` — an indigo
+            fallback, a brand hue in a world that has none. The token always
+            resolves, so it never fired, but it was one edit from doing so. */}
+        <CheckRow
+          checked={refundFeePassedToStudent}
+          disabled={savingRefundFee}
+          onChange={(next) => {
+            void saveRefundFeePreference(next);
+          }}
+          description={
+            refundFeePassedToStudent
+              ? t("refundFeePassToStudentHelp")
+              : t("refundFeeTeacherCoversHelp")
+          }
+        >
+          <span className="font-medium">{t("refundFeePassToStudentLabel")}</span>
+        </CheckRow>
         {refundFeeError ? (
           <p role="alert">
           <Status tone="error">{refundFeeError}</Status>

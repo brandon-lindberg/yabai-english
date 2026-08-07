@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
 import { buttonClasses } from "@/components/ui/button";
-import { controlClass } from "@/components/ui/field";
+import { Field, Input } from "@/components/ui/field";
 
 function normalizeSlugInput(raw: string): string {
   return raw
@@ -91,41 +91,45 @@ export function OrgSchoolsList({ orgId }: Props) {
             {t("createTitle")}
           </h3>
           <form onSubmit={handleCreate} className="space-y-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
-                {t("schoolName")}
-              </label>
-              <input
-                className={controlClass()}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t("schoolNamePlaceholder")}
-                required
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
-                {t("schoolSlug")}
-              </label>
-              <input
-                className={controlClass()}
-                value={slug}
-                onChange={(e) => setSlug(normalizeSlugInput(e.target.value))}
-                onBlur={() => setSlug((s) => finalizeSlug(s))}
-                placeholder={t("schoolSlugPlaceholder")}
-                required
-              />
-              {slug.length > 0 && finalizeSlug(slug) !== slug && (
-                <p className="mt-1 text-xs text-muted">
-                  {t("slugPreview")}: <code className="text-foreground">{finalizeSlug(slug)}</code>
-                </p>
+            {/* Detached labels again: no `htmlFor`, not wrapping, so neither
+                input had a name. The slug preview and the empty-slug warning
+                become the field's own hint and error. */}
+            <Field label={t("schoolName")} required>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("schoolNamePlaceholder")}
+                  required
+                />
               )}
-              {slug.length > 0 && finalizeSlug(slug).length === 0 && (
-                <p className="mt-1 text-xs text-[var(--app-danger)]">
-                  {t("slugInvalidEmpty")}
-                </p>
-              )}
-            </div>
+            </Field>
+            <Field
+              label={t("schoolSlug")}
+                required
+                hint={
+                  slug.length > 0 && finalizeSlug(slug) !== slug
+                    ? `${t("slugPreview")}: ${finalizeSlug(slug)}`
+                    : null
+                }
+                error={
+                  slug.length > 0 && finalizeSlug(slug).length === 0
+                    ? t("slugInvalidEmpty")
+                    : null
+                }
+              >
+                {(field) => (
+                  <Input
+                    {...field}
+                    value={slug}
+                    onChange={(e) => setSlug(normalizeSlugInput(e.target.value))}
+                    onBlur={() => setSlug((s) => finalizeSlug(s))}
+                    placeholder={t("schoolSlugPlaceholder")}
+                    required
+                  />
+                )}
+              </Field>
             {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
             <div className="flex gap-2">
               <button

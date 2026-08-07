@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { TeacherPlatformTier } from "@/generated/prisma/browser";
+import { buttonClasses } from "@/components/ui/button";
+import { Field, Input, Select } from "@/components/ui/field";
 
 export type AdminTeacherTierRow = {
   teacherId: string;
@@ -85,46 +87,55 @@ export function AdminTeacherTiersView({ rows }: Props) {
         <p className="mt-1 text-sm text-muted">
           SUPER_ADMIN-only. Use this for student-specific rates below the public ¥3,000 minimum.
         </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-4">
-          <label className="text-xs text-muted">
-            Teacher
-            <select
-              value={legacyTeacherId}
-              onChange={(e) => setLegacyTeacherId(e.target.value)}
-              className="mt-1 h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-            >
-              {rows.map((row) => (
-                <option key={row.teacherId} value={row.teacherId}>
-                  {row.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-xs text-muted">
-            Student user ID
-            <input
-              value={legacyStudentId}
-              onChange={(e) => setLegacyStudentId(e.target.value)}
-              className="mt-1 h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-            />
-          </label>
-          <label className="text-xs text-muted">
-            Offering ID
-            <input
-              value={legacyOfferingId}
-              onChange={(e) => setLegacyOfferingId(e.target.value)}
-              className="mt-1 h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-            />
-          </label>
-          <label className="text-xs text-muted">
-            Rate yen
-            <input
-              inputMode="numeric"
-              value={legacyRateYen}
-              onChange={(e) => setLegacyRateYen(e.target.value.replace(/\D/g, ""))}
-              className="mt-1 h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-            />
-          </label>
+        {/*
+          NOTE: every string on this screen is hardcoded English — the component
+          never calls `useTranslations`. Converting the controls does not change
+          that; the screen still needs translating, tracked in AUDIT.md.
+        */}
+        <div className="mt-4 grid gap-4 sm:grid-cols-4">
+          <Field label="Teacher">
+            {(field) => (
+              <Select
+                {...field}
+                value={legacyTeacherId}
+                onChange={(e) => setLegacyTeacherId(e.target.value)}
+              >
+                {rows.map((row) => (
+                  <option key={row.teacherId} value={row.teacherId}>
+                    {row.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+          <Field label="Student user ID">
+            {(field) => (
+              <Input
+                {...field}
+                value={legacyStudentId}
+                onChange={(e) => setLegacyStudentId(e.target.value)}
+              />
+            )}
+          </Field>
+          <Field label="Offering ID">
+            {(field) => (
+              <Input
+                {...field}
+                value={legacyOfferingId}
+                onChange={(e) => setLegacyOfferingId(e.target.value)}
+              />
+            )}
+          </Field>
+          <Field label="Rate yen">
+            {(field) => (
+              <Input
+                {...field}
+                inputMode="numeric"
+                value={legacyRateYen}
+                onChange={(e) => setLegacyRateYen(e.target.value.replace(/\D/g, ""))}
+              />
+            )}
+          </Field>
         </div>
         <button
           type="button"
@@ -136,7 +147,7 @@ export function AdminTeacherTiersView({ rows }: Props) {
             !legacyRateYen
           }
           onClick={() => void saveLegacyRate()}
-          className="mt-3 rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-[var(--app-hover)] disabled:opacity-50"
+          className={buttonClasses({ variant: "secondary", className: "mt-4" })}
         >
           Save legacy rate
         </button>

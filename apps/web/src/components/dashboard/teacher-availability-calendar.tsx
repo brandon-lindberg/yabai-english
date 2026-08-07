@@ -30,6 +30,7 @@ import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
 import { buttonClasses } from "@/components/ui/button";
+import { Field, Input, Select } from "@/components/ui/field";
 
 type TeacherAvailabilityRecurrence = "WEEKLY" | "ONE_OFF";
 
@@ -371,6 +372,17 @@ export function TeacherAvailabilityCalendar({
   );
 
   const selectedRule = selectedRuleId ? rules.find((r) => r.id === selectedRuleId) : undefined;
+  /* Each of these was spelled out twice: once to colour a border, once to
+     decide whether to print the message beneath it. */
+  const selectedRuleDateRangeInvalid = Boolean(
+    selectedRule?.startsOn && selectedRule?.endsOn && selectedRule.startsOn > selectedRule.endsOn,
+  );
+  const selectedRuleMetaMissing = Boolean(
+    selectedRule &&
+      (!selectedRule.classLevelId ||
+        !selectedRule.classTypeId ||
+        !selectedRule.teacherLessonOfferingId),
+  );
 
   const invalidSlotRanges = useMemo(
     () => rules.some((r) => r.endMin <= r.startMin),
@@ -936,162 +948,160 @@ export function TeacherAvailabilityCalendar({
       />
 
       {selectedRule ? (
-        <div className="space-y-3 border-t border-border pt-3">
+        /*
+          The same nine fields as the add modal, written out a second time with
+          the same `text-xs text-muted` labels and the same hardcoded English
+          "Class offer". Both now go through `Field`, which is what carries the
+          invalid-range messages to the control they describe instead of leaving
+          them as loose paragraphs underneath.
+        */
+        <div className="space-y-4 border-t border-border pt-4">
           {selectedRule.recurrence === "ONE_OFF" ? (
-            <label className="block text-xs text-muted">
-              {t("date")}
-              <input
-                type="date"
-                value={selectedRule.startsOn ?? ""}
-                onChange={(e) => {
-                  const startsOn = e.target.value;
-                  patchSelected({
-                    startsOn,
-                    dayOfWeek: startsOn
-                      ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
-                      : selectedRule.dayOfWeek,
-                  });
-                }}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
-              />
-            </label>
+            <Field label={t("date")} className="sm:max-w-xs">
+              {(field) => (
+                <Input
+                  {...field}
+                  type="date"
+                  value={selectedRule.startsOn ?? ""}
+                  onChange={(e) => {
+                    const startsOn = e.target.value;
+                    patchSelected({
+                      startsOn,
+                      dayOfWeek: startsOn
+                        ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
+                        : selectedRule.dayOfWeek,
+                    });
+                  }}
+                />
+              )}
+            </Field>
           ) : (
             <>
-              <label className="block text-xs text-muted">
-                {t("dayOfWeek")}
-                <select
-                  value={selectedRule.dayOfWeek}
-                  onChange={(e) => patchSelected({ dayOfWeek: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
+              <Field label={t("dayOfWeek")} className="sm:max-w-xs">
+                {(field) => (
+                  <Select
+                    {...field}
+                    value={selectedRule.dayOfWeek}
+                    onChange={(e) => patchSelected({ dayOfWeek: Number(e.target.value) })}
+                  >
+                    {Array.from({ length: 7 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {weekdayLabel(i, locale)}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={t("fromDate")}>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      value={selectedRule.startsOn ?? ""}
+                      onChange={(e) => {
+                        const startsOn = e.target.value;
+                        patchSelected({
+                          startsOn,
+                          dayOfWeek: startsOn
+                            ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
+                            : selectedRule.dayOfWeek,
+                        });
+                      }}
+                    />
+                  )}
+                </Field>
+                <Field
+                  label={t("untilDate")}
+                  hint={t("weeklyDateRangeHint")}
+                  error={selectedRuleDateRangeInvalid ? t("invalidDateRange") : null}
                 >
-                  {Array.from({ length: 7 }, (_, i) => (
-                    <option key={i} value={i}>
-                      {weekdayLabel(i, locale)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-xs text-muted">
-                  {t("fromDate")}
-                  <input
-                    type="date"
-                    value={selectedRule.startsOn ?? ""}
-                    onChange={(e) => {
-                      const startsOn = e.target.value;
-                      patchSelected({
-                        startsOn,
-                        dayOfWeek: startsOn
-                          ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
-                          : selectedRule.dayOfWeek,
-                      });
-                    }}
-                    className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
-                  />
-                </label>
-                <label className="text-xs text-muted">
-                  {t("untilDate")}
-                  <input
-                    type="date"
-                    value={selectedRule.endsOn ?? ""}
-                    onChange={(e) => patchSelected({ endsOn: e.target.value || null })}
-                    className={`mt-1 w-full rounded-lg border bg-background px-2 py-1 text-sm text-foreground ${
-                      selectedRule.startsOn &&
-                      selectedRule.endsOn &&
-                      selectedRule.startsOn > selectedRule.endsOn
-                        ? "border-destructive"
-                        : "border-border"
-                    }`}
-                  />
-                </label>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      value={selectedRule.endsOn ?? ""}
+                      onChange={(e) => patchSelected({ endsOn: e.target.value || null })}
+                    />
+                  )}
+                </Field>
               </div>
-              <p className="text-xs text-muted">{t("weeklyDateRangeHint")}</p>
-              {selectedRule.startsOn &&
-              selectedRule.endsOn &&
-              selectedRule.startsOn > selectedRule.endsOn ? (
-                <p className="text-sm text-destructive">{t("invalidDateRange")}</p>
-              ) : null}
             </>
           )}
-          <div className="grid gap-3 sm:grid-cols-3">
-          <label className="text-xs text-muted">
-            {t("start")}
-            <input
-              type="time"
-              value={toTime(selectedRule.startMin)}
-              onChange={(e) => {
-                const startMin = parseTime(e.target.value);
-                const offer = lessonOfferings.find(
-                  (o) => o.id === selectedRule.teacherLessonOfferingId,
-                );
-                patchSelected({
-                  startMin,
-                  endMin: offer ? startMin + offer.durationMin : selectedRule.endMin,
-                });
-              }}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
-            />
-          </label>
-          <label className="text-xs text-muted">
-            {t("end")}
-            <input
-              type="time"
-              value={toTime(selectedRule.endMin)}
-            readOnly
-              className={`mt-1 w-full rounded-lg border bg-background px-2 py-1 text-sm text-foreground ${
-                selectedRule.endMin <= selectedRule.startMin
-                  ? "border-destructive"
-                  : "border-border"
-              }`}
-            />
-          </label>
-          <label className="text-xs text-muted">
-            {t("timezone")}
-            <input
-              value={selectedRule.timezone}
-              onChange={(e) => patchSelected({ timezone: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
-            />
-          </label>
-          </div>
-          {selectedRule.endMin <= selectedRule.startMin ? (
-            <p className="text-sm text-destructive">{t("invalidTimeRange")}</p>
-          ) : null}
-          <label className="block text-xs text-muted">
-            Class offer
-            <select
-              value={selectedRule.teacherLessonOfferingId ?? ""}
-              onChange={(e) => patchSelected({ teacherLessonOfferingId: e.target.value })}
-              required
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Field label={t("start")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="time"
+                  value={toTime(selectedRule.startMin)}
+                  onChange={(e) => {
+                    const startMin = parseTime(e.target.value);
+                    const offer = lessonOfferings.find(
+                      (o) => o.id === selectedRule.teacherLessonOfferingId,
+                    );
+                    patchSelected({
+                      startMin,
+                      endMin: offer ? startMin + offer.durationMin : selectedRule.endMin,
+                    });
+                  }}
+                />
+              )}
+            </Field>
+            <Field
+              label={t("end")}
+              error={
+                selectedRule.endMin <= selectedRule.startMin ? t("invalidTimeRange") : null
+              }
             >
-              {!selectedRule.teacherLessonOfferingId ? <option value="">—</option> : null}
-              {lessonOfferings.map((offer) => (
-                <option key={offer.id} value={offer.id}>
-                  {formatOfferingLabel(offer)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-xs text-muted">
-            {t("lessonLevel")}
-            <input
-              value={pickLabel(selectedRule.classLevel)}
-              readOnly
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-muted sm:max-w-xs"
-            />
-          </label>
-          <label className="block text-xs text-muted">
-            {t("lessonType")}
-            <input
-              value={pickLabel(selectedRule.classType)}
-              readOnly
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-muted sm:max-w-xs"
-            />
-          </label>
-          {!selectedRule.classLevelId || !selectedRule.classTypeId || !selectedRule.teacherLessonOfferingId ? (
-            <p className="text-sm text-destructive">{t("invalidLessonMeta")}</p>
-          ) : null}
+              {(field) => (
+                <Input {...field} type="time" value={toTime(selectedRule.endMin)} readOnly />
+              )}
+            </Field>
+            <Field label={t("timezone")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={selectedRule.timezone}
+                  onChange={(e) => patchSelected({ timezone: e.target.value })}
+                />
+              )}
+            </Field>
+          </div>
+
+          <Field
+            label={t("classOffer")}
+            className="sm:max-w-xs"
+            error={selectedRuleMetaMissing ? t("invalidLessonMeta") : null}
+          >
+            {(field) => (
+              <Select
+                {...field}
+                required
+                value={selectedRule.teacherLessonOfferingId ?? ""}
+                onChange={(e) => patchSelected({ teacherLessonOfferingId: e.target.value })}
+              >
+                {!selectedRule.teacherLessonOfferingId ? <option value="">—</option> : null}
+                {lessonOfferings.map((offer) => (
+                  <option key={offer.id} value={offer.id}>
+                    {formatOfferingLabel(offer)}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+
+          <div className="grid gap-4 sm:max-w-xl sm:grid-cols-2">
+            {/* Derived from the offer above, so disabled rather than read-only:
+                never editable, and never worth a tab stop. */}
+            <Field label={t("lessonLevel")}>
+              {(field) => <Input {...field} disabled value={pickLabel(selectedRule.classLevel)} />}
+            </Field>
+            <Field label={t("lessonType")}>
+              {(field) => <Input {...field} disabled value={pickLabel(selectedRule.classType)} />}
+            </Field>
+          </div>
         </div>
       ) : null}
 

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ConfirmDelete } from "@/components/ui/confirm-delete";
-import { Field, Input, controlClass } from "@/components/ui/field";
+import { Field, Input, Select } from "@/components/ui/field";
 
 function normalizeSlugInput(raw: string): string {
   return raw
@@ -359,37 +359,41 @@ function AssignRoleForm({
         onChange={setEmail}
         required
       />
-      <div>
-        <label className="block text-xs font-medium text-muted">{t("role")}</label>
-        <select
-          value={orgRole}
-          onChange={(e) => setOrgRole(e.target.value as OrgRole)}
-          className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
-        >
-          {(["OWNER", "ORG_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"] as const).map(
-            (r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ),
-          )}
-        </select>
-      </div>
-      {!orgWide && (
-        <div>
-          <label className="block text-xs font-medium text-muted">{t("school")}</label>
-          <select
-            value={schoolId}
-            onChange={(e) => setSchoolId(e.target.value)}
-            className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
+      {/* Both labels were detached — no `htmlFor`, not wrapping — so neither
+          select had an accessible name. */}
+      <Field label={t("role")}>
+        {(field) => (
+          <Select
+            {...field}
+            value={orgRole}
+            onChange={(e) => setOrgRole(e.target.value as OrgRole)}
           >
-            {schools.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-        </div>
+            {(["OWNER", "ORG_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"] as const).map(
+              (r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ),
+            )}
+          </Select>
+        )}
+      </Field>
+      {!orgWide && (
+        <Field label={t("school")}>
+          {(field) => (
+            <Select
+              {...field}
+              value={schoolId}
+              onChange={(e) => setSchoolId(e.target.value)}
+            >
+              {schools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
       )}
       {error && <p className="text-xs text-[var(--app-danger)]">{error}</p>}
       <button
@@ -571,20 +575,23 @@ function UserEmailCombobox({
       ref={wrapperRef}
       className={`relative ${fullWidth ? "sm:col-span-2" : ""}`}
     >
-      <label className="block text-xs font-medium text-muted">{label}</label>
-      <input
-        type="email"
-        required={required}
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={onKeyDown}
-        autoComplete="off"
-        className={controlClass()}
-      />
+      <Field label={label} required={required}>
+        {(field) => (
+          <Input
+            {...field}
+            type="email"
+            required={required}
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            onKeyDown={onKeyDown}
+            autoComplete="off"
+          />
+        )}
+      </Field>
       {showDropdown && (
         <ul
           role="listbox"

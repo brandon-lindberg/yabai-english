@@ -12,6 +12,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CheckRow } from "@/components/ui/check-row";
+import { Field, Input } from "@/components/ui/field";
 
 export type AdminUserListItem = {
   id: string;
@@ -374,16 +376,17 @@ export function AdminUserGrid({
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <label className="flex max-w-md flex-1 flex-col gap-1 text-sm">
-          <span className="text-muted">{t("searchLabel")}</span>
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
-            placeholder={t("searchPlaceholder")}
-            type="search"
-          />
-        </label>
+        <Field label={t("searchLabel")} className="max-w-md flex-1">
+          {(field) => (
+            <Input
+              {...field}
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+            />
+          )}
+        </Field>
         <p className="text-sm text-muted">
           {t("sortLabel")}: {sort.replace("_", " ")}
         </p>
@@ -396,15 +399,13 @@ export function AdminUserGrid({
             if (col.id === "actions") return null;
             const labelKey = COLUMN_LABEL_KEY[col.id];
             return (
-              <label key={col.id} className="flex cursor-pointer items-center gap-1.5">
-                <input
-                  type="checkbox"
-                  className="rounded border-border"
-                  checked={col.getIsVisible()}
-                  onChange={col.getToggleVisibilityHandler()}
-                />
-                <span>{labelKey ? t(labelKey) : col.id}</span>
-              </label>
+              <CheckRow
+                key={col.id}
+                checked={col.getIsVisible()}
+                onChange={() => col.toggleVisibility()}
+              >
+                {labelKey ? t(labelKey) : col.id}
+              </CheckRow>
             );
           })}
         </div>

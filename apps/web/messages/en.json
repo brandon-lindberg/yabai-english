@@ -465,7 +465,8 @@
       "lessonLevel": "Lesson level",
       "lessonType": "Lesson type",
       "invalidLessonMeta": "Pick both a class level and a class type for every slot.",
-      "taxonomyMissingWarning": "You have no class levels or types yet. Add them under Taxonomy first."
+      "taxonomyMissingWarning": "You have no class levels or types yet. Add them under Taxonomy first.",
+      "classOffer": "Class offer"
     },
     "quickReview": {
       "title": "Quick review",

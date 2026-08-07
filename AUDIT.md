@@ -155,14 +155,46 @@ matrix and both redirect destinations. Mutation-tested three ways — widening
 `schoolAdmin` to teachers, changing the non-member destination, and moving the
 viewer lookup before the auth guard each fail exactly one test.
 
-### 6. Raw form controls — 97 → 77, admin 30 → 10 ⬅ partly done
+### 6. Raw form controls — ✅ done, 97 → 14
 
-Concentrated in admin and org forms. Tokenised, but not on `Field`/`Input`, so
-label wiring and error handling are re-implemented per form.
+The 14 that remain are deliberate, and the reasons are recorded at the foot of
+`ui/field.tsx` so the next sweep does not re-litigate them: radio groups (whose
+name belongs on a `<fieldset>`, not on each input), the grid rate rows (whose
+labels bottom-align across a row in a way `Field` would break), the onboarding
+checklist's status mark, and the chat composers.
 
-Done in the admin sweep below. **Still open:** 20 in `components/org` (12 of
-them in `school-schedule-calendar`), 10 in `components/admin`, and the rest
-across `teacher-availability-*` (20) and `chat-panel` (6).
+Most of these were not merely inconsistent. Sorted by what was actually wrong:
+
+- **Controls with no accessible name at all.** `school-time-off-view`,
+  `school-pricing-view`, `org-schools-list` and `admin-schools-view` wrote
+  `<label>` with no `htmlFor`, not wrapping the input — so clicking the label
+  did nothing and a screen reader reached unlabelled boxes. Five of the six
+  chat controls had only a placeholder, which is not a name: it is announced
+  inconsistently and disappears on the first keystroke.
+- **Hardcoded English** in two admin screens. `admin-teacher-tiers-view` has no
+  `useTranslations` at all — every string on it is English, which converting the
+  controls does not fix. Flagged as item 10.
+- **Labels a third smaller and two shades lighter** than every other form, in
+  both availability editors and the school schedule calendar: `text-xs
+  text-muted` against the app's `text-sm font-medium text-foreground`.
+- **Validation messages as loose paragraphs.** The availability editors printed
+  "End must be after start" under the field with nothing tying the two
+  together. They are `Field` errors now, so `aria-invalid` and
+  `aria-describedby` point at the control that is wrong.
+- **A latent brand hue.** `accent-[var(--app-primary,#4f46e5)]` in the payments
+  settings carried an indigo fallback in a world that has no hue. The token
+  always resolved, so it never fired — one edit away from doing so.
+
+Two things I got wrong and fixed:
+
+- Replacing the availability modal's markup silently dropped three strings — a
+  hint, a warning and an empty-taxonomy alert. Caught by diffing every `t(...)`
+  call before and after, which is now how each of these conversions was checked.
+- Marking required fields put a `*` **inside** the `<label>`. It is `aria-hidden`
+  so the accessible name was never affected — verified — but it lands in the
+  label's `textContent`, which is what `getByLabelText` matches, and that broke
+  five tests. The marker sits beside the label now: same appearance, same
+  accessible name, and required fields are findable by their own label again.
 
 ### 9. Admin screens — ✅ done (reported, not found by the audit)
 
@@ -214,6 +246,14 @@ typed name matches rather than failing after the fact.
 `dashboard/schedule/lessons/[bookingId]` is **teacher-and-admin only** — it
 redirects anyone else to the schedule. It does not serve two flows, so there is
 nothing to diverge, and the student's upcoming row correctly has no link to it.
+
+### 10. `admin-teacher-tiers-view` is untranslated ⬅ open
+
+Found while doing #6. The component never calls `useTranslations`: the heading,
+the explanatory copy, all four field labels and the save button are hardcoded
+English. Every other screen in the app is bilingual. Needs roughly fifteen keys
+in both locales — deliberately not folded into the form-controls sweep, since
+that would have been a copy change disguised as a refactor.
 
 ### 8. `text-link` is invisible inside a sentence ⬅ open
 

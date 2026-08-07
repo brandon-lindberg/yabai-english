@@ -465,7 +465,8 @@
       "lessonLevel": "レッスンレベル",
       "lessonType": "レッスン種別",
       "invalidLessonMeta": "各スロットにクラスレベルとクラス種別の両方を選んでください。",
-      "taxonomyMissingWarning": "クラスレベル・種別が未設定です。先に「分類」から追加してください。"
+      "taxonomyMissingWarning": "クラスレベル・種別が未設定です。先に「分類」から追加してください。",
+      "classOffer": "クラスオファー"
     },
     "quickReview": {
       "title": "クイック復習",

@@ -6,6 +6,7 @@ import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { StudentBioMdxEditor } from "@/components/dashboard/student-bio-mdx-editor";
 import { BOOKING_COMPLETION_NOTES_MD_MAX } from "@/lib/booking-completion-notes";
 import { buttonClasses } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
 
 type Props = {
   bookingId: string;
@@ -53,22 +54,19 @@ export function TeacherLessonCompletionNotesForm({
 
   return (
     <form onSubmit={(e) => void onSubmit(e)} className={formShell}>
-      <div>
-        <label className="block text-xs font-medium text-foreground" htmlFor={`transcript-${bookingId}`}>
-          {t("transcriptLinkLabel")}
-        </label>
-        <p className="mt-0.5 text-xs text-muted">{t("transcriptLinkHelp")}</p>
-        <input
-          id={`transcript-${bookingId}`}
-          type="url"
-          inputMode="url"
-          autoComplete="url"
-          placeholder={t("transcriptLinkPlaceholder")}
-          value={transcriptUrl}
-          onChange={(e) => setTranscriptUrl(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
-        />
-      </div>
+      <Field label={t("transcriptLinkLabel")} hint={t("transcriptLinkHelp")}>
+        {(field) => (
+          <Input
+            {...field}
+            type="url"
+            inputMode="url"
+            autoComplete="url"
+            placeholder={t("transcriptLinkPlaceholder")}
+            value={transcriptUrl}
+            onChange={(e) => setTranscriptUrl(e.target.value)}
+          />
+        )}
+      </Field>
       <div>
         <span className="block text-xs font-medium text-foreground">{t("lessonNotesLabel")}</span>
         <p className="mt-0.5 text-xs text-muted">{t("lessonNotesHelp")}</p>

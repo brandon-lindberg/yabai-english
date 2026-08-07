@@ -10,6 +10,7 @@ import type { CalendarViewMode } from "@/lib/calendar-view";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { Status } from "@/components/ui/status";
 import {
@@ -439,18 +440,13 @@ export function BookingForm({
         /* Staff-only escape hatch. It stays an inset panel because it genuinely
            sits apart from the student's flow rather than in sequence with it. */
         <div className="rounded-xl border border-border px-4 py-3 text-sm text-foreground">
-          <label className="flex items-start gap-2.5">
-            <input
-              type="checkbox"
-              checked={manualOverride}
-              onChange={(e) => setManualOverride(e.target.checked)}
-              className="mt-0.5"
-            />
-            <span>
-              {t("manualOverrideLabel")}
-              <span className="mt-0.5 block text-xs text-muted">{t("manualOverrideHelp")}</span>
-            </span>
-          </label>
+          <CheckRow
+            checked={manualOverride}
+            onChange={setManualOverride}
+            description={t("manualOverrideHelp")}
+          >
+            {t("manualOverrideLabel")}
+          </CheckRow>
           {manualOverride && (
             <Field label={t("manualOverrideReasonLabel")} className="mt-3">
               {(field) => (

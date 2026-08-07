@@ -9,6 +9,7 @@ import { ChatModerationMenu } from "@/components/chat-moderation-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UnreadBadge } from "@/components/unread-badge";
 import { buttonClasses } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
 import { controlClass } from "@/components/ui/field";
 
 type ThreadItem = {
@@ -740,7 +741,13 @@ export function ChatPanel() {
                           </button>
                         ))}
                       </div>
+                      {/* A placeholder is not an accessible name: it is
+                          announced inconsistently and vanishes on first
+                          keystroke. Five controls on this panel had nothing
+                          else. */}
                       <input
+                        type="search"
+                        aria-label={t("adminSearchPlaceholder")}
                         value={adminSearch}
                         onChange={(e) => setAdminSearch(e.target.value)}
                         className="w-full rounded-lg border border-border bg-surface px-2 py-1 text-xs text-foreground"
@@ -1096,11 +1103,12 @@ export function ChatPanel() {
                     <p className="text-xs text-muted">{t("broadcastPanelHint")}</p>
                   </div>
                   <div className="border-t border-border pt-3">
-                    <label className="text-xs font-medium text-muted">
+                    <label className="text-xs font-medium text-muted" htmlFor="chat-broadcast-target">
                       {t("broadcastTargetLabel")}
                     </label>
                     <div className="mt-1 flex items-center gap-2">
                       <select
+                        id="chat-broadcast-target"
                         value={broadcastTarget}
                         onChange={(e) =>
                           setBroadcastTarget(e.target.value as "all" | "teachers" | "students")
@@ -1115,6 +1123,7 @@ export function ChatPanel() {
                   </div>
                   <div className="mt-3 flex-1">
                     <textarea
+                      aria-label={t("broadcastMessagePlaceholder")}
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
                       className={controlClass("h-full min-h-[180px]")}
@@ -1158,6 +1167,7 @@ export function ChatPanel() {
                       </div>
                       <div className="mt-3 flex-1">
                         <textarea
+                          aria-label={t("directMessagePlaceholder")}
                           value={draft}
                           onChange={(e) => setDraft(e.target.value)}
                           className={controlClass("h-full min-h-[180px]")}
@@ -1219,14 +1229,13 @@ export function ChatPanel() {
                 (isAdminViewer
                   ? adminMode !== "broadcast"
                   : isTeacherInThread) && (
-                <label className="mb-2 flex items-center gap-2 text-xs text-muted">
-                  <input
-                    type="checkbox"
-                    checked={activeThread.twoWayEnabled}
-                    onChange={(e) => void setTwoWayEnabled(e.target.checked)}
-                  />
+                <CheckRow
+                  className="mb-2"
+                  checked={activeThread.twoWayEnabled}
+                  onChange={(next) => void setTwoWayEnabled(next)}
+                >
                   {t("enableTwoWay")}
-                </label>
+                </CheckRow>
               )}
               {isBlocked && (
                 <p className="mb-2 rounded-lg border border-[var(--app-danger)] bg-[var(--app-danger)]/10 px-2 py-1 text-xs text-[var(--app-danger)]">
@@ -1354,6 +1363,7 @@ export function ChatPanel() {
               </div>
               <div className="mt-3 flex gap-2">
                 <input
+                  aria-label={t("messagePlaceholder")}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   disabled={!canSend || isBlocked || (isAdminViewer && adminMode === "review")}
