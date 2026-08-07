@@ -7,6 +7,7 @@ import { resolveDisplayNameForForm } from "@/lib/profile-prefill";
 import { buildTeacherOnboardingReturnFromProfile } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function DashboardProfilePage({
   searchParams,
@@ -58,10 +59,7 @@ export default async function DashboardProfilePage({
           href={onboardingNext}
           step={onboardingStepParam ?? null}
         />
-        <header>
-          <h1 className="text-2xl font-bold text-foreground">{t("teacherTitle")}</h1>
-          <p className="mt-2 text-muted">{t("teacherIntro")}</p>
-        </header>
+        <PageHeader title={t("teacherTitle")} description={t("teacherIntro")} />
         <TeacherProfileForm
           showGooglePrefillHint={showPrefillHint}
           avatarUrl={user?.image ?? null}
@@ -103,10 +101,7 @@ export default async function DashboardProfilePage({
         href={onboardingNextParam ?? null}
         step={onboardingStepParam ?? null}
       />
-      <header>
-        <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-        <p className="mt-2 text-muted">{t("intro")}</p>
-      </header>
+      <PageHeader title={t("title")} description={t("intro")} />
       <DashboardProfileForm
         showGooglePrefillHint={showPrefillHint}
         initialName={nameInitial === "" ? null : nameInitial}

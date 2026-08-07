@@ -193,9 +193,13 @@ screens, which found what was visible rather than what was large.
 
 | | Before | After |
 |---|---|---|
-| Clones | 104 | **71** |
-| Duplicated lines | 2,185 | **1,210** |
-| % of codebase | 4.01% | **2.25%** |
+| Clones (tsx) | 104 | **27** |
+| Duplicated lines (tsx) | 2,185 | **475** |
+| % of tsx | 4.01% | **1.53%** |
+
+The `typescript` half of the report (112 clones, 4.75%) is almost entirely test
+files and API-route scaffolding, which is where repetition is legible rather
+than costly.
 
 The biggest finds were in the API layer, not the UI: twenty routes each
 declaring their own `getCallerMembership`, eight taxonomy CRUD routes that were
@@ -205,8 +209,58 @@ number rather than trusting a claim about it.
 
 ## 9. Known gaps
 
-- The impeccable **finish-reviewer pass has not been run**.
-- ~110 raw `<input>`/`<select>` elements remain, mostly in admin and org forms.
-  They are accessible and tokenised but do not use `Field`/`Input`.
-- One pre-existing `next-intl` ESM test suite fails to load under Vitest;
-  unrelated to any of this work.
+The impeccable finish-reviewer pass **has now been run**, and this section
+records what it found rather than what was outstanding before it.
+
+**The headline finding was page titles.** `PageHeader` owns the page title, and
+eighteen pages hand-rolled their own `<h1>` anyway — ten different treatments,
+from `text-lg font-semibold` to `text-2xl font-bold`, against the system's
+`clamp(2rem,5vw,3rem)` at `font-black`. §4's claim that one thing per surface is
+the largest thing on it was simply untrue on those eighteen surfaces, including
+`/dashboard/profile`, `/dashboard/students`, the checkout result pages, and the
+whole `/dashboard/schedule` tree via its layout. All now on `PageHeader`.
+
+**Six h1 declarations remain, and each is deliberate:**
+
+- `PageHeader` itself — the system's title.
+- The landing hero at `clamp(2.75rem,8vw,6rem)` — the one Persuade surface,
+  legitimately louder.
+- The sign-in shell, same clamp as `PageHeader` with tighter leading.
+- Checkout at `text-2xl sm:text-3xl` — **quieter on purpose.** The amount below
+  it sets at `clamp(2rem,6vw,3.25rem)`, so a display-scale title would compete
+  with the page's real focal moment.
+- Study practice and assessment at `text-xl` — the card and the quiz lead.
+
+**Also fixed by the pass:**
+
+- `--app-warning` is not a token (only `-bg`/`-border`/`-text`), so
+  `var(--app-warning,#d97706)` in the school schedule calendar always fell
+  through to a hardcoded amber. Now `InlineAlert`.
+- The booking-detail and student-detail pages had built the same 65-line student
+  profile panel character-for-character; `jscpd` counted four clones. Now one
+  `StudentProfilePanel`.
+- Every avatar is on `ui/avatar`. **Zero raw `<img>` remain outside it.**
+- The booking cancel button was hand-rolled at ~26px, below the system's own
+  36px `sm` floor, for a consequential action.
+- The lesson player carried a "Courses" eyebrow above its title — §4 bans those
+  outright.
+
+**Two hypotheses the pass formed and disproved,** recorded so they are not
+re-raised: `StatLedger`'s `outline-none` looked like it killed the focus ring,
+but the global `:focus-visible` rule wins — measured at 2px solid ink, 18.9:1,
+plus the hover tint. And four `<img>` appeared to lack `alt`; all four have it,
+two intentionally empty beside the name.
+
+**Still open:**
+
+- **The bundled design detector reports nothing.** Fed a file containing an
+  inline hex colour, `shadow-lg`, `bg-blue-500`, a 10px uppercase-tracked
+  eyebrow and a 16px button, it returns zero findings through both the CLI and
+  the hook. Every "clean" hook message in this codebase is uninformative; treat
+  its silence as absence of evidence, not evidence of absence.
+- 14 raw `<input>`/`<select>`/`<textarea>` remain. Each is deliberate and the
+  reasons are recorded at the foot of `ui/field.tsx`.
+- 50 uses of `text-[9px]`–`[11px]`, 25 of them in the calendar grids where
+  PRODUCT.md explicitly protects density. A considered trade-off, not a defect.
+- One pre-existing `next-intl` ESM test suite fails to load under Vitest, and
+  three placement suites need a database that is currently unreachable.

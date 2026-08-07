@@ -14,6 +14,7 @@ import { weekdayLabel } from "@/lib/weekdays";
 import { buttonClasses } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
 import { Field, Input, Select } from "@/components/ui/field";
+import { InlineAlert } from "@/components/ui/inline-alert";
 import { Status } from "@/components/ui/status";
 
 type Taxonomy = {
@@ -233,10 +234,11 @@ export function SchoolScheduleCalendar({ orgId, schoolId }: Props) {
         </button>
       </div>
 
+      {/* `--app-warning` is not a token — only `--app-warning-bg`, `-border`
+          and `-text` exist — so this always fell through to a hardcoded
+          amber. */}
       {taxonomyMissing && (
-        <p className="rounded-lg border border-[var(--app-warning,#d97706)]/40 bg-[var(--app-warning,#d97706)]/10 px-3 py-2 text-xs text-foreground">
-          {t("taxonomyMissingWarning")}
-        </p>
+        <InlineAlert variant="warning">{t("taxonomyMissingWarning")}</InlineAlert>
       )}
 
       {loading ? (

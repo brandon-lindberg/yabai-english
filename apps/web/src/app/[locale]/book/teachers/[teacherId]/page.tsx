@@ -10,6 +10,7 @@ import { redirectTargetForTeacherBookingPage } from "@/lib/teacher-booking-page-
 import { formatYenRange, getTeacherRateRangeByType } from "@/lib/teacher-rate-range";
 import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
+import { Avatar } from "@/components/ui/avatar";
 import { Section } from "@/components/ui/section";
 import { StatLedger } from "@/components/ui/stat-ledger";
 import { DataList, DataRow } from "@/components/ui/data-row";
@@ -254,18 +255,7 @@ export default async function TeacherProfileBookingPage({
           as separate products. They are one page about one person: a portrait
           block, then the rates as figures, then the hours as a ruled list. */}
       <div className="mt-8 flex flex-wrap items-start gap-6">
-        <span className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border text-base font-semibold text-muted">
-          {teacher.user.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={teacher.user.image}
-              alt={displayName}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            displayName.slice(0, 2).toUpperCase()
-          )}
-        </span>
+        <Avatar src={teacher.user.image} name={displayName} size="lg" />
         <div className="min-w-0 flex-1 space-y-2">
           {teacher.credentials ? (
             <p className="text-base text-foreground">{teacher.credentials}</p>

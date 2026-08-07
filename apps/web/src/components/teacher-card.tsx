@@ -4,6 +4,7 @@ import type { TeacherCard as TeacherCardData } from "@/lib/teacher-discovery";
 import { buildTeacherCardProfileHref } from "@/lib/teacher-card-href";
 import { PaymentMethodLogos } from "@/components/payment-method-logos";
 import { buttonClasses } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
 import { DataRow } from "@/components/ui/data-row";
 import { formatYen } from "@/lib/format-money";
 
@@ -58,18 +59,7 @@ export async function TeacherCard({
       }
     >
       <div className="flex items-start gap-4">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border text-xs font-semibold text-muted">
-          {teacher.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={teacher.imageUrl}
-              alt={teacher.displayName}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            teacher.displayName.slice(0, 2).toUpperCase()
-          )}
-        </span>
+        <Avatar src={teacher.imageUrl} name={teacher.displayName} size="md" />
         <div className="min-w-0">
           <h2 className="text-lg font-bold tracking-[-0.02em] text-foreground">
             {teacher.displayName}

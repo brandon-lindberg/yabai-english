@@ -5,6 +5,7 @@ import { redirect, Link } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { getStudentRosterTeachers } from "@/lib/student-roster-teachers";
 import { reconcileTeacherRosterFromBookings } from "@/lib/reconcile-teacher-roster-from-bookings";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function DashboardMyTeachersPage() {
   const session = await auth();
@@ -21,10 +22,7 @@ export default async function DashboardMyTeachersPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-        <p className="mt-2 text-muted">{t("intro")}</p>
-      </header>
+      <PageHeader title={t("title")} description={t("intro")} />
       {teachers.length === 0 ? (
         <p className="text-sm text-muted">{t("empty")}</p>
       ) : (

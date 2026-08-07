@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { actionLinkClass } from "@/components/ui/inline-link";
+import { PageHeader } from "@/components/ui/page-header";
 
 const TRACK_SLUG = "english-flashcards";
 
@@ -39,8 +40,9 @@ export default async function StudyHubPage({
           {t("backToDashboard")}
         </Link>
       </p>
-      <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">{t("title")}</h1>
-      <p className="mt-2 text-muted">{t("subtitle")}</p>
+      <div className="mt-4">
+        <PageHeader title={t("title")} description={t("subtitle")} />
+      </div>
 
       <div className="mt-6">
         <StudyRpgXpBar

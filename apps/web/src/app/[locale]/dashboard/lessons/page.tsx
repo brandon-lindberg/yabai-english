@@ -6,6 +6,7 @@ import { redirect } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function DashboardLessonsPage({
   searchParams,
@@ -58,10 +59,7 @@ export default async function DashboardLessonsPage({
   return (
     <div className="space-y-6">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
-      <header>
-        <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-        <p className="mt-2 text-muted">{t("intro")}</p>
-      </header>
+      <PageHeader title={t("title")} description={t("intro")} />
       <TeacherLessonOfferingsForm
         initialRateYen={profile?.rateYen ?? null}
         initialOffersFreeTrial={profile?.offersFreeTrial ?? true}

@@ -8,6 +8,7 @@ import { finalizeStripeCheckoutReturn } from "@/lib/stripe/finalize-stripe-check
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { buttonClasses } from "@/components/ui/button";
 import { BookingSummary } from "@/components/booking/booking-summary";
+import { PageHeader } from "@/components/ui/page-header";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -61,10 +62,7 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
 
   return (
     <main className="mx-auto max-w-2xl flex-1 px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-black tracking-[-0.03em] text-foreground sm:text-3xl">
-        {t("checkoutSuccessTitle")}
-      </h1>
-      <p className="mt-2 max-w-[56ch] text-base text-muted">{t("checkoutSuccessBody")}</p>
+      <PageHeader title={t("checkoutSuccessTitle")} description={t("checkoutSuccessBody")} />
 
       <BookingSummary
         lessonNameJa={booking.lessonProduct.nameJa}

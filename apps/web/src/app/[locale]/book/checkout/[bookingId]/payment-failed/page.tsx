@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { buttonClasses } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -27,8 +28,10 @@ export default async function CheckoutPaymentFailedPage({ params }: Props) {
   if (booking.status === "CONFIRMED") {
     return (
       <main className="mx-auto max-w-2xl flex-1 px-4 py-10 sm:px-6">
-        <h1 className="text-2xl font-bold text-foreground">{t("checkoutSuccessTitle")}</h1>
-        <p className="mt-2 text-sm text-muted">{t("checkoutPaymentConfirmed")}</p>
+        <PageHeader
+          title={t("checkoutSuccessTitle")}
+          description={t("checkoutPaymentConfirmed")}
+        />
         <Link
           href={`/dashboard/schedule/lessons/${booking.id}`}
           className={`mt-6 ${buttonClasses({ size: "lg" })}`}
@@ -41,8 +44,7 @@ export default async function CheckoutPaymentFailedPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-2xl flex-1 px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-foreground">{t("checkoutFailedTitle")}</h1>
-      <p className="mt-2 text-sm text-muted">{t("checkoutFailedBody")}</p>
+      <PageHeader title={t("checkoutFailedTitle")} description={t("checkoutFailedBody")} />
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href={`/book/checkout/${booking.id}`}

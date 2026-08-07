@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AdminUserDetailForm } from "@/components/admin/admin-user-detail-form";
 import { actionLinkClass } from "@/components/ui/inline-link";
+import { PageHeader } from "@/components/ui/page-header";
 
 type Props = {
   params: Promise<{ userId: string }>;
@@ -19,8 +20,10 @@ export default async function AdminUserDetailPage({ params }: Props) {
       >
         {t("back")}
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-foreground">{t("title")}</h1>
-      <div className="mt-8">
+      <div className="mt-4">
+        <PageHeader title={t("title")} />
+      </div>
+      <div>
         <AdminUserDetailForm userId={userId} />
       </div>
     </main>

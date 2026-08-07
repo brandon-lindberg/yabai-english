@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { shouldLoadTeacherBookingsOnSchedule } from "@/lib/dashboard/schedule-view-role";
 import { buttonClasses } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function DashboardScheduleLayout({ children }: { children: ReactNode }) {
   const t = await getTranslations("dashboard.schedulePage");
@@ -27,26 +28,23 @@ export default async function DashboardScheduleLayout({ children }: { children: 
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0 space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{t("title")}</h1>
-        </div>
-        {isTeacher ? (
-          <Link
-            href="/dashboard/profile"
-            className="shrink-0 rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-          >
-            {tTeacher("editProfile")}
-          </Link>
-        ) : (
-          <Link
-            href="/book"
-            className={buttonClasses({ size: "md", className: "shrink-0" })}
-          >
-            {tCommon("bookLesson")}
-          </Link>
-        )}
-      </header>
+      <PageHeader
+        title={t("title")}
+        actions={
+          isTeacher ? (
+            <Link
+              href="/dashboard/profile"
+              className={buttonClasses({ variant: "secondary" })}
+            >
+              {tTeacher("editProfile")}
+            </Link>
+          ) : (
+            <Link href="/book" className={buttonClasses()}>
+              {tCommon("bookLesson")}
+            </Link>
+          )
+        }
+      />
 
       <DashboardScheduleSubNav isTeacher={isTeacher} />
 

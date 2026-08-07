@@ -4,6 +4,7 @@ import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { TeacherRosterPanel } from "@/components/dashboard/teacher-roster-panel";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function DashboardStudentsPage() {
   const session = await auth();
@@ -16,10 +17,7 @@ export default async function DashboardStudentsPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-        <p className="mt-2 text-muted">{t("intro")}</p>
-      </header>
+      <PageHeader title={t("title")} description={t("intro")} />
       <TeacherRosterPanel />
     </div>
   );
