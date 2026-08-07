@@ -6,6 +6,7 @@ import { Link, redirect } from "@/i18n/navigation";
 import { StudyLevelCode } from "@/generated/prisma/client";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type Props = { params: Promise<{ levelCode: string }> };
 
@@ -61,7 +62,7 @@ export default async function StudyAssessmentPage({ params }: Props) {
   return (
     <main className="mx-auto max-w-lg flex-1 px-4 py-10 sm:px-6">
       <p className="mb-6">
-        <Link href="/learn/study" className="text-link text-sm">
+        <Link href="/learn/study" className={`${actionLinkClass} text-sm`}>
           ← {t("backToHub")}
         </Link>
       </p>

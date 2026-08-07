@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 export default async function LegalLayout({ children }: { children: ReactNode }) {
   const t = await getTranslations("legal");
@@ -13,37 +14,37 @@ export default async function LegalLayout({ children }: { children: ReactNode })
       >
         <Link
           href="/legal/terms"
-          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+          className={actionLinkClass}
         >
           {t("navTerms")}
         </Link>
         <Link
           href="/legal/terms/teachers"
-          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+          className={actionLinkClass}
         >
           {t("navTermsTeachers")}
         </Link>
         <Link
           href="/legal/terms/students"
-          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+          className={actionLinkClass}
         >
           {t("navTermsStudents")}
         </Link>
         <Link
           href="/legal/refund/teachers"
-          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+          className={actionLinkClass}
         >
           {t("navRefundTeachers")}
         </Link>
         <Link
           href="/legal/refund/students"
-          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+          className={actionLinkClass}
         >
           {t("navRefundStudents")}
         </Link>
         <Link
           href="/legal/privacy"
-          className="font-medium text-foreground underline-offset-4 hover:text-link hover:underline"
+          className={actionLinkClass}
         >
           {t("navPrivacy")}
         </Link>

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { PageHeader } from "@/components/ui/page-header";
 import { prisma } from "@/lib/prisma";
 import { resolveEffectiveTeacherTier } from "@/lib/platform-fees";
 import {
@@ -43,8 +44,7 @@ export default async function AdminTeacherTiersPage() {
 
   return (
     <main>
-      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-      <p className="mt-2 text-sm text-muted">{t("subtitle")}</p>
+      <PageHeader title={t("title")} description={t("subtitle")} />
       <div className="mt-8">
         <AdminTeacherTiersView rows={rows} />
       </div>

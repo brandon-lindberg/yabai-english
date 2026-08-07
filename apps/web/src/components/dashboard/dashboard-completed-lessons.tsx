@@ -5,6 +5,7 @@ import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-boo
 import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
 import { LessonListEmpty, LessonRow } from "@/components/dashboard/lesson-row";
 import { GroupedList } from "@/components/ui/grouped-list";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type Completed = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["completed"];
 
@@ -67,7 +68,7 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
                       href={transcriptUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-link underline hover:opacity-90"
+                      className={actionLinkClass}
                     >
                       {ts("transcriptLinkStudentCta")}
                     </a>
@@ -94,7 +95,7 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
                       href={notesDocUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-link underline hover:opacity-90"
+                      className={actionLinkClass}
                     >
                       {ts("googleDocNotesCta")}
                     </a>

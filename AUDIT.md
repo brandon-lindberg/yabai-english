@@ -26,7 +26,7 @@ implementations diverge, and where every finding below lives.
 
 Ordered by user-visible impact. Work top-down, one at a time.
 
-### 1. Completed lessons — teacher is grouped, student is flat ⬅ open
+### 1. Completed lessons — ✅ done
 
 | | Teacher | Student |
 |---|---|---|
@@ -38,8 +38,15 @@ Ordered by user-visible impact. Work top-down, one at a time.
 The teacher side was rebuilt to group; the student side was not. A student with
 twenty lessons across three teachers gets twenty undifferentiated rows.
 
-**Fix:** one grouped-history component both flows use. Group by counterpart
-(teacher for students, student for teachers), then by date within.
+**Fixed:** one grouped history both flows use, grouped by counterpart. The root
+cause was in the sort, not the render — `sortTeacherCompletedBookings` existed
+only for teachers, so the student list arrived date-ordered and *could not* be
+grouped. Now `sortCompletedByCounterpart` serves both.
+
+The component later moved to `ui/grouped-list.tsx` when the admin booking list
+wanted the same shape for a different key, and its props got honest names:
+what is shared is grouping a pre-sorted list into runs under headings, not
+anything about lessons.
 
 ### 2. Upcoming lessons — ✅ done
 
@@ -58,12 +65,17 @@ goals, calendar recovery and the details link are teacher-only.
 chronological. "What is coming next" is a question about time, not about who.
 Forcing symmetry here would be worse than the asymmetry.
 
-### 3. Dashboard home — two entirely separate returns
+### 3. Dashboard home — ✅ done
 
-`app/[locale]/dashboard/page.tsx` (332 ln) is one file with two complete JSX
-trees: a teacher branch (stat ledger, upcoming, profile aside) and a student
-branch. They share no layout. Anything added to one silently misses the other —
-which is exactly how #1 happened.
+`app/[locale]/dashboard/page.tsx` was 332 lines holding two complete JSX trees —
+a teacher branch and a student branch — that shared no layout. Anything added to
+one silently missed the other, which is exactly how #1 happened.
+
+Now `DashboardSpine` asks the same questions in the same order for both flows,
+and the route file is 43 lines that only decide whose dashboard to render. Both
+flows gained what only one had: teachers a focal next lesson, students a stat
+ledger. The student side also went from seven sequential database round trips to
+one `Promise.all`.
 
 ### 4. Onboarding — ✅ done
 
@@ -247,50 +259,72 @@ typed name matches rather than failing after the fact.
 redirects anyone else to the schedule. It does not serve two flows, so there is
 nothing to diverge, and the student's upcoming row correctly has no link to it.
 
-### 10. `admin-teacher-tiers-view` is untranslated ⬅ open
+### 10. `admin-teacher-tiers-view` was untranslated — ✅ done
 
-Found while doing #6. The component never calls `useTranslations`: the heading,
-the explanatory copy, all four field labels and the save button are hardcoded
-English. Every other screen in the app is bilingual. Needs roughly fifteen keys
-in both locales — deliberately not folded into the form-controls sweep, since
-that would have been a copy change disguised as a refactor.
+Found while doing #6: the component never called `useTranslations`, alone among
+the app's screens. The heading, the explanatory copy, all four field labels,
+every button and the pending-demotion banner were hardcoded English, and "Tier
+1" was built by string-replacing the enum — which no other locale can follow.
+Twenty keys added in both locales; en and ja are at parity, 1388 keys each.
 
-### 8. `text-link` is invisible inside a sentence ⬅ open
+Two things surfaced while wiring it:
 
-Found while screenshotting #4 in dark mode; added to the list after the fact.
+- `toLocaleDateString()` with no arguments formatted in the **browser's** locale
+  rather than the app's, and in whichever zone the runtime happened to be in.
+  Now the app locale and the viewer's zone.
+- My first attempt passed `LocalDateTime` through `t.rich` as `{date}`. That
+  silently rendered **nothing** — `t.rich`'s function form builds tags, not
+  values — so both dates on the screen came out blank. Caught by screenshotting
+  the Japanese page rather than trusting the typecheck. They are formatted
+  strings interpolated by plain `t()` now, which is also what lets Japanese
+  order the sentence its own way.
 
-`--app-link` is `#0a0a0a` in light and `#fafaf8` in dark — **the same ink as
-`--app-foreground`**, confirmed in the browser rather than by reading the token:
-link colour and parent colour both `rgb(10, 10, 10)`.
+Five other admin pages were still opening with a raw `<h1 className="text-2xl
+font-bold">` instead of `PageHeader`; folded in while here.
 
-That is fine for a link surrounded by muted body copy — 3.69:1 against
-`--app-muted`, above the 3:1 WCAG technique G183 asks for, with the global
-`:focus-visible` ring and a hover underline doing the rest. It fails completely
-for a link *inside* a foreground-coloured sentence, where there is no difference
-at all until the pointer happens to land on it.
+### 8. `text-link` is invisible inside a sentence — ✅ done
 
-Every consent line in the app was in the second category: "I agree to the Terms
-of Service" read as flat prose, with nothing to say the terms were reachable.
-WCAG 1.4.1, on the surfaces where finding the document matters most. Three
-components had each declared a character-identical `legalLinkClassName`, all
-missing the underline.
+`--app-link` is the same ink as `--app-foreground`. Confirmed in the browser
+rather than read off the token file: on the Terms page a link and its parent
+paragraph both compute to `rgb(10, 10, 10)`, `sameColor: true`. Nothing about a
+link in this app was ever carried by colour, because there is no colour to carry
+it — the world is a value system by design.
 
-Fixed for the four consent surfaces via `ui/inline-link.tsx`. **Still open:** of
-41 `text-link` uses, 37 have no persistent underline, and the 14 with no
-underline at all also miss the hover cue. Each needs checking against what it
-sits in — muted copy is fine, foreground copy is not.
+That is fine where a link has muted body copy to contrast against: 3.69:1
+against `--app-muted`, above the 3:1 WCAG technique G183 asks for. It fails
+completely for a link *inside* foreground-coloured prose, where there is no
+difference at all until a pointer happens to land on it.
 
-Its 260 lines are a single-flow page, not a two-flow branch. Any remaining work
-there is ordinary composition, not duplication.
+Two classes now, in `ui/inline-link.tsx`, and all 41 call sites use one of them:
+
+- **`inlineLinkClass`** — always underlined. For a link inside a sentence.
+- **`actionLinkClass`** — underlined on hover *and* focus. For a link standing
+  on its own, which has muted copy around it to contrast against.
+
+The distinction is not stylistic; it is whether the link has anything to
+contrast against.
+
+Three real 1.4.1 failures, all links sitting in `text-foreground` prose:
+
+- **Every link in the Terms and Privacy documents.** `legal-document.tsx`
+  renders markdown `<a>` inside `text-foreground` paragraphs and list items, so
+  the four cross-references on the Terms page were indistinguishable from the
+  sentences around them. The worst instance, on the documents where finding the
+  linked policy is the entire point.
+- The onboarding resume banner.
+- The teacher dashboard's calendar hint — which I wrote earlier in this audit.
+
+Eighteen more had no non-colour cue at any state: either nothing, or
+`hover:opacity-90`, which is not a second channel but the same one again.
+
+One that was not a link at all: `learn/lesson/[lessonId]` printed "Courses" as a
+link-coloured `<p>` above the title. It read as the one navigable thing on the
+page and did nothing — there is no courses route for it to point at. Now muted.
+It is still an eyebrow above a heading, which DESIGN.md §4 rules out; whether it
+earns its place is a content question, so it is noted here rather than deleted.
 
 ---
 
-## Already done (for reference)
+## Still open
 
-- Schedule calendar — one `CalendarFrame` across 5 surfaces
-- Profile — one `ProfileSurface` across teacher and student
-- Member rows and invite forms — one each across org and school
-- Settings forms — one `EntitySettingsForm` across org and school
-- Sub-navs — all 6 share `SubNav`
-- Taxonomy CRUD API — 8 routes, 847 → 384 lines
-- Org authorization — 20 copies of `getCallerMembership` → one module
+- The impeccable finish-reviewer pass (DESIGN.md §9) has still not been run.

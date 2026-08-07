@@ -701,7 +701,27 @@
     },
     "teacherTiersPage": {
       "title": "Teacher tiers",
-      "subtitle": "Monitor calculated tiers, set admin overrides, and review annual demotion recommendations."
+      "subtitle": "Monitor calculated tiers, set admin overrides, and review annual demotion recommendations.",
+      "legacyTitle": "Legacy student rate override",
+      "legacyIntro": "SUPER_ADMIN-only. Use this for student-specific rates below the public ¥3,000 minimum.",
+      "fieldTeacher": "Teacher",
+      "fieldStudentId": "Student user ID",
+      "fieldOfferingId": "Offering ID",
+      "fieldRateYen": "Rate (yen)",
+      "saveLegacyRate": "Save legacy rate",
+      "noEmail": "No email",
+      "tierName": "Tier {number}",
+      "tierSummary": "Calculated {calculated} / Effective {effective}",
+      "overrideLine": "Override: {tier} until {until}",
+      "overrideUntilAdmin": "an admin changes it",
+      "nextReview": "Next review: {date}",
+      "notStarted": "Not started",
+      "evaluateNow": "Evaluate now",
+      "setTier": "Set {tier}",
+      "removeOverride": "Remove override",
+      "demotionPending": "Annual demotion pending admin decision.",
+      "approveDemotion": "Approve demotion",
+      "keepTier": "Keep tier"
     },
     "studentsPage": {
       "title": "Students"

@@ -9,6 +9,7 @@ import { DashboardSpine } from "@/components/dashboard/dashboard-spine";
 import { DashboardProfileSummary } from "@/components/dashboard/dashboard-profile-summary";
 import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
 import { InlineAlert } from "@/components/ui/inline-alert";
+import { inlineLinkClass } from "@/components/ui/inline-link";
 import { Section } from "@/components/ui/section";
 import { buttonClasses } from "@/components/ui/button";
 
@@ -163,7 +164,7 @@ export async function TeacherDashboard({
       {isTeacherCabinetRole(role) && !calendarReady ? (
         <InlineAlert variant="info">
           <span className="text-foreground">{t("teacherHome.calendarSetupHint")} </span>
-          <Link href="/dashboard/settings" className="font-semibold text-link hover:opacity-90">
+          <Link href="/dashboard/settings" className={inlineLinkClass}>
             {tCommon("settings")}
           </Link>
         </InlineAlert>

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AdminUserDetailForm } from "@/components/admin/admin-user-detail-form";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type Props = {
   params: Promise<{ userId: string }>;
@@ -14,7 +15,7 @@ export default async function AdminUserDetailPage({ params }: Props) {
     <main>
       <Link
         href="/admin/users"
-        className="text-sm text-link hover:underline"
+        className={`${actionLinkClass} text-sm`}
       >
         {t("back")}
       </Link>

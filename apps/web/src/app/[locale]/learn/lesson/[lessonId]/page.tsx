@@ -20,7 +20,16 @@ export default async function LessonPlayerPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-lg flex-1 px-4 py-10 sm:px-6">
-      <p className="text-sm font-medium text-link">{t("courses")}</p>
+      {/*
+        Link-coloured, but a `<p>` — there is no courses route for it to point
+        at. It read as the one navigable thing on the page and did nothing.
+        Muted says what it is: a label.
+
+        It is still an eyebrow above the title, which DESIGN.md §4 rules out.
+        Whether it earns its place at all is a content question, so it stays for
+        now and is noted in AUDIT.md rather than deleted here.
+      */}
+      <p className="text-sm font-medium text-muted">{t("courses")}</p>
       <h1 className="mt-1 text-2xl font-bold text-foreground">
         {lesson.titleJa} / {lesson.titleEn}
       </h1>

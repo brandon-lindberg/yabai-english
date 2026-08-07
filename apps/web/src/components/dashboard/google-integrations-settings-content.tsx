@@ -13,6 +13,7 @@ import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type SearchParams = Promise<{
   onboardingNext?: string;
@@ -147,7 +148,7 @@ export async function GoogleIntegrationsSettingsContent({ searchParams }: { sear
               href="https://calendar.google.com/calendar"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-link hover:opacity-90"
+              className={`${actionLinkClass} text-sm`}
             >
               {t("openGoogleCalendar")}
             </a>

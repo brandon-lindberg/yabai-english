@@ -16,7 +16,8 @@ type Props = {
   locale: string;
   className?: string;
   dateStyle?: "full" | "long" | "medium" | "short";
-  timeStyle?: "full" | "long" | "medium" | "short";
+  /** `null` renders the date alone — for a review date, a deadline, a birthday. */
+  timeStyle?: "full" | "long" | "medium" | "short" | null;
 };
 
 export function LocalDateTime({
@@ -39,7 +40,11 @@ export function LocalDateTime({
 
   return (
     <span className={className}>
-      {new Date(iso).toLocaleString(locale, { dateStyle, timeStyle, timeZone: browserTz })}
+      {new Date(iso).toLocaleString(locale, {
+        dateStyle,
+        ...(timeStyle ? { timeStyle } : {}),
+        timeZone: browserTz,
+      })}
     </span>
   );
 }

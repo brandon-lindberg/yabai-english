@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import type { StudyRpgSnapshot } from "@/lib/study/rpg-xp";
 import { StudyRpgXpBar } from "@/components/study/study-rpg-xp-bar";
 import { DashboardProfileBioPreview } from "@/components/dashboard/dashboard-profile-bio-preview";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type Props = {
   name: string | null;
@@ -63,7 +64,7 @@ export async function DashboardProfileSummary({
               progressPercent={rpg.progressPercent}
             />
           ) : null}
-          <Link href="/dashboard/profile" className="mt-3 inline-block text-sm font-medium text-link">
+          <Link href="/dashboard/profile" className={`${actionLinkClass} mt-3 inline-block text-sm`}>
             {t("profileCardEdit")}
           </Link>
         </div>

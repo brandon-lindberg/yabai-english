@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminSchoolsView, type AdminOrganization } from "@/components/admin/admin-schools-view";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function AdminSchoolsPage() {
   const t = await getTranslations("admin.schoolsPage");
@@ -72,8 +73,7 @@ export default async function AdminSchoolsPage() {
 
   return (
     <main className="max-w-5xl">
-      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-      <p className="mt-2 text-sm text-muted">{t("subtitle")}</p>
+      <PageHeader title={t("title")} description={t("subtitle")} />
       <AdminSchoolsView initialOrganizations={serializable} />
     </main>
   );

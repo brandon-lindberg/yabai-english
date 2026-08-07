@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Status } from "@/components/ui/status";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 /**
  * The onboarding checklist, for whichever flow is being set up.
@@ -110,7 +111,7 @@ function StepContent({
             {item.href && openLabel ? (
               <a
                 href={item.href}
-                className="font-medium text-link underline-offset-4 hover:underline"
+                className={actionLinkClass}
               >
                 {openLabel}
               </a>

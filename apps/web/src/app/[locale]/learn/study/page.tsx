@@ -7,6 +7,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 const TRACK_SLUG = "english-flashcards";
 
@@ -34,7 +35,7 @@ export default async function StudyHubPage({
     <main className="mx-auto max-w-3xl flex-1 px-4 py-10 sm:px-6">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       <p className="text-sm text-muted">
-        <Link href="/dashboard" className="font-medium text-link hover:opacity-90">
+        <Link href="/dashboard" className={actionLinkClass}>
           {t("backToDashboard")}
         </Link>
       </p>
@@ -140,7 +141,7 @@ export default async function StudyHubPage({
       </section>
 
       <p className="mt-10">
-        <Link href="/dashboard" className="text-link text-sm">
+        <Link href="/dashboard" className={`${actionLinkClass} text-sm`}>
           ← {t("backToDashboard")}
         </Link>
       </p>

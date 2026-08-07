@@ -8,6 +8,7 @@ import { CheckRow } from "@/components/ui/check-row";
 import type { SaveState } from "@/components/ui/form-status";
 import { Status } from "@/components/ui/status";
 import { ProfileSurface } from "@/components/dashboard/profile-surface";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 /**
  * A teacher's public profile — shown as a profile, edited on request.
@@ -129,7 +130,7 @@ export function TeacherProfileForm({
     <p>
       <Link
         href={`/book/teachers/${teacherProfileId}`}
-        className="text-sm font-medium text-link underline-offset-4 hover:underline"
+        className={`${actionLinkClass} text-sm`}
       >
         {saved.marketplaceHidden ? t("teacherPreviewWhenHidden") : t("teacherPreviewPublic")}
       </Link>

@@ -5,6 +5,7 @@ import { buttonClasses } from "@/components/ui/button";
 import type { StudyResumeInfo } from "@/lib/dashboard/study-resume";
 import type { getStudyTrackOverview } from "@/lib/study/get-overview";
 import { StudyLastHint } from "@/components/dashboard/study-last-hint";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type Overview = NonNullable<Awaited<ReturnType<typeof getStudyTrackOverview>>>;
 
@@ -26,7 +27,7 @@ export async function DashboardStudyHighlight({
     <div className="border-t border-border pt-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h2 className="text-lg font-semibold text-foreground">{t("studyTitle")}</h2>
-        <Link href="/learn/study" className="text-sm font-medium text-link">
+        <Link href="/learn/study" className={`${actionLinkClass} text-sm`}>
           {t("studyBrowse")}
         </Link>
       </div>

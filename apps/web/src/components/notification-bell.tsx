@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { subscribeRealtime } from "@/lib/realtime-client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type NotificationItem = {
   id: string;
@@ -137,7 +138,7 @@ export function NotificationBell() {
               <button
                 type="button"
                 onClick={() => void markAllRead()}
-                className="text-xs text-link hover:opacity-90"
+                className={`${actionLinkClass} text-xs`}
               >
                 {t("markAllRead")}
               </button>
@@ -145,7 +146,7 @@ export function NotificationBell() {
                 type="button"
                 disabled={clearingAll || items.length === 0}
                 onClick={() => void clearAll()}
-                className="text-xs font-medium text-link hover:opacity-90 disabled:opacity-40"
+                className={`${actionLinkClass} text-xs disabled:opacity-40`}
               >
                 {t("clearAllNotifications")}
               </button>

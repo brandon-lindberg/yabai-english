@@ -17,6 +17,7 @@ import { DashboardFlashcardStats } from "@/components/dashboard/dashboard-flashc
 import { DashboardStudyHighlight } from "@/components/dashboard/dashboard-study-highlight";
 import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-review";
 import { buttonClasses } from "@/components/ui/button";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 /**
  * A student's dashboard: the shared spine, then their own sections.
@@ -222,7 +223,7 @@ export async function StudentDashboard({
 
       {bookings.scheduleItems.length > 0 ? (
         <p className="text-center text-sm text-muted">
-          <Link href="/dashboard/schedule" className="text-link">
+          <Link href="/dashboard/schedule" className={actionLinkClass}>
             {th("seeFullSchedule")}
           </Link>
         </p>

@@ -18,6 +18,7 @@ import {
   type TeacherOnboardingStep,
 } from "@/lib/teacher-onboarding-steps";
 import { buttonClasses } from "@/components/ui/button";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 const STEP_HREF: Record<TeacherOnboardingStep, "/dashboard/profile" | "/dashboard/settings" | "/dashboard/schedule" | "/dashboard" | "/dashboard/schedule/completed" | "/learn/study"> =
   {
@@ -107,7 +108,7 @@ export function TeacherOnboardingForm({
       isTeacherOnboardingOptionalStep(step) && !checked[step] ? (
         <button
           type="button"
-          className="font-medium text-link underline-offset-4 hover:underline"
+          className={actionLinkClass}
           onClick={() => {
             void skipStep(step);
           }}

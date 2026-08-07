@@ -14,6 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckRow } from "@/components/ui/check-row";
 import { Field, Input } from "@/components/ui/field";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 export type AdminUserListItem = {
   id: string;
@@ -224,7 +225,7 @@ export function AdminUserGrid({
         cell: ({ row }) => (
           <Link
             href={`/admin/users/${row.original.id}`}
-            className="text-link hover:underline"
+            className={actionLinkClass}
           >
             {t("open")}
           </Link>

@@ -9,6 +9,7 @@ import { Field, Input } from "@/components/ui/field";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { Section } from "@/components/ui/section";
 import { Status } from "@/components/ui/status";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type Props = {
   hasGoogleOAuth: boolean;
@@ -154,7 +155,7 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }
       )}
 
       <p className="text-center">
-        <Link href="/" className="text-sm font-medium text-link hover:underline">
+        <Link href="/" className={`${actionLinkClass} text-sm`}>
           {t("backToHome")}
         </Link>
       </p>

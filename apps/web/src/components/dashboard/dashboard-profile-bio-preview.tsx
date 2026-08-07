@@ -6,6 +6,7 @@ import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import type { Schema } from "hast-util-sanitize";
 import { useTranslations } from "next-intl";
 import { useId, useLayoutEffect, useRef, useState } from "react";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 /** MDXEditor can emit inline HTML (e.g. `<u>` for underline); parse it then sanitize like GitHub + `u`. */
 const studentBioSanitizeSchema: Schema = {
@@ -71,7 +72,7 @@ export function DashboardProfileBioPreview({ markdown, emptyLabel }: Props) {
       {showToggle ? (
         <button
           type="button"
-          className="text-sm font-medium text-link hover:underline"
+          className={`${actionLinkClass} text-sm`}
           aria-expanded={expanded}
           aria-controls={bodyId}
           onClick={() => setExpanded((v) => !v)}

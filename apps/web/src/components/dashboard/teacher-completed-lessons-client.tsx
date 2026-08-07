@@ -7,6 +7,7 @@ import { TeacherLessonCompletionNotesForm } from "@/components/dashboard/teacher
 import { formatLessonRange } from "@/lib/format-lesson-datetime";
 import { Status } from "@/components/ui/status";
 import { GroupedList } from "@/components/ui/grouped-list";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 /**
  * A teacher's teaching history.
@@ -146,7 +147,7 @@ export function TeacherCompletedLessonsClient({
                                 href={notesDocUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-semibold text-link underline hover:opacity-90"
+                                className={actionLinkClass}
                               >
                                 {t("googleDocNotesCta")}
                               </a>

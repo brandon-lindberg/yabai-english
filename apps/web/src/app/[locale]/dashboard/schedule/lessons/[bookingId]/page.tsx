@@ -9,6 +9,7 @@ import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { BookingCalendarRecoveryActions } from "@/components/dashboard/booking-calendar-recovery-actions";
 import { TeacherBookingRescheduleForm } from "@/components/dashboard/teacher-booking-reschedule-form";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 export default async function LessonDetailPage({
   params,
@@ -139,7 +140,7 @@ export default async function LessonDetailPage({
                 href={booking.meetUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-link hover:opacity-90"
+                className={actionLinkClass}
               >
                 {t("meetLink")}
               </a>

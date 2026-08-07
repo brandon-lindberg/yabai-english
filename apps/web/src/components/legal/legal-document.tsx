@@ -1,5 +1,6 @@
 import Markdown from "react-markdown";
 import type { Components } from "react-markdown";
+import { inlineLinkClass } from "@/components/ui/inline-link";
 
 const markdownComponents: Components = {
   h1: ({ children, ...rest }) => (
@@ -36,7 +37,7 @@ const markdownComponents: Components = {
   a: ({ children, href, ...rest }) => (
     <a
       href={href}
-      className="font-medium text-link underline-offset-4 hover:underline"
+      className={inlineLinkClass}
       rel="noopener noreferrer"
       target={href?.startsWith("http") ? "_blank" : undefined}
       {...rest}

@@ -701,7 +701,27 @@
     },
     "teacherTiersPage": {
       "title": "講師ティア",
-      "subtitle": "計算されたティア、管理者による上書き、年次の降格候補を管理します。"
+      "subtitle": "計算されたティア、管理者による上書き、年次の降格候補を管理します。",
+      "legacyTitle": "旧料金の個別上書き",
+      "legacyIntro": "SUPER_ADMIN 専用。公開最低額 ¥3,000 を下回る受講生別の料金に使用します。",
+      "fieldTeacher": "講師",
+      "fieldStudentId": "受講生ユーザーID",
+      "fieldOfferingId": "オファリングID",
+      "fieldRateYen": "料金（円）",
+      "saveLegacyRate": "旧料金を保存",
+      "noEmail": "メールアドレスなし",
+      "tierName": "ティア {number}",
+      "tierSummary": "算出 {calculated} ／ 適用 {effective}",
+      "overrideLine": "上書き: {tier}（{until}まで）",
+      "overrideUntilAdmin": "管理者が変更するまで",
+      "nextReview": "次回レビュー: {date}",
+      "notStarted": "未開始",
+      "evaluateNow": "今すぐ評価",
+      "setTier": "{tier} に設定",
+      "removeOverride": "上書きを解除",
+      "demotionPending": "年次のティア引き下げが管理者の判断待ちです。",
+      "approveDemotion": "引き下げを承認",
+      "keepTier": "ティアを維持"
     },
     "studentsPage": {
       "title": "受講生"

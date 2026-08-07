@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type ThreadRow = {
   id: string;
@@ -120,7 +121,7 @@ export function AdminReportsTable() {
                     <span className="text-muted">S: </span>
                     <Link
                       href={`/admin/users/${row.student.id}`}
-                      className="text-link hover:underline"
+                      className={actionLinkClass}
                     >
                       {row.student.name ?? row.student.email}
                     </Link>
@@ -129,7 +130,7 @@ export function AdminReportsTable() {
                     <span className="text-muted">T: </span>
                     <Link
                       href={`/admin/users/${row.teacher.id}`}
-                      className="text-link hover:underline"
+                      className={actionLinkClass}
                     >
                       {row.teacher.name ?? row.teacher.email}
                     </Link>
