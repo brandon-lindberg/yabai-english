@@ -5,14 +5,12 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 import { buttonClasses } from "@/components/ui/button";
+import { inlineLinkClass } from "@/components/ui/inline-link";
 import { Status } from "@/components/ui/status";
 
 type Props = {
   acceptedAt: string | null;
 };
-
-const legalLinkClassName =
-  "font-medium text-link underline-offset-4 hover:underline";
 
 export function TeacherPaymentPolicyForm({ acceptedAt }: Props) {
   const t = useTranslations("dashboard.settingsPage");
@@ -73,7 +71,7 @@ export function TeacherPaymentPolicyForm({ acceptedAt }: Props) {
                 href="/legal/terms/teachers"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={legalLinkClassName}
+                className={inlineLinkClass}
               >
                 {t("paymentPolicyAcceptCheckboxTeacherTermsLink")}
               </Link>{" "}
@@ -82,7 +80,7 @@ export function TeacherPaymentPolicyForm({ acceptedAt }: Props) {
                 href="/legal/refund/teachers"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={legalLinkClassName}
+                className={inlineLinkClass}
               >
                 {t("paymentPolicyAcceptCheckboxRefundLink")}
               </Link>

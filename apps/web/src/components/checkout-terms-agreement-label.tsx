@@ -2,9 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-
-const legalLinkClassName =
-  "font-medium text-link underline-offset-4 hover:underline";
+import { inlineLinkClass } from "@/components/ui/inline-link";
 
 export function CheckoutTermsAgreementLabel() {
   const t = useTranslations("booking");
@@ -16,7 +14,7 @@ export function CheckoutTermsAgreementLabel() {
         href="/legal/terms/students"
         target="_blank"
         rel="noopener noreferrer"
-        className={legalLinkClassName}
+        className={inlineLinkClass}
       >
         {t("acceptCheckoutTermsStudentLink")}
       </Link>{" "}
@@ -25,7 +23,7 @@ export function CheckoutTermsAgreementLabel() {
         href="/legal/refund/students"
         target="_blank"
         rel="noopener noreferrer"
-        className={legalLinkClassName}
+        className={inlineLinkClass}
       >
         {t("acceptCheckoutTermsRefundLink")}
       </Link>

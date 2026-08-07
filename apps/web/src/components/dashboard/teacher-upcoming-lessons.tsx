@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
+import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { BookingCalendarRecoveryActions } from "@/components/dashboard/booking-calendar-recovery-actions";
@@ -39,9 +40,9 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
             lessonNameEn={b.lessonProduct.nameEn}
             startsAtIso={b.startsAt.toISOString()}
             endsAtIso={b.endsAt.toISOString()}
-            separator=" - "
             counterpartLabel={ts("studentLabel")}
             counterpartName={b.student.name ?? b.student.email ?? "—"}
+            status={{ tone: bookingStatusTone(b.status), label: t(bookingStatusKey(b.status)) }}
             meta={
               goals.length > 0
                 ? `${to("goalsLabel")}: ${goals.map((g) => goalLabelById[g] ?? g).join(", ")}`

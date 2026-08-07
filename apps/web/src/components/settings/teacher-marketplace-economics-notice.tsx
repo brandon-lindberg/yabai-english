@@ -2,10 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { inlineLinkClass } from "@/components/ui/inline-link";
 import { Section } from "@/components/ui/section";
-
-const legalLinkClassName =
-  "font-medium text-link underline-offset-4 hover:underline";
 
 export function TeacherMarketplaceEconomicsNotice() {
   const t = useTranslations("dashboard.settingsPage.marketplaceEconomics");
@@ -55,7 +53,7 @@ export function TeacherMarketplaceEconomicsNotice() {
             href="/legal/terms/teachers"
             target="_blank"
             rel="noopener noreferrer"
-            className={legalLinkClassName}
+            className={inlineLinkClass}
           >
             {t("refundDocsTeacherTermsLink")}
           </Link>{" "}
@@ -64,7 +62,7 @@ export function TeacherMarketplaceEconomicsNotice() {
             href="/legal/refund/teachers"
             target="_blank"
             rel="noopener noreferrer"
-            className={legalLinkClassName}
+            className={inlineLinkClass}
           >
             {t("refundDocsRefundLink")}
           </Link>

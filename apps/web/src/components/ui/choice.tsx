@@ -77,10 +77,19 @@ type CommonProps = {
 export function Choice({
   state = "idle",
   disabled = false,
+  toggle = false,
   onSelect,
   stateLabel,
   children,
-}: CommonProps & { onSelect: () => void }) {
+}: CommonProps & {
+  onSelect: () => void;
+  /**
+   * Announce as a two-state toggle rather than a one-shot answer. An answer
+   * button is an action, so an unpicked one is not "unpressed" — but a
+   * multi-select (onboarding's learning goals) must say so in both states.
+   */
+  toggle?: boolean;
+}) {
   const mark = stateMark[state];
   return (
     <li>
@@ -88,7 +97,7 @@ export function Choice({
         type="button"
         disabled={disabled}
         onClick={onSelect}
-        aria-pressed={state === "selected" ? true : undefined}
+        aria-pressed={toggle || state === "selected" ? state === "selected" : undefined}
         className={`${base} ${stateClass[state]}`}
       >
         {mark ? (
