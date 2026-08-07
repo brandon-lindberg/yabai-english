@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
-import { auth } from "@/auth";
-import { redirect } from "@/i18n/navigation";
-import { getLocale } from "next-intl/server";
 import { OrgSubnav } from "@/components/org/org-subnav";
+import { requireOrgViewer } from "@/lib/org/require-org-viewer";
 
 type Props = {
   children: ReactNode;
@@ -10,15 +8,13 @@ type Props = {
 };
 
 export default async function OrgLayout({ children, params }: Props) {
-  const session = await auth();
-  const locale = await getLocale();
-
-  if (!session?.user?.id) {
-    redirect({ href: "/auth/signin", locale });
-    return null;
-  }
-
-  const { orgId } = await params;
+  /*
+    The pages inside check too. That is deliberate rather than redundant: a
+    layout is not a security boundary in the App Router — it and its page render
+    together, so a page that skipped the check would still have run its queries.
+    `requireOrgViewer` caches per request, so the second call costs nothing.
+  */
+  const { orgId } = await requireOrgViewer(params);
 
   return (
     <div className="mx-auto max-w-6xl flex-1 px-4 py-8 sm:px-6">

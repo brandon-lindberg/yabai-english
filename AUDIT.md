@@ -114,15 +114,46 @@ deep. Making teacher steps derive too is a behaviour change needing new queries,
 and some teacher steps ("learn how chat works") have nothing objective to
 measure. Left as-is deliberately.
 
-### 5. Org vs school — the pattern repeats a third time
+### 5. Org vs school — ✅ done
 
-`org-settings-form` / `school-settings-form` and `org-members-list` /
-`school-members-view` are already consolidated. Still to check:
+The 14 files under `/org` went 369 lines → 172. Two helpers replaced the
+hand-written preamble: `requireSchoolViewer` (7 pages + layout) and
+`requireOrgViewer` (4 pages + layout). They are the page-side twins of the
+existing `requireSchoolAccess`, which does the same job for API routes — kept
+separate because a page redirects a person and a route returns a status, but
+given the same vocabulary so a page and its route cannot describe one
+permission two different ways.
 
-- `org/[orgId]/schools/[schoolId]/*` — 7 pages of ~37 lines each, near-identical
-  shells differing only in which panel they render
-- `school-taxonomy-manager` (15 ln) and `teacher-taxonomy-manager` (13 ln) are
-  thin wrappers over the same 490-line `taxonomy-manager` — good, verify no drift
+`school-taxonomy-manager` and `teacher-taxonomy-manager` checked: both are pure
+prop adapters over the same `TaxonomyManager`, no drift. Nothing to do.
+
+Three real findings underneath the duplication:
+
+- **The org pages gated on nothing but "signed in."** Membership of the
+  organization in the URL was never established, so any signed-in user could
+  open `/org/<any-id>/settings` and get the page frame — the APIs behind it
+  were the only thing refusing them. That is one layer where the school routes
+  have two, and it is the layer a person sees.
+- **The org home page was never redesigned.** Hero-metric card grid, card per
+  school, local pill class strings, and an `include` over-fetch on
+  `organization.findUnique`. The school home had the same card grid. Both now
+  on `StatLedger` / `DataList`.
+- **`StatLedger` broke above three stats.** Fixed `repeat(n, 1fr)`, fine while
+  every caller passed three; the org and school overviews pass four and five,
+  and at 390px the figures *overprinted* — `1238` printed on top of `312`. The
+  automated overflow check did not see it, because the text overflowed its grid
+  cell rather than the viewport. Only the screenshot caught it. Columns now
+  wrap on a lattice of per-cell rules.
+
+Kept deliberately: the extra shortcuts an org sees when it has exactly one
+school. For a single-school org the school *is* the org, so making them walk
+through it is friction — but it was a reason to maintain the row markup twice.
+Now one row that carries shortcuts when they are useful.
+
+Guarded: 13 tests over `requireSchoolViewer`, covering the full role × access
+matrix and both redirect destinations. Mutation-tested three ways — widening
+`schoolAdmin` to teachers, changing the non-member destination, and moving the
+viewer lookup before the auth guard each fail exactly one test.
 
 ### 6. Raw form controls — ~110 remaining
 
