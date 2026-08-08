@@ -351,6 +351,47 @@ column was in force or which way round, and the header buttons reordered the
 table silently. Guarded now with three tests; removing the attribute fails
 exactly two of them.
 
+### 12. The rest of the SUPER_ADMIN screens — ✅ done
+
+Reported with screenshots: *"these have obviously never even been looked at."*
+Correct. #9 and #11 had rebuilt the overview, the user detail form and the
+schools/reports/grid plumbing; nobody had looked at what the pages actually
+*read* like.
+
+**The wall of options.** Every user grid — All users, Teachers, Students — put
+**thirteen checkboxes across two rows** above the table: the largest, loudest
+thing on the page, sitting in front of the data it configures. You set columns
+once and then live in the rows. Now a native `<details>` with a count
+(`Columns (11/13)`), so the data leads.
+
+I then broke that fix and caught it in the screenshot round: stripping the
+disclosure marker left something that looked exactly like a heading, with
+nothing to say it opened. The native triangle is back.
+
+**Three more that only a screenshot shows:**
+
+- `Created` rendered `new Date(...).toLocaleString()` — the browser's locale,
+  the runtime's zone, and *seconds*, which wrapped the cell onto three lines.
+  Now `LocalDateTime`, date only.
+- `Rate ¥` printed `String(3300)`, with the currency living in the column header
+  rather than the value. Now `formatYen`.
+- The actions column's header key is an empty string, so the column had no name
+  at all. Now an `sr-only` label.
+
+**Teacher tiers** gave every teacher four identical pills — "Evaluate now"
+beside three "Set Tier N" — all the same weight, so nothing distinguished the
+routine action from the three that override the calculation. The overrides are
+now one labelled group, and the tier a teacher already holds is no longer
+offered again.
+
+**Schools & organizations** opened with a create form: you arrived and met five
+empty inputs before seeing whether any organizations existed. The list comes
+first now; creating is a disclosure beneath it, open only when the list is empty
+— the one time it genuinely is the first thing you need.
+
+**Chat reports** said "No reported threads." as a bare muted paragraph. An empty
+queue is an outcome, and the app has one way of saying so.
+
 ## Still open
 
 - The impeccable finish-reviewer pass (DESIGN.md §9) has still not been run.

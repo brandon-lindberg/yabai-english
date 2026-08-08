@@ -721,7 +721,8 @@
       "removeOverride": "上書きを解除",
       "demotionPending": "年次のティア引き下げが管理者の判断待ちです。",
       "approveDemotion": "引き下げを承認",
-      "keepTier": "ティアを維持"
+      "keepTier": "ティアを維持",
+      "overrideTo": "上書き先"
     },
     "studentsPage": {
       "title": "受講生"
@@ -806,7 +807,9 @@
       "no": "いいえ",
       "sortAsc": "昇順",
       "sortDesc": "降順",
-      "sortSummary": "{field}（{direction}）で並べ替え"
+      "sortSummary": "{field}（{direction}）で並べ替え",
+      "colRate": "料金",
+      "colActionsLabel": "ユーザーを開く"
     },
     "placementReview": {
       "levelLabel": "{name} さんのレベル",

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { TeacherPlatformTier } from "@/generated/prisma/browser";
 import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
-import { buttonClasses } from "@/components/ui/button";
+import { Button, buttonClasses } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 
 export type AdminTeacherTierRow = {
@@ -200,35 +200,45 @@ export function AdminTeacherTiersView({ rows }: Props) {
                 })}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
+            {/*
+              Four identical pills sat here — "Evaluate now" beside three "Set
+              Tier N" — all the same weight, so nothing said which was the
+              routine action and which three overrode the calculation. The
+              override is now one labelled group, and the tier a teacher already
+              has is no longer offered again.
+            */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <Button
+                variant="secondary"
+                size="sm"
                 disabled={busyId === row.teacherId}
                 onClick={() => void evaluate(row.teacherId)}
-                className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-[var(--app-hover)] disabled:opacity-50"
               >
                 {t("evaluateNow")}
-              </button>
-              {(["TIER_1", "TIER_2", "TIER_3"] as const).map((tier) => (
-                <button
-                  key={tier}
-                  type="button"
-                  disabled={busyId === row.teacherId}
-                  onClick={() => void setOverride(row.teacherId, tier)}
-                  className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-[var(--app-hover)] disabled:opacity-50"
-                >
-                  {t("setTier", { tier: tierLabel(tier) })}
-                </button>
-              ))}
+              </Button>
+              <div className="flex items-center gap-1">
+                <span className="text-sm text-muted">{t("overrideTo")}</span>
+                {(["TIER_1", "TIER_2", "TIER_3"] as const).map((tier) => (
+                  <Button
+                    key={tier}
+                    variant="ghost"
+                    size="sm"
+                    disabled={busyId === row.teacherId || row.effectiveTier === tier}
+                    onClick={() => void setOverride(row.teacherId, tier)}
+                  >
+                    {tierLabel(tier)}
+                  </Button>
+                ))}
+              </div>
               {row.overrideTier ? (
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
+                  size="sm"
                   disabled={busyId === row.teacherId}
                   onClick={() => void removeOverride(row.teacherId)}
-                  className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-[var(--app-hover)] disabled:opacity-50"
                 >
                   {t("removeOverride")}
-                </button>
+                </Button>
               ) : null}
             </div>
           </div>

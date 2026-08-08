@@ -8,9 +8,11 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 import { AccountStatus, Role } from "@/generated/prisma/browser";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { LocalDateTime } from "@/components/local-datetime";
+import { formatYen } from "@/lib/format-money";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckRow } from "@/components/ui/check-row";
@@ -138,6 +140,7 @@ export function AdminUserGrid({
   mode: "all" | "teachers" | "students";
 }) {
   const t = useTranslations("admin.grid");
+  const locale = useLocale();
   const roleFilter: Role | undefined =
     mode === "teachers" ? "TEACHER" : mode === "students" ? "STUDENT" : undefined;
 
@@ -236,7 +239,9 @@ export function AdminUserGrid({
     const cols = [
       columnHelper.display({
         id: "actions",
-        header: t("colActions"),
+        // `colActions` is an empty string, so this column had no name at all —
+        // a header cell a screen reader reads as blank.
+        header: () => <span className="sr-only">{t("colActionsLabel")}</span>,
         cell: ({ row }) => (
           <Link
             href={`/admin/users/${row.original.id}`}
@@ -304,7 +309,11 @@ export function AdminUserGrid({
             {t("colCreated")}
           </button>
         ),
-        cell: (ctx) => new Date(ctx.getValue()).toLocaleString(),
+        // Was `toLocaleString()` — the browser's locale, the runtime's zone, and
+        // seconds, which wrapped the cell onto three lines.
+        cell: (ctx) => (
+          <LocalDateTime iso={ctx.getValue()} locale={locale} timeStyle={null} />
+        ),
       }),
       columnHelper.accessor(
         (row) => row.studentProfile?.placedLevel ?? "—",
@@ -332,11 +341,15 @@ export function AdminUserGrid({
         },
       ),
       columnHelper.accessor(
+        // `String(3300)` in a column headed "Rate ¥". `formatYen` exists so the
+        // currency is never a header's job.
         (row) =>
-          row.teacherProfile?.rateYen != null ? String(row.teacherProfile.rateYen) : "—",
+          row.teacherProfile?.rateYen != null
+            ? formatYen(row.teacherProfile.rateYen, locale)
+            : "—",
         {
           id: "rateYen",
-          header: t("colRateYen"),
+          header: t("colRate"),
         },
       ),
       columnHelper.accessor(
@@ -375,7 +388,7 @@ export function AdminUserGrid({
       }),
     ];
     return cols;
-  }, [cycleSort, t]);
+  }, [cycleSort, locale, t]);
 
   const table = useReactTable({
     data: rows,
@@ -388,6 +401,11 @@ export function AdminUserGrid({
   });
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const configurableColumns = table
+    .getAllLeafColumns()
+    .filter((col) => col.id !== "actions");
+  const configurableColumnCount = configurableColumns.length;
+  const visibleColumnCount = configurableColumns.filter((col) => col.getIsVisible()).length;
 
   return (
     <div className="space-y-4">
@@ -411,9 +429,18 @@ export function AdminUserGrid({
         </p>
       </div>
 
-      <div className="border-t border-border pt-4">
-        <p className="mb-2 text-xs font-medium text-muted">{t("columnsLabel")}</p>
-        <div className="flex flex-wrap gap-3 text-sm">
+      {/*
+        Thirteen checkboxes across two rows used to sit here, open, above the
+        table — the largest and loudest thing on the page, in front of the data
+        it exists to configure. You set columns once and then live in the rows.
+        A native `<details>` keeps it one keystroke away, needs no JS, and gets
+        its keyboard behaviour from the platform.
+      */}
+      <details className="border-t border-border pt-4">
+        <summary className="cursor-pointer text-sm font-medium text-foreground underline-offset-4 hover:underline">
+          {t("columnsLabel")} ({visibleColumnCount}/{configurableColumnCount})
+        </summary>
+        <div className="mt-3 grid gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
           {table.getAllLeafColumns().map((col) => {
             if (col.id === "actions") return null;
             const labelKey = COLUMN_LABEL_KEY[col.id];
@@ -428,7 +455,7 @@ export function AdminUserGrid({
             );
           })}
         </div>
-      </div>
+      </details>
 
       {error ? (
         <p className="text-sm text-[var(--app-warning-text)]">{error}</p>
@@ -439,7 +466,7 @@ export function AdminUserGrid({
         </p>
       ) : null}
 
-      <div className="overflow-x-auto rounded-xl border border-border">
+      <div className="overflow-x-auto border-y border-border">
         <table
           className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums"
           aria-busy={loading || undefined}

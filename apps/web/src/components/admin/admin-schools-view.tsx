@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ConfirmDelete } from "@/components/ui/confirm-delete";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { DataList, DataRow } from "@/components/ui/data-row";
 import { Field, Input, Select } from "@/components/ui/field";
@@ -59,18 +60,33 @@ export function AdminSchoolsView({
   const router = useRouter();
   const t = useTranslations("admin.schoolsPage");
 
+  const hasOrgs = initialOrganizations.length > 0;
+
+  /*
+    The create form used to open the page, above the organizations. You arrived
+    at "Schools & organizations" and met five empty inputs before seeing whether
+    any existed — a form in front of the thing it adds to. Creating is now a
+    disclosure beneath the list, and stays open when the list is empty, which is
+    the one time it *is* the first thing you need.
+  */
   return (
     <div className="mt-8 space-y-8">
-      <CreateOrgForm onCreated={() => router.refresh()} />
-      {initialOrganizations.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-border bg-surface p-4 text-sm text-muted">
-          {t("none")}
-        </p>
-      ) : (
+      {hasOrgs ? (
         initialOrganizations.map((org) => (
           <OrgCard key={org.id} org={org} onChanged={() => router.refresh()} />
         ))
+      ) : (
+        <EmptyState title={t("none")} />
       )}
+
+      <details open={!hasOrgs} className="border-t border-border pt-6">
+        {/* The native marker stays. Stripping it left a disclosure that looked
+            exactly like a heading, with nothing to say it opened. */}
+        <summary className="cursor-pointer text-lg font-semibold text-foreground underline-offset-4 hover:underline">
+          {t("createTitle")}
+        </summary>
+        <CreateOrgForm onCreated={() => router.refresh()} />
+      </details>
     </div>
   );
 }
@@ -117,12 +133,8 @@ function CreateOrgForm({ onCreated }: { onCreated: () => void }) {
   }
 
   return (
-    <form
-      onSubmit={submit}
-      className="border-t border-border pt-6"
-    >
-      <h2 className="text-lg font-semibold text-foreground">{t("createTitle")}</h2>
-      <p className="mt-1 text-xs text-muted">{t("createHelp")}</p>
+    <form onSubmit={submit} className="mt-4">
+      <p className="text-sm text-muted">{t("createHelp")}</p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <AdminField label={t("orgName")} value={name} onChange={setName} required />
         <AdminField label={t("orgSlug")} value={slug} onChange={setSlug} required slug />

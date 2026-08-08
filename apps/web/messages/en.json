@@ -721,7 +721,8 @@
       "removeOverride": "Remove override",
       "demotionPending": "Annual demotion pending admin decision.",
       "approveDemotion": "Approve demotion",
-      "keepTier": "Keep tier"
+      "keepTier": "Keep tier",
+      "overrideTo": "Override to"
     },
     "studentsPage": {
       "title": "Students"
@@ -806,7 +807,9 @@
       "no": "No",
       "sortAsc": "ascending",
       "sortDesc": "descending",
-      "sortSummary": "Sorted by {field}, {direction}"
+      "sortSummary": "Sorted by {field}, {direction}",
+      "colRate": "Rate",
+      "colActionsLabel": "Open user"
     },
     "placementReview": {
       "levelLabel": "Placement level for {name}",

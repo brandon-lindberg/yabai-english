@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { LocalDateTime } from "@/components/local-datetime";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Status } from "@/components/ui/status";
 import { actionLinkClass } from "@/components/ui/inline-link";
@@ -51,7 +52,7 @@ export function AdminReportsTable() {
   if (loading) {
     return (
       <div
-        className="overflow-x-auto rounded-xl border border-border"
+        className="overflow-x-auto border-y border-border"
         role="status"
         aria-busy="true"
         aria-label={t("loading")}
@@ -107,11 +108,13 @@ export function AdminReportsTable() {
     );
   }
   if (items.length === 0) {
-    return <p className="text-sm text-muted">{t("empty")}</p>;
+    // Was a bare muted paragraph. An empty queue is an outcome, and the app has
+    // one way of saying so.
+    return <EmptyState title={t("empty")} />;
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
+    <div className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums">
         <thead>
           <tr className="border-b border-border bg-[var(--app-hover)]">
