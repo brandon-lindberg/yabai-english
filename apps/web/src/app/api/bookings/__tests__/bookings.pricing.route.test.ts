@@ -627,4 +627,25 @@ describe("POST /api/bookings pricing", () => {
     );
     expect(res.status).toBe(200);
   });
+
+  test("rejects a payment provider the platform cannot refund", async () => {
+    const startsAt = validBookingStartsAtIso();
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-60",
+          teacherProfileId: "teacher-profile-1",
+          teacherLessonOfferingId: "off-grammar-60",
+          paymentAccountId: "payacct-1",
+          paymentProvider: "KOMOJU",
+          paymentMethod: "CARD",
+          startsAt,
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(400);
+  });
 });

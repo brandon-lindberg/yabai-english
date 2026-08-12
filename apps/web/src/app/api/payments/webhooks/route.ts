@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { SUPPORTED_PAYMENT_PROVIDERS } from "@/lib/payment-methods";
 import { confirmPaidBookingFromPayment } from "@/lib/booking-payment-confirmation";
 import {
   paymentWebhookSecretConfigured,
@@ -8,7 +9,7 @@ import {
 } from "@/lib/payment-webhook-signature";
 
 const webhookSchema = z.object({
-  provider: z.enum(["STRIPE", "KOMOJU"]),
+  provider: z.enum(SUPPORTED_PAYMENT_PROVIDERS),
   eventId: z.string().min(1),
   eventType: z.string().min(1),
   paymentId: z.string().min(1),

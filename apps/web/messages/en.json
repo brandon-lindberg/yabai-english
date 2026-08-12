@@ -573,12 +573,6 @@
       "stripeRequirement_bank": "Bank account details may be required",
       "stripeRequirement_business": "Business details may be required",
       "stripeRequirement_other": "Additional Stripe information may be required",
-      "refundFeeTitle": "Student refund amount",
-      "refundFeeIntro": "On a refund, English Studio Japan retains the tier-based platform fee from the original sale. For student-initiated cancellations, choose whether the student receives a full refund or a refund reduced by up to 10% of the lesson price. Students always receive a full refund when you cancel.",
-      "refundFeePassToStudentLabel": "Deduct up to 10% from the student's refund",
-      "refundFeePassToStudentHelp": "Students who cancel receive 90% back. The deduction never exceeds 10% of the lesson price.",
-      "refundFeeTeacherCoversHelp": "Students receive a full refund. You fund it from your connected account; the platform fee from the original sale is not returned to you.",
-      "refundFeeSaveError": "Could not save your refund fee preference.",
       "marketplaceEconomics": {
         "title": "How tiers and refunds work",
         "intro": "This summary explains how English Studio Japan handles platform fees and refunds for your paid marketplace lessons.",
@@ -591,10 +585,9 @@
         "tier3Schedule": "Flat 10% on all paid lessons",
         "tierReviewNote": "Tiers are reviewed periodically from your teaching activity. See the Tier tab for your current tier and review schedule.",
         "refundTitle": "Refunds",
-        "refundPlatformFee": "On a refund, English Studio Japan retains the tier-based platform fee from the original sale. That amount is not returned to your connected account.",
-        "refundTeacherDefault": "By default, eligible student cancellations receive a full refund of the lesson price. You issue the refund from your connected account; because the platform fee above is not returned, you bear that cost.",
-        "refundPassThrough": "You may deduct up to a flat 10% from the student's refund on their cancellations (they receive 90%). This cap never exceeds 10% of the lesson price. Students are never charged the tier-based platform fee.",
-        "refundTeacherCancel": "When you cancel, students always receive a full refund regardless of your pass-through setting.",
+        "refundPlatformFee": "On a refund, English Studio Japan returns the platform fee from the original sale to your connected account in full. We retain nothing on a lesson that did not happen.",
+        "refundFullAmount": "Eligible cancellations return the full lesson price to the student, whoever cancelled. There is no deduction and no setting to configure.",
+        "refundProcessorFee": "Stripe does not return its own processing fee on a refunded payment. That fee is the only cost you bear on a refunded lesson.",
         "refundDocsPrefix": "Full details are in the",
         "refundDocsTeacherTermsLink": "Teacher Marketplace Terms",
         "refundDocsJoiner": "and the",
@@ -656,7 +649,8 @@
       "teachers": "Teachers",
       "teacherTiers": "Teacher tiers",
       "students": "Students",
-      "reports": "Reports"
+      "reports": "Reports",
+      "payments": "Payments"
     },
     "schoolsPage": {
       "title": "Schools & organizations",
@@ -735,6 +729,22 @@
     },
     "studentsPage": {
       "title": "Students"
+    },
+    "refundsPage": {
+      "title": "Refunds needing attention",
+      "subtitle": "Refunds that have not reached the student yet, or that failed and must be reissued by hand.",
+      "loading": "Loading refunds…",
+      "empty": "Every refund has settled.",
+      "status": "Status",
+      "people": "Booking",
+      "amount": "Amount",
+      "note": "What happened",
+      "when": "Raised",
+      "studentAbbr": "S",
+      "teacherAbbr": "T",
+      "statusPendingRecovery": "Needs manual refund",
+      "statusFailed": "Failed",
+      "statusPending": "Awaiting Stripe"
     },
     "reportsPage": {
       "title": "Chat reports",
@@ -903,12 +913,12 @@
     "teacher": "Teacher",
     "payNow": "Pay now",
     "paymentMethod": "Payment method",
-    "acceptCheckoutTerms": "I confirm the lesson details, payment amount, and cancellation policy. I have read and agree to the Student Marketplace Terms and Student Refund Policy. I understand the transaction is between me and the teacher, eligible refunds depend on the cancellation policy and my teacher refund settings, and rescheduling does not create a refund entitlement.",
+    "acceptCheckoutTerms": "I confirm the lesson details, payment amount, and cancellation policy. I have read and agree to the Student Marketplace Terms and Student Refund Policy. I understand the transaction is between me and the teacher, eligible refunds return the full lesson price, and rescheduling does not create a refund entitlement.",
     "acceptCheckoutTermsPrefix": "I confirm the lesson details, payment amount, and cancellation policy. I have read and agree to the",
     "acceptCheckoutTermsStudentLink": "Student Marketplace Terms",
     "acceptCheckoutTermsJoiner": "and the",
     "acceptCheckoutTermsRefundLink": "Student Refund Policy",
-    "acceptCheckoutTermsSuffix": ". I understand the transaction is between me and the teacher, eligible refunds depend on the cancellation policy and my teacher refund settings, and rescheduling does not create a refund entitlement.",
+    "acceptCheckoutTermsSuffix": ". I understand the transaction is between me and the teacher, eligible refunds return the full lesson price, and rescheduling does not create a refund entitlement.",
     "acceptCheckoutTermsError": "Confirm the checkout terms before paying.",
     "paymentFailed": "Payment failed. Please try again.",
     "leadTimeError": "Bookings must be made at least 48 hours in advance.",
@@ -938,14 +948,14 @@
     "student": {
       "title": "Marketplace payment policy",
       "transaction": "Your transaction is between you and the teacher. English Studio Japan facilitates scheduling, checkout, and communication.",
-      "refunds": "Refunds are automatic only when the cancellation policy allows them. Some teachers may deduct a flat 10% refund processing fee from your refund on eligible student cancellations. Rescheduling does not create a refund entitlement.",
+      "refunds": "Refunds are automatic only when the cancellation policy allows them. When a refund applies you receive the full lesson price. Rescheduling does not create a refund entitlement.",
       "failure": "If a refund may fail or be delayed because the teacher's payment account lacks sufficient funds or has another processor issue, the teacher remains responsible for resolving the refund. The platform is not responsible for the teacher's failure to fund a refund except where required by law."
     },
     "teacher": {
       "title": "Teacher payment responsibilities",
       "transaction": "Students pay your connected payment account for lessons through the platform. English Studio Japan facilitates the relationship and payment flow.",
-      "platformFee": "The platform fee depends on your platform tier. Tier 1 uses 20% for lessons 1-5, 15% for lessons 6-10, and 10% from lesson 11 onward; Tier 2 uses 15% for lessons 1-10 and 10% from lesson 11 onward; Tier 3 is a flat 10%. On refunds, that platform fee is retained by the platform and is not returned to you.",
-      "refunds": "You are responsible for the full refund amount owed to the student under the cancellation policy. You may deduct up to 10% from the student's refund on their cancellations in payment settings.",
+      "platformFee": "The platform fee depends on your platform tier. Tier 1 uses 20% for lessons 1-5, 15% for lessons 6-10, and 10% from lesson 11 onward; Tier 2 uses 15% for lessons 1-10 and 10% from lesson 11 onward; Tier 3 is a flat 10%. On a refund that fee is returned to you in full.",
+      "refunds": "You are responsible for the full refund amount owed to the student under the cancellation policy. The platform fee from the original sale is returned to you, so the only cost you bear is Stripe's processing fee on the original payment.",
       "failure": "If your processor balance, bank account, or payout setup prevents a refund from completing, you remain responsible for resolving the refund and your paid booking access may be restricted."
     }
   },

@@ -9,5 +9,6 @@ export const ADMIN_SUBNAV_ROUTES = [
   ["/admin/teachers", "teachers"],
   ["/admin/teacher-tiers", "teacherTiers"],
   ["/admin/students", "students"],
+  ["/admin/payments", "payments"],
   ["/admin/reports", "reports"],
 ] as const;

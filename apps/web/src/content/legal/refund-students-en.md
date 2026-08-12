@@ -24,15 +24,9 @@ When your **teacher** cancels, you receive a **full refund** of the lesson price
 
 ## 2. How much you receive
 
-### Full refund (default)
+When a refund is eligible you receive **100% of the lesson price** you paid. Nothing is deducted, and the amount does not depend on which teacher you booked.
 
-In most cases, when a refund is eligible you receive **100% of the lesson price** you paid.
-
-### Refund processing fee pass-through
-
-Some teachers enable **Pass the 10% refund processing fee to the student** in their settings. When that setting is on and **you** cancel a refund-eligible booking, you receive **90% of the lesson price** (a flat 10% deduction).
-
-**Example:** You paid ¥5,000 for a lesson. If you cancel under a refund-eligible policy and pass-through is enabled, you receive ¥4,500.
+**Example:** You paid ¥5,000 for a lesson. If you cancel under a refund-eligible policy, you receive ¥5,000.
 
 ---
 

@@ -28,6 +28,10 @@ import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-
 import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
 import { validateBookingAgainstTeacherAvailability } from "@/lib/booking-slot-validation";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import {
+  SUPPORTED_PAYMENT_METHODS,
+  SUPPORTED_PAYMENT_PROVIDERS,
+} from "@/lib/payment-methods";
 
 const teacherAvailabilityInclude = {
   availabilitySlots: {
@@ -56,8 +60,8 @@ const postSchema = z.object({
   teacherProfileId: z.string().min(1).optional(),
   teacherLessonOfferingId: z.string().min(1).optional(),
   paymentAccountId: z.string().min(1).optional(),
-  paymentProvider: z.enum(["STRIPE", "KOMOJU"]).optional(),
-  paymentMethod: z.enum(["CARD", "PAYPAY"]).optional(),
+  paymentProvider: z.enum(SUPPORTED_PAYMENT_PROVIDERS).optional(),
+  paymentMethod: z.enum(SUPPORTED_PAYMENT_METHODS).optional(),
   startsAt: z.string().datetime(),
   manualOverride: z.boolean().optional(),
   manualOverrideReason: z.string().max(500).optional(),

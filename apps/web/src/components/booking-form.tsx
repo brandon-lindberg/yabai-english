@@ -19,6 +19,7 @@ import {
   slotMatchesProduct,
 } from "@/lib/booking-lesson-type-filter";
 import { timeRangesOverlap } from "@/lib/teacher-availability-display";
+import type { EnabledTeacherPaymentMethod } from "@/lib/payment-methods";
 
 type LessonProductOption = {
   id: string;
@@ -34,14 +35,7 @@ type LessonProductOption = {
   teacherRateYen?: number | null;
   teacherGroupSize?: number | null;
   teacherIsGroupOffer?: boolean;
-  paymentMethods?: Array<{
-    accountId: string;
-    provider: "STRIPE" | "KOMOJU";
-    method: "CARD" | "PAYPAY";
-    label: string;
-    logoLabel: string;
-    logoClassName: string;
-  }>;
+  paymentMethods?: EnabledTeacherPaymentMethod[];
 };
 
 type Props = {

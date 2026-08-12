@@ -55,11 +55,11 @@ describe("role-specific legal documents", () => {
     expect(studentTerms).toContain("Student Marketplace Terms");
 
     const teacherRefund = await loadLegalMarkdown("refund-teachers", "en");
-    expect(teacherRefund).toContain("keeps the platform fee");
+    expect(teacherRefund).toContain("returns the platform fee");
 
     const studentRefund = await loadLegalMarkdown("refund-students", "en");
     expect(studentRefund).toContain("Student Refund Policy");
     expect(studentRefund).not.toMatch(/platform fee/i);
-    expect(studentRefund).toContain("10%");
+    expect(studentRefund).toContain("100% of the lesson price");
   });
 });

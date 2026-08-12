@@ -8,8 +8,6 @@ export type CancellationPolicyResult = {
   refundEligible: boolean;
   /** When true, product may offer in-app reschedule instead of treating cancel as refund case (student under 48h). */
   rescheduleOffered: boolean;
-  /** When teacher/admin cancels very close to start, student may receive compensation (e.g. free lesson). */
-  studentCompensationFreeLesson: boolean;
 };
 
 function empty(): CancellationPolicyResult {
@@ -17,13 +15,7 @@ function empty(): CancellationPolicyResult {
     allowed: false,
     refundEligible: false,
     rescheduleOffered: false,
-    studentCompensationFreeLesson: false,
   };
-}
-
-function isAtLeastHoursBeforeLesson(lessonStartsAt: Date, now: Date, hours: number): boolean {
-  const diffMs = lessonStartsAt.getTime() - now.getTime();
-  return diffMs >= hours * 60 * 60 * 1000;
 }
 
 /**
@@ -45,7 +37,6 @@ export function evaluateBookingCancellationPolicy(input: {
       allowed: true,
       refundEligible: false,
       rescheduleOffered: false,
-      studentCompensationFreeLesson: false,
     };
   }
 
@@ -53,28 +44,24 @@ export function evaluateBookingCancellationPolicy(input: {
     return empty();
   }
 
-  const now = input.now ?? new Date();
-  const actorForCompensation = input.actor === "SUPER_ADMIN" ? "TEACHER" : input.actor;
-
-  if (actorForCompensation === "STUDENT") {
+  // Only the student is held to a lead window. A teacher or admin cancelling
+  // always refunds in full, however close to the lesson it lands.
+  if (input.actor === "STUDENT") {
     const farEnough = isBookingOutsideLeadWindow({
       start: input.lessonStartsAt,
-      now,
+      now: input.now ?? new Date(),
       minimumHours: 48,
     });
     return {
       allowed: true,
       refundEligible: farEnough,
       rescheduleOffered: !farEnough,
-      studentCompensationFreeLesson: false,
     };
   }
 
-  const atLeast24hBefore = isAtLeastHoursBeforeLesson(input.lessonStartsAt, now, 24);
   return {
     allowed: true,
     refundEligible: true,
     rescheduleOffered: false,
-    studentCompensationFreeLesson: !atLeast24hBefore,
   };
 }

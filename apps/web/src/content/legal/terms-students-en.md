@@ -30,7 +30,7 @@ Unless otherwise shown at checkout, cancellation **more than 48 hours** before t
 
 **Rescheduling does not create a refund entitlement.**
 
-If your teacher has enabled a pass-through option, a student-initiated cancellation may refund **90% of the lesson price** (a flat 10% refund processing fee).
+When a refund applies, you receive the **full lesson price** you paid.
 
 ---
 

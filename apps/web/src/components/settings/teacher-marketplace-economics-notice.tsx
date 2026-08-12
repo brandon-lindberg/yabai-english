@@ -43,9 +43,8 @@ export function TeacherMarketplaceEconomicsNotice() {
       <Section title={t("refundTitle")} size="sm" className="mt-8">
         <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted">
           <li>{t("refundPlatformFee")}</li>
-          <li>{t("refundTeacherDefault")}</li>
-          <li>{t("refundPassThrough")}</li>
-          <li>{t("refundTeacherCancel")}</li>
+          <li>{t("refundFullAmount")}</li>
+          <li>{t("refundProcessorFee")}</li>
         </ul>
         <p className="mt-3 text-sm text-muted">
           {t("refundDocsPrefix")}{" "}

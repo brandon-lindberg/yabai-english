@@ -158,7 +158,6 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
       allowed: true,
       refundEligible: true,
       rescheduleOffered: false,
-      studentCompensationFreeLesson: false,
     });
     expect(updateMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -178,7 +177,7 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
     );
   });
 
-  test("lets assigned teacher cancel with short-notice compensation flag", async () => {
+  test("lets assigned teacher cancel close to the lesson with a full refund", async () => {
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
     const booking = baseBooking({
       startsAt: new Date("2026-04-11T11:00:00.000Z"),
@@ -195,8 +194,8 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
 
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.policy.studentCompensationFreeLesson).toBe(true);
     expect(body.policy.refundEligible).toBe(true);
+    expect(body.policy.rescheduleOffered).toBe(false);
     expect(issueRefundMock).toHaveBeenCalled();
   });
 

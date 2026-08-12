@@ -16,7 +16,6 @@ describe("evaluateBookingCancellationPolicy", () => {
       expect(r.allowed).toBe(true);
       expect(r.refundEligible).toBe(true);
       expect(r.rescheduleOffered).toBe(false);
-      expect(r.studentCompensationFreeLesson).toBe(false);
     });
 
     it("returns no refund and reschedule when cancelling under 48h before lesson", () => {
@@ -30,37 +29,49 @@ describe("evaluateBookingCancellationPolicy", () => {
       expect(r.allowed).toBe(true);
       expect(r.refundEligible).toBe(false);
       expect(r.rescheduleOffered).toBe(true);
-      expect(r.studentCompensationFreeLesson).toBe(false);
     });
   });
 
   describe("teacher", () => {
-    it("returns refund plus free lesson credit when teacher cancels under 24h before lesson", () => {
-      const lessonStartsAt = new Date("2026-04-11T11:00:00.000Z"); // 23h after t0
-      const r = evaluateBookingCancellationPolicy({
-        actor: "TEACHER",
-        bookingStatus: "CONFIRMED",
-        lessonStartsAt,
-        now: t0,
-      });
-      expect(r.allowed).toBe(true);
-      expect(r.refundEligible).toBe(true);
-      expect(r.studentCompensationFreeLesson).toBe(true);
-      expect(r.rescheduleOffered).toBe(false);
+    it("refunds in full however close to the lesson the cancellation lands", () => {
+      for (const lessonStartsAt of [
+        new Date("2026-04-10T12:30:00.000Z"), // 30m after t0
+        new Date("2026-04-11T11:00:00.000Z"), // 23h after t0
+        new Date("2026-04-11T12:00:00.000Z"), // exactly 24h after t0
+        new Date("2026-04-20T12:00:00.000Z"), // well outside any window
+      ]) {
+        const r = evaluateBookingCancellationPolicy({
+          actor: "TEACHER",
+          bookingStatus: "CONFIRMED",
+          lessonStartsAt,
+          now: t0,
+        });
+        expect(r.allowed).toBe(true);
+        expect(r.refundEligible).toBe(true);
+        expect(r.rescheduleOffered).toBe(false);
+      }
     });
+  });
 
-    it("returns refund without free lesson when teacher cancels at least 24h before lesson", () => {
-      const lessonStartsAt = new Date("2026-04-11T12:00:00.000Z"); // exactly 24h after t0
-      const r = evaluateBookingCancellationPolicy({
-        actor: "TEACHER",
-        bookingStatus: "CONFIRMED",
-        lessonStartsAt,
-        now: t0,
-      });
-      expect(r.allowed).toBe(true);
-      expect(r.refundEligible).toBe(true);
-      expect(r.studentCompensationFreeLesson).toBe(false);
+  it("carries no outcome beyond permission, refund and reschedule", () => {
+    const r = evaluateBookingCancellationPolicy({
+      actor: "TEACHER",
+      bookingStatus: "CONFIRMED",
+      lessonStartsAt: new Date("2026-04-11T11:00:00.000Z"),
+      now: t0,
     });
+    expect(Object.keys(r).sort()).toEqual(["allowed", "refundEligible", "rescheduleOffered"]);
+  });
+
+  it("allows cancelling an unpaid booking without a refund", () => {
+    const r = evaluateBookingCancellationPolicy({
+      actor: "STUDENT",
+      bookingStatus: "PENDING_PAYMENT",
+      lessonStartsAt: new Date("2026-04-20T12:00:00.000Z"),
+      now: t0,
+    });
+    expect(r.allowed).toBe(true);
+    expect(r.refundEligible).toBe(false);
   });
 
   it("disallows cancel when booking already cancelled or completed", () => {
@@ -74,11 +85,10 @@ describe("evaluateBookingCancellationPolicy", () => {
       expect(r.allowed).toBe(false);
       expect(r.refundEligible).toBe(false);
       expect(r.rescheduleOffered).toBe(false);
-      expect(r.studentCompensationFreeLesson).toBe(false);
     }
   });
 
-  it("treats ADMIN like TEACHER for compensation timing", () => {
+  it("treats ADMIN like TEACHER", () => {
     const soon = new Date("2026-04-10T13:00:00.000Z"); // 1h after t0
     const r = evaluateBookingCancellationPolicy({
       actor: "SUPER_ADMIN",
@@ -88,6 +98,5 @@ describe("evaluateBookingCancellationPolicy", () => {
     });
     expect(r.allowed).toBe(true);
     expect(r.refundEligible).toBe(true);
-    expect(r.studentCompensationFreeLesson).toBe(true);
   });
 });

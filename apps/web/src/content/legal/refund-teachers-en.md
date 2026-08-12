@@ -12,38 +12,25 @@ A refund is processed automatically only when the lesson cancellation policy mar
 
 Unless otherwise shown at checkout, cancellation **more than 48 hours** before the scheduled lesson start is eligible for refund. Cancellations inside that window, no-shows, and reschedules are handled according to the cancellation policy and may not be refund eligible.
 
-When **you** cancel a lesson, the student receives a **full refund** of the lesson price regardless of your pass-through setting.
+When **you** cancel a lesson, the student receives a **full refund** of the lesson price.
 
 ---
 
 ## 2. Platform fee on refunds
 
-When a lesson is refunded, English Studio Japan **keeps the platform fee** from the original sale. That fee is based on your platform tier at the time of the lesson:
+When a lesson is refunded, English Studio Japan **returns the platform fee from the original sale to your connected account in full**. We retain nothing on a lesson that did not take place.
 
-| Tier | Fee schedule |
-|------|--------------|
-| **Tier 1** | Lessons 1–5: **20%** · Lessons 6–10: **15%** · Lesson 11+: **10%** |
-| **Tier 2** | Lessons 1–10: **15%** · Lesson 11+: **10%** |
-| **Tier 3** | Flat **10%** |
+**Example:** A ¥5,000 lesson at Tier 1 (first five lessons, 20% fee) has a ¥1,000 platform fee. If the student is refunded, ¥5,000 is returned to the student and the ¥1,000 platform fee is returned to you.
 
-This retained platform fee is the cost of processing the refund through the marketplace. **It is not returned to you** as part of the refund.
-
-**Example:** A ¥5,000 lesson at Tier 1 (first five lessons, 20% fee) has a ¥1,000 platform fee. If the student receives a full refund, ¥5,000 is returned to the student and the ¥1,000 platform fee is retained by the platform.
+Stripe does not return its own processing fee on a refunded payment. That fee is the only cost you bear on a refunded lesson.
 
 ---
 
 ## 3. Student refund amount on cancellations
 
-By default, **eligible student-initiated cancellations receive a full refund** of the lesson price. You issue the refund from your connected payment account. The **tier-based platform fee** from the original sale is retained by English Studio Japan and is **not returned to your connected account**—that is the cost you bear on those refunds.
+Every refund is for the **full lesson price**. This is the same whoever cancelled and however close to the lesson the cancellation lands — there is no deduction, and no setting for you to configure.
 
-You may enable **Deduct up to 10% from the student's refund** in your payment settings. When enabled:
-
-- On **student-initiated** cancellations that are refund eligible, the student receives **90%** of the lesson price (never more than a 10% deduction).
-- On **teacher-initiated** cancellations, the student still receives a **full refund**.
-
-This setting only changes how much the student receives. It does not change what the platform retains from the original sale. Students are never charged the tier-based platform fee.
-
-You can change this setting at any time in **Settings → Payments**. It applies to future cancellations only.
+You issue the refund from your connected payment account.
 
 ---
 

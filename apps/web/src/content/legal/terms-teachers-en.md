@@ -43,7 +43,7 @@ We may restrict paid booking access, payouts, or account features if your paymen
 
 ## 4. Cancellations and refunds
 
-You are responsible for the full refund amount owed to a student when the cancellation policy requires a refund. Refund handling, including the platform fee and optional pass-through setting, is described in the [Teacher Refund Policy](/legal/refund/teachers).
+You are responsible for the full refund amount owed to a student when the cancellation policy requires a refund. The platform fee from the original sale is returned to you when a lesson is refunded; this is described in the [Teacher Refund Policy](/legal/refund/teachers).
 
 Rescheduling a lesson does not create a refund entitlement.
 

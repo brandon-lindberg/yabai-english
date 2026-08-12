@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { resolveStripeAccountStatus } from "@/lib/stripe/stripe-account-status";
 import { constructStripeWebhookEvent } from "@/lib/stripe/stripe-connect";
 import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-booking-from-stripe-checkout";
+import { mapStripeRefundStatus } from "@/lib/payment-refunds";
 
 type StripeEventLike = {
   id: string;
@@ -91,6 +92,40 @@ async function disableConnectedAccountFromWebhook(event: StripeEventLike) {
     },
   });
   return updated;
+}
+
+/**
+ * Refund status is not settled when we create it — a direct-charge refund can
+ * still move from pending to failed hours later. These events are the only
+ * thing that revises the row we wrote at cancellation time.
+ */
+async function handleRefundStatusChanged(event: StripeEventLike) {
+  const stripeRefund = event.data.object;
+  const providerRefundId = stringValue(stripeRefund.id);
+  if (!providerRefundId) {
+    return NextResponse.json({ ok: true, ignored: true });
+  }
+
+  const where = { provider: "STRIPE" as const, providerRefundId };
+  const status = mapStripeRefundStatus(stringValue(stripeRefund.status));
+
+  if (status === "FAILED") {
+    // The student has not been made whole, so this needs a human rather than a
+    // terminal failed state nobody is watching.
+    const reason =
+      stringValue(stripeRefund.failure_reason) ?? stringValue(stripeRefund.status) ?? "unknown";
+    await prisma.refund.updateMany({
+      where,
+      data: {
+        status: "PENDING_RECOVERY",
+        recoveryNote: `Stripe reported the refund did not complete (${reason}). It must be reissued manually.`,
+      },
+    });
+    return NextResponse.json({ ok: true, refundStatus: "PENDING_RECOVERY" });
+  }
+
+  await prisma.refund.updateMany({ where, data: { status } });
+  return NextResponse.json({ ok: true, refundStatus: status });
 }
 
 async function handleCheckoutSessionCompleted(event: StripeEventLike) {
@@ -195,6 +230,13 @@ export async function POST(req: Request) {
   }
   if (event.type === "checkout.session.expired") {
     return handleCheckoutSessionExpired(event);
+  }
+  if (
+    event.type === "refund.updated" ||
+    event.type === "refund.failed" ||
+    event.type === "charge.refund.updated"
+  ) {
+    return handleRefundStatusChanged(event);
   }
   if (event.type === "account.updated") {
     await syncConnectedAccountFromWebhook(event);

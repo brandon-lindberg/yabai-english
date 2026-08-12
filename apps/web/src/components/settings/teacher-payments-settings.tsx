@@ -8,6 +8,8 @@ import { TeacherPaymentPolicyForm } from "@/components/teacher-payment-policy-fo
 import { TeacherMarketplaceEconomicsNotice } from "@/components/settings/teacher-marketplace-economics-notice";
 import { TeacherStripeSetupStatus } from "@/components/settings/teacher-stripe-setup-status";
 import {
+  SUPPORTED_PAYMENT_METHODS,
+  type SupportedPaymentProvider,
   getEnabledTeacherPaymentMethods,
   isLocalDevStripeAccountReady,
   isLocalStripeProviderAccount,
@@ -16,12 +18,11 @@ import {
 } from "@/lib/payment-methods";
 import { resolveTeacherStripeSetupState } from "@/lib/teacher-stripe-setup";
 import { buttonClasses } from "@/components/ui/button";
-import { CheckRow } from "@/components/ui/check-row";
 import { Status } from "@/components/ui/status";
 
-type Provider = "STRIPE" | "KOMOJU";
+type Provider = SupportedPaymentProvider;
 type AccountStatus = "PENDING" | "ENABLED" | "DISABLED" | "REQUIREMENTS_DUE";
-type Method = "CARD" | "PAYPAY";
+type Method = (typeof SUPPORTED_PAYMENT_METHODS)[number];
 
 export type TeacherPaymentsSettingsAccount = {
   id: string;
@@ -42,7 +43,6 @@ type Props = {
   accounts: TeacherPaymentsSettingsAccount[];
   devPaymentsEnabled: boolean;
   stripeConnectEnabled: boolean;
-  refundFeePassedToStudent?: boolean;
 };
 
 export function TeacherPaymentsSettings({
@@ -50,7 +50,6 @@ export function TeacherPaymentsSettings({
   accounts: initialAccounts,
   devPaymentsEnabled,
   stripeConnectEnabled,
-  refundFeePassedToStudent: initialRefundFeePassedToStudent = false,
 }: Props) {
   const t = useTranslations("dashboard.settingsPage");
   const searchParams = useSearchParams();
@@ -64,11 +63,6 @@ export function TeacherPaymentsSettings({
     null,
   );
   const [error, setError] = useState<string | null>(null);
-  const [refundFeePassedToStudent, setRefundFeePassedToStudent] = useState(
-    initialRefundFeePassedToStudent,
-  );
-  const [savingRefundFee, setSavingRefundFee] = useState(false);
-  const [refundFeeError, setRefundFeeError] = useState<string | null>(null);
   const enabledMethods = getEnabledTeacherPaymentMethods(accounts);
   const hasLocalDevStripe = accounts.some(
     (account) =>
@@ -161,28 +155,6 @@ export function TeacherPaymentsSettings({
       setReturnBanner("incomplete");
     } finally {
       setRefreshingStripe(false);
-    }
-  }
-
-  async function saveRefundFeePreference(nextValue: boolean) {
-    setSavingRefundFee(true);
-    setRefundFeeError(null);
-    setRefundFeePassedToStudent(nextValue);
-    try {
-      const res = await fetch("/api/teacher/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refundFeePassedToStudent: nextValue }),
-      });
-      if (!res.ok) {
-        setRefundFeePassedToStudent(!nextValue);
-        setRefundFeeError(t("refundFeeSaveError"));
-      }
-    } catch {
-      setRefundFeePassedToStudent(!nextValue);
-      setRefundFeeError(t("refundFeeSaveError"));
-    } finally {
-      setSavingRefundFee(false);
     }
   }
 
@@ -315,35 +287,6 @@ export function TeacherPaymentsSettings({
         ) : null}
         {setupState.state === "ready" ? (
           <p className="text-xs text-foreground">{t("stripeSetupStudentsCanPay")}</p>
-        ) : null}
-      </section>
-
-      <section className="space-y-3 border-t border-border pt-6">
-        <div>
-          <h3 className="text-base font-semibold text-foreground">{t("refundFeeTitle")}</h3>
-          <p className="mt-1 text-sm text-muted">{t("refundFeeIntro")}</p>
-        </div>
-        {/* The box carried `accent-[var(--app-primary,#4f46e5)]` — an indigo
-            fallback, a brand hue in a world that has none. The token always
-            resolves, so it never fired, but it was one edit from doing so. */}
-        <CheckRow
-          checked={refundFeePassedToStudent}
-          disabled={savingRefundFee}
-          onChange={(next) => {
-            void saveRefundFeePreference(next);
-          }}
-          description={
-            refundFeePassedToStudent
-              ? t("refundFeePassToStudentHelp")
-              : t("refundFeeTeacherCoversHelp")
-          }
-        >
-          <span className="font-medium">{t("refundFeePassToStudentLabel")}</span>
-        </CheckRow>
-        {refundFeeError ? (
-          <p role="alert">
-          <Status tone="error">{refundFeeError}</Status>
-        </p>
         ) : null}
       </section>
     </section>

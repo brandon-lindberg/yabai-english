@@ -20,7 +20,6 @@ const patchSchema = z.object({
   /** When true, teacher is hidden from /book and only rostered students may book via direct link. */
   marketplaceHidden: z.boolean().optional(),
   /** When true, the 10% refund processing fee is deducted from the student's refund instead of covered by the teacher. */
-  refundFeePassedToStudent: z.boolean().optional(),
   lessonOfferings: z
     .array(
       z.object({
@@ -82,7 +81,6 @@ export async function PATCH(req: Request) {
         rateYen: data.rateYen === undefined ? null : data.rateYen,
         offersFreeTrial: data.offersFreeTrial ?? true,
         marketplaceHidden: data.marketplaceHidden ?? false,
-        refundFeePassedToStudent: data.refundFeePassedToStudent ?? false,
       },
       update: {
         ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
@@ -97,9 +95,6 @@ export async function PATCH(req: Request) {
         ...(data.offersFreeTrial !== undefined ? { offersFreeTrial: data.offersFreeTrial } : {}),
         ...(data.marketplaceHidden !== undefined
           ? { marketplaceHidden: data.marketplaceHidden }
-          : {}),
-        ...(data.refundFeePassedToStudent !== undefined
-          ? { refundFeePassedToStudent: data.refundFeePassedToStudent }
           : {}),
       },
     });

@@ -4,6 +4,31 @@ import type {
   TeacherPaymentMethodType,
 } from "@/generated/prisma/client";
 
+/**
+ * Stripe is the only provider students can check out with, and the only one we
+ * can refund. The stored `PaymentProvider` enum stays wider so rows written
+ * before that was true remain readable — narrow to this at every boundary that
+ * accepts a provider from outside.
+ */
+export const SUPPORTED_PAYMENT_PROVIDERS = ["STRIPE"] as const;
+export type SupportedPaymentProvider = (typeof SUPPORTED_PAYMENT_PROVIDERS)[number];
+
+export const SUPPORTED_PAYMENT_METHODS = ["CARD", "PAYPAY"] as const;
+
+/**
+ * Keeps only the accounts we can actually operate, narrowing the stored
+ * provider as it goes. Read sites use this so a legacy row for a provider we no
+ * longer support cannot reach a surface that assumes Stripe.
+ */
+export function onlySupportedProviderAccounts<T extends { provider: PaymentProvider }>(
+  accounts: T[],
+): Array<T & { provider: SupportedPaymentProvider }> {
+  return accounts.filter(
+    (account): account is T & { provider: SupportedPaymentProvider } =>
+      (SUPPORTED_PAYMENT_PROVIDERS as readonly PaymentProvider[]).includes(account.provider),
+  );
+}
+
 export type TeacherPaymentAccountLike = {
   id: string;
   provider: PaymentProvider;

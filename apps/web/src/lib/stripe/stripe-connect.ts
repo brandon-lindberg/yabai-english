@@ -132,20 +132,19 @@ export async function retrieveStripeCheckoutSession({
 }
 
 /**
- * Refunds the platform's application fee for a direct charge back to the
- * connected account, keeping `keepYen` as the platform's processing fee.
- * Returns null when there is nothing to refund.
+ * Returns the platform's entire application fee for a direct charge back to the
+ * connected account. The platform retains nothing on a refunded lesson, so the
+ * amount is whatever Stripe still holds as unrefunded fee — we never need our
+ * own record of what was charged. Returns null when there is nothing to refund.
  */
-export async function createStripeApplicationFeeRefundKeepingProcessingFee({
+export async function createStripeApplicationFeeRefund({
   connectedAccountId,
   paymentIntentId,
-  keepYen,
   paymentId,
   bookingId,
 }: {
   connectedAccountId: string;
   paymentIntentId: string;
-  keepYen: number;
   paymentId: string;
   bookingId: string;
 }) {
@@ -167,7 +166,7 @@ export async function createStripeApplicationFeeRefundKeepingProcessingFee({
   }
 
   const applicationFee = await stripe().applicationFees.retrieve(applicationFeeId);
-  const refundableYen = applicationFee.amount - applicationFee.amount_refunded - keepYen;
+  const refundableYen = applicationFee.amount - applicationFee.amount_refunded;
   if (refundableYen <= 0) {
     return null;
   }

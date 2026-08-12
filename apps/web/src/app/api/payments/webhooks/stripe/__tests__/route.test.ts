@@ -4,6 +4,7 @@ const { prismaMock, constructEventMock, confirmFromCheckoutMock } = vi.hoisted((
   prismaMock: {
     paymentWebhookEvent: { createMany: vi.fn() },
     payment: { update: vi.fn(), updateMany: vi.fn() },
+    refund: { updateMany: vi.fn() },
     teacherPaymentAccount: { findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     teacherPaymentMethod: { upsert: vi.fn(), updateMany: vi.fn() },
   },
@@ -25,6 +26,7 @@ describe("POST /api/payments/webhooks/stripe", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     prismaMock.paymentWebhookEvent.createMany.mockResolvedValue({ count: 1 });
+    prismaMock.refund.updateMany.mockResolvedValue({ count: 1 });
     confirmFromCheckoutMock.mockResolvedValue({
       ok: true,
       bookingStatus: "CONFIRMED",
@@ -303,5 +305,92 @@ describe("POST /api/payments/webhooks/stripe", () => {
         providerAccountId: null,
       }),
     });
+  });
+
+  test.each([
+    ["refund.updated", "succeeded", "SUCCEEDED"],
+    ["refund.updated", "pending", "PENDING"],
+    ["charge.refund.updated", "requires_action", "PENDING"],
+  ])("records the settled status from %s (%s)", async (type, stripeStatus, stored) => {
+    constructEventMock.mockReturnValue({
+      id: `evt_${type}_${stripeStatus}`,
+      type,
+      account: "acct_123",
+      data: { object: { id: "re_123", status: stripeStatus } },
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/payments/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": "sig_123" },
+        body: "{}",
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.refund.updateMany).toHaveBeenCalledWith({
+      where: { provider: "STRIPE", providerRefundId: "re_123" },
+      data: { status: stored },
+    });
+  });
+
+  // A refund that did not complete leaves the student out of pocket, so it goes
+  // to the recovery queue rather than resting in a terminal FAILED state.
+  test.each([
+    ["refund.failed", "failed", "insufficient_funds", "insufficient_funds"],
+    ["charge.refund.updated", "canceled", undefined, "canceled"],
+  ])(
+    "sends an uncompleted refund to recovery from %s (%s)",
+    async (type, stripeStatus, failureReason, expectedNote) => {
+      constructEventMock.mockReturnValue({
+        id: `evt_${type}_${stripeStatus}`,
+        type,
+        account: "acct_123",
+        data: {
+          object: {
+            id: "re_456",
+            status: stripeStatus,
+            ...(failureReason ? { failure_reason: failureReason } : {}),
+          },
+        },
+      });
+
+      const res = await POST(
+        new Request("http://localhost/api/payments/webhooks/stripe", {
+          method: "POST",
+          headers: { "stripe-signature": "sig_123" },
+          body: "{}",
+        }),
+      );
+
+      expect(res.status).toBe(200);
+      expect(prismaMock.refund.updateMany).toHaveBeenCalledWith({
+        where: { provider: "STRIPE", providerRefundId: "re_456" },
+        data: {
+          status: "PENDING_RECOVERY",
+          recoveryNote: expect.stringContaining(expectedNote),
+        },
+      });
+    },
+  );
+
+  test("ignores a refund event that carries no refund id", async () => {
+    constructEventMock.mockReturnValue({
+      id: "evt_refund_noid",
+      type: "refund.updated",
+      account: "acct_123",
+      data: { object: { status: "succeeded" } },
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/payments/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": "sig_123" },
+        body: "{}",
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.refund.updateMany).not.toHaveBeenCalled();
   });
 });

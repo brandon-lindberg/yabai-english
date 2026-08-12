@@ -32,7 +32,7 @@ describe("TeacherMarketplaceEconomicsNotice", () => {
     );
 
     expect(screen.getByText(messages.title)).toBeTruthy();
-    expect(screen.getByText(messages.refundTeacherCancel)).toBeTruthy();
+    expect(screen.getByText(messages.refundFullAmount)).toBeTruthy();
     expect(screen.getByRole("link", { name: messages.refundDocsTeacherTermsLink })).toHaveAttribute(
       "href",
       "/legal/terms/teachers",

@@ -10,6 +10,7 @@ import { TeacherPaymentsSettings } from "@/components/settings/teacher-payments-
 import { TeacherTierSettings } from "@/components/settings/teacher-tier-settings";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { resolveEffectiveTeacherTier } from "@/lib/platform-fees";
+import { onlySupportedProviderAccounts } from "@/lib/payment-methods";
 
 export default async function DashboardSettingsPage({
   searchParams,
@@ -42,7 +43,6 @@ export default async function DashboardSettingsPage({
         where: { userId: session.user.id },
         select: {
           paymentPolicyAcceptedAt: true,
-          refundFeePassedToStudent: true,
           tierState: true,
           tierEvaluations: {
             orderBy: { createdAt: "desc" },
@@ -95,10 +95,9 @@ export default async function DashboardSettingsPage({
       {activeTab === "payments" && teacherProfile ? (
         <TeacherPaymentsSettings
           paymentPolicyAcceptedAt={teacherProfile.paymentPolicyAcceptedAt?.toISOString() ?? null}
-          accounts={teacherProfile.paymentAccounts}
+          accounts={onlySupportedProviderAccounts(teacherProfile.paymentAccounts)}
           devPaymentsEnabled={devPaymentsEnabled}
           stripeConnectEnabled={stripeConnectEnabled}
-          refundFeePassedToStudent={teacherProfile.refundFeePassedToStudent}
         />
       ) : null}
       {activeTab === "tier" && teacherProfile ? (
