@@ -663,7 +663,7 @@
       "subtitle": "Create organizations, add schools, and assign owners and admins.",
       "none": "No organizations yet. Create one below.",
       "createTitle": "Create organization",
-      "createHelp": "Creates the org, its first school, and assigns the given user as OWNER.",
+      "createHelp": "An organization starts with one school and one owner. You can add more schools and change roles afterwards.",
       "createCta": "Create organization",
       "saving": "Saving…",
       "deleting": "Deleting…",
@@ -671,8 +671,7 @@
       "orgName": "Organization name",
       "orgSlug": "Organization slug",
       "schoolName": "School name",
-      "schoolSlugOptional": "School slug (optional)",
-      "ownerEmail": "Owner email (existing user)",
+      "ownerEmail": "Owner email",
       "schoolsTitle": "Schools",
       "membersTitle": "Members",
       "members": "members",
@@ -691,7 +690,17 @@
       "slugPreview": "Will save as",
       "slugInvalidEmpty": "Slug must contain letters or numbers.",
       "searching": "Searching…",
-      "noResults": "No matching users."
+      "noResults": "No matching users.",
+      "schoolCount": "{count, plural, one {# school} other {# schools}}",
+      "memberCount": "{count, plural, one {# member} other {# members}}",
+      "backToOrgs": "All organizations",
+      "invitePending": "Invitation pending",
+      "orgLegend": "Organization",
+      "firstSchoolLegend": "Its first school",
+      "ownerLegend": "Owner",
+      "ownerEmailHint": "Must already have an account. They become the organization's owner.",
+      "schoolSlug": "School slug",
+      "slugHint": "Used in URLs. Filled from the name; edit it if you need something different."
     },
     "usersPage": {
       "title": "All users"

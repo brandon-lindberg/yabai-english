@@ -384,13 +384,98 @@ routine action from the three that override the calculation. The overrides are
 now one labelled group, and the tier a teacher already holds is no longer
 offered again.
 
-**Schools & organizations** opened with a create form: you arrived and met five
-empty inputs before seeing whether any organizations existed. The list comes
-first now; creating is a disclosure beneath it, open only when the list is empty
-— the one time it genuinely is the first thing you need.
+**Schools & organizations** needed two passes. The first moved the create form
+below the list — you had been arriving and meeting five empty inputs before
+seeing whether any organizations existed.
+
+That was not enough, and the second look found why: **the org card interleaved
+data and forms.** "Add another school" lived inside the Schools column and
+"Assign or update a role" inside the Members column, both permanently open, both
+taller than the lists above them. The page asked *what is in this organization?*
+and answered with two forms. One organization filled two viewports.
+
+Now the organization identifies itself — name, then one line of
+`slug · timezone · N schools · N members` — its two lists sit side by side and
+scan as lists, and each form is a disclosure under the list it adds to, open
+only when that list is empty. Two organizations now fit where one did not.
+
+`ConfirmDelete`'s trigger also dropped to `sm`. One dangerous control among
+several ordinary ones can afford full weight; a list gets one per row, and a hue
+repeated down a page stops reading as a warning.
 
 **Chat reports** said "No reported threads." as a bare muted paragraph. An empty
 queue is an outcome, and the app has one way of saying so.
+
+### 13. `/admin/schools` was one page doing N pages' work — ✅ done
+
+Reported after two rounds of styling it: *"you should have to click into an
+organization to see its members, it should be an entirely new page."* Right, and
+the two previous passes had been rearranging furniture inside the wrong room.
+
+The page listed every organization **and managed every one of them inline** —
+each rendering its schools, its members, an add-school form and an assign-role
+form. It had no single job, and every organization added doubled it. Restacking
+the columns and collapsing the forms made it tidier without making it correct.
+
+Now it is two routes:
+
+- **`/admin/schools`** — the organizations, as rows you click. Name, then
+  `slug · timezone · N schools · N members`. The whole row is the link, the same
+  way an onboarding step with no controls of its own is.
+- **`/admin/schools/[orgId]`** — one organization: its schools, its members, the
+  two forms that add to them, and deleting it. Deleting ends the page you are
+  on, so it sits at the foot of it and returns you to the list.
+
+The list query changed with the structure: it used to load every school and
+every membership of every organization because it rendered them all. It reads
+`_count` now, and the detail page loads the rest.
+
+`admin-schools-view.tsx` (672 lines) split into `admin-org-list`,
+`admin-org-detail`, a shared `admin-org-form-fields`, and `admin-org-types`.
+
+Two mistakes on the way, both caught in the screenshot round: a row-wide hover
+next to a small "Manage" link promised the whole row was clickable when only
+that word was; removing "Manage" and linking just the name then left nothing
+marking the row as navigable, because `--app-link` is the same ink as the
+foreground. The row is the link.
+
+### 14. "2 members" for an organization with one person in it — ✅ bug
+
+Reported alongside the create form: *"how does this organization have 2 members
+when there is clearly only one member who is both the owner and a
+school_admin."*
+
+Because the count counted **membership rows**, and a membership row is a grant,
+not a person. One person holding org-wide OWNER plus SCHOOL_ADMIN of one of the
+org's schools is the ordinary case, and that is two rows. `_count` on
+memberships was reporting grants and labelling them members — on the
+organization, and on each school.
+
+Identity is not simply `userId` either: it stays null until an invited person
+first signs in, so keying on it alone would have collapsed every outstanding
+invitation into a single phantom member. The key is `userId ?? inviteEmail`,
+in `lib/org/member-identity.ts`, with 9 tests over the cases that matter —
+two grants for one person, two pending invites, an invite and the account it
+becomes, and case/whitespace on the email.
+
+The members list had the same shape of error: it printed one row per grant, so
+the same person appeared twice. One row per person now, with their roles listed
+beside them, and a pending invitation says so.
+
+### 15. Create organization — ✅ done
+
+Never touched since it was written. Five flat fields belonging to three
+different things, and copy written for whoever implemented the endpoint:
+*"Creates the org, its first school, and assigns the given user as OWNER."*
+
+- Grouped into **Organization / Its first school / Owner**, so the form's shape
+  matches what it makes.
+- **Both slugs now follow their name** until an admin edits one. They were two
+  of the five fields on the critical path, typed by hand from the name sitting
+  beside them — and the organization's was required while the school's was not,
+  for no reason a person could see. Adding a school later works the same way.
+- Constraints moved out of labels and into hints: "Owner email (existing user)"
+  became a label and a sentence that says what will happen to them.
 
 ## Still open
 

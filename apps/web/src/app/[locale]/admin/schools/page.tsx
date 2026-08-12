@@ -1,9 +1,18 @@
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { AdminSchoolsView, type AdminOrganization } from "@/components/admin/admin-schools-view";
+import { AdminOrgList } from "@/components/admin/admin-org-list";
+import { countDistinctMembers } from "@/lib/org/member-identity";
+import type { AdminOrganizationSummary } from "@/components/admin/admin-org-types";
 import { PageHeader } from "@/components/ui/page-header";
 
+/**
+ * Every organization, as a list.
+ *
+ * This query used to pull every school and every membership of every
+ * organization, because the page rendered all of them inline. A list needs
+ * counts; the organization's own page loads the rest.
+ */
 export default async function AdminSchoolsPage() {
   const t = await getTranslations("admin.schoolsPage");
   const session = await auth();
@@ -15,66 +24,34 @@ export default async function AdminSchoolsPage() {
       id: true,
       slug: true,
       name: true,
-      nameJa: true,
-      nameEn: true,
       timezone: true,
-      billingTarget: true,
-      createdAt: true,
-      schools: {
-        orderBy: { createdAt: "asc" },
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          nameJa: true,
-          nameEn: true,
-          _count: {
-            select: { memberships: { where: { status: "ACTIVE" } } },
-          },
-        },
-      },
+      _count: { select: { schools: true } },
+      /*
+        Not `_count` on memberships: that counts *grants*, and one person
+        commonly holds two in the same organization (org-wide OWNER plus
+        SCHOOL_ADMIN of one of its schools). An org with one person in it
+        reported "2 members".
+      */
       memberships: {
         where: { status: "ACTIVE" },
-        orderBy: { createdAt: "asc" },
-        select: {
-          id: true,
-          orgRole: true,
-          schoolId: true,
-          user: { select: { id: true, name: true, email: true } },
-        },
+        select: { userId: true, inviteEmail: true },
       },
     },
   });
 
-  const serializable: AdminOrganization[] = organizations.map((org) => ({
+  const rows: AdminOrganizationSummary[] = organizations.map((org) => ({
     id: org.id,
     slug: org.slug,
     name: org.name,
-    nameJa: org.nameJa,
-    nameEn: org.nameEn,
     timezone: org.timezone,
-    billingTarget: org.billingTarget,
-    createdAt: org.createdAt.toISOString(),
-    schools: org.schools.map((s) => ({
-      id: s.id,
-      slug: s.slug,
-      name: s.name,
-      nameJa: s.nameJa,
-      nameEn: s.nameEn,
-      memberCount: s._count.memberships,
-    })),
-    memberships: org.memberships.map((m) => ({
-      id: m.id,
-      orgRole: m.orgRole,
-      schoolId: m.schoolId,
-      user: m.user,
-    })),
+    schoolCount: org._count.schools,
+    memberCount: countDistinctMembers(org.memberships),
   }));
 
   return (
     <main className="max-w-5xl">
       <PageHeader title={t("title")} description={t("subtitle")} />
-      <AdminSchoolsView initialOrganizations={serializable} />
+      <AdminOrgList organizations={rows} />
     </main>
   );
 }

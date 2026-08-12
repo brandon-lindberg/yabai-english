@@ -663,7 +663,7 @@
       "subtitle": "組織を作成し、スクールを追加して、オーナーや管理者を割り当てます。",
       "none": "組織はまだありません。下のフォームから作成してください。",
       "createTitle": "組織を作成",
-      "createHelp": "組織、最初のスクールを作成し、指定したユーザーをオーナーに割り当てます。",
+      "createHelp": "組織はスクール1つとオーナー1名から始まります。スクールの追加や権限の変更は後からできます。",
       "createCta": "組織を作成",
       "saving": "保存中…",
       "deleting": "削除中…",
@@ -671,8 +671,7 @@
       "orgName": "組織名",
       "orgSlug": "組織スラッグ",
       "schoolName": "スクール名",
-      "schoolSlugOptional": "スクールスラッグ（任意）",
-      "ownerEmail": "オーナーのメール（登録済ユーザー）",
+      "ownerEmail": "オーナーのメールアドレス",
       "schoolsTitle": "スクール",
       "membersTitle": "メンバー",
       "members": "名",
@@ -691,7 +690,17 @@
       "slugPreview": "保存される値",
       "slugInvalidEmpty": "スラッグには英数字を含めてください。",
       "searching": "検索中…",
-      "noResults": "一致するユーザーはいません。"
+      "noResults": "一致するユーザーはいません。",
+      "schoolCount": "{count}校",
+      "memberCount": "{count}名",
+      "backToOrgs": "組織一覧",
+      "invitePending": "招待中",
+      "orgLegend": "組織",
+      "firstSchoolLegend": "最初のスクール",
+      "ownerLegend": "オーナー",
+      "ownerEmailHint": "既存のアカウントが必要です。組織のオーナーになります。",
+      "schoolSlug": "スクールスラッグ",
+      "slugHint": "URL に使われます。名前から自動入力されます。必要に応じて変更できます。"
     },
     "usersPage": {
       "title": "全ユーザー"

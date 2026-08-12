@@ -50,12 +50,19 @@ export function ConfirmDelete({
   const matches =
     typed.trim().toLowerCase() === expected.trim().toLowerCase() && expected.length > 0;
 
+  /*
+    The trigger is `sm`. On a page with one dangerous control among several
+    ordinary ones it can afford full weight, but a list gets one of these per
+    row, and a hue repeated down a page stops reading as a warning and starts
+    reading as decoration. The panel below is where the danger is announced,
+    and the typed confirmation is what actually guards it.
+  */
   if (!open) {
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={buttonClasses({ variant: "destructive" })}
+        className={buttonClasses({ variant: "destructive", size: "sm" })}
       >
         {triggerLabel}
       </button>
