@@ -14,6 +14,7 @@ import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 import { buttonClasses } from "@/components/ui/button";
+import { ensureFreeTrialOffering } from "@/lib/free-trial-offering-sync";
 
 export default async function DashboardScheduleAvailabilityPage({
   searchParams,
@@ -40,6 +41,7 @@ export default async function DashboardScheduleAvailabilityPage({
     select: {
       id: true,
       paymentPolicyAcceptedAt: true,
+      offersFreeTrial: true,
       availabilitySlots: {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
@@ -88,6 +90,13 @@ export default async function DashboardScheduleAvailabilityPage({
     redirect({ href: "/dashboard/schedule", locale });
     return null;
   }
+
+  // The picker offers a slot's class from the teacher's offerings, so the trial
+  // has to exist before the editor renders or there is nothing to select.
+  await ensureFreeTrialOffering(prisma, {
+    teacherId: profile.id,
+    offersFreeTrial: profile.offersFreeTrial,
+  });
 
   const teacherBookings = await getTeacherBookingsForDashboard(prisma, profile.id);
   const publishAvailabilityOptions = resolveTeacherPublishAvailabilityOptions();

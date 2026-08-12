@@ -34,6 +34,7 @@ export type TeacherLessonOfferingOption = {
   rateYen: number;
   isGroup: boolean;
   groupSize: number | null;
+  isFreeTrial?: boolean;
   classLevelId: string | null;
   classTypeId: string | null;
   classLevel: TaxonomyOption | null;
@@ -119,6 +120,11 @@ function TeacherAvailabilityAddModalInner({
   const invalidDateRange = Boolean(draft.startsOn && draft.endsOn && draft.startsOn > draft.endsOn);
   const offerById = new Map(lessonOfferings.map((offer) => [offer.id, offer]));
   const formatOfferingLabel = (offer: TeacherLessonOfferingOption) => {
+    // A trial is its own kind of slot, not a class at a price of zero — naming
+    // the level and type here would read as a discounted conversation lesson.
+    if (offer.isFreeTrial) {
+      return `${tModal("freeTrialOffering")} (${offer.durationMin} min)`;
+    }
     const level = offer.classLevel ? pickLabel(offer.classLevel, locale) : "";
     const type = offer.classType ? pickLabel(offer.classType, locale) : "";
     const size = offer.isGroup && offer.groupSize ? `, group ${offer.groupSize}` : "";

@@ -35,6 +35,7 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
     booking: { findFirst: vi.fn() },
     schoolScheduleSlot: { findMany: vi.fn() },
     teacherStudentLessonRate: { findUnique: vi.fn() },
+    freeTrialRedemption: { findUnique: vi.fn(), create: vi.fn() },
     user: { findUnique: vi.fn() },
     $transaction: vi.fn(),
   },
@@ -89,7 +90,7 @@ describe("POST /api/bookings slot validation", () => {
     prismaMock.user.findUnique.mockResolvedValue({
       id: "student-1",
       email: "student@example.com",
-      studentProfile: { trialLessonUsedAt: null, timezone: "Asia/Tokyo" },
+      studentProfile: { timezone: "Asia/Tokyo" },
     });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb({

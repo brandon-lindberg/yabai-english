@@ -24,6 +24,12 @@ vi.mock("@/auth", () => ({
   auth: authMock,
 }));
 
+const { offeringUpdateManyMock, offeringFindManyMock, slotUpdateManyMock } = vi.hoisted(() => ({
+  offeringUpdateManyMock: vi.fn().mockResolvedValue({ count: 1 }),
+  offeringFindManyMock: vi.fn().mockResolvedValue([{ id: "trial-offering-1" }]),
+  slotUpdateManyMock: vi.fn().mockResolvedValue({ count: 2 }),
+}));
+
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     $transaction: transactionMock,
@@ -33,6 +39,11 @@ vi.mock("@/lib/prisma", () => ({
     teacherLessonOffering: {
       deleteMany: deleteManyMock,
       createMany: createManyMock,
+      updateMany: offeringUpdateManyMock,
+      findMany: offeringFindManyMock,
+    },
+    availabilitySlot: {
+      updateMany: slotUpdateManyMock,
     },
     teacherClassLevel: {
       findMany: classLevelFindManyMock,
@@ -75,6 +86,11 @@ describe("PATCH /api/teacher/profile", () => {
         teacherLessonOffering: {
           deleteMany: deleteManyMock,
           createMany: createManyMock,
+          updateMany: offeringUpdateManyMock,
+          findMany: offeringFindManyMock,
+        },
+        availabilitySlot: {
+          updateMany: slotUpdateManyMock,
         },
         teacherClassLevel: {
           findMany: classLevelFindManyMock,
@@ -306,5 +322,37 @@ describe("PATCH /api/teacher/profile", () => {
         update: expect.objectContaining({ marketplaceHidden: true }),
       }),
     );
+  });
+
+  test("retires the trial offering and its hours when a teacher opts out", async () => {
+    const res = await PATCH(
+      new Request("http://localhost/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offersFreeTrial: false }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    // Leaving trial hours published would keep them matching bookings for a
+    // trial the teacher no longer offers.
+    expect(slotUpdateManyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { active: false } }),
+    );
+    expect(offeringUpdateManyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { active: false } }),
+    );
+  });
+
+  test("leaves the trial offering alone when trials stay on", async () => {
+    await PATCH(
+      new Request("http://localhost/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offersFreeTrial: true }),
+      }),
+    );
+
+    expect(slotUpdateManyMock).not.toHaveBeenCalled();
   });
 });

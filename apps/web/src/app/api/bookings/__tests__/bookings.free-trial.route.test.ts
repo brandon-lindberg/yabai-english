@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { LessonTier } from "@/generated/prisma/client";
 
-const { authMock, findProductMock, findTeacherMock } = vi.hoisted(() => ({
+const { authMock, findProductMock, findTeacherMock, redemptionFindMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   findProductMock: vi.fn(),
   findTeacherMock: vi.fn(),
+  redemptionFindMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -19,6 +20,7 @@ vi.mock("@/lib/prisma", () => ({
     teacherProfile: {
       findFirst: findTeacherMock,
     },
+    freeTrialRedemption: { findUnique: redemptionFindMock, create: vi.fn() },
     teacherRosterEntry: {
       findFirst: vi.fn().mockResolvedValue(null),
     },
@@ -35,6 +37,7 @@ describe("POST /api/bookings free trial guard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
+    redemptionFindMock.mockResolvedValue(null);
     findProductMock.mockResolvedValue({
       id: "lp-trial",
       tier: LessonTier.FREE_TRIAL,
@@ -72,6 +75,7 @@ describe("POST /api/bookings free trial guard", () => {
     expect(res.status).toBe(409);
     await expect(res.json()).resolves.toEqual({
       error: "This teacher does not offer a free trial lesson.",
+      reason: "TEACHER_DOES_NOT_OFFER",
     });
   });
 
@@ -94,5 +98,66 @@ describe("POST /api/bookings free trial guard", () => {
     await expect(res.json()).resolves.toEqual({
       error: "Students only",
     });
+  });
+
+  test("refuses a second trial with the same teacher", async () => {
+    findTeacherMock.mockResolvedValue({
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      offersFreeTrial: true,
+      marketplaceHidden: false,
+      user: { email: "teacher@example.com", organizationMemberships: [] },
+    });
+    redemptionFindMock.mockResolvedValue({ id: "redemption-1" });
+
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-trial",
+          teacherProfileId: "teacher-profile-1",
+          startsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.reason).toBe("ALREADY_USED_WITH_TEACHER");
+    // A used trial must never reach checkout: it is quoted at 0 yen, and Stripe
+    // will not accept a zero-amount charge.
+    expect(body.error).toMatch(/this teacher/i);
+  });
+
+  test("looks the trial up against the teacher being booked, not globally", async () => {
+    findTeacherMock.mockResolvedValue({
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      offersFreeTrial: true,
+      marketplaceHidden: false,
+      user: { email: "teacher@example.com", organizationMemberships: [] },
+    });
+    redemptionFindMock.mockResolvedValue({ id: "redemption-1" });
+
+    await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-trial",
+          teacherProfileId: "teacher-profile-1",
+          startsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        }),
+      }),
+    );
+
+    expect(redemptionFindMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          studentId_teacherId: { studentId: "student-1", teacherId: "teacher-profile-1" },
+        },
+      }),
+    );
   });
 });

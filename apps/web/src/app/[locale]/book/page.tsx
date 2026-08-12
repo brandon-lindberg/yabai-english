@@ -17,6 +17,7 @@ import { appPathForLocale } from "@/lib/i18n-app-path";
 import { authSignInHref } from "@/lib/auth-sign-in-href";
 import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { buttonClasses } from "@/components/ui/button";
+import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -86,10 +87,14 @@ export default async function BookPage({ searchParams }: Props) {
       specialties: true,
       instructionLanguages: true,
       rateYen: true,
+      offersFreeTrial: true,
       user: { select: { name: true, image: true } },
       availabilitySlots: {
         where: { active: true },
-        select: { id: true },
+        select: {
+          id: true,
+          teacherLessonOffering: { select: { isFreeTrial: true } },
+        },
       },
     },
     orderBy: { userId: "asc" },
@@ -104,6 +109,10 @@ export default async function BookPage({ searchParams }: Props) {
     instructionLanguages: teacher.instructionLanguages,
     rateYen: teacher.rateYen,
     activeAvailabilityCount: teacher.availabilitySlots.length,
+    offersBookableFreeTrial: teacherHasBookableFreeTrial({
+      offersFreeTrial: teacher.offersFreeTrial,
+      availabilitySlots: teacher.availabilitySlots,
+    }),
   }));
 
   const filtered = filterTeacherCards(cards, { specialty, language });

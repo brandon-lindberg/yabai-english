@@ -99,6 +99,27 @@ export async function PATCH(req: Request) {
       },
     });
 
+    // Opting out has to retire the trial hours too. A published trial slot keeps
+    // matching bookings on duration alone, so leaving it active would sell a
+    // trial the teacher just said they do not offer.
+    if (data.offersFreeTrial === false) {
+      const trialOfferings = await tx.teacherLessonOffering.findMany({
+        where: { teacherId: updated.id, isFreeTrial: true },
+        select: { id: true },
+      });
+      if (trialOfferings.length > 0) {
+        const trialOfferingIds = trialOfferings.map((offering) => offering.id);
+        await tx.availabilitySlot.updateMany({
+          where: { teacherLessonOfferingId: { in: trialOfferingIds } },
+          data: { active: false },
+        });
+        await tx.teacherLessonOffering.updateMany({
+          where: { id: { in: trialOfferingIds } },
+          data: { active: false },
+        });
+      }
+    }
+
     if (data.lessonOfferings !== undefined) {
       const refTypeIds = Array.from(
         new Set(

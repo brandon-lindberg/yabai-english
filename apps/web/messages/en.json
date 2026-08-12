@@ -468,7 +468,8 @@
       "lessonType": "Lesson type",
       "invalidLessonMeta": "Pick both a class level and a class type for every slot.",
       "taxonomyMissingWarning": "You have no class levels or types yet. Add them under Taxonomy first.",
-      "classOffer": "Class offer"
+      "classOffer": "Class offer",
+      "freeTrialOffering": "Free trial"
     },
     "quickReview": {
       "title": "Quick review",
@@ -944,7 +945,8 @@
     "teacherCardAvailableSlots": "{count, plural, one {# available slot} other {# available slots}}",
     "filterLanguageLabel": "Instruction language",
     "filterSpecialtyPlaceholder": "conversation, business, exam…",
-    "filterLanguagePlaceholder": "JP or EN"
+    "filterLanguagePlaceholder": "JP or EN",
+    "freeTrialAvailable": "Free trial available"
   },
   "paymentPolicy": {
     "student": {

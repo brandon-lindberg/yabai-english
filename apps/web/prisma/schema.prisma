@@ -220,6 +220,7 @@ model User {
   sentMessages              ChatMessage[]                @relation("MessageSender")
   receivedMessages          ChatMessage[]                @relation("MessageRecipient")
   notifications             Notification[]
+  freeTrialRedemptions      FreeTrialRedemption[]
   invoices                  Invoice[]
   teacherStudentLessonRates TeacherStudentLessonRate[]
   chatThreadsAsStudent      ChatThread[]                 @relation("ThreadStudent")
@@ -338,8 +339,6 @@ model StudentProfile {
   placementReport        Json?
   placementWritingSample String?     @db.Text
 
-  /// One free 20-minute trial per student (set when a trial booking is confirmed)
-  trialLessonUsedAt DateTime?
 
   /// Onboarding data
   learningGoals          String[]  @default([])
@@ -394,6 +393,7 @@ model TeacherProfile {
   tierState                   TeacherTierState?
   tierEvaluations             TeacherTierEvaluation[]
   tierAuditLogs               TeacherTierAuditLog[]
+  freeTrialRedemptions        FreeTrialRedemption[]
 }
 
 model TeacherTierState {
@@ -570,6 +570,10 @@ model TeacherLessonOffering {
   isGroup     Boolean        @default(false)
   groupSize   Int?
   active      Boolean        @default(true)
+  /// Marks the teacher's free-trial offer. Priced at 0 and bookable once per
+  /// student; exists as an offering so trial slots can be published like any
+  /// other class.
+  isFreeTrial Boolean        @default(false)
 
   /// FK to the teacher's per-teacher class type taxonomy. Drives catalog matching.
   classLevelId String?
@@ -1120,6 +1124,21 @@ model Notification {
 }
 
 /// Authoritative placement MCQ bank (loaded by API only; never bundled to the browser).
+/// One free trial per student per teacher. The unique pair is the rule: a row
+/// exists only once the student has taken that teacher's trial.
+model FreeTrialRedemption {
+  id        String         @id @default(cuid())
+  studentId String
+  student   User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  bookingId String?
+  createdAt DateTime       @default(now())
+
+  @@unique([studentId, teacherId])
+  @@index([teacherId, createdAt])
+}
+
 model PlacementBankQuestion {
   id            String  @id
   stemId        String?

@@ -49,10 +49,12 @@ vi.mock("@/lib/prisma", () => ({
     teacherClassLevel: {
       findMany: classLevelFindManyMock,
       createMany: classLevelCreateManyMock,
+      findFirst: vi.fn().mockResolvedValue({ id: "lvl-beginner" }),
     },
     teacherClassType: {
       findMany: classTypeFindManyMock,
       createMany: classTypeCreateManyMock,
+      findFirst: vi.fn().mockResolvedValue({ id: "ty-conv" }),
     },
   },
 }));

@@ -5,7 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 import { weekdayLabel } from "@/lib/weekdays";
-import { TeacherAvailabilityAddModal } from "@/components/dashboard/teacher-availability-add-modal";
+import {
+  TeacherAvailabilityAddModal,
+  type TeacherLessonOfferingOption,
+} from "@/components/dashboard/teacher-availability-add-modal";
 import { TeacherAvailabilityRemoveModal } from "@/components/dashboard/teacher-availability-remove-modal";
 import {
   TeacherAvailabilityGoogleMonth,
@@ -57,17 +60,11 @@ export type InitialTeacherAvailabilitySlot = {
   classType: TaxonomyOption | null;
 };
 
-export type TeacherLessonOfferingOption = {
-  id: string;
-  durationMin: number;
-  rateYen: number;
-  isGroup: boolean;
-  groupSize: number | null;
-  classLevelId: string | null;
-  classTypeId: string | null;
-  classLevel: TaxonomyOption | null;
-  classType: TaxonomyOption | null;
-};
+/**
+ * Re-exported rather than redeclared: this was a second copy of the modal's
+ * type, which is how `isFreeTrial` could have reached one and not the other.
+ */
+export type { TeacherLessonOfferingOption };
 
 export type TeacherCalendarBooking = {
   id: string;

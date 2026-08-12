@@ -26,6 +26,7 @@ vi.mock("@/auth", () => ({
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    freeTrialRedemption: { findUnique: vi.fn(), create: vi.fn() },
     booking: {
       findUnique: findUniqueMock,
       update: updateMock,

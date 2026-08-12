@@ -26,6 +26,11 @@ import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-bo
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import {
+  claimFreeTrialWithTeacher,
+  FreeTrialAlreadyUsedError,
+  resolveFreeTrialEligibility,
+} from "@/lib/free-trial-eligibility";
 import { validateBookingAgainstTeacherAvailability } from "@/lib/booking-slot-validation";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 import {
@@ -216,6 +221,29 @@ export async function POST(req: Request) {
     );
   }
 
+  // Eligibility is cheap and definitive, so it settles before any scheduling
+  // work. It also has to precede the payment-flow decision: an ineligible free
+  // trial is still quoted at 0 yen, and a 0 yen checkout is not a thing Stripe
+  // will accept.
+  const trialEligibility = await resolveFreeTrialEligibility(prisma, {
+    studentId: session.user.id,
+    teacherId: teacher.id,
+    teacherOffersFreeTrial: teacher.offersFreeTrial,
+  });
+
+  if (product.tier === LessonTier.FREE_TRIAL && !trialEligibility.eligible) {
+    return NextResponse.json(
+      {
+        error:
+          trialEligibility.reason === "TEACHER_DOES_NOT_OFFER"
+            ? "This teacher does not offer a free trial lesson."
+            : "You have already used your free trial lesson with this teacher.",
+        reason: trialEligibility.reason,
+      },
+      { status: 409 },
+    );
+  }
+
   if (!canTeacherOfferProduct(product.tier, teacher.offersFreeTrial)) {
     return NextResponse.json(
       { error: "This teacher does not offer a free trial lesson." },
@@ -365,13 +393,6 @@ export async function POST(req: Request) {
     studentOverride: studentOverride?.active ? studentOverride : null,
   });
 
-  if (isFreeTrial && student.studentProfile.trialLessonUsedAt) {
-    return NextResponse.json(
-      { error: "Free trial lesson already used" },
-      { status: 409 },
-    );
-  }
-
   const teacherPaymentAccounts = (teacher as {
     paymentAccounts?: Parameters<typeof getEnabledTeacherPaymentMethods>[0];
   }).paymentAccounts;
@@ -415,7 +436,7 @@ export async function POST(req: Request) {
 
   const flow = getBookingPaymentFlow({
     lessonTier: product.tier,
-    trialAlreadyUsed: Boolean(student.studentProfile.trialLessonUsedAt),
+    trialAlreadyUsed: !trialEligibility.eligible,
   });
 
   const booking = await prisma.$transaction(async (tx) => {
@@ -426,17 +447,14 @@ export async function POST(req: Request) {
       throw new Error("NO_PROFILE");
     }
 
-    // Only burn the free-trial flag for actual free-trial bookings. The
-    // payment flow can also auto-confirm paid bookings (BOOKING_AUTO_CONFIRM
-    // dev flag) — those must not consume the student's free-trial slot.
+    // Only consume a trial for actual free-trial bookings. The payment flow can
+    // also auto-confirm paid bookings (BOOKING_AUTO_CONFIRM dev flag) — those
+    // must not use up the student's trial with this teacher.
     if (product.tier === "FREE_TRIAL") {
-      const claimed = await tx.studentProfile.updateMany({
-        where: { userId: session.user.id, trialLessonUsedAt: null },
-        data: { trialLessonUsedAt: new Date() },
+      await claimFreeTrialWithTeacher(tx, {
+        studentId: session.user.id,
+        teacherId: teacher.id,
       });
-      if (claimed.count === 0) {
-        throw new Error("TRIAL_USED");
-      }
     }
 
     const created = await tx.booking.create({
@@ -485,8 +503,13 @@ export async function POST(req: Request) {
 
     return created;
   }).catch((e) => {
+    // The unique constraint is what settles a race between two bookings for the
+    // same trial; the loser lands here rather than getting a second free lesson.
+    if (e instanceof FreeTrialAlreadyUsedError) {
+      return { _err: "TRIAL_USED" } as const;
+    }
     const msg = String((e as Error).message);
-    if (msg === "TRIAL_USED" || msg === "NO_PROFILE") {
+    if (msg === "NO_PROFILE") {
       return { _err: msg } as const;
     }
     throw e;
@@ -496,7 +519,10 @@ export async function POST(req: Request) {
     const code = (booking as { _err: string })._err;
     if (code === "TRIAL_USED") {
       return NextResponse.json(
-        { error: "Free trial lesson already used" },
+        {
+          error: "You have already used your free trial lesson with this teacher.",
+          reason: "ALREADY_USED_WITH_TEACHER",
+        },
         { status: 409 },
       );
     }

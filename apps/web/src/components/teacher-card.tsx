@@ -4,6 +4,7 @@ import type { TeacherCard as TeacherCardData } from "@/lib/teacher-discovery";
 import { buildTeacherCardProfileHref } from "@/lib/teacher-card-href";
 import { buttonClasses } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
+import { Status } from "@/components/ui/status";
 import { DataRow } from "@/components/ui/data-row";
 import { formatYen } from "@/lib/format-money";
 
@@ -68,6 +69,11 @@ export async function TeacherCard({
           </p>
           {teacher.specialties.length > 0 ? (
             <p className="mt-1 text-sm text-muted">{teacher.specialties.join(" · ")}</p>
+          ) : null}
+          {teacher.offersBookableFreeTrial ? (
+            <p className="mt-2">
+              <Status tone="open">{t("freeTrialAvailable")}</Status>
+            </p>
           ) : null}
         </div>
       </div>

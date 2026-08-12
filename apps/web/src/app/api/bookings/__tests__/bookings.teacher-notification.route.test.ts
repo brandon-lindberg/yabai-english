@@ -7,7 +7,8 @@ const { authMock, prismaMock, createUserNotificationMock, createMeetMock } = vi.
     prismaMock: {
       lessonProduct: { findFirst: vi.fn() },
       teacherProfile: { findFirst: vi.fn() },
-      teacherRosterEntry: { findFirst: vi.fn() },
+      freeTrialRedemption: { findUnique: vi.fn(), create: vi.fn() },
+    teacherRosterEntry: { findFirst: vi.fn() },
       chatThread: { findUnique: vi.fn() },
       booking: { findFirst: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
       schoolScheduleSlot: { findMany: vi.fn() },
@@ -99,7 +100,7 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
       id: "student-1",
       email: "student@example.com",
       name: "Alice Student",
-      studentProfile: { trialLessonUsedAt: null },
+      studentProfile: {},
     });
     createMeetMock.mockResolvedValue({ meetUrl: null, googleEventId: null });
     prismaMock.$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
@@ -107,6 +108,10 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
         studentProfile: {
           findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
           updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+        },
+        freeTrialRedemption: {
+          findUnique: vi.fn().mockResolvedValue(null),
+          create: vi.fn().mockResolvedValue({ id: "redemption-1" }),
         },
         booking: {
           create: vi.fn().mockResolvedValue({

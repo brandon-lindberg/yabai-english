@@ -22,6 +22,8 @@ import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { Status } from "@/components/ui/status";
+import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -114,11 +116,13 @@ export default async function TeacherProfileBookingPage({
           classTypeId: true,
           classLevel: { select: { labelEn: true, labelJa: true } },
           classType: { select: { labelEn: true, labelJa: true } },
+          teacherLessonOffering: { select: { isFreeTrial: true } },
         },
       },
       availabilityOccurrenceSkips: {
         select: { startsAtIso: true },
       },
+      offersFreeTrial: true,
       lessonOfferings: {
         where: { active: true },
         select: { active: true, rateYen: true, isGroup: true },
@@ -218,6 +222,10 @@ export default async function TeacherProfileBookingPage({
     teacher.rateYen,
   );
   const groupRateRange = getTeacherRateRangeByType(teacher.lessonOfferings, "group");
+  const offersBookableFreeTrial = teacherHasBookableFreeTrial({
+    offersFreeTrial: teacher.offersFreeTrial,
+    availabilitySlots: teacher.availabilitySlots,
+  });
   const postSignInBookingPath = resolveSafeCallbackUrl(
     buildLocalizedTeacherProfilePath(
       locale,
@@ -248,6 +256,11 @@ export default async function TeacherProfileBookingPage({
           {teacher.specialties.length > 0 ? (
             <p className="text-sm text-muted">
               {t("teacherSpecialties")}: {teacher.specialties.join(" · ")}
+            </p>
+          ) : null}
+          {offersBookableFreeTrial ? (
+            <p>
+              <Status tone="open">{t("freeTrialAvailable")}</Status>
             </p>
           ) : null}
         </div>

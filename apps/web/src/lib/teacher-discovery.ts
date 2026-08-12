@@ -7,6 +7,7 @@ export type TeacherCard = {
   instructionLanguages: string[];
   rateYen: number | null;
   activeAvailabilityCount: number;
+  offersBookableFreeTrial?: boolean;
 };
 
 type Filters = {
