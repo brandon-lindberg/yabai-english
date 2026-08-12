@@ -18,7 +18,7 @@ export function OrgSubnav({ orgId }: Props) {
   ] as const;
 
   return (
-    <SubNav label={t("ariaLabel")}>
+    <SubNav label={t("ariaLabel")} showLabel>
       {NAV.map(([href, labelKey]) => {
         const active =
           href === `/org/${orgId}`

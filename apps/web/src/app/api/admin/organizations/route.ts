@@ -30,9 +30,6 @@ export async function GET() {
           name: true,
           nameJa: true,
           nameEn: true,
-          _count: {
-            select: { memberships: { where: { status: "ACTIVE" } } },
-          },
         },
       },
       memberships: {

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatLedger } from "@/components/ui/stat-ledger";
 import { requireSchoolViewer } from "@/lib/org/require-school-viewer";
+import { countOrgMembers } from "@/lib/org/org-members";
 
 export default async function SchoolDashboardPage({
   params,
@@ -22,7 +23,6 @@ export default async function SchoolDashboardPage({
       organizationId: true,
       _count: {
         select: {
-          memberships: { where: { status: "ACTIVE" } },
           scheduleSlots: { where: { active: true } },
           timeOffRequests: { where: { status: "PENDING" } },
         },
@@ -37,14 +37,12 @@ export default async function SchoolDashboardPage({
     return null;
   }
 
-  const roleCounts = await prisma.organizationMembership.groupBy({
-    by: ["orgRole"],
-    where: { schoolId, status: "ACTIVE" },
-    _count: true,
-  });
-
-  const teachers = roleCounts.find((r) => r.orgRole === "TEACHER")?._count ?? 0;
-  const students = roleCounts.find((r) => r.orgRole === "STUDENT")?._count ?? 0;
+  /*
+    Includes the organization's own people: an org-wide grant has no `schoolId`
+    and covers every school. Counting only school-scoped rows is why this page
+    said "1 member" while the organization above it said "2".
+  */
+  const memberCounts = await countOrgMembers(prisma, orgId, schoolId);
 
   return (
     <main>
@@ -54,9 +52,9 @@ export default async function SchoolDashboardPage({
           here. Same ledger the teacher and student dashboards use. */}
       <StatLedger
         stats={[
-          { label: t("totalMembers"), value: school._count.memberships },
-          { label: t("totalTeachers"), value: teachers },
-          { label: t("totalStudents"), value: students },
+          { label: t("totalMembers"), value: memberCounts.members },
+          { label: t("totalTeachers"), value: memberCounts.teachers },
+          { label: t("totalStudents"), value: memberCounts.students },
           { label: t("activeSlots"), value: school._count.scheduleSlots },
           { label: t("pendingTimeOff"), value: school._count.timeOffRequests },
         ]}

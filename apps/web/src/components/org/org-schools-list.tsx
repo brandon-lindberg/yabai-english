@@ -23,7 +23,7 @@ type School = {
   slug: string;
   name: string;
   nameJa?: string;
-  _count?: { memberships: number };
+  memberCount?: number;
 };
 
 type Props = { orgId: string };
@@ -166,7 +166,7 @@ export function OrgSchoolsList({ orgId }: Props) {
                 <p className="truncate text-xs text-muted">/{school.slug}</p>
               </div>
               <span className="shrink-0 rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs font-medium text-muted">
-                {t("memberCount", { count: school._count?.memberships ?? 0 })}
+                {t("memberCount", { count: school.memberCount ?? 0 })}
               </span>
             </Link>
           ))}

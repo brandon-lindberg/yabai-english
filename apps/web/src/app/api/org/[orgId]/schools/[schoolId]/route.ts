@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isOrgWideAdmin, isSchoolAdmin } from "@/lib/org-authorization";
 import { getSchoolCallerMembership } from "@/lib/org/caller-membership";
+import { countOrgMembers } from "@/lib/org/org-members";
 
 const updateSchoolSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
@@ -27,20 +28,17 @@ export async function GET(req: Request, ctx: RouteContext) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const school = await prisma.school.findUnique({
-    where: { id: schoolId },
-    include: {
-      _count: {
-        select: { memberships: { where: { status: "ACTIVE" } } },
-      },
-    },
-  });
+  const school = await prisma.school.findUnique({ where: { id: schoolId } });
 
   if (!school || school.organizationId !== orgId) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ school });
+  // People, not grants, and including the organization's own — the same rule
+  // `getViewerSchoolRole` uses to decide who may see this school at all.
+  const memberCounts = await countOrgMembers(prisma, orgId, schoolId);
+
+  return NextResponse.json({ school: { ...school, memberCount: memberCounts.members } });
 }
 
 export async function PATCH(req: Request, ctx: RouteContext) {

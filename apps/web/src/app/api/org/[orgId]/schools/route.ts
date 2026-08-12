@@ -5,6 +5,11 @@ import { prisma } from "@/lib/prisma";
 import { isOrgWideAdmin } from "@/lib/org-authorization";
 import { seedDefaultSchoolTaxonomy } from "@/lib/school-default-taxonomy";
 import { getOrgCallerMembership } from "@/lib/org/caller-membership";
+import {
+  loadOrgMemberRows,
+  rowsForSchool,
+  summarizeOrgMembers,
+} from "@/lib/org/org-members";
 
 const createSchoolSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -39,14 +44,18 @@ export async function GET(req: Request, ctx: RouteContext) {
     where,
     select: {
       id: true, slug: true, name: true, nameJa: true, nameEn: true,
-      _count: {
-        select: { memberships: { where: { status: "ACTIVE" } } },
-      },
     },
     orderBy: { createdAt: "asc" },
   });
 
-  return NextResponse.json({ schools });
+  // People per school, from one read of the organization's memberships.
+  const memberRows = await loadOrgMemberRows(prisma, orgId);
+  return NextResponse.json({
+    schools: schools.map((school) => ({
+      ...school,
+      memberCount: summarizeOrgMembers(rowsForSchool(memberRows, school.id)).members,
+    })),
+  });
 }
 
 export async function POST(req: Request, ctx: RouteContext) {

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { isOrgWideAdmin, isSchoolAdmin } from "@/lib/org-authorization";
 import { createUserNotification } from "@/lib/notifications";
 import { getOrgCallerMembership } from "@/lib/org/caller-membership";
+import { orgMemberScope, summarizeOrgMembers } from "@/lib/org/org-members";
 
 const addMemberSchema = z.object({
   email: z.string().trim().toLowerCase().email(),
@@ -31,21 +32,32 @@ export async function GET(req: Request, ctx: RouteContext) {
   const url = new URL(req.url);
   const schoolId = url.searchParams.get("schoolId") ?? undefined;
 
-  const where = {
-    organizationId: orgId,
-    ...(schoolId ? { schoolId } : {}),
-  };
+  /*
+    `orgMemberScope` rather than a hand-built filter, for two reasons the old
+    one got wrong: it had no status filter at all, so INVITED and INACTIVE rows
+    came back as members; and scoping a school to `{ schoolId }` alone dropped
+    the organization's own people, who hold no `schoolId` and yet cover every
+    school — the same rule `getViewerSchoolRole` uses to let them in.
+  */
+  const where = orgMemberScope(orgId, schoolId);
 
-  const [members, total] = await Promise.all([
-    prisma.organizationMembership.findMany({
-      where,
-      include: {
-        user: { select: { id: true, name: true, email: true, image: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.organizationMembership.count({ where }),
-  ]);
+  const members = await prisma.organizationMembership.findMany({
+    where,
+    select: {
+      id: true,
+      orgRole: true,
+      status: true,
+      schoolId: true,
+      userId: true,
+      inviteEmail: true,
+      school: { select: { name: true } },
+      user: { select: { id: true, name: true, email: true, image: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // People, not grants — the same count every other surface now reports.
+  const total = summarizeOrgMembers(members).members;
 
   return NextResponse.json({ members, total });
 }

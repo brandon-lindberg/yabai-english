@@ -2,6 +2,11 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireOrgViewer } from "@/lib/org/require-org-viewer";
+import {
+  loadOrgMemberRows,
+  rowsForSchool,
+  summarizeOrgMembers,
+} from "@/lib/org/org-members";
 import { buttonClasses } from "@/components/ui/button";
 import { DataList, DataRow } from "@/components/ui/data-row";
 import { PageHeader } from "@/components/ui/page-header";
@@ -23,7 +28,7 @@ export default async function OrgDashboardPage({
   const { orgId, viewer } = await requireOrgViewer(params);
   const t = await getTranslations("org.dashboard");
 
-  const [org, roleCounts] = await Promise.all([
+  const [org, memberRows] = await Promise.all([
     prisma.organization.findUnique({
       where: { id: orgId },
       /*
@@ -38,30 +43,21 @@ export default async function OrgDashboardPage({
           select: {
             id: true,
             name: true,
-            _count: {
-              select: {
-                memberships: { where: { status: "ACTIVE" } },
-                scheduleSlots: { where: { active: true } },
-              },
-            },
+            _count: { select: { scheduleSlots: { where: { active: true } } } },
           },
           orderBy: { createdAt: "asc" },
         },
-        _count: { select: { memberships: { where: { status: "ACTIVE" } } } },
       },
     }),
-    prisma.organizationMembership.groupBy({
-      by: ["orgRole"],
-      where: { organizationId: orgId, status: "ACTIVE" },
-      _count: true,
-    }),
+    // One read of the organization's memberships answers for the organization
+    // and for every school in the list below — people, not rows.
+    loadOrgMemberRows(prisma, orgId),
   ]);
 
   // The viewer's membership named this org, so it exists; this is for the types.
   if (!org) return null;
 
-  const teachers = roleCounts.find((r) => r.orgRole === "TEACHER")?._count ?? 0;
-  const students = roleCounts.find((r) => r.orgRole === "STUDENT")?._count ?? 0;
+  const memberCounts = summarizeOrgMembers(memberRows);
 
   return (
     <main className="space-y-10">
@@ -73,9 +69,9 @@ export default async function OrgDashboardPage({
       <StatLedger
         stats={[
           { label: t("totalSchools"), value: org.schools.length },
-          { label: t("totalMembers"), value: org._count.memberships },
-          { label: t("totalTeachers"), value: teachers },
-          { label: t("totalStudents"), value: students },
+          { label: t("totalMembers"), value: memberCounts.members },
+          { label: t("totalTeachers"), value: memberCounts.teachers },
+          { label: t("totalStudents"), value: memberCounts.students },
         ]}
       />
 
@@ -116,7 +112,9 @@ export default async function OrgDashboardPage({
               >
                 <p className="font-medium text-foreground">{school.name}</p>
                 <p className="mt-0.5 text-sm text-muted">
-                  {t("membersCount", { count: school._count.memberships })}
+                  {t("membersCount", {
+                    count: summarizeOrgMembers(rowsForSchool(memberRows, school.id)).members,
+                  })}
                 </p>
                 {org.schools.length === 1 ? (
                   <div className="mt-3 flex flex-wrap gap-2">

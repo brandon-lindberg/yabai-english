@@ -477,6 +477,107 @@ different things, and copy written for whoever implemented the endpoint:
 - Constraints moved out of labels and into hints: "Owner email (existing user)"
   became a label and a sentence that says what will happen to them.
 
+### 16. `MISSING_MESSAGE` on the school settings page — ✅ my bug
+
+Reported from the browser: `/org/<id>/schools/<id>/settings` threw
+`Could not resolve org.school.settingsPage.description`.
+
+Mine, from item 5. I rewrote six school pages from one template on the
+assumption that every namespace had both `title` and `description`. Six did;
+`settingsPage` had only `title`. Nothing caught it — the key is a string, so
+TypeScript is satisfied, the build renders no route that needs it, and
+`next-intl` throws at render time, so it only surfaces for whoever opens that
+page in that locale.
+
+Copy added in both locales. More usefully, `lib/__tests__/no-missing-messages.test.ts`
+now scans every page and layout for literal `t("key")` / `t.rich("key")` calls
+and asserts each resolves in **both** locales. Deleting the key I just added
+fails it with the exact path, which is the check that should have existed
+before I templated anything.
+
+It only sees literal keys — a template literal is resolved at runtime and cannot
+be checked without evaluating it — so `t(\`studentSteps.${key}.title\`)` and its
+kind are still uncovered.
+
+### 17. The member count, audited properly — ✅ done
+
+Item 14 fixed two pages. It should have fixed eleven. Reported back: *"some
+places it says 1 members but others it is still 2. Very confusing and needs a
+thorough audit."* Correct — I had patched the SUPER_ADMIN screens and left the
+org flow, the school flow and five API routes computing it their own way.
+
+**Eleven call sites, three different answers**, all for one person:
+
+| Where | Said | Because |
+|---|---|---|
+| Org dashboard | 2 | `_count` on memberships — counts grants |
+| School dashboard | 1 | `_count` scoped to `schoolId` — drops org-wide people |
+| Members list | printed twice | one row per grant |
+| 5 API routes | 2 | `_count` again |
+
+Two rules settled the whole disagreement, and they now live in one place —
+`lib/org/org-members.ts`, which every one of the eleven uses:
+
+1. **A member is a person, not a grant.** Org-wide OWNER plus SCHOOL_ADMIN of
+   one school is one person and two rows. Roles count the same way: a teacher
+   at two schools is one teacher, and someone who owns and teaches is one member
+   counted in both roles.
+2. **A school's people include the organization's.** An org-wide grant has no
+   `schoolId` and covers every school — already how `getViewerSchoolRole`
+   decides access, so a count that excluded them disagreed with the app's own
+   idea of who may open the page. That was the 1-versus-2 split exactly.
+
+Two further bugs surfaced in the sweep:
+
+- **The members API had no status filter at all**, so INVITED and INACTIVE rows
+  were returned and counted as members.
+- Its `total` was a row count, and its school scope was `{ schoolId }` alone —
+  both now the shared rule.
+
+`MemberRow` takes a person's grants rather than one role, so the org and school
+member lists show one row per person with their roles listed beside them.
+Removal stays per grant: taking away school admin is not taking away the
+organization.
+
+Guarded by 19 tests across `member-identity` and `org-members`, plus two on the
+members route. Mutation-tested three ways — counting rows instead of people,
+dropping org-wide from the school scope, and returning a row count as `total`
+each fail their own test.
+
+One read of the organization's memberships now answers for the organization and
+for every school in a list, so the org dashboard lost its N+1 rather than
+gaining one.
+
+### 18. Two nested tab rows, three shared labels — ✅ done
+
+Reported from `/org/<id>/schools/<id>/classes`: *"there are duplicate tabs...
+confusing for me to navigate which ones belong to which flow."*
+
+The organization row and the school row inside it both offer **Dashboard**,
+**Members** and **Settings** — the same three words, one row apart, meaning
+different things. The only thing distinguishing them was each nav's
+`aria-label`, which a sighted user never receives.
+
+Both labels already existed — "Organization" and "School" — sitting in
+`aria-label` doing nothing visible. `SubNav` gained a `showLabel` prop that
+prints the name it already has beside its tabs, so the two rows now read:
+
+```
+Organization   Dashboard  Schools  Members  Settings
+School         Dashboard  Schedule  Classes  Members  Pricing  …
+```
+
+One prop on the shared primitive, no new copy, no new queries. On a phone the
+label stacks above its own row, which keeps the pairing obvious when the tabs
+wrap.
+
+**Not a finding:** the same report asked whether the SUPER_ADMIN area could be
+separated from the organization flow. It already is — `/admin` and `/org` are
+different route trees, and `header-nav-links` gives a SUPER_ADMIN both links.
+The screenshot showed the *student* nav because it was taken while signed in as
+the org-owner account rather than the SUPER_ADMIN one, which is correct
+behaviour rather than something to fix.
+
 ## Still open
 
 - The impeccable finish-reviewer pass (DESIGN.md §9) has still not been run.

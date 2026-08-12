@@ -7,12 +7,14 @@ import { DataList } from "@/components/ui/data-row";
 import { MemberRow } from "@/components/org/member-row";
 import { MemberInviteForm } from "@/components/org/member-invite-form";
 import { SCHOOL_INVITE_ROLES } from "@/lib/org/invite-roles";
+import { groupMembershipsByPerson } from "@/lib/org/member-identity";
 
 type Member = {
   id: string;
   orgRole: string;
   status: string;
-  inviteEmail?: string | null;
+  userId: string | null;
+  inviteEmail: string | null;
   user: { id: string; name: string | null; email: string | null; image: string | null } | null;
 };
 
@@ -74,17 +76,23 @@ export function SchoolMembersView({ orgId, schoolId }: { orgId: string; schoolId
         <p className="border-y border-border py-6 text-sm text-muted">{t("noMembers")}</p>
       ) : (
         <DataList>
-          {members.map((m) => (
+          {groupMembershipsByPerson(members).map(({ key, memberships }) => {
+            const first = memberships[0]!;
+            return (
             <MemberRow
-              key={m.id}
-              name={m.user?.name ?? m.user?.email ?? m.inviteEmail ?? ""}
-              email={m.user?.email ?? m.inviteEmail ?? ""}
-              imageUrl={m.user?.image}
-              role={tr(m.orgRole as never)}
-              status={m.status}
-              statusLabel={ts(m.status as never)}
+              key={key}
+              name={first.user?.name ?? first.user?.email ?? first.inviteEmail ?? ""}
+              email={first.user?.email ?? first.inviteEmail ?? ""}
+              imageUrl={first.user?.image}
+              grants={memberships.map((m) => ({
+                id: m.id,
+                role: tr(m.orgRole as never),
+                status: m.status,
+                statusLabel: ts(m.status as never),
+              }))}
             />
-          ))}
+            );
+          })}
         </DataList>
       )}
     </div>

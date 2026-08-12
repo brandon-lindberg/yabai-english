@@ -5,7 +5,11 @@ import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { AdminOrgDetail } from "@/components/admin/admin-org-detail";
 import type { AdminOrganization } from "@/components/admin/admin-org-types";
-import { countDistinctMembers } from "@/lib/org/member-identity";
+import {
+  ACTIVE_MEMBERS_FILTER,
+  rowsForSchool,
+  summarizeOrgMembers,
+} from "@/lib/org/org-members";
 import { PageHeader } from "@/components/ui/page-header";
 
 /**
@@ -35,21 +39,10 @@ export default async function AdminOrgPage({
       timezone: true,
       schools: {
         orderBy: { createdAt: "asc" },
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          nameJa: true,
-          nameEn: true,
-          // Distinct people, not membership rows — see the note on the list page.
-          memberships: {
-            where: { status: "ACTIVE" },
-            select: { userId: true, inviteEmail: true },
-          },
-        },
+        select: { id: true, slug: true, name: true, nameJa: true, nameEn: true },
       },
       memberships: {
-        where: { status: "ACTIVE" },
+        where: ACTIVE_MEMBERS_FILTER,
         orderBy: { createdAt: "asc" },
         select: {
           id: true,
@@ -71,14 +64,16 @@ export default async function AdminOrgPage({
     name: org.name,
     timezone: org.timezone,
     schoolCount: org.schools.length,
-    memberCount: countDistinctMembers(org.memberships),
+    memberCount: summarizeOrgMembers(org.memberships).members,
     schools: org.schools.map((school) => ({
       id: school.id,
       slug: school.slug,
       name: school.name,
       nameJa: school.nameJa,
       nameEn: school.nameEn,
-      memberCount: countDistinctMembers(school.memberships),
+      // A school's people include the organization's — one definition, in
+      // `lib/org/org-members`, shared with the org flow's own pages.
+      memberCount: summarizeOrgMembers(rowsForSchool(org.memberships, school.id)).members,
     })),
     memberships: org.memberships.map((m) => ({
       id: m.id,

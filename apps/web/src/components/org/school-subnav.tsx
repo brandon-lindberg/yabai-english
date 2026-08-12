@@ -39,7 +39,7 @@ export function SchoolSubnav({
   const NAV = all.filter((item) => item.show);
 
   return (
-    <SubNav label={t("ariaLabel")}>
+    <SubNav label={t("ariaLabel")} showLabel>
       {NAV.map(({ href, label }) => {
         const active =
           href === base

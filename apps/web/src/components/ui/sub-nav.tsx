@@ -32,7 +32,23 @@ export function tabClasses(active: boolean) {
   ].join(" ");
 }
 
-export function SubNav({ label, children }: { label: string; children: ReactNode }) {
+export function SubNav({
+  label,
+  showLabel = false,
+  children,
+}: {
+  label: string;
+  /**
+   * Print the label beside the tabs, not just in `aria-label`.
+   *
+   * Nested sub-navs need it. The organization row and the school row inside it
+   * both offer Dashboard, Members and Settings — the same three words, three
+   * rows apart, meaning different things — and the only thing distinguishing
+   * them was an accessible name a sighted user never receives.
+   */
+  showLabel?: boolean;
+  children: ReactNode;
+}) {
   return (
     <nav
       aria-label={label}
@@ -49,7 +65,12 @@ export function SubNav({ label, children }: { label: string; children: ReactNode
       */
       className="mb-8 w-full min-w-0 border-b border-border"
     >
-      <ul className="flex list-none flex-wrap gap-x-6 p-0">{children}</ul>
+      <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
+        {showLabel ? (
+          <span className="shrink-0 pb-3 pt-1 text-sm text-muted">{label}</span>
+        ) : null}
+        <ul className="flex list-none flex-wrap gap-x-6 p-0">{children}</ul>
+      </div>
     </nav>
   );
 }

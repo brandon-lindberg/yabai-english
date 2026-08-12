@@ -1518,7 +1518,8 @@
         "save": "Save",
         "saving": "Saving…",
         "saved": "Saved.",
-        "error": "Could not save settings."
+        "error": "Could not save settings.",
+        "description": "Rename this school and set the details students see."
       },
       "taxonomyPage": {
         "title": "Class taxonomy",

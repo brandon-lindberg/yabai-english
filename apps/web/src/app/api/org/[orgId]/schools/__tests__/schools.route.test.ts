@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 const { authMock, prismaMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
-    organizationMembership: { findFirst: vi.fn() },
+    organizationMembership: { findFirst: vi.fn(), findMany: vi.fn() },
     organization: { findUnique: vi.fn() },
     school: { findMany: vi.fn(), create: vi.fn() },
     schoolClassLevel: { createMany: vi.fn().mockResolvedValue({ count: 0 }) },
@@ -33,7 +33,11 @@ function getReq() {
 }
 
 describe("GET /api/org/[orgId]/schools", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Counting members reads this; these cases are about schools.
+    prismaMock.organizationMembership.findMany.mockResolvedValue([]);
+  });
 
   test("401 when unauthenticated", async () => {
     authMock.mockResolvedValue(null);
@@ -81,7 +85,11 @@ describe("GET /api/org/[orgId]/schools", () => {
 });
 
 describe("POST /api/org/[orgId]/schools", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Counting members reads this; these cases are about schools.
+    prismaMock.organizationMembership.findMany.mockResolvedValue([]);
+  });
 
   test("403 when not org-wide admin", async () => {
     authMock.mockResolvedValue({ user: { id: "u1" } });

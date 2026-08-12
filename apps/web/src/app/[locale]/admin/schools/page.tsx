@@ -2,7 +2,11 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminOrgList } from "@/components/admin/admin-org-list";
-import { countDistinctMembers } from "@/lib/org/member-identity";
+import {
+  ACTIVE_MEMBERS_FILTER,
+  ORG_MEMBER_SELECT,
+  summarizeOrgMembers,
+} from "@/lib/org/org-members";
 import type { AdminOrganizationSummary } from "@/components/admin/admin-org-types";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -26,16 +30,8 @@ export default async function AdminSchoolsPage() {
       name: true,
       timezone: true,
       _count: { select: { schools: true } },
-      /*
-        Not `_count` on memberships: that counts *grants*, and one person
-        commonly holds two in the same organization (org-wide OWNER plus
-        SCHOOL_ADMIN of one of its schools). An org with one person in it
-        reported "2 members".
-      */
-      memberships: {
-        where: { status: "ACTIVE" },
-        select: { userId: true, inviteEmail: true },
-      },
+      // People, not grants — the one definition lives in `lib/org/org-members`.
+      memberships: { where: ACTIVE_MEMBERS_FILTER, select: ORG_MEMBER_SELECT },
     },
   });
 
@@ -45,7 +41,7 @@ export default async function AdminSchoolsPage() {
     name: org.name,
     timezone: org.timezone,
     schoolCount: org._count.schools,
-    memberCount: countDistinctMembers(org.memberships),
+    memberCount: summarizeOrgMembers(org.memberships).members,
   }));
 
   return (

@@ -4,6 +4,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isOrgWideAdmin } from "@/lib/org-authorization";
 import { getOrgCallerMembership } from "@/lib/org/caller-membership";
+import {
+  loadOrgMemberRows,
+  rowsForSchool,
+  summarizeOrgMembers,
+} from "@/lib/org/org-members";
 
 const updateOrgSchema = z
   .object({
@@ -36,14 +41,8 @@ export async function GET(req: Request, ctx: RouteContext) {
       schools: {
         select: {
           id: true, slug: true, name: true, nameJa: true, nameEn: true,
-          _count: {
-            select: { memberships: { where: { status: "ACTIVE" } } },
-          },
         },
         orderBy: { createdAt: "asc" },
-      },
-      _count: {
-        select: { memberships: { where: { status: "ACTIVE" } } },
       },
     },
   });
@@ -57,7 +56,22 @@ export async function GET(req: Request, ctx: RouteContext) {
     org.schools = org.schools.filter((s) => s.id === caller.schoolId);
   }
 
-  return NextResponse.json({ organization: org, callerRole: caller.orgRole });
+  /*
+    Counted from one read, by person. `_count` on memberships counts *grants*,
+    and one person commonly holds two — org-wide OWNER plus SCHOOL_ADMIN of a
+    school — which is how an organization with one person in it reported "2".
+  */
+  const memberRows = await loadOrgMemberRows(prisma, orgId);
+  const organization = {
+    ...org,
+    memberCount: summarizeOrgMembers(memberRows).members,
+    schools: org.schools.map((school) => ({
+      ...school,
+      memberCount: summarizeOrgMembers(rowsForSchool(memberRows, school.id)).members,
+    })),
+  };
+
+  return NextResponse.json({ organization, callerRole: caller.orgRole });
 }
 
 export async function PATCH(req: Request, ctx: RouteContext) {

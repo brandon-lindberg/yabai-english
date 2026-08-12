@@ -22,19 +22,9 @@ function statusTone(status: string) {
   return "spent" as const;
 }
 
-export function MemberRow({
-  name,
-  email,
-  imageUrl,
-  role,
-  status,
-  statusLabel,
-  meta,
-  actions,
-}: {
-  name: string;
-  email?: string | null;
-  imageUrl?: string | null;
+export type MemberGrant = {
+  /** The membership row, so an action can name which grant it acts on. */
+  id: string;
   role: string;
   status: string;
   /** Translated status text; falls back to the raw enum when absent. */
@@ -42,19 +32,51 @@ export function MemberRow({
   /** A further fact about placement, e.g. the school name or "org-wide". */
   meta?: string | null;
   actions?: ReactNode;
+};
+
+export function MemberRow({
+  name,
+  email,
+  imageUrl,
+  grants,
+}: {
+  name: string;
+  email?: string | null;
+  imageUrl?: string | null;
+  /**
+   * Every grant this person holds here, not one row per grant.
+   *
+   * A membership row is a grant, and one person commonly holds two — org-wide
+   * OWNER plus SCHOOL_ADMIN of a school. Printing a row each listed the same
+   * person twice, with the same name, the same email and the same avatar, which
+   * reads as a duplicate rather than as one person with two roles.
+   */
+  grants: MemberGrant[];
 }) {
   return (
-    <DataRow actions={actions}>
-      <div className="flex items-center gap-3">
+    <DataRow>
+      <div className="flex items-start gap-3">
         <Avatar src={imageUrl} name={name || email} />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate font-semibold text-foreground">{name}</p>
           {email ? <p className="truncate text-sm text-muted">{email}</p> : null}
-          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="text-sm font-medium text-foreground">{role}</span>
-            <Status tone={statusTone(status)}>{statusLabel ?? status}</Status>
-            {meta ? <span className="text-sm text-muted">{meta}</span> : null}
-          </p>
+          <ul className="mt-1 list-none space-y-1 p-0">
+            {grants.map((grant) => (
+              <li
+                key={grant.id}
+                className="flex flex-wrap items-center gap-x-3 gap-y-1"
+              >
+                <span className="text-sm font-medium text-foreground">{grant.role}</span>
+                <Status tone={statusTone(grant.status)}>
+                  {grant.statusLabel ?? grant.status}
+                </Status>
+                {grant.meta ? (
+                  <span className="text-sm text-muted">{grant.meta}</span>
+                ) : null}
+                {grant.actions}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </DataRow>

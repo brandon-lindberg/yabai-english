@@ -8,11 +8,15 @@ import { Status } from "@/components/ui/status";
 import { MemberRow } from "@/components/org/member-row";
 import { MemberInviteForm } from "@/components/org/member-invite-form";
 import { ORG_INVITE_ROLES } from "@/lib/org/invite-roles";
+import { groupMembershipsByPerson } from "@/lib/org/member-identity";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type Member = {
   id: string;
   orgRole: string;
   status: string;
+  userId: string | null;
+  inviteEmail: string | null;
   schoolId: string | null;
   school?: { name: string } | null;
   user: { id: string; name: string | null; email: string | null; image: string | null };
@@ -102,25 +106,36 @@ export function OrgMembersList({ orgId }: { orgId: string }) {
         <p className="border-y border-border py-6 text-sm text-muted">{t("noMembers")}</p>
       ) : (
         <DataList>
-          {members.map((m) => (
-            <MemberRow
-              key={m.id}
-              name={m.user.name ?? m.user.email ?? ""}
-              email={m.user.email}
-              imageUrl={m.user.image}
-              role={tr(m.orgRole as never)}
-              status={m.status}
-              statusLabel={ts(m.status as never)}
-              meta={m.schoolId ? m.school?.name : t("orgWide")}
-              actions={
-                m.orgRole !== "OWNER" ? (
-                  <Button variant="destructive" size="sm" onClick={() => handleRemove(m.id)}>
-                    {t("remove")}
-                  </Button>
-                ) : null
-              }
-            />
-          ))}
+          {groupMembershipsByPerson(members).map(({ key, memberships }) => {
+            const first = memberships[0]!;
+            return (
+              <MemberRow
+                key={key}
+                name={first.user.name ?? first.user.email ?? ""}
+                email={first.user.email}
+                imageUrl={first.user.image}
+                grants={memberships.map((m) => ({
+                  id: m.id,
+                  role: tr(m.orgRole as never),
+                  status: m.status,
+                  statusLabel: ts(m.status as never),
+                  meta: m.schoolId ? m.school?.name : t("orgWide"),
+                  // Removal is per grant: taking away school admin is not the
+                  // same as taking away the organization.
+                  actions:
+                    m.orgRole !== "OWNER" ? (
+                      <button
+                        type="button"
+                        onClick={() => void handleRemove(m.id)}
+                        className={`${actionLinkClass} text-[var(--app-danger)]`}
+                      >
+                        {t("remove")}
+                      </button>
+                    ) : null,
+                }))}
+              />
+            );
+          })}
         </DataList>
       )}
     </div>
