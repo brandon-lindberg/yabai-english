@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "English Studio",
+    "appName": "English Studio Japan",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "dashboard": "Dashboard",
@@ -104,10 +104,12 @@
     "signedInSubtitle": "Book your next lesson, review your schedule, or continue flashcard practice.",
     "signedInBook": "Find a teacher",
     "signedInDashboard": "Dashboard",
-    "signedInLearn": "Flashcards"
+    "signedInLearn": "Flashcards",
+    "metaTitle": "English Studio Japan — online lessons for Japanese learners",
+    "pillarsHeading": "Why learners use English Studio Japan"
   },
   "landing": {
-    "metaTitle": "English Studio — online lessons for Japanese learners",
+    "metaTitle": "English Studio Japan — online lessons for Japanese learners",
     "metaDescription": "Find a teacher, book lessons with Google Meet, and keep practicing with flashcards and level check.",
     "heroTitle": "Learn English with teachers you trust",
     "heroSubtitle": "Book one-on-one lessons, keep a clear schedule, and practice between classes — built for Japanese learners.",
@@ -125,7 +127,7 @@
     "pillarPracticeBody": "Flashcards and placement help you stay on track.",
     "trustLine": "Sign in with Google. A Gmail address is not required—any email you use with Google works. Calendar-friendly reminders when you connect Google.",
     "howHeading": "How it works",
-    "pillarsHeading": "Why learners use English Studio"
+    "pillarsHeading": "Why learners use English Studio Japan"
   },
   "dashboard": {
     "taxonomyPage": {
@@ -484,7 +486,7 @@
     },
     "integrationsPage": {
       "title": "Google connections",
-      "intro": "Connect your Google account once. English Studio then creates Calendar events with Meet links for your lessons, and can sync lesson notes and meeting recaps to your own Drive.",
+      "intro": "Connect your Google account once. English Studio Japan then creates Calendar events with Meet links for your lessons, and can sync lesson notes and meeting recaps to your own Drive.",
       "calendarPreviewTitle": "Your calendar",
       "calendarPreviewHint": "This preview uses Google’s embed. If it looks empty, open Google Calendar → Settings for your calendar → Access permissions and allow embedding, or open your calendar in a new tab.",
       "openGoogleCalendar": "Open Google Calendar",
@@ -526,7 +528,7 @@
       "continueStripeSetup": "Continue Stripe setup",
       "continueStripeSetupPrefix": "Continue setup with",
       "refreshStripe": "Refresh Stripe status",
-      "connectStripeHelp": "Stripe opens a hosted setup flow where you own and manage your Stripe account. English Studio only receives the connected account ID and collects the platform fee on paid lessons.",
+      "connectStripeHelp": "Stripe opens a hosted setup flow where you own and manage your Stripe account. English Studio Japan only receives the connected account ID and collects the platform fee on paid lessons.",
       "connectStripeError": "Could not start Stripe setup.",
       "refreshStripeError": "Could not refresh Stripe status.",
       "enableDevStripe": "Enable local Stripe test method",
@@ -1063,7 +1065,7 @@
     "questionCount": "{count, plural, one {# question} other {# questions}}"
   },
   "onboarding": {
-    "title": "Welcome to English Studio",
+    "title": "Welcome to English Studio Japan",
     "subtitle": "Complete your onboarding to continue to your dashboard.",
     "timezoneLabel": "Your timezone",
     "timezoneHelp": "Auto-detected from your browser. Change it here anytime.",

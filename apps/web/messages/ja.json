@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "English Studio",
+    "appName": "English Studio Japan",
     "signIn": "ログイン",
     "signOut": "ログアウト",
     "dashboard": "ダッシュボード",
@@ -104,10 +104,12 @@
     "signedInSubtitle": "次のレッスンの予約、スケジュールの確認、フラッシュカードの続きからお選びください。",
     "signedInBook": "講師を探す",
     "signedInDashboard": "ダッシュボード",
-    "signedInLearn": "フラッシュカード"
+    "signedInLearn": "フラッシュカード",
+    "metaTitle": "English Studio Japan — 日本の学習者向けオンライン英会話",
+    "pillarsHeading": "English Studio Japan が選ばれる理由"
   },
   "landing": {
-    "metaTitle": "English Studio — 日本の学習者向けオンライン英会話",
+    "metaTitle": "English Studio Japan — 日本の学習者向けオンライン英会話",
     "metaDescription": "講師を選び、Google Meet でレッスン。フラッシュカードやレベル診断で学習を続けられます。",
     "heroTitle": "信頼できる講師と学ぶ英語",
     "heroSubtitle": "マンツーマン予約、分かりやすいスケジュール、レッスン間の復習まで。日本の学習者のためのプラットフォームです。",
@@ -125,7 +127,7 @@
     "pillarPracticeBody": "フラッシュカード（単語練習）やレベル診断でペースを保てます。",
     "trustLine": "Google でログイン。Gmail である必要はなく、Google でお使いのメールアドレスで大丈夫です。Google と連携すると、カレンダー向けのリマインダーに便利です。",
     "howHeading": "使い方",
-    "pillarsHeading": "English Studio が選ばれる理由"
+    "pillarsHeading": "English Studio Japan が選ばれる理由"
   },
   "dashboard": {
     "taxonomyPage": {
@@ -526,7 +528,7 @@
       "continueStripeSetup": "Stripe 設定を続ける",
       "continueStripeSetupPrefix": "設定を続ける：",
       "refreshStripe": "Stripe の状態を更新",
-      "connectStripeHelp": "Stripe のホスト型設定画面が開きます。講師自身が Stripe アカウントを所有・管理し、English Studio は接続アカウント ID の保存と有料レッスンのプラットフォーム手数料の徴収のみを行います。",
+      "connectStripeHelp": "Stripe のホスト型設定画面が開きます。講師自身が Stripe アカウントを所有・管理し、English Studio Japan は接続アカウント ID の保存と有料レッスンのプラットフォーム手数料の徴収のみを行います。",
       "connectStripeError": "Stripe 設定を開始できませんでした。",
       "refreshStripeError": "Stripe の状態を更新できませんでした。",
       "enableDevStripe": "ローカル用 Stripe テスト方法を有効化",
@@ -1063,7 +1065,7 @@
     "questionCount": "{count}問"
   },
   "onboarding": {
-    "title": "English Studio へようこそ",
+    "title": "English Studio Japan へようこそ",
     "subtitle": "ダッシュボードに進む前にオンボーディングを完了してください。",
     "timezoneLabel": "タイムゾーン",
     "timezoneHelp": "ブラウザの設定から自動判定します。必要ならここで変更できます。",

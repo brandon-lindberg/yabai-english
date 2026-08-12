@@ -1111,6 +1111,8 @@ model Notification {
   titleEn   String
   bodyJa    String?   @db.Text
   bodyEn    String?   @db.Text
+  /// App-relative path this notification is about, so it can be clicked through.
+  href      String?
   readAt    DateTime?
   createdAt DateTime  @default(now())
 

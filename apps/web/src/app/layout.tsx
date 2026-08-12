@@ -4,6 +4,7 @@ import Script from "next/script";
 import { THEME_INIT_SCRIPT } from "@/lib/theme-init-script";
 import { SwRegister } from "@/components/sw-register";
 import "./globals.css";
+import { APP_NAME } from "@/lib/brand";
 
 /** Latin + display voice. Variable, so every weight step is one file. */
 const archivo = Archivo({
@@ -35,7 +36,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "English Studio",
+  title: APP_NAME,
   description: "Online English lessons and practice for Japanese learners.",
   manifest: "/manifest.json",
   icons: {
@@ -48,7 +49,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "English Studio",
+    title: APP_NAME,
   },
   other: {
     "mobile-web-app-capable": "yes",

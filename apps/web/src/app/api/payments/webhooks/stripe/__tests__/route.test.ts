@@ -1,14 +1,15 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { prismaMock, constructEventMock, confirmFromCheckoutMock } = vi.hoisted(() => ({
+const { prismaMock, constructEventMock, confirmFromCheckoutMock, notifyStuckRefundMock } = vi.hoisted(() => ({
   prismaMock: {
     paymentWebhookEvent: { createMany: vi.fn() },
     payment: { update: vi.fn(), updateMany: vi.fn() },
-    refund: { updateMany: vi.fn() },
+    refund: { updateMany: vi.fn(), findFirst: vi.fn() },
     teacherPaymentAccount: { findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     teacherPaymentMethod: { upsert: vi.fn(), updateMany: vi.fn() },
   },
   constructEventMock: vi.fn(),
+  notifyStuckRefundMock: vi.fn(),
   confirmFromCheckoutMock: vi.fn(),
 }));
 
@@ -19,6 +20,9 @@ vi.mock("@/lib/stripe/stripe-connect", () => ({
 vi.mock("@/lib/stripe/confirm-booking-from-stripe-checkout", () => ({
   confirmBookingFromStripeCheckoutSession: confirmFromCheckoutMock,
 }));
+vi.mock("@/lib/refund-notifications", () => ({
+  notifySuperAdminsOfStuckRefund: notifyStuckRefundMock,
+}));
 
 import { POST } from "@/app/api/payments/webhooks/stripe/route";
 
@@ -27,6 +31,10 @@ describe("POST /api/payments/webhooks/stripe", () => {
     vi.clearAllMocks();
     prismaMock.paymentWebhookEvent.createMany.mockResolvedValue({ count: 1 });
     prismaMock.refund.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.refund.findFirst.mockResolvedValue({
+      amountYen: 5000,
+      booking: { student: { name: "Aki" } },
+    });
     confirmFromCheckoutMock.mockResolvedValue({
       ok: true,
       bookingStatus: "CONFIRMED",
@@ -392,5 +400,45 @@ describe("POST /api/payments/webhooks/stripe", () => {
 
     expect(res.status).toBe(200);
     expect(prismaMock.refund.updateMany).not.toHaveBeenCalled();
+  });
+
+  test("alerts super admins when Stripe reports the refund failed", async () => {
+    constructEventMock.mockReturnValue({
+      id: "evt_refund_failed_notify",
+      type: "refund.failed",
+      account: "acct_123",
+      data: { object: { id: "re_456", status: "failed", failure_reason: "insufficient_funds" } },
+    });
+
+    await POST(
+      new Request("http://localhost/api/payments/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": "sig_123" },
+        body: "{}",
+      }),
+    );
+
+    expect(notifyStuckRefundMock).toHaveBeenCalledWith(
+      expect.objectContaining({ amountYen: 5000, studentName: "Aki" }),
+    );
+  });
+
+  test("stays quiet when a refund simply settles", async () => {
+    constructEventMock.mockReturnValue({
+      id: "evt_refund_ok_notify",
+      type: "refund.updated",
+      account: "acct_123",
+      data: { object: { id: "re_123", status: "succeeded" } },
+    });
+
+    await POST(
+      new Request("http://localhost/api/payments/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": "sig_123" },
+        body: "{}",
+      }),
+    );
+
+    expect(notifyStuckRefundMock).not.toHaveBeenCalled();
   });
 });

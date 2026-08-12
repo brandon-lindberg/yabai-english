@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { subscribeRealtime } from "@/lib/realtime-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { actionLinkClass } from "@/components/ui/inline-link";
+import { Link } from "@/i18n/navigation";
 
 type NotificationItem = {
   id: string;
@@ -13,6 +14,7 @@ type NotificationItem = {
   titleEn: string;
   bodyJa: string | null;
   bodyEn: string | null;
+  href: string | null;
   readAt: string | null;
   createdAt: string;
 };
@@ -181,7 +183,22 @@ export function NotificationBell() {
                     className="flex gap-2 rounded-xl border border-border bg-background px-2 py-2 text-xs"
                   >
                     <div className="min-w-0 flex-1 px-1">
-                      <p className="font-semibold text-foreground">{title}</p>
+                      {item.href ? (
+                        // Clicking through is the whole point of a notification
+                        // that is about somewhere; reading it also clears it.
+                        <Link
+                          href={item.href as "/admin/payments"}
+                          onClick={() => {
+                            setOpen(false);
+                            void markAllRead();
+                          }}
+                          className="font-semibold text-foreground underline decoration-border underline-offset-2 hover:decoration-foreground"
+                        >
+                          {title}
+                        </Link>
+                      ) : (
+                        <p className="font-semibold text-foreground">{title}</p>
+                      )}
                       {body ? <p className="mt-0.5 text-muted">{body}</p> : null}
                     </div>
                     <button

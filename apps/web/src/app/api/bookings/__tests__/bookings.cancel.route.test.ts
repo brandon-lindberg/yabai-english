@@ -1,7 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
-const { authMock, findUniqueMock, updateMock, deleteMeetLessonEventMock, revalidatePathMock, issueRefundMock } =
+const {
+  authMock,
+  findUniqueMock,
+  updateMock,
+  deleteMeetLessonEventMock,
+  revalidatePathMock,
+  issueRefundMock,
+  notifyStuckRefundMock,
+} =
   vi.hoisted(() => ({
     authMock: vi.fn(),
     findUniqueMock: vi.fn(),
@@ -9,6 +17,7 @@ const { authMock, findUniqueMock, updateMock, deleteMeetLessonEventMock, revalid
     deleteMeetLessonEventMock: vi.fn(),
     revalidatePathMock: vi.fn(),
     issueRefundMock: vi.fn(),
+    notifyStuckRefundMock: vi.fn(),
   }));
 
 vi.mock("@/auth", () => ({
@@ -34,6 +43,10 @@ vi.mock("next/cache", () => ({
 
 vi.mock("@/lib/payment-refunds", () => ({
   issueAutomaticRefundForBooking: issueRefundMock,
+}));
+
+vi.mock("@/lib/refund-notifications", () => ({
+  notifySuperAdminsOfStuckRefund: notifyStuckRefundMock,
 }));
 
 import { POST } from "@/app/api/bookings/[bookingId]/cancel/route";
@@ -247,5 +260,47 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
         eventId: "evt-student",
       }),
     );
+  });
+
+  test("alerts super admins when the refund could not be issued", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT" } });
+    const booking = baseBooking();
+    findUniqueMock.mockResolvedValue(booking);
+    updateMock.mockImplementation(async ({ data }: { data: { status: BookingStatus } }) => ({
+      ...booking,
+      status: data.status,
+    }));
+    issueRefundMock.mockResolvedValue({
+      id: "refund-1",
+      status: "PENDING_RECOVERY",
+      amountYen: 5000,
+      recoveryNote: "no connected account",
+    });
+
+    const res = await POST(new Request("http://localhost", { method: "POST" }), {
+      params: Promise.resolve({ bookingId: "booking-1" }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(notifyStuckRefundMock).toHaveBeenCalledWith(
+      expect.objectContaining({ amountYen: 5000, note: "no connected account" }),
+    );
+  });
+
+  test("stays quiet when the refund went through", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT" } });
+    const booking = baseBooking();
+    findUniqueMock.mockResolvedValue(booking);
+    updateMock.mockImplementation(async ({ data }: { data: { status: BookingStatus } }) => ({
+      ...booking,
+      status: data.status,
+    }));
+    issueRefundMock.mockResolvedValue({ id: "refund-1", status: "SUCCEEDED", amountYen: 5000 });
+
+    await POST(new Request("http://localhost", { method: "POST" }), {
+      params: Promise.resolve({ bookingId: "booking-1" }),
+    });
+
+    expect(notifyStuckRefundMock).not.toHaveBeenCalled();
   });
 });

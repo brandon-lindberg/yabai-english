@@ -172,4 +172,68 @@ describe("NotificationBell", () => {
       expect(screen.queryByText(en.common.markAllRead)).not.toBeInTheDocument();
     });
   });
+
+  test("a notification with a link is clickable through to it", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        items: [
+          {
+            id: "n-1",
+            titleJa: "返金の対応が必要です",
+            titleEn: "A refund needs attention",
+            bodyJa: null,
+            bodyEn: "¥5,000 for Aki could not be refunded automatically.",
+            href: "/admin/payments",
+            readAt: null,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        unreadCount: 1,
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <NotificationBell />
+      </NextIntlClientProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /notification/i }));
+
+    const link = await screen.findByRole("link", { name: /A refund needs attention/i });
+    expect(link.getAttribute("href")).toContain("/admin/payments");
+  });
+
+  test("a notification without a link stays plain text", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        items: [
+          {
+            id: "n-2",
+            titleJa: "お知らせ",
+            titleEn: "Lesson confirmed",
+            bodyJa: null,
+            bodyEn: null,
+            href: null,
+            readAt: null,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        unreadCount: 1,
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <NotificationBell />
+      </NextIntlClientProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /notification/i }));
+
+    expect(await screen.findByText("Lesson confirmed")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /Lesson confirmed/i })).toBeNull();
+  });
 });

@@ -1,5 +1,3 @@
-import type { EnabledTeacherPaymentMethod } from "@/lib/payment-methods";
-
 export type TeacherCard = {
   id: string;
   displayName: string;
@@ -9,7 +7,6 @@ export type TeacherCard = {
   instructionLanguages: string[];
   rateYen: number | null;
   activeAvailabilityCount: number;
-  paymentMethods?: EnabledTeacherPaymentMethod[];
 };
 
 type Filters = {

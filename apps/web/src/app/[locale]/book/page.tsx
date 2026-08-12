@@ -16,7 +16,6 @@ import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { appPathForLocale } from "@/lib/i18n-app-path";
 import { authSignInHref } from "@/lib/auth-sign-in-href";
 import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
-import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
 import { buttonClasses } from "@/components/ui/button";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -87,22 +86,10 @@ export default async function BookPage({ searchParams }: Props) {
       specialties: true,
       instructionLanguages: true,
       rateYen: true,
-      paymentPolicyAcceptedAt: true,
       user: { select: { name: true, image: true } },
       availabilitySlots: {
         where: { active: true },
         select: { id: true },
-      },
-      paymentAccounts: {
-        select: {
-          id: true,
-          provider: true,
-          providerAccountId: true,
-          status: true,
-          chargesEnabled: true,
-          payoutsEnabled: true,
-          methods: { select: { method: true, enabled: true } },
-        },
       },
     },
     orderBy: { userId: "asc" },
@@ -117,9 +104,6 @@ export default async function BookPage({ searchParams }: Props) {
     instructionLanguages: teacher.instructionLanguages,
     rateYen: teacher.rateYen,
     activeAvailabilityCount: teacher.availabilitySlots.length,
-    paymentMethods: teacher.paymentPolicyAcceptedAt
-      ? getEnabledTeacherPaymentMethods(teacher.paymentAccounts)
-      : [],
   }));
 
   const filtered = filterTeacherCards(cards, { specialty, language });

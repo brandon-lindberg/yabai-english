@@ -7,6 +7,7 @@ import { BookingCancelButton } from "@/components/dashboard/booking-cancel-butto
 import { BookingCalendarRecoveryActions } from "@/components/dashboard/booking-calendar-recovery-actions";
 import { LessonListEmpty, LessonRow } from "@/components/dashboard/lesson-row";
 import { buttonClasses } from "@/components/ui/button";
+import { lessonCalendarLocation, lessonCalendarUid } from "@/lib/brand";
 
 type Upcoming = Awaited<ReturnType<typeof getTeacherBookingsForDashboard>>["upcoming"];
 
@@ -76,10 +77,10 @@ export async function TeacherUpcomingLessons({ upcoming }: { upcoming: Upcoming 
               <BookingCalendarRecoveryActions
                 bookingId={b.id}
                 googleCalendarHref={buildGoogleCalendarUrl({
-                  uid: `booking-${b.id}@english-studio.local`,
+                  uid: lessonCalendarUid(b.id),
                   title: `${b.lessonProduct.nameEn} (${b.lessonProduct.nameJa})`,
                   description: `${ts("studentLabel")}: ${b.student.name ?? b.student.email}`,
-                  location: b.meetUrl ?? "English Studio lesson",
+                  location: b.meetUrl ?? lessonCalendarLocation(),
                   startsAt: b.startsAt,
                   endsAt: b.endsAt,
                 })}

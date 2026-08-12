@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { evaluateBookingCancellationPolicy } from "@/lib/booking-policy";
 import { deleteMeetLessonEvent } from "@/lib/google-calendar";
 import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
+import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -34,6 +35,7 @@ export async function POST(_req: Request, { params }: Props) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
+      student: { select: { name: true } },
       teacher: {
         select: {
           userId: true,
@@ -126,6 +128,17 @@ export async function POST(_req: Request, { params }: Props) {
         actor,
       })
     : null;
+
+  // A refund that did not reach the student is owed money nobody else is
+  // watching, so tell the people who can fix it rather than waiting for a
+  // complaint.
+  if (refund && refund.status !== "SUCCEEDED" && refund.status !== "PENDING") {
+    await notifySuperAdminsOfStuckRefund({
+      amountYen: refund.amountYen,
+      studentName: booking.student?.name ?? null,
+      note: refund.recoveryNote ?? null,
+    });
+  }
 
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`);

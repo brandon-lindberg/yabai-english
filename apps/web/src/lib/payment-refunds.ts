@@ -4,11 +4,19 @@ import {
   createStripeRefundDirectCharge,
 } from "@/lib/stripe/stripe-connect";
 
+/** What a caller needs to decide whether the refund actually landed. */
+export type IssuedRefund = {
+  id: string;
+  status: string;
+  amountYen: number;
+  recoveryNote?: string | null;
+};
+
 type RefundPrisma = {
   refund: {
     // Prisma delegates are generic; keep this structural type intentionally loose for tests.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create: (args: any) => Promise<unknown>;
+    create: (args: any) => Promise<IssuedRefund>;
   };
   paymentLedgerEntry: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,7 +68,7 @@ export async function issueAutomaticRefundForBooking(
     policy: CancellationPolicyResult;
     actor: CancellationActor;
   },
-) {
+): Promise<IssuedRefund | null> {
   if (!input.policy.refundEligible) {
     return null;
   }

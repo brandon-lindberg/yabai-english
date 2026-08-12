@@ -2,7 +2,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { TeacherCard as TeacherCardData } from "@/lib/teacher-discovery";
 import { buildTeacherCardProfileHref } from "@/lib/teacher-card-href";
-import { PaymentMethodLogos } from "@/components/payment-method-logos";
 import { buttonClasses } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { DataRow } from "@/components/ui/data-row";
@@ -70,7 +69,6 @@ export async function TeacherCard({
           {teacher.specialties.length > 0 ? (
             <p className="mt-1 text-sm text-muted">{teacher.specialties.join(" · ")}</p>
           ) : null}
-          <PaymentMethodLogos methods={teacher.paymentMethods ?? []} className="mt-3" />
         </div>
       </div>
     </DataRow>

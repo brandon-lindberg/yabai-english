@@ -39,4 +39,28 @@ describe("filterTeacherCards", () => {
     const result = filterTeacherCards(TEACHERS, { language: "EN" });
     expect(result.map((t) => t.id)).toEqual(["t1"]);
   });
+
+  // Stripe is the only way to pay, so which provider a teacher is connected to
+  // tells a student nothing they can act on. The browse card does not carry it,
+  // which is what keeps it off the screen.
+  test("carries no payment provider or method data", () => {
+    for (const teacher of TEACHERS) {
+      expect(Object.keys(teacher)).not.toContain("paymentMethods");
+    }
+
+    const card: TeacherCard = {
+      id: "t3",
+      displayName: "Rin",
+      imageUrl: null,
+      countryOfOrigin: "Japan",
+      specialties: [],
+      instructionLanguages: ["EN"],
+      rateYen: 3500,
+      activeAvailabilityCount: 1,
+      // @ts-expect-error the card type must not accept payment methods
+      paymentMethods: [],
+    };
+
+    expect(card.id).toBe("t3");
+  });
 });

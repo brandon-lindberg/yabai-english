@@ -1,3 +1,5 @@
+import { ICS_PRODUCT_ID } from "@/lib/brand";
+
 export type CalendarExportEvent = {
   uid: string;
   title: string;
@@ -34,7 +36,7 @@ export function buildIcs(events: CalendarExportEvent[]) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//English Studio//Schedule Export//EN",
+    `PRODID:${ICS_PRODUCT_ID}`,
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
   ];

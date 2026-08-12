@@ -4,6 +4,7 @@ import { resolveStripeAccountStatus } from "@/lib/stripe/stripe-account-status";
 import { constructStripeWebhookEvent } from "@/lib/stripe/stripe-connect";
 import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-booking-from-stripe-checkout";
 import { mapStripeRefundStatus } from "@/lib/payment-refunds";
+import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
 
 type StripeEventLike = {
   id: string;
@@ -114,6 +115,13 @@ async function handleRefundStatusChanged(event: StripeEventLike) {
     // terminal failed state nobody is watching.
     const reason =
       stringValue(stripeRefund.failure_reason) ?? stringValue(stripeRefund.status) ?? "unknown";
+    const stored = await prisma.refund.findFirst({
+      where,
+      select: {
+        amountYen: true,
+        booking: { select: { student: { select: { name: true } } } },
+      },
+    });
     await prisma.refund.updateMany({
       where,
       data: {
@@ -121,6 +129,13 @@ async function handleRefundStatusChanged(event: StripeEventLike) {
         recoveryNote: `Stripe reported the refund did not complete (${reason}). It must be reissued manually.`,
       },
     });
+    if (stored) {
+      await notifySuperAdminsOfStuckRefund({
+        amountYen: stored.amountYen,
+        studentName: stored.booking?.student?.name ?? null,
+        note: reason,
+      });
+    }
     return NextResponse.json({ ok: true, refundStatus: "PENDING_RECOVERY" });
   }
 

@@ -12,6 +12,7 @@ import { TeacherBookingRescheduleForm } from "@/components/dashboard/teacher-boo
 import { actionLinkClass } from "@/components/ui/inline-link";
 import { PageHeader } from "@/components/ui/page-header";
 import { StudentProfilePanel } from "@/components/dashboard/student-profile-panel";
+import { lessonCalendarLocation, lessonCalendarUid } from "@/lib/brand";
 
 export default async function LessonDetailPage({
   params,
@@ -140,10 +141,10 @@ export default async function LessonDetailPage({
             <BookingCalendarRecoveryActions
               bookingId={booking.id}
               googleCalendarHref={buildGoogleCalendarUrl({
-                uid: `booking-${booking.id}@english-studio.local`,
+                uid: lessonCalendarUid(booking.id),
                 title: `${booking.lessonProduct.nameEn} (${booking.lessonProduct.nameJa})`,
                 description: `Student: ${booking.student.name ?? booking.student.email}`,
-                location: booking.meetUrl ?? "English Studio lesson",
+                location: booking.meetUrl ?? lessonCalendarLocation(),
                 startsAt: booking.startsAt,
                 endsAt: booking.endsAt,
               })}
