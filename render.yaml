@@ -15,7 +15,14 @@ databases:
     plan: basic-256mb
     region: singapore
     postgresMajorVersion: "18"
-    ipAllowList: [] # allow internal Render traffic only
+    # An empty list blocks every external connection. It sat here harmlessly
+    # until a render.yaml edit made Render re-sync the Blueprint and enforce it,
+    # which cut off local access to the database. Entries live here rather than
+    # only in the dashboard so a future re-sync restores access instead of
+    # removing it.
+    ipAllowList:
+      - source: 59.138.130.204/32
+        description: Brandon local machine
 
 services:
   - type: web
