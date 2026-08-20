@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { formatLessonInstant } from "@/lib/format-lesson-datetime";
+import { formatLessonRange } from "@/lib/format-lesson-datetime";
 
 type Props = {
   locale: string;
@@ -25,9 +25,7 @@ function buildRange(
   separator: string,
   timeZone?: string,
 ) {
-  const start = formatLessonInstant(startsAtIso, locale, timeZone);
-  const end = formatLessonInstant(endsAtIso, locale, timeZone);
-  return `${start}${separator}${end}`;
+  return formatLessonRange(startsAtIso, endsAtIso, locale, timeZone, separator);
 }
 
 function subscribeNoop(onStoreChange: () => void) {

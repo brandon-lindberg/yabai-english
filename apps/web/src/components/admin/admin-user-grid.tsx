@@ -8,10 +8,16 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 import { AccountStatus, Role } from "@/generated/prisma/browser";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { LocalDateTime } from "@/components/local-datetime";
+import { formatYen } from "@/lib/format-money";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CheckRow } from "@/components/ui/check-row";
+import { Field, Input } from "@/components/ui/field";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 export type AdminUserListItem = {
   id: string;
@@ -62,6 +68,15 @@ type SortValue =
   | "accountStatus_asc";
 
 const columnHelper = createColumnHelper<AdminUserListItem>();
+
+/** The sort control printed the raw enum — "Sort: createdAt desc". */
+const SORT_FIELD_LABEL_KEY = {
+  createdAt: "colCreated",
+  email: "colEmail",
+  name: "colName",
+  role: "colRole",
+  accountStatus: "colStatus",
+} as const;
 
 /** Maps TanStack column id → `admin.grid` translation key */
 const COLUMN_LABEL_KEY: Partial<
@@ -125,6 +140,7 @@ export function AdminUserGrid({
   mode: "all" | "teachers" | "students";
 }) {
   const t = useTranslations("admin.grid");
+  const locale = useLocale();
   const roleFilter: Role | undefined =
     mode === "teachers" ? "TEACHER" : mode === "students" ? "STUDENT" : undefined;
 
@@ -202,6 +218,11 @@ export function AdminUserGrid({
     return () => ac.abort();
   }, [page, pageSize, qDebounced, roleFilter, sort, t]);
 
+  const [sortField, sortDirection] = sort.split("_") as [
+    "createdAt" | "email" | "name" | "role" | "accountStatus",
+    "asc" | "desc",
+  ];
+
   const cycleSort = useCallback(
     (field: "createdAt" | "email" | "name" | "role" | "accountStatus") => {
       setSort((prev) => {
@@ -218,11 +239,13 @@ export function AdminUserGrid({
     const cols = [
       columnHelper.display({
         id: "actions",
-        header: t("colActions"),
+        // `colActions` is an empty string, so this column had no name at all —
+        // a header cell a screen reader reads as blank.
+        header: () => <span className="sr-only">{t("colActionsLabel")}</span>,
         cell: ({ row }) => (
           <Link
             href={`/admin/users/${row.original.id}`}
-            className="text-link hover:underline"
+            className={actionLinkClass}
           >
             {t("open")}
           </Link>
@@ -286,7 +309,11 @@ export function AdminUserGrid({
             {t("colCreated")}
           </button>
         ),
-        cell: (ctx) => new Date(ctx.getValue()).toLocaleString(),
+        // Was `toLocaleString()` — the browser's locale, the runtime's zone, and
+        // seconds, which wrapped the cell onto three lines.
+        cell: (ctx) => (
+          <LocalDateTime iso={ctx.getValue()} locale={locale} timeStyle={null} />
+        ),
       }),
       columnHelper.accessor(
         (row) => row.studentProfile?.placedLevel ?? "—",
@@ -314,11 +341,15 @@ export function AdminUserGrid({
         },
       ),
       columnHelper.accessor(
+        // `String(3300)` in a column headed "Rate ¥". `formatYen` exists so the
+        // currency is never a header's job.
         (row) =>
-          row.teacherProfile?.rateYen != null ? String(row.teacherProfile.rateYen) : "—",
+          row.teacherProfile?.rateYen != null
+            ? formatYen(row.teacherProfile.rateYen, locale)
+            : "—",
         {
           id: "rateYen",
-          header: t("colRateYen"),
+          header: t("colRate"),
         },
       ),
       columnHelper.accessor(
@@ -357,7 +388,7 @@ export function AdminUserGrid({
       }),
     ];
     return cols;
-  }, [cycleSort, t]);
+  }, [cycleSort, locale, t]);
 
   const table = useReactTable({
     data: rows,
@@ -370,45 +401,61 @@ export function AdminUserGrid({
   });
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const configurableColumns = table
+    .getAllLeafColumns()
+    .filter((col) => col.id !== "actions");
+  const configurableColumnCount = configurableColumns.length;
+  const visibleColumnCount = configurableColumns.filter((col) => col.getIsVisible()).length;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <label className="flex max-w-md flex-1 flex-col gap-1 text-sm">
-          <span className="text-muted">{t("searchLabel")}</span>
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
-            placeholder={t("searchPlaceholder")}
-            type="search"
-          />
-        </label>
+        <Field label={t("searchLabel")} className="max-w-md flex-1">
+          {(field) => (
+            <Input
+              {...field}
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+            />
+          )}
+        </Field>
         <p className="text-sm text-muted">
-          {t("sortLabel")}: {sort.replace("_", " ")}
+          {t("sortSummary", {
+            field: t(SORT_FIELD_LABEL_KEY[sortField]),
+            direction: t(sortDirection === "asc" ? "sortAsc" : "sortDesc"),
+          })}
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-surface p-3">
-        <p className="mb-2 text-xs font-medium text-muted">{t("columnsLabel")}</p>
-        <div className="flex flex-wrap gap-3 text-sm">
+      {/*
+        Thirteen checkboxes across two rows used to sit here, open, above the
+        table — the largest and loudest thing on the page, in front of the data
+        it exists to configure. You set columns once and then live in the rows.
+        A native `<details>` keeps it one keystroke away, needs no JS, and gets
+        its keyboard behaviour from the platform.
+      */}
+      <details className="border-t border-border pt-4">
+        <summary className="cursor-pointer text-sm font-medium text-foreground underline-offset-4 hover:underline">
+          {t("columnsLabel")} ({visibleColumnCount}/{configurableColumnCount})
+        </summary>
+        <div className="mt-3 grid gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
           {table.getAllLeafColumns().map((col) => {
             if (col.id === "actions") return null;
             const labelKey = COLUMN_LABEL_KEY[col.id];
             return (
-              <label key={col.id} className="flex cursor-pointer items-center gap-1.5">
-                <input
-                  type="checkbox"
-                  className="rounded border-border"
-                  checked={col.getIsVisible()}
-                  onChange={col.getToggleVisibilityHandler()}
-                />
-                <span>{labelKey ? t(labelKey) : col.id}</span>
-              </label>
+              <CheckRow
+                key={col.id}
+                checked={col.getIsVisible()}
+                onChange={() => col.toggleVisibility()}
+              >
+                {labelKey ? t(labelKey) : col.id}
+              </CheckRow>
             );
           })}
         </div>
-      </div>
+      </details>
 
       {error ? (
         <p className="text-sm text-[var(--app-warning-text)]">{error}</p>
@@ -419,16 +466,31 @@ export function AdminUserGrid({
         </p>
       ) : null}
 
-      <div className="overflow-x-auto rounded-xl border border-border">
+      <div className="overflow-x-auto border-y border-border">
         <table
-          className="w-full min-w-[720px] border-collapse text-left text-sm"
+          className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums"
           aria-busy={loading || undefined}
         >
           <thead>
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id} className="border-b border-border bg-[var(--app-hover)]">
                 {hg.headers.map((header) => (
-                  <th key={header.id} className="px-3 py-2 font-semibold text-foreground">
+                  /*
+                    `aria-sort` was absent everywhere: five sortable columns, and
+                    nothing told a screen reader which one was in force or which
+                    way round. The buttons changed the data silently.
+                  */
+                  <th
+                    key={header.id}
+                    aria-sort={
+                      header.column.id === sortField
+                        ? sortDirection === "asc"
+                          ? "ascending"
+                          : "descending"
+                        : undefined
+                    }
+                    className="px-3 py-2 font-semibold text-foreground"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -470,22 +532,24 @@ export function AdminUserGrid({
           {t("pageInfo", { page, totalPages, total })}
         </p>
         <div className="flex gap-2">
-          <button
-            type="button"
-            className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+          {/* Hand-rolled at `py-1` — about 28px, under the 36px `sm` floor and
+              well under a comfortable target. */}
+          <Button
+            variant="secondary"
+            size="sm"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
             {t("prev")}
-          </button>
-          <button
-            type="button"
-            className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
             {t("next")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

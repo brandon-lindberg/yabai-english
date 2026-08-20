@@ -1,8 +1,22 @@
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { AdminSchoolsView, type AdminOrganization } from "@/components/admin/admin-schools-view";
+import { AdminOrgList } from "@/components/admin/admin-org-list";
+import {
+  ACTIVE_MEMBERS_FILTER,
+  ORG_MEMBER_SELECT,
+  summarizeOrgMembers,
+} from "@/lib/org/org-members";
+import type { AdminOrganizationSummary } from "@/components/admin/admin-org-types";
+import { PageHeader } from "@/components/ui/page-header";
 
+/**
+ * Every organization, as a list.
+ *
+ * This query used to pull every school and every membership of every
+ * organization, because the page rendered all of them inline. A list needs
+ * counts; the organization's own page loads the rest.
+ */
 export default async function AdminSchoolsPage() {
   const t = await getTranslations("admin.schoolsPage");
   const session = await auth();
@@ -14,67 +28,26 @@ export default async function AdminSchoolsPage() {
       id: true,
       slug: true,
       name: true,
-      nameJa: true,
-      nameEn: true,
       timezone: true,
-      billingTarget: true,
-      createdAt: true,
-      schools: {
-        orderBy: { createdAt: "asc" },
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          nameJa: true,
-          nameEn: true,
-          _count: {
-            select: { memberships: { where: { status: "ACTIVE" } } },
-          },
-        },
-      },
-      memberships: {
-        where: { status: "ACTIVE" },
-        orderBy: { createdAt: "asc" },
-        select: {
-          id: true,
-          orgRole: true,
-          schoolId: true,
-          user: { select: { id: true, name: true, email: true } },
-        },
-      },
+      _count: { select: { schools: true } },
+      // People, not grants — the one definition lives in `lib/org/org-members`.
+      memberships: { where: ACTIVE_MEMBERS_FILTER, select: ORG_MEMBER_SELECT },
     },
   });
 
-  const serializable: AdminOrganization[] = organizations.map((org) => ({
+  const rows: AdminOrganizationSummary[] = organizations.map((org) => ({
     id: org.id,
     slug: org.slug,
     name: org.name,
-    nameJa: org.nameJa,
-    nameEn: org.nameEn,
     timezone: org.timezone,
-    billingTarget: org.billingTarget,
-    createdAt: org.createdAt.toISOString(),
-    schools: org.schools.map((s) => ({
-      id: s.id,
-      slug: s.slug,
-      name: s.name,
-      nameJa: s.nameJa,
-      nameEn: s.nameEn,
-      memberCount: s._count.memberships,
-    })),
-    memberships: org.memberships.map((m) => ({
-      id: m.id,
-      orgRole: m.orgRole,
-      schoolId: m.schoolId,
-      user: m.user,
-    })),
+    schoolCount: org._count.schools,
+    memberCount: summarizeOrgMembers(org.memberships).members,
   }));
 
   return (
     <main className="max-w-5xl">
-      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-      <p className="mt-2 text-sm text-muted">{t("subtitle")}</p>
-      <AdminSchoolsView initialOrganizations={serializable} />
+      <PageHeader title={t("title")} description={t("subtitle")} />
+      <AdminOrgList organizations={rows} />
     </main>
   );
 }

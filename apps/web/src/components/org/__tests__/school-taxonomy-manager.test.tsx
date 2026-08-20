@@ -146,9 +146,11 @@ describe("SchoolTaxonomyManager", () => {
       }),
     );
 
-    const nameInputs = screen.getAllByLabelText(
-      en.org.school.taxonomyPage.name,
-    );
+    // By accessible name: the required marker is aria-hidden, so it belongs to
+    // the label's textContent but not to the name a user is announced.
+    const nameInputs = screen.getAllByRole("textbox", {
+      name: en.org.school.taxonomyPage.name,
+    });
     fireEvent.change(nameInputs[0], { target: { value: "Year 8" } });
 
     const saveButtons = screen.getAllByRole("button", {

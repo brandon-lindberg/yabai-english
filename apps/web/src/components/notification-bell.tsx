@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { subscribeRealtime } from "@/lib/realtime-client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { actionLinkClass } from "@/components/ui/inline-link";
+import { Link } from "@/i18n/navigation";
 
 type NotificationItem = {
   id: string;
@@ -12,6 +14,7 @@ type NotificationItem = {
   titleEn: string;
   bodyJa: string | null;
   bodyEn: string | null;
+  href: string | null;
   readAt: string | null;
   createdAt: string;
 };
@@ -109,26 +112,35 @@ export function NotificationBell() {
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        aria-label={t("notifications")}
+        aria-label={
+          unreadCount > 0 ? t("notificationsWithCount", { count: unreadCount }) : t("notifications")
+        }
+        aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-full border border-border bg-surface px-2.5 py-1.5 text-sm text-foreground hover:bg-[var(--app-hover)]"
+        /* `min-h-11` clears the 44px comfortable touch target the emoji-sized
+           button did not. The count is `aria-hidden` because the button's own
+           label already states it — otherwise it is read twice. */
+        className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-border text-base text-foreground transition-colors hover:bg-[var(--app-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
       >
-        🔔
+        <span aria-hidden="true">🔔</span>
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
+          <span
+            aria-hidden="true"
+            className="absolute -right-0.5 -top-0.5 min-w-[1.125rem] rounded-full bg-primary px-1 text-center text-[10px] font-bold leading-[1.125rem] tabular-nums text-primary-foreground"
+          >
             {unreadCount}
           </span>
         )}
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-border bg-surface p-3 shadow-sm">
+        <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-border bg-surface p-3">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-semibold text-foreground">{t("notifications")}</p>
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => void markAllRead()}
-                className="text-xs text-link hover:opacity-90"
+                className={`${actionLinkClass} text-xs`}
               >
                 {t("markAllRead")}
               </button>
@@ -136,7 +148,7 @@ export function NotificationBell() {
                 type="button"
                 disabled={clearingAll || items.length === 0}
                 onClick={() => void clearAll()}
-                className="text-xs font-medium text-link hover:opacity-90 disabled:opacity-40"
+                className={`${actionLinkClass} text-xs disabled:opacity-40`}
               >
                 {t("clearAllNotifications")}
               </button>
@@ -171,7 +183,22 @@ export function NotificationBell() {
                     className="flex gap-2 rounded-xl border border-border bg-background px-2 py-2 text-xs"
                   >
                     <div className="min-w-0 flex-1 px-1">
-                      <p className="font-semibold text-foreground">{title}</p>
+                      {item.href ? (
+                        // Clicking through is the whole point of a notification
+                        // that is about somewhere; reading it also clears it.
+                        <Link
+                          href={item.href as "/admin/payments"}
+                          onClick={() => {
+                            setOpen(false);
+                            void markAllRead();
+                          }}
+                          className="font-semibold text-foreground underline decoration-border underline-offset-2 hover:decoration-foreground"
+                        >
+                          {title}
+                        </Link>
+                      ) : (
+                        <p className="font-semibold text-foreground">{title}</p>
+                      )}
                       {body ? <p className="mt-0.5 text-muted">{body}</p> : null}
                     </div>
                     <button

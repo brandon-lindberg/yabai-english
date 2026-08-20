@@ -1,6 +1,21 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { TeacherCard as TeacherCardData } from "@/lib/teacher-discovery";
 import { buildTeacherCardProfileHref } from "@/lib/teacher-card-href";
+import { buttonClasses } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
+import { Status } from "@/components/ui/status";
+import { DataRow } from "@/components/ui/data-row";
+import { formatYen } from "@/lib/format-money";
+
+/**
+ * One teacher in the browse list.
+ *
+ * This was a bordered card in a two-up grid, so choosing a teacher meant
+ * comparing figures that never lined up in a column. As a ruled row the rates
+ * stack into one right-hand column and can actually be compared down the page —
+ * which is the whole job of this screen.
+ */
 
 type Props = {
   teacher: TeacherCardData;
@@ -8,11 +23,14 @@ type Props = {
   onboardingStep?: string | null;
 };
 
-export function TeacherCard({
+export async function TeacherCard({
   teacher,
   onboardingNext = null,
   onboardingStep = null,
 }: Props) {
+  const locale = await getLocale();
+  const t = await getTranslations("booking");
+
   const profileHref = buildTeacherCardProfileHref(
     teacher.id,
     onboardingNext,
@@ -20,35 +38,45 @@ export function TeacherCard({
   ) as "/book/teachers/[teacherId]";
 
   return (
-    <article className="rounded-2xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
-      <div className="mb-3 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-border bg-background text-xs text-muted">
-        {teacher.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={teacher.imageUrl} alt={teacher.displayName} className="h-full w-full object-cover" />
-        ) : (
-          teacher.displayName.slice(0, 2).toUpperCase()
-        )}
+    <DataRow
+      actions={
+        <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
+          <p className="text-right">
+            <span className="block text-lg font-black tabular-nums leading-none text-foreground">
+              {teacher.rateYen ? formatYen(teacher.rateYen, locale) : "—"}
+            </span>
+            {/* Was hard-coded English ("N available slots") in a product whose
+                audience reads Japanese. ICU handles the plural in en, the 件
+                counter in ja. */}
+            <span className="mt-1 block text-xs text-muted">
+              {t("teacherCardAvailableSlots", { count: teacher.activeAvailabilityCount })}
+            </span>
+          </p>
+          <Link href={profileHref} className={buttonClasses({ size: "sm" })}>
+            {t("teacherCardViewProfile")}
+          </Link>
+        </div>
+      }
+    >
+      <div className="flex items-start gap-4">
+        <Avatar src={teacher.imageUrl} name={teacher.displayName} size="md" />
+        <div className="min-w-0">
+          <h2 className="text-lg font-bold tracking-[-0.02em] text-foreground">
+            {teacher.displayName}
+          </h2>
+          <p className="mt-0.5 text-sm text-muted">
+            {teacher.countryOfOrigin ?? "—"} · {teacher.instructionLanguages.join(", ")}
+          </p>
+          {teacher.specialties.length > 0 ? (
+            <p className="mt-1 text-sm text-muted">{teacher.specialties.join(" · ")}</p>
+          ) : null}
+          {teacher.offersBookableFreeTrial ? (
+            <p className="mt-2">
+              <Status tone="open">{t("freeTrialAvailable")}</Status>
+            </p>
+          ) : null}
+        </div>
       </div>
-      <h2 className="text-lg font-semibold text-foreground">{teacher.displayName}</h2>
-      <p className="mt-1 text-sm text-muted">
-        {teacher.countryOfOrigin ?? "—"} · {teacher.instructionLanguages.join(", ")}
-      </p>
-      {teacher.specialties.length > 0 && (
-        <p className="mt-2 text-sm text-muted">{teacher.specialties.join(" · ")}</p>
-      )}
-      <p className="mt-2 text-sm text-foreground">
-        {teacher.rateYen ? `JPY ${teacher.rateYen.toLocaleString()}` : "JPY —"}
-      </p>
-      <p className="mt-1 text-xs text-muted">
-        {teacher.activeAvailabilityCount} available slot
-        {teacher.activeAvailabilityCount === 1 ? "" : "s"}
-      </p>
-      <Link
-        href={profileHref}
-        className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-      >
-        View profile
-      </Link>
-    </article>
+    </DataRow>
   );
 }

@@ -1,99 +1,261 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
-const { authMock, prismaMock, createUserNotificationMock, createMeetMock } = vi.hoisted(
+const { authMock, prismaMock, createCheckoutMock, calculateFeeMock } = vi.hoisted(
   () => ({
     authMock: vi.fn(),
     prismaMock: {
-      booking: { findUnique: vi.fn(), update: vi.fn() },
-      invoice: { upsert: vi.fn() },
+      $transaction: vi.fn(),
+      booking: { findUnique: vi.fn() },
+      payment: { update: vi.fn() },
+      paymentLedgerEntry: { deleteMany: vi.fn(), createMany: vi.fn() },
+      studentProfile: { upsert: vi.fn() },
     },
-    createUserNotificationMock: vi.fn(),
-    createMeetMock: vi.fn(),
+    createCheckoutMock: vi.fn(),
+    calculateFeeMock: vi.fn(),
   }),
 );
 
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
-vi.mock("@/lib/notifications", () => ({
-  createUserNotification: createUserNotificationMock,
+vi.mock("@/lib/stripe/stripe-connect", () => ({
+  createStripeCheckoutSessionDirectCharge: createCheckoutMock,
+  stripeConnectConfigured: () => true,
 }));
-vi.mock("@/lib/google-calendar", () => ({
-  createMeetLessonEvent: createMeetMock,
-}));
-vi.mock("@/lib/chat-threads", () => ({
-  ensureStudentTeacherThread: vi.fn(),
-}));
-vi.mock("next/cache", () => ({
-  revalidatePath: vi.fn(),
-}));
-vi.mock("@/lib/sync-teacher-roster-after-student-booking", () => ({
-  syncTeacherRosterAfterStudentBooking: vi.fn().mockResolvedValue(undefined),
+vi.mock("@/lib/platform-fees", () => ({
+  calculateMonthlyPlatformFeeForTeacher: calculateFeeMock,
 }));
 
 import { POST } from "@/app/api/bookings/[bookingId]/pay/route";
-import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 
-describe("POST /api/bookings/[bookingId]/pay — teacher notification", () => {
+function baseBooking(overrides: Partial<Record<string, unknown>> = {}) {
   const startsAt = new Date("2026-05-02T00:00:00Z");
+  return {
+    id: "booking-1",
+    studentId: "student-1",
+    teacherId: "teacher-profile-1",
+    status: BookingStatus.PENDING_PAYMENT,
+    startsAt,
+    endsAt: new Date(startsAt.getTime() + 30 * 60 * 1000),
+    quotedPriceYen: 3500,
+    meetUrl: null,
+    googleEventId: null,
+    lessonProduct: { nameEn: "Standard 30", nameJa: "標準 30" },
+    teacher: {
+      id: "teacher-profile-1",
+      userId: "teacher-user-1",
+      calendarId: "primary",
+      googleCalendarRefreshToken: null,
+      availabilitySlots: [{ timezone: "Asia/Tokyo" }],
+      user: { email: "teacher@example.com" },
+    },
+    student: {
+      id: "student-1",
+      email: "student@example.com",
+      name: "Bob Student",
+    },
+    payments: [
+      {
+        id: "payment-1",
+        bookingId: "booking-1",
+        teacherId: "teacher-profile-1",
+        teacherPaymentAccountId: "payacct-1",
+        provider: "STRIPE",
+        method: "CARD",
+        amountYen: 3500,
+        currency: "JPY",
+        status: "CREATED",
+        providerCheckoutId: null,
+        providerPaymentId: null,
+        checkoutUrl: "/book/checkout/booking-1",
+        metadataJson: null,
+        teacherPaymentAccount: {
+          id: "payacct-1",
+          provider: "STRIPE",
+          providerAccountId: "acct_123",
+        },
+      },
+    ],
+    ...overrides,
+  };
+}
 
+describe("POST /api/bookings/[bookingId]/pay", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
-    const baseBooking = {
-      id: "booking-1",
-      studentId: "student-1",
-      status: BookingStatus.PENDING_PAYMENT,
-      startsAt,
-      endsAt: new Date(startsAt.getTime() + 30 * 60 * 1000),
-      quotedPriceYen: 3500,
-      meetUrl: null,
-      googleEventId: null,
-      lessonProduct: { nameEn: "Standard 30", nameJa: "標準 30" },
-      teacher: {
-        id: "teacher-profile-1",
-        userId: "teacher-user-1",
-        calendarId: "primary",
-        googleCalendarRefreshToken: null,
-        availabilitySlots: [{ timezone: "Asia/Tokyo" }],
-        user: { email: "teacher@example.com" },
-      },
-      student: {
-        id: "student-1",
-        email: "student@example.com",
-        name: "Bob Student",
-      },
-    };
-    prismaMock.booking.findUnique.mockResolvedValue(baseBooking);
-    prismaMock.booking.update.mockImplementation(async ({ data }: { data: unknown }) => ({
-      ...baseBooking,
+    const booking = baseBooking();
+    prismaMock.booking.findUnique.mockResolvedValue(booking);
+    prismaMock.payment.update.mockImplementation(async ({ data }: { data: unknown }) => ({
+      ...booking.payments[0],
       ...(data as object),
-      status: BookingStatus.CONFIRMED,
     }));
-    prismaMock.invoice.upsert.mockResolvedValue({});
-    createMeetMock.mockResolvedValue({ meetUrl: null, googleEventId: null });
+    prismaMock.paymentLedgerEntry.deleteMany.mockResolvedValue({ count: 0 });
+    prismaMock.paymentLedgerEntry.createMany.mockResolvedValue({ count: 2 });
+    prismaMock.studentProfile.upsert.mockResolvedValue({ id: "student-profile-1" });
+    prismaMock.$transaction.mockImplementation(
+      async (callback: (tx: typeof prismaMock) => Promise<unknown>) => callback(prismaMock),
+    );
+    calculateFeeMock.mockResolvedValue({
+      feePolicyVersion: "teacher-tiered-monthly-volume-v1",
+      calculatedTier: "TIER_1",
+      effectiveTier: "TIER_2",
+      teacherTier: "TIER_2",
+      overrideActive: true,
+      periodTimeZone: "Asia/Tokyo",
+      periodStart: new Date("2026-04-30T15:00:00.000Z"),
+      periodEnd: new Date("2026-05-31T15:00:00.000Z"),
+      paidLessonOrdinal: 6,
+      rateBps: 1500,
+      applicationFeeAmountYen: 525,
+    });
+    createCheckoutMock.mockResolvedValue({
+      id: "cs_test_123",
+      url: "https://checkout.stripe.com/c/pay/cs_test_123",
+      payment_intent: "pi_test_123",
+    });
   });
 
-  test("notifies the teacher by name and lesson time once payment confirms the booking", async () => {
+  test("starts direct-charge Stripe checkout without confirming the booking", async () => {
     const res = await POST(
-      new Request("http://localhost/api/bookings/booking-1/pay", { method: "POST" }),
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
       { params: Promise.resolve({ bookingId: "booking-1" }) },
     );
 
     expect(res.status).toBe(200);
-    expect(syncTeacherRosterAfterStudentBooking).toHaveBeenCalledWith(
-      prismaMock,
-      { teacherId: "teacher-profile-1", studentUserId: "student-1" },
+    await expect(res.json()).resolves.toEqual(
+      expect.objectContaining({
+        ok: true,
+        paymentId: "payment-1",
+        provider: "STRIPE",
+        method: "CARD",
+        checkoutUrl: "https://checkout.stripe.com/c/pay/cs_test_123",
+      }),
+    );
+    expect(prismaMock.studentProfile.upsert).toHaveBeenCalledWith({
+      where: { userId: "student-1" },
+      create: expect.objectContaining({
+        userId: "student-1",
+        marketplaceTermsAcceptedAt: expect.any(Date),
+      }),
+      update: expect.objectContaining({
+        marketplaceTermsAcceptedAt: expect.any(Date),
+      }),
+    });
+    expect(calculateFeeMock).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        teacherId: "teacher-profile-1",
+        amountYen: 3500,
+        at: expect.any(Date),
+      },
+    );
+    expect(createCheckoutMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        connectedAccountId: "acct_123",
+        paymentId: "payment-1",
+        bookingId: "booking-1",
+        amountYen: 3500,
+        applicationFeeAmountYen: 525,
+        customerEmail: "student@example.com",
+      }),
+    );
+    expect(prismaMock.payment.update).toHaveBeenCalledWith({
+      where: { id: "payment-1" },
+      data: expect.objectContaining({
+        status: "REQUIRES_ACTION",
+        providerCheckoutId: "cs_test_123",
+        providerPaymentId: "pi_test_123",
+        checkoutUrl: "https://checkout.stripe.com/c/pay/cs_test_123",
+        metadataJson: expect.objectContaining({
+          chargeType: "DIRECT_CHARGE",
+          feePolicyVersion: "teacher-tiered-monthly-volume-v1",
+          calculatedTier: "TIER_1",
+          effectiveTier: "TIER_2",
+          teacherTier: "TIER_2",
+          overrideActive: true,
+          applicationFeeAmountYen: 525,
+        }),
+      }),
+    });
+    expect(prismaMock.paymentLedgerEntry.deleteMany).toHaveBeenCalledWith({
+      where: {
+        paymentId: "payment-1",
+        type: { in: ["PLATFORM_FEE", "TEACHER_NET"] },
+      },
+    });
+    expect(prismaMock.paymentLedgerEntry.createMany).toHaveBeenCalledWith({
+      data: [
+        { paymentId: "payment-1", type: "PLATFORM_FEE", amountYen: 525 },
+        { paymentId: "payment-1", type: "TEACHER_NET", amountYen: 2975 },
+      ],
+    });
+  });
+
+  test("never passes platform customer or card-saving flags to the connected-account checkout", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
+      { params: Promise.resolve({ bookingId: "booking-1" }) },
     );
 
-    const teacherCalls = createUserNotificationMock.mock.calls
-      .map((c) => c[0] as { userId: string; titleEn: string; titleJa: string; bodyEn?: string; bodyJa?: string })
-      .filter((c) => c.userId === "teacher-user-1");
-    expect(teacherCalls).toHaveLength(1);
-    const payload = teacherCalls[0];
-    expect(payload.titleEn).toContain("Bob Student");
-    expect(payload.bodyEn).toContain("Bob Student");
-    expect(payload.bodyEn).toContain("09:00");
-    expect(payload.titleJa).toContain("Bob Student");
+    expect(res.status).toBe(200);
+    const checkoutArgs = createCheckoutMock.mock.calls[0][0] as Record<string, unknown>;
+    expect(checkoutArgs).not.toHaveProperty("customerId");
+    expect(checkoutArgs).not.toHaveProperty("savePaymentMethod");
+  });
+
+  test("writes the fee ledger and payment update atomically", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
+      { params: Promise.resolve({ bookingId: "booking-1" }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+  });
+
+  test("rejects checkout when marketplace terms are not accepted", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: false }),
+      }),
+      { params: Promise.resolve({ bookingId: "booking-1" }) },
+    );
+
+    expect(res.status).toBe(400);
+    expect(createCheckoutMock).not.toHaveBeenCalled();
+    expect(prismaMock.studentProfile.upsert).not.toHaveBeenCalled();
+  });
+
+  test("rejects local dev Stripe accounts as not connected", async () => {
+    const booking = baseBooking();
+    booking.payments[0].teacherPaymentAccount.providerAccountId = "acct_local_teacher-profile-1";
+    prismaMock.booking.findUnique.mockResolvedValue(booking);
+
+    const res = await POST(
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
+      { params: Promise.resolve({ bookingId: "booking-1" }) },
+    );
+
+    expect(res.status).toBe(409);
+    expect(createCheckoutMock).not.toHaveBeenCalled();
   });
 });

@@ -3,33 +3,38 @@ import { buildConnectHref } from "@/components/integrations/google-integration-c
 
 describe("buildConnectHref", () => {
   test("returns a stable connect URL without onboardingNext", () => {
-    const href = buildConnectHref("calendar");
-    expect(href).toBe(
-      "/api/integrations/google/connect?feature=calendar&returnTo=" +
-        encodeURIComponent("/dashboard/settings"),
+    // No `feature`: connecting Google is one action that grants every scope.
+    expect(buildConnectHref()).toBe(
+      "/api/integrations/google/connect?returnTo=" + encodeURIComponent("/dashboard/settings"),
     );
+  });
+
+  test("never asks for a subset of permissions", () => {
+    expect(buildConnectHref()).not.toContain("feature=");
+    expect(buildConnectHref("/onboarding/next", "integrations")).not.toContain("feature=");
   });
 
   test("returns an identical URL whether onboardingNext is null or undefined", () => {
-    expect(buildConnectHref("drive", null)).toBe(buildConnectHref("drive", undefined));
+    expect(buildConnectHref(null)).toBe(buildConnectHref(undefined));
   });
 
   test("embeds onboardingNext into returnTo when provided", () => {
-    const href = buildConnectHref("calendar", "/onboarding/next");
+    const href = buildConnectHref("/onboarding/next");
     expect(href).toContain(
       "returnTo=" +
         encodeURIComponent(
-          "/dashboard/settings?onboardingNext=" +
-            encodeURIComponent("/onboarding/next"),
+          "/dashboard/settings?onboardingNext=" + encodeURIComponent("/onboarding/next"),
         ),
     );
-    expect(href).toContain("feature=calendar");
+  });
+
+  test("carries onboardingStep alongside onboardingNext", () => {
+    const href = buildConnectHref("/onboarding/next", "integrations");
+    expect(decodeURIComponent(href)).toContain("onboardingStep=integrations");
   });
 
   test("is deterministic and does not read window", () => {
     // Same inputs always produce the same output regardless of environment.
-    const a = buildConnectHref("meet", "/onboarding/next");
-    const b = buildConnectHref("meet", "/onboarding/next");
-    expect(a).toBe(b);
+    expect(buildConnectHref("/onboarding/next")).toBe(buildConnectHref("/onboarding/next"));
   });
 });

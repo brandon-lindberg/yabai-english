@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { CheckoutTermsAgreementLabel } from "@/components/checkout-terms-agreement-label";
+import { buttonClasses } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
+import { Status } from "@/components/ui/status";
 
 type Props = {
   bookingId: string;
@@ -12,19 +16,29 @@ export function CheckoutPayButton({ bookingId }: Props) {
   const t = useTranslations("booking");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onPay() {
     setLoading(true);
     setError(null);
+    if (!accepted) {
+      setError(t("acceptCheckoutTermsError"));
+      setLoading(false);
+      return;
+    }
     try {
-      const res = await fetch(`/api/bookings/${bookingId}/pay`, { method: "POST" });
-      const data = (await res.json()) as { error?: string };
+      const res = await fetch(`/api/bookings/${bookingId}/pay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      });
+      const data = (await res.json()) as { error?: string; checkoutUrl?: string };
       if (!res.ok) {
         setError(data.error ?? t("paymentFailed"));
         return;
       }
-      router.push("/dashboard");
+      router.push(data.checkoutUrl ?? "/dashboard");
     } catch {
       setError(t("paymentFailed"));
     } finally {
@@ -35,15 +49,18 @@ export function CheckoutPayButton({ bookingId }: Props) {
   return (
     <div className="space-y-3">
       {error && (
-        <p className="text-sm" style={{ color: "var(--app-danger)" }}>
-          {error}
+        <p role="alert">
+          <Status tone="error">{error}</Status>
         </p>
       )}
+      <CheckRow checked={accepted} onChange={setAccepted}>
+        <CheckoutTermsAgreementLabel />
+      </CheckRow>
       <button
         type="button"
         onClick={onPay}
-        disabled={loading}
-        className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+        disabled={loading || !accepted}
+        className={buttonClasses({ size: "lg" })}
       >
         {loading ? "…" : t("payNow")}
       </button>

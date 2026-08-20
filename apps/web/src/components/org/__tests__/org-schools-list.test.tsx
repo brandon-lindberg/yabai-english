@@ -24,7 +24,7 @@ const schoolsResponse = {
       id: "s1",
       slug: "english-school",
       name: "English School",
-      _count: { memberships: 12 },
+      memberCount: 12,
     },
   ],
 };

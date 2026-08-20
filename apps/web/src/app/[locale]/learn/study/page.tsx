@@ -7,6 +7,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
+import { actionLinkClass } from "@/components/ui/inline-link";
+import { PageHeader } from "@/components/ui/page-header";
 
 const TRACK_SLUG = "english-flashcards";
 
@@ -34,12 +36,13 @@ export default async function StudyHubPage({
     <main className="mx-auto max-w-3xl flex-1 px-4 py-10 sm:px-6">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       <p className="text-sm text-muted">
-        <Link href="/dashboard" className="font-medium text-link hover:opacity-90">
+        <Link href="/dashboard" className={actionLinkClass}>
           {t("backToDashboard")}
         </Link>
       </p>
-      <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">{t("title")}</h1>
-      <p className="mt-2 text-muted">{t("subtitle")}</p>
+      <div className="mt-4">
+        <PageHeader title={t("title")} description={t("subtitle")} />
+      </div>
 
       <div className="mt-6">
         <StudyRpgXpBar
@@ -56,21 +59,18 @@ export default async function StudyHubPage({
         />
       </div>
 
-      <section className="mt-8 space-y-4">
+      <section className="mt-8 border-t border-border">
         {overview.levels.map((level) => {
           const title = locale === "ja" ? level.titleJa : level.titleEn;
           return (
-            <article
-              key={level.id}
-              className="rounded-2xl border border-border bg-surface p-5 shadow-sm"
-            >
+            <article key={level.id} className="border-b border-border py-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold text-foreground">{title}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {level.assessmentPassedAt ? (
-                    <span className="rounded-full bg-green-500/15 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400">
+                    <span className="rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs font-medium text-foreground">
                       {t("passed")}
                     </span>
                   ) : null}
@@ -113,7 +113,7 @@ export default async function StudyHubPage({
                     {level.practice.weakCount > 0 ? (
                       <Link
                         href={`/learn/study/${level.levelCode}/practice?focus=weak`}
-                        className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-medium text-foreground"
+                        className="rounded-xl border border-border bg-[var(--app-hover)] px-4 py-2 text-sm font-medium text-foreground"
                       >
                         {t("practiceWeak")} ({level.practice.weakCount})
                       </Link>
@@ -121,7 +121,7 @@ export default async function StudyHubPage({
                     {level.practice.masteredCount > 0 ? (
                       <Link
                         href={`/learn/study/${level.levelCode}/practice?focus=mastered`}
-                        className="rounded-xl border border-green-600/30 bg-green-500/10 px-4 py-2 text-sm font-medium text-foreground"
+                        className="rounded-xl border border-border bg-[var(--app-hover)] px-4 py-2 text-sm font-medium text-foreground"
                       >
                         {t("practiceMastered")} ({level.practice.masteredCount})
                       </Link>
@@ -143,7 +143,7 @@ export default async function StudyHubPage({
       </section>
 
       <p className="mt-10">
-        <Link href="/dashboard" className="text-link text-sm">
+        <Link href="/dashboard" className={`${actionLinkClass} text-sm`}>
           ← {t("backToDashboard")}
         </Link>
       </p>

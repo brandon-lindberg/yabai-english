@@ -4,6 +4,9 @@ import { useState } from "react";
 import { DateTime } from "luxon";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { buttonClasses } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
+import { Status } from "@/components/ui/status";
 
 type Props = {
   bookingId: string;
@@ -74,31 +77,32 @@ export function TeacherBookingRescheduleForm({
       <h2 className="text-sm font-semibold text-foreground">{t("rescheduleTitle")}</h2>
       <p className="text-xs text-muted">{t("rescheduleHelp")}</p>
       {error ? (
-        <p className="text-xs" style={{ color: "var(--app-danger)" }} role="alert">
-          {error}
+        <p role="alert">
+          <Status tone="error">{error}</Status>
         </p>
       ) : null}
       {success && !error ? (
-        <p className="text-xs text-green-700 dark:text-green-400" role="status">
+        <p className="text-xs text-foreground" role="status">
           {t("rescheduleSuccess")}
         </p>
       ) : null}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-        <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs font-medium text-muted">
-          {t("rescheduleLabel")}
-          <input
-            type="datetime-local"
-            value={value}
-            onChange={(ev) => setValue(ev.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
-            disabled={loading}
-            required
-          />
-        </label>
+        <Field label={t("rescheduleLabel")} required className="min-w-0 flex-1">
+          {(field) => (
+            <Input
+              {...field}
+              type="datetime-local"
+              value={value}
+              onChange={(ev) => setValue(ev.target.value)}
+              disabled={loading}
+              required
+            />
+          )}
+        </Field>
         <button
           type="submit"
           disabled={loading}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses()}
         >
           {loading ? t("rescheduleWorking") : t("rescheduleSubmit")}
         </button>

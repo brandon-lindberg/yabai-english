@@ -6,8 +6,8 @@ import {
   isOrgWideAdmin,
   isSchoolAdmin,
   meetsMinimumRole,
-  type MembershipForAuth,
 } from "@/lib/org-authorization";
+import { getOrgCallerMembership } from "@/lib/org/caller-membership";
 
 const updateMemberSchema = z.object({
   orgRole: z.enum(["SCHOOL_ADMIN", "TEACHER", "STUDENT"]).optional(),
@@ -16,19 +16,6 @@ const updateMemberSchema = z.object({
 
 type RouteContext = { params: Promise<{ orgId: string; memberId: string }> };
 
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: { userId, organizationId: orgId, status: "ACTIVE" },
-    select: {
-      id: true, organizationId: true, userId: true,
-      schoolId: true, orgRole: true, status: true,
-    },
-  });
-}
-
 export async function PATCH(req: Request, ctx: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -36,7 +23,7 @@ export async function PATCH(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, memberId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId);
+  const caller = await getOrgCallerMembership(session.user.id, orgId);
   if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -94,7 +81,7 @@ export async function DELETE(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, memberId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId);
+  const caller = await getOrgCallerMembership(session.user.id, orgId);
   if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

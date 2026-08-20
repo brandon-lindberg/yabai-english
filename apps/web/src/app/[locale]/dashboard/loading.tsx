@@ -26,7 +26,7 @@ export default function Loading() {
       </header>
 
       {/* ── Level + action buttons (AppCard) ── */}
-      <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6">
+      <div className="border-y border-border p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           <div className="min-w-0 flex-1">
             <Skeleton height="4" width="full" />
@@ -42,7 +42,7 @@ export default function Loading() {
       {/* ── Two-column: Next lesson + Profile ── */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Next lesson card */}
-        <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6">
+        <div className="border-y border-border p-5 sm:p-6">
           <Skeleton height="6" width="1/2" />
           <div className="mt-3">
             <Skeleton height="4" width="full" />
@@ -60,7 +60,7 @@ export default function Loading() {
           </div>
         </div>
         {/* Profile summary card */}
-        <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+        <div className="border-y border-border py-4">
           <div className="flex items-start gap-4">
             <SkeletonAvatar size="lg" />
             <div className="min-w-0 flex-1">
@@ -85,7 +85,7 @@ export default function Loading() {
       </div>
 
       {/* ── Study highlight ── */}
-      <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <div className="border-y border-border py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <Skeleton height="6" width="1/3" />
           <Skeleton height="4" width="1/4" className="!w-16" />
@@ -109,7 +109,7 @@ export default function Loading() {
       </div>
 
       {/* ── Flashcard stats ── */}
-      <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <div className="border-y border-border py-4">
         <Skeleton height="6" width="1/3" />
         <div className="mt-1">
           <Skeleton height="3" width="2/3" />
@@ -125,7 +125,7 @@ export default function Loading() {
       </div>
 
       {/* ── Quick review ── */}
-      <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <div className="border-y border-border py-4">
         <div className="flex items-center justify-between">
           <Skeleton height="6" width="1/3" />
           <Skeleton height="3" width="1/4" />
@@ -137,7 +137,7 @@ export default function Loading() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="aspect-[3/5] w-full max-w-[11rem] rounded-2xl border-2 border-border bg-background p-3 shadow-md"
+              className="aspect-[3/5] w-full max-w-[11rem] rounded-2xl border-2 border-border bg-background p-3"
             >
               <div className="flex h-full flex-col items-center justify-center gap-2">
                 <Skeleton height="4" width="3/4" />

@@ -12,7 +12,7 @@ export function TeacherLessonRateBasisToggle({ basis, onBasisChange }: Props) {
   const t = useTranslations("dashboard.profilePage");
 
   return (
-    <fieldset className="space-y-2 rounded-xl border-2 border-border bg-surface/60 p-3 shadow-sm">
+    <fieldset className="space-y-2 border-l-2 border-border pl-4">
       <legend className="text-sm font-semibold text-foreground">{t("teacherRatePriceBasisTitle")}</legend>
       <p className="text-xs leading-snug text-muted">{t("teacherRatePriceBasisIntro")}</p>
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-6">

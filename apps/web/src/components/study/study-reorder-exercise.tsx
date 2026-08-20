@@ -19,6 +19,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 function SortableChip({ id, label }: { id: string; label: string }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -32,7 +33,7 @@ function SortableChip({ id, label }: { id: string; label: string }) {
       type="button"
       ref={setNodeRef}
       style={style}
-      className="touch-none rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-medium text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 sm:py-2"
+      className="touch-none rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 sm:py-2"
       {...attributes}
       {...listeners}
     >
@@ -84,16 +85,15 @@ export function StudyReorderExercise({
           </div>
         </SortableContext>
       </DndContext>
-      <p className="text-xs text-muted">{t("reorderPreviewLabel")}</p>
-      <p className="rounded-lg border border-dashed border-border bg-muted/15 px-3 py-2 text-sm text-foreground">{preview}</p>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => onCheck(orderedIds)}
-        className="rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-40"
-      >
+      {/* The sentence you are building is the point of the exercise, so it is
+          set at reading size rather than as a caption under a dashed box. */}
+      <div className="border-t border-border pt-3">
+        <p className="text-sm text-muted">{t("reorderPreviewLabel")}</p>
+        <p className="mt-1 text-base font-medium text-foreground">{preview}</p>
+      </div>
+      <Button disabled={disabled} onClick={() => onCheck(orderedIds)}>
         {t("reorderCheck")}
-      </button>
+      </Button>
     </div>
   );
 }

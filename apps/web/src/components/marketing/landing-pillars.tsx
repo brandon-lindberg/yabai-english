@@ -9,20 +9,28 @@ export async function LandingPillars() {
     { title: t("pillarPracticeTitle"), body: t("pillarPracticeBody") },
   ];
 
+  /*
+    Deliberately looser than the ruled sequence above it: no boxes and no rules,
+    just statements at scale with air around them. The dense passage earns this
+    quiet one, and these are the claims worth reading slowly — continuity with
+    one teacher is the whole product.
+  */
   return (
-    <section className="mt-14">
-      <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{t("pillarsHeading")}</h2>
-      <ul className="mt-6 grid gap-4 sm:grid-cols-3">
+    <section className="mt-24">
+      <h2 className="text-2xl font-black tracking-[-0.03em] text-foreground sm:text-3xl">
+        {t("pillarsHeading")}
+      </h2>
+
+      <dl className="mt-10 flex flex-col gap-10 sm:gap-12">
         {pillars.map((p) => (
-          <li
-            key={p.title}
-            className="rounded-2xl border border-border bg-[var(--app-elevated)] px-5 py-4 text-sm leading-relaxed text-muted"
-          >
-            <span className="font-semibold text-foreground">{p.title}</span>
-            <span className="mt-2 block">{p.body}</span>
-          </li>
+          <div key={p.title} className="max-w-[54ch]">
+            <dt className="text-xl font-bold tracking-[-0.025em] text-foreground sm:text-2xl">
+              {p.title}
+            </dt>
+            <dd className="mt-2 text-base leading-relaxed text-muted sm:text-lg">{p.body}</dd>
+          </div>
         ))}
-      </ul>
+      </dl>
     </section>
   );
 }

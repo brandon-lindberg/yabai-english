@@ -7,6 +7,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import { SiteHeaderPrimaryNav, SiteHeaderMobileNav } from "@/components/shell/site-header-primary-nav";
 import { SiteHeaderUserMenu } from "@/components/shell/site-header-user-menu";
 import { getHeaderPrimaryNavLinks } from "@/lib/shell/header-nav-links";
+import { buttonClasses } from "@/components/ui/button";
 
 export function SiteHeader() {
   const t = useTranslations("common");
@@ -47,7 +48,7 @@ export function SiteHeader() {
               <SiteHeaderPrimaryNav links={navLinks} />
               <Link
                 href="/auth/signin"
-                className="ml-auto inline-flex shrink-0 rounded-full bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                className={buttonClasses({ size: "sm", className: "ml-auto shrink-0" })}
               >
                 {t("signIn")}
               </Link>

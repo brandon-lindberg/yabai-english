@@ -10,7 +10,10 @@ import { redirectTargetForTeacherBookingPage } from "@/lib/teacher-booking-page-
 import { formatYenRange, getTeacherRateRangeByType } from "@/lib/teacher-rate-range";
 import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
-import { AppCard } from "@/components/ui/app-card";
+import { Avatar } from "@/components/ui/avatar";
+import { Section } from "@/components/ui/section";
+import { StatLedger } from "@/components/ui/stat-ledger";
+import { DataList, DataRow } from "@/components/ui/data-row";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
@@ -19,6 +22,8 @@ import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { Status } from "@/components/ui/status";
+import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -65,11 +70,29 @@ export default async function TeacherProfileBookingPage({
     redirect({ href: redirectHref, locale });
   }
 
+  /*
+    `select`, not `include`: a student viewing someone else's profile has no
+    business loading that teacher's `googleCalendarRefreshToken`, which is what
+    `include` returned. Same reason `user` is narrowed — `include` there pulled
+    the teacher's email and account status into the page's data as well.
+  */
   const teacher = await prisma.teacherProfile.findUnique({
     where: { id: teacherId },
-    include: {
+    select: {
+      id: true,
+      userId: true,
+      displayName: true,
+      bio: true,
+      credentials: true,
+      countryOfOrigin: true,
+      specialties: true,
+      instructionLanguages: true,
+      rateYen: true,
+      marketplaceHidden: true,
       user: {
-        include: {
+        select: {
+          name: true,
+          image: true,
           organizationMemberships: {
             where: { status: "ACTIVE" },
             select: { id: true },
@@ -80,14 +103,26 @@ export default async function TeacherProfileBookingPage({
       availabilitySlots: {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
-        include: {
+        select: {
+          id: true,
+          dayOfWeek: true,
+          startMin: true,
+          endMin: true,
+          timezone: true,
+          recurrence: true,
+          startsOn: true,
+          endsOn: true,
+          classLevelId: true,
+          classTypeId: true,
           classLevel: { select: { labelEn: true, labelJa: true } },
           classType: { select: { labelEn: true, labelJa: true } },
+          teacherLessonOffering: { select: { isFreeTrial: true } },
         },
       },
       availabilityOccurrenceSkips: {
         select: { startsAtIso: true },
       },
+      offersFreeTrial: true,
       lessonOfferings: {
         where: { active: true },
         select: { active: true, rateYen: true, isGroup: true },
@@ -187,7 +222,10 @@ export default async function TeacherProfileBookingPage({
     teacher.rateYen,
   );
   const groupRateRange = getTeacherRateRangeByType(teacher.lessonOfferings, "group");
-
+  const offersBookableFreeTrial = teacherHasBookableFreeTrial({
+    offersFreeTrial: teacher.offersFreeTrial,
+    availabilitySlots: teacher.availabilitySlots,
+  });
   const postSignInBookingPath = resolveSafeCallbackUrl(
     buildLocalizedTeacherProfilePath(
       locale,
@@ -203,58 +241,70 @@ export default async function TeacherProfileBookingPage({
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       <PageHeader title={displayName} description={subtitle} />
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <AppCard>
-          <div className="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-border bg-background text-sm text-muted">
-            {teacher.user.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={teacher.user.image} alt={displayName} className="h-full w-full object-cover" />
-            ) : (
-              displayName.slice(0, 2).toUpperCase()
-            )}
-          </div>
+      {/* Two cards side by side made the teacher's identity and their hours read
+          as separate products. They are one page about one person: a portrait
+          block, then the rates as figures, then the hours as a ruled list. */}
+      <div className="mt-8 flex flex-wrap items-start gap-6">
+        <Avatar src={teacher.user.image} name={displayName} size="lg" />
+        <div className="min-w-0 flex-1 space-y-2">
           {teacher.credentials ? (
-            <p className="text-sm text-foreground">{teacher.credentials}</p>
+            <p className="text-base text-foreground">{teacher.credentials}</p>
           ) : null}
-          {teacher.bio ? <p className="mt-2 text-sm text-muted">{teacher.bio}</p> : null}
+          {teacher.bio ? (
+            <p className="max-w-[62ch] leading-relaxed text-muted">{teacher.bio}</p>
+          ) : null}
           {teacher.specialties.length > 0 ? (
-            <p className="mt-3 text-sm text-muted">
+            <p className="text-sm text-muted">
               {t("teacherSpecialties")}: {teacher.specialties.join(" · ")}
             </p>
           ) : null}
-          <p className="mt-3 text-sm font-medium text-foreground">
-            {t("teacherRateIndividual")}: {formatYenRange(individualRateRange)}
-          </p>
-          <p className="mt-1 text-sm font-medium text-foreground">
-            {t("teacherRateGroup")}: {formatYenRange(groupRateRange)}
-          </p>
-        </AppCard>
-
-        <AppCard>
-          <h2 className="text-base font-semibold text-foreground">{t("availability")}</h2>
-          <ul className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
-            {teacher.availabilitySlots.length === 0 ? (
-              <li className="text-sm text-muted">{t("noAvailabilityYet")}</li>
-            ) : (
-              teacher.availabilitySlots.map((slot) => (
-                <li key={slot.id} className="text-sm text-muted">
-                  {weekdayLabel(slot.dayOfWeek, locale)} ·{" "}
-                  {String(Math.floor(slot.startMin / 60)).padStart(2, "0")}:
-                  {String(slot.startMin % 60).padStart(2, "0")} -{" "}
-                  {String(Math.floor(slot.endMin / 60)).padStart(2, "0")}:
-                  {String(slot.endMin % 60).padStart(2, "0")} ({slot.timezone}) ·{" "}
-                  {formatSlotMeta(slot)}
-                </li>
-              ))
-            )}
-          </ul>
-        </AppCard>
+          {offersBookableFreeTrial ? (
+            <p>
+              <Status tone="open">{t("freeTrialAvailable")}</Status>
+            </p>
+          ) : null}
+        </div>
       </div>
 
+      {/* Rates are what a student is here to compare, so they carry themselves
+          at figure scale instead of hiding in a sentence. */}
+      <StatLedger
+        className="mt-8"
+        size="sm"
+        stats={[
+          { label: t("teacherRateIndividual"), value: formatYenRange(individualRateRange) },
+          { label: t("teacherRateGroup"), value: formatYenRange(groupRateRange) },
+        ]}
+      />
+
+      <Section title={t("availability")} className="mt-10">
+        {teacher.availabilitySlots.length === 0 ? (
+          <p className="border-y border-border py-6 text-sm text-muted">{t("noAvailabilityYet")}</p>
+        ) : (
+          <DataList className="max-h-80 overflow-y-auto">
+            {teacher.availabilitySlots.map((slot) => (
+              <DataRow key={slot.id}>
+                <p className="text-sm font-semibold text-foreground">
+                  {weekdayLabel(slot.dayOfWeek, locale)}{" "}
+                  <span className="tabular-nums">
+                    {String(Math.floor(slot.startMin / 60)).padStart(2, "0")}:
+                    {String(slot.startMin % 60).padStart(2, "0")} –{" "}
+                    {String(Math.floor(slot.endMin / 60)).padStart(2, "0")}:
+                    {String(slot.endMin % 60).padStart(2, "0")}
+                  </span>
+                </p>
+                <p className="mt-0.5 text-sm text-muted">
+                  {[slot.timezone, formatSlotMeta(slot)].filter(Boolean).join(" · ")}
+                </p>
+              </DataRow>
+            ))}
+          </DataList>
+        )}
+      </Section>
+
       {session?.user ? (
-        <section className="mt-8 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">{t("scheduleWithTeacher")}</h2>
-          <p className="text-sm text-muted">
+        <Section title={t("scheduleWithTeacher")} size="lg" className="mt-10">
+          <p className="mb-4 text-sm text-muted">
             {t("selectSlot")} · {t("timezoneShownAs")}: {viewerTimezone}
           </p>
           <InlineAlert variant="warning">{t("leadTimeNotice")}</InlineAlert>
@@ -274,7 +324,7 @@ export default async function TeacherProfileBookingPage({
               endsAtIso: b.endsAt.toISOString(),
             }))}
           />
-        </section>
+        </Section>
       ) : (
         <GuestBookLessonCta callbackUrl={postSignInBookingPath} />
       )}

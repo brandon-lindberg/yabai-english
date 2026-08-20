@@ -24,7 +24,7 @@ export default function Loading() {
       </div>
 
       {/* ── XP bar card ── */}
-      <div className="mt-6 rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <div className="mt-6 border-y border-border p-5">
         <Skeleton height="5" width="1/2" />
         <div className="mt-1">
           <Skeleton height="3" width="1/3" />
@@ -42,7 +42,7 @@ export default function Loading() {
         {Array.from({ length: 4 }).map((_, i) => (
           <article
             key={i}
-            className="rounded-2xl border border-border bg-surface p-5 shadow-sm"
+            className="border-y border-border py-4"
           >
             {/* Title + badge row */}
             <div className="flex flex-wrap items-start justify-between gap-3">

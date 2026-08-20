@@ -2,12 +2,11 @@ import { google } from "googleapis";
 import { prisma } from "@/lib/prisma";
 import { encryptIntegrationToken } from "@/lib/calendar-token";
 import {
-  buildGoogleFeatureState,
+  ALL_GOOGLE_SCOPES,
+  buildGoogleConnectState,
   buildPostCallbackReturnUrl,
   deriveConnectionFlags,
-  featureFromState,
-  scopesForFeature,
-  type IntegrationFeature,
+  parseGoogleConnectState,
 } from "@/lib/google/integration";
 import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
 
@@ -30,17 +29,16 @@ function requireGoogleClient() {
 
 export function buildGoogleConnectUrl(req: Request, params: {
   userId: string;
-  feature: IntegrationFeature;
   returnTo?: string;
 }) {
   const creds = requireGoogleClient();
   if (!creds) return null;
   const baseUrl = resolveBaseUrl(req);
   const redirectUri = `${baseUrl}/api/integrations/google/callback`;
-  const scope = scopesForFeature(params.feature).join(" ");
-  const state = buildGoogleFeatureState({
+  // Every scope, one consent screen, one round trip.
+  const scope = ALL_GOOGLE_SCOPES.join(" ");
+  const state = buildGoogleConnectState({
     userId: params.userId,
-    feature: params.feature,
     returnTo: params.returnTo ?? DASHBOARD_GOOGLE_SETTINGS_PATH,
   });
   return (
@@ -57,7 +55,7 @@ export function buildGoogleConnectUrl(req: Request, params: {
 }
 
 export async function handleGoogleCallback(req: Request, code: string, state: string) {
-  const parsed = featureFromState(state);
+  const parsed = parseGoogleConnectState(state);
   if (!parsed) {
     return { ok: false as const, redirectTo: `${DASHBOARD_GOOGLE_SETTINGS_PATH}?google=invalid_state` };
   }
@@ -65,10 +63,7 @@ export async function handleGoogleCallback(req: Request, code: string, state: st
   if (!creds) {
     return {
       ok: false as const,
-      redirectTo: buildPostCallbackReturnUrl(parsed.returnTo, {
-        google: "misconfigured",
-        feature: parsed.feature,
-      }),
+      redirectTo: buildPostCallbackReturnUrl(parsed.returnTo, { google: "misconfigured" }),
     };
   }
   const baseUrl = resolveBaseUrl(req);
@@ -125,48 +120,37 @@ export async function handleGoogleCallback(req: Request, code: string, state: st
     },
   });
 
-  const existingSettings = await prisma.googleIntegrationSettings.findUnique({
-    where: { userId: parsed.userId },
-  });
+  /*
+    The flags are now exactly what Google granted.
 
-  // OAuth consent is feature-scoped in this flow. Google can occasionally return
-  // partial/normalized scope echoes, so we treat the selected feature as connected
-  // after a successful callback and preserve previously connected features.
-  const nextCalendarConnected =
-    parsed.feature === "calendar"
-      ? true
-      : (existingSettings?.calendarConnected ?? false) || flags.calendarConnected;
-  const nextDriveConnected =
-    parsed.feature === "drive"
-      ? true
-      : (existingSettings?.driveConnected ?? false) || flags.driveConnected;
-  const nextMeetConnected =
-    parsed.feature === "meet"
-      ? true
-      : (existingSettings?.meetConnected ?? false) || flags.meetConnected;
-
+    They used to be OR-ed with whatever was already stored and force-set to true
+    for the feature whose button you pressed, because consent was per-feature
+    and Google's scope echo was unreliable. With a single all-scope consent,
+    that fudge would actively lie: a user who declines Drive on the consent
+    screen must not end up with `driveConnected: true` and a Drive call that
+    fails at runtime.
+  */
   await prisma.googleIntegrationSettings.upsert({
     where: { userId: parsed.userId },
     create: {
       userId: parsed.userId,
-      calendarConnected: nextCalendarConnected,
-      driveConnected: nextDriveConnected,
-      meetConnected: nextMeetConnected,
-      artifactSyncEnabled: parsed.feature === "meet" ? true : false,
+      calendarConnected: flags.calendarConnected,
+      driveConnected: flags.driveConnected,
+      meetConnected: flags.meetConnected,
+      artifactSyncEnabled: flags.meetConnected,
     },
     update: {
-      calendarConnected: nextCalendarConnected,
-      driveConnected: nextDriveConnected,
-      meetConnected: nextMeetConnected,
-      artifactSyncEnabled: parsed.feature === "meet" ? true : undefined,
+      calendarConnected: flags.calendarConnected,
+      driveConnected: flags.driveConnected,
+      meetConnected: flags.meetConnected,
+      // Only turn syncing on when Meet is granted; never turn off a preference
+      // the user set for themselves.
+      artifactSyncEnabled: flags.meetConnected ? true : undefined,
     },
   });
 
   return {
     ok: true as const,
-    redirectTo: buildPostCallbackReturnUrl(parsed.returnTo, {
-      google: "connected",
-      feature: parsed.feature,
-    }),
+    redirectTo: buildPostCallbackReturnUrl(parsed.returnTo, { google: "connected" }),
   };
 }

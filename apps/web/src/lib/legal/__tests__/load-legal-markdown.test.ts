@@ -6,6 +6,9 @@ describe("loadLegalMarkdown", () => {
     const terms = await loadLegalMarkdown("terms", "en");
     expect(terms).toContain("English Studio Japan");
     expect(terms).toContain("Limitation of liability");
+    expect(terms).toContain("teacher is responsible for the full refund amount");
+    expect(terms).toContain("Tier 1 applies 20% for lessons 1-5");
+    expect(terms).toContain("Tier 3 applies a flat 10%");
     expect(terms).toMatch(/COPPA|Children’s Online Privacy Protection Act/i);
     expect(terms).toMatch(/18 years of age/i);
 
@@ -20,6 +23,9 @@ describe("loadLegalMarkdown", () => {
     const terms = await loadLegalMarkdown("terms", "ja");
     expect(terms).toContain("English Studio Japan");
     expect(terms).toContain("責任制限");
+    expect(terms).toContain("受講生に返金すべき全額について講師が責任を負います");
+    expect(terms).toContain("Tier 1 は1〜5回目20%");
+    expect(terms).toContain("Tier 3 は一律10%");
     expect(terms).toContain("COPPA");
     expect(terms).toContain("満18歳以上");
 
@@ -36,5 +42,24 @@ describe("isLegalLocale", () => {
     expect(isLegalLocale("en")).toBe(true);
     expect(isLegalLocale("ja")).toBe(true);
     expect(isLegalLocale("fr")).toBe(false);
+  });
+});
+
+describe("role-specific legal documents", () => {
+  test("loads teacher and student marketplace terms and refund policies", async () => {
+    const teacherTerms = await loadLegalMarkdown("terms-teachers", "en");
+    expect(teacherTerms).toContain("Teacher Marketplace Terms");
+    expect(teacherTerms).toContain("Tier 1");
+
+    const studentTerms = await loadLegalMarkdown("terms-students", "en");
+    expect(studentTerms).toContain("Student Marketplace Terms");
+
+    const teacherRefund = await loadLegalMarkdown("refund-teachers", "en");
+    expect(teacherRefund).toContain("returns the platform fee");
+
+    const studentRefund = await loadLegalMarkdown("refund-students", "en");
+    expect(studentRefund).toContain("Student Refund Policy");
+    expect(studentRefund).not.toMatch(/platform fee/i);
+    expect(studentRefund).toContain("100% of the lesson price");
   });
 });

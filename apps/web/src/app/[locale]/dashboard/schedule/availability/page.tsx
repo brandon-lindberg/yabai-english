@@ -1,12 +1,20 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { TeacherAvailabilityCalendar } from "@/components/dashboard/teacher-availability-calendar";
+import { AppCard } from "@/components/ui/app-card";
+import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
+import {
+  canTeacherPublishAvailability,
+  resolveTeacherPublishAvailabilityOptions,
+} from "@/lib/payment-methods";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { buttonClasses } from "@/components/ui/button";
+import { ensureFreeTrialOffering } from "@/lib/free-trial-offering-sync";
 
 export default async function DashboardScheduleAvailabilityPage({
   searchParams,
@@ -26,9 +34,14 @@ export default async function DashboardScheduleAvailabilityPage({
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
 
+  // `select`, not `include`: this page needs none of the profile's scalars
+  // beyond the two below, and `include` was reading the refresh token with them.
   const profile = await prisma.teacherProfile.findUnique({
     where: { userId: session.user.id },
-    include: {
+    select: {
+      id: true,
+      paymentPolicyAcceptedAt: true,
+      offersFreeTrial: true,
       availabilitySlots: {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
@@ -47,6 +60,17 @@ export default async function DashboardScheduleAvailabilityPage({
       },
       availabilityOccurrenceSkips: {
         select: { startsAtIso: true },
+      },
+      paymentAccounts: {
+        select: {
+          id: true,
+          provider: true,
+          providerAccountId: true,
+          status: true,
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: { select: { method: true, enabled: true } },
+        },
       },
       classLevels: {
         where: { active: true },
@@ -67,43 +91,78 @@ export default async function DashboardScheduleAvailabilityPage({
     return null;
   }
 
+  // The picker offers a slot's class from the teacher's offerings, so the trial
+  // has to exist before the editor renders or there is nothing to select.
+  await ensureFreeTrialOffering(prisma, {
+    teacherId: profile.id,
+    offersFreeTrial: profile.offersFreeTrial,
+  });
+
   const teacherBookings = await getTeacherBookingsForDashboard(prisma, profile.id);
+  const publishAvailabilityOptions = resolveTeacherPublishAvailabilityOptions();
+  const canPublishAvailability = canTeacherPublishAvailability(
+    profile.paymentPolicyAcceptedAt,
+    profile.paymentAccounts,
+    publishAvailabilityOptions,
+  );
 
   return (
     <div className="space-y-8">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       <p className="text-muted">{t("availabilityIntro")}</p>
 
-      <TeacherAvailabilityCalendar
-        initialSlots={profile.availabilitySlots.map((slot) => ({
-          id: slot.id,
-          dayOfWeek: slot.dayOfWeek,
-          startMin: slot.startMin,
-          endMin: slot.endMin,
-          timezone: slot.timezone,
-          recurrence: slot.recurrence,
-          startsOn: dateOnlyInZone(slot.startsOn, slot.timezone),
-          endsOn: dateOnlyInZone(slot.endsOn, slot.timezone),
-          classLevelId: slot.classLevelId,
-          classTypeId: slot.classTypeId,
-          teacherLessonOfferingId: slot.teacherLessonOfferingId,
-          classLevel: slot.classLevel,
-          classType: slot.classType,
-        }))}
-        initialOccurrenceSkips={profile.availabilityOccurrenceSkips.map((s) => s.startsAtIso)}
-        defaultTimezone={profile.availabilitySlots[0]?.timezone ?? "Asia/Tokyo"}
-        classLevels={profile.classLevels}
-        classTypes={profile.classTypes}
-        lessonOfferings={profile.lessonOfferings}
-        bookings={teacherBookings.bookings
-          .filter((b) => b.status !== "CANCELLED")
-          .map((b) => ({
+      {canPublishAvailability ? (
+        <TeacherAvailabilityCalendar
+          initialSlots={profile.availabilitySlots.map((slot) => ({
+            id: slot.id,
+            dayOfWeek: slot.dayOfWeek,
+            startMin: slot.startMin,
+            endMin: slot.endMin,
+            timezone: slot.timezone,
+            recurrence: slot.recurrence,
+            startsOn: dateOnlyInZone(slot.startsOn, slot.timezone),
+            endsOn: dateOnlyInZone(slot.endsOn, slot.timezone),
+            classLevelId: slot.classLevelId,
+            classTypeId: slot.classTypeId,
+            teacherLessonOfferingId: slot.teacherLessonOfferingId,
+            classLevel: slot.classLevel,
+            classType: slot.classType,
+          }))}
+          initialOccurrenceSkips={profile.availabilityOccurrenceSkips.map((s) => s.startsAtIso)}
+          defaultTimezone={profile.availabilitySlots[0]?.timezone ?? "Asia/Tokyo"}
+          classLevels={profile.classLevels}
+          classTypes={profile.classTypes}
+          lessonOfferings={profile.lessonOfferings}
+          bookings={teacherBookings.bookings
+            .filter((b) => b.status !== "CANCELLED")
+            .map((b) => ({
             id: b.id,
             startsAtIso: b.startsAt.toISOString(),
             endsAtIso: b.endsAt.toISOString(),
             studentLabel: b.student.name ?? b.student.email ?? "Student",
           }))}
-      />
+        />
+      ) : (
+        <AppCard>
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">
+                {t("availabilityPaymentRequiredTitle")}
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                {t("availabilityPaymentRequiredBody")}
+              </p>
+            </div>
+            <PaymentPolicyNotice audience="teacher" />
+            <Link
+              href="/dashboard/settings?tab=payments"
+              className={buttonClasses({ size: "lg" })}
+            >
+              {t("availabilityPaymentRequiredCta")}
+            </Link>
+          </div>
+        </AppCard>
+      )}
     </div>
   );
 }

@@ -2,17 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
-
-type Props = {
-  feature: "calendar" | "drive" | "meet";
-  connected: boolean;
-  onboardingNext?: string | null;
-  onboardingStep?: string | null;
-};
+import { Button, buttonClasses } from "@/components/ui/button";
 
 export function buildConnectHref(
-  feature: Props["feature"],
   onboardingNext?: string | null,
   onboardingStep?: string | null,
 ): string {
@@ -26,47 +20,54 @@ export function buildConnectHref(
   }
   const qs = returnParams.toString();
   const returnTo = qs ? `${basePath}?${qs}` : basePath;
-  return `/api/integrations/google/connect?feature=${feature}&returnTo=${encodeURIComponent(returnTo)}`;
+  return `/api/integrations/google/connect?returnTo=${encodeURIComponent(returnTo)}`;
 }
 
 export function GoogleIntegrationCardActions({
-  feature,
   connected,
   onboardingNext = null,
   onboardingStep = null,
-}: Props) {
+}: {
+  connected: boolean;
+  onboardingNext?: string | null;
+  onboardingStep?: string | null;
+}) {
   const router = useRouter();
+  const t = useTranslations("dashboard.integrationsPage");
   const [busy, setBusy] = useState(false);
 
   async function disconnect() {
     setBusy(true);
-    await fetch("/api/integrations/google/disconnect", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ feature }),
-    });
+    await fetch("/api/integrations/google/disconnect", { method: "POST" });
     setBusy(false);
     router.refresh();
   }
 
   return (
-    <div className="mt-3 flex gap-2">
+    <>
       <a
-        href={buildConnectHref(feature, onboardingNext, onboardingStep)}
-        className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+        href={buildConnectHref(onboardingNext, onboardingStep)}
+        className={buttonClasses({
+          size: "sm",
+          /*
+            Reconnecting stays secondary even on a partial grant.
+
+            A missing permission is not necessarily a mistake to correct: the
+            user may have declined it deliberately on Google's consent screen.
+            Google's OAuth policy is explicit that a declined scope should only
+            be re-requested once the user shows intent to use that feature, so
+            the control is offered and never urged.
+          */
+          variant: connected ? "secondary" : "primary",
+        })}
       >
-        {connected ? "Reconnect" : "Connect"}
+        {connected ? t("reconnect") : t("connect")}
       </a>
       {connected ? (
-        <button
-          type="button"
-          disabled={busy}
-          onClick={disconnect}
-          className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)] disabled:opacity-60"
-        >
-          Disconnect
-        </button>
+        <Button variant="secondary" size="sm" loading={busy} onClick={() => void disconnect()}>
+          {t("disconnect")}
+        </Button>
       ) : null}
-    </div>
+    </>
   );
 }

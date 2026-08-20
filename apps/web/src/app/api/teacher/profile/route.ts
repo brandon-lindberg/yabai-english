@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
+import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
 
 const patchSchema = z.object({
   displayName: z.string().min(1).max(100).trim().optional(),
@@ -18,6 +19,7 @@ const patchSchema = z.object({
   offersFreeTrial: z.boolean().optional(),
   /** When true, teacher is hidden from /book and only rostered students may book via direct link. */
   marketplaceHidden: z.boolean().optional(),
+  /** When true, the 10% refund processing fee is deducted from the student's refund instead of covered by the teacher. */
   lessonOfferings: z
     .array(
       z.object({
@@ -49,6 +51,19 @@ export async function PATCH(req: Request) {
 
   const userId = session.user.id;
   const data = parsed.data;
+  const fallbackRateCheck = validatePublicLessonRateYen(data.rateYen);
+  if (!fallbackRateCheck.ok) {
+    return NextResponse.json({ error: fallbackRateCheck.error }, { status: 400 });
+  }
+  const invalidOfferingRate = data.lessonOfferings?.find(
+    (offering) => !validatePublicLessonRateYen(offering.rateYen).ok,
+  );
+  if (invalidOfferingRate) {
+    return NextResponse.json(
+      { error: "Public lesson rates must be at least ¥3,000." },
+      { status: 400 },
+    );
+  }
 
   let profile;
   try {
@@ -83,6 +98,27 @@ export async function PATCH(req: Request) {
           : {}),
       },
     });
+
+    // Opting out has to retire the trial hours too. A published trial slot keeps
+    // matching bookings on duration alone, so leaving it active would sell a
+    // trial the teacher just said they do not offer.
+    if (data.offersFreeTrial === false) {
+      const trialOfferings = await tx.teacherLessonOffering.findMany({
+        where: { teacherId: updated.id, isFreeTrial: true },
+        select: { id: true },
+      });
+      if (trialOfferings.length > 0) {
+        const trialOfferingIds = trialOfferings.map((offering) => offering.id);
+        await tx.availabilitySlot.updateMany({
+          where: { teacherLessonOfferingId: { in: trialOfferingIds } },
+          data: { active: false },
+        });
+        await tx.teacherLessonOffering.updateMany({
+          where: { id: { in: trialOfferingIds } },
+          data: { active: false },
+        });
+      }
+    }
 
     if (data.lessonOfferings !== undefined) {
       const refTypeIds = Array.from(

@@ -1,71 +1,113 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import { bookingStatusKey } from "@/lib/booking-status";
-import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
-import { AppCard } from "@/components/ui/app-card";
+import type { BookingStatus } from "@/generated/prisma/enums";
+import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
+import { Status } from "@/components/ui/status";
+import { buttonClasses } from "@/components/ui/button";
 
-type Upcoming = Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["upcoming"];
+/**
+ * The dashboard's focal moment, for whoever is looking at it.
+ *
+ * This was written for students, typed to the student booking query, and its
+ * own comment asserted that the next lesson is "the single thing a student
+ * opens the dashboard to find out" — without ever asking whether that is also
+ * true of a teacher. It is. The teacher dashboard opened on a ledger of counts
+ * and buried the next lesson in a list.
+ *
+ * So the shape is normalised: whoever the other person is, they are the
+ * counterpart. What differs between the flows is only what to offer when there
+ * is no next lesson — a student books one, a teacher opens their availability.
+ */
 
-export async function DashboardNextLesson({ upcoming }: { upcoming: Upcoming }) {
+export type NextLessonView = {
+  id: string;
+  startsAt: Date;
+  endsAt: Date;
+  /** The other person: the teacher for a student, the student for a teacher. */
+  counterpartName: string;
+  lessonNameJa: string;
+  lessonNameEn: string;
+  status: BookingStatus;
+  meetUrl: string | null;
+};
+
+export async function DashboardNextLesson({
+  next,
+  emptyMessage,
+  emptyAction,
+}: {
+  next: NextLessonView | null;
+  emptyMessage: string;
+  emptyAction: ReactNode;
+}) {
   const locale = await getLocale();
   const t = await getTranslations("dashboard");
   const th = await getTranslations("dashboard.highlights");
-  const next = upcoming[0];
 
   if (!next) {
     return (
-      <AppCard className="border-dashed border-border/80 bg-surface/80">
-        <h2 className="text-lg font-semibold text-foreground">{th("nextLessonTitle")}</h2>
-        <p className="mt-2 text-sm text-muted">{th("noNextLesson")}</p>
-        <Link
-          href="/book"
-          className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+      <section className="border-t border-border pt-6" aria-labelledby="next-lesson-heading">
+        <h2
+          id="next-lesson-heading"
+          className="text-xl font-bold tracking-[-0.02em] text-foreground"
         >
-          {th("bookCta")}
-        </Link>
-      </AppCard>
+          {th("nextLessonTitle")}
+        </h2>
+        <p className="mt-2 max-w-[52ch] text-base text-muted">{emptyMessage}</p>
+        <div className="mt-5">{emptyAction}</div>
+      </section>
     );
   }
 
   return (
-    <AppCard>
-      <h2 className="text-lg font-semibold text-foreground">{th("nextLessonTitle")}</h2>
-      <p className="mt-2 font-medium text-foreground">
-        {next.lessonProduct.nameJa} / {next.lessonProduct.nameEn}
+    <section className="border-t border-border pt-6" aria-labelledby="next-lesson-heading">
+      {/*
+        The heading is screen-reader-only on purpose. A small "Next lesson"
+        label above a large date would be an eyebrow, which DESIGN.md §4 bans —
+        the date carries its own weight and the landmark stays labelled.
+      */}
+      <h2 id="next-lesson-heading" className="sr-only">
+        {th("nextLessonTitle")}
+      </h2>
+
+      <LocalBookingDateTimeRange
+        locale={locale}
+        startsAtIso={next.startsAt.toISOString()}
+        endsAtIso={next.endsAt.toISOString()}
+        className="block text-[clamp(1.75rem,4.5vw,3.25rem)] font-black leading-[1.05] tracking-[-0.035em] tabular-nums text-foreground"
+      />
+
+      {/* The other person, named and prominent: continuity with one person is
+          the product's whole thesis, and it was previously a grey line. */}
+      <p className="mt-3 text-lg font-bold tracking-[-0.02em] text-foreground">
+        {next.counterpartName}
       </p>
-      <p className="mt-1 text-sm text-muted">
-        <LocalBookingDateTimeRange
-          locale={locale}
-          startsAtIso={next.startsAt.toISOString()}
-          endsAtIso={next.endsAt.toISOString()}
-        />
+      <p className="mt-0.5 text-sm text-muted">
+        {next.lessonNameJa} / {next.lessonNameEn}
       </p>
-      <p className="mt-1 text-sm text-muted">
-        {t("teacher")}: {next.teacher.user.name ?? next.teacher.user.email}
-      </p>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">
-          {t(bookingStatusKey(next.status))}
-        </span>
-        {next.meetUrl && next.status === "CONFIRMED" && (
+
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <Status tone={bookingStatusTone(next.status)}>{t(bookingStatusKey(next.status))}</Status>
+        {next.meetUrl && next.status === "CONFIRMED" ? (
           <a
             href={next.meetUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-semibold text-link hover:opacity-90"
+            className={buttonClasses({ size: "sm" })}
           >
             {t("meetLink")}
           </a>
-        )}
-        <Link href="/dashboard/schedule" className="text-sm text-link">
+        ) : null}
+        <Link href="/dashboard/schedule" className={buttonClasses({ variant: "ghost", size: "sm" })}>
           {th("fullSchedule")}
         </Link>
-        {(next.status === "CONFIRMED" || next.status === "PENDING_PAYMENT") && (
+        {next.status === "CONFIRMED" || next.status === "PENDING_PAYMENT" ? (
           <BookingCancelButton bookingId={next.id} />
-        )}
+        ) : null}
       </div>
-    </AppCard>
+    </section>
   );
 }

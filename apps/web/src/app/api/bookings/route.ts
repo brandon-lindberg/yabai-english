@@ -18,7 +18,6 @@ import {
   teacherHasOfferingForProduct,
 } from "@/lib/lesson-products";
 import { resolveQuotedPriceYen } from "@/lib/booking-price-resolution";
-import { bookingStartMatchesTeacherAvailability } from "@/lib/booking-availability-match";
 import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
@@ -26,11 +25,48 @@ import { BookingStatus, LessonTier } from "@/generated/prisma/client";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
+import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import {
+  claimFreeTrialWithTeacher,
+  FreeTrialAlreadyUsedError,
+  resolveFreeTrialEligibility,
+} from "@/lib/free-trial-eligibility";
+import { validateBookingAgainstTeacherAvailability } from "@/lib/booking-slot-validation";
+import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import {
+  SUPPORTED_PAYMENT_METHODS,
+  SUPPORTED_PAYMENT_PROVIDERS,
+} from "@/lib/payment-methods";
+
+const teacherAvailabilityInclude = {
+  availabilitySlots: {
+    where: { active: true },
+    select: {
+      id: true,
+      dayOfWeek: true,
+      startMin: true,
+      endMin: true,
+      timezone: true,
+      recurrence: true,
+      startsOn: true,
+      endsOn: true,
+      classLevelId: true,
+      classTypeId: true,
+      teacherLessonOfferingId: true,
+    },
+  },
+  availabilityOccurrenceSkips: {
+    select: { startsAtIso: true },
+  },
+} as const;
 
 const postSchema = z.object({
   lessonProductId: z.string().min(1),
   teacherProfileId: z.string().min(1).optional(),
   teacherLessonOfferingId: z.string().min(1).optional(),
+  paymentAccountId: z.string().min(1).optional(),
+  paymentProvider: z.enum(SUPPORTED_PAYMENT_PROVIDERS).optional(),
+  paymentMethod: z.enum(SUPPORTED_PAYMENT_METHODS).optional(),
   startsAt: z.string().datetime(),
   manualOverride: z.boolean().optional(),
   manualOverrideReason: z.string().max(500).optional(),
@@ -56,6 +92,9 @@ export async function POST(req: Request) {
     teacherProfileId,
     teacherLessonOfferingId,
     startsAt,
+    paymentAccountId,
+    paymentProvider,
+    paymentMethod,
     manualOverride,
     manualOverrideReason,
   } = parsed.data;
@@ -109,23 +148,18 @@ export async function POST(req: Request) {
               },
             },
             lessonOfferings: { include: { classType: true } },
-            availabilitySlots: {
-              where: { active: true },
+            paymentAccounts: {
               select: {
-                dayOfWeek: true,
-                startMin: true,
-                endMin: true,
-                timezone: true,
-                recurrence: true,
-                startsOn: true,
-                endsOn: true,
-                classTypeId: true,
-                teacherLessonOfferingId: true,
+                id: true,
+                provider: true,
+                providerAccountId: true,
+                status: true,
+                chargesEnabled: true,
+                payoutsEnabled: true,
+                methods: { select: { method: true, enabled: true } },
               },
             },
-            availabilityOccurrenceSkips: {
-              select: { startsAtIso: true },
-            },
+            ...teacherAvailabilityInclude,
           },
         })
       : null) ??
@@ -141,23 +175,18 @@ export async function POST(req: Request) {
           },
         },
         lessonOfferings: { include: { classType: true } },
-        availabilitySlots: {
-          where: { active: true },
+        paymentAccounts: {
           select: {
-            dayOfWeek: true,
-            startMin: true,
-            endMin: true,
-            timezone: true,
-            recurrence: true,
-            startsOn: true,
-            endsOn: true,
-            classTypeId: true,
-            teacherLessonOfferingId: true,
+            id: true,
+            provider: true,
+            providerAccountId: true,
+            status: true,
+            chargesEnabled: true,
+            payoutsEnabled: true,
+            methods: { select: { method: true, enabled: true } },
           },
         },
-        availabilityOccurrenceSkips: {
-          select: { startsAtIso: true },
-        },
+        ...teacherAvailabilityInclude,
       },
     }));
 
@@ -192,6 +221,29 @@ export async function POST(req: Request) {
     );
   }
 
+  // Eligibility is cheap and definitive, so it settles before any scheduling
+  // work. It also has to precede the payment-flow decision: an ineligible free
+  // trial is still quoted at 0 yen, and a 0 yen checkout is not a thing Stripe
+  // will accept.
+  const trialEligibility = await resolveFreeTrialEligibility(prisma, {
+    studentId: session.user.id,
+    teacherId: teacher.id,
+    teacherOffersFreeTrial: teacher.offersFreeTrial,
+  });
+
+  if (product.tier === LessonTier.FREE_TRIAL && !trialEligibility.eligible) {
+    return NextResponse.json(
+      {
+        error:
+          trialEligibility.reason === "TEACHER_DOES_NOT_OFFER"
+            ? "This teacher does not offer a free trial lesson."
+            : "You have already used your free trial lesson with this teacher.",
+        reason: trialEligibility.reason,
+      },
+      { status: 409 },
+    );
+  }
+
   if (!canTeacherOfferProduct(product.tier, teacher.offersFreeTrial)) {
     return NextResponse.json(
       { error: "This teacher does not offer a free trial lesson." },
@@ -217,30 +269,6 @@ export async function POST(req: Request) {
   if (!selectedOffering && !teacherHasOfferingForProduct(teacher.lessonOfferings, product)) {
     return NextResponse.json(
       { error: "This teacher does not offer this lesson type." },
-      { status: 409 },
-    );
-  }
-
-  if (
-    Array.isArray(teacher.availabilitySlots) &&
-    !bookingStartMatchesTeacherAvailability({
-      availabilitySlots: teacher.availabilitySlots,
-      startsAt: start,
-      durationMin: product.durationMin,
-      selectedOffering: selectedOffering
-        ? {
-            id: selectedOffering.id,
-            durationMin: selectedOffering.durationMin,
-            classTypeId: selectedOffering.classTypeId,
-          }
-        : null,
-      skippedStartsAtIso: new Set(
-        (teacher.availabilityOccurrenceSkips ?? []).map((skip) => skip.startsAtIso),
-      ),
-    })
-  ) {
-    return NextResponse.json(
-      { error: "Selected time is no longer available." },
       { status: 409 },
     );
   }
@@ -319,6 +347,32 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No student profile" }, { status: 400 });
   }
 
+  const slotValidation = validateBookingAgainstTeacherAvailability({
+    startsAtIso: start.toISOString(),
+    durationMin: product.durationMin,
+    availabilitySlots: teacher.availabilitySlots.map((slot) => ({
+      id: slot.id,
+      dayOfWeek: slot.dayOfWeek,
+      startMin: slot.startMin,
+      endMin: slot.endMin,
+      timezone: slot.timezone,
+      recurrence: slot.recurrence,
+      startsOn: dateOnlyInZone(slot.startsOn, slot.timezone),
+      endsOn: dateOnlyInZone(slot.endsOn, slot.timezone),
+      classLevelId: slot.classLevelId,
+      classTypeId: slot.classTypeId,
+    })),
+    occurrenceSkips: teacher.availabilityOccurrenceSkips.map((skip) => skip.startsAtIso),
+    viewerTimezone:
+      student.studentProfile.timezone ??
+      teacher.availabilitySlots[0]?.timezone ??
+      "Asia/Tokyo",
+    minimumLeadHours: canBypass && manualOverride ? 0 : 48,
+  });
+  if (!slotValidation.ok) {
+    return NextResponse.json({ error: slotValidation.error }, { status: 409 });
+  }
+
   const isFreeTrial = product.tier === LessonTier.FREE_TRIAL;
   const studentOverride = selectedOffering
     ? await prisma.teacherStudentLessonRate.findUnique({
@@ -339,9 +393,38 @@ export async function POST(req: Request) {
     studentOverride: studentOverride?.active ? studentOverride : null,
   });
 
-  if (isFreeTrial && student.studentProfile.trialLessonUsedAt) {
+  const teacherPaymentAccounts = (teacher as {
+    paymentAccounts?: Parameters<typeof getEnabledTeacherPaymentMethods>[0];
+  }).paymentAccounts;
+  const teacherPaymentPolicyAccepted = teacherPaymentAccounts
+    ? Boolean((teacher as { paymentPolicyAcceptedAt?: Date | null }).paymentPolicyAcceptedAt)
+    : true;
+  const enabledPaymentMethods = teacherPaymentAccounts
+    ? teacherPaymentPolicyAccepted
+      ? getEnabledTeacherPaymentMethods(teacherPaymentAccounts)
+      : []
+    : [
+        {
+          accountId: "",
+          provider: "STRIPE" as const,
+          method: "CARD" as const,
+          label: "Credit card",
+          logoLabel: "Stripe",
+          logoClassName: "bg-[#635bff] text-white",
+        },
+      ];
+  const selectedPaymentMethod = isFreeTrial
+    ? null
+    : enabledPaymentMethods.find((m) => {
+        if (paymentAccountId && m.accountId !== paymentAccountId) return false;
+        if (paymentProvider && m.provider !== paymentProvider) return false;
+        if (paymentMethod && m.method !== paymentMethod) return false;
+        return true;
+      }) ?? enabledPaymentMethods[0] ?? null;
+
+  if (!isFreeTrial && !selectedPaymentMethod) {
     return NextResponse.json(
-      { error: "Free trial lesson already used" },
+      { error: "This teacher has not enabled payments yet." },
       { status: 409 },
     );
   }
@@ -353,7 +436,7 @@ export async function POST(req: Request) {
 
   const flow = getBookingPaymentFlow({
     lessonTier: product.tier,
-    trialAlreadyUsed: Boolean(student.studentProfile.trialLessonUsedAt),
+    trialAlreadyUsed: !trialEligibility.eligible,
   });
 
   const booking = await prisma.$transaction(async (tx) => {
@@ -364,17 +447,14 @@ export async function POST(req: Request) {
       throw new Error("NO_PROFILE");
     }
 
-    // Only burn the free-trial flag for actual free-trial bookings. The
-    // payment flow can also auto-confirm paid bookings (BOOKING_AUTO_CONFIRM
-    // dev flag) — those must not consume the student's free-trial slot.
+    // Only consume a trial for actual free-trial bookings. The payment flow can
+    // also auto-confirm paid bookings (BOOKING_AUTO_CONFIRM dev flag) — those
+    // must not use up the student's trial with this teacher.
     if (product.tier === "FREE_TRIAL") {
-      const claimed = await tx.studentProfile.updateMany({
-        where: { userId: session.user.id, trialLessonUsedAt: null },
-        data: { trialLessonUsedAt: new Date() },
+      await claimFreeTrialWithTeacher(tx, {
+        studentId: session.user.id,
+        teacherId: teacher.id,
       });
-      if (claimed.count === 0) {
-        throw new Error("TRIAL_USED");
-      }
     }
 
     const created = await tx.booking.create({
@@ -393,6 +473,29 @@ export async function POST(req: Request) {
       include: { lessonProduct: true, teacher: { include: { user: true } } },
     });
 
+    if (flow.requiresPayment && selectedPaymentMethod && "payment" in tx) {
+      await tx.payment.create({
+        data: {
+          bookingId: created.id,
+          studentId: session.user.id,
+          teacherId: teacher.id,
+          teacherPaymentAccountId: selectedPaymentMethod.accountId,
+          provider: selectedPaymentMethod.provider,
+          method: selectedPaymentMethod.method,
+          amountYen: quotedPriceYen,
+          currency: "JPY",
+          status: "CREATED",
+          idempotencyKey: `booking:${created.id}`,
+          checkoutUrl: `/book/checkout/${created.id}`,
+          ledgerEntries: {
+            create: [
+              { type: "GROSS", amountYen: quotedPriceYen },
+            ],
+          },
+        },
+      });
+    }
+
     await syncTeacherRosterAfterStudentBooking(tx, {
       teacherId: teacher.id,
       studentUserId: session.user.id,
@@ -400,8 +503,13 @@ export async function POST(req: Request) {
 
     return created;
   }).catch((e) => {
+    // The unique constraint is what settles a race between two bookings for the
+    // same trial; the loser lands here rather than getting a second free lesson.
+    if (e instanceof FreeTrialAlreadyUsedError) {
+      return { _err: "TRIAL_USED" } as const;
+    }
     const msg = String((e as Error).message);
-    if (msg === "TRIAL_USED" || msg === "NO_PROFILE") {
+    if (msg === "NO_PROFILE") {
       return { _err: msg } as const;
     }
     throw e;
@@ -411,7 +519,10 @@ export async function POST(req: Request) {
     const code = (booking as { _err: string })._err;
     if (code === "TRIAL_USED") {
       return NextResponse.json(
-        { error: "Free trial lesson already used" },
+        {
+          error: "You have already used your free trial lesson with this teacher.",
+          reason: "ALREADY_USED_WITH_TEACHER",
+        },
         { status: 409 },
       );
     }

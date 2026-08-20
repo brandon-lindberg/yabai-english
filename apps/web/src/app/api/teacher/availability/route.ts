@@ -3,9 +3,17 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import { deriveMissingOfferingsFromSchedule } from "@/lib/schedule-offering-sync";
+import {
+  deriveFreeTrialOffering,
+  FREE_TRIAL_DEFAULT_LEVEL_CODE,
+  FREE_TRIAL_DEFAULT_TYPE_CODE,
+  FREE_TRIAL_DURATION_MIN,
+  isFreeTrialSlotPublishable,
+} from "@/lib/free-trial-offering";
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 import { dateOnlyToUtcDateInZone } from "@/lib/date-only-in-zone";
+import { canTeacherPublishAvailability, resolveTeacherPublishAvailabilityOptions } from "@/lib/payment-methods";
 
 export async function GET() {
   const session = await auth();
@@ -70,6 +78,19 @@ export async function PATCH(req: Request) {
     select: {
       id: true,
       rateYen: true,
+      offersFreeTrial: true,
+      paymentPolicyAcceptedAt: true,
+      paymentAccounts: {
+        select: {
+          id: true,
+          provider: true,
+          providerAccountId: true,
+          status: true,
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: { select: { method: true, enabled: true } },
+        },
+      },
       lessonOfferings: {
         select: {
           classTypeId: true,
@@ -79,6 +100,7 @@ export async function PATCH(req: Request) {
           rateYen: true,
           isGroup: true,
           durationMin: true,
+          isFreeTrial: true,
         },
       },
     },
@@ -87,6 +109,20 @@ export async function PATCH(req: Request) {
   // Defensively seed default taxonomy in case the teacher reached this PATCH
   // before the onboarding flow ran (e.g. legacy profile).
   await seedDefaultTeacherTaxonomy(prisma, profileSnapshot.id);
+
+  if (
+    parsed.data.length > 0 &&
+    !canTeacherPublishAvailability(
+      profileSnapshot.paymentPolicyAcceptedAt,
+      profileSnapshot.paymentAccounts,
+      resolveTeacherPublishAvailabilityOptions(),
+    )
+  ) {
+    return NextResponse.json(
+      { error: "Finish Stripe setup and accept the payment policy before publishing availability." },
+      { status: 409 },
+    );
+  }
 
   // Validate that every classLevelId / classTypeId belongs to this teacher.
   const refLevelIds = Array.from(new Set(parsed.data.map((s) => s.classLevelId)));
@@ -111,6 +147,7 @@ export async function PATCH(req: Request) {
         active: true,
         isGroup: true,
         rateYen: true,
+        isFreeTrial: true,
         classType: { select: { code: true } },
       },
     }),
@@ -151,6 +188,45 @@ export async function PATCH(req: Request) {
     );
   }
 
+  const unpublishableTrialSlot = parsed.data.find((slot) => {
+    const offering = offeringById.get(slot.teacherLessonOfferingId);
+    if (!offering?.isFreeTrial) return false;
+    return !isFreeTrialSlotPublishable({
+      durationMin: slot.endMin - slot.startMin,
+      offersFreeTrial: profileSnapshot.offersFreeTrial,
+    });
+  });
+  if (unpublishableTrialSlot) {
+    return NextResponse.json(
+      {
+        error: profileSnapshot.offersFreeTrial
+          ? `Free trial availability must be ${FREE_TRIAL_DURATION_MIN} minutes long.`
+          : "Turn on free trial lessons before publishing free trial availability.",
+      },
+      { status: 400 },
+    );
+  }
+
+  // Without a trial offering there is nothing for a trial slot to point at.
+  // Every teacher gets one by default, hung off the seeded taxonomy so it does
+  // not depend on what they happen to have scheduled.
+  const [trialLevel, trialType] = await Promise.all([
+    prisma.teacherClassLevel.findFirst({
+      where: { teacherId: profileSnapshot.id, code: FREE_TRIAL_DEFAULT_LEVEL_CODE },
+      select: { id: true },
+    }),
+    prisma.teacherClassType.findFirst({
+      where: { teacherId: profileSnapshot.id, code: FREE_TRIAL_DEFAULT_TYPE_CODE },
+      select: { id: true },
+    }),
+  ]);
+  const trialOffering = deriveFreeTrialOffering({
+    existing: profileSnapshot.lessonOfferings,
+    offersFreeTrial: profileSnapshot.offersFreeTrial,
+    classLevelId: trialLevel?.id ?? null,
+    classTypeId: trialType?.id ?? null,
+  });
+
   const newOfferings = deriveMissingOfferingsFromSchedule({
     existing: profileSnapshot.lessonOfferings,
     scheduled: parsed.data.map((slot) => ({
@@ -179,6 +255,21 @@ export async function PATCH(req: Request) {
           teacherLessonOfferingId: slot.teacherLessonOfferingId,
           active: true,
         })),
+      });
+    }
+    if (trialOffering) {
+      await tx.teacherLessonOffering.create({
+        data: {
+          teacherId: profileSnapshot.id,
+          durationMin: trialOffering.durationMin,
+          rateYen: trialOffering.rateYen,
+          isGroup: trialOffering.isGroup,
+          groupSize: trialOffering.groupSize,
+          isFreeTrial: trialOffering.isFreeTrial,
+          active: trialOffering.active,
+          classLevelId: trialOffering.classLevelId,
+          classTypeId: trialOffering.classTypeId,
+        },
       });
     }
     if (newOfferings.length > 0) {

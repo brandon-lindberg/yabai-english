@@ -4,6 +4,8 @@ import { useLayoutEffect, useRef } from "react";
 import type { CalendarDay } from "@/lib/slot-calendar";
 import type { PlacedTimeGridBlock } from "@/lib/time-grid-week";
 import { hourGutterLabels, initialScrollTopForTimeGrid, isTimeGridBlockSelected } from "@/lib/time-grid-week";
+import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { TimeGridSlotBlock } from "@/components/dashboard/time-grid-slot-block";
 
 type Props = {
   locale: string;
@@ -17,7 +19,6 @@ type Props = {
   onCalendarAnchorChange: (iso: string) => void;
   weekColumnAddLabel?: string;
   onAddForDayKey?: (dayKey: string) => void;
-  selectionStyle?: "accent" | "neutral";
   /** Line shown on booked blocks (e.g. “Reserved”). */
   reservedBookingLabel?: string;
   timeZone?: string;
@@ -34,7 +35,6 @@ export function TeacherAvailabilityTimeGridWeek({
   onCalendarAnchorChange,
   weekColumnAddLabel,
   onAddForDayKey,
-  selectionStyle = "accent",
   reservedBookingLabel,
   timeZone,
 }: Props) {
@@ -42,14 +42,8 @@ export function TeacherAvailabilityTimeGridWeek({
   const weekRangeKey = weekDays.map((d) => d.dayKey).join("|");
   const dayHeightPx = 24 * hourPx;
   const hours = hourGutterLabels(locale);
-  const weekSelectedClass =
-    selectionStyle === "neutral"
-      ? "border-zinc-600 bg-zinc-200 text-zinc-900 shadow-sm"
-      : "border-primary bg-primary text-primary-foreground shadow-sm";
-  const weekIdleClass =
-    selectionStyle === "neutral"
-      ? "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50"
-      : "border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100";
+  const weekSelectedClass = slotClasses({ kind: "open", selected: true });
+  const weekIdleClass = slotClasses({ kind: "open" });
 
   useLayoutEffect(() => {
     const el = scrollRef.current;
@@ -63,11 +57,12 @@ export function TeacherAvailabilityTimeGridWeek({
       className="max-h-[min(70vh,1200px)] overflow-y-auto overflow-x-auto pb-1"
       data-testid="time-grid-week"
     >
-      <div className="flex min-w-[640px] gap-0 rounded-lg border border-border bg-surface shadow-sm">
-        <div
-          className="w-10 shrink-0 border-r border-border bg-background text-right text-[10px] text-muted sm:w-14"
-          style={{ paddingTop: 52 }}
-        >
+      <div className="flex min-w-[640px] gap-0 rounded-lg border border-border bg-surface">
+        <div className="w-10 shrink-0 border-r border-border bg-background text-right text-[10px] text-muted sm:w-14">
+          {/* Matches the day-header height exactly (it previously padded 52px
+              against a 44px header on mobile, so the hours sat a row low) and
+              sticks so scrolling hours never ride up over the headings. */}
+          <div className="sticky top-0 z-20 h-[44px] border-b border-border bg-background sm:h-[52px]" />
           <div style={{ height: dayHeightPx }} className="relative">
             {hours.map((label, i) => (
               <div
@@ -87,17 +82,23 @@ export function TeacherAvailabilityTimeGridWeek({
             const blocks = blocksByDay.get(day.dayKey) ?? [];
             return (
               <div key={day.dayKey} className="min-w-[72px] bg-surface sm:min-w-[100px]">
-                <div className="flex h-[44px] flex-col justify-between border-b border-border px-1 py-1 sm:h-[52px]">
+                {/*
+                  Sticky: the grid scrolls to the working day on mount, which
+                  used to carry the day headings out of view and leave seven
+                  unlabelled columns. On the densest surface in the product the
+                  teacher must always be able to see which column is which day.
+                */}
+                <div className="sticky top-0 z-20 flex h-[44px] flex-col justify-between border-b border-border bg-surface px-1 py-1 sm:h-[52px]">
                   <div className="flex items-start justify-between gap-0.5">
                     <p className="text-[10px] font-semibold leading-tight text-muted sm:text-[11px]">
                       {day.shortLabel}{" "}
-                      <span className="text-foreground">{dayDate.getDate()}</span>
+                      <span className="tabular-nums text-foreground">{dayDate.getDate()}</span>
                     </p>
                     {onAddForDayKey && weekColumnAddLabel ? (
                       <button
                         type="button"
                         onClick={() => onAddForDayKey(day.dayKey)}
-                        className="hidden shrink-0 rounded border border-border bg-surface px-1 py-0.5 text-[9px] font-semibold text-foreground hover:bg-[var(--app-hover)] sm:block"
+                        className="hidden min-h-6 min-w-6 shrink-0 items-center justify-center rounded border border-border bg-surface px-1 py-1 text-[10px] font-semibold text-foreground hover:bg-[var(--app-hover)] sm:inline-flex"
                       >
                         {weekColumnAddLabel}
                       </button>
@@ -106,13 +107,13 @@ export function TeacherAvailabilityTimeGridWeek({
                 </div>
 
                 <div
-                  className="relative border-b border-zinc-100 bg-zinc-50/40"
+                  className="relative border-b border-border bg-surface"
                   style={{ height: dayHeightPx }}
                 >
                   {Array.from({ length: 25 }, (_, i) => (
                     <div
                       key={i}
-                      className="pointer-events-none absolute right-0 left-0 border-t border-zinc-200/80"
+                      className="pointer-events-none absolute right-0 left-0 border-t border-border"
                       style={{ top: i * hourPx }}
                     />
                   ))}
@@ -124,13 +125,13 @@ export function TeacherAvailabilityTimeGridWeek({
                           key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
                           data-testid="time-grid-booking"
                           data-starts-at={block.startsAtIso}
-                          className="absolute right-0.5 left-0.5 overflow-hidden rounded-md border border-amber-200/80 bg-amber-50/60 px-1 py-0.5 text-left text-[10px] leading-tight text-amber-950/90 dark:border-amber-800/45 dark:bg-amber-950/30 dark:text-amber-50/95"
+                          className={`absolute right-0.5 left-0.5 overflow-hidden rounded-md px-1 py-0.5 text-left text-[10px] leading-tight ${SLOT_BOOKED}`}
                           style={{
                             top: `${block.topPct}%`,
                             height: `${block.heightPct}%`,
                           }}
                         >
-                          <span className="block truncate font-medium text-amber-950 dark:text-amber-50">
+                          <span className="block truncate font-semibold tabular-nums">
                             {new Date(block.startsAtIso).toLocaleTimeString(locale, {
                               hour: "numeric",
                               minute: "2-digit",
@@ -144,12 +145,12 @@ export function TeacherAvailabilityTimeGridWeek({
                             })}
                           </span>
                           {reservedBookingLabel ? (
-                            <span className="block truncate text-[9px] font-medium text-amber-900/80 dark:text-amber-100/85">
+                            <span className="block truncate text-[9px] font-medium text-muted">
                               {reservedBookingLabel}
                             </span>
                           ) : null}
                           {block.subtitle ? (
-                            <span className="block truncate text-[10px] text-amber-900/65 dark:text-amber-100/70">
+                            <span className="block truncate text-[10px] text-[var(--app-canvas)]/75">
                               {block.subtitle}
                             </span>
                           ) : null}
@@ -158,38 +159,24 @@ export function TeacherAvailabilityTimeGridWeek({
                     }
                     const selected = isTimeGridBlockSelected(block, selectedStartsAtIso, selectedGroupKey);
                     return (
-                      <button
+                      <TimeGridSlotBlock
                         key={`${block.startsAtIso}-${block.groupKey ?? ""}`}
-                        type="button"
-                        data-testid="time-grid-block"
-                        data-starts-at={block.startsAtIso}
-                        onClick={() => {
+                        startsAtIso={block.startsAtIso}
+                        endsAtIso={block.endsAtIso}
+                        topPct={block.topPct}
+                        heightPct={block.heightPct}
+                        selected={selected}
+                        selectedClass={weekSelectedClass}
+                        idleClass={weekIdleClass}
+                        testId="time-grid-block"
+          density="week"
+                        locale={locale}
+                        timeZone={timeZone}
+                        onSelect={() => {
                           onSelectSlot(block.startsAtIso, block.groupKey);
                           onCalendarAnchorChange(block.startsAtIso);
                         }}
-                        className={`absolute right-0.5 left-0.5 overflow-hidden rounded border px-1 py-0.5 text-left text-[10px] leading-tight shadow-sm transition ${
-                          selected ? weekSelectedClass : weekIdleClass
-                        }`}
-                        style={{
-                          top: `${block.topPct}%`,
-                          height: `${block.heightPct}%`,
-                        }}
-                        aria-pressed={selected}
-                      >
-                        <span className="block truncate font-semibold">
-                          {new Date(block.startsAtIso).toLocaleTimeString(locale, {
-                            hour: "numeric",
-                            minute: "2-digit",
-                            timeZone,
-                          })}
-                          {" – "}
-                          {new Date(block.endsAtIso).toLocaleTimeString(locale, {
-                            hour: "numeric",
-                            minute: "2-digit",
-                            timeZone,
-                          })}
-                        </span>
-                      </button>
+                      />
                     );
                   })}
                 </div>

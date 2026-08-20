@@ -6,7 +6,6 @@ import {
   Skeleton,
   SkeletonAvatar,
   SkeletonButton,
-  SkeletonCard,
   SkeletonText,
 } from "../skeleton";
 
@@ -69,24 +68,5 @@ describe("SkeletonButton", () => {
     expect(el.className).toContain("rounded-full");
     expect(el.className).toContain("h-10");
     expect(el.className).toContain("w-1/4");
-  });
-});
-
-describe("SkeletonCard", () => {
-  test("mirrors AppCard surface classes and renders default content", () => {
-    render(<SkeletonCard />);
-    const el = screen.getByTestId("skeleton-card");
-    expect(el.className).toContain("bg-surface");
-    expect(el.className).toContain("border-border");
-    expect(el.className).toContain("rounded-2xl");
-  });
-
-  test("renders custom children when provided", () => {
-    render(
-      <SkeletonCard>
-        <p data-testid="custom-content">hi</p>
-      </SkeletonCard>,
-    );
-    expect(screen.getByTestId("custom-content")).toBeInTheDocument();
   });
 });

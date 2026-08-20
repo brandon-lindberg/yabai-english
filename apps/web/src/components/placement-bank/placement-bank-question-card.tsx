@@ -1,5 +1,6 @@
 import { placementTextToReact } from "@/lib/placement-question-display";
 import type { PlacementQuestionPublic } from "@/lib/placement-test";
+import { Status } from "@/components/ui/status";
 
 type PlacementBankQuestionCardProps = {
   question: PlacementQuestionPublic;
@@ -20,33 +21,38 @@ export function PlacementBankQuestionCard({
   correctIndex,
 }: PlacementBankQuestionCardProps) {
   return (
-    <article className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-        {question.cefrBand} · {question.section} · {question.id}
-      </p>
-      <p className="mt-2 text-sm font-medium text-neutral-600 dark:text-neutral-400">
+    <article className="border-b border-border py-5">
+      {/* Was an uppercase tracked line above the content — an eyebrow, which
+          DESIGN.md §4 bans. It is metadata about the item, so it reads beneath
+          it in the same weight as everything else that is not the question. */}
+      <p className="mt-2 text-sm font-medium text-muted">
         {placementTextToReact(question.instructionEn)}
       </p>
-      <p className="mt-2 text-base text-neutral-900 dark:text-neutral-100">
+      <p className="mt-2 text-base text-foreground">
         {placementTextToReact(question.questionEn)}
       </p>
       {showJapanese ? (
         <>
-          <p className="mt-2 text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <p className="mt-2 text-sm font-medium text-muted">
             {placementTextToReact(question.instructionJa)}
           </p>
-          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+          <p className="mt-1 text-sm text-foreground">
             {placementTextToReact(question.questionJa)}
           </p>
         </>
       ) : null}
-      <ul className="mt-3 list-inside list-decimal space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
+      <ol className="mt-3 list-inside list-decimal space-y-1 text-sm text-foreground">
         {question.optionsEn.map((opt, i) => (
           <li key={i}>{placementTextToReact(opt)}</li>
         ))}
-      </ul>
+      </ol>
+      <p className="mt-3 text-xs tabular-nums text-muted">
+        {question.cefrBand} · {question.section} · {question.id}
+      </p>
       {showCorrectIndex && correctIndex !== undefined ? (
-        <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">Correct index (review): {correctIndex}</p>
+        <p className="mt-2">
+          <Status tone="warn">Correct index (review): {correctIndex}</Status>
+        </p>
       ) : null}
     </article>
   );

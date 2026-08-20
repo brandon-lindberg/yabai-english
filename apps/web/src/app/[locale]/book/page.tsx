@@ -9,12 +9,15 @@ import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DataList } from "@/components/ui/data-row";
 import { Link } from "@/i18n/navigation";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { appPathForLocale } from "@/lib/i18n-app-path";
 import { authSignInHref } from "@/lib/auth-sign-in-href";
 import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
+import { buttonClasses } from "@/components/ui/button";
+import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -68,12 +71,30 @@ export default async function BookPage({ searchParams }: Props) {
     session?.user?.id && session.user.role === "STUDENT"
       ? session.user.id
       : null;
+  /*
+    `select`, not `include`. This is a student browsing other people's profiles,
+    and `include` returns every scalar the model has — which here means every
+    listed teacher's `googleCalendarRefreshToken` was read into memory on each
+    page load. Nothing rendered it, but the only thing standing between that
+    token and the page was the mapping below remembering not to spread.
+  */
   const teacherProfiles = await prisma.teacherProfile.findMany({
     where: marketplaceTeacherWhere(viewerStudentId),
-    include: {
-      user: true,
+    select: {
+      id: true,
+      displayName: true,
+      countryOfOrigin: true,
+      specialties: true,
+      instructionLanguages: true,
+      rateYen: true,
+      offersFreeTrial: true,
+      user: { select: { name: true, image: true } },
       availabilitySlots: {
         where: { active: true },
+        select: {
+          id: true,
+          teacherLessonOffering: { select: { isFreeTrial: true } },
+        },
       },
     },
     orderBy: { userId: "asc" },
@@ -88,6 +109,10 @@ export default async function BookPage({ searchParams }: Props) {
     instructionLanguages: teacher.instructionLanguages,
     rateYen: teacher.rateYen,
     activeAvailabilityCount: teacher.availabilitySlots.length,
+    offersBookableFreeTrial: teacherHasBookableFreeTrial({
+      offersFreeTrial: teacher.offersFreeTrial,
+      availabilitySlots: teacher.availabilitySlots,
+    }),
   }));
 
   const filtered = filterTeacherCards(cards, { specialty, language });
@@ -100,43 +125,42 @@ export default async function BookPage({ searchParams }: Props) {
       <div className="mt-6">
         <TeacherFilterBar specialty={specialty} language={language} guestLocked={guest} />
       </div>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      {/* A ruled list, not a card grid: teachers are compared against each other,
+          and a column of rates only lines up if the rows share an edge. */}
+      <div className="mt-8">
         {filtered.length === 0 ? (
-          <div className="sm:col-span-2">
-            <EmptyState
-              title={t("noTeachersFound")}
-              description={t("teacherBrowseSubtitle")}
-              action={
-                guest ? (
-                  <Link
-                    href={{
-                      pathname: "/auth/signin",
-                      query: { callbackUrl: bookHomeCallback },
-                    }}
-                    className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-                  >
-                    {t("guestEmptySignIn")}
-                  </Link>
-                ) : (
-                  <Link
-                    href="/dashboard"
-                    className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
-                  >
-                    {t("backToDashboard")}
-                  </Link>
-                )
-              }
-            />
-          </div>
+          <EmptyState
+            title={t("noTeachersFound")}
+            description={t("teacherBrowseSubtitle")}
+            action={
+              guest ? (
+                <Link
+                  href={{
+                    pathname: "/auth/signin",
+                    query: { callbackUrl: bookHomeCallback },
+                  }}
+                  className={buttonClasses({ variant: "secondary" })}
+                >
+                  {t("guestEmptySignIn")}
+                </Link>
+              ) : (
+                <Link href="/dashboard" className={buttonClasses({ variant: "secondary" })}>
+                  {t("backToDashboard")}
+                </Link>
+              )
+            }
+          />
         ) : (
-          filtered.map((teacher) => (
-            <TeacherCard
-              key={teacher.id}
-              teacher={teacher}
-              onboardingNext={onboardingHref}
-              onboardingStep={params.onboardingStep ?? null}
-            />
-          ))
+          <DataList>
+            {filtered.map((teacher) => (
+              <TeacherCard
+                key={teacher.id}
+                teacher={teacher}
+                onboardingNext={onboardingHref}
+                onboardingStep={params.onboardingStep ?? null}
+              />
+            ))}
+          </DataList>
         )}
       </div>
     </main>

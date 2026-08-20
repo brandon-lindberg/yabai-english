@@ -27,7 +27,7 @@ export default function Loading() {
         <Skeleton height="3" width="1/4" />
 
         {/* Question card */}
-        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
+        <div className="border-t border-border pt-6">
           {/* Instruction */}
           <Skeleton height="3" width="full" />
           <div className="mt-1">

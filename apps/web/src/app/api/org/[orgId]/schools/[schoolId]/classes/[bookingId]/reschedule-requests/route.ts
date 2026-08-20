@@ -8,7 +8,7 @@ import { schoolClassRescheduleRequestPendingForAdmins } from "@/lib/reschedule-n
 import { evaluateSchoolBookingRescheduleTimes } from "@/lib/school-booking-reschedule-policy";
 import { canSubmitSchoolClassRescheduleRequest } from "@/lib/school-booking-reschedule-authorization";
 import { getSchoolBookingRescheduleConflictError } from "@/lib/school-booking-reschedule-apply";
-import type { MembershipForAuth } from "@/lib/org-authorization";
+import { getSchoolCallerMembership } from "@/lib/org/caller-membership";
 
 const postBodySchema = z.object({
   startsAt: z.string().datetime(),
@@ -17,30 +17,6 @@ const postBodySchema = z.object({
 type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string; bookingId: string }>;
 };
-
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-  schoolId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: {
-      userId,
-      organizationId: orgId,
-      status: "ACTIVE",
-      OR: [{ schoolId: null }, { schoolId }],
-    },
-    select: {
-      id: true,
-      organizationId: true,
-      userId: true,
-      schoolId: true,
-      orgRole: true,
-      status: true,
-    },
-    orderBy: { orgRole: "asc" },
-  });
-}
 
 export async function POST(req: Request, ctx: RouteContext) {
   const session = await auth();
@@ -75,7 +51,7 @@ export async function POST(req: Request, ctx: RouteContext) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
   if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

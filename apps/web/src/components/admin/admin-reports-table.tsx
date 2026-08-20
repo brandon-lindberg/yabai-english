@@ -1,9 +1,13 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useEffect, useState } from "react";
+import { LocalDateTime } from "@/components/local-datetime";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Status } from "@/components/ui/status";
+import { actionLinkClass } from "@/components/ui/inline-link";
+import { useAdminCollection } from "@/hooks/use-admin-collection";
 
 type ThreadRow = {
   id: string;
@@ -18,42 +22,21 @@ type ThreadRow = {
 
 export function AdminReportsTable() {
   const t = useTranslations("admin.reportsPage");
-  const [items, setItems] = useState<ThreadRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/admin/reports/chat-threads");
-        const data = (await res.json()) as { items?: ThreadRow[]; error?: string };
-        if (!res.ok) {
-          if (!cancelled) setError(data.error ?? "Error");
-          return;
-        }
-        if (!cancelled) setItems(data.items ?? []);
-      } catch {
-        if (!cancelled) setError("Error");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const locale = useLocale();
+  const { items, loading, error } = useAdminCollection<ThreadRow>(
+    "/api/admin/reports/chat-threads",
+  );
 
   if (loading) {
     return (
       <div
-        className="overflow-x-auto rounded-xl border border-border"
+        className="overflow-x-auto border-y border-border"
         role="status"
         aria-busy="true"
         aria-label={t("loading")}
         data-testid="admin-reports-loading"
       >
-        <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+        <table className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums">
           <thead>
             <tr className="border-b border-border bg-[var(--app-hover)]">
               <th className="px-3 py-2">{t("thread")}</th>
@@ -94,15 +77,23 @@ export function AdminReportsTable() {
     );
   }
   if (error) {
-    return <p className="text-sm text-[var(--app-warning-text)]">{error}</p>;
+    // Was amber — the colour this world reserves for attention, the same
+    // weight as "calendar not connected". A failed load is an error.
+    return (
+      <p role="alert">
+        <Status tone="error">{error}</Status>
+      </p>
+    );
   }
   if (items.length === 0) {
-    return <p className="text-sm text-muted">{t("empty")}</p>;
+    // Was a bare muted paragraph. An empty queue is an outcome, and the app has
+    // one way of saying so.
+    return <EmptyState title={t("empty")} />;
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
-      <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+    <div className="overflow-x-auto border-y border-border">
+      <table className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums">
         <thead>
           <tr className="border-b border-border bg-[var(--app-hover)]">
             <th className="px-3 py-2">{t("thread")}</th>
@@ -117,19 +108,19 @@ export function AdminReportsTable() {
               <td className="px-3 py-2 align-top">
                 <div className="space-y-1">
                   <div>
-                    <span className="text-muted">S: </span>
+                    <span className="text-muted">{t("studentAbbr")}: </span>
                     <Link
                       href={`/admin/users/${row.student.id}`}
-                      className="text-link hover:underline"
+                      className={actionLinkClass}
                     >
                       {row.student.name ?? row.student.email}
                     </Link>
                   </div>
                   <div>
-                    <span className="text-muted">T: </span>
+                    <span className="text-muted">{t("teacherAbbr")}: </span>
                     <Link
                       href={`/admin/users/${row.teacher.id}`}
-                      className="text-link hover:underline"
+                      className={actionLinkClass}
                     >
                       {row.teacher.name ?? row.teacher.email}
                     </Link>
@@ -139,7 +130,9 @@ export function AdminReportsTable() {
               <td className="px-3 py-2 align-top text-xs">
                 {row.studentReportedAt ? (
                   <>
-                    <p>{new Date(row.studentReportedAt).toLocaleString()}</p>
+                    <p>
+                      <LocalDateTime iso={row.studentReportedAt} locale={locale} />
+                    </p>
                     <p className="mt-1 whitespace-pre-wrap text-muted">
                       {row.studentReportReason ?? "—"}
                     </p>
@@ -151,7 +144,9 @@ export function AdminReportsTable() {
               <td className="px-3 py-2 align-top text-xs">
                 {row.teacherReportedAt ? (
                   <>
-                    <p>{new Date(row.teacherReportedAt).toLocaleString()}</p>
+                    <p>
+                      <LocalDateTime iso={row.teacherReportedAt} locale={locale} />
+                    </p>
                     <p className="mt-1 whitespace-pre-wrap text-muted">
                       {row.teacherReportReason ?? "—"}
                     </p>
@@ -161,7 +156,7 @@ export function AdminReportsTable() {
                 )}
               </td>
               <td className="px-3 py-2 text-xs text-muted">
-                {new Date(row.updatedAt).toLocaleString()}
+                <LocalDateTime iso={row.updatedAt} locale={locale} />
               </td>
             </tr>
           ))}

@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "English Studio",
+    "appName": "English Studio Japan",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "dashboard": "Dashboard",
@@ -28,7 +28,8 @@
     "footerOperatedBy": "English Studio Japan is operated by Yabai Studios",
     "footerContact": "Contact us",
     "footerAria": "Site footer",
-    "org": "Organization"
+    "org": "Organization",
+    "notificationsWithCount": "Notifications ({count} unread)"
   },
   "contact": {
     "metaTitle": "Contact — English Studio Japan",
@@ -39,10 +40,22 @@
   "legal": {
     "navAria": "Legal documents",
     "navTerms": "Terms of Service",
+    "navTermsTeachers": "Teacher marketplace terms",
+    "navTermsStudents": "Student marketplace terms",
+    "navRefundTeachers": "Teacher refund policy",
+    "navRefundStudents": "Student refund policy",
     "navPrivacy": "Privacy Policy",
     "termsPageTitle": "Terms of Service — English Studio Japan",
+    "termsTeachersPageTitle": "Teacher Marketplace Terms — English Studio Japan",
+    "termsStudentsPageTitle": "Student Marketplace Terms — English Studio Japan",
+    "refundTeachersPageTitle": "Teacher Refund Policy — English Studio Japan",
+    "refundStudentsPageTitle": "Student Refund Policy — English Studio Japan",
     "privacyPageTitle": "Privacy Policy — English Studio Japan",
     "termsMetaDescription": "Terms of Service for English Studio Japan: use of the service, third parties including Google, lesson recording, and limitation of liability.",
+    "termsTeachersMetaDescription": "Teacher marketplace terms for English Studio Japan: platform tiers, payment account requirements, and marketplace responsibilities.",
+    "termsStudentsMetaDescription": "Student marketplace terms for English Studio Japan: booking paid lessons, relationship with teachers, and checkout responsibilities.",
+    "refundTeachersMetaDescription": "Teacher refund policy for English Studio Japan: platform fee on refunds, pass-through setting, and teacher responsibilities.",
+    "refundStudentsMetaDescription": "Student refund policy for English Studio Japan: when refunds apply, refund amounts, and processing limitations.",
     "privacyMetaDescription": "Privacy Policy for English Studio Japan: what we collect, how we use and share data, Google integrations, lesson recording, and your choices.",
     "footerNotice": "These documents are provided to explain our practices. They are not a substitute for legal advice. Have qualified counsel review them for your business.",
     "footerTermsLink": "Terms",
@@ -91,10 +104,12 @@
     "signedInSubtitle": "Book your next lesson, review your schedule, or continue flashcard practice.",
     "signedInBook": "Find a teacher",
     "signedInDashboard": "Dashboard",
-    "signedInLearn": "Flashcards"
+    "signedInLearn": "Flashcards",
+    "metaTitle": "English Studio Japan — online lessons for Japanese learners",
+    "pillarsHeading": "Why learners use English Studio Japan"
   },
   "landing": {
-    "metaTitle": "English Studio — online lessons for Japanese learners",
+    "metaTitle": "English Studio Japan — online lessons for Japanese learners",
     "metaDescription": "Find a teacher, book lessons with Google Meet, and keep practicing with flashcards and level check.",
     "heroTitle": "Learn English with teachers you trust",
     "heroSubtitle": "Book one-on-one lessons, keep a clear schedule, and practice between classes — built for Japanese learners.",
@@ -112,7 +127,7 @@
     "pillarPracticeBody": "Flashcards and placement help you stay on track.",
     "trustLine": "Sign in with Google. A Gmail address is not required—any email you use with Google works. Calendar-friendly reminders when you connect Google.",
     "howHeading": "How it works",
-    "pillarsHeading": "Why learners use English Studio"
+    "pillarsHeading": "Why learners use English Studio Japan"
   },
   "dashboard": {
     "taxonomyPage": {
@@ -273,7 +288,12 @@
       "flashcardAvgTime": "Avg. time to answer",
       "flashcardSeconds": "{sec} s",
       "flashcardWeak": "Weak cards",
-      "flashcardMastered": "Mastered cards"
+      "flashcardMastered": "Mastered cards",
+      "noNextLessonTeacher": "No upcoming lessons booked yet.",
+      "openAvailabilityCta": "Set your availability",
+      "statUpcoming": "Upcoming lessons",
+      "statCompleted": "Lessons completed",
+      "statRank": "Study rank"
     },
     "profilePage": {
       "title": "Profile",
@@ -299,6 +319,7 @@
       "teacherRateHelp": "Shown on the teacher list and your booking page. Leave empty if you do not want to show a price.",
       "teacherRatesByDurationTitle": "Individual lesson rates by duration",
       "teacherRatesByDurationHelp": "Choose the lesson lengths you offer and set a price for each.",
+      "teacherMinimumRateHelp": "Public lesson rates must be at least ¥{amount}. Admins can create student-specific legacy rates below this minimum.",
       "teacherLessonLevelForRate": "Class level",
       "teacherLessonTypeForRate": "Lesson focus",
       "teacherLessonTypeForRateHelp": "Pick what this length is for (same categories as your schedule). Students only see lesson types that match what you set here.",
@@ -332,7 +353,14 @@
       "teacherPreviewWhenHidden": "Share this link with students on your list — you are hidden from the public teacher list.",
       "teacherMarketplaceHiddenLabel": "Hide my profile from the public teacher list",
       "teacherMarketplaceHiddenHelp": "When enabled, only students you add under “Students” can open your booking page and schedule with you.",
-      "prefillFromGoogle": "Suggested from your sign-in (Google) — you can edit before saving."
+      "prefillFromGoogle": "Suggested from your sign-in (Google) — you can edit before saving.",
+      "editProfile": "Edit profile",
+      "cancelEdit": "Cancel",
+      "notSet": "Not set yet",
+      "profileVisible": "Visible in the teacher list",
+      "profileHidden": "Hidden from the teacher list",
+      "emptyProfileHint": "Your profile is empty. Add a bio and credentials so students know who they are booking.",
+      "emptyStudentProfileHint": "Your profile is empty. Add an introduction so teachers know what you want from lessons."
     },
     "schedulePage": {
       "title": "Schedule",
@@ -341,6 +369,9 @@
       "subNavUpcoming": "Upcoming",
       "subNavCompleted": "Completed lessons",
       "availabilityIntro": "Set your availability and manage your weekly schedule.",
+      "availabilityPaymentRequiredTitle": "Stripe setup required before availability",
+      "availabilityPaymentRequiredBody": "Finish Stripe setup and accept the teacher payment policy before publishing availability.",
+      "availabilityPaymentRequiredCta": "Open payment settings",
       "upcomingIntro": "View your upcoming booked lessons.",
       "ariaScheduleSections": "Schedule sections",
       "completedSectionTitle": "Completed lessons",
@@ -366,11 +397,8 @@
       "syncedSmartNotesRefsLabel": "Synced smart notes reference IDs",
       "syncedRecordingRefsLabel": "Synced recording reference IDs",
       "lessonNotesEmptyStudent": "Your teacher has not added notes for this lesson yet.",
-      "completedLessonsViewToggle": "Lesson layout",
-      "completedLessonsViewCards": "Cards",
-      "completedLessonsViewList": "List",
-      "completedLessonsSortHint": "Sorted by student, then newest lesson first.",
-      "completedLessonsHasNotes": "Saved notes or link"
+      "completedLessonsHasNotes": "Saved notes or link",
+      "completedLessonsCount": "{count, plural, one {# lesson} other {# lessons}}"
     },
     "lessonDetail": {
       "backToSchedule": "Back to schedule",
@@ -439,7 +467,9 @@
       "lessonLevel": "Lesson level",
       "lessonType": "Lesson type",
       "invalidLessonMeta": "Pick both a class level and a class type for every slot.",
-      "taxonomyMissingWarning": "You have no class levels or types yet. Add them under Taxonomy first."
+      "taxonomyMissingWarning": "You have no class levels or types yet. Add them under Taxonomy first.",
+      "classOffer": "Class offer",
+      "freeTrialOffering": "Free trial"
     },
     "quickReview": {
       "title": "Quick review",
@@ -457,14 +487,134 @@
     },
     "integrationsPage": {
       "title": "Google connections",
-      "intro": "Connect only what you need. Calendar is used for Meet links; Drive and Meet artifacts are optional for lesson materials.",
+      "intro": "Connect your Google account once. English Studio Japan then creates Calendar events with Meet links for your lessons, and can sync lesson notes and meeting recaps to your own Drive.",
       "calendarPreviewTitle": "Your calendar",
       "calendarPreviewHint": "This preview uses Google’s embed. If it looks empty, open Google Calendar → Settings for your calendar → Access permissions and allow embedding, or open your calendar in a new tab.",
-      "openGoogleCalendar": "Open Google Calendar"
+      "openGoogleCalendar": "Open Google Calendar",
+      "identityName": "Google identity",
+      "identityDesc": "Signed in as {who}. Base sign-in uses identity scopes only (openid, email, profile).",
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "connect": "Connect",
+      "reconnect": "Reconnect",
+      "disconnect": "Disconnect",
+      "googleUser": "Google user",
+      "googleName": "Google",
+      "googleConnectedDesc": "Connected. Lessons create Calendar events with Meet links, and lesson notes and recaps can sync to your Drive.",
+      "googleDisconnectedDesc": "Connect once to create Calendar events with Meet links, and to sync lesson notes and meeting recaps to your own Drive.",
+      "googlePartialDesc": "Connected, with some permissions not granted. Anything switched off below stays off until you reconnect and allow it.",
+      "partiallyConnected": "Partly connected",
+      "capabilityCalendar": "Calendar events and Meet links",
+      "capabilityDrive": "Lesson notes in Drive",
+      "capabilityMeet": "Meeting recaps and recordings"
     },
     "settingsPage": {
       "title": "Settings",
-      "intro": "Google connections and other account options. More preferences will appear here over time."
+      "intro": "Google connections and other account options. More preferences will appear here over time.",
+      "tabsAriaLabel": "Settings sections",
+      "tabPayments": "Payments",
+      "tabTier": "Tier",
+      "tabGoogle": "Google",
+      "paymentsTitle": "Payments",
+      "paymentsIntro": "Manage payment policy acceptance and connected payment methods for paid lessons.",
+      "paymentsConnectedTitle": "Connected payment methods",
+      "paymentsNone": "No valid payment method is connected yet.",
+      "paymentsAvailableToStudents": "These methods are visible to students when your payment policy is accepted.",
+      "paymentAccountStatus": "{provider} account: {status}",
+      "paymentAccountReady": "Ready for charges and payouts",
+      "paymentAccountNeedsSetup": "Needs setup before students can pay with this method",
+      "paymentAccountLocalReady": "Ready for local testing only",
+      "connectStripe": "Connect Stripe",
+      "connectStripePrefix": "Connect with",
+      "continueStripeSetup": "Continue Stripe setup",
+      "continueStripeSetupPrefix": "Continue setup with",
+      "refreshStripe": "Refresh Stripe status",
+      "connectStripeHelp": "Stripe opens a hosted setup flow where you own and manage your Stripe account. English Studio Japan only receives the connected account ID and collects the platform fee on paid lessons.",
+      "connectStripeError": "Could not start Stripe setup.",
+      "refreshStripeError": "Could not refresh Stripe status.",
+      "enableDevStripe": "Enable local Stripe test method",
+      "enableDevStripeHelp": "Local testing only. Real Stripe or KOMOJU hosted onboarding still needs provider integration.",
+      "enableDevStripeError": "Could not enable the local test payment method.",
+      "providerOnboardingPending": "Provider-hosted onboarding for Stripe Connect and KOMOJU/PayPay will appear here when live credentials are configured.",
+      "paymentPolicyTitle": "Marketplace terms and payment responsibilities",
+      "paymentPolicyIntro": "Before paid lesson payment methods are shown to students, you must read and accept the teacher marketplace terms, refund policy, and payment responsibilities below.",
+      "paymentPolicyAccepted": "Teacher marketplace terms accepted.",
+      "paymentPolicyAccept": "Accept marketplace terms",
+      "paymentPolicyAcceptCheckboxPrefix": "I have read and agree to the",
+      "paymentPolicyAcceptCheckboxTeacherTermsLink": "Teacher Marketplace Terms",
+      "paymentPolicyAcceptCheckboxJoiner": "and the",
+      "paymentPolicyAcceptCheckboxRefundLink": "Teacher Refund Policy",
+      "paymentPolicyAcceptCheckboxSuffix": ", including the platform tier and refund rules shown above.",
+      "paymentPolicyCheckboxError": "Read and check the agreement box before accepting.",
+      "paymentPolicySaving": "Saving…",
+      "paymentPolicyError": "Could not save marketplace terms acceptance.",
+      "stripeSetupTitle": "Stripe setup",
+      "stripeSetupIntro": "Complete these steps before students can pay for your lessons.",
+      "stripeSetupState_policy_required": "Accept the payment policy first",
+      "stripeSetupState_not_started": "Stripe not connected yet",
+      "stripeSetupState_in_progress": "Stripe setup in progress",
+      "stripeSetupState_action_required": "Stripe needs more information",
+      "stripeSetupState_ready": "Stripe is ready",
+      "stripeSetupPolicyRequiredBody": "Accept the teacher payment policy below before connecting Stripe.",
+      "stripeSetupNotStartedBody": "Connect your Stripe account to receive lesson payments.",
+      "stripeSetupInProgressBody": "Finish Stripe onboarding so students can pay with card.",
+      "stripeSetupActionRequiredBody": "Stripe still needs details before charges can go live.",
+      "stripeSetupReadyBody": "Your Stripe account is ready for charges and payouts.",
+      "stripeSetupStepPolicy": "Accept payment policy",
+      "stripeSetupStepConnect": "Connect Stripe",
+      "stripeSetupStepLive": "Ready for paid lessons",
+      "stripeSetupAcceptPolicyCta": "Go to payment policy",
+      "stripeSetupStudentsCanPay": "Students can pay you for lessons with card.",
+      "stripeReturnChecking": "Checking your Stripe status…",
+      "stripeReturnReady": "Stripe setup is complete. Students can pay for lessons.",
+      "stripeReturnIncomplete": "Stripe still needs setup. Continue onboarding or refresh status.",
+      "stripeAccountLabel_PENDING": "Stripe: setup in progress",
+      "stripeAccountLabel_ENABLED": "Stripe: ready",
+      "stripeAccountLabel_REQUIREMENTS_DUE": "Stripe: action required",
+      "stripeAccountLabel_DISABLED": "Stripe: disabled",
+      "stripeRequirement_identity": "Identity verification may be required",
+      "stripeRequirement_bank": "Bank account details may be required",
+      "stripeRequirement_business": "Business details may be required",
+      "stripeRequirement_other": "Additional Stripe information may be required",
+      "marketplaceEconomics": {
+        "title": "How tiers and refunds work",
+        "intro": "This summary explains how English Studio Japan handles platform fees and refunds for your paid marketplace lessons.",
+        "tierTitle": "Platform tier fees",
+        "tierIntro": "Your tier sets the platform fee on each paid lesson in the current monthly volume period (Asia/Tokyo, from your first paid lesson):",
+        "tierColumn": "Tier",
+        "feeColumn": "Platform fee",
+        "tier1Schedule": "Lessons 1–5: 20% · 6–10: 15% · 11+: 10%",
+        "tier2Schedule": "Lessons 1–10: 15% · 11+: 10%",
+        "tier3Schedule": "Flat 10% on all paid lessons",
+        "tierReviewNote": "Tiers are reviewed periodically from your teaching activity. See the Tier tab for your current tier and review schedule.",
+        "refundTitle": "Refunds",
+        "refundPlatformFee": "On a refund, English Studio Japan returns the platform fee from the original sale to your connected account in full. We retain nothing on a lesson that did not happen.",
+        "refundFullAmount": "Eligible cancellations return the full lesson price to the student, whoever cancelled. There is no deduction and no setting to configure.",
+        "refundProcessorFee": "Stripe does not return its own processing fee on a refunded payment. That fee is the only cost you bear on a refunded lesson.",
+        "refundDocsPrefix": "Full details are in the",
+        "refundDocsTeacherTermsLink": "Teacher Marketplace Terms",
+        "refundDocsJoiner": "and the",
+        "refundDocsRefundLink": "Teacher Refund Policy",
+        "refundDocsSuffix": "."
+      },
+      "tierSettings": {
+        "title": "Platform tier",
+        "intro": "Your tier controls the platform fee for future paid lessons.",
+        "currentTier": "Current tier",
+        "sourceOverride": "Admin override",
+        "sourceCalculated": "Calculated",
+        "overrideExpiry": "Override expires {date}",
+        "overrideNoExpiry": "Override does not expire",
+        "calculatedTier": "Calculated tier",
+        "clockStarted": "Tier clock started",
+        "nextReview": "Next review",
+        "annualReview": "Annual review {date}",
+        "notStarted": "Not started",
+        "evaluationsTitle": "Recent evaluations",
+        "evaluationsEmpty": "No tier evaluations yet. The first review happens after three paid-lesson months.",
+        "evaluationAverage": "Average {count} lessons",
+        "evaluationRecommends": "Recommends {tier}"
+      }
     },
     "teacherHome": {
       "title": "Dashboard",
@@ -500,15 +650,17 @@
       "schools": "Schools",
       "users": "All users",
       "teachers": "Teachers",
+      "teacherTiers": "Teacher tiers",
       "students": "Students",
-      "reports": "Reports"
+      "reports": "Reports",
+      "payments": "Payments"
     },
     "schoolsPage": {
       "title": "Schools & organizations",
       "subtitle": "Create organizations, add schools, and assign owners and admins.",
       "none": "No organizations yet. Create one below.",
       "createTitle": "Create organization",
-      "createHelp": "Creates the org, its first school, and assigns the given user as OWNER.",
+      "createHelp": "An organization starts with one school and one owner. You can add more schools and change roles afterwards.",
       "createCta": "Create organization",
       "saving": "Saving…",
       "deleting": "Deleting…",
@@ -516,8 +668,7 @@
       "orgName": "Organization name",
       "orgSlug": "Organization slug",
       "schoolName": "School name",
-      "schoolSlugOptional": "School slug (optional)",
-      "ownerEmail": "Owner email (existing user)",
+      "ownerEmail": "Owner email",
       "schoolsTitle": "Schools",
       "membersTitle": "Members",
       "members": "members",
@@ -536,7 +687,17 @@
       "slugPreview": "Will save as",
       "slugInvalidEmpty": "Slug must contain letters or numbers.",
       "searching": "Searching…",
-      "noResults": "No matching users."
+      "noResults": "No matching users.",
+      "schoolCount": "{count, plural, one {# school} other {# schools}}",
+      "memberCount": "{count, plural, one {# member} other {# members}}",
+      "backToOrgs": "All organizations",
+      "invitePending": "Invitation pending",
+      "orgLegend": "Organization",
+      "firstSchoolLegend": "Its first school",
+      "ownerLegend": "Owner",
+      "ownerEmailHint": "Must already have an account. They become the organization's owner.",
+      "schoolSlug": "School slug",
+      "slugHint": "Used in URLs. Filled from the name; edit it if you need something different."
     },
     "usersPage": {
       "title": "All users"
@@ -544,8 +705,49 @@
     "teachersPage": {
       "title": "Teachers"
     },
+    "teacherTiersPage": {
+      "title": "Teacher tiers",
+      "subtitle": "Monitor calculated tiers, set admin overrides, and review annual demotion recommendations.",
+      "legacyTitle": "Legacy student rate override",
+      "legacyIntro": "SUPER_ADMIN-only. Use this for student-specific rates below the public ¥3,000 minimum.",
+      "fieldTeacher": "Teacher",
+      "fieldStudentId": "Student user ID",
+      "fieldOfferingId": "Offering ID",
+      "fieldRateYen": "Rate (yen)",
+      "saveLegacyRate": "Save legacy rate",
+      "noEmail": "No email",
+      "tierName": "Tier {number}",
+      "tierSummary": "Calculated {calculated} / Effective {effective}",
+      "overrideLine": "Override: {tier} until {until}",
+      "overrideUntilAdmin": "an admin changes it",
+      "nextReview": "Next review: {date}",
+      "notStarted": "Not started",
+      "evaluateNow": "Evaluate now",
+      "setTier": "Set {tier}",
+      "removeOverride": "Remove override",
+      "demotionPending": "Annual demotion pending admin decision.",
+      "approveDemotion": "Approve demotion",
+      "keepTier": "Keep tier",
+      "overrideTo": "Override to"
+    },
     "studentsPage": {
       "title": "Students"
+    },
+    "refundsPage": {
+      "title": "Refunds needing attention",
+      "subtitle": "Refunds that have not reached the student yet, or that failed and must be reissued by hand.",
+      "loading": "Loading refunds…",
+      "empty": "Every refund has settled.",
+      "status": "Status",
+      "people": "Booking",
+      "amount": "Amount",
+      "note": "What happened",
+      "when": "Raised",
+      "studentAbbr": "S",
+      "teacherAbbr": "T",
+      "statusPendingRecovery": "Needs manual refund",
+      "statusFailed": "Failed",
+      "statusPending": "Awaiting Stripe"
     },
     "reportsPage": {
       "title": "Chat reports",
@@ -555,7 +757,9 @@
       "teacherReport": "Teacher report",
       "thread": "Thread",
       "when": "Updated",
-      "empty": "No reported threads."
+      "empty": "No reported threads.",
+      "studentAbbr": "S",
+      "teacherAbbr": "T"
     },
     "userDetail": {
       "title": "User",
@@ -591,7 +795,8 @@
       "specialties": "Specialties (comma-separated)",
       "instructionLanguages": "Instruction languages (comma-separated)",
       "loading": "Loading…",
-      "calendarConnected": "Google Calendar connected"
+      "calendarConnected": "Google Calendar connected",
+      "cancel": "Cancel"
     },
     "grid": {
       "colActions": "",
@@ -621,7 +826,47 @@
       "prev": "Previous",
       "next": "Next",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "sortAsc": "ascending",
+      "sortDesc": "descending",
+      "sortSummary": "Sorted by {field}, {direction}",
+      "colRate": "Rate",
+      "colActionsLabel": "Open user"
+    },
+    "placementReview": {
+      "levelLabel": "Placement level for {name}",
+      "noteLabel": "Review note for {name}",
+      "notePlaceholder": "Review note (optional)",
+      "apply": "Apply",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "error": "Could not save. Try again.",
+      "level": {
+        "BEGINNER": "Beginner",
+        "INTERMEDIATE": "Intermediate",
+        "ADVANCED": "Advanced"
+      }
+    },
+    "bookingsPanel": {
+      "scopeUpcoming": "Upcoming",
+      "scopePast": "Past",
+      "statusLabel": "Status",
+      "statusAll": "All statuses",
+      "searchLabel": "Search bookings",
+      "searchPlaceholder": "Student, teacher or lesson",
+      "countLabel": "{count, plural, one {# booking} other {# bookings}}",
+      "emptyUpcoming": "No upcoming bookings match this filter.",
+      "emptyPast": "No past bookings match this filter.",
+      "showing": "Showing {shown} of {total}",
+      "joinCta": "Meet",
+      "reviewQueueLink": "Placement review queue",
+      "allStudentsCta": "Open the students list"
+    },
+    "overview": {
+      "statUpcoming": "Upcoming bookings",
+      "statNeedsReview": "Awaiting placement review",
+      "statStudents": "Students",
+      "studentsHint": "Search, sort and edit every student on the students screen."
     }
   },
   "booking": {
@@ -630,6 +875,13 @@
     "selectProduct": "Lesson type",
     "allLessonTypes": "All lesson types",
     "selectSlot": "Pick a time",
+    "stepChooseTimeTitle": "Choose a time",
+    "stepChooseLessonTitle": "Choose a lesson",
+    "stepChooseLessonHint": "Select a time first",
+    "stepChoosePaymentTitle": "Choose payment method",
+    "stepReviewTitle": "Review and book",
+    "slotUnavailableError": "That time is no longer available. Please choose another slot.",
+    "durationMismatchError": "That lesson does not fit the selected time slot.",
     "confirm": "Confirm booking",
     "success": "Your lesson is confirmed.",
     "freeTrialOption": "Free trial",
@@ -651,8 +903,26 @@
     "timezoneShownAs": "Times shown in your timezone",
     "checkoutTitle": "Checkout",
     "checkoutSummary": "Confirm and pay to secure your lesson slot.",
+    "checkoutConfirmingPayment": "Payment received. Confirming your booking…",
+    "checkoutPaymentConfirmed": "Payment confirmed. Your lesson is booked.",
+    "checkoutSuccessTitle": "Payment successful",
+    "checkoutSuccessBody": "Your lesson is confirmed. You can view the booking details below.",
+    "checkoutSuccessViewBooking": "View booking",
+    "checkoutFailedTitle": "Payment could not be confirmed",
+    "checkoutFailedBody": "Stripe returned to the site, but we could not confirm this booking yet. You can try paying again or check your schedule in a moment.",
+    "checkoutFailedRetry": "Try payment again",
+    "checkoutFailedBackToSchedule": "Back to schedule",
+    "checkoutCancelled": "Payment was cancelled. You can try again when you are ready.",
     "teacher": "Teacher",
     "payNow": "Pay now",
+    "paymentMethod": "Payment method",
+    "acceptCheckoutTerms": "I confirm the lesson details, payment amount, and cancellation policy. I have read and agree to the Student Marketplace Terms and Student Refund Policy. I understand the transaction is between me and the teacher, eligible refunds return the full lesson price, and rescheduling does not create a refund entitlement.",
+    "acceptCheckoutTermsPrefix": "I confirm the lesson details, payment amount, and cancellation policy. I have read and agree to the",
+    "acceptCheckoutTermsStudentLink": "Student Marketplace Terms",
+    "acceptCheckoutTermsJoiner": "and the",
+    "acceptCheckoutTermsRefundLink": "Student Refund Policy",
+    "acceptCheckoutTermsSuffix": ". I understand the transaction is between me and the teacher, eligible refunds return the full lesson price, and rescheduling does not create a refund entitlement.",
+    "acceptCheckoutTermsError": "Confirm the checkout terms before paying.",
     "paymentFailed": "Payment failed. Please try again.",
     "leadTimeError": "Bookings must be made at least 48 hours in advance.",
     "leadTimeNotice": "Only lesson slots at least 48 hours in advance are available for booking.",
@@ -670,7 +940,28 @@
     "unavailableShort": "Unavailable",
     "selectedSlot": "Selected",
     "noSlotSelected": "No time selected yet",
-    "reserved": "Reserved"
+    "reserved": "Reserved",
+    "teacherCardViewProfile": "View profile",
+    "teacherCardAvailableSlots": "{count, plural, one {# available slot} other {# available slots}}",
+    "filterLanguageLabel": "Instruction language",
+    "filterSpecialtyPlaceholder": "conversation, business, exam…",
+    "filterLanguagePlaceholder": "JP or EN",
+    "freeTrialAvailable": "Free trial available"
+  },
+  "paymentPolicy": {
+    "student": {
+      "title": "Marketplace payment policy",
+      "transaction": "Your transaction is between you and the teacher. English Studio Japan facilitates scheduling, checkout, and communication.",
+      "refunds": "Refunds are automatic only when the cancellation policy allows them. When a refund applies you receive the full lesson price. Rescheduling does not create a refund entitlement.",
+      "failure": "If a refund may fail or be delayed because the teacher's payment account lacks sufficient funds or has another processor issue, the teacher remains responsible for resolving the refund. The platform is not responsible for the teacher's failure to fund a refund except where required by law."
+    },
+    "teacher": {
+      "title": "Teacher payment responsibilities",
+      "transaction": "Students pay your connected payment account for lessons through the platform. English Studio Japan facilitates the relationship and payment flow.",
+      "platformFee": "The platform fee depends on your platform tier. Tier 1 uses 20% for lessons 1-5, 15% for lessons 6-10, and 10% from lesson 11 onward; Tier 2 uses 15% for lessons 1-10 and 10% from lesson 11 onward; Tier 3 is a flat 10%. On a refund that fee is returned to you in full.",
+      "refunds": "You are responsible for the full refund amount owed to the student under the cancellation policy. The platform fee from the original sale is returned to you, so the only cost you bear is Stripe's processing fee on the original payment.",
+      "failure": "If your processor balance, bank account, or payout setup prevents a refund from completing, you remain responsible for resolving the refund and your paid booking access may be restricted."
+    }
   },
   "placement": {
     "pageIntro": "About 15–25 minutes. Your answers help us suggest a starting level and lesson plan.",
@@ -721,7 +1012,11 @@
   },
   "learn": {
     "title": "Learn",
-    "courses": "Courses"
+    "courses": "Courses",
+    "answerCorrect": "Correct",
+    "answerWrong": "Not quite — try the next one.",
+    "attemptFailed": "We could not record that answer. Please try again.",
+    "unsupportedExercise": "This exercise type is not available yet ({type})."
   },
   "study": {
     "title": "Flashcards",
@@ -767,10 +1062,12 @@
     "practiceMixed": "Mixed queue",
     "practiceFocusHint": "Target weak cards for extra repeats, or review mastered cards.",
     "queueEmptyWeak": "No weak cards yet — keep practicing!",
-    "queueEmptyMastered": "No mastered cards yet — answer a few correctly in a row to build mastery."
+    "queueEmptyMastered": "No mastered cards yet — answer a few correctly in a row to build mastery.",
+    "passMarkLabel": "Pass mark: {score}%",
+    "questionCount": "{count, plural, one {# question} other {# questions}}"
   },
   "onboarding": {
-    "title": "Welcome to English Studio",
+    "title": "Welcome to English Studio Japan",
     "subtitle": "Complete your onboarding to continue to your dashboard.",
     "timezoneLabel": "Your timezone",
     "timezoneHelp": "Auto-detected from your browser. Change it here anytime.",
@@ -847,6 +1144,10 @@
       "profile": {
         "title": "Update your public profile",
         "body": "Add your bio and credentials so students know who they will learn with."
+      },
+      "payments": {
+        "title": "Connect payments",
+        "body": "Enable at least one payment processor before accepting paid lessons."
       },
       "integrations": {
         "title": "Connect Google",
@@ -1173,7 +1474,16 @@
         "pendingApplications": "{count} pending",
         "approve": "Approve",
         "deny": "Deny",
-        "noApplications": "No pending applications."
+        "noApplications": "No pending applications.",
+        "inviteTitle": "Invite to this school",
+        "inviteEmail": "Email address",
+        "inviteEmailPlaceholder": "teacher@example.com",
+        "inviteRole": "Role",
+        "send": "Send invite",
+        "sending": "Sending…",
+        "cancel": "Cancel",
+        "inviteError": "Could not send that invite.",
+        "inviteSent": "Invite sent."
       },
       "pricingPage": {
         "title": "Pricing",
@@ -1222,7 +1532,8 @@
         "save": "Save",
         "saving": "Saving…",
         "saved": "Saved.",
-        "error": "Could not save settings."
+        "error": "Could not save settings.",
+        "description": "Rename this school and set the details students see."
       },
       "taxonomyPage": {
         "title": "Class taxonomy",
@@ -1283,6 +1594,19 @@
       "invalid": "This invitation link is invalid.",
       "alreadyUsed": "This invitation has already been used.",
       "expired": "This invitation has expired."
+    },
+    "roles": {
+      "OWNER": "Owner",
+      "ORG_ADMIN": "Org admin",
+      "SCHOOL_ADMIN": "School admin",
+      "TEACHER": "Teacher",
+      "STUDENT": "Student"
+    },
+    "memberStatus": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "INVITED": "Invited",
+      "PENDING_APPROVAL": "Awaiting approval"
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "English Studio",
+    "appName": "English Studio Japan",
     "signIn": "ログイン",
     "signOut": "ログアウト",
     "dashboard": "ダッシュボード",
@@ -28,7 +28,8 @@
     "footerOperatedBy": "運営: Yabai Studios",
     "footerContact": "お問い合わせ",
     "footerAria": "サイトフッター",
-    "org": "組織"
+    "org": "組織",
+    "notificationsWithCount": "通知（未読 {count} 件）"
   },
   "contact": {
     "metaTitle": "お問い合わせ — English Studio Japan",
@@ -39,10 +40,22 @@
   "legal": {
     "navAria": "法務ドキュメント",
     "navTerms": "利用規約",
+    "navTermsTeachers": "講師向けマーケットプレイス規約",
+    "navTermsStudents": "受講生向けマーケットプレイス規約",
+    "navRefundTeachers": "講師向け返金ポリシー",
+    "navRefundStudents": "受講生向け返金ポリシー",
     "navPrivacy": "プライバシーポリシー",
     "termsPageTitle": "利用規約 — English Studio Japan",
+    "termsTeachersPageTitle": "講師向けマーケットプレイス利用規約 — English Studio Japan",
+    "termsStudentsPageTitle": "受講生向けマーケットプレイス利用規約 — English Studio Japan",
+    "refundTeachersPageTitle": "講師向け返金ポリシー — English Studio Japan",
+    "refundStudentsPageTitle": "受講生向け返金ポリシー — English Studio Japan",
     "privacyPageTitle": "プライバシーポリシー — English Studio Japan",
     "termsMetaDescription": "English Studio Japan の利用規約（サービスの利用、Google 等の第三者、レッスン録音、責任制限など）。",
+    "termsTeachersMetaDescription": "English Studio Japan の講師向けマーケットプレイス規約（プラットフォームティア、決済アカウント要件、マーケットプレイス責任）。",
+    "termsStudentsMetaDescription": "English Studio Japan の受講生向けマーケットプレイス規約（有料レッスン予約、講師との関係、チェックアウト時の責任）。",
+    "refundTeachersMetaDescription": "English Studio Japan の講師向け返金ポリシー（返金時のプラットフォーム手数料、費用転嫁設定、講師の責任）。",
+    "refundStudentsMetaDescription": "English Studio Japan の受講生向け返金ポリシー（返金の条件、返金額、処理上の制限）。",
     "privacyMetaDescription": "English Studio Japan のプライバシーポリシー（取得・利用・共有、Google 連携、レッスン録音、お客様の選択肢など）。",
     "footerNotice": "本書は慣行を説明するためのものであり、法的助言に代わるものではありません。事業上の判断は専門家にご相談ください。",
     "footerTermsLink": "利用規約",
@@ -91,10 +104,12 @@
     "signedInSubtitle": "次のレッスンの予約、スケジュールの確認、フラッシュカードの続きからお選びください。",
     "signedInBook": "講師を探す",
     "signedInDashboard": "ダッシュボード",
-    "signedInLearn": "フラッシュカード"
+    "signedInLearn": "フラッシュカード",
+    "metaTitle": "English Studio Japan — 日本の学習者向けオンライン英会話",
+    "pillarsHeading": "English Studio Japan が選ばれる理由"
   },
   "landing": {
-    "metaTitle": "English Studio — 日本の学習者向けオンライン英会話",
+    "metaTitle": "English Studio Japan — 日本の学習者向けオンライン英会話",
     "metaDescription": "講師を選び、Google Meet でレッスン。フラッシュカードやレベル診断で学習を続けられます。",
     "heroTitle": "信頼できる講師と学ぶ英語",
     "heroSubtitle": "マンツーマン予約、分かりやすいスケジュール、レッスン間の復習まで。日本の学習者のためのプラットフォームです。",
@@ -112,7 +127,7 @@
     "pillarPracticeBody": "フラッシュカード（単語練習）やレベル診断でペースを保てます。",
     "trustLine": "Google でログイン。Gmail である必要はなく、Google でお使いのメールアドレスで大丈夫です。Google と連携すると、カレンダー向けのリマインダーに便利です。",
     "howHeading": "使い方",
-    "pillarsHeading": "English Studio が選ばれる理由"
+    "pillarsHeading": "English Studio Japan が選ばれる理由"
   },
   "dashboard": {
     "taxonomyPage": {
@@ -273,7 +288,12 @@
       "flashcardAvgTime": "平均回答時間",
       "flashcardSeconds": "{sec} 秒",
       "flashcardWeak": "苦手カード",
-      "flashcardMastered": "習得カード"
+      "flashcardMastered": "習得カード",
+      "noNextLessonTeacher": "予約済みのレッスンはまだありません。",
+      "openAvailabilityCta": "空き時間を設定",
+      "statUpcoming": "今後のレッスン",
+      "statCompleted": "完了したレッスン",
+      "statRank": "学習ランク"
     },
     "profilePage": {
       "title": "プロフィール",
@@ -299,6 +319,7 @@
       "teacherRateHelp": "講師一覧と予約ページに表示されます。料金を出さない場合は空欄にしてください。",
       "teacherRatesByDurationTitle": "個人レッスン料金（時間別）",
       "teacherRatesByDurationHelp": "提供するレッスン時間を選び、それぞれの料金を設定してください。",
+      "teacherMinimumRateHelp": "公開レッスン料金は最低 ¥{amount} です。管理者は受講生ごとの特別な継続料金として、この最低額未満の料金を設定できます。",
       "teacherLessonLevelForRate": "クラスレベル",
       "teacherLessonTypeForRate": "レッスンの内容",
       "teacherLessonTypeForRateHelp": "時間の長さごとに、どんな内容のレッスンか選びます（スケジュールの種類と同じ）。ここに合わせて予約時のレッスン種別が絞り込まれます。",
@@ -332,7 +353,14 @@
       "teacherPreviewWhenHidden": "公開一覧に表示されないため、受講生一覧にいる方にこのリンクを共有してください。",
       "teacherMarketplaceHiddenLabel": "公開の講師一覧に自分を表示しない",
       "teacherMarketplaceHiddenHelp": "オンにすると、「受講生一覧」で追加した受講生だけが予約ページを開いて予約できます。",
-      "prefillFromGoogle": "ログイン（Google）の情報を表示しています。保存前に編集できます。"
+      "prefillFromGoogle": "ログイン（Google）の情報を表示しています。保存前に編集できます。",
+      "editProfile": "プロフィールを編集",
+      "cancelEdit": "キャンセル",
+      "notSet": "未設定",
+      "profileVisible": "講師一覧に表示中",
+      "profileHidden": "講師一覧で非表示",
+      "emptyProfileHint": "プロフィールが未入力です。自己紹介と経歴を追加すると、受講生が予約前にあなたのことを知ることができます。",
+      "emptyStudentProfileHint": "プロフィールが未入力です。自己紹介を追加すると、講師がレッスンの目的を把握しやすくなります。"
     },
     "schedulePage": {
       "title": "スケジュール",
@@ -341,6 +369,9 @@
       "subNavUpcoming": "予定",
       "subNavCompleted": "受講済み",
       "availabilityIntro": "空き時間を設定し、週間スケジュールを管理しましょう。",
+      "availabilityPaymentRequiredTitle": "空き時間の公開には Stripe 設定が必要です",
+      "availabilityPaymentRequiredBody": "空き時間を公開する前に、Stripe の設定を完了し、講師向け支払いポリシーに同意してください。",
+      "availabilityPaymentRequiredCta": "支払い設定を開く",
       "upcomingIntro": "予約済みのレッスンを確認できます。",
       "ariaScheduleSections": "スケジュールの区分",
       "completedSectionTitle": "受講済みレッスン",
@@ -366,11 +397,8 @@
       "syncedSmartNotesRefsLabel": "同期済みスマートノート参照 ID",
       "syncedRecordingRefsLabel": "同期済み録画参照 ID",
       "lessonNotesEmptyStudent": "このレッスンにはまだメモがありません。",
-      "completedLessonsViewToggle": "表示形式",
-      "completedLessonsViewCards": "カード",
-      "completedLessonsViewList": "リスト",
-      "completedLessonsSortHint": "受講生名順、同一受講生では新しい日時が上です。",
-      "completedLessonsHasNotes": "メモまたはリンクあり"
+      "completedLessonsHasNotes": "メモまたはリンクあり",
+      "completedLessonsCount": "{count}件"
     },
     "lessonDetail": {
       "backToSchedule": "スケジュールに戻る",
@@ -439,7 +467,9 @@
       "lessonLevel": "レッスンレベル",
       "lessonType": "レッスン種別",
       "invalidLessonMeta": "各スロットにクラスレベルとクラス種別の両方を選んでください。",
-      "taxonomyMissingWarning": "クラスレベル・種別が未設定です。先に「分類」から追加してください。"
+      "taxonomyMissingWarning": "クラスレベル・種別が未設定です。先に「分類」から追加してください。",
+      "classOffer": "クラスオファー",
+      "freeTrialOffering": "無料トライアル"
     },
     "quickReview": {
       "title": "クイック復習",
@@ -457,14 +487,134 @@
     },
     "integrationsPage": {
       "title": "Google 連携",
-      "intro": "必要なものだけを接続します。Meet リンクにはカレンダーが使われます。Drive や Meet の成果物は教材用の任意連携です。",
+      "intro": "Google アカウントを一度連携するだけです。レッスンの予定を Meet リンク付きで Google カレンダーに作成し、レッスンメモや議事録をご自身の Drive に同期できます。",
       "calendarPreviewTitle": "あなたのカレンダー",
       "calendarPreviewHint": "Google の埋め込み表示です。真っ白な場合は Google カレンダーで該当カレンダーの設定 → アクセス権限から「一般に公開」または埋め込みを許可するか、新しいタブで開いてください。",
-      "openGoogleCalendar": "Google カレンダーを開く"
+      "openGoogleCalendar": "Google カレンダーを開く",
+      "identityName": "Google アカウント",
+      "identityDesc": "{who} としてログイン中。ログインには識別情報のスコープ（openid、email、profile）のみを使用します。",
+      "connected": "連携済み",
+      "notConnected": "未連携",
+      "connect": "連携する",
+      "reconnect": "再連携する",
+      "disconnect": "連携を解除",
+      "googleUser": "Google ユーザー",
+      "googleName": "Google",
+      "googleConnectedDesc": "連携済み。レッスンごとに Meet リンク付きのカレンダー予定を作成し、レッスンメモや議事録を Drive に同期できます。",
+      "googleDisconnectedDesc": "一度連携するだけで、Meet リンク付きのカレンダー予定の作成と、レッスンメモ・議事録の Drive への同期ができます。",
+      "googlePartialDesc": "連携済みですが、一部の権限が許可されていません。下でオフになっている機能は、再連携して許可するまで使用できません。",
+      "partiallyConnected": "一部のみ連携",
+      "capabilityCalendar": "カレンダーの予定と Meet リンク",
+      "capabilityDrive": "Drive 内のレッスンメモ",
+      "capabilityMeet": "ミーティングの記録と録画"
     },
     "settingsPage": {
       "title": "設定",
-      "intro": "Google 連携やその他のアカウント設定です。今後、さらに項目を追加していきます。"
+      "intro": "Google 連携やその他のアカウント設定です。今後、さらに項目を追加していきます。",
+      "tabsAriaLabel": "設定セクション",
+      "tabPayments": "支払い",
+      "tabTier": "ティア",
+      "tabGoogle": "Google",
+      "paymentsTitle": "支払い",
+      "paymentsIntro": "有料レッスンで使う支払いポリシーの同意状況と接続済み支払い方法を管理します。",
+      "paymentsConnectedTitle": "接続済みの支払い方法",
+      "paymentsNone": "有効な支払い方法はまだ接続されていません。",
+      "paymentsAvailableToStudents": "支払いポリシーに同意済みの場合、これらの方法が受講生に表示されます。",
+      "paymentAccountStatus": "{provider} アカウント: {status}",
+      "paymentAccountReady": "決済と入金に利用できます",
+      "paymentAccountNeedsSetup": "この方法で受講生が支払うには追加設定が必要です",
+      "paymentAccountLocalReady": "ローカルテスト用にのみ利用できます",
+      "connectStripe": "Stripe を接続",
+      "connectStripePrefix": "接続：",
+      "continueStripeSetup": "Stripe 設定を続ける",
+      "continueStripeSetupPrefix": "設定を続ける：",
+      "refreshStripe": "Stripe の状態を更新",
+      "connectStripeHelp": "Stripe のホスト型設定画面が開きます。講師自身が Stripe アカウントを所有・管理し、English Studio Japan は接続アカウント ID の保存と有料レッスンのプラットフォーム手数料の徴収のみを行います。",
+      "connectStripeError": "Stripe 設定を開始できませんでした。",
+      "refreshStripeError": "Stripe の状態を更新できませんでした。",
+      "enableDevStripe": "ローカル用 Stripe テスト方法を有効化",
+      "enableDevStripeHelp": "ローカルテスト専用です。本番の Stripe または KOMOJU 連携では、各プロバイダーのオンボーディング実装が必要です。",
+      "enableDevStripeError": "ローカル用テスト支払い方法を有効化できませんでした。",
+      "providerOnboardingPending": "Stripe Connect と KOMOJU/PayPay のプロバイダー側オンボーディングは、本番用認証情報の設定後にここへ表示します。",
+      "paymentPolicyTitle": "マーケットプレイス規約と支払い責任",
+      "paymentPolicyIntro": "有料レッスンの支払い方法を受講生に表示する前に、講師向けマーケットプレイス規約、返金ポリシー、および下記の支払い責任を読み、同意する必要があります。",
+      "paymentPolicyAccepted": "講師向けマーケットプレイス規約に同意済みです。",
+      "paymentPolicyAccept": "マーケットプレイス規約に同意する",
+      "paymentPolicyAcceptCheckboxPrefix": "",
+      "paymentPolicyAcceptCheckboxTeacherTermsLink": "講師向けマーケットプレイス利用規約",
+      "paymentPolicyAcceptCheckboxJoiner": "および",
+      "paymentPolicyAcceptCheckboxRefundLink": "講師向け返金ポリシー",
+      "paymentPolicyAcceptCheckboxSuffix": "（上記のティアおよび返金ルールを含む）を読み、同意します。",
+      "paymentPolicyCheckboxError": "同意する前にチェックボックスにチェックを入れてください。",
+      "paymentPolicySaving": "保存中…",
+      "paymentPolicyError": "マーケットプレイス規約の同意を保存できませんでした。",
+      "stripeSetupTitle": "Stripe 設定",
+      "stripeSetupIntro": "受講生がレッスン代を支払えるようにするには、以下の手順を完了してください。",
+      "stripeSetupState_policy_required": "まず支払いポリシーに同意してください",
+      "stripeSetupState_not_started": "Stripe はまだ接続されていません",
+      "stripeSetupState_in_progress": "Stripe 設定の途中です",
+      "stripeSetupState_action_required": "Stripe に追加情報が必要です",
+      "stripeSetupState_ready": "Stripe の準備が完了しました",
+      "stripeSetupPolicyRequiredBody": "Stripe を接続する前に、下の講師向け支払いポリシーに同意してください。",
+      "stripeSetupNotStartedBody": "レッスン代を受け取るには Stripe アカウントを接続してください。",
+      "stripeSetupInProgressBody": "受講生がカードで支払えるように、Stripe のオンボーディングを完了してください。",
+      "stripeSetupActionRequiredBody": "決済を有効にする前に、Stripe 側で追加の情報が必要です。",
+      "stripeSetupReadyBody": "Stripe アカウントは決済と入金の準備ができています。",
+      "stripeSetupStepPolicy": "支払いポリシーに同意",
+      "stripeSetupStepConnect": "Stripe を接続",
+      "stripeSetupStepLive": "有料レッスンの準備完了",
+      "stripeSetupAcceptPolicyCta": "支払いポリシーへ",
+      "stripeSetupStudentsCanPay": "受講生はカードでレッスン代を支払えます。",
+      "stripeReturnChecking": "Stripe の状態を確認しています…",
+      "stripeReturnReady": "Stripe 設定が完了しました。受講生がレッスン代を支払えます。",
+      "stripeReturnIncomplete": "Stripe の設定がまだ完了していません。オンボーディングを続けるか、状態を更新してください。",
+      "stripeAccountLabel_PENDING": "Stripe：設定中",
+      "stripeAccountLabel_ENABLED": "Stripe：利用可能",
+      "stripeAccountLabel_REQUIREMENTS_DUE": "Stripe：対応が必要",
+      "stripeAccountLabel_DISABLED": "Stripe：無効",
+      "stripeRequirement_identity": "本人確認が必要な場合があります",
+      "stripeRequirement_bank": "銀行口座情報が必要な場合があります",
+      "stripeRequirement_business": "事業者情報が必要な場合があります",
+      "stripeRequirement_other": "Stripe から追加情報の提出が求められる場合があります",
+      "marketplaceEconomics": {
+        "title": "ティアと返金の仕組み",
+        "intro": "有料マーケットプレイスレッスンにおける、プラットフォーム手数料と返金の取り扱いの概要です。",
+        "tierTitle": "プラットフォームティア手数料",
+        "tierIntro": "ティアは、当月（Asia/Tokyo、初回有料レッスンから起算）の各有料レッスンのプラットフォーム手数料を決定します。",
+        "tierColumn": "ティア",
+        "feeColumn": "プラットフォーム手数料",
+        "tier1Schedule": "1〜5回目 20% · 6〜10回目 15% · 11回目以降 10%",
+        "tier2Schedule": "1〜10回目 15% · 11回目以降 10%",
+        "tier3Schedule": "一律 10%",
+        "tierReviewNote": "ティアは指導実績に基づき定期的に見直されます。現在のティアと見直し予定は「ティア」タブをご覧ください。",
+        "refundTitle": "返金",
+        "refundPlatformFee": "返金時、English Studio Japan は当初取引のプラットフォーム手数料を全額、連携済みの決済口座に返還します。実施されなかったレッスンについて当社が受け取るものはありません。",
+        "refundFullAmount": "返金対象のキャンセルでは、どちらの都合によるものであっても受講生にレッスン代金の全額が返金されます。設定による調整はありません。",
+        "refundProcessorFee": "Stripe の決済手数料は返金時に返還されません。返金となったレッスンで講師が負担するのはこの手数料のみです。",
+        "refundDocsPrefix": "詳細は",
+        "refundDocsTeacherTermsLink": "講師向けマーケットプレイス利用規約",
+        "refundDocsJoiner": "および",
+        "refundDocsRefundLink": "講師向け返金ポリシー",
+        "refundDocsSuffix": "をご覧ください。"
+      },
+      "tierSettings": {
+        "title": "プラットフォームティア",
+        "intro": "ティアによって、今後の有料レッスンのプラットフォーム手数料が決まります。",
+        "currentTier": "現在のティア",
+        "sourceOverride": "管理者による設定",
+        "sourceCalculated": "自動判定",
+        "overrideExpiry": "{date} に設定が解除されます",
+        "overrideNoExpiry": "設定に期限はありません",
+        "calculatedTier": "自動判定のティア",
+        "clockStarted": "ティア計算の開始日",
+        "nextReview": "次回の見直し",
+        "annualReview": "年次見直し {date}",
+        "notStarted": "未開始",
+        "evaluationsTitle": "最近の見直し",
+        "evaluationsEmpty": "まだ見直しはありません。最初の見直しは有料レッスンが3か月分たまった後に行われます。",
+        "evaluationAverage": "平均 {count} レッスン",
+        "evaluationRecommends": "推奨：{tier}"
+      }
     },
     "teacherHome": {
       "title": "ダッシュボード",
@@ -500,15 +650,17 @@
       "schools": "スクール",
       "users": "全ユーザー",
       "teachers": "講師",
+      "teacherTiers": "講師ティア",
       "students": "受講生",
-      "reports": "通報"
+      "reports": "通報",
+      "payments": "決済"
     },
     "schoolsPage": {
       "title": "スクール・組織管理",
       "subtitle": "組織を作成し、スクールを追加して、オーナーや管理者を割り当てます。",
       "none": "組織はまだありません。下のフォームから作成してください。",
       "createTitle": "組織を作成",
-      "createHelp": "組織、最初のスクールを作成し、指定したユーザーをオーナーに割り当てます。",
+      "createHelp": "組織はスクール1つとオーナー1名から始まります。スクールの追加や権限の変更は後からできます。",
       "createCta": "組織を作成",
       "saving": "保存中…",
       "deleting": "削除中…",
@@ -516,8 +668,7 @@
       "orgName": "組織名",
       "orgSlug": "組織スラッグ",
       "schoolName": "スクール名",
-      "schoolSlugOptional": "スクールスラッグ（任意）",
-      "ownerEmail": "オーナーのメール（登録済ユーザー）",
+      "ownerEmail": "オーナーのメールアドレス",
       "schoolsTitle": "スクール",
       "membersTitle": "メンバー",
       "members": "名",
@@ -536,7 +687,17 @@
       "slugPreview": "保存される値",
       "slugInvalidEmpty": "スラッグには英数字を含めてください。",
       "searching": "検索中…",
-      "noResults": "一致するユーザーはいません。"
+      "noResults": "一致するユーザーはいません。",
+      "schoolCount": "{count}校",
+      "memberCount": "{count}名",
+      "backToOrgs": "組織一覧",
+      "invitePending": "招待中",
+      "orgLegend": "組織",
+      "firstSchoolLegend": "最初のスクール",
+      "ownerLegend": "オーナー",
+      "ownerEmailHint": "既存のアカウントが必要です。組織のオーナーになります。",
+      "schoolSlug": "スクールスラッグ",
+      "slugHint": "URL に使われます。名前から自動入力されます。必要に応じて変更できます。"
     },
     "usersPage": {
       "title": "全ユーザー"
@@ -544,8 +705,49 @@
     "teachersPage": {
       "title": "講師"
     },
+    "teacherTiersPage": {
+      "title": "講師ティア",
+      "subtitle": "計算されたティア、管理者による上書き、年次の降格候補を管理します。",
+      "legacyTitle": "旧料金の個別上書き",
+      "legacyIntro": "SUPER_ADMIN 専用。公開最低額 ¥3,000 を下回る受講生別の料金に使用します。",
+      "fieldTeacher": "講師",
+      "fieldStudentId": "受講生ユーザーID",
+      "fieldOfferingId": "オファリングID",
+      "fieldRateYen": "料金（円）",
+      "saveLegacyRate": "旧料金を保存",
+      "noEmail": "メールアドレスなし",
+      "tierName": "ティア {number}",
+      "tierSummary": "算出 {calculated} ／ 適用 {effective}",
+      "overrideLine": "上書き: {tier}（{until}まで）",
+      "overrideUntilAdmin": "管理者が変更するまで",
+      "nextReview": "次回レビュー: {date}",
+      "notStarted": "未開始",
+      "evaluateNow": "今すぐ評価",
+      "setTier": "{tier} に設定",
+      "removeOverride": "上書きを解除",
+      "demotionPending": "年次のティア引き下げが管理者の判断待ちです。",
+      "approveDemotion": "引き下げを承認",
+      "keepTier": "ティアを維持",
+      "overrideTo": "上書き先"
+    },
     "studentsPage": {
       "title": "受講生"
+    },
+    "refundsPage": {
+      "title": "対応が必要な返金",
+      "subtitle": "受講生にまだ届いていない返金、または失敗し手動での再処理が必要な返金です。",
+      "loading": "返金を読み込み中…",
+      "empty": "未処理の返金はありません。",
+      "status": "ステータス",
+      "people": "予約",
+      "amount": "金額",
+      "note": "状況",
+      "when": "発生日時",
+      "studentAbbr": "受講生",
+      "teacherAbbr": "講師",
+      "statusPendingRecovery": "手動対応が必要",
+      "statusFailed": "失敗",
+      "statusPending": "Stripe 処理待ち"
     },
     "reportsPage": {
       "title": "チャット通報",
@@ -555,7 +757,9 @@
       "teacherReport": "講師からの通報",
       "thread": "スレッド",
       "when": "更新",
-      "empty": "通報されたスレッドはありません。"
+      "empty": "通報されたスレッドはありません。",
+      "studentAbbr": "受",
+      "teacherAbbr": "講"
     },
     "userDetail": {
       "title": "ユーザー",
@@ -591,7 +795,8 @@
       "specialties": "専門（カンマ区切り）",
       "instructionLanguages": "指導言語（カンマ区切り）",
       "loading": "読み込み中…",
-      "calendarConnected": "Googleカレンダー連携済み"
+      "calendarConnected": "Googleカレンダー連携済み",
+      "cancel": "キャンセル"
     },
     "grid": {
       "colActions": "",
@@ -621,7 +826,47 @@
       "prev": "前へ",
       "next": "次へ",
       "yes": "はい",
-      "no": "いいえ"
+      "no": "いいえ",
+      "sortAsc": "昇順",
+      "sortDesc": "降順",
+      "sortSummary": "{field}（{direction}）で並べ替え",
+      "colRate": "料金",
+      "colActionsLabel": "ユーザーを開く"
+    },
+    "placementReview": {
+      "levelLabel": "{name} さんのレベル",
+      "noteLabel": "{name} さんのレビューメモ",
+      "notePlaceholder": "レビューメモ（任意）",
+      "apply": "適用",
+      "saving": "保存中…",
+      "saved": "保存しました",
+      "error": "保存できませんでした。もう一度お試しください。",
+      "level": {
+        "BEGINNER": "初級",
+        "INTERMEDIATE": "中級",
+        "ADVANCED": "上級"
+      }
+    },
+    "bookingsPanel": {
+      "scopeUpcoming": "今後",
+      "scopePast": "過去",
+      "statusLabel": "ステータス",
+      "statusAll": "すべてのステータス",
+      "searchLabel": "予約を検索",
+      "searchPlaceholder": "受講生・講師・レッスン名",
+      "countLabel": "{count}件の予約",
+      "emptyUpcoming": "この条件に一致する今後の予約はありません。",
+      "emptyPast": "この条件に一致する過去の予約はありません。",
+      "showing": "{total}件中 {shown}件を表示",
+      "joinCta": "Meet",
+      "reviewQueueLink": "レベル判定レビュー待ち",
+      "allStudentsCta": "受講生一覧を開く"
+    },
+    "overview": {
+      "statUpcoming": "今後の予約",
+      "statNeedsReview": "レベル判定レビュー待ち",
+      "statStudents": "受講生",
+      "studentsHint": "受講生の検索・並べ替え・編集は受講生画面で行えます。"
     }
   },
   "booking": {
@@ -630,6 +875,13 @@
     "selectProduct": "レッスン種別",
     "allLessonTypes": "すべてのレッスン種別",
     "selectSlot": "日時を選択",
+    "stepChooseTimeTitle": "日時を選ぶ",
+    "stepChooseLessonTitle": "レッスンを選ぶ",
+    "stepChooseLessonHint": "先に日時を選択してください",
+    "stepChoosePaymentTitle": "支払い方法を選ぶ",
+    "stepReviewTitle": "内容を確認して予約",
+    "slotUnavailableError": "その日時は利用できません。別の時間を選んでください。",
+    "durationMismatchError": "選択したレッスンはその時間枠に収まりません。",
     "confirm": "予約を確定",
     "success": "予約が確認されました。",
     "freeTrialOption": "無料トライアル",
@@ -651,8 +903,26 @@
     "timezoneShownAs": "時間はあなたのタイムゾーンで表示されます",
     "checkoutTitle": "お支払い",
     "checkoutSummary": "レッスン枠を確保するために内容を確認して支払いを完了してください。",
+    "checkoutConfirmingPayment": "お支払いを受け付けました。予約を確定しています…",
+    "checkoutPaymentConfirmed": "お支払いが確認されました。レッスンが予約されました。",
+    "checkoutSuccessTitle": "お支払いが完了しました",
+    "checkoutSuccessBody": "レッスンの予約が確定しました。下記から予約内容を確認できます。",
+    "checkoutSuccessViewBooking": "予約を見る",
+    "checkoutFailedTitle": "お支払いを確定できませんでした",
+    "checkoutFailedBody": "Stripeから戻りましたが、予約を確定できませんでした。もう一度お支払いを試すか、しばらくしてからスケジュールをご確認ください。",
+    "checkoutFailedRetry": "もう一度支払う",
+    "checkoutFailedBackToSchedule": "スケジュールに戻る",
+    "checkoutCancelled": "お支払いはキャンセルされました。準備ができたら再度お試しください。",
     "teacher": "講師",
     "payNow": "今すぐ支払う",
+    "paymentMethod": "支払い方法",
+    "acceptCheckoutTerms": "レッスン内容、支払金額、キャンセルポリシーを確認しました。受講生向けマーケットプレイス利用規約および受講生向け返金ポリシーを読み、同意します。取引は受講生と講師の間で行われ、返金対象の場合はレッスン代金の全額が返金されること、日時変更は返金対象にならないことを理解しています。",
+    "acceptCheckoutTermsPrefix": "レッスン内容、支払金額、キャンセルポリシーを確認しました。",
+    "acceptCheckoutTermsStudentLink": "受講生向けマーケットプレイス利用規約",
+    "acceptCheckoutTermsJoiner": "および",
+    "acceptCheckoutTermsRefundLink": "受講生向け返金ポリシー",
+    "acceptCheckoutTermsSuffix": "を読み、同意します。取引は受講生と講師の間で行われ、返金対象の場合はレッスン代金の全額が返金されること、日時変更は返金対象にならないことを理解しています。",
+    "acceptCheckoutTermsError": "支払い前に確認事項へ同意してください。",
     "paymentFailed": "支払いに失敗しました。もう一度お試しください。",
     "leadTimeError": "予約はレッスン開始の48時間以上前に行う必要があります。",
     "leadTimeNotice": "予約可能なのはレッスン開始の48時間以上前の枠のみです。",
@@ -670,7 +940,28 @@
     "unavailableShort": "予約不可",
     "selectedSlot": "選択中",
     "noSlotSelected": "時間がまだ選択されていません",
-    "reserved": "予約済み"
+    "reserved": "予約済み",
+    "teacherCardViewProfile": "プロフィールを見る",
+    "teacherCardAvailableSlots": "空き枠 {count}件",
+    "filterLanguageLabel": "指導言語",
+    "filterSpecialtyPlaceholder": "日常会話、ビジネス、試験対策など",
+    "filterLanguagePlaceholder": "JP または EN",
+    "freeTrialAvailable": "無料トライアルあり"
+  },
+  "paymentPolicy": {
+    "student": {
+      "title": "マーケットプレイス支払いポリシー",
+      "transaction": "取引は受講生と講師の間で行われます。English Studio Japan は予約、決済、連絡手段を仲介します。",
+      "refunds": "返金はキャンセルポリシー上認められる場合のみ自動処理されます。返金対象となる場合、レッスン代金の全額が返金されます。日時変更は返金対象になりません。",
+      "failure": "講師の決済アカウントの残高不足または決済代行業者側の問題により返金が失敗または遅延する場合、講師が返金の解決責任を負います。法令で求められる場合を除き、プラットフォームは講師による返金資金の不足について責任を負いません。"
+    },
+    "teacher": {
+      "title": "講師の支払い責任",
+      "transaction": "受講生はプラットフォームを通じて、講師の接続済み支払いアカウントにレッスン料を支払います。English Studio Japan は関係および決済フローを仲介します。",
+      "platformFee": "プラットフォーム手数料は講師のプラットフォームティアによって変わります。Tier 1 は1〜5回目20%、6〜10回目15%、11回目以降10%、Tier 2 は1〜10回目15%、11回目以降10%、Tier 3 は一律10%です。返金時、そのプラットフォーム手数料は全額が講師に返還されます。",
+      "refunds": "キャンセルポリシー上、受講生に返金が必要な場合、講師は返金額全額について責任を負います。当初取引のプラットフォーム手数料は返還されるため、講師の負担は当初決済にかかる Stripe の決済手数料のみです。",
+      "failure": "決済代行業者の残高、銀行口座、入金設定により返金が完了しない場合でも、講師は返金の解決責任を負い、有料予約の受付が制限される場合があります。"
+    }
   },
   "placement": {
     "pageIntro": "所要時間の目安は15〜25分です。回答は開始レベルとレッスン計画の提案に使われます。",
@@ -721,7 +1012,11 @@
   },
   "learn": {
     "title": "学習",
-    "courses": "コース"
+    "courses": "コース",
+    "answerCorrect": "正解",
+    "answerWrong": "惜しい。次に進みましょう。",
+    "attemptFailed": "解答を記録できませんでした。もう一度お試しください。",
+    "unsupportedExercise": "この形式の問題はまだ利用できません（{type}）。"
   },
   "study": {
     "title": "フラッシュカード",
@@ -767,10 +1062,12 @@
     "practiceMixed": "ミックス",
     "practiceFocusHint": "苦手だけを集中的に、または習得カードだけを復習できます。",
     "queueEmptyWeak": "まだ苦手カードがありません。練習を続けましょう。",
-    "queueEmptyMastered": "まだ習得カードがありません。連続正解で習得度を上げましょう。"
+    "queueEmptyMastered": "まだ習得カードがありません。連続正解で習得度を上げましょう。",
+    "passMarkLabel": "合格ライン：{score}%",
+    "questionCount": "{count}問"
   },
   "onboarding": {
-    "title": "English Studio へようこそ",
+    "title": "English Studio Japan へようこそ",
     "subtitle": "ダッシュボードに進む前にオンボーディングを完了してください。",
     "timezoneLabel": "タイムゾーン",
     "timezoneHelp": "ブラウザの設定から自動判定します。必要ならここで変更できます。",
@@ -847,6 +1144,10 @@
       "profile": {
         "title": "公開プロフィールを更新",
         "body": "自己紹介・資格を設定し、受講生に講師としての情報を伝えます。"
+      },
+      "payments": {
+        "title": "支払い設定を接続",
+        "body": "有料レッスンを受け付ける前に、少なくとも1つの決済方法を有効化します。"
       },
       "integrations": {
         "title": "Google 連携を設定",
@@ -1173,7 +1474,16 @@
         "pendingApplications": "{count} 件保留中",
         "approve": "承認",
         "deny": "却下",
-        "noApplications": "保留中の申請はありません。"
+        "noApplications": "保留中の申請はありません。",
+        "inviteTitle": "このスクールに招待",
+        "inviteEmail": "メールアドレス",
+        "inviteEmailPlaceholder": "teacher@example.com",
+        "inviteRole": "役割",
+        "send": "招待を送信",
+        "sending": "送信中…",
+        "cancel": "キャンセル",
+        "inviteError": "招待を送信できませんでした。",
+        "inviteSent": "招待を送信しました。"
       },
       "pricingPage": {
         "title": "料金設定",
@@ -1222,7 +1532,8 @@
         "save": "保存",
         "saving": "保存中…",
         "saved": "保存しました。",
-        "error": "設定を保存できませんでした。"
+        "error": "設定を保存できませんでした。",
+        "description": "スクール名や、受講生に表示される情報を設定します。"
       },
       "taxonomyPage": {
         "title": "クラス分類",
@@ -1283,6 +1594,19 @@
       "invalid": "招待リンクが無効です。",
       "alreadyUsed": "この招待はすでに使用されています。",
       "expired": "この招待は期限切れです。"
+    },
+    "roles": {
+      "OWNER": "オーナー",
+      "ORG_ADMIN": "組織管理者",
+      "SCHOOL_ADMIN": "スクール管理者",
+      "TEACHER": "講師",
+      "STUDENT": "受講生"
+    },
+    "memberStatus": {
+      "ACTIVE": "有効",
+      "INACTIVE": "無効",
+      "INVITED": "招待済み",
+      "PENDING_APPROVAL": "承認待ち"
     }
   }
 }

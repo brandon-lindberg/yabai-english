@@ -8,6 +8,9 @@ import { subscribeRealtime } from "@/lib/realtime-client";
 import { ChatModerationMenu } from "@/components/chat-moderation-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UnreadBadge } from "@/components/unread-badge";
+import { buttonClasses } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
+import { controlClass } from "@/components/ui/field";
 
 type ThreadItem = {
   id: string;
@@ -626,7 +629,7 @@ export function ChatPanel() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] right-[max(1.25rem,env(safe-area-inset-right,0px))] z-40 flex h-11 max-w-[10rem] items-center justify-center gap-1.5 rounded-full border border-border bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-md ring-1 ring-black/5 hover:opacity-90 ${
+        className={`fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] right-[max(1.25rem,env(safe-area-inset-right,0px))] z-40 flex h-11 max-w-[10rem] items-center justify-center gap-1.5 rounded-full border border-border bg-primary px-4 text-sm font-semibold text-primary-foreground ring-1 ring-black/5 hover:opacity-90 ${
           open ? "hidden" : ""
         }`}
         aria-label={open ? t("close") : t("open")}
@@ -641,7 +644,7 @@ export function ChatPanel() {
 
       {open && (
         <div
-          className="fixed inset-0 z-[55] flex flex-col overscroll-none bg-surface pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] md:inset-auto md:bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] md:right-[max(1.25rem,env(safe-area-inset-right,0px))] md:top-20 md:h-auto md:max-h-[min(calc(100dvh-5rem),900px)] md:w-[min(760px,calc(100dvw-2rem))] md:rounded-2xl md:border md:border-border md:shadow-xl"
+          className="fixed inset-0 z-[55] flex flex-col overscroll-none bg-surface pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] md:inset-auto md:bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] md:right-[max(1.25rem,env(safe-area-inset-right,0px))] md:top-20 md:h-auto md:max-h-[min(calc(100dvh-5rem),900px)] md:w-[min(760px,calc(100dvw-2rem))] md:rounded-2xl md:border md:border-border"
           style={{ touchAction: "pan-x pan-y" }}
         >
           <div className="mb-2 flex items-center justify-between border-b border-border px-4 py-3">
@@ -676,9 +679,9 @@ export function ChatPanel() {
                 mobilePane === "chat" ? "hidden md:block" : "block"
               }`}
             >
-              <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+              <h2 className="px-2 pb-2 text-sm font-bold tracking-[-0.01em] text-foreground">
                 {t("conversations")}
-              </p>
+              </h2>
               {isAdminViewer && (
                 <div className="mb-2 space-y-2 px-1">
                   <div className="flex gap-1">
@@ -738,7 +741,13 @@ export function ChatPanel() {
                           </button>
                         ))}
                       </div>
+                      {/* A placeholder is not an accessible name: it is
+                          announced inconsistently and vanishes on first
+                          keystroke. Five controls on this panel had nothing
+                          else. */}
                       <input
+                        type="search"
+                        aria-label={t("adminSearchPlaceholder")}
                         value={adminSearch}
                         onChange={(e) => setAdminSearch(e.target.value)}
                         className="w-full rounded-lg border border-border bg-surface px-2 py-1 text-xs text-foreground"
@@ -775,10 +784,10 @@ export function ChatPanel() {
                 {isAdminViewer && adminMode === "broadcast" ? (
                   <div className="space-y-2 px-1">
                     <p className="text-sm text-muted">{t("broadcastLeftPanelHint")}</p>
-                    <div className="rounded-xl border border-border bg-surface p-2">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                    <div className="border-t border-border pt-3">
+                      <h3 className="mb-2 text-sm font-bold tracking-[-0.01em] text-foreground">
                         {t("broadcastHistoryTitle")}
-                      </p>
+                      </h3>
                       {broadcastHistory.length === 0 ? (
                         <p className="text-xs text-muted">{t("broadcastHistoryEmpty")}</p>
                       ) : (
@@ -819,7 +828,7 @@ export function ChatPanel() {
                     {Array.from({ length: 4 }).map((_, i) => (
                       <div
                         key={i}
-                        className="w-full rounded-xl border border-border bg-surface px-3 py-2"
+                        className={controlClass()}
                       >
                         <div className="flex items-center justify-between gap-2">
                           <Skeleton height="4" width="1/2" />
@@ -850,9 +859,9 @@ export function ChatPanel() {
                     ? adminMode === "direct"
                       ? (
                           <div className="space-y-1">
-                            <p className="px-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                            <h3 className="px-2 text-sm font-bold tracking-[-0.01em] text-foreground">
                               {t("adminContactListTitle")}
-                            </p>
+                            </h3>
                             {adminContacts.length === 0 ? (
                               <p className="px-2 text-xs text-muted">{t("adminNoContacts")}</p>
                             ) : (
@@ -887,9 +896,9 @@ export function ChatPanel() {
                       ? (
                           <div className="space-y-3">
                             <div className="space-y-1">
-                              <p className="px-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                              <h3 className="px-2 text-sm font-bold tracking-[-0.01em] text-foreground">
                                 {t("adminContactListTitle")}
-                              </p>
+                              </h3>
                               {adminContacts.length === 0 ? (
                                 <p className="px-2 text-xs text-muted">{t("adminNoContacts")}</p>
                               ) : (
@@ -920,9 +929,9 @@ export function ChatPanel() {
                               )}
                             </div>
                             <div className="space-y-1">
-                              <p className="px-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                              <h3 className="px-2 text-sm font-bold tracking-[-0.01em] text-foreground">
                                 {t("adminContactConversationsTitle")}
-                              </p>
+                              </h3>
                               {adminContactThreads.length === 0 ? (
                                 <p className="px-2 text-xs text-muted">
                                   {t("adminNoConversationsForContact")}
@@ -1017,7 +1026,7 @@ export function ChatPanel() {
                                       void archiveConversation(thread.id);
                                     }
                                   }}
-                                  className="flex h-[calc(100%-6px)] w-[92px] cursor-pointer items-center justify-center rounded-xl bg-red-500 px-2 text-center text-xs font-semibold text-white"
+                                  className="flex h-[calc(100%-6px)] w-[92px] cursor-pointer items-center justify-center rounded-xl bg-[var(--app-danger)]/15 px-2 text-center text-xs font-semibold text-[var(--app-on-accent)]"
                                 >
                                   {t("archiveConversation")}
                                 </div>
@@ -1093,12 +1102,13 @@ export function ChatPanel() {
                     </p>
                     <p className="text-xs text-muted">{t("broadcastPanelHint")}</p>
                   </div>
-                  <div className="rounded-xl border border-border bg-surface p-3">
-                    <label className="text-xs font-medium text-muted">
+                  <div className="border-t border-border pt-3">
+                    <label className="text-xs font-medium text-muted" htmlFor="chat-broadcast-target">
                       {t("broadcastTargetLabel")}
                     </label>
                     <div className="mt-1 flex items-center gap-2">
                       <select
+                        id="chat-broadcast-target"
                         value={broadcastTarget}
                         onChange={(e) =>
                           setBroadcastTarget(e.target.value as "all" | "teachers" | "students")
@@ -1113,9 +1123,10 @@ export function ChatPanel() {
                   </div>
                   <div className="mt-3 flex-1">
                     <textarea
+                      aria-label={t("broadcastMessagePlaceholder")}
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
-                      className="h-full min-h-[180px] w-full rounded-xl border border-border bg-surface px-3 py-2 text-base text-foreground"
+                      className={controlClass("h-full min-h-[180px]")}
                       placeholder={t("broadcastMessagePlaceholder")}
                     />
                   </div>
@@ -1131,7 +1142,7 @@ export function ChatPanel() {
                       type="button"
                       onClick={() => void sendBroadcast()}
                       disabled={broadcastBusy || !draft.trim()}
-                      className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                      className={buttonClasses()}
                     >
                       {broadcastBusy ? t("broadcastSending") : t("broadcastSend")}
                     </button>
@@ -1145,7 +1156,7 @@ export function ChatPanel() {
                   </div>
                   {selectedDirectContact ? (
                     <>
-                      <div className="rounded-xl border border-border bg-surface p-3">
+                      <div className="border-t border-border pt-3">
                         <p className="text-xs font-medium text-muted">{t("directRecipientLabel")}</p>
                         <p className="text-sm font-semibold text-foreground">
                           {selectedDirectContact.name}
@@ -1156,9 +1167,10 @@ export function ChatPanel() {
                       </div>
                       <div className="mt-3 flex-1">
                         <textarea
+                          aria-label={t("directMessagePlaceholder")}
                           value={draft}
                           onChange={(e) => setDraft(e.target.value)}
-                          className="h-full min-h-[180px] w-full rounded-xl border border-border bg-surface px-3 py-2 text-base text-foreground"
+                          className={controlClass("h-full min-h-[180px]")}
                           placeholder={t("directMessagePlaceholder")}
                         />
                       </div>
@@ -1174,7 +1186,7 @@ export function ChatPanel() {
                           type="button"
                           onClick={() => void sendDirectMessage()}
                           disabled={!draft.trim() || !directTargetThreadId}
-                          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                          className={buttonClasses()}
                         >
                           {t("directSend")}
                         </button>
@@ -1217,17 +1229,16 @@ export function ChatPanel() {
                 (isAdminViewer
                   ? adminMode !== "broadcast"
                   : isTeacherInThread) && (
-                <label className="mb-2 flex items-center gap-2 text-xs text-muted">
-                  <input
-                    type="checkbox"
-                    checked={activeThread.twoWayEnabled}
-                    onChange={(e) => void setTwoWayEnabled(e.target.checked)}
-                  />
+                <CheckRow
+                  className="mb-2"
+                  checked={activeThread.twoWayEnabled}
+                  onChange={(next) => void setTwoWayEnabled(next)}
+                >
                   {t("enableTwoWay")}
-                </label>
+                </CheckRow>
               )}
               {isBlocked && (
-                <p className="mb-2 rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700">
+                <p className="mb-2 rounded-lg border border-[var(--app-danger)] bg-[var(--app-danger)]/10 px-2 py-1 text-xs text-[var(--app-danger)]">
                   {t("blockedHint")}
                 </p>
               )}
@@ -1352,6 +1363,7 @@ export function ChatPanel() {
               </div>
               <div className="mt-3 flex gap-2">
                 <input
+                  aria-label={t("messagePlaceholder")}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   disabled={!canSend || isBlocked || (isAdminViewer && adminMode === "review")}
@@ -1366,7 +1378,7 @@ export function ChatPanel() {
                   type="button"
                   onClick={() => void send()}
                   disabled={!canSend || isBlocked || (isAdminViewer && adminMode === "review")}
-                  className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                  className={buttonClasses()}
                 >
                   {t("send")}
                 </button>

@@ -7,6 +7,12 @@ import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button, buttonClasses } from "@/components/ui/button";
+import { Choice, ChoiceList } from "@/components/ui/choice";
+import { Outcome } from "@/components/ui/outcome";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { Section } from "@/components/ui/section";
+import { Status } from "@/components/ui/status";
 
 function formatPlacementEligibleDate(iso: string, locale: string): string {
   const d = new Date(iso);
@@ -180,24 +186,18 @@ export function PlacementQuiz() {
       >
         {/* Timer */}
         <Skeleton height="4" width="1/3" />
-        {/* Progress */}
-        <Skeleton height="3" width="1/4" />
-        {/* Question card — mirrors the real quiz layout */}
-        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
-          {/* Instruction */}
-          <Skeleton height="3" width="full" />
-          <div className="mt-1">
-            <Skeleton height="3" width="2/3" />
-          </div>
-          {/* Question prompt */}
+        {/* Progress bar */}
+        <Skeleton height="3" width="full" rounded="full" />
+        {/* Question — mirrors the real layout */}
+        <div className="border-t border-border pt-6">
+          <Skeleton height="3" width="2/3" />
           <div className="mt-3">
-            <Skeleton height="5" width="3/4" />
+            <Skeleton height="8" width="3/4" />
           </div>
-          {/* Answer options */}
-          <ul className="mt-4 space-y-2">
+          <ul className="mt-6 space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <li key={i}>
-                <div className="rounded-xl border border-border px-3 py-3 sm:px-4">
+                <div className="rounded-xl border border-border px-4 py-3">
                   <Skeleton height="4" width="3/4" />
                 </div>
               </li>
@@ -209,25 +209,25 @@ export function PlacementQuiz() {
   }
 
   if (cooldownEligibleAt) {
-    const dateLabel = formatPlacementEligibleDate(cooldownEligibleAt, locale);
     return (
-      <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
-        <p className="text-base font-semibold text-foreground">{t("cooldownTitle")}</p>
-        <p className="mt-2 text-sm text-muted">{t("cooldownBody", { date: dateLabel })}</p>
-        <Link
-          href="/dashboard"
-          className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-        >
-          {t("cooldownBack")}
-        </Link>
-      </div>
+      <Outcome
+        title={t("cooldownTitle")}
+        description={t("cooldownBody", {
+          date: formatPlacementEligibleDate(cooldownEligibleAt, locale),
+        })}
+        actions={
+          <Link href="/dashboard" className={buttonClasses({ size: "lg" })}>
+            {t("cooldownBack")}
+          </Link>
+        }
+      />
     );
   }
 
   if (!question && !objectiveComplete) {
     return (
-      <p className="text-sm" style={{ color: "var(--app-danger)" }}>
-        {t("loadError")}
+      <p role="alert">
+        <Status tone="error">{t("loadError")}</Status>
       </p>
     );
   }
@@ -241,125 +241,146 @@ export function PlacementQuiz() {
       "functional",
     ];
     return (
-      <div className="rounded-2xl border p-4 sm:p-6" style={{ borderColor: "var(--app-success-border)", background: "var(--app-success-bg)" }}>
-        <p className="text-sm font-medium" style={{ color: "var(--app-success-text)" }}>
-          {t("resultTitle")}
-        </p>
-        <p className="mt-2 text-lg font-bold text-foreground sm:text-xl">{t(labelKey)}</p>
-        <p className="mt-1 text-sm font-semibold text-foreground">
-          {t("subLevelLabel", { subLevel: result.subLevel })}
-        </p>
-        <p className="mt-1 text-sm text-muted">
-          {t("scoreSummary", { earned: result.earned, max: result.max })}
-        </p>
-
-        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+      /* The level is the answer the learner sat the test for, so it is the
+         figure — not a line of body text inside a tinted success box. The
+         previous panel said "result" in green above the thing that mattered. */
+      <Outcome
+        title={t("resultTitle")}
+        figure={t(labelKey)}
+        figureLabel={t("subLevelLabel", { subLevel: result.subLevel })}
+        description={t("scoreSummary", { earned: result.earned, max: result.max })}
+        actions={
+          <Button size="lg" onClick={() => router.push("/dashboard")}>
+            {t("backToDashboard")}
+          </Button>
+        }
+      >
+        <dl className="border-t border-border">
           {sectionOrder.map((sectionKey) => {
             const section = result.sectionScores[sectionKey];
             return (
-              <div key={sectionKey} className="rounded-xl border border-border bg-background px-3 py-2 text-left text-sm">
-                <p className="font-semibold text-foreground">{t(`section.${sectionKey}` as const)}</p>
-                <p className="text-xs text-muted">
-                  {Math.round(section.ratio * 100)}% ({section.earned}/{section.max})
-                </p>
+              <div
+                key={sectionKey}
+                className="flex items-baseline justify-between gap-4 border-b border-border py-3"
+              >
+                <dt className="text-sm text-muted">{t(`section.${sectionKey}` as const)}</dt>
+                <dd className="text-sm font-bold tabular-nums text-foreground">
+                  {Math.round(section.ratio * 100)}%{" "}
+                  <span className="font-medium text-muted">
+                    ({section.earned}/{section.max})
+                  </span>
+                </dd>
               </div>
             );
           })}
-        </div>
+        </dl>
 
         {result.strengths.length > 0 && (
-          <div className="mt-4 text-left">
-            <p className="text-sm font-semibold text-foreground">{t("strengthsTitle")}</p>
-            <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted">
+          <Section title={t("strengthsTitle")} size="sm" className="mt-6">
+            <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
               {result.strengths.map((key) => (
                 <li key={key}>{t(`section.${key}` as const)}</li>
               ))}
             </ul>
-          </div>
+          </Section>
         )}
 
         {result.improvements.length > 0 && (
-          <div className="mt-3 text-left">
-            <p className="text-sm font-semibold text-foreground">{t("improvementsTitle")}</p>
-            <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted">
+          <Section title={t("improvementsTitle")} size="sm" className="mt-6">
+            <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
               {result.improvements.map((key) => (
                 <li key={key}>{t(`section.${key}` as const)}</li>
               ))}
             </ul>
-          </div>
+          </Section>
         )}
 
         {result.needsManualReview && (
-          <p className="mt-3 rounded-xl border border-[var(--app-warning-border)] bg-[var(--app-warning-bg)] px-3 py-2 text-sm text-[var(--app-warning-text)]">
-            {t("manualReviewNotice")}
+          <p className="mt-6">
+            <Status tone="warn">{t("manualReviewNotice")}</Status>
           </p>
         )}
-
-        <button
-          type="button"
-          onClick={() => router.push("/dashboard")}
-          className="mt-6 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-        >
-          {t("backToDashboard")}
-        </button>
-      </div>
+      </Outcome>
     );
   }
 
   return (
     <div className="space-y-6">
-      {remainingSec !== null && (
-        <p className="text-sm font-medium text-foreground">
-          {t("timeRemaining")}: {Math.floor(remainingSec / 60)}:{String(remainingSec % 60).padStart(2, "0")}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <p className="text-sm font-medium tabular-nums text-muted">
+          {t("progress", { current: progressCurrent, total: progressTotal })}
         </p>
-      )}
-      <p className="text-xs text-muted">
-        {t("progress", { current: progressCurrent, total: progressTotal })}
-      </p>
+        {remainingSec !== null && (
+          /* Under a minute the clock is the thing you are reacting to, so it
+             stops being quiet. Time is not conveyed by colour alone — the
+             label stays, and the figure simply gets heavier. */
+          <p
+            className={`text-sm tabular-nums ${
+              remainingSec <= 60
+                ? "font-bold text-[var(--app-danger)]"
+                : "font-medium text-foreground"
+            }`}
+            aria-live={remainingSec <= 60 ? "polite" : "off"}
+          >
+            {t("timeRemaining")}: {Math.floor(remainingSec / 60)}:
+            {String(remainingSec % 60).padStart(2, "0")}
+          </p>
+        )}
+      </div>
+      <ProgressBar
+        percent={progressTotal > 0 ? (progressCurrent / progressTotal) * 100 : 0}
+        label={t("progress", { current: progressCurrent, total: progressTotal })}
+        valueText={t("progress", { current: progressCurrent, total: progressTotal })}
+        size="sm"
+      />
+
       {!objectiveComplete && q ? (
-        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
-          <p className="text-sm font-medium text-muted">
+        <div className="border-t border-border pt-6">
+          <p className="text-sm text-muted">
             {placementTextToReact(isJa ? q.instructionJa : q.instructionEn)}
           </p>
           {/* Stimulus and answers stay English: this is an English test; JA locale only affects instructions. */}
-          <p className="mt-3 text-base font-semibold text-foreground">
+          <p className="mt-3 text-[clamp(1.125rem,3vw,1.5rem)] font-bold leading-snug tracking-[-0.02em] text-foreground">
             {placementTextToReact(q.questionEn)}
           </p>
-          <ul className="mt-4 space-y-2">
+          <ChoiceList className="mt-6">
             {q.optionsEn.map((opt, idx) => (
-              <li key={`${q.id}-${idx}`}>
-                <button
-                  type="button"
-                  disabled={submitting || remainingSec === 0}
-                  onClick={() => void selectOption(idx)}
-                  className="w-full rounded-xl border border-border px-3 py-3 text-left text-sm text-foreground transition hover:border-accent/60 hover:bg-[var(--app-hover)] disabled:opacity-50 sm:px-4"
-                >
-                  {placementTextToReact(opt)}
-                </button>
-              </li>
+              <Choice
+                key={`${q.id}-${idx}`}
+                disabled={submitting || remainingSec === 0}
+                onSelect={() => void selectOption(idx)}
+              >
+                {placementTextToReact(opt)}
+              </Choice>
             ))}
-          </ul>
+          </ChoiceList>
         </div>
       ) : (
-        <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
-          <p className="text-base font-medium text-foreground">{t("objectiveComplete")}</p>
-          <p className="mt-2 text-xs text-muted">{t("submitWhenReady")}</p>
-          <button
-            type="button"
-            disabled={submitting || remainingSec === 0}
-            onClick={() => void onFinish(false)}
-            className="mt-3 w-full rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            {t("submitPlacement")}
-          </button>
-        </div>
+        <Outcome
+          title={t("objectiveComplete")}
+          description={t("submitWhenReady")}
+          actions={
+            <Button
+              size="lg"
+              loading={submitting}
+              disabled={remainingSec === 0}
+              onClick={() => void onFinish(false)}
+            >
+              {t("submitPlacement")}
+            </Button>
+          }
+        />
       )}
       {error && (
-        <p className="text-sm" style={{ color: "var(--app-danger)" }} role="alert">
-          {error}
+        <p role="alert">
+          <Status tone="error">{error}</Status>
         </p>
       )}
-      {submitting && <p className="text-sm text-muted">{t("submitting")}</p>}
+      {submitting && !objectiveComplete && (
+        <p role="status">
+          <Status tone="pending">{t("submitting")}</Status>
+        </p>
+      )}
     </div>
   );
 }

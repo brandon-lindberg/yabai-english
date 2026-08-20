@@ -7,6 +7,7 @@ import { checkAdminCanDeleteUser } from "@/lib/admin-user-guards";
 import { teacherProfileToAdminDto } from "@/lib/admin-user-dto";
 import { invalidateUserSessions } from "@/lib/admin-invalidate-sessions";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
+import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
 
 const teacherProfilePatchSchema = z
   .object({
@@ -108,6 +109,10 @@ export async function PATCH(req: Request, { params }: Props) {
   }
 
   const data = parsed.data;
+  const rateCheck = validatePublicLessonRateYen(data.teacherProfile?.rateYen);
+  if (!rateCheck.ok) {
+    return NextResponse.json({ error: rateCheck.error }, { status: 400 });
+  }
   const nextRole = data.role ?? existing.role;
   const nextAccountStatus = data.accountStatus ?? existing.accountStatus;
 

@@ -26,7 +26,7 @@ export default function Loading() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
+            className="border-y border-border p-5 sm:p-6"
           >
             <div className="flex items-start gap-3">
               <Skeleton width="1/4" rounded="xl" className="!h-10 !w-10 shrink-0" />
@@ -46,7 +46,7 @@ export default function Loading() {
       </div>
 
       {/* Settings card */}
-      <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6">
+      <div className="border-y border-border p-5 sm:p-6">
         <Skeleton height="5" width="1/3" />
         <div className="mt-4 rounded-xl border border-border p-4">
           <Skeleton height="4" width="full" />

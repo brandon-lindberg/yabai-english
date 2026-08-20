@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { isOrgWideAdmin, isSchoolAdmin, type MembershipForAuth } from "@/lib/org-authorization";
+import { isOrgWideAdmin, isSchoolAdmin } from "@/lib/org-authorization";
+import { getSchoolCallerMembership } from "@/lib/org/caller-membership";
+import { countOrgMembers } from "@/lib/org/org-members";
 
 const updateSchoolSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
@@ -14,24 +16,6 @@ const updateSchoolSchema = z.object({
 
 type RouteContext = { params: Promise<{ orgId: string; schoolId: string }> };
 
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-  schoolId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: {
-      userId, organizationId: orgId, status: "ACTIVE",
-      OR: [{ schoolId: null }, { schoolId }],
-    },
-    select: {
-      id: true, organizationId: true, userId: true,
-      schoolId: true, orgRole: true, status: true,
-    },
-    orderBy: { orgRole: "asc" },
-  });
-}
-
 export async function GET(req: Request, ctx: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -39,25 +23,22 @@ export async function GET(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
   if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const school = await prisma.school.findUnique({
-    where: { id: schoolId },
-    include: {
-      _count: {
-        select: { memberships: { where: { status: "ACTIVE" } } },
-      },
-    },
-  });
+  const school = await prisma.school.findUnique({ where: { id: schoolId } });
 
   if (!school || school.organizationId !== orgId) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ school });
+  // People, not grants, and including the organization's own — the same rule
+  // `getViewerSchoolRole` uses to decide who may see this school at all.
+  const memberCounts = await countOrgMembers(prisma, orgId, schoolId);
+
+  return NextResponse.json({ school: { ...school, memberCount: memberCounts.members } });
 }
 
 export async function PATCH(req: Request, ctx: RouteContext) {
@@ -67,7 +48,7 @@ export async function PATCH(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
   if (!caller || (!isOrgWideAdmin(caller) && !isSchoolAdmin(caller, schoolId))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

@@ -1,123 +1,143 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
+import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
-import { AdminPlacementReviewForm } from "@/components/admin-placement-review-form";
+import {
+  AdminBookingsPanel,
+  type AdminBookingRow,
+} from "@/components/admin/admin-bookings-panel";
+import { AdminPlacementReviewForm } from "@/components/admin/admin-placement-review-form";
+import { buttonClasses } from "@/components/ui/button";
+import { DataList, DataRow } from "@/components/ui/data-row";
+import { PageHeader } from "@/components/ui/page-header";
+import { Section } from "@/components/ui/section";
+import { StatLedger } from "@/components/ui/stat-ledger";
 
+/**
+ * The admin overview.
+ *
+ * Was three stacked lists with no controls: fifty bookings in one column, the
+ * placement review queue, and then *every student again* with an inline level
+ * form on each row — a third place to edit a placement, after the students grid
+ * and the user detail page, and the worst of the three.
+ *
+ * Now it answers the two questions an overview should: what is happening, and
+ * what is waiting on me. Browsing and editing students belongs to the students
+ * screen, which already searches, sorts and paginates.
+ */
 export default async function AdminPage() {
+  const locale = await getLocale();
   const t = await getTranslations("admin");
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "SUPER_ADMIN") return null;
 
-  const bookings = await prisma.booking.findMany({
-    where: {},
-    orderBy: { startsAt: "desc" },
-    take: 50,
-    include: {
-      student: true,
-      lessonProduct: true,
-      teacher: { include: { user: true } },
-    },
-  });
+  const now = new Date();
 
-  const students = await prisma.user.findMany({
-    where: { role: "STUDENT" },
-    orderBy: { createdAt: "desc" },
-    take: 30,
-    include: { studentProfile: true },
-  });
-  const reviewQueue = students.filter((s) => s.studentProfile?.placementNeedsReview);
+  const [bookings, reviewQueue, studentCount, upcomingCount] = await Promise.all([
+    prisma.booking.findMany({
+      orderBy: { startsAt: "desc" },
+      take: 200,
+      /*
+        `select`, not `include`. `include: { student: true }` returned every
+        column of the user record — including whatever secret the model gains
+        next — to render a name on a list.
+      */
+      select: {
+        id: true,
+        startsAt: true,
+        status: true,
+        meetUrl: true,
+        lessonProduct: { select: { nameEn: true } },
+        student: { select: { name: true, email: true } },
+        teacher: { select: { user: { select: { name: true, email: true } } } },
+      },
+    }),
+    prisma.studentProfile.findMany({
+      where: { placementNeedsReview: true },
+      // Freshest placement first. `StudentProfile` carries no row timestamp, and
+      // nulls sort first under Postgres DESC, which would head the queue with
+      // students who never sat the placement at all.
+      orderBy: { placementCompletedAt: { sort: "desc", nulls: "last" } },
+      take: 50,
+      select: {
+        userId: true,
+        placedLevel: true,
+        placementReviewReason: true,
+        user: { select: { name: true, email: true } },
+      },
+    }),
+    prisma.user.count({ where: { role: "STUDENT" } }),
+    prisma.booking.count({
+      where: { startsAt: { gte: now }, status: { in: ["CONFIRMED", "PENDING_PAYMENT"] } },
+    }),
+  ]);
+
+  const rows: AdminBookingRow[] = bookings.map((b) => ({
+    id: b.id,
+    startsAtIso: b.startsAt.toISOString(),
+    lessonName: b.lessonProduct.nameEn,
+    studentName: b.student.name ?? b.student.email ?? "—",
+    teacherName: b.teacher.user.name ?? b.teacher.user.email ?? "—",
+    status: b.status,
+    meetUrl: b.meetUrl,
+  }));
 
   return (
-    <main className="max-w-4xl">
-      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+    <main className="space-y-10">
+      <PageHeader title={t("title")} />
 
-      <section className="mt-10">
-        <h2 className="text-lg font-semibold text-foreground">{t("bookings")}</h2>
-        <ul className="mt-4 space-y-3">
-          {bookings.map((b) => (
-            <li
-              key={b.id}
-              className="rounded-xl border border-border bg-surface p-4 text-sm shadow-sm"
-            >
-              <p className="font-medium text-foreground">
-                {b.lessonProduct.nameEn} — {b.student.name ?? b.student.email}
-              </p>
-              <p className="text-muted">
-                {b.startsAt.toLocaleString()} — {b.status}
-              </p>
-              {b.meetUrl && (
-                <a
-                  href={b.meetUrl}
-                  className="mt-1 inline-block text-link hover:underline"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Meet
-                </a>
-              )}
-            </li>
-          ))}
-        </ul>
-      </section>
+      <StatLedger
+        stats={[
+          { label: t("overview.statUpcoming"), value: upcomingCount },
+          { label: t("overview.statNeedsReview"), value: reviewQueue.length },
+          { label: t("overview.statStudents"), value: studentCount },
+        ]}
+      />
 
-      <section className="mt-10">
-        <h2 className="text-lg font-semibold text-foreground">{t("reviewQueue")}</h2>
+      {/* The queue comes first: it is the only thing on this page waiting on
+          someone. The booking list is for looking things up. */}
+      <Section title={t("reviewQueue")} ruled={false}>
         {reviewQueue.length === 0 ? (
-          <p className="mt-3 rounded-xl border border-dashed border-border bg-surface p-4 text-sm text-muted">
+          <p className="border-y border-border py-6 text-sm text-muted">
             {t("noReviewItems")}
           </p>
         ) : (
-          <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface">
-            {reviewQueue.map((s) => (
-              <li key={s.id} className="px-4 py-3 text-sm">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-medium text-foreground">{s.name ?? s.email}</p>
-                    <p className="text-xs text-muted">
-                      {t("reviewReason")}: {s.studentProfile?.placementReviewReason ?? "—"}
-                    </p>
-                  </div>
-                  {s.studentProfile && (
+          <DataList>
+            {reviewQueue.map((profile) => {
+              const name = profile.user.name ?? profile.user.email ?? "—";
+              return (
+                <DataRow key={profile.userId}>
+                  <p className="font-medium text-foreground">{name}</p>
+                  <p className="mt-0.5 text-sm text-muted">
+                    {t("reviewReason")}: {profile.placementReviewReason ?? "—"}
+                  </p>
+                  <div className="mt-3">
                     <AdminPlacementReviewForm
-                      studentId={s.id}
-                      currentLevel={s.studentProfile.placedLevel}
-                      defaultNeedsReview={true}
+                      studentId={profile.userId}
+                      studentName={name}
+                      currentLevel={profile.placedLevel}
                     />
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+                  </div>
+                </DataRow>
+              );
+            })}
+          </DataList>
         )}
-      </section>
+      </Section>
 
-      <section className="mt-10">
-        <h2 className="text-lg font-semibold text-foreground">{t("students")}</h2>
-        <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface">
-          {students.map((s) => (
-            <li key={s.id} className="flex justify-between px-4 py-3 text-sm">
-              <span className="text-foreground">
-                {s.name ?? s.email}
-                {s.studentProfile && (
-                  <AdminPlacementReviewForm
-                    studentId={s.id}
-                    currentLevel={s.studentProfile.placedLevel}
-                    defaultNeedsReview={Boolean(s.studentProfile.placementNeedsReview)}
-                  />
-                )}
-              </span>
-              <span className="text-right text-muted">
-                <span>{s.studentProfile?.placedLevel ?? "—"}</span>
-                {s.studentProfile?.placementNeedsReview && (
-                  <span className="ml-2 rounded-full border border-[var(--app-warning-border)] bg-[var(--app-warning-bg)] px-2 py-0.5 text-[10px] font-semibold text-[var(--app-warning-text)]">
-                    REVIEW
-                  </span>
-                )}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Section title={t("bookings")}>
+        <AdminBookingsPanel
+          bookings={rows}
+          locale={locale}
+          nowIso={now.toISOString()}
+        />
+      </Section>
+
+      <Section title={t("students")} description={t("overview.studentsHint")}>
+        <Link href="/admin/students" className={buttonClasses({ variant: "secondary" })}>
+          {t("bookingsPanel.allStudentsCta")}
+        </Link>
+      </Section>
     </main>
   );
 }

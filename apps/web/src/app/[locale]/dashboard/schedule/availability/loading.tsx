@@ -10,7 +10,7 @@ export default function Loading() {
     >
       <Skeleton height="4" width="full" />
 
-      <section className="rounded-2xl border border-border bg-surface p-4">
+      <section className="border-t border-border pt-6">
         <div className="mb-3">
           <Skeleton height="6" width="1/3" />
         </div>

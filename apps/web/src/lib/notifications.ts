@@ -7,6 +7,8 @@ export async function createUserNotification(input: {
   titleEn: string;
   bodyJa?: string;
   bodyEn?: string;
+  /** App-relative path this notification is about, if it has one. */
+  href?: string;
 }) {
   await prisma.notification.create({
     data: {
@@ -15,6 +17,7 @@ export async function createUserNotification(input: {
       titleEn: input.titleEn,
       bodyJa: input.bodyJa ?? null,
       bodyEn: input.bodyEn ?? null,
+      href: input.href ?? null,
     },
   });
   await emitNotificationsUpdate(input.userId);

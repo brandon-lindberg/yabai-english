@@ -1,172 +1,139 @@
-import { auth } from "@/auth";
-import { redirect } from "@/i18n/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/ui/page-header";
-import { AppCard } from "@/components/ui/app-card";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { isOrgWideRole } from "@/lib/org-authorization";
+import { prisma } from "@/lib/prisma";
+import { requireOrgViewer } from "@/lib/org/require-org-viewer";
+import {
+  loadOrgMemberRows,
+  rowsForSchool,
+  summarizeOrgMembers,
+} from "@/lib/org/org-members";
+import { buttonClasses } from "@/components/ui/button";
+import { DataList, DataRow } from "@/components/ui/data-row";
+import { PageHeader } from "@/components/ui/page-header";
+import { Section } from "@/components/ui/section";
+import { StatLedger } from "@/components/ui/stat-ledger";
 
-async function fetchOrg(orgId: string) {
-  const session = await auth();
-  if (!session?.user?.id) return null;
-
-  const { prisma } = await import("@/lib/prisma");
-
-  const caller = await prisma.organizationMembership.findFirst({
-    where: { userId: session.user.id, organizationId: orgId, status: "ACTIVE" },
-    select: { orgRole: true, schoolId: true },
-  });
-  if (!caller) return null;
-
-  const org = await prisma.organization.findUnique({
-    where: { id: orgId },
-    include: {
-      schools: {
-        select: {
-          id: true, slug: true, name: true, nameJa: true,
-          _count: {
-            select: {
-              memberships: { where: { status: "ACTIVE" } },
-              scheduleSlots: { where: { active: true } },
-            },
-          },
-        },
-        orderBy: { createdAt: "asc" },
-      },
-      _count: {
-        select: { memberships: { where: { status: "ACTIVE" } } },
-      },
-    },
-  });
-
-  if (!org) return null;
-
-  // Count by role
-  const roleCounts = await prisma.organizationMembership.groupBy({
-    by: ["orgRole"],
-    where: { organizationId: orgId, status: "ACTIVE" },
-    _count: true,
-  });
-
-  const teachers = roleCounts.find((r) => r.orgRole === "TEACHER")?._count ?? 0;
-  const students = roleCounts.find((r) => r.orgRole === "STUDENT")?._count ?? 0;
-
-  return { org, caller, teachers, students };
-}
+const SCHOOL_SHORTCUTS = [
+  { path: "/schedule", labelKey: "quickSchedule" },
+  { path: "/classes", labelKey: "quickClasses" },
+  { path: "/members", labelKey: "quickMembers" },
+  { path: "/pricing", labelKey: "quickPricing" },
+] as const;
 
 export default async function OrgDashboardPage({
   params,
 }: {
   params: Promise<{ orgId: string }>;
 }) {
-  const { orgId } = await params;
-  const locale = await getLocale();
+  const { orgId, viewer } = await requireOrgViewer(params);
   const t = await getTranslations("org.dashboard");
-  const data = await fetchOrg(orgId);
 
-  if (!data) {
-    redirect({ href: "/dashboard", locale });
-    return null;
-  }
+  const [org, memberRows] = await Promise.all([
+    prisma.organization.findUnique({
+      where: { id: orgId },
+      /*
+        `select`, not `include`. This page reads a name and some counts; with
+        `include` it also returned every column the model gains from here on,
+        which is how a field ends up in a payload without anyone touching this
+        file.
+      */
+      select: {
+        name: true,
+        schools: {
+          select: {
+            id: true,
+            name: true,
+            _count: { select: { scheduleSlots: { where: { active: true } } } },
+          },
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    }),
+    // One read of the organization's memberships answers for the organization
+    // and for every school in the list below — people, not rows.
+    loadOrgMemberRows(prisma, orgId),
+  ]);
 
-  const { org, caller, teachers, students } = data;
-  const canManageOrg = isOrgWideRole(caller.orgRole);
-  const singleSchool = org.schools.length === 1 ? org.schools[0] : null;
+  // The viewer's membership named this org, so it exists; this is for the types.
+  if (!org) return null;
 
-  const stats = [
-    { label: t("totalSchools"), value: org.schools.length },
-    { label: t("totalMembers"), value: org._count.memberships },
-    { label: t("totalTeachers"), value: teachers },
-    { label: t("totalStudents"), value: students },
-  ];
-
-  const schoolQuickLinks = (schoolId: string) => [
-    { href: `/org/${orgId}/schools/${schoolId}/schedule`, label: t("quickSchedule") },
-    { href: `/org/${orgId}/schools/${schoolId}/classes`, label: t("quickClasses") },
-    { href: `/org/${orgId}/schools/${schoolId}/members`, label: t("quickMembers") },
-    { href: `/org/${orgId}/schools/${schoolId}/pricing`, label: t("quickPricing") },
-  ];
+  const memberCounts = summarizeOrgMembers(memberRows);
 
   return (
-    <main>
+    <main className="space-y-10">
       <PageHeader title={org.name} description={t("title")} />
 
-      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {stats.map((s) => (
-          <AppCard key={s.label} padding="sm">
-            <p className="text-xs font-medium text-muted">{s.label}</p>
-            <p className="mt-1 text-2xl font-semibold text-foreground">{s.value}</p>
-          </AppCard>
-        ))}
-      </div>
+      {/* Was four equal AppCards with the label above the number — the
+          hero-metric grid, banned by DESIGN.md §4 and already replaced on every
+          other dashboard in the app. */}
+      <StatLedger
+        stats={[
+          { label: t("totalSchools"), value: org.schools.length },
+          { label: t("totalMembers"), value: memberCounts.members },
+          { label: t("totalTeachers"), value: memberCounts.teachers },
+          { label: t("totalStudents"), value: memberCounts.students },
+        ]}
+      />
 
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-foreground">
-            {t("schoolsOverview")}
-          </h2>
-          {canManageOrg && (
-            <Link
-              href={`/org/${orgId}/schools`}
-              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
+      <Section
+        title={t("schoolsOverview")}
+        actions={
+          viewer.isOrgWide ? (
+            <Link href={`/org/${orgId}/schools`} className={buttonClasses()}>
               {t("addSchool")}
             </Link>
-          )}
-        </div>
+          ) : null
+        }
+      >
         {org.schools.length === 0 ? (
           <p className="text-sm text-muted">{t("noActivity")}</p>
-        ) : singleSchool ? (
-          <AppCard padding="sm">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="font-medium text-foreground">{singleSchool.name}</p>
-                <p className="text-xs text-muted">
-                  {t("membersCount", { count: singleSchool._count.memberships })}
-                </p>
-              </div>
-              <Link
-                href={`/org/${orgId}/schools/${singleSchool.id}`}
-                className="rounded-full border border-border px-3 py-1 text-sm font-medium text-foreground hover:bg-[var(--app-hover)]"
-              >
-                {t("viewSchool")}
-              </Link>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {schoolQuickLinks(singleSchool.id).map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted hover:bg-[var(--app-hover)] hover:text-foreground"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </AppCard>
         ) : (
-          <div className="space-y-3">
+          /*
+            One row renderer, however many schools. There were two: a plain row
+            in the list, and a second, richer card built only when the org had
+            exactly one school. The extra shortcuts in that branch are worth
+            keeping — for a single-school org the school *is* the org, so making
+            them walk through it is pure friction — but they were a reason to
+            maintain the row twice. Now it is one row that carries shortcuts
+            when they are useful.
+          */
+          <DataList>
             {org.schools.map((school) => (
-              <AppCard key={school.id} padding="sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-foreground">{school.name}</p>
-                    <p className="text-xs text-muted">
-                      {t("membersCount", { count: school._count.memberships })}
-                    </p>
-                  </div>
+              <DataRow
+                key={school.id}
+                actions={
                   <Link
                     href={`/org/${orgId}/schools/${school.id}`}
-                    className="rounded-full border border-border px-3 py-1 text-sm font-medium text-foreground hover:bg-[var(--app-hover)]"
+                    className={buttonClasses({ variant: "secondary", size: "sm" })}
                   >
                     {t("viewSchool")}
                   </Link>
-                </div>
-              </AppCard>
+                }
+              >
+                <p className="font-medium text-foreground">{school.name}</p>
+                <p className="mt-0.5 text-sm text-muted">
+                  {t("membersCount", {
+                    count: summarizeOrgMembers(rowsForSchool(memberRows, school.id)).members,
+                  })}
+                </p>
+                {org.schools.length === 1 ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {SCHOOL_SHORTCUTS.map(({ path, labelKey }) => (
+                      <Link
+                        key={path}
+                        href={`/org/${orgId}/schools/${school.id}${path}`}
+                        className={buttonClasses({ variant: "ghost", size: "sm" })}
+                      >
+                        {t(labelKey)}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </DataRow>
             ))}
-          </div>
+          </DataList>
         )}
-      </section>
+      </Section>
     </main>
   );
 }

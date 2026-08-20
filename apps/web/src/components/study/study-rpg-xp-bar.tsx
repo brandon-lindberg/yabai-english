@@ -1,9 +1,11 @@
+import { ProgressBar } from "@/components/ui/progress-bar";
+
 type Props = {
   title: string;
   fractionLabel: string;
   nextHint: string;
   progressPercent: number;
-  /** Default `card` is a bordered panel; `compact` nests inside another card. */
+  /** `compact` sits inside another block and drops the top rule. */
   variant?: "card" | "compact";
   className?: string;
 };
@@ -16,9 +18,10 @@ export function StudyRpgXpBar({
   variant = "card",
   className,
 }: Props) {
-  const pct = Math.min(100, Math.max(0, progressPercent));
   const isCard = variant === "card";
-  const rootClass = [isCard ? "rounded-2xl border border-border bg-surface p-4 shadow-sm" : "mt-3 space-y-2", className]
+  // Was a bordered card; it is one line of status about the learner, not a
+  // panel, so it reads as a ruled block like everything else on the page.
+  const rootClass = [isCard ? "border-y border-border py-4" : "mt-3 space-y-2", className]
     .filter(Boolean)
     .join(" ");
 
@@ -26,25 +29,19 @@ export function StudyRpgXpBar({
     <section className={rootClass} aria-label={title}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         {isCard ? (
-          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+          <h2 className="text-sm font-bold tracking-[-0.01em] text-foreground">{title}</h2>
         ) : (
           <p className="text-xs font-semibold text-foreground">{title}</p>
         )}
         <span className="text-xs font-medium tabular-nums text-muted">{fractionLabel}</span>
       </div>
-      <div
-        className={`overflow-hidden rounded-full bg-foreground/10 ${isCard ? "mt-3 h-3" : "mt-1 h-2"}`}
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={Math.round(pct)}
-        aria-valuetext={`${fractionLabel} (${Math.round(pct)}%)`}
-      >
-        <div
-          className="h-full rounded-full bg-foreground/80 transition-[width] duration-300 ease-out"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
+      <ProgressBar
+        percent={progressPercent}
+        label={title}
+        valueText={`${fractionLabel} (${Math.round(progressPercent)}%)`}
+        size={isCard ? "md" : "sm"}
+        className={isCard ? "mt-3" : "mt-1"}
+      />
       <p className={`text-xs text-muted ${isCard ? "mt-2" : "mt-1"}`}>{nextHint}</p>
     </section>
   );

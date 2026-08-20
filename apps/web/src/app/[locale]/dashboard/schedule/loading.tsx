@@ -16,7 +16,7 @@ export default function Loading() {
       <Skeleton height="4" width="full" />
 
       {/* ── Calendar card ── */}
-      <section className="rounded-2xl border border-border bg-surface p-4">
+      <section className="border-t border-border pt-6">
         {/* Title */}
         <div className="mb-3">
           <Skeleton height="6" width="1/3" />
@@ -68,7 +68,7 @@ export default function Loading() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
+              className="border-y border-border p-5 sm:p-6"
             >
               <Skeleton height="4" width="full" />
               <div className="mt-2">

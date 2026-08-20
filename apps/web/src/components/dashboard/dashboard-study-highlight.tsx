@@ -1,8 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { buttonClasses } from "@/components/ui/button";
 import type { StudyResumeInfo } from "@/lib/dashboard/study-resume";
 import type { getStudyTrackOverview } from "@/lib/study/get-overview";
+import { StudyLastHint } from "@/components/dashboard/study-last-hint";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 type Overview = NonNullable<Awaited<ReturnType<typeof getStudyTrackOverview>>>;
 
@@ -21,10 +24,10 @@ export async function DashboardStudyHighlight({
     : overview.levels.find((l) => !l.locked) ?? null;
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+    <div className="border-t border-border pt-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h2 className="text-lg font-semibold text-foreground">{t("studyTitle")}</h2>
-        <Link href="/learn/study" className="text-sm font-medium text-link">
+        <Link href="/learn/study" className={`${actionLinkClass} text-sm`}>
           {t("studyBrowse")}
         </Link>
       </div>
@@ -37,7 +40,7 @@ export async function DashboardStudyHighlight({
       </p>
 
       {focus ? (
-        <div className="mt-4 rounded-xl bg-foreground/5 px-3 py-3">
+        <div className="mt-4 border-t border-border pt-3">
           <p className="text-xs font-medium text-muted">{t("studyResume")}</p>
           <p className="mt-1 text-sm font-semibold text-foreground">
             {locale === "ja" ? focus.titleJa : focus.titleEn}
@@ -53,15 +56,17 @@ export async function DashboardStudyHighlight({
           ) : (
             <Link
               href={`/learn/study/${focus.levelCode}/practice`}
-              className="mt-3 inline-flex rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background hover:opacity-90"
+              className={`mt-3 ${buttonClasses({ size: "sm" })}`}
             >
               {t("studyOpen")}
             </Link>
           )}
           {resume ? (
-            <p className="mt-2 text-xs text-muted">
-              {t("studyLastHint", { when: resume.lastStudiedAt.toLocaleString() })}
-            </p>
+            <StudyLastHint
+              iso={resume.lastStudiedAt.toISOString()}
+              locale={locale}
+              className="mt-2 text-xs text-muted"
+            />
           ) : null}
         </div>
       ) : (

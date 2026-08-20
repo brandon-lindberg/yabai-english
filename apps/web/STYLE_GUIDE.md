@@ -1,4 +1,4 @@
-# English Studio — Web Style Guide
+# English Studio Japan — Web Style Guide
 
 Use this document (and `src/app/globals.css`) as the reference for visual consistency. Prefer **semantic tokens** and **Tailwind theme colors** over hard-coded hex, except where noted.
 

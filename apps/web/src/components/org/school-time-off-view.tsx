@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
+import { Status } from "@/components/ui/status";
 
 type TimeOffRequest = {
   id: string;
@@ -94,13 +97,10 @@ export function SchoolTimeOffView({
     }
   }
 
-  const inputCn =
-    "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
-
   const statusColors: Record<string, string> = {
     PENDING: "border-[var(--app-warning-border)] bg-[var(--app-warning-bg)] text-[var(--app-warning-text)]",
-    APPROVED: "border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
-    DENIED: "border-red-300 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300",
+    APPROVED: "border-border bg-[var(--app-hover)] text-foreground",
+    DENIED: "border-[var(--app-danger)] bg-[var(--app-danger)]/10 text-[var(--app-danger)]",
   };
 
   return (
@@ -109,7 +109,7 @@ export function SchoolTimeOffView({
         <div className="mb-4 flex justify-end">
           <button
             onClick={() => setShowCreate(!showCreate)}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            className={buttonClasses()}
           >
             {t("request")}
           </button>
@@ -119,48 +119,55 @@ export function SchoolTimeOffView({
       {canRequest && showCreate && (
         <AppCard className="mb-6">
           <form onSubmit={handleCreate} className="space-y-4">
+            {/*
+              These labels had no `htmlFor` and did not wrap their input, so
+              nothing connected them: clicking a label did nothing, and a screen
+              reader reached three unlabelled boxes. `Field` generates the id and
+              ties them together.
+            */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("startDate")}
-                </label>
-                <input
-                  type="date"
-                  className={inputCn}
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("endDate")}
-                </label>
-                <input
-                  type="date"
-                  className={inputCn}
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                />
-              </div>
+              <Field label={t("startDate")} required>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="date"
+                    required
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                )}
+              </Field>
+              <Field label={t("endDate")} required>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="date"
+                    required
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                )}
+              </Field>
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
-                {t("reason")}
-              </label>
-              <input
-                className={inputCn}
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={t("reviewNotePlaceholder")}
-              />
-            </div>
-            {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
+            <Field label={t("reason")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder={t("reviewNotePlaceholder")}
+                />
+              )}
+            </Field>
+            {error ? (
+              <p role="alert">
+                <Status tone="error">{error}</Status>
+              </p>
+            ) : null}
             <button
               type="submit"
               disabled={saving}
-              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className={buttonClasses()}
             >
               {saving ? t("submitting") : t("submit")}
             </button>
@@ -171,7 +178,7 @@ export function SchoolTimeOffView({
       {requests.length === 0 ? (
         <p className="text-sm text-muted">{t("noRequests")}</p>
       ) : (
-        <div className="divide-y divide-border rounded-xl border border-border bg-surface">
+        <div className="divide-y divide-border border-y border-border">
           {requests.map((r) => (
             <div key={r.id} className="flex items-center justify-between px-4 py-3 text-sm">
               <div className="flex items-center gap-4">
@@ -195,7 +202,7 @@ export function SchoolTimeOffView({
                   <div className="flex gap-1">
                     <button
                       onClick={() => handleReview(r.id, "APPROVED")}
-                      className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground hover:opacity-90"
+                      className={buttonClasses({ size: "sm" })}
                     >
                       {t("approve")}
                     </button>

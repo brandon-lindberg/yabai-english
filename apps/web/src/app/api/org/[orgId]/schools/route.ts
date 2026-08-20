@@ -2,8 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { isOrgWideAdmin, type MembershipForAuth } from "@/lib/org-authorization";
+import { isOrgWideAdmin } from "@/lib/org-authorization";
 import { seedDefaultSchoolTaxonomy } from "@/lib/school-default-taxonomy";
+import { getOrgCallerMembership } from "@/lib/org/caller-membership";
+import {
+  loadOrgMemberRows,
+  rowsForSchool,
+  summarizeOrgMembers,
+} from "@/lib/org/org-members";
 
 const createSchoolSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -16,19 +22,6 @@ const createSchoolSchema = z.object({
 
 type RouteContext = { params: Promise<{ orgId: string }> };
 
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: { userId, organizationId: orgId, status: "ACTIVE" },
-    select: {
-      id: true, organizationId: true, userId: true,
-      schoolId: true, orgRole: true, status: true,
-    },
-  });
-}
-
 export async function GET(req: Request, ctx: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -36,7 +29,7 @@ export async function GET(req: Request, ctx: RouteContext) {
   }
 
   const { orgId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId);
+  const caller = await getOrgCallerMembership(session.user.id, orgId);
   if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -51,14 +44,18 @@ export async function GET(req: Request, ctx: RouteContext) {
     where,
     select: {
       id: true, slug: true, name: true, nameJa: true, nameEn: true,
-      _count: {
-        select: { memberships: { where: { status: "ACTIVE" } } },
-      },
     },
     orderBy: { createdAt: "asc" },
   });
 
-  return NextResponse.json({ schools });
+  // People per school, from one read of the organization's memberships.
+  const memberRows = await loadOrgMemberRows(prisma, orgId);
+  return NextResponse.json({
+    schools: schools.map((school) => ({
+      ...school,
+      memberCount: summarizeOrgMembers(rowsForSchool(memberRows, school.id)).members,
+    })),
+  });
 }
 
 export async function POST(req: Request, ctx: RouteContext) {
@@ -68,7 +65,7 @@ export async function POST(req: Request, ctx: RouteContext) {
   }
 
   const { orgId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId);
+  const caller = await getOrgCallerMembership(session.user.id, orgId);
   if (!caller || !isOrgWideAdmin(caller)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
-import { AppCard } from "@/components/ui/app-card";
+import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
+import {
+  OnboardingChecklist,
+  type OnboardingChecklistItem,
+} from "@/components/onboarding-checklist";
+import { useOnboardingSubmit } from "@/hooks/use-onboarding-submit";
 import {
   buildTeacherOnboardingContinueHref,
   parseCompletedTeacherOnboardingSteps,
@@ -13,10 +17,13 @@ import {
   TEACHER_ONBOARDING_STEPS,
   type TeacherOnboardingStep,
 } from "@/lib/teacher-onboarding-steps";
+import { buttonClasses } from "@/components/ui/button";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 const STEP_HREF: Record<TeacherOnboardingStep, "/dashboard/profile" | "/dashboard/settings" | "/dashboard/schedule" | "/dashboard" | "/dashboard/schedule/completed" | "/learn/study"> =
   {
     profile: "/dashboard/profile",
+    payments: "/dashboard/settings",
     integrations: "/dashboard/settings",
     availability: "/dashboard/schedule",
     students: "/dashboard",
@@ -25,6 +32,16 @@ const STEP_HREF: Record<TeacherOnboardingStep, "/dashboard/profile" | "/dashboar
     materials: "/learn/study",
   };
 
+/**
+ * The teacher half of onboarding: the shared checklist, plus who ticks the box.
+ *
+ * Teacher completion is **self-reported** — the checkbox is the source of truth,
+ * seeded from the `completed` query param and the skipped-steps list. The
+ * student's identical-looking list derives completion from real signals (a bio
+ * exists, a booking exists, a lesson was studied). Both plug the same boolean
+ * into `OnboardingChecklist`, so the difference is one prop deep if that ever
+ * needs to change.
+ */
 export function TeacherOnboardingForm({
   completedParam,
   skippedSteps = [],
@@ -34,13 +51,13 @@ export function TeacherOnboardingForm({
 }) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
-  const router = useRouter();
   const completed = parseCompletedTeacherOnboardingSteps(completedParam);
   const skipped = new Set(skippedSteps);
   const initial = (step: TeacherOnboardingStep) =>
     completed.includes(step) || skipped.has(step);
   const [checked, setChecked] = useState<Record<TeacherOnboardingStep, boolean>>(() => ({
     profile: initial("profile"),
+    payments: initial("payments"),
     integrations: initial("integrations"),
     availability: initial("availability"),
     students: initial("students"),
@@ -48,8 +65,7 @@ export function TeacherOnboardingForm({
     notes: initial("notes"),
     materials: initial("materials"),
   }));
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { saving, error, submit } = useOnboardingSubmit();
 
   const complete = TEACHER_ONBOARDING_STEPS.every((k) => checked[k]);
   const completedCount = TEACHER_ONBOARDING_STEPS.filter((k) => checked[k]).length;
@@ -78,132 +94,73 @@ export function TeacherOnboardingForm({
     }
   }
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!complete) return;
-    setSaving(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/onboarding/teacher", { method: "POST" });
-      if (!res.ok) {
-        setError(t("saveError"));
-        return;
-      }
-      router.push("/dashboard");
-    } catch {
-      setError(t("saveError"));
-    } finally {
-      setSaving(false);
-    }
-  }
+  /* Finish and skip land in the same place: the step record is the checklist. */
+  const finish = () => submit("/api/onboarding/teacher", { destination: "/dashboard" });
 
-  async function onSkip() {
-    setSaving(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/onboarding/teacher", { method: "POST" });
-      if (!res.ok) {
-        setError(t("saveError"));
-        return;
-      }
-      router.push("/dashboard");
-    } catch {
-      setError(t("saveError"));
-    } finally {
-      setSaving(false);
-    }
-  }
+  const items: OnboardingChecklistItem[] = TEACHER_ONBOARDING_STEPS.map((step) => ({
+    key: step,
+    title: t(`teacherSteps.${step}.title`),
+    body: t(`teacherSteps.${step}.body`),
+    href: buildStepHref(step),
+    completed: checked[step],
+    onToggle: (next) => setChecked((prev) => ({ ...prev, [step]: next })),
+    action:
+      isTeacherOnboardingOptionalStep(step) && !checked[step] ? (
+        <button
+          type="button"
+          className={actionLinkClass}
+          onClick={() => {
+            void skipStep(step);
+          }}
+        >
+          {t("teacherSkipOptional")}
+        </button>
+      ) : undefined,
+    note:
+      step === "payments" ? (
+        <PaymentPolicyNotice audience="teacher" className="mt-3" />
+      ) : undefined,
+  }));
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium text-muted">
-          {t("wizardProgress", {
-            current: completedCount,
-            total: TEACHER_ONBOARDING_STEPS.length,
-          })}
-        </p>
-        <div
-          className="h-1.5 max-w-[12rem] flex-1 overflow-hidden rounded-full bg-border"
-          aria-hidden
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-      </div>
-      <AppCard>
-        <ul className="space-y-3">
-          {TEACHER_ONBOARDING_STEPS.map((step) => (
-            <li key={step} className="rounded-xl border border-border bg-background p-3">
-              <label className="flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  checked={checked[step]}
-                  onChange={(e) =>
-                    setChecked((prev) => ({ ...prev, [step]: e.target.checked }))
-                  }
-                  className="mt-1"
-                />
-                <span className="text-sm text-foreground">
-                  <span className="font-semibold">{t(`teacherSteps.${step}.title`)}</span>
-                  <span className="mt-1 block text-muted">
-                    {t(`teacherSteps.${step}.body`)}{" "}
-                    <a
-                      href={buildStepHref(step)}
-                      className="font-medium text-link"
-                    >
-                      {t("teacherOpenStep")}
-                    </a>
-                    {isTeacherOnboardingOptionalStep(step) && !checked[step] ? (
-                      <>
-                        {" "}
-                        ·{" "}
-                        <button
-                          type="button"
-                          className="font-medium text-link underline-offset-4 hover:underline"
-                          onClick={() => {
-                            void skipStep(step);
-                          }}
-                        >
-                          {t("teacherSkipOptional")}
-                        </button>
-                      </>
-                    ) : null}
-                  </span>
-                </span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      </AppCard>
-      {error ? (
-        <p className="text-sm" style={{ color: "var(--app-danger)" }}>
-          {error}
-        </p>
-      ) : null}
-      <div className="flex flex-col items-start gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-muted">{t("skipForNowHint")}</p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onSkip}
-            disabled={saving}
-            data-testid="teacher-onboarding-skip"
-            className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)] disabled:opacity-50"
-          >
-            {t("skipForNow")}
-          </button>
-          <button
-            type="submit"
-            disabled={!complete || saving}
-            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            {saving ? "…" : t("teacherFinish")}
-          </button>
-        </div>
-      </div>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!complete) return;
+        void finish();
+      }}
+    >
+      <OnboardingChecklist
+        testIdPrefix="teacher-onboarding"
+        items={items}
+        percent={progressPct}
+        /* Was "Step 3 of 8", which promised a sequence these steps do not have —
+           they can be done in any order. This is the student's wording. */
+        progressLabel={t("progressSummary", {
+          current: completedCount,
+          total: TEACHER_ONBOARDING_STEPS.length,
+        })}
+        completedLabel={t("completedLabel")}
+        openLabel={t("teacherOpenStep")}
+        hint={complete ? t("allDoneHint") : t("skipForNowHint")}
+        error={error}
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={() => void finish()}
+              disabled={saving}
+              data-testid="teacher-onboarding-skip"
+              className={buttonClasses({ variant: "secondary" })}
+            >
+              {t("skipForNow")}
+            </button>
+            <button type="submit" disabled={!complete || saving} className={buttonClasses()}>
+              {saving ? "…" : t("teacherFinish")}
+            </button>
+          </>
+        }
+      />
     </form>
   );
 }

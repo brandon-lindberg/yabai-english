@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
-import { AppCard } from "@/components/ui/app-card";
+import { Link } from "@/i18n/navigation";
+import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
+import { useOnboardingSubmit } from "@/hooks/use-onboarding-submit";
+import { buttonClasses } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/check-row";
+import { Choice, ChoiceList } from "@/components/ui/choice";
+import { Field, Select } from "@/components/ui/field";
+import { inlineLinkClass } from "@/components/ui/inline-link";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { Status } from "@/components/ui/status";
 
 const GOALS = [
   { id: "conversation", labelKey: "goalConversation" },
@@ -14,15 +23,33 @@ const GOALS = [
 
 const STEP_COUNT = 4;
 
+/** Four steps, one shape: a legend, then the controls under it. */
+function WizardStep({ legend, children }: { legend: string; children: ReactNode }) {
+  return (
+    <fieldset>
+      <legend className="text-lg font-semibold text-foreground">{legend}</legend>
+      <div className="mt-4">{children}</div>
+    </fieldset>
+  );
+}
+
 type Props = {
   initialTimezone: string;
 };
 
+/**
+ * The one wizard in onboarding, and the only part of it that is genuinely a
+ * wizard: it collects preferences that must be answered in order and saved
+ * together. Everything after it is a checklist, which is a different shape and
+ * lives in `OnboardingChecklist`.
+ *
+ * Teachers have no counterpart to this — they consent through the payment
+ * policy step instead — so there is nothing here to share across flows.
+ */
 export function OnboardingForm({ initialTimezone }: Props) {
   const t = useTranslations("onboarding");
-  const router = useRouter();
   const [step, setStep] = useState(0);
-  const [timezone, setTimezone] = useState(initialTimezone);
+  const [chosenTimezone, setChosenTimezone] = useState<string | null>(null);
   const [goals, setGoals] = useState<string[]>(["conversation"]);
   const [notifyLessonReminders, setNotifyLessonReminders] = useState(true);
   const [notifyMessages, setNotifyMessages] = useState(true);
@@ -30,8 +57,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [acceptedRecordingConsent, setAcceptedRecordingConsent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const { saving, error, submit } = useOnboardingSubmit();
   const canSubmit =
     acceptedTerms && acceptedPrivacy && acceptedRecordingConsent && goals.length > 0;
   const timezoneOptions = useMemo(() => {
@@ -55,13 +81,21 @@ export function OnboardingForm({ initialTimezone }: Props) {
     ];
   }, []);
 
-  useEffect(() => {
-    const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (!browserTz) return;
-    if (timezone !== "Asia/Tokyo" && timezone.length > 0) return;
-    if (!timezoneOptions.includes(browserTz)) return;
-    setTimezone(browserTz);
-  }, [timezone, timezoneOptions]);
+  /*
+    Detection only fills the gap the stored value leaves; an explicit pick always
+    wins. This used to be an effect keyed on the current timezone, which meant a
+    student who deliberately chose Asia/Tokyo — the stored default, and the one
+    value the condition treated as "unset" — had their choice overwritten with
+    whatever their browser reported.
+  */
+  const browserTimezone = useBrowserTimezone();
+  const detectedTimezone =
+    initialTimezone === "Asia/Tokyo" || initialTimezone.length === 0
+      ? browserTimezone && timezoneOptions.includes(browserTimezone)
+        ? browserTimezone
+        : initialTimezone
+      : initialTimezone;
+  const timezone = chosenTimezone ?? detectedTimezone;
 
   function toggleGoal(goal: string) {
     setGoals((prev) =>
@@ -78,10 +112,9 @@ export function OnboardingForm({ initialTimezone }: Props) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setSaving(true);
-    try {
-      const res = await fetch("/api/onboarding", {
+    await submit("/api/onboarding", {
+      destination: "/onboarding/next",
+      init: {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -94,207 +127,160 @@ export function OnboardingForm({ initialTimezone }: Props) {
           acceptedPrivacy,
           acceptedRecordingConsent,
         }),
-      });
-      if (!res.ok) {
-        setError(t("saveError"));
-        return;
-      }
-      router.push("/onboarding/next");
-    } catch {
-      setError(t("saveError"));
-    } finally {
-      setSaving(false);
-    }
+      },
+    });
   }
 
+  const progressLabel = t("wizardProgress", { current: step + 1, total: STEP_COUNT });
+
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium text-muted">
-          {t("wizardProgress", { current: step + 1, total: STEP_COUNT })}
-        </p>
-        <div
-          className="h-1.5 max-w-[10rem] flex-1 overflow-hidden rounded-full bg-border"
-          aria-hidden
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300"
-            style={{ width: `${((step + 1) / STEP_COUNT) * 100}%` }}
-          />
-        </div>
+    <form onSubmit={onSubmit} className="space-y-8">
+      {/* Was a hand-built bar marked `aria-hidden`, so the only progress signal a
+          screen reader got was the text beside it. This is the same bar the
+          checklist, study and placement use. */}
+      <div className="flex items-center gap-3">
+        <ProgressBar
+          percent={((step + 1) / STEP_COUNT) * 100}
+          label={progressLabel}
+          valueText={progressLabel}
+          size="sm"
+          className="flex-1"
+        />
+        <p className="text-xs font-medium tabular-nums text-muted">{progressLabel}</p>
       </div>
 
-      <AppCard>
-        {step === 0 ? (
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">{t("timezoneLabel")}</h2>
-            <p className="mt-1 text-xs text-muted">{t("timezoneHelp")}</p>
-            <select
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              className="mt-3 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
-              required
-            >
-              {timezoneOptions.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz}
-                </option>
-              ))}
-            </select>
+      {step === 0 ? (
+        <WizardStep legend={t("timezoneLabel")}>
+          {/* The legend already names the group, so the select's own label is
+              carried for screen readers only. */}
+          <Field label={t("timezoneLabel")} hideLabel hint={t("timezoneHelp")}>
+            {(field) => (
+              <Select
+                {...field}
+                value={timezone}
+                onChange={(e) => setChosenTimezone(e.target.value)}
+                required
+              >
+                {timezoneOptions.map((tz) => (
+                  <option key={tz} value={tz}>
+                    {tz}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        </WizardStep>
+      ) : null}
+
+      {step === 1 ? (
+        <WizardStep legend={t("goalsLabel")}>
+          {/* The same option row the quiz and flashcards use, as a multi-select. */}
+          <ChoiceList columns={2}>
+            {GOALS.map((goal) => (
+              <Choice
+                key={goal.id}
+                toggle
+                state={goals.includes(goal.id) ? "selected" : "idle"}
+                onSelect={() => toggleGoal(goal.id)}
+              >
+                {t(goal.labelKey)}
+              </Choice>
+            ))}
+          </ChoiceList>
+        </WizardStep>
+      ) : null}
+
+      {step === 2 ? (
+        <WizardStep legend={t("notificationsLabel")}>
+          <div className="divide-y divide-border border-y border-border">
+            <CheckRow checked={notifyLessonReminders} onChange={setNotifyLessonReminders}>
+              {t("notifyLessons")}
+            </CheckRow>
+            <CheckRow checked={notifyMessages} onChange={setNotifyMessages}>
+              {t("notifyMessages")}
+            </CheckRow>
+            <CheckRow checked={notifyPayments} onChange={setNotifyPayments}>
+              {t("notifyPayments")}
+            </CheckRow>
           </div>
-        ) : null}
+        </WizardStep>
+      ) : null}
 
-        {step === 1 ? (
-          <fieldset>
-            <legend className="text-lg font-semibold text-foreground">{t("goalsLabel")}</legend>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {GOALS.map((goal) => (
-                <label
-                  key={goal.id}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
-                >
-                  <input
-                    type="checkbox"
-                    checked={goals.includes(goal.id)}
-                    onChange={() => toggleGoal(goal.id)}
-                  />
-                  {t(goal.labelKey)}
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        ) : null}
+      {step === 3 ? (
+        <WizardStep legend={t("consentLabel")}>
+          <div className="divide-y divide-border border-y border-border">
+            <CheckRow checked={acceptedTerms} onChange={setAcceptedTerms}>
+              {t.rich("acceptTerms", {
+                terms: (chunks) => (
+                  <Link
+                    href="/legal/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={inlineLinkClass}
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </CheckRow>
+            <CheckRow checked={acceptedPrivacy} onChange={setAcceptedPrivacy}>
+              {t.rich("acceptPrivacy", {
+                privacy: (chunks) => (
+                  <Link
+                    href="/legal/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={inlineLinkClass}
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </CheckRow>
+            <CheckRow
+              checked={acceptedRecordingConsent}
+              onChange={setAcceptedRecordingConsent}
+            >
+              {t("acceptRecording")}
+            </CheckRow>
+          </div>
+        </WizardStep>
+      ) : null}
 
-        {step === 2 ? (
-          <fieldset>
-            <legend className="text-lg font-semibold text-foreground">
-              {t("notificationsLabel")}
-            </legend>
-            <div className="mt-3 space-y-2 text-sm text-foreground">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={notifyLessonReminders}
-                  onChange={(e) => setNotifyLessonReminders(e.target.checked)}
-                />
-                {t("notifyLessons")}
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={notifyMessages}
-                  onChange={(e) => setNotifyMessages(e.target.checked)}
-                />
-                {t("notifyMessages")}
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={notifyPayments}
-                  onChange={(e) => setNotifyPayments(e.target.checked)}
-                />
-                {t("notifyPayments")}
-              </label>
-            </div>
-          </fieldset>
-        ) : null}
+      {error ? (
+        <p role="alert">
+          <Status tone="error">{error}</Status>
+        </p>
+      ) : null}
 
-        {step === 3 ? (
-          <fieldset>
-            <legend className="text-lg font-semibold text-foreground">{t("consentLabel")}</legend>
-            <div className="mt-3 space-y-2 text-sm text-foreground">
-              <label className="flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  checked={acceptedTerms}
-                  onChange={(e) => setAcceptedTerms(e.target.checked)}
-                />
-                <span className="text-sm leading-relaxed">
-                  {t.rich("acceptTerms", {
-                    terms: (chunks) => (
-                      <Link
-                        href="/legal/terms"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-medium text-link underline-offset-4 hover:underline"
-                      >
-                        {chunks}
-                      </Link>
-                    ),
-                  })}
-                </span>
-              </label>
-              <label className="flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  checked={acceptedPrivacy}
-                  onChange={(e) => setAcceptedPrivacy(e.target.checked)}
-                />
-                <span className="text-sm leading-relaxed">
-                  {t.rich("acceptPrivacy", {
-                    privacy: (chunks) => (
-                      <Link
-                        href="/legal/privacy"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-medium text-link underline-offset-4 hover:underline"
-                      >
-                        {chunks}
-                      </Link>
-                    ),
-                  })}
-                </span>
-              </label>
-              <label className="flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  checked={acceptedRecordingConsent}
-                  onChange={(e) => setAcceptedRecordingConsent(e.target.checked)}
-                />
-                <span className="text-sm leading-relaxed">{t("acceptRecording")}</span>
-              </label>
-            </div>
-          </fieldset>
-        ) : null}
-
-        {error ? (
-          <p className="mt-4 text-sm" style={{ color: "var(--app-danger)" }}>
-            {error}
-          </p>
-        ) : null}
-
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
+        <button
+          type="button"
+          className={buttonClasses({ variant: "secondary" })}
+          disabled={step === 0}
+          onClick={() => setStep((s) => Math.max(0, s - 1))}
+        >
+          {t("wizardBack")}
+        </button>
+        {step < STEP_COUNT - 1 ? (
           <button
             type="button"
-            className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)] disabled:cursor-not-allowed disabled:opacity-40"
-            disabled={step === 0}
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
+            className={buttonClasses({ size: "lg" })}
+            disabled={!canAdvanceFromStep(step)}
+            onClick={() => setStep((s) => Math.min(STEP_COUNT - 1, s + 1))}
           >
-            {t("wizardBack")}
+            {t("wizardNext")}
           </button>
-          {step < STEP_COUNT - 1 ? (
-            <button
-              type="button"
-              className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!canAdvanceFromStep(step)}
-              onClick={() => setStep((s) => Math.min(STEP_COUNT - 1, s + 1))}
-            >
-              {t("wizardNext")}
-            </button>
-          ) : (
-            <button
-              type="submit"
-              disabled={saving || !canSubmit}
-              className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {saving ? "…" : t("submit")}
-            </button>
-          )}
-        </div>
-      </AppCard>
+        ) : (
+          <button
+            type="submit"
+            disabled={saving || !canSubmit}
+            className={buttonClasses({ size: "lg" })}
+          >
+            {saving ? "…" : t("submit")}
+          </button>
+        )}
+      </div>
     </form>
   );
 }

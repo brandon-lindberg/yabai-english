@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildIcs } from "@/lib/calendar";
+import { lessonCalendarLocation, lessonCalendarUid } from "@/lib/brand";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -26,16 +27,16 @@ export async function GET(request: Request) {
   });
 
   const events = bookings.map((booking) => ({
-    uid: `booking-${booking.id}@english-studio.local`,
+    uid: lessonCalendarUid(booking.id),
     title: `${booking.lessonProduct.nameEn} (${booking.lessonProduct.nameJa})`,
     description: `Teacher: ${booking.teacher.user.name ?? booking.teacher.user.email}`,
-    location: booking.meetUrl ?? "English Studio lesson",
+    location: booking.meetUrl ?? lessonCalendarLocation(),
     startsAt: booking.startsAt,
     endsAt: booking.endsAt,
   }));
 
   const ics = buildIcs(events);
-  const filename = bookingId ? `lesson-${bookingId}.ics` : "english-studio-schedule.ics";
+  const filename = bookingId ? `lesson-${bookingId}.ics` : "english-studio-japan-schedule.ics";
 
   return new NextResponse(ics, {
     headers: {

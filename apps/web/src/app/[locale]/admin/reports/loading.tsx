@@ -12,7 +12,7 @@ export default function Loading() {
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
+            className="border-y border-border p-5 sm:p-6"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">

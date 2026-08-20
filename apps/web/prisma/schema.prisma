@@ -127,6 +127,77 @@ enum AvailabilitySlotRecurrence {
   ONE_OFF
 }
 
+enum PaymentProvider {
+  STRIPE
+  KOMOJU
+}
+
+enum TeacherPaymentAccountStatus {
+  PENDING
+  ENABLED
+  DISABLED
+  REQUIREMENTS_DUE
+}
+
+enum TeacherPaymentMethodType {
+  CARD
+  PAYPAY
+}
+
+enum PaymentStatus {
+  CREATED
+  REQUIRES_ACTION
+  SUCCEEDED
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
+enum PaymentLedgerEntryType {
+  GROSS
+  PLATFORM_FEE
+  TEACHER_NET
+  PROCESSOR_FEE
+  REFUND
+  TRANSFER_REVERSAL
+}
+
+enum RefundStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  PENDING_RECOVERY
+}
+
+enum TeacherPlatformTier {
+  TIER_1
+  TIER_2
+  TIER_3
+}
+
+enum TeacherTierEvaluationKind {
+  QUARTERLY
+  ANNUAL
+}
+
+enum TeacherTierEvaluationStatus {
+  APPLIED
+  NO_CHANGE
+  PENDING_ADMIN_APPROVAL
+  ADMIN_APPROVED
+  ADMIN_KEPT
+}
+
+enum TeacherTierAuditAction {
+  INITIALIZED
+  QUARTERLY_EVALUATED
+  ANNUAL_EVALUATED
+  ANNUAL_DEMOTION_APPROVED
+  ANNUAL_DEMOTION_KEPT
+  OVERRIDE_SET
+  OVERRIDE_REMOVED
+}
+
 // --- NextAuth (Auth.js) ---
 model User {
   id            String        @id @default(cuid())
@@ -149,6 +220,7 @@ model User {
   sentMessages              ChatMessage[]                @relation("MessageSender")
   receivedMessages          ChatMessage[]                @relation("MessageRecipient")
   notifications             Notification[]
+  freeTrialRedemptions      FreeTrialRedemption[]
   invoices                  Invoice[]
   teacherStudentLessonRates TeacherStudentLessonRate[]
   chatThreadsAsStudent      ChatThread[]                 @relation("ThreadStudent")
@@ -267,8 +339,6 @@ model StudentProfile {
   placementReport        Json?
   placementWritingSample String?     @db.Text
 
-  /// One free 20-minute trial per student (set when a trial booking is confirmed)
-  trialLessonUsedAt DateTime?
 
   /// Onboarding data
   learningGoals          String[]  @default([])
@@ -277,6 +347,8 @@ model StudentProfile {
   notifyPayments         Boolean   @default(true)
   termsAcceptedAt        DateTime?
   privacyAcceptedAt      DateTime?
+  /// Accepted student marketplace terms and refund policy before booking paid lessons.
+  marketplaceTermsAcceptedAt DateTime?
   recordingConsentAt     DateTime?
   onboardingCompletedAt  DateTime?
   /// Steps the student explicitly skipped from the onboarding checklist.
@@ -304,6 +376,7 @@ model TeacherProfile {
   offersFreeTrial            Boolean   @default(true)
   /// When true, profile is hidden from /book marketplace; only rostered students may book via direct link.
   marketplaceHidden          Boolean   @default(false)
+  paymentPolicyAcceptedAt    DateTime?
   onboardingCompletedAt      DateTime?
   /// Steps the teacher explicitly skipped from the onboarding wizard.
   skippedOnboardingSteps     String[]  @default([])
@@ -316,6 +389,108 @@ model TeacherProfile {
   studentLessonRateOverrides  TeacherStudentLessonRate[]
   classLevels                 TeacherClassLevel[]
   classTypes                  TeacherClassType[]
+  paymentAccounts             TeacherPaymentAccount[]
+  tierState                   TeacherTierState?
+  tierEvaluations             TeacherTierEvaluation[]
+  tierAuditLogs               TeacherTierAuditLog[]
+  freeTrialRedemptions        FreeTrialRedemption[]
+}
+
+model TeacherTierState {
+  id                    String              @id @default(cuid())
+  teacherId             String              @unique
+  teacher               TeacherProfile      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  calculatedTier        TeacherPlatformTier @default(TIER_1)
+  effectiveTier         TeacherPlatformTier @default(TIER_1)
+  firstPaidLessonAt     DateTime?
+  tierYearStart         DateTime?
+  lastEvaluationAt      DateTime?
+  nextQuarterlyReviewAt DateTime?
+  nextAnnualReviewAt    DateTime?
+  overrideTier          TeacherPlatformTier?
+  overrideStartsAt      DateTime?
+  overrideExpiresAt     DateTime?
+  overrideNote          String?             @db.Text
+  overrideSetByUserId   String?
+  overrideSetAt         DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@index([effectiveTier])
+  @@index([nextQuarterlyReviewAt])
+  @@index([nextAnnualReviewAt])
+}
+
+model TeacherTierEvaluation {
+  id              String                      @id @default(cuid())
+  teacherId       String
+  teacher         TeacherProfile              @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  kind            TeacherTierEvaluationKind
+  periodStart     DateTime
+  periodEnd       DateTime
+  monthlyCountsJson Json
+  averageLessons  Float
+  recommendedTier TeacherPlatformTier
+  appliedTier     TeacherPlatformTier?
+  status          TeacherTierEvaluationStatus
+  reviewedByUserId String?
+  reviewedAt      DateTime?
+  reviewNote      String?                     @db.Text
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+
+  @@unique([teacherId, kind, periodStart, periodEnd])
+  @@index([status])
+  @@index([teacherId, createdAt])
+}
+
+model TeacherTierAuditLog {
+  id             String                 @id @default(cuid())
+  teacherId      String
+  teacher        TeacherProfile         @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  actorUserId    String?
+  action         TeacherTierAuditAction
+  previousTier   TeacherPlatformTier?
+  newTier        TeacherPlatformTier?
+  note           String?                @db.Text
+  metadataJson   Json?
+  createdAt      DateTime               @default(now())
+
+  @@index([teacherId, createdAt])
+  @@index([action])
+}
+
+model TeacherPaymentAccount {
+  id                String                      @id @default(cuid())
+  teacherId         String
+  teacher           TeacherProfile              @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  provider          PaymentProvider
+  providerAccountId String?
+  status            TeacherPaymentAccountStatus @default(PENDING)
+  chargesEnabled    Boolean                     @default(false)
+  payoutsEnabled    Boolean                     @default(false)
+  requirementsDue   String[]                    @default([])
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+
+  methods TeacherPaymentMethod[]
+  payments Payment[]
+
+  @@unique([teacherId, provider])
+  @@index([teacherId, status])
+}
+
+model TeacherPaymentMethod {
+  id        String                   @id @default(cuid())
+  accountId String
+  account   TeacherPaymentAccount    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  method    TeacherPaymentMethodType
+  enabled   Boolean                  @default(true)
+  createdAt DateTime                 @default(now())
+  updatedAt DateTime                 @updatedAt
+
+  @@unique([accountId, method])
+  @@index([method, enabled])
 }
 
 /// Students (or pending email invites) allowed to book a marketplace teacher when hidden from the list.
@@ -395,6 +570,10 @@ model TeacherLessonOffering {
   isGroup     Boolean        @default(false)
   groupSize   Int?
   active      Boolean        @default(true)
+  /// Marks the teacher's free-trial offer. Priced at 0 and bookable once per
+  /// student; exists as an offering so trial slots can be published like any
+  /// other class.
+  isFreeTrial Boolean        @default(false)
 
   /// FK to the teacher's per-teacher class type taxonomy. Drives catalog matching.
   classLevelId String?
@@ -457,6 +636,8 @@ model TeacherStudentLessonRate {
   teacherLessonOffering   TeacherLessonOffering @relation(fields: [teacherLessonOfferingId], references: [id], onDelete: Cascade)
   rateYen Int
   active Boolean @default(true)
+  note String? @db.Text
+  createdByAdminUserId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -500,6 +681,9 @@ model Booking {
   endsAt                DateTime
   status                BookingStatus
   quotedPriceYen        Int           @default(0)
+  /// How many times this lesson has been moved. Caps student reschedules so a
+  /// paid booking cannot be moved indefinitely.
+  rescheduleCount       Int           @default(0)
   manualOverrideUsed    Boolean       @default(false)
   manualOverrideReason  String?       @db.Text
   manualOverrideByRole  Role?
@@ -514,6 +698,8 @@ model Booking {
   recordingIds          String[]      @default([])
   studentGoogleEventId  String?
   invoice               Invoice?
+  payments              Payment[]
+  refunds               Refund[]
 
   /// Teacher-written Markdown lesson notes (visible to student); edited after the lesson ends.
   completionNotesMd     String? @db.Text
@@ -539,6 +725,82 @@ model Invoice {
   createdAt DateTime @default(now())
 
   @@index([studentId, createdAt])
+}
+
+model Payment {
+  id                         String                   @id @default(cuid())
+  bookingId                  String?                  @unique
+  booking                    Booking?                 @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  studentId                  String
+  teacherId                  String
+  teacherPaymentAccountId    String?
+  teacherPaymentAccount      TeacherPaymentAccount?   @relation(fields: [teacherPaymentAccountId], references: [id], onDelete: SetNull)
+  provider                   PaymentProvider
+  method                     TeacherPaymentMethodType
+  amountYen                  Int
+  currency                   String                   @default("JPY")
+  status                     PaymentStatus            @default(CREATED)
+  providerCheckoutId         String?
+  providerPaymentId          String?
+  idempotencyKey             String                   @unique
+  checkoutUrl                String?
+  metadataJson               Json?
+  paidAt                     DateTime?
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+
+  ledgerEntries PaymentLedgerEntry[]
+  refunds       Refund[]
+
+  @@index([studentId, createdAt])
+  @@index([teacherId, createdAt])
+  @@index([provider, providerCheckoutId])
+  @@index([provider, providerPaymentId])
+}
+
+model PaymentLedgerEntry {
+  id        String                 @id @default(cuid())
+  paymentId String
+  payment   Payment                @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  type      PaymentLedgerEntryType
+  amountYen Int
+  note      String?
+  createdAt DateTime               @default(now())
+
+  @@index([paymentId, type])
+}
+
+model Refund {
+  id               String        @id @default(cuid())
+  bookingId        String
+  booking          Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  paymentId        String
+  payment          Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  provider         PaymentProvider
+  providerRefundId String?
+  amountYen        Int
+  status           RefundStatus  @default(PENDING)
+  actor            String
+  reason           String
+  policyJson       Json?
+  recoveryNote     String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([bookingId, createdAt])
+  @@index([paymentId, createdAt])
+  @@index([provider, providerRefundId])
+}
+
+model PaymentWebhookEvent {
+  id              String          @id @default(cuid())
+  provider        PaymentProvider
+  providerEventId String
+  eventType       String
+  processedAt     DateTime        @default(now())
+  payloadJson     Json?
+
+  @@unique([provider, providerEventId])
 }
 
 // --- Phase 2: Learning ---
@@ -856,6 +1118,8 @@ model Notification {
   titleEn   String
   bodyJa    String?   @db.Text
   bodyEn    String?   @db.Text
+  /// App-relative path this notification is about, so it can be clicked through.
+  href      String?
   readAt    DateTime?
   createdAt DateTime  @default(now())
 
@@ -863,6 +1127,21 @@ model Notification {
 }
 
 /// Authoritative placement MCQ bank (loaded by API only; never bundled to the browser).
+/// One free trial per student per teacher. The unique pair is the rule: a row
+/// exists only once the student has taken that teacher's trial.
+model FreeTrialRedemption {
+  id        String         @id @default(cuid())
+  studentId String
+  student   User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  bookingId String?
+  createdAt DateTime       @default(now())
+
+  @@unique([studentId, teacherId])
+  @@index([teacherId, createdAt])
+}
+
 model PlacementBankQuestion {
   id            String  @id
   stemId        String?

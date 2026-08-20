@@ -1,117 +1,58 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { requireSchoolAccess } from "@/lib/org/require-school-access";
 import {
-  isOrgWideAdmin,
-  isSchoolAdmin,
-  type MembershipForAuth,
-} from "@/lib/org-authorization";
-
-const updateSchema = z.object({
-  code: z.string().trim().min(1).max(64).optional(),
-  labelEn: z.string().trim().min(1).max(100).optional(),
-  labelJa: z.string().trim().max(100).nullable().optional(),
-  sortOrder: z.number().int().min(0).max(10000).optional(),
-  active: z.boolean().optional(),
-});
+  findOwnedTaxonomyEntry,
+  parseJsonBody,
+  taxonomyUpdateSchema,
+  type TaxonomyDelegate,
+} from "@/lib/taxonomy/taxonomy-crud";
 
 type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string; levelId: string }>;
 };
 
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-  schoolId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: {
-      userId,
-      organizationId: orgId,
-      status: "ACTIVE",
-      OR: [{ schoolId: null }, { schoolId }],
-    },
-    select: {
-      id: true,
-      organizationId: true,
-      userId: true,
-      schoolId: true,
-      orgRole: true,
-      status: true,
-    },
-    orderBy: { orgRole: "asc" },
-  });
-}
-
-async function authorizeAdmin(
-  orgId: string,
-  schoolId: string,
-): Promise<NextResponse | null> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
-  if (!caller || (!isOrgWideAdmin(caller) && !isSchoolAdmin(caller, schoolId))) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-  return null;
-}
+const delegate = prisma.schoolClassLevel as unknown as TaxonomyDelegate;
 
 export async function PATCH(req: Request, ctx: RouteContext): Promise<NextResponse> {
-  const { orgId, schoolId, levelId } = await ctx.params;
-  const denied = await authorizeAdmin(orgId, schoolId);
-  if (denied) return denied;
+  const access = await requireSchoolAccess(
+    ctx.params as Promise<{ orgId: string; schoolId: string }>,
+    { adminOnly: true },
+  );
+  if (!access.ok) return access.res;
 
-  const existing = await prisma.schoolClassLevel.findUnique({
-    where: { id: levelId },
-    select: { id: true, schoolId: true },
+  const { levelId } = await ctx.params;
+  const owned = await findOwnedTaxonomyEntry({
+    delegate,
+    scope: { column: "schoolId", id: access.schoolId },
+    id: levelId,
   });
-  if (!existing || existing.schoolId !== schoolId) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  if (!owned.ok) return owned.res;
 
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  const body = await parseJsonBody(req, taxonomyUpdateSchema);
+  if (!body.ok) return body.res;
 
-  const parsed = updateSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Validation failed", details: parsed.error.flatten() },
-      { status: 400 },
-    );
-  }
-
-  const classLevel = await prisma.schoolClassLevel.update({
-    where: { id: levelId },
-    data: parsed.data,
-  });
-
+  const classLevel = await delegate.update({ where: { id: levelId }, data: body.data });
   return NextResponse.json({ classLevel });
 }
 
 export async function DELETE(_req: Request, ctx: RouteContext): Promise<NextResponse> {
-  const { orgId, schoolId, levelId } = await ctx.params;
-  const denied = await authorizeAdmin(orgId, schoolId);
-  if (denied) return denied;
+  const access = await requireSchoolAccess(
+    ctx.params as Promise<{ orgId: string; schoolId: string }>,
+    { adminOnly: true },
+  );
+  if (!access.ok) return access.res;
 
-  const existing = await prisma.schoolClassLevel.findUnique({
-    where: { id: levelId },
-    select: { id: true, schoolId: true },
+  const { levelId } = await ctx.params;
+  const owned = await findOwnedTaxonomyEntry({
+    delegate,
+    scope: { column: "schoolId", id: access.schoolId },
+    id: levelId,
   });
-  if (!existing || existing.schoolId !== schoolId) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  if (!owned.ok) return owned.res;
 
-  await prisma.schoolClassLevel.update({
-    where: { id: levelId },
-    data: { active: false },
-  });
-
+  // Soft delete: the code stays reserved so re-adding the same name reactivates
+  // the original row rather than colliding with the unique index.
+  await delegate.update({ where: { id: levelId }, data: { active: false } });
   return NextResponse.json({ success: true });
 }

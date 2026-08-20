@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
+import { formatYen } from "@/lib/format-money";
+import { CheckRow } from "@/components/ui/check-row";
+import { Field, Input } from "@/components/ui/field";
+import { Status } from "@/components/ui/status";
 
 type Pricing = {
   id: string;
@@ -16,6 +21,7 @@ type Pricing = {
 type Props = { orgId: string; schoolId: string };
 
 export function SchoolPricingView({ orgId, schoolId }: Props) {
+  const locale = useLocale();
   const t = useTranslations("org.school.pricingPage");
   const [items, setItems] = useState<Pricing[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -64,15 +70,12 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
     setSaving(false);
   }
 
-  const inputCn =
-    "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
-
   return (
     <div>
       <div className="mb-4 flex justify-end">
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={buttonClasses()}
         >
           {t("addPricing")}
         </button>
@@ -81,55 +84,57 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
       {showCreate && (
         <AppCard className="mb-6">
           <form onSubmit={handleCreate} className="space-y-4">
+            {/* Same detached labels as the time-off form: no `htmlFor`, no
+                wrapping, so neither control had a name. */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("duration")}
-                </label>
-                <input
-                  type="number"
-                  className={inputCn}
-                  value={form.durationMin}
-                  onChange={(e) => setForm({ ...form, durationMin: Number(e.target.value) })}
-                  min={1}
-                  required
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">
-                  {t("price")}
-                </label>
-                <input
-                  type="number"
-                  className={inputCn}
-                  value={form.priceYen}
-                  onChange={(e) => setForm({ ...form, priceYen: Number(e.target.value) })}
-                  min={0}
-                  required
-                />
-              </div>
+              <Field label={t("duration")} required>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="number"
+                    min={1}
+                    required
+                    value={form.durationMin}
+                    onChange={(e) => setForm({ ...form, durationMin: Number(e.target.value) })}
+                  />
+                )}
+              </Field>
+              <Field label={t("price")} required>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="number"
+                    min={0}
+                    required
+                    value={form.priceYen}
+                    onChange={(e) => setForm({ ...form, priceYen: Number(e.target.value) })}
+                  />
+                )}
+              </Field>
             </div>
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="checkbox"
-                checked={form.isGroup}
-                onChange={(e) => setForm({ ...form, isGroup: e.target.checked })}
-              />
+            <CheckRow
+              checked={form.isGroup}
+              onChange={(next) => setForm({ ...form, isGroup: next })}
+            >
               {t("group")}
-            </label>
-            {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
+            </CheckRow>
+            {error ? (
+              <p role="alert">
+                <Status tone="error">{error}</Status>
+              </p>
+            ) : null}
             <div className="flex gap-2">
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                className={buttonClasses()}
               >
                 {saving ? t("creating") : t("create")}
               </button>
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                className={buttonClasses({ variant: "secondary" })}
               >
                 {t("cancel")}
               </button>
@@ -141,7 +146,7 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
       {items.length === 0 ? (
         <p className="text-sm text-muted">{t("noPricing")}</p>
       ) : (
-        <div className="divide-y divide-border rounded-xl border border-border bg-surface">
+        <div className="divide-y divide-border border-y border-border">
           {items.map((p) => (
             <div key={p.id} className="flex items-center justify-between px-4 py-3 text-sm">
               <div className="flex items-center gap-4">
@@ -153,7 +158,7 @@ export function SchoolPricingView({ orgId, schoolId }: Props) {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-semibold text-foreground">¥{p.priceYen.toLocaleString()}</span>
+                <span className="font-semibold tabular-nums text-foreground">{formatYen(p.priceYen, locale)}</span>
                 <span className="rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs">
                   {p.isGroup ? t("group") : t("individual")}
                 </span>

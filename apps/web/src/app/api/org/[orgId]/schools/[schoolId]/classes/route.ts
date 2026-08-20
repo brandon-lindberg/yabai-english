@@ -3,38 +3,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import {
   isOrgWideAdmin,
-  type MembershipForAuth,
 } from "@/lib/org-authorization";
 import { planMaterializedBookings } from "@/lib/school-scheduling";
 import { syncSchoolBookingsToCalendar } from "@/lib/school-calendar-sync";
+import { getSchoolCallerMembership } from "@/lib/org/caller-membership";
 
 type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string }>;
 };
-
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-  schoolId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: {
-      userId,
-      organizationId: orgId,
-      status: "ACTIVE",
-      OR: [{ schoolId: null }, { schoolId }],
-    },
-    select: {
-      id: true,
-      organizationId: true,
-      userId: true,
-      schoolId: true,
-      orgRole: true,
-      status: true,
-    },
-    orderBy: { orgRole: "asc" },
-  });
-}
 
 const DEFAULT_LOOKAHEAD_DAYS = 14;
 
@@ -45,7 +21,7 @@ export async function GET(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
   if (!caller) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

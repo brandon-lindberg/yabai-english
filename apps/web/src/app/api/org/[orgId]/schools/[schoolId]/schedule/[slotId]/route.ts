@@ -5,8 +5,8 @@ import { prisma } from "@/lib/prisma";
 import {
   isOrgWideAdmin,
   isSchoolAdmin,
-  type MembershipForAuth,
 } from "@/lib/org-authorization";
+import { getSchoolCallerMembership } from "@/lib/org/caller-membership";
 
 const dateOnly = z
   .string()
@@ -40,24 +40,6 @@ type RouteContext = {
   params: Promise<{ orgId: string; schoolId: string; slotId: string }>;
 };
 
-async function getCallerMembership(
-  userId: string,
-  orgId: string,
-  schoolId: string,
-): Promise<MembershipForAuth | null> {
-  return prisma.organizationMembership.findFirst({
-    where: {
-      userId, organizationId: orgId, status: "ACTIVE",
-      OR: [{ schoolId: null }, { schoolId }],
-    },
-    select: {
-      id: true, organizationId: true, userId: true,
-      schoolId: true, orgRole: true, status: true,
-    },
-    orderBy: { orgRole: "asc" },
-  });
-}
-
 export async function PATCH(req: Request, ctx: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -65,7 +47,7 @@ export async function PATCH(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId, slotId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
 
   if (!caller || (!isOrgWideAdmin(caller) && !isSchoolAdmin(caller, schoolId))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -139,7 +121,7 @@ export async function DELETE(req: Request, ctx: RouteContext) {
   }
 
   const { orgId, schoolId, slotId } = await ctx.params;
-  const caller = await getCallerMembership(session.user.id, orgId, schoolId);
+  const caller = await getSchoolCallerMembership(session.user.id, orgId, schoolId);
 
   if (!caller || (!isOrgWideAdmin(caller) && !isSchoolAdmin(caller, schoolId))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

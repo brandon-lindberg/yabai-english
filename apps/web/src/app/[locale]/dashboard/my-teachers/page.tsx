@@ -5,6 +5,7 @@ import { redirect, Link } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { getStudentRosterTeachers } from "@/lib/student-roster-teachers";
 import { reconcileTeacherRosterFromBookings } from "@/lib/reconcile-teacher-roster-from-bookings";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function DashboardMyTeachersPage() {
   const session = await auth();
@@ -21,19 +22,16 @@ export default async function DashboardMyTeachersPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-        <p className="mt-2 text-muted">{t("intro")}</p>
-      </header>
+      <PageHeader title={t("title")} description={t("intro")} />
       {teachers.length === 0 ? (
         <p className="text-sm text-muted">{t("empty")}</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="list-none border-t border-border p-0">
           {teachers.map((row) => (
             <li key={row.rosterEntryId}>
               <Link
                 href={`/book/teachers/${row.teacherProfileId}`}
-                className="block rounded-xl border border-border bg-surface/60 px-4 py-3 text-sm font-medium text-foreground hover:bg-[var(--app-hover)]"
+                className="block border-b border-border py-3 font-medium text-foreground transition-colors hover:bg-[var(--app-hover)]"
               >
                 {row.displayName}
               </Link>

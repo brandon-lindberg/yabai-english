@@ -72,13 +72,13 @@ export function ChatModerationMenu({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-50 mt-1 min-w-[11rem] rounded-xl border border-border bg-surface py-1 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-1 min-w-[11rem] rounded-xl border border-border bg-surface py-1"
         >
           <button
             type="button"
             role="menuitem"
             disabled={blockDisabled}
-            className={`${itemClass} text-red-700`}
+            className={`${itemClass} text-[var(--app-danger)]`}
             onClick={() => runAction(onBlock)}
           >
             {blockLabel}
@@ -96,7 +96,7 @@ export function ChatModerationMenu({
             type="button"
             role="menuitem"
             disabled={reportDisabled}
-            className={`${itemClass} text-red-700`}
+            className={`${itemClass} text-[var(--app-danger)]`}
             onClick={() => runAction(onReport)}
           >
             {reportLabel}

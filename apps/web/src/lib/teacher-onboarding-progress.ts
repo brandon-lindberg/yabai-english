@@ -1,5 +1,6 @@
 const STEP_ORDER = [
   "profile",
+  "payments",
   "integrations",
   "availability",
   "students",

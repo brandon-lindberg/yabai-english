@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { LessonListEmpty } from "@/components/dashboard/lesson-row";
 import {
   TeacherCompletedLessonsClient,
   type TeacherCompletedLessonItem,
@@ -33,9 +34,9 @@ export async function TeacherCompletedLessons({ completed }: { completed: Comple
 
   if (completed.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-surface p-6 text-muted">
-        {t("completedEmpty")}
-      </div>
+      <ul className="list-none border-t border-border p-0">
+        <LessonListEmpty>{t("completedEmpty")}</LessonListEmpty>
+      </ul>
     );
   }
 

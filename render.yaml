@@ -71,6 +71,17 @@ services:
       - key: NEXT_PUBLIC_APP_URL
         sync: false
 
+      # Stripe Connect. The secret key is sk_test_… or sk_live_… depending on the
+      # mode this service should run in; the code accepts either.
+      - key: STRIPE_SECRET_KEY
+        sync: false
+
+      # Signing secret (whsec_…) for the webhook endpoint at
+      # /api/payments/webhooks/stripe. Test and live mode each have their own
+      # endpoint and their own secret — use the one matching STRIPE_SECRET_KEY.
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
       # Belt-and-suspenders: make sure the dev-only auth bypass is OFF in prod.
       - key: DEV_AUTH_BYPASS
         value: "false"

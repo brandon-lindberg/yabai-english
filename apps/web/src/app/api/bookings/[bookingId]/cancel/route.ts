@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { evaluateBookingCancellationPolicy } from "@/lib/booking-policy";
 import { deleteMeetLessonEvent } from "@/lib/google-calendar";
+import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
+import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -33,11 +35,29 @@ export async function POST(_req: Request, { params }: Props) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
+      student: { select: { name: true } },
       teacher: {
         select: {
           userId: true,
           googleCalendarRefreshToken: true,
           calendarId: true,
+        },
+      },
+      payments: {
+        where: { status: "SUCCEEDED" },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          id: true,
+          provider: true,
+          amountYen: true,
+          status: true,
+          providerPaymentId: true,
+          teacherPaymentAccount: {
+            select: {
+              providerAccountId: true,
+            },
+          },
         },
       },
     },
@@ -101,6 +121,25 @@ export async function POST(_req: Request, { params }: Props) {
       : Promise.resolve(false),
   ]);
 
+  const refund = policy.refundEligible
+    ? await issueAutomaticRefundForBooking(prisma, {
+        booking,
+        policy,
+        actor,
+      })
+    : null;
+
+  // A refund that did not reach the student is owed money nobody else is
+  // watching, so tell the people who can fix it rather than waiting for a
+  // complaint.
+  if (refund && refund.status !== "SUCCEEDED" && refund.status !== "PENDING") {
+    await notifySuperAdminsOfStuckRefund({
+      amountYen: refund.amountYen,
+      studentName: booking.student?.name ?? null,
+      note: refund.recoveryNote ?? null,
+    });
+  }
+
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`);
     revalidatePath(`/${locale}/dashboard/schedule`);
@@ -110,5 +149,6 @@ export async function POST(_req: Request, { params }: Props) {
     ok: true,
     booking: updated,
     policy,
+    refund,
   });
 }

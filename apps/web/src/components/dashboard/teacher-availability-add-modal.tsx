@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
 import { weekdayLabel } from "@/lib/weekdays";
+import { buttonClasses } from "@/components/ui/button";
+import { Field, Input, Select } from "@/components/ui/field";
+import { InlineAlert } from "@/components/ui/inline-alert";
 
 export type TaxonomyOption = {
   id: string;
@@ -31,6 +34,7 @@ export type TeacherLessonOfferingOption = {
   rateYen: number;
   isGroup: boolean;
   groupSize: number | null;
+  isFreeTrial?: boolean;
   classLevelId: string | null;
   classTypeId: string | null;
   classLevel: TaxonomyOption | null;
@@ -116,6 +120,11 @@ function TeacherAvailabilityAddModalInner({
   const invalidDateRange = Boolean(draft.startsOn && draft.endsOn && draft.startsOn > draft.endsOn);
   const offerById = new Map(lessonOfferings.map((offer) => [offer.id, offer]));
   const formatOfferingLabel = (offer: TeacherLessonOfferingOption) => {
+    // A trial is its own kind of slot, not a class at a price of zero — naming
+    // the level and type here would read as a discounted conversation lesson.
+    if (offer.isFreeTrial) {
+      return `${tModal("freeTrialOffering")} (${offer.durationMin} min)`;
+    }
     const level = offer.classLevel ? pickLabel(offer.classLevel, locale) : "";
     const type = offer.classType ? pickLabel(offer.classType, locale) : "";
     const size = offer.isGroup && offer.groupSize ? `, group ${offer.groupSize}` : "";
@@ -153,11 +162,11 @@ function TeacherAvailabilityAddModalInner({
                 });
               }}
               className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border border-transparent leading-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                weeklyOnCalendarDay ? "bg-primary" : "bg-zinc-300 dark:bg-zinc-600"
+                weeklyOnCalendarDay ? "bg-primary" : "bg-border"
               }`}
             >
               <span
-                className={`pointer-events-none absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow transition-transform ${
+                className={`pointer-events-none absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-surface shadow transition-transform ${
                   weeklyOnCalendarDay ? "translate-x-[1.125rem]" : "translate-x-0"
                 }`}
                 aria-hidden
@@ -167,197 +176,206 @@ function TeacherAvailabilityAddModalInner({
           <p className="text-xs text-muted">{tModal("repeatWeeklyHint")}</p>
         </div>
 
-        <div className="mt-4 space-y-3">
+        {/*
+          Ten controls, each a `<label className="text-xs text-muted">` wrapping
+          its input with a hand-written class string — a smaller, lighter label
+          than every other form in the app, and one of them ("Class offer") was
+          still hardcoded English. The read-only mirrors of the chosen offer are
+          `disabled`, not `readOnly`: they are derived, never editable, so they
+          should not be tab stops either.
+        */}
+        <div className="mt-4 space-y-4">
           {weeklyOnCalendarDay ? (
             <>
-              <label className="block text-xs text-muted">
-                {dayOfWeekLabel}
-                <select
-                  value={draft.dayOfWeek}
-                  disabled
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+              <Field label={dayOfWeekLabel}>
+                {(field) => (
+                  <Select {...field} value={draft.dayOfWeek} disabled>
+                    {Array.from({ length: 7 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {weekdayLabel(i, locale)}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={tModal("fromDate")}>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      value={draft.startsOn ?? dayKey}
+                      onChange={(e) => {
+                        const startsOn = e.target.value;
+                        setDraft((d) => ({
+                          ...d,
+                          startsOn,
+                          dayOfWeek: startsOn
+                            ? luxonWeekdayMod7FromDayKey(startsOn, d.timezone)
+                            : d.dayOfWeek,
+                        }));
+                      }}
+                    />
+                  )}
+                </Field>
+                <Field
+                  label={tModal("untilDate")}
+                  hint={tModal("weeklyDateRangeHint")}
+                  error={invalidDateRange ? tModal("invalidDateRange") : null}
                 >
-                  {Array.from({ length: 7 }, (_, i) => (
-                    <option key={i} value={i}>
-                      {weekdayLabel(i, locale)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-xs text-muted">
-                  {tModal("fromDate")}
-                  <input
-                    type="date"
-                    value={draft.startsOn ?? dayKey}
-                    onChange={(e) => {
-                      const startsOn = e.target.value;
-                      setDraft((d) => ({
-                        ...d,
-                        startsOn,
-                        dayOfWeek: startsOn
-                          ? luxonWeekdayMod7FromDayKey(startsOn, d.timezone)
-                          : d.dayOfWeek,
-                      }));
-                    }}
-                    className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
-                  />
-                </label>
-                <label className="text-xs text-muted">
-                  {tModal("untilDate")}
-                  <input
-                    type="date"
-                    value={draft.endsOn ?? ""}
-                    onChange={(e) =>
-                      setDraft((d) => ({ ...d, endsOn: e.target.value || null }))
-                    }
-                    className={`mt-1 w-full rounded-lg border bg-background px-2 py-2 text-sm text-foreground ${
-                      invalidDateRange ? "border-destructive" : "border-border"
-                    }`}
-                  />
-                </label>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      value={draft.endsOn ?? ""}
+                      onChange={(e) =>
+                        setDraft((d) => ({ ...d, endsOn: e.target.value || null }))
+                      }
+                    />
+                  )}
+                </Field>
               </div>
-              <p className="text-xs text-muted">{tModal("weeklyDateRangeHint")}</p>
-              {invalidDateRange ? (
-                <p className="text-sm text-destructive">{tModal("invalidDateRange")}</p>
-              ) : null}
             </>
           ) : (
-            <label className="block text-xs text-muted">
-              {tModal("date")}
-              <input
-                type="date"
-                value={draft.startsOn ?? dayKey}
+            <Field label={tModal("date")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="date"
+                  value={draft.startsOn ?? dayKey}
+                  onChange={(e) => {
+                    const startsOn = e.target.value;
+                    setDraft((d) => ({
+                      ...d,
+                      startsOn,
+                      dayOfWeek: startsOn
+                        ? luxonWeekdayMod7FromDayKey(startsOn, d.timezone)
+                        : d.dayOfWeek,
+                    }));
+                  }}
+                />
+              )}
+            </Field>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={startLabel}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="time"
+                  value={toTime(draft.startMin)}
+                  onChange={(e) =>
+                    setDraft((d) => {
+                      const startMin = parseTime(e.target.value);
+                      const offer = offerById.get(d.teacherLessonOfferingId);
+                      return {
+                        ...d,
+                        startMin,
+                        endMin: startMin + (offer?.durationMin ?? d.endMin - d.startMin),
+                      };
+                    })
+                  }
+                />
+              )}
+            </Field>
+            <Field
+              label={endLabel}
+              hint={tModal("endTimeHint")}
+              error={draft.endMin <= draft.startMin ? tModal("invalidTimeRange") : null}
+            >
+              {(field) => (
+                <Input {...field} type="time" value={toTime(draft.endMin)} readOnly />
+              )}
+            </Field>
+          </div>
+
+          {/* `var(--app-warning, #d97706)` is not a token — only
+              `--app-warning-bg/border/text` exist — so this always fell through
+              to a hardcoded hue. It is an alert, and there is one of those. */}
+          {noTaxonomy ? (
+            <InlineAlert variant="warning">{tModal("taxonomyMissingWarning")}</InlineAlert>
+          ) : null}
+
+          <Field label={tModal("classOffer")}>
+            {(field) => (
+              <Select
+                {...field}
+                required
+                value={draft.teacherLessonOfferingId}
                 onChange={(e) => {
-                  const startsOn = e.target.value;
+                  const offer = offerById.get(e.target.value);
                   setDraft((d) => ({
                     ...d,
-                    startsOn,
-                    dayOfWeek: startsOn
-                      ? luxonWeekdayMod7FromDayKey(startsOn, d.timezone)
-                      : d.dayOfWeek,
+                    teacherLessonOfferingId: e.target.value,
+                    classLevelId: offer?.classLevelId ?? "",
+                    classTypeId: offer?.classTypeId ?? "",
+                    endMin: offer ? d.startMin + offer.durationMin : d.endMin,
                   }));
                 }}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
-              />
-            </label>
-          )}
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="text-xs text-muted">
-              {startLabel}
-              <input
-                type="time"
-                value={toTime(draft.startMin)}
-                onChange={(e) =>
-                  setDraft((d) => {
-                    const startMin = parseTime(e.target.value);
-                    const offer = offerById.get(d.teacherLessonOfferingId);
-                    return {
-                      ...d,
-                      startMin,
-                      endMin: offer ? startMin + offer.durationMin : d.endMin,
-                    };
-                  })
-                }
-                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
-              />
-            </label>
-            <label className="text-xs text-muted">
-              {endLabel}
-              <input
-                type="time"
-                value={toTime(draft.endMin)}
-                readOnly
-                className={`mt-1 w-full rounded-lg border bg-background px-2 py-2 text-sm text-foreground ${
-                  draft.endMin <= draft.startMin ? "border-destructive" : "border-border"
-                }`}
-              />
-            </label>
+              >
+                {lessonOfferings.length === 0 ? <option value="">—</option> : null}
+                {lessonOfferings.map((offer) => (
+                  <option key={offer.id} value={offer.id}>
+                    {formatOfferingLabel(offer)}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={tModal("lessonLevel")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  disabled
+                  value={pickLabel(
+                    offerById.get(draft.teacherLessonOfferingId)?.classLevel ?? null,
+                    locale,
+                  )}
+                />
+              )}
+            </Field>
+            <Field label={tModal("lessonType")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  disabled
+                  value={pickLabel(
+                    offerById.get(draft.teacherLessonOfferingId)?.classType ?? null,
+                    locale,
+                  )}
+                />
+              )}
+            </Field>
           </div>
-          <p className="text-xs text-muted">{tModal("endTimeHint")}</p>
-          {draft.endMin <= draft.startMin ? (
-            <p className="text-sm text-destructive">{tModal("invalidTimeRange")}</p>
-          ) : null}
-          {noTaxonomy ? (
-            <p className="rounded-lg border border-[var(--app-warning,#d97706)]/40 bg-[var(--app-warning,#d97706)]/10 px-3 py-2 text-xs text-foreground">
-              {tModal("taxonomyMissingWarning")}
-            </p>
-          ) : null}
-          <label className="block text-xs text-muted">
-            Class offer
-            <select
-              value={draft.teacherLessonOfferingId}
-              onChange={(e) => {
-                const offer = offerById.get(e.target.value);
-                setDraft((d) => ({
-                  ...d,
-                  teacherLessonOfferingId: e.target.value,
-                  classLevelId: offer?.classLevelId ?? "",
-                  classTypeId: offer?.classTypeId ?? "",
-                  endMin: offer ? d.startMin + offer.durationMin : d.endMin,
-                }));
-              }}
-              required
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
-            >
-              {lessonOfferings.length === 0 ? (
-                <option value="">—</option>
-              ) : null}
-              {lessonOfferings.map((offer) => (
-                <option key={offer.id} value={offer.id}>
-                  {formatOfferingLabel(offer)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-xs text-muted">
-            {tModal("lessonLevel")}
-            <input
-              value={
-                offerById.get(draft.teacherLessonOfferingId)?.classLevel
-                  ? pickLabel(offerById.get(draft.teacherLessonOfferingId)?.classLevel ?? null, locale)
-                  : ""
-              }
-              readOnly
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-muted"
-            />
-          </label>
-          <label className="block text-xs text-muted">
-            {tModal("lessonType")}
-            <input
-              value={
-                offerById.get(draft.teacherLessonOfferingId)?.classType
-                  ? pickLabel(offerById.get(draft.teacherLessonOfferingId)?.classType ?? null, locale)
-                  : ""
-              }
-              readOnly
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-muted"
-            />
-          </label>
-          <label className="block text-xs text-muted">
-            {timezoneLabel}
-            <input
-              value={draft.timezone}
-              onChange={(e) => {
-                const tz = e.target.value;
-                setDraft((d) => ({
-                  ...d,
-                  timezone: tz,
-                  ...(tz.trim()
-                    ? { dayOfWeek: luxonWeekdayMod7FromDayKey(d.startsOn ?? dayKey, tz) }
-                    : {}),
-                }));
-              }}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-foreground"
-            />
-          </label>
+
+          <Field label={timezoneLabel}>
+            {(field) => (
+              <Input
+                {...field}
+                value={draft.timezone}
+                onChange={(e) => {
+                  const tz = e.target.value;
+                  setDraft((d) => ({
+                    ...d,
+                    timezone: tz,
+                    ...(tz.trim()
+                      ? { dayOfWeek: luxonWeekdayMod7FromDayKey(d.startsOn ?? dayKey, tz) }
+                      : {}),
+                  }));
+                }}
+              />
+            )}
+          </Field>
         </div>
 
         <div className="mt-6 flex flex-wrap justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+            className={buttonClasses({ variant: "secondary" })}
           >
             {cancelLabel}
           </button>
@@ -374,7 +392,7 @@ function TeacherAvailabilityAddModalInner({
               onConfirm(draft);
               onClose();
             }}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
+            className={buttonClasses({ size: "md" })}
           >
             {confirmLabel}
           </button>
@@ -404,11 +422,11 @@ export function TeacherAvailabilityAddModal(props: Props) {
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-[var(--storm-ink)]/40"
         aria-label={props.cancelLabel}
         onClick={props.onClose}
       />
-      <div className="relative z-[101] w-full max-w-md rounded-2xl border border-border bg-surface p-5 shadow-xl">
+      <div className="relative z-[101] w-full max-w-md rounded-2xl border border-border bg-surface p-5">
         <TeacherAvailabilityAddModalInner {...props} dayKey={props.dayKey} />
       </div>
     </div>

@@ -9,9 +9,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  // Kept as an entry point for teacher-facing "connect your calendar" prompts,
+  // but there is only one Google connection now, so it grants everything.
   const url = buildGoogleConnectUrl(req, {
     userId: session.user.id,
-    feature: "calendar",
     returnTo: DASHBOARD_GOOGLE_SETTINGS_PATH,
   });
   if (!url) {

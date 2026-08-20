@@ -5,7 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 import { weekdayLabel } from "@/lib/weekdays";
-import { TeacherAvailabilityAddModal } from "@/components/dashboard/teacher-availability-add-modal";
+import {
+  TeacherAvailabilityAddModal,
+  type TeacherLessonOfferingOption,
+} from "@/components/dashboard/teacher-availability-add-modal";
 import { TeacherAvailabilityRemoveModal } from "@/components/dashboard/teacher-availability-remove-modal";
 import {
   TeacherAvailabilityGoogleMonth,
@@ -28,6 +31,9 @@ import { filterAvailabilityOverlappingBookings } from "@/lib/teacher-availabilit
 import { placeSlotsOnDayColumn, placeSlotsOnWeekGrid } from "@/lib/time-grid-week";
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import type { CalendarViewMode } from "@/lib/calendar-view";
+import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { buttonClasses } from "@/components/ui/button";
+import { Field, Input, Select } from "@/components/ui/field";
 
 type TeacherAvailabilityRecurrence = "WEEKLY" | "ONE_OFF";
 
@@ -54,17 +60,11 @@ export type InitialTeacherAvailabilitySlot = {
   classType: TaxonomyOption | null;
 };
 
-export type TeacherLessonOfferingOption = {
-  id: string;
-  durationMin: number;
-  rateYen: number;
-  isGroup: boolean;
-  groupSize: number | null;
-  classLevelId: string | null;
-  classTypeId: string | null;
-  classLevel: TaxonomyOption | null;
-  classType: TaxonomyOption | null;
-};
+/**
+ * Re-exported rather than redeclared: this was a second copy of the modal's
+ * type, which is how `isFreeTrial` could have reached one and not the other.
+ */
+export type { TeacherLessonOfferingOption };
 
 export type TeacherCalendarBooking = {
   id: string;
@@ -351,7 +351,6 @@ export function TeacherAvailabilityCalendar({
         onCalendarAnchorChange={setCalendarAnchor}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
-        selectionStyle="neutral"
         reservedBookingLabel={td("slotReserved")}
         timeZone={teacherTz}
       />
@@ -370,6 +369,17 @@ export function TeacherAvailabilityCalendar({
   );
 
   const selectedRule = selectedRuleId ? rules.find((r) => r.id === selectedRuleId) : undefined;
+  /* Each of these was spelled out twice: once to colour a border, once to
+     decide whether to print the message beneath it. */
+  const selectedRuleDateRangeInvalid = Boolean(
+    selectedRule?.startsOn && selectedRule?.endsOn && selectedRule.startsOn > selectedRule.endsOn,
+  );
+  const selectedRuleMetaMissing = Boolean(
+    selectedRule &&
+      (!selectedRule.classLevelId ||
+        !selectedRule.classTypeId ||
+        !selectedRule.teacherLessonOfferingId),
+  );
 
   const invalidSlotRanges = useMemo(
     () => rules.some((r) => r.endMin <= r.startMin),
@@ -430,7 +440,6 @@ export function TeacherAvailabilityCalendar({
         onCalendarAnchorChange={setCalendarAnchor}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
-        selectionStyle="neutral"
         reservedBookingLabel={td("slotReserved")}
         emptyLabel={t("noAvailabilityYet")}
         timeZone={teacherTz}
@@ -438,7 +447,7 @@ export function TeacherAvailabilityCalendar({
           <button
             type="button"
             onClick={() => setMonthAddDayKey(anchorDayKey)}
-            className="w-full rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground hover:bg-zinc-100"
+            className="w-full rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
             {t("addForThisDay")}
           </button>
@@ -480,7 +489,6 @@ export function TeacherAvailabilityCalendar({
           setSelectedRuleId(groupKey ?? null);
         }}
         onCalendarAnchorChange={setCalendarAnchor}
-        selectionStyle="neutral"
         reservedLabel={td("slotReserved")}
         timeZone={teacherTz}
       />
@@ -502,10 +510,8 @@ export function TeacherAvailabilityCalendar({
 
   /* ── Mobile-friendly week view (stacked day cards) ── */
   const mobileWeekView = useMemo(() => {
-    const selRing =
-      "border-zinc-500 bg-zinc-200 text-zinc-900";
-    const idleRing =
-      "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50";
+    const selRing = slotClasses({ kind: "open", selected: true });
+    const idleRing = slotClasses({ kind: "open" });
     return (
       <div className="space-y-3" data-testid="mobile-week-view">
         {weekDays.map((day) => {
@@ -520,7 +526,7 @@ export function TeacherAvailabilityCalendar({
                 <button
                     type="button"
                     onClick={() => addForDayKey(day.dayKey)}
-                    className="rounded border border-border bg-surface px-2 py-0.5 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                    className="inline-flex min-h-8 items-center rounded border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
                   >
                     {t("addForDay")}
                   </button>
@@ -534,15 +540,15 @@ export function TeacherAvailabilityCalendar({
                       return (
                         <div
                           key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
-                          className="rounded-md border border-amber-200/70 bg-amber-50/50 px-2.5 py-1.5 text-xs text-amber-950/90"
+                          className={`rounded-md px-2.5 py-1.5 text-xs ${SLOT_BOOKED}`}
                         >
                           <span className="font-medium">
                             {formatCalendarTime(block.startsAtIso)}
                             {" – "}
                             {formatCalendarTime(block.endsAtIso)}
                           </span>
-                          <span className="ml-2 text-amber-900/80">{td("slotReserved")}</span>
-                          {block.subtitle ? <span className="ml-1 text-amber-900/65">· {block.subtitle}</span> : null}
+                          <span className="ml-2 text-[var(--app-canvas)]/75">{td("slotReserved")}</span>
+                          {block.subtitle ? <span className="ml-1 text-[var(--app-canvas)]/75">· {block.subtitle}</span> : null}
                         </div>
                       );
                     }
@@ -558,7 +564,7 @@ export function TeacherAvailabilityCalendar({
                           setSelectedRuleId(block.groupKey ?? null);
                           setCalendarAnchor(block.startsAtIso);
                         }}
-                        className={`w-full rounded-md border px-2.5 py-1.5 text-left text-xs font-medium transition ${selected ? selRing : idleRing}`}
+                        className={`w-full rounded-md px-2.5 py-1.5 text-left text-xs font-medium ${SLOT_FIGURE} ${selected ? selRing : idleRing}`}
                         aria-pressed={selected}
                       >
                         {formatCalendarTime(block.startsAtIso)}
@@ -587,8 +593,8 @@ export function TeacherAvailabilityCalendar({
 
   /* ── Mobile-friendly month view (agenda list for days with slots) ── */
   const mobileMonthView = useMemo(() => {
-    const selRing = "border-zinc-500 bg-zinc-200 text-zinc-900";
-    const idleRing = "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50";
+    const selRing = slotClasses({ kind: "open", selected: true });
+    const idleRing = slotClasses({ kind: "open" });
     const daysWithContent = monthCells.filter(
       (cell) => cell.inCurrentMonth && (slotsByDayForMonth.get(cell.dayKey)?.length ?? 0) > 0,
     );
@@ -627,7 +633,7 @@ export function TeacherAvailabilityCalendar({
                   <button
                       type="button"
                       onClick={() => addForDayKey(cell.dayKey)}
-                      className="rounded border border-border bg-surface px-2 py-0.5 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                      className="inline-flex min-h-8 items-center rounded border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
                     >
                       {t("addForDay")}
                     </button>
@@ -638,15 +644,15 @@ export function TeacherAvailabilityCalendar({
                       return (
                         <div
                           key={`booking-${slot.startsAtIso}-${slot.groupKey ?? ""}`}
-                          className="rounded-md border border-amber-200/70 bg-amber-50/50 px-2.5 py-1.5 text-xs text-amber-950/90"
+                          className={`rounded-md px-2.5 py-1.5 text-xs ${SLOT_BOOKED}`}
                         >
                           <span className="font-medium">
                             {formatCalendarTime(slot.startsAtIso)}
                             {" – "}
                             {formatCalendarTime(slot.endsAtIso)}
                           </span>
-                          <span className="ml-2 text-amber-900/80">{td("slotReserved")}</span>
-                          {slot.label ? <span className="ml-1 text-amber-900/65">· {slot.label}</span> : null}
+                          <span className="ml-2 text-[var(--app-canvas)]/75">{td("slotReserved")}</span>
+                          {slot.label ? <span className="ml-1 text-muted">· {slot.label}</span> : null}
                         </div>
                       );
                     }
@@ -662,7 +668,7 @@ export function TeacherAvailabilityCalendar({
                           setSelectedRuleId(slot.groupKey ?? null);
                           setCalendarAnchor(slot.startsAtIso);
                         }}
-                        className={`w-full rounded-md border px-2.5 py-1.5 text-left text-xs font-medium transition ${selected ? selRing : idleRing}`}
+                        className={`w-full rounded-md px-2.5 py-1.5 text-left text-xs font-medium ${SLOT_FIGURE} ${selected ? selRing : idleRing}`}
                         aria-pressed={selected}
                       >
                         {formatCalendarTime(slot.startsAtIso)}
@@ -826,11 +832,11 @@ export function TeacherAvailabilityCalendar({
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border bg-surface p-4">
+    <section className="space-y-4 border-t border-border pt-4">
       <h2 className="text-lg font-semibold text-foreground">{t("sectionTitle")}</h2>
 
       {hasSlotsOnFocusDay ? (
-        <div className="rounded-lg border border-border bg-muted/20 px-3 py-3">
+        <div className="border-t border-border px-0 py-3">
           <h3 className="text-sm font-semibold text-foreground">
             {t("currentAvailabilityForDate", { date: focusDateLabel })}
           </h3>
@@ -852,7 +858,6 @@ export function TeacherAvailabilityCalendar({
       ) : null}
 
       <SlotSelectionCalendar
-        variant="embedded"
         weekViewReplacement={isMobile ? mobileWeekView : weekTimeGrid}
         dayViewReplacement={dayTimeGrid}
         monthViewReplacement={isMobile ? mobileMonthView : monthGoogle}
@@ -877,7 +882,6 @@ export function TeacherAvailabilityCalendar({
           setSelectedStartsAtIso(iso);
           setSelectedRuleId(groupKey ?? null);
         }}
-        selectionStyle="neutral"
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
         timeZone={teacherTz}
@@ -941,162 +945,160 @@ export function TeacherAvailabilityCalendar({
       />
 
       {selectedRule ? (
-        <div className="space-y-3 rounded-xl border border-border bg-background p-3">
+        /*
+          The same nine fields as the add modal, written out a second time with
+          the same `text-xs text-muted` labels and the same hardcoded English
+          "Class offer". Both now go through `Field`, which is what carries the
+          invalid-range messages to the control they describe instead of leaving
+          them as loose paragraphs underneath.
+        */
+        <div className="space-y-4 border-t border-border pt-4">
           {selectedRule.recurrence === "ONE_OFF" ? (
-            <label className="block text-xs text-muted">
-              {t("date")}
-              <input
-                type="date"
-                value={selectedRule.startsOn ?? ""}
-                onChange={(e) => {
-                  const startsOn = e.target.value;
-                  patchSelected({
-                    startsOn,
-                    dayOfWeek: startsOn
-                      ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
-                      : selectedRule.dayOfWeek,
-                  });
-                }}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
-              />
-            </label>
+            <Field label={t("date")} className="sm:max-w-xs">
+              {(field) => (
+                <Input
+                  {...field}
+                  type="date"
+                  value={selectedRule.startsOn ?? ""}
+                  onChange={(e) => {
+                    const startsOn = e.target.value;
+                    patchSelected({
+                      startsOn,
+                      dayOfWeek: startsOn
+                        ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
+                        : selectedRule.dayOfWeek,
+                    });
+                  }}
+                />
+              )}
+            </Field>
           ) : (
             <>
-              <label className="block text-xs text-muted">
-                {t("dayOfWeek")}
-                <select
-                  value={selectedRule.dayOfWeek}
-                  onChange={(e) => patchSelected({ dayOfWeek: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
+              <Field label={t("dayOfWeek")} className="sm:max-w-xs">
+                {(field) => (
+                  <Select
+                    {...field}
+                    value={selectedRule.dayOfWeek}
+                    onChange={(e) => patchSelected({ dayOfWeek: Number(e.target.value) })}
+                  >
+                    {Array.from({ length: 7 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {weekdayLabel(i, locale)}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={t("fromDate")}>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      value={selectedRule.startsOn ?? ""}
+                      onChange={(e) => {
+                        const startsOn = e.target.value;
+                        patchSelected({
+                          startsOn,
+                          dayOfWeek: startsOn
+                            ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
+                            : selectedRule.dayOfWeek,
+                        });
+                      }}
+                    />
+                  )}
+                </Field>
+                <Field
+                  label={t("untilDate")}
+                  hint={t("weeklyDateRangeHint")}
+                  error={selectedRuleDateRangeInvalid ? t("invalidDateRange") : null}
                 >
-                  {Array.from({ length: 7 }, (_, i) => (
-                    <option key={i} value={i}>
-                      {weekdayLabel(i, locale)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-xs text-muted">
-                  {t("fromDate")}
-                  <input
-                    type="date"
-                    value={selectedRule.startsOn ?? ""}
-                    onChange={(e) => {
-                      const startsOn = e.target.value;
-                      patchSelected({
-                        startsOn,
-                        dayOfWeek: startsOn
-                          ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
-                          : selectedRule.dayOfWeek,
-                      });
-                    }}
-                    className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
-                  />
-                </label>
-                <label className="text-xs text-muted">
-                  {t("untilDate")}
-                  <input
-                    type="date"
-                    value={selectedRule.endsOn ?? ""}
-                    onChange={(e) => patchSelected({ endsOn: e.target.value || null })}
-                    className={`mt-1 w-full rounded-lg border bg-background px-2 py-1 text-sm text-foreground ${
-                      selectedRule.startsOn &&
-                      selectedRule.endsOn &&
-                      selectedRule.startsOn > selectedRule.endsOn
-                        ? "border-destructive"
-                        : "border-border"
-                    }`}
-                  />
-                </label>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="date"
+                      value={selectedRule.endsOn ?? ""}
+                      onChange={(e) => patchSelected({ endsOn: e.target.value || null })}
+                    />
+                  )}
+                </Field>
               </div>
-              <p className="text-xs text-muted">{t("weeklyDateRangeHint")}</p>
-              {selectedRule.startsOn &&
-              selectedRule.endsOn &&
-              selectedRule.startsOn > selectedRule.endsOn ? (
-                <p className="text-sm text-destructive">{t("invalidDateRange")}</p>
-              ) : null}
             </>
           )}
-          <div className="grid gap-3 sm:grid-cols-3">
-          <label className="text-xs text-muted">
-            {t("start")}
-            <input
-              type="time"
-              value={toTime(selectedRule.startMin)}
-              onChange={(e) => {
-                const startMin = parseTime(e.target.value);
-                const offer = lessonOfferings.find(
-                  (o) => o.id === selectedRule.teacherLessonOfferingId,
-                );
-                patchSelected({
-                  startMin,
-                  endMin: offer ? startMin + offer.durationMin : selectedRule.endMin,
-                });
-              }}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
-            />
-          </label>
-          <label className="text-xs text-muted">
-            {t("end")}
-            <input
-              type="time"
-              value={toTime(selectedRule.endMin)}
-            readOnly
-              className={`mt-1 w-full rounded-lg border bg-background px-2 py-1 text-sm text-foreground ${
-                selectedRule.endMin <= selectedRule.startMin
-                  ? "border-destructive"
-                  : "border-border"
-              }`}
-            />
-          </label>
-          <label className="text-xs text-muted">
-            {t("timezone")}
-            <input
-              value={selectedRule.timezone}
-              onChange={(e) => patchSelected({ timezone: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
-            />
-          </label>
-          </div>
-          {selectedRule.endMin <= selectedRule.startMin ? (
-            <p className="text-sm text-destructive">{t("invalidTimeRange")}</p>
-          ) : null}
-          <label className="block text-xs text-muted">
-            Class offer
-            <select
-              value={selectedRule.teacherLessonOfferingId ?? ""}
-              onChange={(e) => patchSelected({ teacherLessonOfferingId: e.target.value })}
-              required
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground sm:max-w-xs"
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Field label={t("start")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="time"
+                  value={toTime(selectedRule.startMin)}
+                  onChange={(e) => {
+                    const startMin = parseTime(e.target.value);
+                    const offer = lessonOfferings.find(
+                      (o) => o.id === selectedRule.teacherLessonOfferingId,
+                    );
+                    patchSelected({
+                      startMin,
+                      endMin: offer ? startMin + offer.durationMin : selectedRule.endMin,
+                    });
+                  }}
+                />
+              )}
+            </Field>
+            <Field
+              label={t("end")}
+              error={
+                selectedRule.endMin <= selectedRule.startMin ? t("invalidTimeRange") : null
+              }
             >
-              {!selectedRule.teacherLessonOfferingId ? <option value="">—</option> : null}
-              {lessonOfferings.map((offer) => (
-                <option key={offer.id} value={offer.id}>
-                  {formatOfferingLabel(offer)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-xs text-muted">
-            {t("lessonLevel")}
-            <input
-              value={pickLabel(selectedRule.classLevel)}
-              readOnly
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-muted sm:max-w-xs"
-            />
-          </label>
-          <label className="block text-xs text-muted">
-            {t("lessonType")}
-            <input
-              value={pickLabel(selectedRule.classType)}
-              readOnly
-              className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1 text-sm text-muted sm:max-w-xs"
-            />
-          </label>
-          {!selectedRule.classLevelId || !selectedRule.classTypeId || !selectedRule.teacherLessonOfferingId ? (
-            <p className="text-sm text-destructive">{t("invalidLessonMeta")}</p>
-          ) : null}
+              {(field) => (
+                <Input {...field} type="time" value={toTime(selectedRule.endMin)} readOnly />
+              )}
+            </Field>
+            <Field label={t("timezone")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={selectedRule.timezone}
+                  onChange={(e) => patchSelected({ timezone: e.target.value })}
+                />
+              )}
+            </Field>
+          </div>
+
+          <Field
+            label={t("classOffer")}
+            className="sm:max-w-xs"
+            error={selectedRuleMetaMissing ? t("invalidLessonMeta") : null}
+          >
+            {(field) => (
+              <Select
+                {...field}
+                required
+                value={selectedRule.teacherLessonOfferingId ?? ""}
+                onChange={(e) => patchSelected({ teacherLessonOfferingId: e.target.value })}
+              >
+                {!selectedRule.teacherLessonOfferingId ? <option value="">—</option> : null}
+                {lessonOfferings.map((offer) => (
+                  <option key={offer.id} value={offer.id}>
+                    {formatOfferingLabel(offer)}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+
+          <div className="grid gap-4 sm:max-w-xl sm:grid-cols-2">
+            {/* Derived from the offer above, so disabled rather than read-only:
+                never editable, and never worth a tab stop. */}
+            <Field label={t("lessonLevel")}>
+              {(field) => <Input {...field} disabled value={pickLabel(selectedRule.classLevel)} />}
+            </Field>
+            <Field label={t("lessonType")}>
+              {(field) => <Input {...field} disabled value={pickLabel(selectedRule.classType)} />}
+            </Field>
+          </div>
         </div>
       ) : null}
 
@@ -1116,12 +1118,12 @@ export function TeacherAvailabilityCalendar({
           type="button"
           onClick={() => void save()}
           disabled={status === "saving" || invalidSlotRanges || invalidDateRanges || hasInvalidLessonMeta}
-          className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-50"
+          className={buttonClasses()}
         >
           {status === "saving" ? t("saving") : t("save")}
         </button>
         {status === "saved" ? (
-          <span className="text-sm text-green-600 dark:text-green-400">{t("saved")}</span>
+          <span className="text-sm text-foreground">{t("saved")}</span>
         ) : null}
         {status === "error" ? (
           <span className="text-sm text-destructive">{saveErrorMessage ?? t("error")}</span>

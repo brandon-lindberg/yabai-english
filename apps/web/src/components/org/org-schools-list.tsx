@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
 
 function normalizeSlugInput(raw: string): string {
   return raw
@@ -21,7 +23,7 @@ type School = {
   slug: string;
   name: string;
   nameJa?: string;
-  _count?: { memberships: number };
+  memberCount?: number;
 };
 
 type Props = { orgId: string };
@@ -72,15 +74,12 @@ export function OrgSchoolsList({ orgId }: Props) {
     setSaving(false);
   }
 
-  const inputCn =
-    "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
-
   return (
     <div>
       <div className="mb-4 flex justify-end">
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={buttonClasses()}
         >
           {t("addSchool")}
         </button>
@@ -92,54 +91,58 @@ export function OrgSchoolsList({ orgId }: Props) {
             {t("createTitle")}
           </h3>
           <form onSubmit={handleCreate} className="space-y-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
-                {t("schoolName")}
-              </label>
-              <input
-                className={inputCn}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t("schoolNamePlaceholder")}
-                required
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
-                {t("schoolSlug")}
-              </label>
-              <input
-                className={inputCn}
-                value={slug}
-                onChange={(e) => setSlug(normalizeSlugInput(e.target.value))}
-                onBlur={() => setSlug((s) => finalizeSlug(s))}
-                placeholder={t("schoolSlugPlaceholder")}
-                required
-              />
-              {slug.length > 0 && finalizeSlug(slug) !== slug && (
-                <p className="mt-1 text-xs text-muted">
-                  {t("slugPreview")}: <code className="text-foreground">{finalizeSlug(slug)}</code>
-                </p>
+            {/* Detached labels again: no `htmlFor`, not wrapping, so neither
+                input had a name. The slug preview and the empty-slug warning
+                become the field's own hint and error. */}
+            <Field label={t("schoolName")} required>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("schoolNamePlaceholder")}
+                  required
+                />
               )}
-              {slug.length > 0 && finalizeSlug(slug).length === 0 && (
-                <p className="mt-1 text-xs text-[var(--app-danger)]">
-                  {t("slugInvalidEmpty")}
-                </p>
-              )}
-            </div>
+            </Field>
+            <Field
+              label={t("schoolSlug")}
+                required
+                hint={
+                  slug.length > 0 && finalizeSlug(slug) !== slug
+                    ? `${t("slugPreview")}: ${finalizeSlug(slug)}`
+                    : null
+                }
+                error={
+                  slug.length > 0 && finalizeSlug(slug).length === 0
+                    ? t("slugInvalidEmpty")
+                    : null
+                }
+              >
+                {(field) => (
+                  <Input
+                    {...field}
+                    value={slug}
+                    onChange={(e) => setSlug(normalizeSlugInput(e.target.value))}
+                    onBlur={() => setSlug((s) => finalizeSlug(s))}
+                    placeholder={t("schoolSlugPlaceholder")}
+                    required
+                  />
+                )}
+              </Field>
             {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
             <div className="flex gap-2">
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                className={buttonClasses()}
               >
                 {saving ? t("creating") : t("create")}
               </button>
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+                className={buttonClasses({ variant: "secondary" })}
               >
                 {t("cancel")}
               </button>
@@ -151,7 +154,7 @@ export function OrgSchoolsList({ orgId }: Props) {
       {schools.length === 0 ? (
         <p className="text-sm text-muted">{t("noSchools")}</p>
       ) : (
-        <div className="divide-y divide-border rounded-xl border border-border bg-surface">
+        <div className="divide-y divide-border border-y border-border">
           {schools.map((school) => (
             <Link
               key={school.id}
@@ -163,7 +166,7 @@ export function OrgSchoolsList({ orgId }: Props) {
                 <p className="truncate text-xs text-muted">/{school.slug}</p>
               </div>
               <span className="shrink-0 rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs font-medium text-muted">
-                {t("memberCount", { count: school._count?.memberships ?? 0 })}
+                {t("memberCount", { count: school.memberCount ?? 0 })}
               </span>
             </Link>
           ))}

@@ -2,6 +2,7 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { SubNav, SubNavLink } from "@/components/ui/sub-nav";
 
 type Tab =
   | "overview"
@@ -39,52 +40,84 @@ export function DashboardSubNav({
   const tab = activeTab(pathname);
   const t = useTranslations("dashboard.nav");
 
-  const linkCn = (active: boolean) =>
-    `rounded-lg px-3 py-2 text-sm font-medium transition ${
-      active
-        ? "bg-[var(--app-hover)] text-foreground shadow-sm"
-        : "text-muted hover:bg-[var(--app-hover)]/60 hover:text-foreground"
-    }`;
+  if (tab === "none") return null;
 
   return (
-    <nav
-      className="mb-8 flex flex-wrap gap-1 rounded-xl border border-border bg-surface/60 p-1"
-      aria-label={t("ariaLabel")}
-    >
-      <Link href="/dashboard" className={linkCn(tab === "overview")}>
-        {t("overview")}
-      </Link>
-      <Link href="/dashboard/profile" className={linkCn(tab === "profile")}>
-        {t("profile")}
-      </Link>
+    <SubNav label={t("ariaLabel")}>
+      <SubNavLink
+        active={tab === "overview"}
+        render={(p) => (
+          <Link href="/dashboard" {...p}>
+            {t("overview")}
+          </Link>
+        )}
+      />
+      <SubNavLink
+        active={tab === "profile"}
+        render={(p) => (
+          <Link href="/dashboard/profile" {...p}>
+            {t("profile")}
+          </Link>
+        )}
+      />
       {isTeacher ? (
-        <Link href="/dashboard/lessons" className={linkCn(tab === "lessons")}>
-          {t("lessons")}
-        </Link>
+        <SubNavLink
+          active={tab === "lessons"}
+          render={(p) => (
+            <Link href="/dashboard/lessons" {...p}>
+              {t("lessons")}
+            </Link>
+          )}
+        />
       ) : null}
       {isTeacher ? (
-        <Link href="/dashboard/students" className={linkCn(tab === "students")}>
-          {t("students")}
-        </Link>
+        <SubNavLink
+          active={tab === "students"}
+          render={(p) => (
+            <Link href="/dashboard/students" {...p}>
+              {t("students")}
+            </Link>
+          )}
+        />
       ) : null}
       {isTeacher ? (
-        <Link href="/dashboard/invoices" className={linkCn(tab === "invoices")}>
-          {t("invoices")}
-        </Link>
+        <SubNavLink
+          active={tab === "invoices"}
+          render={(p) => (
+            <Link href="/dashboard/invoices" {...p}>
+              {t("invoices")}
+            </Link>
+          )}
+        />
       ) : null}
       {isStudent ? (
-        <Link href="/dashboard/my-teachers" className={linkCn(tab === "myTeachers")}>
-          {t("myTeachers")}
-        </Link>
+        <SubNavLink
+          active={tab === "myTeachers"}
+          render={(p) => (
+            <Link href="/dashboard/my-teachers" {...p}>
+              {t("myTeachers")}
+            </Link>
+          )}
+        />
       ) : null}
-      <Link href="/dashboard/schedule" className={linkCn(tab === "schedule")}>
-        {t("schedule")}
-      </Link>
+      <SubNavLink
+        active={tab === "schedule"}
+        render={(p) => (
+          <Link href="/dashboard/schedule" {...p}>
+            {t("schedule")}
+          </Link>
+        )}
+      />
       {isTeacher ? (
-        <Link href="/dashboard/taxonomy" className={linkCn(tab === "taxonomy")}>
-          {t("taxonomy")}
-        </Link>
+        <SubNavLink
+          active={tab === "taxonomy"}
+          render={(p) => (
+            <Link href="/dashboard/taxonomy" {...p}>
+              {t("taxonomy")}
+            </Link>
+          )}
+        />
       ) : null}
-    </nav>
+    </SubNav>
   );
 }

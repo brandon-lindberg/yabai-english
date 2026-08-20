@@ -1,8 +1,29 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
+import { Field, Input, Textarea } from "@/components/ui/field";
+import { CheckRow } from "@/components/ui/check-row";
+import type { SaveState } from "@/components/ui/form-status";
+import { Status } from "@/components/ui/status";
+import { ProfileSurface } from "@/components/dashboard/profile-surface";
+import { actionLinkClass } from "@/components/ui/inline-link";
+
+/**
+ * A teacher's public profile — shown as a profile, edited on request.
+ *
+ * This screen used to open straight into a stack of empty inputs. A teacher's
+ * first sight of "your profile" was two large blank textareas, and there was no
+ * way to see the thing students actually read without leaving for the public
+ * booking page. Worse, an empty field rendered as a full-height empty box, so
+ * the less you had filled in, the more of the page it took up.
+ *
+ * It now reads as the profile, laid out the way the public page lays it out,
+ * with an explicit Edit. Empty fields say they are empty in one muted line
+ * instead of reserving five rows of nothing. A teacher with no profile yet
+ * starts in edit mode, because there is nothing to look at.
+ */
 
 type Props = {
   showGooglePrefillHint?: boolean;
@@ -33,28 +54,30 @@ export function TeacherProfileForm({
   postSaveRedirect,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
+  // Reading a profile and filling one in want different labels: the form says
+  // "Specialties (comma separated)", the profile just says "Specialties".
+  const tb = useTranslations("booking");
   const router = useRouter();
+
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
-  const [marketplaceHidden, setMarketplaceHidden] = useState(initialMarketplaceHidden);
-  const [displayName, setDisplayName] = useState(initialDisplayName ?? "");
-  const [bio, setBio] = useState(initialBio ?? "");
-  const [countryOfOrigin, setCountryOfOrigin] = useState(initialCountryOfOrigin ?? "");
-  const [credentials, setCredentials] = useState(initialCredentials ?? "");
-  const [instructionLanguages, setInstructionLanguages] = useState(initialInstructionLanguages.join(", "));
-  const [specialties, setSpecialties] = useState(initialSpecialties.join(", "));
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saved, setSaved] = useState({
+    marketplaceHidden: initialMarketplaceHidden,
+    displayName: initialDisplayName ?? "",
+    bio: initialBio ?? "",
+    countryOfOrigin: initialCountryOfOrigin ?? "",
+    credentials: initialCredentials ?? "",
+    instructionLanguages: initialInstructionLanguages.join(", "),
+    specialties: initialSpecialties.join(", "),
+  });
+  const [draft, setDraft] = useState(saved);
+  const [status, setStatus] = useState<SaveState>("idle");
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const qsRedirect = new URLSearchParams(window.location.search).get("onboardingNext");
-    console.info("[onboarding][teacher-profile-mount]", {
-      currentUrl: window.location.href,
-      postSaveRedirect,
-      qsRedirect,
-    });
-  }, [postSaveRedirect]);
+  const isEmpty = !saved.displayName && !saved.bio && !saved.credentials;
 
-  async function onSubmit(e: React.FormEvent) {
+  const set = (key: keyof typeof draft, value: string | boolean) =>
+    setDraft((prev) => ({ ...prev, [key]: value }));
+
+  async function onSubmit(e: React.FormEvent): Promise<boolean> {
     e.preventDefault();
     setStatus("saving");
 
@@ -62,172 +85,191 @@ export function TeacherProfileForm({
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        displayName: displayName.trim() || undefined,
-        bio: bio.trim() === "" ? null : bio.trim(),
-        countryOfOrigin: countryOfOrigin.trim() === "" ? null : countryOfOrigin.trim(),
-        credentials: credentials.trim() === "" ? null : credentials.trim(),
-        instructionLanguages: instructionLanguages
+        displayName: draft.displayName.trim() || undefined,
+        bio: draft.bio.trim() === "" ? null : draft.bio.trim(),
+        countryOfOrigin: draft.countryOfOrigin.trim() === "" ? null : draft.countryOfOrigin.trim(),
+        credentials: draft.credentials.trim() === "" ? null : draft.credentials.trim(),
+        instructionLanguages: draft.instructionLanguages
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-        specialties: specialties
+        specialties: draft.specialties
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-        marketplaceHidden,
+        marketplaceHidden: draft.marketplaceHidden,
       }),
     });
 
     if (!response.ok) {
       setStatus("error");
-      return;
+      return false;
     }
 
     const body = (await response.json().catch(() => null)) as { teacherProfileId?: string } | null;
-    if (body?.teacherProfileId) {
-      setTeacherProfileId(body.teacherProfileId);
-    }
+    if (body?.teacherProfileId) setTeacherProfileId(body.teacherProfileId);
+
+    setSaved(draft);
 
     const qsRedirect =
       typeof window !== "undefined"
         ? new URLSearchParams(window.location.search).get("onboardingNext")
         : null;
     const redirectTarget = postSaveRedirect ?? qsRedirect;
-    if (typeof window !== "undefined") {
-      console.info("[onboarding][teacher-profile-save]", {
-        currentUrl: window.location.href,
-        postSaveRedirect,
-        qsRedirect,
-        redirectTarget,
-      });
-    }
     if (redirectTarget) {
       router.push(decodeURIComponent(redirectTarget) as "/onboarding/teacher");
-      return;
+      return false;
     }
+
     setStatus("saved");
     setTimeout(() => setStatus("idle"), 2000);
+    return true;
   }
 
-  const displayForInitial = displayName.trim() || "—";
-  const avatarInitial = displayForInitial.slice(0, 2).toUpperCase();
+  const publicLink = teacherProfileId ? (
+    <p>
+      <Link
+        href={`/book/teachers/${teacherProfileId}`}
+        className={`${actionLinkClass} text-sm`}
+      >
+        {saved.marketplaceHidden ? t("teacherPreviewWhenHidden") : t("teacherPreviewPublic")}
+      </Link>
+    </p>
+  ) : null;
+
+  const languages = saved.instructionLanguages.trim();
+  const subtitle = [saved.countryOfOrigin.trim(), languages].filter(Boolean).join(" \u00b7 ");
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="flex items-start gap-4">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-foreground/5">
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- external OAuth avatar
-            <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <span className="flex h-full w-full items-center justify-center text-lg font-semibold text-muted">
-              {avatarInitial}
-            </span>
-          )}
-        </div>
-        <p className="text-sm text-muted">{t("avatarHelp")}</p>
-      </div>
-
-      {teacherProfileId ? (
-        <p className="text-sm text-muted">
-          <Link
-            href={`/book/teachers/${teacherProfileId}`}
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            {marketplaceHidden ? t("teacherPreviewWhenHidden") : t("teacherPreviewPublic")}
-          </Link>
-        </p>
-      ) : null}
-
-      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-surface/40 p-4 text-sm">
-        <input
-          type="checkbox"
-          checked={marketplaceHidden}
-          onChange={(e) => setMarketplaceHidden(e.target.checked)}
-          className="mt-1 size-4 rounded border-border"
-        />
-        <span>
-          <span className="font-medium text-foreground">{t("teacherMarketplaceHiddenLabel")}</span>
-          <span className="mt-1 block text-muted">{t("teacherMarketplaceHiddenHelp")}</span>
-        </span>
-      </label>
-
-      <div className="grid gap-4 sm:grid-cols-2 sm:items-end">
-        <label className="space-y-1 text-sm">
-          <span className="font-medium text-foreground">{t("displayName")}</span>
-          {showGooglePrefillHint ? (
-            <span className="block text-xs font-normal text-muted">{t("prefillFromGoogle")}</span>
-          ) : null}
-          <input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            maxLength={100}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
-          />
-        </label>
-        <label className="space-y-1 text-sm">
-          <span className="font-medium text-foreground">{t("teacherCountryOfOrigin")}</span>
-          <input
-            value={countryOfOrigin}
-            onChange={(e) => setCountryOfOrigin(e.target.value)}
-            maxLength={80}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
-          />
-        </label>
-      </div>
-
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium text-foreground">{t("teacherBio")}</span>
-        <textarea
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          maxLength={2000}
-          rows={5}
-          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
-        />
-      </label>
-
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium text-foreground">{t("teacherCredentials")}</span>
-        <textarea
-          value={credentials}
-          onChange={(e) => setCredentials(e.target.value)}
-          maxLength={2000}
-          rows={4}
-          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
-        />
-      </label>
+    <ProfileSurface
+      avatarUrl={avatarUrl}
+      name={saved.displayName}
+      subtitle={subtitle || null}
+      headerStatus={
+        <Status tone={saved.marketplaceHidden ? "spent" : "settled"}>
+          {saved.marketplaceHidden ? t("profileHidden") : t("profileVisible")}
+        </Status>
+      }
+      avatarHelp={t("avatarHelp")}
+      emptyHint={t("emptyProfileHint")}
+      isEmpty={isEmpty}
+      startInEdit={Boolean(postSaveRedirect)}
+      saveState={status}
+      footer={publicLink}
+      copy={{
+        edit: t("editProfile"),
+        cancel: t("cancelEdit"),
+        save: t("save"),
+        saving: t("saving"),
+        saved: t("saved"),
+        error: t("error"),
+        notSet: t("notSet"),
+      }}
+      entries={[
+        {
+          label: t("teacherCredentials"),
+          value: saved.credentials,
+          empty: !saved.credentials.trim(),
+        },
+        { label: t("teacherBio"), value: saved.bio, empty: !saved.bio.trim() },
+        {
+          // Reading a profile and filling one in want different labels: the form
+          // says "Specialties (comma separated)", the profile just says
+          // "Specialties".
+          label: tb("teacherSpecialties"),
+          value: saved.specialties,
+          empty: !saved.specialties.trim(),
+        },
+      ]}
+      onSave={onSubmit}
+      onStartEdit={() => {
+        setDraft(saved);
+        setStatus("idle");
+      }}
+      onCancelEdit={() => {
+        setDraft(saved);
+        setStatus("idle");
+      }}
+    >
+      <CheckRow
+        checked={draft.marketplaceHidden}
+        onChange={(next) => set("marketplaceHidden", next)}
+        className="border-y border-border py-4"
+        description={t("teacherMarketplaceHiddenHelp")}
+      >
+        <span className="font-medium text-foreground">{t("teacherMarketplaceHiddenLabel")}</span>
+      </CheckRow>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="space-y-1 text-sm">
-          <span className="font-medium text-foreground">{t("teacherInstructionLanguages")}</span>
-          <input
-            value={instructionLanguages}
-            onChange={(e) => setInstructionLanguages(e.target.value)}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
-          />
-        </label>
-        <label className="space-y-1 text-sm">
-          <span className="font-medium text-foreground">{t("teacherSpecialties")}</span>
-          <input
-            value={specialties}
-            onChange={(e) => setSpecialties(e.target.value)}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
-          />
-        </label>
+        <Field
+          label={t("displayName")}
+          hint={showGooglePrefillHint ? t("prefillFromGoogle") : null}
+        >
+          {(control) => (
+            <Input
+              {...control}
+              value={draft.displayName}
+              onChange={(e) => set("displayName", e.target.value)}
+              maxLength={100}
+            />
+          )}
+        </Field>
+        <Field label={t("teacherCountryOfOrigin")}>
+          {(control) => (
+            <Input
+              {...control}
+              value={draft.countryOfOrigin}
+              onChange={(e) => set("countryOfOrigin", e.target.value)}
+              maxLength={80}
+            />
+          )}
+        </Field>
       </div>
 
-      <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={status === "saving"}
-          className="rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-50"
-        >
-          {status === "saving" ? t("saving") : t("save")}
-        </button>
-        {status === "saved" ? <span className="text-sm text-green-600 dark:text-green-400">{t("saved")}</span> : null}
-        {status === "error" ? <span className="text-sm text-destructive">{t("error")}</span> : null}
+      <Field label={t("teacherBio")}>
+        {(control) => (
+          <Textarea
+            {...control}
+            rows={5}
+            value={draft.bio}
+            onChange={(e) => set("bio", e.target.value)}
+            maxLength={2000}
+          />
+        )}
+      </Field>
+
+      <Field label={t("teacherCredentials")}>
+        {(control) => (
+          <Textarea
+            {...control}
+            rows={4}
+            value={draft.credentials}
+            onChange={(e) => set("credentials", e.target.value)}
+            maxLength={2000}
+          />
+        )}
+      </Field>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t("teacherInstructionLanguages")}>
+          {(control) => (
+            <Input
+              {...control}
+              value={draft.instructionLanguages}
+              onChange={(e) => set("instructionLanguages", e.target.value)}
+            />
+          )}
+        </Field>
+        <Field label={t("teacherSpecialties")}>
+          {(control) => (
+            <Input
+              {...control}
+              value={draft.specialties}
+              onChange={(e) => set("specialties", e.target.value)}
+            />
+          )}
+        </Field>
       </div>
-    </form>
+    </ProfileSurface>
   );
 }

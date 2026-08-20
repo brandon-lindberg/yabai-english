@@ -87,6 +87,60 @@ describe("GET /api/org/[orgId]/members", () => {
     expect(body.members).toHaveLength(1);
     expect(body.members[0].orgRole).toBe("TEACHER");
   });
+
+  test("total counts people, not grants", async () => {
+    // The reported bug: one person holding OWNER and SCHOOL_ADMIN reported 2.
+    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "OWNER",
+      status: "ACTIVE",
+      schoolId: null,
+    });
+    prismaMock.organizationMembership.findMany.mockResolvedValue([
+      {
+        id: "mem-a",
+        userId: "u9",
+        inviteEmail: null,
+        orgRole: "OWNER",
+        status: "ACTIVE",
+        schoolId: null,
+        user: { id: "u9", name: "One Person", email: "one@test.com" },
+      },
+      {
+        id: "mem-b",
+        userId: "u9",
+        inviteEmail: null,
+        orgRole: "SCHOOL_ADMIN",
+        status: "ACTIVE",
+        schoolId,
+        user: { id: "u9", name: "One Person", email: "one@test.com" },
+      },
+    ]);
+
+    const body = await (await GET(getReq(), routeContext)).json();
+    expect(body.members).toHaveLength(2);
+    expect(body.total).toBe(1);
+  });
+
+  test("only active memberships are asked for", async () => {
+    // The filter had no status at all, so INVITED and INACTIVE came back.
+    authMock.mockResolvedValue({ user: { id: "u1", role: "STUDENT" } });
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "mem-1",
+      orgRole: "OWNER",
+      status: "ACTIVE",
+      schoolId: null,
+    });
+    prismaMock.organizationMembership.findMany.mockResolvedValue([]);
+
+    await GET(getReq(), routeContext);
+    expect(prismaMock.organizationMembership.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: "ACTIVE" }),
+      }),
+    );
+  });
 });
 
 describe("POST /api/org/[orgId]/members (email-match invite)", () => {

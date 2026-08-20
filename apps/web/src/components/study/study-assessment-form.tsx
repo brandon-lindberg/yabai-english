@@ -5,6 +5,10 @@ import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button, buttonClasses } from "@/components/ui/button";
+import { ChoiceList, ChoiceRadio } from "@/components/ui/choice";
+import { Outcome } from "@/components/ui/outcome";
+import { Status } from "@/components/ui/status";
 
 type Item = { id: string; promptJa: string; promptEn: string; options: string[] };
 
@@ -85,19 +89,16 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
         {/* Pass mark info */}
         <Skeleton height="4" width="2/3" />
 
-        {/* Question fieldsets — mirrors real layout */}
+        {/* Question blocks — mirrors real layout */}
         {Array.from({ length: 3 }).map((_, idx) => (
-          <fieldset
-            key={idx}
-            className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5"
-          >
+          <div key={idx} className="border-t border-border pt-6">
             {/* Question number */}
             <Skeleton height="3" width="1/4" className="!w-24" />
             {/* Prompt */}
             <div className="mt-2">
-              <Skeleton height="5" width="full" />
+              <Skeleton height="6" width="full" />
               <div className="mt-1">
-                <Skeleton height="5" width="2/3" />
+                <Skeleton height="6" width="2/3" />
               </div>
             </div>
             {/* Radio options */}
@@ -105,88 +106,94 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
               {Array.from({ length: 4 }).map((__, j) => (
                 <div
                   key={j}
-                  className="flex items-center gap-3 rounded-lg border border-border px-3 py-3 sm:py-2"
+                  className="flex min-h-12 items-center gap-3 rounded-xl border border-border px-4 py-3"
                 >
                   <Skeleton height="5" width="1/4" rounded="full" className="!h-5 !w-5 shrink-0" />
                   <Skeleton height="4" width="3/4" />
                 </div>
               ))}
             </div>
-          </fieldset>
+          </div>
         ))}
 
         {/* Submit button */}
-        <div className="rounded-xl bg-foreground/15 py-3 text-center">
-          <Skeleton height="4" width="1/4" className="mx-auto" />
-        </div>
+        <Skeleton height="12" width="full" rounded="full" />
       </div>
     );
   }
 
   if (error && !items.length) {
-    return <p className="text-sm text-red-600">{error}</p>;
+    return (
+      <p role="alert">
+        <Status tone="error">{error}</Status>
+      </p>
+    );
   }
 
   if (result) {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-        <p className="text-lg font-semibold text-foreground">
-          {t("scoreResult", { score: result.score })}
-        </p>
-        <p className="mt-2 text-muted">
-          {result.passed ? t("passedUnlock") : t("failedTest")}
-        </p>
-        <Link
-          href="/learn/study"
-          className="mt-6 inline-block rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background"
-        >
-          {t("backToHub")}
-        </Link>
-      </div>
+      <Outcome
+        title={t("scoreResult", { score: result.score })}
+        figure={`${result.score}%`}
+        figureLabel={t("passMarkLabel", { score: result.passingScore })}
+        description={result.passed ? t("passedUnlock") : t("failedTest")}
+        actions={
+          <Link href="/learn/study" className={buttonClasses()}>
+            {t("backToHub")}
+          </Link>
+        }
+      />
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <p className="text-sm text-muted">
-        Pass mark: {passingScore}% · {items.length} questions
+        {/* Was hard-coded English in a bilingual product. */}
+        {t("passMarkLabel", { score: passingScore })} ·{" "}
+        {t("questionCount", { count: items.length })}
       </p>
       {items.map((item, idx) => (
-        <fieldset key={item.id} className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
-          <legend className="px-1 text-xs font-medium text-muted">
-            {t("questionOf", { n: idx + 1, total: items.length })}
-          </legend>
-          <p className="mt-2 whitespace-pre-line text-base font-medium text-foreground">
-            {locale === "ja" ? item.promptJa : item.promptEn}
-          </p>
-          <div className="mt-4 space-y-2">
-            {item.options.map((opt, i) => (
-              <label
-                key={`${item.id}-${i}`}
-                className="flex cursor-pointer items-center gap-3 rounded-lg border border-border px-3 py-3 hover:bg-foreground/5 sm:py-2"
-              >
-                <input
-                  type="radio"
+        /* The rule lives on the wrapper, not the fieldset: a `legend` cuts a gap
+           in its own fieldset's border, which broke the rule mid-line. */
+        <div key={item.id} className="border-t border-border pt-6">
+          <fieldset>
+            <legend className="text-sm font-medium tabular-nums text-muted">
+              {t("questionOf", { n: idx + 1, total: items.length })}
+            </legend>
+            <p className="mt-2 whitespace-pre-line text-lg font-bold leading-snug tracking-[-0.02em] text-foreground">
+              {locale === "ja" ? item.promptJa : item.promptEn}
+            </p>
+            <ChoiceList className="mt-4">
+              {item.options.map((opt, i) => (
+                <ChoiceRadio
+                  key={`${item.id}-${i}`}
                   name={item.id}
                   checked={answers[item.id] === i}
-                  onChange={() => setAnswers((a) => ({ ...a, [item.id]: i }))}
-                  className="h-5 w-5 shrink-0 sm:h-4 sm:w-4"
-                />
-                <span className="text-sm text-foreground">{opt}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+                  state={answers[item.id] === i ? "selected" : "idle"}
+                  onSelect={() => setAnswers((a) => ({ ...a, [item.id]: i }))}
+                >
+                  {opt}
+                </ChoiceRadio>
+              ))}
+            </ChoiceList>
+          </fieldset>
+        </div>
       ))}
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <button
-        type="button"
-        disabled={submitting || Object.keys(answers).length < items.length}
+      {error ? (
+        <p role="alert">
+          <Status tone="error">{error}</Status>
+        </p>
+      ) : null}
+      <Button
+        size="lg"
+        fullWidth
+        loading={submitting}
+        disabled={Object.keys(answers).length < items.length}
         onClick={() => void submit()}
-        className="w-full rounded-xl bg-foreground py-3 text-sm font-medium text-background disabled:opacity-50"
       >
         {t("submitTest")}
-      </button>
+      </Button>
     </div>
   );
 }

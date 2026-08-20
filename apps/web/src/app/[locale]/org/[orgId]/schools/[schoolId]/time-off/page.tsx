@@ -1,30 +1,15 @@
-import { auth } from "@/auth";
-import { redirect } from "@/i18n/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { SchoolTimeOffView } from "@/components/org/school-time-off-view";
-import { getViewerSchoolRole } from "@/lib/org-viewer-role";
+import { requireSchoolViewer } from "@/lib/org/require-school-viewer";
 
 export default async function SchoolTimeOffPage({
   params,
 }: {
   params: Promise<{ orgId: string; schoolId: string }>;
 }) {
-  const { orgId, schoolId } = await params;
-  const session = await auth();
-  const locale = await getLocale();
-
-  if (!session?.user?.id) {
-    redirect({ href: "/auth/signin", locale });
-    return null;
-  }
-
-  const viewer = await getViewerSchoolRole(session.user.id, orgId, schoolId);
-  if (!viewer || (!viewer.isSchoolAdmin && !viewer.isSchoolTeacher)) {
-    redirect({ href: `/org/${orgId}/schools/${schoolId}`, locale });
-    return null;
-  }
-
+  // The one school page teachers reach: they request time off, admins review it.
+  const { orgId, schoolId, viewer } = await requireSchoolViewer(params, "adminOrTeacher");
   const t = await getTranslations("org.school.timeOffPage");
 
   return (

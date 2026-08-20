@@ -1,55 +1,42 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-const bodySchema = z.object({
-  feature: z.enum(["calendar", "drive", "meet", "all"]).default("all"),
-});
-
-export async function POST(req: Request) {
+/**
+ * Disconnecting Google is one action too.
+ *
+ * There is no `feature` any more. Partial disconnection could not revoke the
+ * underlying grant — it only flipped a boolean while the token stayed live —
+ * so "disconnect Calendar" left the app holding credentials it claimed not to
+ * have. Disconnect now clears every capability and marks the account revoked,
+ * which is what the word means.
+ */
+export async function POST() {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const json = await req.json().catch(() => null);
-  const parsed = bodySchema.safeParse(json);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
-  }
 
-  const data =
-    parsed.data.feature === "all"
-      ? {
-          calendarConnected: false,
-          driveConnected: false,
-          meetConnected: false,
-          artifactSyncEnabled: false,
-        }
-      : parsed.data.feature === "calendar"
-        ? { calendarConnected: false }
-        : parsed.data.feature === "drive"
-          ? { driveConnected: false }
-          : { meetConnected: false, artifactSyncEnabled: false };
+  const cleared = {
+    calendarConnected: false,
+    driveConnected: false,
+    meetConnected: false,
+    artifactSyncEnabled: false,
+  };
 
   await prisma.googleIntegrationSettings.upsert({
     where: { userId: session.user.id },
-    create: {
-      userId: session.user.id,
-      ...data,
-    },
-    update: data,
+    create: { userId: session.user.id, ...cleared },
+    update: cleared,
   });
 
-  if (parsed.data.feature === "all") {
-    await prisma.googleIntegrationAccount.updateMany({
-      where: { userId: session.user.id },
-      data: {
-        revoked: true,
-        disconnectedAt: new Date(),
-      },
-    });
-  }
+  await prisma.googleIntegrationAccount.updateMany({
+    where: { userId: session.user.id },
+    data: {
+      revoked: true,
+      disconnectedAt: new Date(),
+    },
+  });
 
   return NextResponse.json({ ok: true });
 }

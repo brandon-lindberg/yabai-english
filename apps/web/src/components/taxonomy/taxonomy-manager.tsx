@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AppCard } from "@/components/ui/app-card";
+import { buttonClasses } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
 
 export type TaxonomyItem = {
   id: string;
@@ -19,9 +21,6 @@ type DraftForm = {
 };
 
 const emptyDraft: DraftForm = { labelEn: "", labelJa: "" };
-
-const inputCn =
-  "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground/25";
 
 type SortKey = "sortOrder" | "code" | "labelEn";
 type SortDir = "asc" | "desc";
@@ -201,8 +200,6 @@ function TaxonomySection({
   const [sortKey, setSortKey] = useState<SortKey>("sortOrder");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  const labelEnId = useId();
-  const labelJaId = useId();
 
   const sortedItems = useMemo(() => {
     const copy = [...items];
@@ -297,7 +294,7 @@ function TaxonomySection({
         <button
           type="button"
           onClick={() => setShowAdd((v) => !v)}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className={buttonClasses()}
         >
           {addLabel}
         </button>
@@ -305,46 +302,39 @@ function TaxonomySection({
 
       {showAdd && (
         <form onSubmit={handleSave} className="mb-4 space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor={labelEnId}
-                className="mb-1 block text-sm font-medium text-foreground"
-              >
-                {t("name")}
-              </label>
-              <input
-                id={labelEnId}
-                className={inputCn}
-                value={draft.labelEn}
-                onChange={(e) => setDraft({ ...draft, labelEn: e.target.value })}
-                placeholder={labelEnPlaceholder}
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor={labelJaId}
-                className="mb-1 block text-sm font-medium text-foreground"
-              >
-                {t("nameJa")}
-              </label>
-              <input
-                id={labelJaId}
-                className={inputCn}
-                value={draft.labelJa}
-                onChange={(e) => setDraft({ ...draft, labelJa: e.target.value })}
-                placeholder={labelJaPlaceholder}
-              />
-            </div>
+          {/* These were correctly wired by hand — explicit ids, real `htmlFor`
+              — which is exactly the work `Field` exists to stop repeating. The
+              shared help line becomes the English field's hint so it is
+              announced with the control rather than read as loose text. */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t("name")} hint={t("nameHelp")} required>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={draft.labelEn}
+                  onChange={(e) => setDraft({ ...draft, labelEn: e.target.value })}
+                  placeholder={labelEnPlaceholder}
+                  required
+                />
+              )}
+            </Field>
+            <Field label={t("nameJa")}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={draft.labelJa}
+                  onChange={(e) => setDraft({ ...draft, labelJa: e.target.value })}
+                  placeholder={labelJaPlaceholder}
+                />
+              )}
+            </Field>
           </div>
-          <p className="text-xs text-muted">{t("nameHelp")}</p>
           {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={saving}
-              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className={buttonClasses()}
             >
               {saving ? t("saving") : t("save")}
             </button>
@@ -355,7 +345,7 @@ function TaxonomySection({
                 setDraft(emptyDraft);
                 setError("");
               }}
-              className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-[var(--app-hover)]"
+              className={buttonClasses({ variant: "secondary" })}
             >
               {t("cancel")}
             </button>
@@ -390,7 +380,7 @@ function TaxonomySection({
                   dir={sortDir}
                   onClick={() => toggleSort("labelEn")}
                 />
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wide text-muted">
+                <th className="px-4 py-2 text-right text-sm font-semibold text-muted">
                   {t("actionsColumn")}
                 </th>
               </tr>
@@ -477,11 +467,11 @@ function SortHeader({
 }) {
   const indicator = active ? (dir === "asc" ? " ▲" : " ▼") : "";
   return (
-    <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted">
+    <th className="px-4 py-2 text-sm font-semibold text-muted">
       <button
         type="button"
         onClick={onClick}
-        className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted hover:text-foreground"
+        className="flex items-center gap-1 text-sm font-semibold text-muted hover:text-foreground"
       >
         {label}
         {indicator && <span aria-hidden>{indicator}</span>}

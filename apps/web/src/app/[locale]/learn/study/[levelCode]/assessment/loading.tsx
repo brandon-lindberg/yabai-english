@@ -31,7 +31,7 @@ export default function Loading() {
         {Array.from({ length: 3 }).map((_, i) => (
           <fieldset
             key={i}
-            className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5"
+            className="border-y border-border p-4 sm:p-5"
           >
             <Skeleton height="3" width="1/4" className="!w-24" />
             <div className="mt-2">

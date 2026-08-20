@@ -2,41 +2,61 @@ import { NextResponse } from "next/server";
 import { BookingStatus } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { createMeetLessonEvent } from "@/lib/google-calendar";
-import { notifyBookingCalendarInviteFailure } from "@/lib/booking-calendar-failure";
-import { buildInvoiceNumber } from "@/lib/invoices";
-import { createUserNotification } from "@/lib/notifications";
-import { ensureStudentTeacherThread } from "@/lib/chat-threads";
-import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
-import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
-import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
+import { calculateMonthlyPlatformFeeForTeacher } from "@/lib/platform-fees";
+import { isLocalStripeProviderAccount } from "@/lib/payment-methods";
+import {
+  createStripeCheckoutSessionDirectCharge,
+  stripeConnectConfigured,
+} from "@/lib/stripe/stripe-connect";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
 };
 
-export async function POST(_req: Request, { params }: Props) {
+function appUrl() {
+  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+}
+
+export async function POST(req: Request, { params }: Props) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const body = (await req.json().catch(() => ({}))) as { acceptedMarketplaceTerms?: boolean };
+  if (!body.acceptedMarketplaceTerms) {
+    return NextResponse.json(
+      { error: "Student marketplace terms must be accepted before payment" },
+      { status: 400 },
+    );
+  }
+
+  const acceptedAt = new Date();
+  await prisma.studentProfile.upsert({
+    where: { userId: session.user.id },
+    create: {
+      userId: session.user.id,
+      marketplaceTermsAcceptedAt: acceptedAt,
+    },
+    update: {
+      marketplaceTermsAcceptedAt: acceptedAt,
+    },
+  });
 
   const { bookingId } = await params;
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
       lessonProduct: true,
-      teacher: {
+      student: true,
+      teacher: { include: { user: true } },
+      payments: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
         include: {
-          user: true,
-          availabilitySlots: {
-            where: { active: true },
-            take: 1,
-            select: { timezone: true },
-          },
+          teacherPaymentAccount: true,
         },
       },
-      student: true,
     },
   });
 
@@ -48,112 +68,127 @@ export async function POST(_req: Request, { params }: Props) {
     return NextResponse.json({ error: "Booking is not pending payment" }, { status: 409 });
   }
 
-  const updated = await prisma.booking.update({
-    where: { id: booking.id },
-    data: { status: BookingStatus.CONFIRMED },
-    include: {
-      lessonProduct: true,
-      teacher: { include: { user: true } },
-      student: true,
-    },
-  });
+  const payment = booking.payments?.[0];
+  if (!payment) {
+    return NextResponse.json({ error: "Payment session not found" }, { status: 409 });
+  }
 
-  await syncTeacherRosterAfterStudentBooking(prisma, {
-    teacherId: booking.teacher.id,
-    studentUserId: booking.studentId,
-  });
-  revalidateDashboardStudentRosterPaths();
-
-  const attendeeEmails = [updated.student.email, updated.teacher.user.email].filter(
-    Boolean,
-  ) as string[];
-  const meet = await createMeetLessonEvent({
-    organizerUserId: updated.teacher.userId,
-    refreshTokenEncrypted: updated.teacher.googleCalendarRefreshToken,
-    calendarId: updated.teacher.calendarId,
-    summary: `Lesson — ${updated.lessonProduct.nameEn}`,
-    start: updated.startsAt,
-    end: updated.endsAt,
-    attendeeEmails,
-  });
-
-  const finalBooking = await prisma.booking.update({
-    where: { id: updated.id },
-    data: {
-      meetUrl: meet.meetUrl ?? updated.meetUrl,
-      googleEventId: meet.googleEventId ?? updated.googleEventId,
-      googleCalendarId: updated.teacher.calendarId ?? "primary",
-      meetCode:
-        meet.meetUrl?.split("/").pop() ??
-        updated.meetUrl?.split("/").pop() ??
-        null,
-    },
-    include: {
-      lessonProduct: true,
-      teacher: { include: { user: true } },
-    },
-  });
-  if (!meet.googleEventId && meet.errorCode) {
-    await notifyBookingCalendarInviteFailure({
-      teacherUserId: updated.teacher.userId,
-      studentUserId: updated.studentId,
-      reason: meet.errorMessage,
+  if (payment.status === "REQUIRES_ACTION" && payment.providerCheckoutId && payment.checkoutUrl) {
+    return NextResponse.json({
+      ok: true,
+      paymentId: payment.id,
+      provider: payment.provider,
+      method: payment.method,
+      checkoutUrl: payment.checkoutUrl,
     });
   }
 
-  const studentMirrorEvent = await createMeetLessonEvent({
-    organizerUserId: session.user.id,
-    refreshTokenEncrypted: null,
-    calendarId: "primary",
-    summary: `Lesson — ${updated.lessonProduct.nameEn}`,
-    start: updated.startsAt,
-    end: updated.endsAt,
-    attendeeEmails,
-    createMeetLink: false,
-  });
-  if (studentMirrorEvent.googleEventId) {
-    await prisma.booking.update({
-      where: { id: updated.id },
-      data: { studentGoogleEventId: studentMirrorEvent.googleEventId },
+  if (payment.provider !== "STRIPE") {
+    const checkoutId =
+      payment.providerCheckoutId ?? `${payment.provider.toLowerCase()}_checkout_${payment.id}`;
+    const checkoutUrl = payment.checkoutUrl ?? `/book/checkout/${booking.id}`;
+    const updated = await prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: "REQUIRES_ACTION",
+        providerCheckoutId: checkoutId,
+        checkoutUrl,
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      paymentId: updated.id,
+      provider: updated.provider,
+      method: updated.method,
+      checkoutUrl: updated.checkoutUrl,
     });
   }
 
-  const now = new Date();
-  await prisma.invoice.upsert({
-    where: { bookingId: finalBooking.id },
-    create: {
-      bookingId: finalBooking.id,
-      studentId: session.user.id,
-      amountYen: finalBooking.quotedPriceYen,
-      invoiceNo: buildInvoiceNumber(now),
-      paidAt: now,
-    },
-    update: {
-      amountYen: finalBooking.quotedPriceYen,
-      paidAt: now,
-    },
+  if (!stripeConnectConfigured()) {
+    return NextResponse.json({ error: "Stripe is not configured" }, { status: 503 });
+  }
+
+  const connectedAccountId = payment.teacherPaymentAccount?.providerAccountId;
+  if (!connectedAccountId || isLocalStripeProviderAccount(connectedAccountId)) {
+    return NextResponse.json({ error: "Teacher Stripe account is not connected" }, { status: 409 });
+  }
+
+  const fee = await calculateMonthlyPlatformFeeForTeacher(prisma, {
+    teacherId: booking.teacherId,
+    amountYen: payment.amountYen,
+    at: new Date(),
+  });
+  const baseUrl = appUrl();
+  const checkout = await createStripeCheckoutSessionDirectCharge({
+    connectedAccountId,
+    paymentId: payment.id,
+    bookingId: booking.id,
+    amountYen: payment.amountYen,
+    applicationFeeAmountYen: fee.applicationFeeAmountYen,
+    productName: booking.lessonProduct.nameEn,
+    customerEmail: booking.student.email,
+    successUrl: `${baseUrl}/book/checkout/${booking.id}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancelUrl: `${baseUrl}/book/checkout/${booking.id}?stripe=cancelled`,
+  });
+  const paymentIntentId =
+    typeof checkout.payment_intent === "string"
+      ? checkout.payment_intent
+      : checkout.payment_intent?.id ?? null;
+  const checkoutUrl = checkout.url;
+  if (!checkoutUrl) {
+    return NextResponse.json({ error: "Stripe checkout URL was not returned" }, { status: 502 });
+  }
+
+  const updated = await prisma.$transaction(async (tx) => {
+    await tx.paymentLedgerEntry.deleteMany({
+      where: {
+        paymentId: payment.id,
+        type: { in: ["PLATFORM_FEE", "TEACHER_NET"] },
+      },
+    });
+    await tx.paymentLedgerEntry.createMany({
+      data: [
+        { paymentId: payment.id, type: "PLATFORM_FEE", amountYen: fee.applicationFeeAmountYen },
+        {
+          paymentId: payment.id,
+          type: "TEACHER_NET",
+          amountYen: payment.amountYen - fee.applicationFeeAmountYen,
+        },
+      ],
+    });
+
+    return tx.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: "REQUIRES_ACTION",
+        providerCheckoutId: checkout.id,
+        providerPaymentId: paymentIntentId,
+        checkoutUrl,
+        metadataJson: {
+          chargeType: "DIRECT_CHARGE",
+          connectedAccountId,
+          feePolicyVersion: fee.feePolicyVersion,
+          calculatedTier: fee.calculatedTier,
+          effectiveTier: fee.effectiveTier,
+          teacherTier: fee.teacherTier,
+          overrideActive: fee.overrideActive,
+          periodTimeZone: fee.periodTimeZone,
+          periodStart: fee.periodStart.toISOString(),
+          periodEnd: fee.periodEnd.toISOString(),
+          paidLessonOrdinal: fee.paidLessonOrdinal,
+          rateBps: fee.rateBps,
+          applicationFeeAmountYen: fee.applicationFeeAmountYen,
+        },
+      },
+    });
   });
 
-  await ensureStudentTeacherThread(session.user.id, updated.teacher.userId);
-  await createUserNotification({
-    userId: session.user.id,
-    titleJa: "支払いが完了しました",
-    titleEn: "Payment completed",
-    bodyJa: "予約が確定されました。",
-    bodyEn: "Your booking is now confirmed.",
+  return NextResponse.json({
+    ok: true,
+    paymentId: updated.id,
+    provider: updated.provider,
+    method: updated.method,
+    checkoutUrl: updated.checkoutUrl,
   });
-
-  const teacherTimezone =
-    booking.teacher.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
-  const teacherNotification = buildTeacherBookingConfirmedNotification({
-    studentName: updated.student.name ?? null,
-    startsAt: updated.startsAt,
-    timezone: teacherTimezone,
-  });
-  await createUserNotification({
-    userId: updated.teacher.userId,
-    ...teacherNotification,
-  });
-
-  return NextResponse.json(finalBooking);
 }

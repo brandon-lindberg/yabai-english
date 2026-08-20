@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { Status } from "@/components/ui/status";
+import { buttonClasses } from "@/components/ui/button";
 
 type Props = {
   bookingId: string;
@@ -36,15 +38,15 @@ export function BookingCancelButton({ bookingId }: Props) {
   return (
     <div className="inline-flex flex-col items-start gap-1">
       {error ? (
-        <p className="max-w-xs text-xs" style={{ color: "var(--app-danger)" }} role="alert">
-          {error}
+        <p role="alert">
+          <Status tone="error">{error}</Status>
         </p>
       ) : null}
       <button
         type="button"
         onClick={onCancel}
         disabled={loading}
-        className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted hover:bg-[var(--app-hover)] disabled:opacity-50"
+        className={buttonClasses({ variant: "secondary", size: "sm" })}
       >
         {loading ? t("cancelBookingWorking") : t("cancelBooking")}
       </button>

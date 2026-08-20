@@ -2,7 +2,13 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-export type LegalDocId = "terms" | "privacy";
+export type LegalDocId =
+  | "terms"
+  | "privacy"
+  | "terms-teachers"
+  | "terms-students"
+  | "refund-teachers"
+  | "refund-students";
 
 const LOCALES = ["en", "ja"] as const;
 export type LegalLocale = (typeof LOCALES)[number];
