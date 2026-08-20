@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
-import { resolveStripeAccountStatus } from "@/lib/stripe/stripe-account-status";
+import { syncTeacherPaymentAccountFromStripe } from "@/lib/stripe/sync-teacher-payment-account";
 import {
   retrieveStripeAccount,
   stripeConnectConfigured,
@@ -40,33 +40,9 @@ export async function POST() {
   }
 
   const stripeAccount = await retrieveStripeAccount(paymentAccount.providerAccountId);
-  const status = resolveStripeAccountStatus(stripeAccount);
-
-  await prisma.teacherPaymentMethod.upsert({
-    where: {
-      accountId_method: {
-        accountId: paymentAccount.id,
-        method: "CARD",
-      },
-    },
-    create: {
-      accountId: paymentAccount.id,
-      method: "CARD",
-      enabled: status.methodEnabled,
-    },
-    update: {
-      enabled: status.methodEnabled,
-    },
-  });
-
-  const account = await prisma.teacherPaymentAccount.update({
-    where: { id: paymentAccount.id },
-    data: {
-      status: status.status,
-      chargesEnabled: status.chargesEnabled,
-      payoutsEnabled: status.payoutsEnabled,
-      requirementsDue: status.requirementsDue,
-    },
+  const account = await syncTeacherPaymentAccountFromStripe(prisma, {
+    paymentAccountId: paymentAccount.id,
+    stripeAccount,
     select: {
       id: true,
       provider: true,

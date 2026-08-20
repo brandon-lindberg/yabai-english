@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { resolveStripeAccountStatus } from "@/lib/stripe/stripe-account-status";
+import { syncTeacherPaymentAccountFromStripe } from "@/lib/stripe/sync-teacher-payment-account";
 import { constructStripeWebhookEvent } from "@/lib/stripe/stripe-connect";
 import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-booking-from-stripe-checkout";
 import { mapStripeRefundStatus } from "@/lib/payment-refunds";
@@ -30,36 +30,13 @@ async function syncConnectedAccountFromWebhook(event: StripeEventLike) {
   });
   if (!paymentAccount) return null;
 
-  const status = resolveStripeAccountStatus({
-    charges_enabled: Boolean(stripeAccount.charges_enabled),
-    payouts_enabled: Boolean(stripeAccount.payouts_enabled),
-    requirements: stripeAccount.requirements as never,
-  });
-
-  await prisma.teacherPaymentMethod.upsert({
-    where: {
-      accountId_method: {
-        accountId: paymentAccount.id,
-        method: "CARD",
-      },
-    },
-    create: {
-      accountId: paymentAccount.id,
-      method: "CARD",
-      enabled: status.methodEnabled,
-    },
-    update: {
-      enabled: status.methodEnabled,
-    },
-  });
-
-  return prisma.teacherPaymentAccount.update({
-    where: { id: paymentAccount.id },
-    data: {
-      status: status.status,
-      chargesEnabled: status.chargesEnabled,
-      payoutsEnabled: status.payoutsEnabled,
-      requirementsDue: status.requirementsDue,
+  return syncTeacherPaymentAccountFromStripe(prisma, {
+    paymentAccountId: paymentAccount.id,
+    stripeAccount: {
+      charges_enabled: Boolean(stripeAccount.charges_enabled),
+      payouts_enabled: Boolean(stripeAccount.payouts_enabled),
+      requirements: stripeAccount.requirements as never,
+      capabilities: stripeAccount.capabilities as never,
     },
   });
 }

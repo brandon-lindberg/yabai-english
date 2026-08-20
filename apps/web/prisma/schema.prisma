@@ -681,6 +681,9 @@ model Booking {
   endsAt                DateTime
   status                BookingStatus
   quotedPriceYen        Int           @default(0)
+  /// How many times this lesson has been moved. Caps student reschedules so a
+  /// paid booking cannot be moved indefinitely.
+  rescheduleCount       Int           @default(0)
   manualOverrideUsed    Boolean       @default(false)
   manualOverrideReason  String?       @db.Text
   manualOverrideByRole  Role?

@@ -85,9 +85,8 @@ Only the student is held to a lead window. The 24-hour teacher threshold and its
 `studentCompensationFreeLesson` outcome are gone — they were computed and never
 consumed by anything.
 
-`rescheduleOffered` is **also not consumed yet**. It is the hook for the in-app
-reschedule flow, which is planned. The design constraint agreed for it: move the
-booking and keep the original payment, rather than refund and rebook.
+`rescheduleOffered` is what sends a student inside the window to the reschedule
+flow instead of simply losing the fee. See §6.
 
 ---
 
@@ -127,15 +126,50 @@ retained platform fee.
 
 ---
 
-## 6. Still open
+## 6. Reschedule
 
-- **PayPay.** `TeacherPaymentMethodType` has `CARD | PAYPAY` and Stripe supports
-  PayPay in Japan natively, so no PayPay-specific integration is needed. But
-  `syncConnectedAccountFromWebhook` hardcodes `method: "CARD"`, so a PAYPAY row
-  is never written and students are never offered it. Making it real means
-  deriving enabled methods from the account's actual capabilities.
-- **Reschedule flow.** See §3.
-- **Stripe dashboard config.** Direct-charge refund events fire on the
-  *connected* account. The endpoint handles Connect events, but it must be
-  registered for them in the Stripe dashboard or the settlement step in §4 never
-  runs. Not verifiable from the code.
+A student cancelling inside 48 hours gets no refund, so the policy offers a
+reschedule instead — `rescheduleOffered`. `POST /api/bookings/[id]/reschedule`
+is what consumes it.
+
+The booking keeps its original payment: nothing is refunded, nothing re-charged.
+That is what makes this a scheduling change rather than a payments one.
+
+There is no teacher approval step, because the new time must be a slot the
+teacher already published — the same `validateBookingAgainstTeacherAvailability`
+that governs booking. Agreeing to the time is implicit in having published it.
+`Booking.rescheduleCount` caps students at one move per lesson so a paid booking
+cannot be held open indefinitely; teachers are not capped.
+
+---
+
+## 7. Payment methods
+
+Card only. `resolveStripeAccountStatus` derives what a teacher may be offered
+from their connected account's Stripe capabilities rather than assuming, and
+`syncTeacherPaymentAccountFromStripe` is the single writer — the account webhook
+and the manual refresh used to carry a copy each, which is how both ended up
+hardcoding CARD.
+
+**PayPay is not possible through Stripe.** Verified against SDK 22.1.1 / API
+2026-06-24.dahlia: no `paypay` account capability and no `paypay` Checkout
+payment method type. The `PAYPAY` enum value is kept dormant so it can be turned
+on if Stripe ships it.
+
+`konbini` *is* offered by Stripe Checkout and is unwired — the likeliest next
+payment method for this audience, and the delayed-payment webhook events it
+needs are already handled.
+
+---
+
+## 8. Still open
+
+- **Custom domain.** The app runs on `english-platform-web.onrender.com`.
+  Switching is config only — `NEXT_PUBLIC_APP_URL`, `NEXTAUTH_URL`, `AUTH_URL`,
+  the Stripe destination URL, and the authorised redirect URIs in Google Cloud
+  Console. Nothing bakes the domain into stored data. `NEXTAUTH_URL` is *not* a
+  dead v4 leftover: `lib/google/oauth-service.ts` reads it before
+  `NEXT_PUBLIC_APP_URL` when building the Calendar OAuth redirect.
+- **Teacher re-onboarding.** Connected accounts created in test mode do not
+  exist in live mode, so a teacher's stored `providerAccountId` points at an
+  account live mode cannot see. They must reconnect before payments work.
