@@ -46,7 +46,7 @@ type Props = {
 };
 
 export function TeacherPaymentsSettings({
-  paymentPolicyAcceptedAt,
+  paymentPolicyAcceptedAt: initialPaymentPolicyAcceptedAt,
   accounts: initialAccounts,
   devPaymentsEnabled,
   stripeConnectEnabled,
@@ -56,6 +56,12 @@ export function TeacherPaymentsSettings({
   const handledStripeReturnRef = useRef(false);
   const policySectionRef = useRef<HTMLDivElement>(null);
   const [accounts, setAccounts] = useState(initialAccounts);
+  // Held here rather than read from the prop: the Stripe step is gated on it, so
+  // accepting the policy has to open that step in the same render instead of
+  // waiting for a page reload.
+  const [paymentPolicyAcceptedAt, setPaymentPolicyAcceptedAt] = useState(
+    initialPaymentPolicyAcceptedAt,
+  );
   const [savingDevMethod, setSavingDevMethod] = useState(false);
   const [connectingStripe, setConnectingStripe] = useState(false);
   const [refreshingStripe, setRefreshingStripe] = useState(false);
@@ -214,7 +220,10 @@ export function TeacherPaymentsSettings({
       <TeacherMarketplaceEconomicsNotice />
 
       <div ref={policySectionRef}>
-        <TeacherPaymentPolicyForm acceptedAt={paymentPolicyAcceptedAt} />
+        <TeacherPaymentPolicyForm
+          acceptedAt={paymentPolicyAcceptedAt}
+          onAccepted={setPaymentPolicyAcceptedAt}
+        />
       </div>
 
       <section className="space-y-3 border-t border-border pt-6">

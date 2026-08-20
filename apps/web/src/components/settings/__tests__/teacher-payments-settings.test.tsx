@@ -281,4 +281,51 @@ describe("TeacherPaymentsSettings", () => {
     expect(screen.queryByRole("button", { name: en.dashboard.settingsPage.connectStripe })).toBeNull();
     expect(screen.queryByRole("button", { name: en.dashboard.settingsPage.continueStripeSetup })).toBeNull();
   });
+
+  test("accepting the marketplace policy unlocks Stripe without a reload", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        id: "tp-1",
+        paymentPolicyAcceptedAt: "2026-08-20T00:00:00.000Z",
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherPaymentsSettings
+          paymentPolicyAcceptedAt={null}
+          devPaymentsEnabled={false}
+          stripeConnectEnabled
+          accounts={[]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    // Gated to begin with: the policy has not been accepted.
+    expect(
+      screen.getByText(en.dashboard.settingsPage.stripeSetupPolicyRequiredBody),
+    ).toBeTruthy();
+    expect(screen.queryByRole("button", { name: en.dashboard.settingsPage.connectStripe })).toBeNull();
+
+    fireEvent.click(
+      screen.getByRole("checkbox", {
+        name: (name) => name.includes(en.dashboard.settingsPage.paymentPolicyAcceptCheckboxPrefix),
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: en.dashboard.settingsPage.paymentPolicyAccept }),
+    );
+
+    // Same render, no remount: the Stripe step must open up on its own.
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: en.dashboard.settingsPage.connectStripe }),
+      ).toBeTruthy();
+    });
+    expect(
+      screen.queryByText(en.dashboard.settingsPage.stripeSetupPolicyRequiredBody),
+    ).toBeNull();
+  });
 });

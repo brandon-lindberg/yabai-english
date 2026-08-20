@@ -11,9 +11,11 @@ import { Status } from "@/components/ui/status";
 
 type Props = {
   acceptedAt: string | null;
+  /** Told when acceptance succeeds, so the Stripe step can open immediately. */
+  onAccepted?: (acceptedAt: string) => void;
 };
 
-export function TeacherPaymentPolicyForm({ acceptedAt }: Props) {
+export function TeacherPaymentPolicyForm({ acceptedAt, onAccepted }: Props) {
   const t = useTranslations("dashboard.settingsPage");
   const [checked, setChecked] = useState(false);
   const [accepted, setAccepted] = useState(Boolean(acceptedAt));
@@ -34,7 +36,11 @@ export function TeacherPaymentPolicyForm({ acceptedAt }: Props) {
         setError(t("paymentPolicyError"));
         return;
       }
+      const body = (await res.json().catch(() => null)) as
+        | { paymentPolicyAcceptedAt?: string | null }
+        | null;
       setAccepted(true);
+      onAccepted?.(body?.paymentPolicyAcceptedAt ?? new Date().toISOString());
     } catch {
       setError(t("paymentPolicyError"));
     } finally {
