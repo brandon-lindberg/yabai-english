@@ -19,9 +19,15 @@ import { markdownSanitizeSchema } from "@/lib/markdown/sanitize-schema";
 
 /** Shared with `MarkdownClamp` so both render identically. */
 export const markdownProseClass =
-  "break-words [&_a]:text-link [&_a]:underline [&_blockquote]:border-l-2 " +
-  "[&_blockquote]:border-border [&_blockquote]:pl-3 [&_h2]:font-semibold " +
-  "[&_h3]:font-semibold [&_li]:ml-4 [&_ol]:list-decimal [&_p]:my-0.5 " +
+  "break-words [&_a]:text-link [&_a]:underline " +
+  // Preflight sets headings to `font-size: inherit`, so a size has to be given
+  // back or an H2 reads as body text. Kept in step with the editor rules in
+  // globals.css, so what you wrote is what you see.
+  "[&_h2]:mt-2 [&_h2]:mb-1 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:leading-tight " +
+  "[&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-[1.0625rem] [&_h3]:font-bold [&_h3]:leading-tight " +
+  "[&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border " +
+  "[&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted " +
+  "[&_li]:ml-4 [&_ol]:list-decimal [&_p]:my-0.5 " +
   "[&_strong]:font-semibold [&_u]:underline [&_ul]:list-disc";
 
 type Props = {

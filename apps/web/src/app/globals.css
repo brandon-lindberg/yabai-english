@@ -293,7 +293,14 @@ body.chat-open {
 }
 
 /* ------------------------------------------------------------------ */
-/*  MDXEditor — Tailwind preflight removes ul/ol markers. Lexical list   */
+/*  MDXEditor — Tailwind preflight strips the formatting the editor      */
+/*  relies on to show its own state: ul/ol markers, blockquote margins,  */
+/*  and heading size/weight (`font-size: inherit`). MDXEditor ships no   */
+/*  content styles of its own, so without these a quote and a heading    */
+/*  render pixel-identical to a paragraph — the toolbar appears to do    */
+/*  nothing, and typing `>` or `## ` looks like it silently failed.      */
+/*  Keep these in step with `markdownProseClass` so writing and reading  */
+/*  agree. Lexical list                                                  */
 /*  items use CSS-module classes; checklist <li> uses ::before +         */
 /*  margin-inline-start: -1rem (needs left padding on the editor root,  */
 /*  not overflow:hidden on ancestors). Never force li { list-item } on   */
@@ -327,5 +334,28 @@ body.chat-open {
     list-style-type: decimal;
     list-style-position: outside;
     padding-inline-start: 1.125rem;
+  }
+
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable blockquote {
+    border-inline-start: 2px solid var(--app-border);
+    padding-inline-start: 0.75rem;
+    margin-block: 0.5rem;
+    color: var(--app-muted);
+    font-style: italic;
+  }
+
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable h2,
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable h3 {
+    font-weight: 700;
+    line-height: 1.25;
+    margin-block: 0.5rem 0.25rem;
+  }
+
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable h2 {
+    font-size: 1.25rem;
+  }
+
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable h3 {
+    font-size: 1.0625rem;
   }
 }

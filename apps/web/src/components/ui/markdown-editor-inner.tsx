@@ -21,6 +21,7 @@ import {
   type MDXEditorProps,
 } from "@mdxeditor/editor";
 import { useMemo } from "react";
+import { quoteNormalizationPlugin } from "./markdown-quote-normalization";
 
 type Props = {
   editorRef: React.Ref<MDXEditorMethods> | null;
@@ -34,6 +35,7 @@ export function MarkdownEditorInner({ editorRef, maxPlainTextLength, ...props }:
       headingsPlugin({ allowedHeadingLevels: [2, 3] }),
       listsPlugin(),
       quotePlugin(),
+      quoteNormalizationPlugin(),
       linkPlugin(),
       linkDialogPlugin(),
       markdownShortcutPlugin(),
