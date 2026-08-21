@@ -65,15 +65,20 @@ export async function DashboardNextLesson({
   return (
     <section className="border-t border-border pt-6" aria-labelledby="next-lesson-heading">
       {/*
-        The heading is screen-reader-only on purpose. A small "Next lesson"
-        label above the time would be an eyebrow, which DESIGN.md §4 bans —
-        the time carries its own weight and the landmark stays labelled.
+        A visible section heading, at the same weight this component already
+        uses for its empty state. DESIGN.md §4 bans eyebrows — a small tracked
+        label acting as a category tag — but a heading that names the section is
+        not one, and a time with nothing above it read as unmoored.
       */}
-      <h2 id="next-lesson-heading" className="sr-only">
+      <h2
+        id="next-lesson-heading"
+        className="text-xl font-bold tracking-[-0.02em] text-foreground"
+      >
         {th("nextLessonTitle")}
       </h2>
 
       <NextLessonWhen
+        className="mt-3"
         locale={locale}
         startsAtIso={next.startsAt.toISOString()}
         endsAtIso={next.endsAt.toISOString()}

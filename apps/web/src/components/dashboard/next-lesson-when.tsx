@@ -20,36 +20,39 @@ export function NextLessonWhen({
   locale,
   startsAtIso,
   endsAtIso,
+  className = "",
 }: {
   locale: string;
   startsAtIso: string;
   endsAtIso: string;
+  className?: string;
 }) {
   const timeZone = useViewerTimeZone();
 
   if (!timeZone) {
     return (
-      <p
-        aria-busy="true"
-        className="text-[clamp(2rem,6vw,3.25rem)] font-black leading-[1.05] tracking-[-0.035em] text-foreground"
-      >
-        …
-      </p>
+      <div className={className}>
+        <p
+          aria-busy="true"
+          className="text-[clamp(2rem,6vw,3.25rem)] font-black leading-[1.05] tracking-[-0.035em] text-foreground"
+        >
+          …
+        </p>
+      </div>
     );
   }
 
   const { date, time } = formatLessonRangeParts(startsAtIso, endsAtIso, locale, timeZone);
 
   return (
-    <>
+    <div className={className}>
+      {/* The day first: a time with no date to anchor it reads as unmoored. */}
+      {date ? (
+        <p className="text-base font-semibold tabular-nums text-muted">{date}</p>
+      ) : null}
       <p className="text-[clamp(2rem,6vw,3.25rem)] font-black leading-[1.05] tracking-[-0.035em] tabular-nums text-foreground">
         {time}
       </p>
-      {date ? (
-        <p className="mt-1.5 text-lg font-semibold tracking-[-0.01em] tabular-nums text-muted">
-          {date}
-        </p>
-      ) : null}
-    </>
+    </div>
   );
 }
