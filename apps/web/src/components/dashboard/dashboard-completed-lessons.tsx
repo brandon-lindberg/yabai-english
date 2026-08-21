@@ -1,5 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { DashboardProfileBioPreview } from "@/components/dashboard/dashboard-profile-bio-preview";
+import { MarkdownClamp } from "@/components/ui/markdown-clamp";
 import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
@@ -79,7 +79,7 @@ export async function DashboardCompletedLessons({ completed }: { completed: Comp
                     <p className="text-xs font-semibold text-foreground">
                       {ts("lessonNotesReadLabel")}
                     </p>
-                    <DashboardProfileBioPreview markdown={notesMd} emptyLabel="" />
+                    <MarkdownClamp markdown={notesMd} emptyLabel="" />
                   </div>
                 ) : null}
               </div>

@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Field, Select, Textarea } from "@/components/ui/field";
+import { Field, Select } from "@/components/ui/field";
+import { MarkdownField } from "@/components/ui/markdown-field";
+import { PLACEMENT_NOTE_MAX_CHARS } from "@/lib/markdown/limits";
 import { FormStatus, type SaveState } from "@/components/ui/form-status";
 
 const LEVELS = ["BEGINNER", "INTERMEDIATE", "ADVANCED"] as const;
@@ -80,21 +82,17 @@ export function AdminPlacementReviewForm({
         )}
       </Field>
 
-      <Field
+      <MarkdownField
         label={t("noteLabel", { name: studentName })}
         hideLabel
         className="min-w-0 flex-1"
-      >
-        {(field) => (
-          <Textarea
-            {...field}
-            rows={2}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder={t("notePlaceholder")}
-          />
-        )}
-      </Field>
+        value={note}
+        maxChars={PLACEMENT_NOTE_MAX_CHARS}
+        placeholder={t("notePlaceholder")}
+        size="sm"
+        minHeightClass="[&_.mdxeditor-root-contenteditable]:min-h-[72px]"
+        onChange={setNote}
+      />
 
       <div className="flex items-center gap-3">
         <Button

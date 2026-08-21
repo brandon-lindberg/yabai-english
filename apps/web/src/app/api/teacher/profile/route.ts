@@ -7,12 +7,14 @@ import { routing } from "@/i18n/routing";
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
 import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
+import { TEACHER_BIO_MAX_CHARS, TEACHER_CREDENTIALS_MAX_CHARS } from "@/lib/markdown/limits";
 
 const patchSchema = z.object({
   displayName: z.string().min(1).max(100).trim().optional(),
-  bio: z.string().max(2000).trim().nullable().optional(),
+  /** Markdown. The cap counts source, which is what the column stores. */
+  bio: z.string().max(TEACHER_BIO_MAX_CHARS).trim().nullable().optional(),
   countryOfOrigin: z.string().max(80).trim().nullable().optional(),
-  credentials: z.string().max(2000).trim().nullable().optional(),
+  credentials: z.string().max(TEACHER_CREDENTIALS_MAX_CHARS).trim().nullable().optional(),
   instructionLanguages: z.array(z.string().min(1).max(20)).max(10).optional(),
   specialties: z.array(z.string().min(1).max(40)).max(20).optional(),
   /** Shown on the book-a-lesson teacher list and public booking page */

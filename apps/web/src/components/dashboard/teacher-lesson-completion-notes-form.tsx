@@ -1,9 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
-import type { MDXEditorMethods } from "@mdxeditor/editor";
-import { StudentBioMdxEditor } from "@/components/dashboard/student-bio-mdx-editor";
+import { useState } from "react";
+import { MarkdownField } from "@/components/ui/markdown-field";
 import { BOOKING_COMPLETION_NOTES_MD_MAX } from "@/lib/booking-completion-notes";
 import { buttonClasses } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
@@ -26,7 +25,6 @@ export function TeacherLessonCompletionNotesForm({
   const [notesMd, setNotesMd] = useState(initialCompletionNotesMd ?? "");
   const [transcriptUrl, setTranscriptUrl] = useState(initialExternalTranscriptUrl ?? "");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const editorRef = useRef<MDXEditorMethods>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,32 +65,16 @@ export function TeacherLessonCompletionNotesForm({
           />
         )}
       </Field>
-      <div>
-        <span className="block text-xs font-medium text-foreground">{t("lessonNotesLabel")}</span>
-        <p className="mt-0.5 text-xs text-muted">{t("lessonNotesHelp")}</p>
-        <p className="mt-1 text-xs text-muted/90">{t("lessonNotesListTip")}</p>
-        <div
-          className="mdxeditor-rich-lists min-w-0 mt-1 overflow-visible rounded-xl border border-border bg-background text-sm text-foreground focus-within:ring-2 focus-within:ring-foreground/25 [&_.mdxeditor]:bg-background [&_.mdxeditor-root-contenteditable]:min-h-[160px]"
-          role="group"
-          aria-label={t("lessonNotesLabel")}
-        >
-          <StudentBioMdxEditor
-            ref={editorRef}
-            markdown={notesMd}
-            placeholder={t("lessonNotesPlaceholder")}
-            onChange={(md) => {
-              if (md.length <= BOOKING_COMPLETION_NOTES_MD_MAX) {
-                setNotesMd(md);
-                return;
-              }
-              const clipped = md.slice(0, BOOKING_COMPLETION_NOTES_MD_MAX);
-              setNotesMd(clipped);
-              queueMicrotask(() => editorRef.current?.setMarkdown(clipped));
-            }}
-            contentEditableClassName="px-0 py-2 text-sm"
-          />
-        </div>
-      </div>
+      <MarkdownField
+        label={t("lessonNotesLabel")}
+        hint={`${t("lessonNotesHelp")} ${t("lessonNotesListTip")}`}
+        value={notesMd}
+        maxChars={BOOKING_COMPLETION_NOTES_MD_MAX}
+        placeholder={t("lessonNotesPlaceholder")}
+        tone="background"
+        size="sm"
+        onChange={setNotesMd}
+      />
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="submit"

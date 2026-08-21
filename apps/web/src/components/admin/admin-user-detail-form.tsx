@@ -8,7 +8,14 @@ import type { AdminTeacherProfileDto } from "@/lib/admin-user-dto";
 import { Button } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
 import { ConfirmDelete } from "@/components/ui/confirm-delete";
-import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Field, Input, Select } from "@/components/ui/field";
+import { MarkdownField } from "@/components/ui/markdown-field";
+import {
+  PLACEMENT_NOTE_MAX_CHARS,
+  TEACHER_BIO_MAX_CHARS,
+  TEACHER_CREDENTIALS_MAX_CHARS,
+} from "@/lib/markdown/limits";
+import { STUDENT_SHORT_BIO_MAX_CHARS } from "@/lib/student-short-bio";
 import { Section } from "@/components/ui/section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Status } from "@/components/ui/status";
@@ -356,16 +363,12 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
                 <Input {...field} value={stuTz} onChange={(e) => setStuTz(e.target.value)} />
               )}
             </Field>
-            <Field label={t("shortBio")}>
-              {(field) => (
-                <Textarea
-                  {...field}
-                  rows={3}
-                  value={stuBio}
-                  onChange={(e) => setStuBio(e.target.value)}
-                />
-              )}
-            </Field>
+            <MarkdownField
+              label={t("shortBio")}
+              value={stuBio}
+              maxChars={STUDENT_SHORT_BIO_MAX_CHARS}
+              onChange={setStuBio}
+            />
             <Field label={t("placedLevel")}>
               {(field) => (
                 <Select
@@ -394,16 +397,12 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
             <CheckRow checked={needsReview} onChange={setNeedsReview}>
               {t("placementNeedsReview")}
             </CheckRow>
-            <Field label={t("placementReviewReason")}>
-              {(field) => (
-                <Textarea
-                  {...field}
-                  rows={2}
-                  value={reviewReason}
-                  onChange={(e) => setReviewReason(e.target.value)}
-                />
-              )}
-            </Field>
+            <MarkdownField
+              label={t("placementReviewReason")}
+              value={reviewReason}
+              maxChars={PLACEMENT_NOTE_MAX_CHARS}
+              onChange={setReviewReason}
+            />
           </div>
         </Section>
       ) : null}
@@ -420,16 +419,12 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
                 />
               )}
             </Field>
-            <Field label={t("bio")}>
-              {(field) => (
-                <Textarea
-                  {...field}
-                  rows={4}
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                />
-              )}
-            </Field>
+            <MarkdownField
+              label={t("bio")}
+              value={bio}
+              maxChars={TEACHER_BIO_MAX_CHARS}
+              onChange={setBio}
+            />
             <Field label={t("countryOfOrigin")}>
               {(field) => (
                 <Input
@@ -439,16 +434,12 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
                 />
               )}
             </Field>
-            <Field label={t("credentials")}>
-              {(field) => (
-                <Textarea
-                  {...field}
-                  rows={3}
-                  value={credentials}
-                  onChange={(e) => setCredentials(e.target.value)}
-                />
-              )}
-            </Field>
+            <MarkdownField
+              label={t("credentials")}
+              value={credentials}
+              maxChars={TEACHER_CREDENTIALS_MAX_CHARS}
+              onChange={setCredentials}
+            />
             <Field label={t("rateYen")}>
               {(field) => (
                 <Input

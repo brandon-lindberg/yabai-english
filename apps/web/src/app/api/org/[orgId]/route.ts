@@ -9,6 +9,7 @@ import {
   rowsForSchool,
   summarizeOrgMembers,
 } from "@/lib/org/org-members";
+import { ENTITY_DESCRIPTION_MAX_CHARS } from "@/lib/markdown/limits";
 
 const updateOrgSchema = z
   .object({
@@ -16,8 +17,8 @@ const updateOrgSchema = z
     nameJa: z.string().trim().max(200).optional(),
     nameEn: z.string().trim().max(200).optional(),
     timezone: z.string().trim().max(100).optional(),
-    description: z.string().trim().max(2000).optional(),
-    descriptionJa: z.string().trim().max(2000).optional(),
+    description: z.string().trim().max(ENTITY_DESCRIPTION_MAX_CHARS).optional(),
+    descriptionJa: z.string().trim().max(ENTITY_DESCRIPTION_MAX_CHARS).optional(),
   })
   .strip();
 

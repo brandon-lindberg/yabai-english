@@ -3,7 +3,10 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
-import { Field, Input, Textarea } from "@/components/ui/field";
+import { Field, Input } from "@/components/ui/field";
+import { MarkdownField } from "@/components/ui/markdown-field";
+import { MarkdownClamp } from "@/components/ui/markdown-clamp";
+import { TEACHER_BIO_MAX_CHARS, TEACHER_CREDENTIALS_MAX_CHARS } from "@/lib/markdown/limits";
 import { CheckRow } from "@/components/ui/check-row";
 import type { SaveState } from "@/components/ui/form-status";
 import { Status } from "@/components/ui/status";
@@ -57,6 +60,7 @@ export function TeacherProfileForm({
   // Reading a profile and filling one in want different labels: the form says
   // "Specialties (comma separated)", the profile just says "Specialties".
   const tb = useTranslations("booking");
+  const tc = useTranslations("common");
   const router = useRouter();
 
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
@@ -168,10 +172,14 @@ export function TeacherProfileForm({
       entries={[
         {
           label: t("teacherCredentials"),
-          value: saved.credentials,
+          value: <MarkdownClamp markdown={saved.credentials} emptyLabel="" />,
           empty: !saved.credentials.trim(),
         },
-        { label: t("teacherBio"), value: saved.bio, empty: !saved.bio.trim() },
+        {
+          label: t("teacherBio"),
+          value: <MarkdownClamp markdown={saved.bio} emptyLabel="" />,
+          empty: !saved.bio.trim(),
+        },
         {
           // Reading a profile and filling one in want different labels: the form
           // says "Specialties (comma separated)", the profile just says
@@ -226,29 +234,21 @@ export function TeacherProfileForm({
         </Field>
       </div>
 
-      <Field label={t("teacherBio")}>
-        {(control) => (
-          <Textarea
-            {...control}
-            rows={5}
-            value={draft.bio}
-            onChange={(e) => set("bio", e.target.value)}
-            maxLength={2000}
-          />
-        )}
-      </Field>
+      <MarkdownField
+        label={t("teacherBio")}
+        hint={tc("markdownFormattingHint")}
+        value={draft.bio}
+        maxChars={TEACHER_BIO_MAX_CHARS}
+        onChange={(md) => set("bio", md)}
+      />
 
-      <Field label={t("teacherCredentials")}>
-        {(control) => (
-          <Textarea
-            {...control}
-            rows={4}
-            value={draft.credentials}
-            onChange={(e) => set("credentials", e.target.value)}
-            maxLength={2000}
-          />
-        )}
-      </Field>
+      <MarkdownField
+        label={t("teacherCredentials")}
+        hint={tc("markdownFormattingHint")}
+        value={draft.credentials}
+        maxChars={TEACHER_CREDENTIALS_MAX_CHARS}
+        onChange={(md) => set("credentials", md)}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("teacherInstructionLanguages")}>
