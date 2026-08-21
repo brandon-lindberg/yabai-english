@@ -45,6 +45,15 @@ services:
       - key: NODE_VERSION
         value: "22"
 
+      # `next build` peaks around 3.3 GB on this codebase (measured), and Node
+      # defaults its heap to roughly 2 GB on Render's build machine — which is
+      # where the build was dying with "Reached heap limit". Raise the ceiling.
+      # If a build still fails after this, look at *how* it fails: a heap-limit
+      # message means raise it again, an abrupt kill means the machine itself is
+      # too small and the plan needs raising instead.
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=4096"
+
       # Wire the web service to the managed database above.
       - key: DATABASE_URL
         fromDatabase:
