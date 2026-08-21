@@ -336,10 +336,25 @@ body.chat-open {
     padding-inline-start: 1.125rem;
   }
 
+  /*
+    Markdown collapses any run of blank lines into one paragraph break, so
+    pressing Enter twice cannot create lasting space — it disappears on save.
+    Paragraph separation has to be styled, and styled the same here as in
+    `markdownProseClass`, or writing and reading disagree.
+  */
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable p + p {
+    margin-block-start: 0.75rem;
+  }
+
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable ul,
+  .mdxeditor-rich-lists .mdxeditor-root-contenteditable ol {
+    margin-block: 0.75rem;
+  }
+
   .mdxeditor-rich-lists .mdxeditor-root-contenteditable blockquote {
     border-inline-start: 2px solid var(--app-border);
     padding-inline-start: 0.75rem;
-    margin-block: 0.5rem;
+    margin-block: 0.75rem;
     color: var(--app-muted);
     font-style: italic;
   }

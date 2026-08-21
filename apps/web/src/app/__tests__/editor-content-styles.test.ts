@@ -24,6 +24,21 @@ describe("editor content styling", () => {
     expect(rule![0]).toMatch(/padding-(inline-start|left)/);
   });
 
+  test("consecutive paragraphs are visibly separate while writing", () => {
+    /*
+      Preflight zeroes paragraph margins, so paragraphs touched. Writers
+      compensated by pressing Enter twice — but markdown collapses any run of
+      blank lines to a single paragraph break, so that spacing vanished the
+      moment the text was saved and reloaded. The separation has to come from
+      the stylesheet, because it cannot come from the content.
+    */
+    const rule = editorBlock.match(
+      /\.mdxeditor-rich-lists\s+\.mdxeditor-root-contenteditable\s+p\s*\+\s*p\s*\{[^}]*\}/,
+    );
+    expect(rule, "no paragraph spacing rule for the editor content area").not.toBeNull();
+    expect(rule![0]).toMatch(/margin-(block-start|top)/);
+  });
+
   test("headings are visibly headings while writing", () => {
     // Properties may be split across a shared rule and a per-level one, so
     // judge the whole cascade that reaches h2 rather than any single rule.

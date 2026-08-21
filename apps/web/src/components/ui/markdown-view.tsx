@@ -25,9 +25,13 @@ export const markdownProseClass =
   // globals.css, so what you wrote is what you see.
   "[&_h2]:mt-2 [&_h2]:mb-1 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:leading-tight " +
   "[&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-[1.0625rem] [&_h3]:font-bold [&_h3]:leading-tight " +
-  "[&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border " +
+  "[&_blockquote]:my-3 [&_blockquote]:border-l-2 [&_blockquote]:border-border " +
   "[&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted " +
-  "[&_li]:ml-4 [&_ol]:list-decimal [&_p]:my-0.5 " +
+  // Spacing rides on the gap *between* blocks, never on the outer edges, so a
+  // one-paragraph bio in a dense card gains no stray margin. It has to come
+  // from here: markdown collapses any run of blank lines into a single
+  // paragraph break, so a writer cannot add breathing room by hand.
+  "[&_p]:my-0 [&_p+p]:mt-3 [&_ul]:my-3 [&_ol]:my-3 [&_li]:ml-4 [&_ol]:list-decimal " +
   "[&_strong]:font-semibold [&_u]:underline [&_ul]:list-disc";
 
 type Props = {
