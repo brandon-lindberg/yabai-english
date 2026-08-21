@@ -39,6 +39,8 @@ export default async function DashboardLessonsPage({
           rateYen: true,
           isGroup: true,
           groupSize: true,
+          isFreeTrial: true,
+          adminRateOverrideByUserId: true,
           classLevelId: true,
           classTypeId: true,
         },

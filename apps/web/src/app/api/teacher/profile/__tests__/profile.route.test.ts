@@ -161,7 +161,9 @@ describe("PATCH /api/teacher/profile", () => {
       }),
     );
     expect(res.status).toBe(200);
-    expect(deleteManyMock).toHaveBeenCalledWith({ where: { teacherId: "tp-1" } });
+    expect(deleteManyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ teacherId: "tp-1" }) }),
+    );
     expect(createManyMock).toHaveBeenCalledWith({
       data: [
         {
@@ -354,5 +356,65 @@ describe("PATCH /api/teacher/profile", () => {
     );
 
     expect(slotUpdateManyMock).not.toHaveBeenCalled();
+  });
+
+  test("saving rates leaves the free trial and admin-granted classes alone", async () => {
+    offeringFindManyMock.mockResolvedValue([
+      { id: "own-1", isFreeTrial: false, adminRateOverrideByUserId: null },
+      { id: "trial-1", isFreeTrial: true, adminRateOverrideByUserId: null },
+      { id: "granted-1", isFreeTrial: false, adminRateOverrideByUserId: "admin-1" },
+    ]);
+
+    const res = await PATCH(
+      new Request("http://localhost/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonOfferings: [
+            {
+              durationMin: 30,
+              rateYen: 4000,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lv-1",
+              classTypeId: "ty-conv",
+            },
+          ],
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    // Deleting everything would take the trial with it, and unbind the trial
+    // hours the teacher has already published.
+    expect(deleteManyMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: { in: ["own-1"] } }),
+      }),
+    );
+  });
+
+  test("a teacher cannot grant themselves a below-minimum rate", async () => {
+    const res = await PATCH(
+      new Request("http://localhost/api/teacher/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonOfferings: [
+            {
+              durationMin: 30,
+              rateYen: 2000,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lv-1",
+              classTypeId: "ty-conv",
+            },
+          ],
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(400);
+    expect(createManyMock).not.toHaveBeenCalled();
   });
 });

@@ -574,6 +574,10 @@ model TeacherLessonOffering {
   /// student; exists as an offering so trial slots can be published like any
   /// other class.
   isFreeTrial Boolean        @default(false)
+  /// SUPER_ADMIN who granted a rate below the public minimum. Its presence both
+  /// exempts this offering from the minimum and marks it as one the teacher may
+  /// teach but not author.
+  adminRateOverrideByUserId String?
 
   /// FK to the teacher's per-teacher class type taxonomy. Drives catalog matching.
   classLevelId String?

@@ -172,4 +172,58 @@ describe("TeacherLessonOfferingsForm", () => {
 
     vi.unstubAllGlobals();
   });
+
+  test("does not offer the free trial or an admin-granted class as a rate to edit", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherLessonOfferingsForm
+          initialRateYen={4000}
+          initialOffersFreeTrial
+          initialLessonOfferings={[
+            {
+              id: "own-1",
+              durationMin: 30,
+              rateYen: 4000,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lv-1",
+              classTypeId: "ty-1",
+            },
+            {
+              id: "trial-1",
+              durationMin: 20,
+              rateYen: 0,
+              isGroup: false,
+              groupSize: null,
+              isFreeTrial: true,
+              classLevelId: "lv-1",
+              classTypeId: "ty-1",
+            },
+            {
+              id: "granted-1",
+              durationMin: 30,
+              rateYen: 1500,
+              isGroup: false,
+              groupSize: null,
+              adminRateOverrideByUserId: "admin-1",
+              classLevelId: "lv-1",
+              classTypeId: "ty-1",
+            },
+          ]}
+          classLevels={[{ id: "lv-1", code: "beginner", labelEn: "Beginner", labelJa: "初級" }]}
+          classTypes={[{ id: "ty-1", code: "conversation", labelEn: "Conversation", labelJa: "会話" }]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    const rateInputs = screen
+      .getAllByRole("textbox")
+      .map((el) => (el as HTMLInputElement).value);
+
+    // Only the teacher's own rate is editable. A 0 row would also block saving,
+    // and a 1500 row would invite them to edit a concession they cannot grant.
+    expect(rateInputs).toContain("4000");
+    expect(rateInputs).not.toContain("0");
+    expect(rateInputs).not.toContain("1500");
+  });
 });

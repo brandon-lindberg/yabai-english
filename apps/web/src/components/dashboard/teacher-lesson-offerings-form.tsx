@@ -19,6 +19,7 @@ import {
   RATE_FIELD_LABEL_ROW,
   RATE_CONTROL_HEIGHT,
 } from "./teacher-lesson-offer-row";
+import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
 
 const INDIVIDUAL_DURATIONS = [30, 40, 60, 90] as const;
 
@@ -59,6 +60,8 @@ type Props = {
     rateYen: number;
     isGroup: boolean;
     groupSize: number | null;
+    isFreeTrial?: boolean | null;
+    adminRateOverrideByUserId?: string | null;
     classLevelId?: string | null;
     classTypeId?: string | null;
   }>;
@@ -89,8 +92,11 @@ export function TeacherLessonOfferingsForm({
   const locale = useLocale();
   const defaultClassLevelId = classLevels[0]?.id ?? "";
   const defaultClassTypeId = classTypes[0]?.id ?? "";
+  // The free trial and any admin-granted below-minimum class share this table
+  // but are not the teacher's to price, so they never become editable rows.
+  const editableOfferings = partitionOfferingsByTeacherEditable(initialLessonOfferings).editable;
   const [individualOffers, setIndividualOffers] = useState<LessonOfferingRow[]>(() => {
-    const rows = initialLessonOfferings
+    const rows = editableOfferings
       .filter((o) => !o.isGroup)
       .map((o) => ({
         clientId: o.id || makeRowId(),
@@ -114,7 +120,7 @@ export function TeacherLessonOfferingsForm({
     return [];
   });
   const [groupOffers, setGroupOffers] = useState<GroupOfferingRow[]>(
-    initialLessonOfferings
+    editableOfferings
       .filter((o) => o.isGroup && o.groupSize)
       .map((o) => ({
         clientId: o.id || makeRowId(),

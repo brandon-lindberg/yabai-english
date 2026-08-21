@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
+import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
 
 const patchSchema = z.object({
   displayName: z.string().min(1).max(100).trim().optional(),
@@ -155,8 +156,16 @@ export async function PATCH(req: Request) {
       }
       const codeByTypeId = new Map(foundTypes.map((t) => [t.id, t.code]));
 
-      await tx.teacherLessonOffering.deleteMany({
+      // Replace only what the teacher authored. The free trial and any
+      // admin-granted below-minimum class live in this table too, and deleting
+      // them here would also unbind the availability slots pointing at them.
+      const existingOfferings = await tx.teacherLessonOffering.findMany({
         where: { teacherId: updated.id },
+        select: { id: true, isFreeTrial: true, adminRateOverrideByUserId: true },
+      });
+      const { editable } = partitionOfferingsByTeacherEditable(existingOfferings);
+      await tx.teacherLessonOffering.deleteMany({
+        where: { teacherId: updated.id, id: { in: editable.map((o) => o.id) } },
       });
       if (data.lessonOfferings.length > 0) {
         await tx.teacherLessonOffering.createMany({
