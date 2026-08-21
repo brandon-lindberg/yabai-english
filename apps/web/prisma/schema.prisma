@@ -578,6 +578,9 @@ model TeacherLessonOffering {
   /// exempts this offering from the minimum and marks it as one the teacher may
   /// teach but not author.
   adminRateOverrideByUserId String?
+  /// Why the concession was granted. A below-minimum rate is an exception to a
+  /// stated rule, and this is the only record of the reason.
+  adminRateOverrideNote     String?  @db.Text
 
   /// FK to the teacher's per-teacher class type taxonomy. Drives catalog matching.
   classLevelId String?

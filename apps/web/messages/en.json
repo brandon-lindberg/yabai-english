@@ -319,7 +319,7 @@
       "teacherRateHelp": "Shown on the teacher list and your booking page. Leave empty if you do not want to show a price.",
       "teacherRatesByDurationTitle": "Individual lesson rates by duration",
       "teacherRatesByDurationHelp": "Choose the lesson lengths you offer and set a price for each.",
-      "teacherMinimumRateHelp": "Public lesson rates must be at least ¥{amount}. Admins can create student-specific legacy rates below this minimum.",
+      "teacherMinimumRateHelp": "Public lesson rates must be at least ¥{amount}. A lower rate can only be granted by an admin, for a specific class.",
       "teacherRateBelowMinimum": "Below the ¥{amount} minimum.",
       "teacherLessonLevelForRate": "Class level",
       "teacherLessonTypeForRate": "Lesson focus",
@@ -868,6 +868,25 @@
       "statNeedsReview": "Awaiting placement review",
       "statStudents": "Students",
       "studentsHint": "Search, sort and edit every student on the students screen."
+    },
+    "teacherRateGrants": {
+      "title": "Below-minimum class rates",
+      "intro": "Grant this teacher a class priced under the ¥{amount} minimum. They can teach it and add it to their availability, but cannot create or edit one.",
+      "loading": "Loading grants…",
+      "empty": "No below-minimum classes granted.",
+      "duration": "Length (minutes)",
+      "rate": "Rate (¥)",
+      "level": "Class level",
+      "type": "Lesson focus",
+      "note": "Why (recorded for later)",
+      "grant": "Grant class",
+      "granting": "Granting…",
+      "revoke": "Revoke",
+      "revoking": "Revoking…",
+      "revokeHelp": "Revoking also takes down any availability published against it.",
+      "aboveMinimum": "Rates of ¥{amount} or more need no grant — the teacher can create that class themselves.",
+      "error": "Could not save the grant.",
+      "noTaxonomy": "This teacher has no class levels or lesson types yet."
     }
   },
   "booking": {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/auth";
+import { requireSuperAdmin } from "@/lib/require-super-admin";
 import { prisma } from "@/lib/prisma";
 import { MIN_PUBLIC_LESSON_RATE_YEN } from "@/lib/lesson-rate-policy";
 
@@ -22,6 +22,7 @@ const grantSchema = z.object({
   classTypeId: z.string().min(1),
   isGroup: z.boolean().optional(),
   groupSize: z.number().int().min(2).max(30).nullable().optional(),
+  note: z.string().max(2000).trim().nullable().optional(),
 });
 
 /**
@@ -29,13 +30,8 @@ const grantSchema = z.object({
  * can hang off, and the concessions already granted.
  */
 export async function GET(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  if (session.user.role !== "SUPER_ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const gate = await requireSuperAdmin();
+  if (gate.error) return gate.error;
 
   const teacherId = new URL(req.url).searchParams.get("teacherId");
   if (!teacherId) {
@@ -76,6 +72,7 @@ export async function GET(req: Request) {
         isGroup: true,
         groupSize: true,
         adminRateOverrideByUserId: true,
+        adminRateOverrideNote: true,
         classLevel: { select: { labelEn: true, labelJa: true } },
         classType: { select: { labelEn: true, labelJa: true } },
       },
@@ -86,13 +83,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  if (session.user.role !== "SUPER_ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const gate = await requireSuperAdmin();
+  if (gate.error) return gate.error;
 
   const parsed = grantSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
@@ -147,9 +139,56 @@ export async function POST(req: Request) {
       classLevelId: level.id,
       classTypeId: type.id,
       active: true,
-      adminRateOverrideByUserId: session.user.id,
+      adminRateOverrideByUserId: gate.session.user.id,
+      adminRateOverrideNote: data.note?.trim() || null,
     },
   });
 
   return NextResponse.json({ ok: true, offering });
+}
+
+/**
+ * Revokes a granted class.
+ *
+ * Deactivates rather than deletes: `AvailabilitySlot.teacherLessonOfferingId` is
+ * `SetNull`, so deleting would leave published hours that still exist but match
+ * no class — bookable-looking time that can never be booked. Taking the hours
+ * down with it makes the change visible in the teacher's schedule instead.
+ */
+export async function DELETE(req: Request) {
+  const gate = await requireSuperAdmin();
+  if (gate.error) return gate.error;
+
+  const id = new URL(req.url).searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "id is required" }, { status: 400 });
+  }
+
+  const offering = await prisma.teacherLessonOffering.findFirst({
+    where: { id },
+    select: { id: true, adminRateOverrideByUserId: true },
+  });
+  if (!offering) {
+    return NextResponse.json({ error: "Grant not found" }, { status: 404 });
+  }
+  if (!offering.adminRateOverrideByUserId) {
+    return NextResponse.json(
+      {
+        error: "That class was priced by the teacher, so it is not an admin grant to revoke.",
+        reason: "NOT_A_GRANT",
+      },
+      { status: 400 },
+    );
+  }
+
+  await prisma.availabilitySlot.updateMany({
+    where: { teacherLessonOfferingId: offering.id },
+    data: { active: false },
+  });
+  await prisma.teacherLessonOffering.update({
+    where: { id: offering.id },
+    data: { active: false },
+  });
+
+  return NextResponse.json({ ok: true, revokedOfferingId: offering.id });
 }
