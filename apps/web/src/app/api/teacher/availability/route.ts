@@ -101,6 +101,7 @@ export async function PATCH(req: Request) {
           isGroup: true,
           durationMin: true,
           isFreeTrial: true,
+          adminRateOverrideByUserId: true,
         },
       },
     },

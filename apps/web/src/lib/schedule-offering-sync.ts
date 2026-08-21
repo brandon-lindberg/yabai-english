@@ -1,3 +1,6 @@
+import { MIN_PUBLIC_LESSON_RATE_YEN } from "@/lib/lesson-rate-policy";
+import { isTeacherEditableOffering } from "@/lib/teacher-offering-permissions";
+
 /**
  * Keeps a teacher's bookable `TeacherLessonOffering` rows in sync with the
  * class types they've added to their availability schedule.
@@ -27,6 +30,8 @@ export type ExistingOfferingSnapshot = {
   active: boolean;
   rateYen?: number;
   isGroup?: boolean;
+  isFreeTrial?: boolean | null;
+  adminRateOverrideByUserId?: string | null;
 };
 
 export type DerivedOfferingToCreate = {
@@ -54,7 +59,6 @@ const DEFAULT_DURATION_BY_CODE: Record<string, number> = {
   business: 30,
 };
 
-const SAFETY_NET_RATE_YEN = 3000;
 
 function resolveDefaultDuration(code: string): number {
   return DEFAULT_DURATION_BY_CODE[code] ?? 30;
@@ -64,18 +68,25 @@ function resolveRate(
   fallbackRateYen: number | null,
   existing: ExistingOfferingSnapshot[],
 ): number {
-  if (typeof fallbackRateYen === "number" && fallbackRateYen > 0) {
-    return fallbackRateYen;
-  }
-  const firstIndividual = existing.find(
-    (o) => o.isGroup === false && typeof o.rateYen === "number" && o.rateYen > 0,
+  // Only classes the teacher priced themselves are a fair guide. The free trial
+  // is fixed at 0, and an admin-granted rate is a concession for one specific
+  // class — copying either onto a new class would set a price nobody chose.
+  const teacherPriced = existing.filter(isTeacherEditableOffering);
+
+  const candidates = [
+    fallbackRateYen,
+    teacherPriced.find((o) => o.isGroup === false && typeof o.rateYen === "number" && o.rateYen > 0)
+      ?.rateYen,
+    teacherPriced.find((o) => typeof o.rateYen === "number" && o.rateYen > 0)?.rateYen,
+  ];
+
+  const inferred = candidates.find(
+    (rate): rate is number => typeof rate === "number" && rate > 0,
   );
-  if (firstIndividual?.rateYen) return firstIndividual.rateYen;
-  const firstAny = existing.find(
-    (o) => typeof o.rateYen === "number" && o.rateYen > 0,
-  );
-  if (firstAny?.rateYen) return firstAny.rateYen;
-  return SAFETY_NET_RATE_YEN;
+
+  // Derived classes are public, so they are held to the public minimum like any
+  // other — a low fallback must not create a class nobody could have saved.
+  return Math.max(inferred ?? MIN_PUBLIC_LESSON_RATE_YEN, MIN_PUBLIC_LESSON_RATE_YEN);
 }
 
 export function deriveMissingOfferingsFromSchedule({
