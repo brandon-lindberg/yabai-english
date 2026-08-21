@@ -109,7 +109,7 @@ describe("TeacherLessonOfferingsForm", () => {
       </NextIntlClientProvider>,
     );
 
-    const priceInput = screen.getByPlaceholderText("3500") as HTMLInputElement;
+    const priceInput = screen.getByPlaceholderText("3000") as HTMLInputElement;
     expect(priceInput.value).toBe("3300");
 
     fireEvent.click(
@@ -156,7 +156,7 @@ describe("TeacherLessonOfferingsForm", () => {
         name: /Tax-exclusive/,
       }),
     );
-    const priceInput = screen.getByPlaceholderText("3500");
+    const priceInput = screen.getByPlaceholderText("3000");
     fireEvent.change(priceInput, { target: { value: "4000" } });
 
     fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.save }));
@@ -225,5 +225,91 @@ describe("TeacherLessonOfferingsForm", () => {
     expect(rateInputs).toContain("4000");
     expect(rateInputs).not.toContain("0");
     expect(rateInputs).not.toContain("1500");
+  });
+
+  const BELOW_MIN = en.dashboard.profilePage.teacherRateBelowMinimum.replace(
+    "{amount}",
+    "3,000",
+  );
+
+  function renderWithOneRate(rateYen: number) {
+    return render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherLessonOfferingsForm
+          initialRateYen={rateYen}
+          initialOffersFreeTrial
+          initialLessonOfferings={[
+            {
+              id: "own-1",
+              durationMin: 30,
+              rateYen,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lv-1",
+              classTypeId: "ty-1",
+            },
+          ]}
+          classLevels={[{ id: "lv-1", code: "beginner", labelEn: "Beginner", labelJa: "初級" }]}
+          classTypes={[{ id: "ty-1", code: "conversation", labelEn: "Conversation", labelJa: "会話" }]}
+        />
+      </NextIntlClientProvider>,
+    );
+  }
+
+  function rateInput() {
+    return screen
+      .getAllByRole("textbox")
+      .find((el) => /^\d*$/.test((el as HTMLInputElement).value)) as HTMLInputElement;
+  }
+
+  test("says why a rate is too low as it is typed, not after saving", () => {
+    renderWithOneRate(4000);
+
+    fireEvent.change(rateInput(), { target: { value: "500" } });
+
+    expect(screen.getByText(BELOW_MIN)).toBeTruthy();
+    expect(rateInput().getAttribute("aria-invalid")).toBe("true");
+  });
+
+  test("refuses to submit while a rate is below the minimum", () => {
+    renderWithOneRate(4000);
+
+    fireEvent.change(rateInput(), { target: { value: "500" } });
+
+    expect(
+      (screen.getByRole("button", { name: en.dashboard.profilePage.save }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+  });
+
+  test("clears the complaint once the rate is acceptable", () => {
+    renderWithOneRate(4000);
+
+    fireEvent.change(rateInput(), { target: { value: "500" } });
+    fireEvent.change(rateInput(), { target: { value: "3000" } });
+
+    expect(screen.queryByText(BELOW_MIN)).toBeNull();
+    expect(
+      (screen.getByRole("button", { name: en.dashboard.profilePage.save }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
+  });
+
+  // The minimum is on the tax-included price, so a tax-exclusive entry below
+  // 3,000 can still be fine once tax is added. Judging the typed number would
+  // reject a legitimate rate.
+  test("judges the tax-included price, not the number typed", () => {
+    renderWithOneRate(4000);
+    fireEvent.click(screen.getByRole("radio", { name: /tax-exclusive/i }));
+
+    fireEvent.change(rateInput(), { target: { value: "2800" } }); // -> ¥3,080 incl.
+
+    expect(screen.queryByText(BELOW_MIN)).toBeNull();
+  });
+
+  test("suggests the minimum as the placeholder", () => {
+    renderWithOneRate(4000);
+
+    expect(rateInput().getAttribute("placeholder")).toBe("3000");
   });
 });

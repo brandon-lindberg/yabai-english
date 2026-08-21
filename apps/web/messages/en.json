@@ -320,6 +320,7 @@
       "teacherRatesByDurationTitle": "Individual lesson rates by duration",
       "teacherRatesByDurationHelp": "Choose the lesson lengths you offer and set a price for each.",
       "teacherMinimumRateHelp": "Public lesson rates must be at least ¥{amount}. Admins can create student-specific legacy rates below this minimum.",
+      "teacherRateBelowMinimum": "Below the ¥{amount} minimum.",
       "teacherLessonLevelForRate": "Class level",
       "teacherLessonTypeForRate": "Lesson focus",
       "teacherLessonTypeForRateHelp": "Pick what this length is for (same categories as your schedule). Students only see lesson types that match what you set here.",

@@ -320,6 +320,7 @@
       "teacherRatesByDurationTitle": "個人レッスン料金（時間別）",
       "teacherRatesByDurationHelp": "提供するレッスン時間を選び、それぞれの料金を設定してください。",
       "teacherMinimumRateHelp": "公開レッスン料金は最低 ¥{amount} です。管理者は受講生ごとの特別な継続料金として、この最低額未満の料金を設定できます。",
+      "teacherRateBelowMinimum": "最低料金 ¥{amount} を下回っています。",
       "teacherLessonLevelForRate": "クラスレベル",
       "teacherLessonTypeForRate": "レッスンの内容",
       "teacherLessonTypeForRateHelp": "時間の長さごとに、どんな内容のレッスンか選びます（スケジュールの種類と同じ）。ここに合わせて予約時のレッスン種別が絞り込まれます。",
