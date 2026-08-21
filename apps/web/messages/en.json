@@ -29,7 +29,12 @@
     "footerContact": "Contact us",
     "footerAria": "Site footer",
     "org": "Organization",
-    "notificationsWithCount": "Notifications ({count} unread)"
+    "notificationsWithCount": "Notifications ({count} unread)",
+    "markdownSeeMore": "See more",
+    "markdownSeeLess": "See less",
+    "markdownEditorLoading": "Loading editor…",
+    "markdownCharCounter": "{current} / {max}",
+    "markdownFormattingHint": "Supports Markdown — bold, lists, and links."
   },
   "contact": {
     "metaTitle": "Contact — English Studio Japan",

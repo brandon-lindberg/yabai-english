@@ -11,7 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
-import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Field, Input, Select } from "@/components/ui/field";
+import { MarkdownField } from "@/components/ui/markdown-field";
 import { Status } from "@/components/ui/status";
 import {
   ALL_LESSON_TYPES_KEY,
@@ -442,18 +443,17 @@ export function BookingForm({
             {t("manualOverrideLabel")}
           </CheckRow>
           {manualOverride && (
-            <Field label={t("manualOverrideReasonLabel")} className="mt-3">
-              {(field) => (
-                <Textarea
-                  {...field}
-                  rows={3}
-                  value={manualOverrideReason}
-                  onChange={(e) => setManualOverrideReason(e.target.value)}
-                  placeholder={t("manualOverrideReasonPlaceholder")}
-                  required
-                />
-              )}
-            </Field>
+            <MarkdownField
+              label={t("manualOverrideReasonLabel")}
+              className="mt-3"
+              value={manualOverrideReason}
+              placeholder={t("manualOverrideReasonPlaceholder")}
+              required
+              tone="background"
+              size="sm"
+              minHeightClass="[&_.mdxeditor-root-contenteditable]:min-h-[96px]"
+              onChange={setManualOverrideReason}
+            />
           )}
         </div>
       )}

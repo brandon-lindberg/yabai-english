@@ -8,13 +8,19 @@ import { teacherProfileToAdminDto } from "@/lib/admin-user-dto";
 import { invalidateUserSessions } from "@/lib/admin-invalidate-sessions";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
+import {
+  PLACEMENT_NOTE_MAX_CHARS,
+  TEACHER_BIO_MAX_CHARS,
+  TEACHER_CREDENTIALS_MAX_CHARS,
+} from "@/lib/markdown/limits";
+import { STUDENT_SHORT_BIO_MAX_CHARS } from "@/lib/student-short-bio";
 
 const teacherProfilePatchSchema = z
   .object({
     displayName: z.string().min(1).max(100).trim().optional(),
-    bio: z.string().max(2000).trim().nullable().optional(),
+    bio: z.string().max(TEACHER_BIO_MAX_CHARS).trim().nullable().optional(),
     countryOfOrigin: z.string().max(80).trim().nullable().optional(),
-    credentials: z.string().max(2000).trim().nullable().optional(),
+    credentials: z.string().max(TEACHER_CREDENTIALS_MAX_CHARS).trim().nullable().optional(),
     instructionLanguages: z.array(z.string().min(1).max(20)).max(10).optional(),
     specialties: z.array(z.string().min(1).max(40)).max(20).optional(),
     rateYen: z.number().int().min(0).max(9_999_999).nullable().optional(),
@@ -25,11 +31,11 @@ const teacherProfilePatchSchema = z
 const studentProfilePatchSchema = z
   .object({
     timezone: z.string().max(80).optional(),
-    shortBio: z.string().max(300).nullable().optional(),
+    shortBio: z.string().max(STUDENT_SHORT_BIO_MAX_CHARS).nullable().optional(),
     placedLevel: z.nativeEnum(PlacedLevel).optional(),
     placedSubLevel: z.number().int().min(1).max(3).nullable().optional(),
     placementNeedsReview: z.boolean().optional(),
-    placementReviewReason: z.string().max(1000).nullable().optional(),
+    placementReviewReason: z.string().max(PLACEMENT_NOTE_MAX_CHARS).nullable().optional(),
   })
   .strict();
 

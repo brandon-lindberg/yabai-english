@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { StudyRpgSnapshot } from "@/lib/study/rpg-xp";
 import { StudyRpgXpBar } from "@/components/study/study-rpg-xp-bar";
-import { DashboardProfileBioPreview } from "@/components/dashboard/dashboard-profile-bio-preview";
+import { MarkdownClamp } from "@/components/ui/markdown-clamp";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import { Avatar } from "@/components/ui/avatar";
 
@@ -35,7 +35,7 @@ export async function DashboardProfileSummary({
         <Avatar src={image} name={display} size="md" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-base font-bold tracking-[-0.02em] text-foreground">{display}</p>
-          <DashboardProfileBioPreview
+          <MarkdownClamp
             key={shortBio ?? ""}
             markdown={shortBio ?? ""}
             emptyLabel={bioEmptyLabel}

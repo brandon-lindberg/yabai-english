@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildPlacementReviewUpdate } from "@/lib/placement-review";
+import { PLACEMENT_NOTE_MAX_CHARS } from "@/lib/markdown/limits";
 
 type Props = {
   params: Promise<{ studentId: string }>;
@@ -10,7 +11,7 @@ type Props = {
 
 const postSchema = z.object({
   placedLevel: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
-  adminNote: z.string().trim().max(1000).optional(),
+  adminNote: z.string().trim().max(PLACEMENT_NOTE_MAX_CHARS).optional(),
 });
 
 export async function POST(req: Request, { params }: Props) {

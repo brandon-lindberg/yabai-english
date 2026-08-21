@@ -17,6 +17,10 @@ import type {
  *
  * Controls stay at 16px on narrow viewports via the rule in globals.css, which
  * is what stops iOS Safari zooming on focus — do not override it with `text-sm`.
+ *
+ * For prose — a bio, a description, lesson notes, a review note — reach for
+ * `MarkdownField` rather than `Textarea`. `Textarea` is for text that is not
+ * prose: a pasted credential, an answer being graded.
  */
 
 const controlBase =
@@ -56,12 +60,30 @@ type FieldProps = {
   required?: boolean;
   /** Visually hides the label while leaving it available to screen readers. */
   hideLabel?: boolean;
+  /**
+   * `"control"` labels one labelable element with `<label for>`.
+   *
+   * `"group"` is for controls `<label>` cannot attach to — a rich-text
+   * editor's contenteditable, chiefly. The label becomes a plain `<span id>`
+   * and the callback gets `labelId` to hang `aria-labelledby` on a wrapper
+   * carrying `role="group"`. Same copy, same hint and error wiring, one
+   * implementation.
+   */
+  as?: "control" | "group";
   className?: string;
-  children: (props: {
-    id: string;
-    "aria-describedby": string | undefined;
-    "aria-invalid": boolean | undefined;
-  }) => ReactNode;
+  /**
+   * `control` is a pure attribute bag: every call site spreads it straight onto
+   * a DOM element, so nothing that is not a real attribute may go in it.
+   * Group-mode extras travel in the second argument instead.
+   */
+  children: (
+    control: {
+      id: string;
+      "aria-describedby": string | undefined;
+      "aria-invalid": boolean | undefined;
+    },
+    group: { labelId: string },
+  ) => ReactNode;
 };
 
 export function Field({
@@ -70,13 +92,16 @@ export function Field({
   error,
   required = false,
   hideLabel = false,
+  as = "control",
   className = "",
   children,
 }: FieldProps) {
   const id = useId();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
+  const labelId = `${id}-label`;
   const describedBy = error ? errorId : hint ? hintId : undefined;
+  const isGroup = as === "group";
 
   return (
     <div className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}>
@@ -89,14 +114,19 @@ export function Field({
         the app became unfindable by its own label. Outside, both agree.
       */}
       {hideLabel ? (
-        <label htmlFor={id} className="sr-only">
+        <Label isGroup={isGroup} id={id} labelId={labelId} className="sr-only">
           {label}
-        </label>
+        </Label>
       ) : (
         <span className="flex items-baseline gap-1">
-          <label htmlFor={id} className="text-sm font-medium text-foreground">
+          <Label
+            isGroup={isGroup}
+            id={id}
+            labelId={labelId}
+            className="text-sm font-medium text-foreground"
+          >
             {label}
-          </label>
+          </Label>
           {required ? (
             <span className="text-[var(--app-danger)]" aria-hidden="true">
               *
@@ -105,11 +135,14 @@ export function Field({
         </span>
       )}
 
-      {children({
-        id,
-        "aria-describedby": describedBy,
-        "aria-invalid": error ? true : undefined,
-      })}
+      {children(
+        {
+          id,
+          "aria-describedby": describedBy,
+          "aria-invalid": error ? true : undefined,
+        },
+        { labelId },
+      )}
 
       {error ? (
         <p id={errorId} role="alert" className="text-sm text-[var(--app-danger)]">
@@ -121,6 +154,38 @@ export function Field({
         </p>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * A `<label for>` only associates with a labelable element. Group mode has
+ * none, so it names its control by id instead — emitting a `<label>` there
+ * would claim an association assistive tech cannot resolve.
+ */
+function Label({
+  isGroup,
+  id,
+  labelId,
+  className,
+  children,
+}: {
+  isGroup: boolean;
+  id: string;
+  labelId: string;
+  className: string;
+  children: ReactNode;
+}) {
+  if (isGroup) {
+    return (
+      <span id={labelId} className={className}>
+        {children}
+      </span>
+    );
+  }
+  return (
+    <label htmlFor={id} className={className}>
+      {children}
+    </label>
   );
 }
 

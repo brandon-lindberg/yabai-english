@@ -22,6 +22,7 @@ import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { MarkdownView } from "@/components/ui/markdown-view";
 import { Status } from "@/components/ui/status";
 import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
 
@@ -248,10 +249,16 @@ export default async function TeacherProfileBookingPage({
         <Avatar src={teacher.user.image} name={displayName} size="lg" />
         <div className="min-w-0 flex-1 space-y-2">
           {teacher.credentials ? (
-            <p className="text-base text-foreground">{teacher.credentials}</p>
+            <MarkdownView
+              markdown={teacher.credentials}
+              className="text-base text-foreground"
+            />
           ) : null}
           {teacher.bio ? (
-            <p className="max-w-[62ch] leading-relaxed text-muted">{teacher.bio}</p>
+            <MarkdownView
+              markdown={teacher.bio}
+              className="max-w-[62ch] leading-relaxed text-muted"
+            />
           ) : null}
           {teacher.specialties.length > 0 ? (
             <p className="text-sm text-muted">

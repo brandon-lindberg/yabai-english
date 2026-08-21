@@ -6,7 +6,7 @@ import type { MDXEditorMethods, MDXEditorProps } from "@mdxeditor/editor";
 
 const Editor = dynamic(
   () =>
-    import("./student-bio-mdx-editor-inner").then((m) => m.StudentBioMdxEditorInner),
+    import("./markdown-editor-inner").then((m) => m.MarkdownEditorInner),
   {
     ssr: false,
     loading: () => (
@@ -17,12 +17,12 @@ const Editor = dynamic(
   },
 );
 
-export type StudentBioMdxEditorProps = Omit<MDXEditorProps, "plugins" | "ref"> & {
+export type MarkdownEditorProps = Omit<MDXEditorProps, "plugins" | "ref"> & {
   maxPlainTextLength?: number;
 };
 
-export const StudentBioMdxEditor = forwardRef<MDXEditorMethods, StudentBioMdxEditorProps>(
+export const MarkdownEditor = forwardRef<MDXEditorMethods, MarkdownEditorProps>(
   (props, ref) => <Editor {...props} editorRef={ref} />,
 );
 
-StudentBioMdxEditor.displayName = "StudentBioMdxEditor";
+MarkdownEditor.displayName = "MarkdownEditor";

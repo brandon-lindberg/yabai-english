@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Avatar } from "@/components/ui/avatar";
+import { MarkdownView } from "@/components/ui/markdown-view";
 
 /**
  * Who this student is: photo, name, level, timezone, goals, bio.
@@ -91,7 +92,10 @@ export async function StudentProfilePanel({
             {profile.shortBio ? (
               <div>
                 <p className="text-sm font-medium text-muted">{t("bio")}</p>
-                <p className="mt-1 text-sm text-foreground">{profile.shortBio}</p>
+                <MarkdownView
+                  markdown={profile.shortBio}
+                  className="mt-1 text-sm text-foreground"
+                />
               </div>
             ) : null}
           </div>

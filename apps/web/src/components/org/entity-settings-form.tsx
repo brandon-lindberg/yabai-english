@@ -2,7 +2,9 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { Field, Input, Textarea } from "@/components/ui/field";
+import { Field, Input } from "@/components/ui/field";
+import { MarkdownField } from "@/components/ui/markdown-field";
+import { ENTITY_DESCRIPTION_MAX_CHARS } from "@/lib/markdown/limits";
 import { FormStatus, type SaveState } from "@/components/ui/form-status";
 import { Section } from "@/components/ui/section";
 
@@ -105,28 +107,31 @@ export function EntitySettingsForm({
             key={row.map((f) => f.name).join("-") || index}
             className={row.length > 1 ? "grid gap-4 sm:grid-cols-2" : ""}
           >
-            {row.map((field) => (
-              <Field key={field.name} label={field.label} required={field.required}>
-                {(control) =>
-                  field.multiline ? (
-                    <Textarea
-                      {...control}
-                      rows={3}
-                      value={data?.[field.name] ?? ""}
-                      onChange={(e) => update(field.name, e.target.value)}
-                      required={field.required}
-                    />
-                  ) : (
+            {row.map((field) =>
+              /* Multiline here always means prose — a description — so it is
+                 authored as markdown like every other prose field. */
+              field.multiline ? (
+                <MarkdownField
+                  key={field.name}
+                  label={field.label}
+                  required={field.required}
+                  value={data?.[field.name] ?? ""}
+                  maxChars={ENTITY_DESCRIPTION_MAX_CHARS}
+                  onChange={(md) => update(field.name, md)}
+                />
+              ) : (
+                <Field key={field.name} label={field.label} required={field.required}>
+                  {(control) => (
                     <Input
                       {...control}
                       value={data?.[field.name] ?? ""}
                       onChange={(e) => update(field.name, e.target.value)}
                       required={field.required}
                     />
-                  )
-                }
-              </Field>
-            ))}
+                  )}
+                </Field>
+              ),
+            )}
           </div>
         ))}
 

@@ -28,7 +28,7 @@ type Props = {
   maxPlainTextLength?: number;
 } & Omit<MDXEditorProps, "plugins" | "ref">;
 
-export function StudentBioMdxEditorInner({ editorRef, maxPlainTextLength, ...props }: Props) {
+export function MarkdownEditorInner({ editorRef, maxPlainTextLength, ...props }: Props) {
   const plugins = useMemo(() => {
     const rest = [
       headingsPlugin({ allowedHeadingLevels: [2, 3] }),

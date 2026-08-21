@@ -1,11 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
-import type { MDXEditorMethods } from "@mdxeditor/editor";
-import { StudentBioMdxEditor } from "@/components/dashboard/student-bio-mdx-editor";
-import { DashboardProfileBioPreview } from "@/components/dashboard/dashboard-profile-bio-preview";
+import { MarkdownClamp } from "@/components/ui/markdown-clamp";
+import { MarkdownField } from "@/components/ui/markdown-field";
 import { ProfileSurface } from "@/components/dashboard/profile-surface";
 import { STUDENT_SHORT_BIO_MAX_CHARS } from "@/lib/student-short-bio";
 import type { SaveState } from "@/components/ui/form-status";
@@ -36,7 +35,6 @@ export function DashboardProfileForm({
   });
   const [draft, setDraft] = useState(saved);
   const [status, setStatus] = useState<SaveState>("idle");
-  const bioEditorRef = useRef<MDXEditorMethods>(null);
 
   const isEmpty = !saved.name && !saved.shortBio;
 
@@ -81,9 +79,6 @@ export function DashboardProfileForm({
     return true;
   }
 
-  const overLimit = draft.shortBio.length >= STUDENT_SHORT_BIO_MAX_CHARS;
-  const nearLimit = draft.shortBio.length > STUDENT_SHORT_BIO_MAX_CHARS * 0.85;
-
   return (
     <ProfileSurface
       avatarUrl={avatarUrl}
@@ -107,7 +102,7 @@ export function DashboardProfileForm({
           label: t("shortBio"),
           // Markdown, so it reads the way a teacher will see it rather than as
           // raw source.
-          value: <DashboardProfileBioPreview markdown={saved.shortBio} emptyLabel="" />,
+          value: <MarkdownClamp markdown={saved.shortBio} emptyLabel="" />,
           empty: !saved.shortBio.trim(),
         },
       ]}
@@ -119,7 +114,6 @@ export function DashboardProfileForm({
       onCancelEdit={() => {
         setDraft(saved);
         setStatus("idle");
-        bioEditorRef.current?.setMarkdown(saved.shortBio);
       }}
     >
       <Field label={t("displayName")} hint={showGooglePrefillHint ? t("prefillFromGoogle") : null}>
@@ -134,53 +128,14 @@ export function DashboardProfileForm({
         )}
       </Field>
 
-      <div>
-        <span id="student-short-bio-label" className="block text-sm font-medium text-foreground">
-          {t("shortBio")}
-        </span>
-        <p id="student-short-bio-help" className="mt-1 text-sm text-muted">
-          {t("shortBioHelp")}
-        </p>
-        <div
-          role="group"
-          aria-labelledby="student-short-bio-label"
-          aria-describedby="student-short-bio-help student-short-bio-count"
-          className="mdxeditor-rich-lists mt-2 min-w-0 overflow-visible rounded-xl border border-border bg-surface text-foreground focus-within:border-foreground [&_.mdxeditor]:bg-surface [&_.mdxeditor-root-contenteditable]:min-h-[160px]"
-        >
-          <StudentBioMdxEditor
-            ref={bioEditorRef}
-            markdown={draft.shortBio}
-            maxPlainTextLength={STUDENT_SHORT_BIO_MAX_CHARS}
-            placeholder={t("shortBioPlaceholder")}
-            onChange={(md) => {
-              if (md.length <= STUDENT_SHORT_BIO_MAX_CHARS) {
-                setDraft((d) => ({ ...d, shortBio: md }));
-                return;
-              }
-              const clipped = md.slice(0, STUDENT_SHORT_BIO_MAX_CHARS);
-              setDraft((d) => ({ ...d, shortBio: clipped }));
-              queueMicrotask(() => bioEditorRef.current?.setMarkdown(clipped));
-            }}
-            contentEditableClassName="px-0 py-2"
-          />
-        </div>
-        <p
-          id="student-short-bio-count"
-          className={`mt-1 text-sm tabular-nums ${
-            overLimit
-              ? "font-medium text-[var(--app-danger)]"
-              : nearLimit
-                ? "text-[var(--app-warn-text)]"
-                : "text-muted"
-          }`}
-          aria-live="polite"
-        >
-          {t("shortBioCharCounter", {
-            current: draft.shortBio.length,
-            max: STUDENT_SHORT_BIO_MAX_CHARS,
-          })}
-        </p>
-      </div>
+      <MarkdownField
+        label={t("shortBio")}
+        hint={t("shortBioHelp")}
+        value={draft.shortBio}
+        maxChars={STUDENT_SHORT_BIO_MAX_CHARS}
+        placeholder={t("shortBioPlaceholder")}
+        onChange={(md) => setDraft((d) => ({ ...d, shortBio: md }))}
+      />
     </ProfileSurface>
   );
 }
