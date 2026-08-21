@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import type { BookingStatus } from "@/generated/prisma/enums";
 import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
-import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
+import { NextLessonWhen } from "@/components/dashboard/next-lesson-when";
 import { Status } from "@/components/ui/status";
 import { buttonClasses } from "@/components/ui/button";
 
@@ -66,23 +66,22 @@ export async function DashboardNextLesson({
     <section className="border-t border-border pt-6" aria-labelledby="next-lesson-heading">
       {/*
         The heading is screen-reader-only on purpose. A small "Next lesson"
-        label above a large date would be an eyebrow, which DESIGN.md §4 bans —
-        the date carries its own weight and the landmark stays labelled.
+        label above the time would be an eyebrow, which DESIGN.md §4 bans —
+        the time carries its own weight and the landmark stays labelled.
       */}
       <h2 id="next-lesson-heading" className="sr-only">
         {th("nextLessonTitle")}
       </h2>
 
-      <LocalBookingDateTimeRange
+      <NextLessonWhen
         locale={locale}
         startsAtIso={next.startsAt.toISOString()}
         endsAtIso={next.endsAt.toISOString()}
-        className="block text-[clamp(1.75rem,4.5vw,3.25rem)] font-black leading-[1.05] tracking-[-0.035em] tabular-nums text-foreground"
       />
 
       {/* The other person, named and prominent: continuity with one person is
           the product's whole thesis, and it was previously a grey line. */}
-      <p className="mt-3 text-lg font-bold tracking-[-0.02em] text-foreground">
+      <p className="mt-5 text-lg font-bold tracking-[-0.02em] text-foreground">
         {next.counterpartName}
       </p>
       <p className="mt-0.5 text-sm text-muted">

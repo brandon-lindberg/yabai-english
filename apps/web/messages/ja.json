@@ -319,7 +319,8 @@
       "teacherRateHelp": "講師一覧と予約ページに表示されます。料金を出さない場合は空欄にしてください。",
       "teacherRatesByDurationTitle": "個人レッスン料金（時間別）",
       "teacherRatesByDurationHelp": "提供するレッスン時間を選び、それぞれの料金を設定してください。",
-      "teacherMinimumRateHelp": "公開レッスン料金は最低 ¥{amount} です。管理者は受講生ごとの特別な継続料金として、この最低額未満の料金を設定できます。",
+      "teacherMinimumRateHelp": "公開レッスン料金は ¥{amount} 以上である必要があります。これを下回る料金は、特定のクラスについて管理者のみが許可できます。",
+      "teacherRateBelowMinimum": "最低料金 ¥{amount} を下回っています。",
       "teacherLessonLevelForRate": "クラスレベル",
       "teacherLessonTypeForRate": "レッスンの内容",
       "teacherLessonTypeForRateHelp": "時間の長さごとに、どんな内容のレッスンか選びます（スケジュールの種類と同じ）。ここに合わせて予約時のレッスン種別が絞り込まれます。",
@@ -867,6 +868,25 @@
       "statNeedsReview": "レベル判定レビュー待ち",
       "statStudents": "受講生",
       "studentsHint": "受講生の検索・並べ替え・編集は受講生画面で行えます。"
+    },
+    "teacherRateGrants": {
+      "title": "最低料金未満のクラス料金",
+      "intro": "この講師に最低料金 ¥{amount} を下回るクラスを許可します。講師は指導と空き時間への追加はできますが、作成・編集はできません。",
+      "loading": "許可設定を読み込み中…",
+      "empty": "最低料金未満のクラスはありません。",
+      "duration": "時間（分）",
+      "rate": "料金（¥）",
+      "level": "クラスレベル",
+      "type": "レッスン内容",
+      "note": "理由（記録として残ります）",
+      "grant": "クラスを許可",
+      "granting": "許可中…",
+      "revoke": "取り消す",
+      "revoking": "取り消し中…",
+      "revokeHelp": "取り消すと、そのクラスに紐づく公開済みの空き時間も非公開になります。",
+      "aboveMinimum": "¥{amount} 以上の料金に許可は不要です。講師自身で作成できます。",
+      "error": "許可を保存できませんでした。",
+      "noTaxonomy": "この講師にはクラスレベルまたはレッスン内容がまだ登録されていません。"
     }
   },
   "booking": {

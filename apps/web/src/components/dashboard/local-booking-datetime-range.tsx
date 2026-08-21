@@ -1,7 +1,7 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { formatLessonRange } from "@/lib/format-lesson-datetime";
+import { useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 
 type Props = {
   locale: string;
@@ -28,20 +28,6 @@ function buildRange(
   return formatLessonRange(startsAtIso, endsAtIso, locale, timeZone, separator);
 }
 
-function subscribeNoop(onStoreChange: () => void) {
-  // Browser timezone never changes during a session — nothing to subscribe to.
-  void onStoreChange;
-  return () => {};
-}
-
-function getBrowserTz() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
-function getServerTz(): string | undefined {
-  return undefined;
-}
-
 /**
  * Renders booking start/end in the viewer's local timezone when `timeZone` is omitted
  * (consistent with `DashboardScheduleCalendar`), or in a fixed IANA zone when provided.
@@ -54,8 +40,7 @@ export function LocalBookingDateTimeRange({
   separator = " — ",
   timeZone,
 }: Props) {
-  const browserTz = useSyncExternalStore(subscribeNoop, getBrowserTz, getServerTz);
-  const resolvedTz = timeZone ?? browserTz;
+  const resolvedTz = useViewerTimeZone(timeZone);
 
   if (!resolvedTz) {
     return (

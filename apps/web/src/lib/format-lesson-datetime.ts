@@ -26,13 +26,27 @@ export function formatLessonInstant(
  * midnight keep both full instants, because there the second date is real
  * information.
  */
-export function formatLessonRange(
+export type LessonRangeParts = {
+  /** The day, stated once — null when the range crosses midnight. */
+  date: string | null;
+  /** The clock range, or both full instants when the range crosses midnight. */
+  time: string;
+};
+
+/**
+ * The range as its two pieces, so a surface can size them separately.
+ *
+ * The dashboard's focal moment is the lesson's *time*; the date supports it.
+ * Rendering both at display scale made a 34-character line that overflowed the
+ * 848px column and wrapped, orphaning the meridiem.
+ */
+export function formatLessonRangeParts(
   startIso: string,
   endIso: string,
   locale: string,
   timeZone?: string,
   separator = " — ",
-): string {
+): LessonRangeParts {
   const zone = timeZone ? { timeZone } : {};
   const start = new Date(startIso);
   const end = new Date(endIso);
@@ -44,15 +58,32 @@ export function formatLessonRange(
     day: "numeric",
   });
 
+  // A range that crosses midnight cannot state one date, so both ends stay whole.
   if (dayKey.format(start) !== dayKey.format(end)) {
-    return `${formatLessonInstant(startIso, locale, timeZone)}${separator}${formatLessonInstant(
-      endIso,
-      locale,
-      timeZone,
-    )}`;
+    return {
+      date: null,
+      time: `${formatLessonInstant(startIso, locale, timeZone)}${separator}${formatLessonInstant(
+        endIso,
+        locale,
+        timeZone,
+      )}`,
+    };
   }
 
-  const date = new Intl.DateTimeFormat(locale, { ...zone, dateStyle: "medium" }).format(start);
   const time = new Intl.DateTimeFormat(locale, { ...zone, timeStyle: "short" });
-  return `${date} · ${time.format(start)}${separator}${time.format(end)}`;
+  return {
+    date: new Intl.DateTimeFormat(locale, { ...zone, dateStyle: "medium" }).format(start),
+    time: `${time.format(start)}${separator}${time.format(end)}`,
+  };
+}
+
+export function formatLessonRange(
+  startIso: string,
+  endIso: string,
+  locale: string,
+  timeZone?: string,
+  separator = " — ",
+): string {
+  const { date, time } = formatLessonRangeParts(startIso, endIso, locale, timeZone, separator);
+  return date ? `${date} · ${time}` : time;
 }

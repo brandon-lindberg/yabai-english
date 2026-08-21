@@ -4,6 +4,7 @@ import {
   type ScheduleClassTypeKey,
   type ExistingOfferingSnapshot,
 } from "@/lib/schedule-offering-sync";
+import { MIN_PUBLIC_LESSON_RATE_YEN } from "@/lib/lesson-rate-policy";
 
 const k = (id: string, code: string): ScheduleClassTypeKey => ({
   classTypeId: id,
@@ -122,5 +123,71 @@ describe("deriveMissingOfferingsFromSchedule", () => {
       classTypeId: "ty-gram",
       rateYen: 4200,
     });
+  });
+});
+
+describe("derived rates respect the public minimum", () => {
+  const scheduled = [
+    { classLevelId: "lv-1", classTypeId: "ty-new", classTypeCode: "conversation" },
+  ];
+
+  test("never derives a class priced below the minimum", () => {
+    const [created] = deriveMissingOfferingsFromSchedule({
+      existing: [],
+      scheduled,
+      fallbackRateYen: 500,
+    });
+
+    expect(created.rateYen).toBeGreaterThanOrEqual(MIN_PUBLIC_LESSON_RATE_YEN);
+  });
+
+  // An admin-granted rate is a concession for one specific class. Copying it
+  // onto classes the admin never approved would spread it silently.
+  test("does not inherit an admin-granted below-minimum rate", () => {
+    const [created] = deriveMissingOfferingsFromSchedule({
+      existing: [
+        {
+          classLevelId: "lv-1",
+          classTypeId: "ty-old",
+          active: true,
+          rateYen: 1500,
+          isGroup: false,
+          adminRateOverrideByUserId: "admin-1",
+        },
+      ],
+      scheduled,
+      fallbackRateYen: null,
+    });
+
+    expect(created.rateYen).toBeGreaterThanOrEqual(MIN_PUBLIC_LESSON_RATE_YEN);
+    expect(created.rateYen).not.toBe(1500);
+  });
+
+  test("still inherits the teacher's own rate when it is acceptable", () => {
+    const [created] = deriveMissingOfferingsFromSchedule({
+      existing: [
+        {
+          classLevelId: "lv-1",
+          classTypeId: "ty-old",
+          active: true,
+          rateYen: 5500,
+          isGroup: false,
+        },
+      ],
+      scheduled,
+      fallbackRateYen: null,
+    });
+
+    expect(created.rateYen).toBe(5500);
+  });
+
+  test("the floor is the shared minimum, not a second copy of the number", () => {
+    const [created] = deriveMissingOfferingsFromSchedule({
+      existing: [],
+      scheduled,
+      fallbackRateYen: null,
+    });
+
+    expect(created.rateYen).toBe(MIN_PUBLIC_LESSON_RATE_YEN);
   });
 });

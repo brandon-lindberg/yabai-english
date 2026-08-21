@@ -12,6 +12,7 @@ import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { Section } from "@/components/ui/section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Status } from "@/components/ui/status";
+import { AdminTeacherRateGrants } from "@/components/admin/admin-teacher-rate-grants";
 
 const LOCALES = ["ja", "en"] as const;
 const ROLES = [Role.STUDENT, Role.TEACHER, Role.SUPER_ADMIN] as const;
@@ -47,12 +48,14 @@ type UserDetailJson = {
 export function AdminUserDetailForm({ userId }: { userId: string }) {
   const t = useTranslations("admin.userDetail");
   const tg = useTranslations("admin.grid");
+  const tGrants = useTranslations("admin.teacherRateGrants");
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [teacherProfileId, setTeacherProfileId] = useState<string | null>(null);
   const [calendarConnected, setCalendarConnected] = useState(false);
 
   const [name, setName] = useState("");
@@ -105,6 +108,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
         setReviewReason(data.studentProfile.placementReviewReason ?? "");
       }
       if (data.teacherProfile) {
+        setTeacherProfileId(data.teacherProfile.id);
         setCalendarConnected(data.teacherProfile.calendarConnected);
         setDisplayName(data.teacherProfile.displayName ?? "");
         setBio(data.teacherProfile.bio ?? "");
@@ -480,6 +484,14 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
               {t("calendarConnected")}: {calendarConnected ? tg("yes") : tg("no")}
             </p>
           </div>
+        </Section>
+      ) : null}
+
+      {/* Its own section, and its own endpoint: granting a below-minimum class
+          is a concession recorded against an admin, not a profile field. */}
+      {role === Role.TEACHER && teacherProfileId ? (
+        <Section title={tGrants("title")}>
+          <AdminTeacherRateGrants teacherProfileId={teacherProfileId} />
         </Section>
       ) : null}
 

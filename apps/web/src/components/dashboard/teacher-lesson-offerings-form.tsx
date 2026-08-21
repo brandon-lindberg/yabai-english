@@ -19,6 +19,7 @@ import {
   RATE_FIELD_LABEL_ROW,
   RATE_CONTROL_HEIGHT,
 } from "./teacher-lesson-offer-row";
+import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
 
 const INDIVIDUAL_DURATIONS = [30, 40, 60, 90] as const;
 
@@ -59,6 +60,8 @@ type Props = {
     rateYen: number;
     isGroup: boolean;
     groupSize: number | null;
+    isFreeTrial?: boolean | null;
+    adminRateOverrideByUserId?: string | null;
     classLevelId?: string | null;
     classTypeId?: string | null;
   }>;
@@ -89,8 +92,11 @@ export function TeacherLessonOfferingsForm({
   const locale = useLocale();
   const defaultClassLevelId = classLevels[0]?.id ?? "";
   const defaultClassTypeId = classTypes[0]?.id ?? "";
+  // The free trial and any admin-granted below-minimum class share this table
+  // but are not the teacher's to price, so they never become editable rows.
+  const editableOfferings = partitionOfferingsByTeacherEditable(initialLessonOfferings).editable;
   const [individualOffers, setIndividualOffers] = useState<LessonOfferingRow[]>(() => {
-    const rows = initialLessonOfferings
+    const rows = editableOfferings
       .filter((o) => !o.isGroup)
       .map((o) => ({
         clientId: o.id || makeRowId(),
@@ -114,7 +120,7 @@ export function TeacherLessonOfferingsForm({
     return [];
   });
   const [groupOffers, setGroupOffers] = useState<GroupOfferingRow[]>(
-    initialLessonOfferings
+    editableOfferings
       .filter((o) => o.isGroup && o.groupSize)
       .map((o) => ({
         clientId: o.id || makeRowId(),
@@ -128,6 +134,25 @@ export function TeacherLessonOfferingsForm({
   const [offersFreeTrial, setOffersFreeTrial] = useState(initialOffersFreeTrial);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [ratePriceBasis, setRatePriceBasis] = useState<TeacherLessonRatePriceBasis>("tax_included");
+
+  /**
+   * The complaint for a typed rate, or null when it is acceptable. Judges the
+   * tax-included price rather than the number typed, because that is what the
+   * student pays and what the minimum is defined against.
+   */
+  function rateErrorFor(rateYenInput: string): string | null {
+    const entered = Number.parseInt(rateYenInput.trim(), 10);
+    if (Number.isNaN(entered)) return null; // an empty field is not yet wrong
+    const taxIncluded = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
+    if (validatePublicLessonRateYen(taxIncluded).ok) return null;
+    return t("teacherRateBelowMinimum", {
+      amount: MIN_PUBLIC_LESSON_RATE_YEN.toLocaleString(),
+    });
+  }
+
+  const hasRateBelowMinimum =
+    individualOffers.some((row) => rateErrorFor(row.rateYenInput) !== null) ||
+    groupOffers.some((row) => rateErrorFor(row.rateYenInput) !== null);
 
   function handleRatePriceBasisChange(next: TeacherLessonRatePriceBasis) {
     if (next === ratePriceBasis) return;
@@ -279,7 +304,8 @@ export function TeacherLessonOfferingsForm({
                 durations={INDIVIDUAL_DURATIONS}
                 pickLabel={(opt) => pickLabel(opt, locale)}
                 ratePriceBasis={ratePriceBasis}
-                ratePlaceholder="3500"
+                ratePlaceholder={String(MIN_PUBLIC_LESSON_RATE_YEN)}
+                rateError={rateErrorFor(row.rateYenInput)}
                 labels={{
                   level: t("teacherLessonLevelForRate"),
                   type: t("teacherLessonTypeForRate"),
@@ -341,6 +367,7 @@ export function TeacherLessonOfferingsForm({
                 pickLabel={(opt) => pickLabel(opt, locale)}
                 ratePriceBasis={ratePriceBasis}
                 ratePlaceholder="8000"
+                rateError={rateErrorFor(group.rateYenInput)}
                 labels={{
                   level: t("teacherLessonLevelForRate"),
                   type: t("teacherLessonTypeForRate"),
@@ -388,7 +415,7 @@ export function TeacherLessonOfferingsForm({
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          disabled={status === "saving"}
+          disabled={status === "saving" || hasRateBelowMinimum}
           className={buttonClasses()}
         >
           {status === "saving" ? t("saving") : t("save")}

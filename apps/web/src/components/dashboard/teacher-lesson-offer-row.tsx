@@ -46,6 +46,7 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
   pickLabel,
   ratePriceBasis,
   ratePlaceholder,
+  rateError = null,
   labels,
   leading,
 }: {
@@ -59,6 +60,8 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
   pickLabel: (option: Option) => string;
   ratePriceBasis: "tax_included" | "tax_exclusive";
   ratePlaceholder: string;
+  /** Shown under the rate instead of the tax breakdown when set. */
+  rateError?: string | null;
   labels: {
     level: string;
     type: string;
@@ -127,10 +130,22 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
           value={value.rateYenInput}
           onChange={(e) => onChange({ rateYenInput: e.target.value.replace(/\D/g, "") })}
           placeholder={ratePlaceholder}
-          className={`${CONTROL} max-w-full sm:max-w-none`}
+          aria-invalid={rateError ? true : undefined}
+          className={`${CONTROL} max-w-full sm:max-w-none ${
+            rateError ? "border-[var(--app-danger)] focus:border-[var(--app-danger)]" : ""
+          }`}
         />
+        {/* One slot: the breakdown explains an acceptable rate, the error
+            replaces it when there is nothing worth breaking down. */}
         <div className={RATE_BREAKDOWN_SLOT}>
-          <TeacherLessonRateTaxBreakdown basis={ratePriceBasis} rateYenInput={value.rateYenInput} />
+          {rateError ? (
+            <p className="text-xs text-destructive">{rateError}</p>
+          ) : (
+            <TeacherLessonRateTaxBreakdown
+              basis={ratePriceBasis}
+              rateYenInput={value.rateYenInput}
+            />
+          )}
         </div>
       </div>
 
