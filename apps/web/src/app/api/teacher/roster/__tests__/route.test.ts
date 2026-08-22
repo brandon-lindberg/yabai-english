@@ -26,6 +26,13 @@ vi.mock("@/lib/reconcile-teacher-roster-from-bookings", () => ({
 import { GET, POST } from "../route";
 import { reconcileTeacherRosterFromBookings } from "@/lib/reconcile-teacher-roster-from-bookings";
 
+function rosterRequest(scope?: "archived") {
+  const url = scope
+    ? `http://localhost/api/teacher/roster?scope=${scope}`
+    : "http://localhost/api/teacher/roster";
+  return new Request(url);
+}
+
 describe("GET /api/teacher/roster", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,7 +44,7 @@ describe("GET /api/teacher/roster", () => {
     authMock.mockResolvedValue({ user: { id: "admin-1", role: Role.SUPER_ADMIN } });
     prismaMock.teacherRosterEntry.findMany.mockResolvedValue([]);
 
-    const res = await GET();
+    const res = await GET(rosterRequest());
     expect(res.status).toBe(200);
     expect(reconcileTeacherRosterFromBookings).toHaveBeenCalledWith(prismaMock, {
       teacherProfileId: "tp-1",
@@ -50,17 +57,19 @@ describe("GET /api/teacher/roster", () => {
         id: "e1",
         studentId: "s1",
         invitedEmail: null,
+        archivedAt: null,
         student: { name: "Sam", email: "sam@example.com" },
       },
       {
         id: "e2",
         studentId: null,
         invitedEmail: "pending@example.com",
+        archivedAt: null,
         student: null,
       },
     ]);
 
-    const res = await GET();
+    const res = await GET(rosterRequest());
     expect(res.status).toBe(200);
     expect(reconcileTeacherRosterFromBookings).toHaveBeenCalledWith(prismaMock, {
       teacherProfileId: "tp-1",
@@ -73,6 +82,7 @@ describe("GET /api/teacher/roster", () => {
           displayName: "Sam",
           email: "sam@example.com",
           studentUserId: "s1",
+          archivedAtIso: null,
         },
         {
           id: "e2",
@@ -80,6 +90,7 @@ describe("GET /api/teacher/roster", () => {
           displayName: null,
           email: "pending@example.com",
           studentUserId: null,
+          archivedAtIso: null,
         },
       ],
     });
@@ -136,5 +147,42 @@ describe("POST /api/teacher/roster", () => {
 
     expect(res.status).toBe(200);
     expect(prismaMock.$transaction).toHaveBeenCalled();
+  });
+
+  test("returns the working roster by default, excluding archived students", async () => {
+    prismaMock.teacherRosterEntry.findMany.mockResolvedValue([]);
+
+    await GET(rosterRequest());
+
+    expect(prismaMock.teacherRosterEntry.findMany.mock.calls[0][0].where).toMatchObject({
+      teacherId: "tp-1",
+      archivedAt: null,
+    });
+  });
+
+  test("scope=archived returns only archived students, most recently archived first", async () => {
+    prismaMock.teacherRosterEntry.findMany.mockResolvedValue([]);
+
+    await GET(rosterRequest("archived"));
+
+    const args = prismaMock.teacherRosterEntry.findMany.mock.calls[0][0];
+    expect(args.where).toMatchObject({ teacherId: "tp-1", archivedAt: { not: null } });
+    expect(args.orderBy).toEqual({ archivedAt: "desc" });
+  });
+
+  test("reports when a student was archived, so the tab can show it", async () => {
+    prismaMock.teacherRosterEntry.findMany.mockResolvedValue([
+      {
+        id: "e1",
+        studentId: "s1",
+        invitedEmail: null,
+        archivedAt: new Date("2026-08-20T00:00:00.000Z"),
+        student: { name: "Sam", email: "sam@example.com" },
+      },
+    ]);
+
+    const res = await GET(rosterRequest("archived"));
+    const body = (await res.json()) as { entries: { archivedAtIso: string | null }[] };
+    expect(body.entries[0].archivedAtIso).toBe("2026-08-20T00:00:00.000Z");
   });
 });

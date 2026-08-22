@@ -6,16 +6,20 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { buttonClasses } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 
+type Scope = "active" | "archived";
+
 type Entry = {
   id: string;
   status: "active" | "pending";
   displayName: string | null;
   email: string | null;
   studentUserId: string | null;
+  archivedAtIso: string | null;
 };
 
-async function fetchTeacherRosterEntries(): Promise<Entry[]> {
-  const res = await fetch("/api/teacher/roster", { cache: "no-store" });
+async function fetchTeacherRosterEntries(scope: Scope): Promise<Entry[]> {
+  const query = scope === "archived" ? "?scope=archived" : "";
+  const res = await fetch(`/api/teacher/roster${query}`, { cache: "no-store" });
   if (!res.ok) return [];
   const body = (await res.json()) as { entries: Entry[] };
   return body.entries;
@@ -24,24 +28,31 @@ async function fetchTeacherRosterEntries(): Promise<Entry[]> {
 export function TeacherRosterPanel() {
   const t = useTranslations("dashboard.studentsPage");
   const router = useRouter();
-  const [entries, setEntries] = useState<Entry[] | null>(null);
+  const [scope, setScope] = useState<Scope>("active");
+  /*
+    Held with the scope it was fetched for, so switching tabs shows the loading
+    state without a synchronous setState inside the effect — which React warns
+    about, and which would cascade a render on every scope change.
+  */
+  const [loaded, setLoaded] = useState<{ scope: Scope; entries: Entry[] } | null>(null);
+  const entries = loaded?.scope === scope ? loaded.entries : null;
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setEntries(await fetchTeacherRosterEntries());
-  }, []);
+    setLoaded({ scope, entries: await fetchTeacherRosterEntries(scope) });
+  }, [scope]);
 
   useEffect(() => {
     let cancelled = false;
-    void fetchTeacherRosterEntries().then((next) => {
-      if (!cancelled) setEntries(next);
+    void fetchTeacherRosterEntries(scope).then((next) => {
+      if (!cancelled) setLoaded({ scope, entries: next });
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [scope]);
 
   useEffect(() => {
     const refresh = () => {
@@ -77,6 +88,28 @@ export function TeacherRosterPanel() {
     await load();
   }
 
+  /**
+   * Archiving is not removing. It hides the student from this list and from
+   * completed lessons while keeping every booking, invoice and note, and it is
+   * undone by the Restore button on the Archived tab.
+   */
+  async function setArchived(id: string, archived: boolean) {
+    setBusy(true);
+    setError(null);
+    const res = await fetch(`/api/teacher/roster/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ archived }),
+      cache: "no-store",
+    });
+    setBusy(false);
+    if (!res.ok) {
+      setError(t("archiveError"));
+      return;
+    }
+    await load();
+  }
+
   async function removeEntry(id: string) {
     setBusy(true);
     setError(null);
@@ -89,13 +122,46 @@ export function TeacherRosterPanel() {
     await load();
   }
 
+  const archivedView = scope === "archived";
+
+  const tabs = (
+    <div role="tablist" aria-label={t("title")} className="flex gap-1 border-b border-border">
+      {(["active", "archived"] as const).map((value) => (
+        <button
+          key={value}
+          type="button"
+          role="tab"
+          aria-selected={scope === value}
+          onClick={() => setScope(value)}
+          className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+            scope === value
+              ? "border-foreground text-foreground"
+              : "border-transparent text-muted hover:text-foreground"
+          }`}
+        >
+          {value === "active" ? t("activeTab") : t("archivedTab")}
+        </button>
+      ))}
+    </div>
+  );
+
   if (entries === null) {
-    return <p className="text-sm text-muted">{t("loading")}</p>;
+    return (
+      <div className="space-y-6">
+        {tabs}
+        <p className="text-sm text-muted">{t("loading")}</p>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <form onSubmit={addStudent} className="flex flex-wrap items-end gap-3">
+      {tabs}
+      {archivedView ? <p className="text-sm text-muted">{t("archivedIntro")}</p> : null}
+      <form
+        onSubmit={addStudent}
+        className={`flex-wrap items-end gap-3 ${archivedView ? "hidden" : "flex"}`}
+      >
         <Field label={t("emailLabel")} required className="min-w-[240px] flex-1">
           {(field) => (
             <Input
@@ -121,7 +187,7 @@ export function TeacherRosterPanel() {
 
       <div className="border-t border-border">
         {entries.length === 0 ? (
-          <p className="p-4 text-sm text-muted">{t("empty")}</p>
+          <p className="p-4 text-sm text-muted">{archivedView ? t("archivedEmpty") : t("empty")}</p>
         ) : (
           <ul className="divide-y divide-border">
             {entries.map((row) => (
@@ -157,14 +223,31 @@ export function TeacherRosterPanel() {
                     ) : null}
                   </div>
                 )}
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void removeEntry(row.id)}
-                  className="text-sm font-medium text-destructive hover:underline disabled:opacity-50"
-                >
-                  {t("remove")}
-                </button>
+                <div className="flex shrink-0 items-center gap-4">
+                  {row.archivedAtIso ? (
+                    <span className="text-xs text-muted">
+                      {t("archivedOn", {
+                        date: new Date(row.archivedAtIso).toLocaleDateString(),
+                      })}
+                    </span>
+                  ) : null}
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void setArchived(row.id, !archivedView)}
+                    className="text-sm font-medium text-foreground hover:underline disabled:opacity-50"
+                  >
+                    {archivedView ? t("restore") : t("archive")}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void removeEntry(row.id)}
+                    className="text-sm font-medium text-destructive hover:underline disabled:opacity-50"
+                  >
+                    {t("remove")}
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

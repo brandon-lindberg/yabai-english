@@ -254,7 +254,15 @@
       "loading": "読み込み中…",
       "empty": "まだ受講生がいません。メールアドレスを追加して招待してください。",
       "pendingBadge": "登録待ち",
-      "openStudentProfile": "受講生のプロフィールを見る"
+      "openStudentProfile": "受講生のプロフィールを見る",
+      "activeTab": "在籍中",
+      "archivedTab": "アーカイブ",
+      "archive": "アーカイブ",
+      "archiveError": "アーカイブできませんでした。",
+      "restore": "復元",
+      "archivedEmpty": "アーカイブした生徒はいません。受講を終えた生徒をアーカイブすると、生徒一覧とレッスン履歴が見やすくなります。",
+      "archivedOn": "アーカイブ日：{date}",
+      "archivedIntro": "これらの生徒は生徒一覧と完了レッスンから非表示です。履歴は保持され、いつでも復元できます。"
     },
     "studentProfilePage": {
       "title": "受講生プロフィール",

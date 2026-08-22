@@ -254,7 +254,15 @@
       "loading": "Loading…",
       "empty": "No students yet. Add an email to invite someone.",
       "pendingBadge": "Pending sign-up",
-      "openStudentProfile": "View student profile"
+      "openStudentProfile": "View student profile",
+      "activeTab": "Active",
+      "archivedTab": "Archived",
+      "archive": "Archive",
+      "archiveError": "Could not archive.",
+      "restore": "Restore",
+      "archivedEmpty": "No archived students. Archive someone who has stopped studying with you to keep this list and your lesson history clear.",
+      "archivedOn": "Archived {date}",
+      "archivedIntro": "These students are hidden from your student list and completed lessons. Their history is kept — restore them at any time."
     },
     "studentProfilePage": {
       "title": "Student profile",

@@ -120,4 +120,91 @@ describe("TeacherCompletedLessonsClient", () => {
     const dates = toggle.textContent?.match(/May 10, 2026/g) ?? [];
     expect(dates).toHaveLength(1);
   });
+
+  test("each student is a collapsible section", () => {
+    // A full-time roster is unusable as one open list; the student is the unit
+    // a teacher navigates by.
+    renderCompletedLessons([
+      lesson({ id: "b1", studentDisplay: "Recent R" }),
+      lesson({ id: "b2", studentDisplay: "Older O", invoiceId: null }),
+    ]);
+
+    expect(screen.getByRole("button", { name: /Recent R/ })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: /Older O/ })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+  });
+
+  test("opens the most recent student and leaves the rest closed", () => {
+    // The caller sorts most-recent-first, so the first run is who you are
+    // teaching now — the one worth showing without a click.
+    renderCompletedLessons([
+      lesson({ id: "b1", studentDisplay: "Recent R" }),
+      lesson({ id: "b2", studentDisplay: "Older O", invoiceId: null }),
+    ]);
+
+    expect(screen.getByRole("button", { name: /初級 \/ Beginner/ })).toBeInTheDocument();
+    expect(screen.queryAllByRole("button", { name: /初級 \/ Beginner/ })).toHaveLength(1);
+  });
+
+  test("collapsing a student hides their lessons", () => {
+    renderCompletedLessons();
+
+    const student = screen.getByRole("button", { name: /Student S/ });
+    fireEvent.click(student);
+
+    expect(student).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("button", { name: /初級 \/ Beginner/ })).toBeNull();
+  });
+
+  test("expanding a closed student reveals their lessons", () => {
+    renderCompletedLessons([
+      lesson({ id: "b1", studentDisplay: "Recent R" }),
+      lesson({ id: "b2", studentDisplay: "Older O", invoiceId: null }),
+    ]);
+
+    fireEvent.click(screen.getByRole("button", { name: /Older O/ }));
+
+    expect(screen.queryAllByRole("button", { name: /初級 \/ Beginner/ })).toHaveLength(2);
+  });
+
+  test("groups a student's lessons under year, then month", () => {
+    renderCompletedLessons([
+      lesson({ id: "b1", startsAtIso: "2026-05-10T10:00:00.000Z", endsAtIso: "2026-05-10T10:30:00.000Z" }),
+      lesson({ id: "b2", startsAtIso: "2026-04-02T10:00:00.000Z", endsAtIso: "2026-04-02T10:30:00.000Z", invoiceId: null }),
+      lesson({ id: "b3", startsAtIso: "2025-11-02T10:00:00.000Z", endsAtIso: "2025-11-02T10:30:00.000Z", invoiceId: null }),
+    ]);
+
+    expect(screen.getByRole("button", { name: /^2026/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /May 2026/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /April 2026/ })).toBeInTheDocument();
+  });
+
+  test("a year is collapsible and counts its lessons across months", () => {
+    renderCompletedLessons([
+      lesson({ id: "b1", startsAtIso: "2026-05-10T10:00:00.000Z", endsAtIso: "2026-05-10T10:30:00.000Z" }),
+      lesson({ id: "b2", startsAtIso: "2026-04-02T10:00:00.000Z", endsAtIso: "2026-04-02T10:30:00.000Z", invoiceId: null }),
+    ]);
+
+    const year = screen.getByRole("button", { name: /^2026/ });
+    expect(year.textContent).toContain("2 lessons");
+
+    fireEvent.click(year);
+    expect(year).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("heading", { name: /May 2026/ })).toBeNull();
+  });
+
+  test("opens only the most recent year within a student", () => {
+    renderCompletedLessons([
+      lesson({ id: "b1", startsAtIso: "2026-05-10T10:00:00.000Z", endsAtIso: "2026-05-10T10:30:00.000Z" }),
+      lesson({ id: "b2", startsAtIso: "2025-11-02T10:00:00.000Z", endsAtIso: "2025-11-02T10:30:00.000Z", invoiceId: null }),
+    ]);
+
+    expect(screen.getByRole("button", { name: /^2026/ })).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("button", { name: /^2025/ })).toHaveAttribute("aria-expanded", "false");
+  });
 });

@@ -512,6 +512,12 @@ model TeacherRosterEntry {
   /// Lowercase normalized email while invite is pending (no User yet).
   invitedEmail String?
 
+  /// Set when the teacher archives this student: someone who stopped coming and
+  /// should not clutter the roster or the lesson history. Purely a visibility
+  /// state — bookings, invoices and notes are untouched, and clearing it
+  /// restores the student. Never used to deny access to past records.
+  archivedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -519,6 +525,8 @@ model TeacherRosterEntry {
   @@unique([teacherId, invitedEmail])
   @@index([teacherId])
   @@index([studentId])
+  /// Every roster and history read filters on this, so it belongs in the index.
+  @@index([teacherId, archivedAt])
 }
 
 /// Per-teacher class level taxonomy (e.g. "Beginner", "JLPT N2"). Mirrors

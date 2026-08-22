@@ -11,7 +11,7 @@ const postSchema = z.object({
   email: z.string().email().max(320),
 });
 
-export async function GET() {
+export async function GET(req: Request) {
   const session = await auth();
   if (!session?.user?.id || !isTeacherCabinetRole(session.user.role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -27,12 +27,19 @@ export async function GET() {
 
   await reconcileTeacherRosterFromBookings(prisma, { teacherProfileId: profile.id });
 
+  // `?scope=archived` powers the Students page's Archived tab; the default
+  // stays the working roster, so every existing caller is unaffected.
+  const archivedOnly = new URL(req.url).searchParams.get("scope") === "archived";
+
   const entries = await prisma.teacherRosterEntry.findMany({
-    where: { teacherId: profile.id },
+    where: {
+      teacherId: profile.id,
+      archivedAt: archivedOnly ? { not: null } : null,
+    },
     include: {
       student: { select: { name: true, email: true } },
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: archivedOnly ? { archivedAt: "desc" } : { createdAt: "asc" },
   });
 
   return NextResponse.json({
@@ -43,6 +50,7 @@ export async function GET() {
       email: e.student?.email ?? e.invitedEmail,
       /** Present when status is active; used for teacher dashboard student profile links. */
       studentUserId: e.studentId,
+      archivedAtIso: e.archivedAt?.toISOString() ?? null,
     })),
   });
 }

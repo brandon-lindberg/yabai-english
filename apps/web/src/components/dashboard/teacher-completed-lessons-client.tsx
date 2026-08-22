@@ -6,7 +6,9 @@ import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-li
 import { TeacherLessonCompletionNotesForm } from "@/components/dashboard/teacher-lesson-completion-notes-form";
 import { formatLessonRange } from "@/lib/format-lesson-datetime";
 import { Status } from "@/components/ui/status";
-import { GroupedList } from "@/components/ui/grouped-list";
+import { groupConsecutive } from "@/components/ui/grouped-list";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
+import { groupLessonsByYearAndMonth } from "@/lib/dashboard/group-lessons-by-period";
 import { actionLinkClass } from "@/components/ui/inline-link";
 
 /**
@@ -19,10 +21,16 @@ import { actionLinkClass } from "@/components/ui/inline-link";
  * twice over, differing only in which field led and how the container was
  * bordered; the expandable notes panel was duplicated verbatim in both.
  *
- * Sorting by student is a structure, so it is now the structure: the name
- * appears once as a heading and their lessons hang beneath it. That makes the
- * toggle meaningless — "student first" is no longer a view, it is the shape —
- * so it is gone, and with it one of the two copies of everything.
+ * Sorting by student is a structure, so it is the structure: the name appears
+ * once as a heading and their lessons hang beneath it. That makes the toggle
+ * meaningless — "student first" is no longer a view, it is the shape — so it is
+ * gone, and with it one of the two copies of everything.
+ *
+ * A full-time roster then outgrew even that: one student can carry hundreds of
+ * lessons, and every student's whole history was open at once. So a student
+ * collapses, and their lessons nest under year and month. Only the most recent
+ * student, and their most recent year, start open — the caller sorts
+ * most-recent-first, so that is who is being taught now.
  */
 
 export type TeacherCompletedLessonItem = {
@@ -72,116 +80,149 @@ export function TeacherCompletedLessonsClient({
     setExpandedId((cur) => (cur === id ? null : id));
   }, []);
 
+  const renderLesson = (lesson: TeacherCompletedLessonItem) => {
+    const expanded = expandedId === lesson.id;
+    const panelId = `${groupId}-panel-${lesson.id}`;
+    const notesDocUrl = lesson.notesDocId
+      ? `https://docs.google.com/document/d/${lesson.notesDocId}/edit`
+      : "";
+    const hasGoogleRecap =
+      notesDocUrl.length > 0 ||
+      lesson.transcriptArtifactIds.length > 0 ||
+      lesson.smartNotesIds.length > 0 ||
+      lesson.recordingIds.length > 0;
+
+    return (
+      <li key={lesson.id} id={`booking-${lesson.id}`} className="scroll-mt-24 border-b border-border">
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={panelId}
+          onClick={() => toggle(lesson.id)}
+          className="flex w-full items-baseline gap-3 py-3 text-left transition-colors hover:bg-[var(--app-hover)]"
+        >
+          <span className="translate-y-0.5">
+            <Chevron open={expanded} />
+          </span>
+          <span className="min-w-0 flex-1">
+            {/* The date leads: within one student, when it happened is what you
+                are scanning for. */}
+            <span className="block text-sm font-semibold tabular-nums text-foreground">
+              {formatLessonRange(lesson.startsAtIso, lesson.endsAtIso, locale)}
+            </span>
+            <span className="mt-0.5 block truncate text-sm text-muted">
+              {lesson.lessonTitleJa} / {lesson.lessonTitleEn}
+            </span>
+          </span>
+          {lesson.hasSavedContent ? (
+            <Status tone="settled" className="shrink-0">
+              {t("completedLessonsHasNotes")}
+            </Status>
+          ) : null}
+        </button>
+
+        {lesson.invoiceId ? (
+          <div className="pb-3 pl-6">
+            <InvoiceDownloadLinks
+              invoiceId={lesson.invoiceId}
+              englishLabel={td("downloadInvoiceEn")}
+              japaneseLabel={td("downloadInvoiceJa")}
+            />
+          </div>
+        ) : null}
+
+        {expanded ? (
+          <div id={panelId} className="border-t border-border py-4 pl-6">
+            {hasGoogleRecap ? (
+              <div className="mb-4 space-y-1">
+                <p className="text-sm font-semibold text-foreground">
+                  {t("googleRecapSectionLabel")}
+                </p>
+                {notesDocUrl ? (
+                  <p className="text-sm">
+                    <a
+                      href={notesDocUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={actionLinkClass}
+                    >
+                      {t("googleDocNotesCta")}
+                    </a>
+                  </p>
+                ) : null}
+                {lesson.transcriptArtifactIds.length > 0 ? (
+                  <p className="text-sm text-muted">
+                    {t("syncedTranscriptRefsLabel")}: {lesson.transcriptArtifactIds.join(", ")}
+                  </p>
+                ) : null}
+                {lesson.smartNotesIds.length > 0 ? (
+                  <p className="text-sm text-muted">
+                    {t("syncedSmartNotesRefsLabel")}: {lesson.smartNotesIds.join(", ")}
+                  </p>
+                ) : null}
+                {lesson.recordingIds.length > 0 ? (
+                  <p className="text-sm text-muted">
+                    {t("syncedRecordingRefsLabel")}: {lesson.recordingIds.join(", ")}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+            <TeacherLessonCompletionNotesForm
+              variant="embedded"
+              bookingId={lesson.id}
+              initialCompletionNotesMd={lesson.initialCompletionNotesMd}
+              initialExternalTranscriptUrl={lesson.initialExternalTranscriptUrl}
+            />
+          </div>
+        ) : null}
+      </li>
+    );
+  };
+
+  const students = groupConsecutive(
+    lessons,
+    (lesson) => lesson.studentDisplay,
+    (lesson) => lesson.id,
+  );
+
   return (
-    <GroupedList
-      items={lessons}
-      labelOf={(lesson) => lesson.studentDisplay}
-      keyOf={(lesson) => lesson.id}
-      countLabel={(count) => t("completedLessonsCount", { count })}
-      empty={null}
-      renderItem={(lesson) => {
-              const expanded = expandedId === lesson.id;
-              const panelId = `${groupId}-panel-${lesson.id}`;
-              const notesDocUrl = lesson.notesDocId
-                ? `https://docs.google.com/document/d/${lesson.notesDocId}/edit`
-                : "";
-              const hasGoogleRecap =
-                notesDocUrl.length > 0 ||
-                lesson.transcriptArtifactIds.length > 0 ||
-                lesson.smartNotesIds.length > 0 ||
-                lesson.recordingIds.length > 0;
-
-              return (
-                <li
-                  key={lesson.id}
-                  id={`booking-${lesson.id}`}
-                  className="scroll-mt-24 border-b border-border"
-                >
-                  <button
-                    type="button"
-                    aria-expanded={expanded}
-                    aria-controls={panelId}
-                    onClick={() => toggle(lesson.id)}
-                    className="flex w-full items-baseline gap-3 py-3 text-left transition-colors hover:bg-[var(--app-hover)]"
-                  >
-                    <span className="translate-y-0.5">
-                      <Chevron open={expanded} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      {/* The date leads: within one student, when it happened is
-                          what you are scanning for. */}
-                      <span className="block text-sm font-semibold tabular-nums text-foreground">
-                        {formatLessonRange(lesson.startsAtIso, lesson.endsAtIso, locale)}
-                      </span>
-                      <span className="mt-0.5 block truncate text-sm text-muted">
-                        {lesson.lessonTitleJa} / {lesson.lessonTitleEn}
-                      </span>
-                    </span>
-                    {lesson.hasSavedContent ? (
-                      <Status tone="settled" className="shrink-0">
-                        {t("completedLessonsHasNotes")}
-                      </Status>
-                    ) : null}
-                  </button>
-
-                  {lesson.invoiceId ? (
-                    <div className="pb-3 pl-6">
-                      <InvoiceDownloadLinks
-                        invoiceId={lesson.invoiceId}
-                        englishLabel={td("downloadInvoiceEn")}
-                        japaneseLabel={td("downloadInvoiceJa")}
-                      />
-                    </div>
-                  ) : null}
-
-                  {expanded ? (
-                    <div id={panelId} className="border-t border-border py-4 pl-6">
-                      {hasGoogleRecap ? (
-                        <div className="mb-4 space-y-1">
-                          <p className="text-sm font-semibold text-foreground">
-                            {t("googleRecapSectionLabel")}
-                          </p>
-                          {notesDocUrl ? (
-                            <p className="text-sm">
-                              <a
-                                href={notesDocUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={actionLinkClass}
-                              >
-                                {t("googleDocNotesCta")}
-                              </a>
-                            </p>
-                          ) : null}
-                          {lesson.transcriptArtifactIds.length > 0 ? (
-                            <p className="text-sm text-muted">
-                              {t("syncedTranscriptRefsLabel")}:{" "}
-                              {lesson.transcriptArtifactIds.join(", ")}
-                            </p>
-                          ) : null}
-                          {lesson.smartNotesIds.length > 0 ? (
-                            <p className="text-sm text-muted">
-                              {t("syncedSmartNotesRefsLabel")}: {lesson.smartNotesIds.join(", ")}
-                            </p>
-                          ) : null}
-                          {lesson.recordingIds.length > 0 ? (
-                            <p className="text-sm text-muted">
-                              {t("syncedRecordingRefsLabel")}: {lesson.recordingIds.join(", ")}
-                            </p>
-                          ) : null}
-                        </div>
-                      ) : null}
-                      <TeacherLessonCompletionNotesForm
-                        variant="embedded"
-                        bookingId={lesson.id}
-                        initialCompletionNotesMd={lesson.initialCompletionNotesMd}
-                        initialExternalTranscriptUrl={lesson.initialExternalTranscriptUrl}
-                      />
-                    </div>
-                  ) : null}
-                </li>
-        );
-      }}
-    />
+    <div className="space-y-10">
+      {students.map((student, studentIndex) => (
+        <CollapsibleSection
+          key={student.key}
+          label={student.label}
+          count={t("completedLessonsCount", { count: student.items.length })}
+          defaultOpen={studentIndex === 0}
+          level="student"
+        >
+          <div className="space-y-4 pt-2">
+            {groupLessonsByYearAndMonth(
+              student.items,
+              (lesson) => lesson.startsAtIso,
+              locale,
+            ).map((year, yearIndex) => (
+              <CollapsibleSection
+                key={year.key}
+                label={year.label}
+                count={t("completedLessonsCount", { count: year.count })}
+                defaultOpen={yearIndex === 0}
+                level="year"
+              >
+                <div className="space-y-3 pl-4">
+                  {year.months.map((month) => (
+                    <section key={month.key}>
+                      <h5 className="pb-1 text-xs font-semibold uppercase tracking-wide text-muted">
+                        {month.label}
+                      </h5>
+                      <ul className="list-none p-0">{month.items.map(renderLesson)}</ul>
+                    </section>
+                  ))}
+                </div>
+              </CollapsibleSection>
+            ))}
+          </div>
+        </CollapsibleSection>
+      ))}
+    </div>
   );
 }
