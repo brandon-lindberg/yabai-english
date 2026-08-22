@@ -118,12 +118,17 @@ export function Field({
           {label}
         </Label>
       ) : (
-        <span className="flex items-baseline gap-1">
+        // `text-sm` sits on the row, not just the label: the marker used to
+        // inherit the 16px body size, and its taller line box grew this
+        // baseline-aligned row by ~4px. Only required fields grew, so a
+        // required field beside an optional one in a grid sat lower than its
+        // neighbour — visible on every two-column form in the app.
+        <span className="flex items-baseline gap-1 text-sm">
           <Label
             isGroup={isGroup}
             id={id}
             labelId={labelId}
-            className="text-sm font-medium text-foreground"
+            className="font-medium text-foreground"
           >
             {label}
           </Label>

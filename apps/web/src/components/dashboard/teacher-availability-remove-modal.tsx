@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { ModalShell } from "@/components/ui/modal-shell";
 
 type Props = {
   open: boolean;
@@ -31,31 +31,14 @@ export function TeacherAvailabilityRemoveModal({
   onThisOccurrence,
   onAllSeries,
 }: Props) {
-  useEffect(() => {
-    if (!open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="teacher-availability-remove-title"
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      labelledBy="teacher-availability-remove-title"
+      dismissLabel={cancelLabel}
     >
-      <button
-        type="button"
-        className="absolute inset-0 bg-[var(--storm-ink)]/40"
-        aria-label={cancelLabel}
-        onClick={onClose}
-      />
-      <div className="relative z-[101] w-full max-w-md rounded-2xl border border-border bg-surface p-5">
+      <>
         <h3 id="teacher-availability-remove-title" className="text-lg font-semibold text-foreground">
           {title}
         </h3>
@@ -98,7 +81,7 @@ export function TeacherAvailabilityRemoveModal({
             {cancelLabel}
           </button>
         </div>
-      </div>
-    </div>
+      </>
+    </ModalShell>
   );
 }

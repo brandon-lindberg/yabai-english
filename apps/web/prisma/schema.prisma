@@ -470,6 +470,15 @@ model TeacherPaymentAccount {
   chargesEnabled    Boolean                     @default(false)
   payoutsEnabled    Boolean                     @default(false)
   requirementsDue   String[]                    @default([])
+  /// Stripe's `details_submitted`. Without it, "hasn't finished onboarding" and
+  /// "finished, waiting on Stripe's review" are the same absence of readiness,
+  /// and the teacher gets told to act when there is nothing to act on.
+  detailsSubmitted  Boolean                     @default(false)
+  /// Stripe's `requirements.pending_verification` — what Stripe is checking.
+  pendingVerification String[]                  @default([])
+  /// Stripe's `requirements.disabled_reason`. Separates a routine review (wait)
+  /// from a rejection or platform pause (the teacher must contact Stripe).
+  disabledReason    String?
   createdAt         DateTime                    @default(now())
   updatedAt         DateTime                    @updatedAt
 

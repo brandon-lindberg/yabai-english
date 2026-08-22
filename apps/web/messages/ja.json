@@ -66,6 +66,11 @@
     "footerTermsLink": "利用規約",
     "footerPrivacyLink": "プライバシー"
   },
+  "guides": {
+    "stripeOnboardingPageTitle": "講師向け Stripe 設定ガイド",
+    "stripeOnboardingMetaDescription": "講師用の決済アカウントを設定する際に Stripe から聞かれる質問への回答方法を説明します。",
+    "stripeOnboardingFooterNotice": "このガイドは、Stripe に正確にお答えいただけるよう English Studio Japan の仕組みを説明したものです。Stripe の質問内容は予告なく変更される場合があり、ご回答はいずれもお客様ご自身の申告となります。このガイドに記載のない質問については正直にお答えいただき、ご不明な場合は Stripe サポートにお問い合わせください。"
+  },
   "lessonSlotMeta": {
     "levels": {
       "beginner": "初級",
@@ -535,6 +540,8 @@
       "continueStripeSetup": "Stripe 設定を続ける",
       "continueStripeSetupPrefix": "設定を続ける：",
       "refreshStripe": "Stripe の状態を更新",
+      "stripeCheckStatusOnStripe": "Stripe で状況を確認する",
+      "stripeSetupGuideLink": "Stripe の質問にはどう答えればよいですか？",
       "connectStripeHelp": "Stripe のホスト型設定画面が開きます。講師自身が Stripe アカウントを所有・管理し、English Studio Japan は接続アカウント ID の保存と有料レッスンのプラットフォーム手数料の徴収のみを行います。",
       "connectStripeError": "Stripe 設定を開始できませんでした。",
       "refreshStripeError": "Stripe の状態を更新できませんでした。",
@@ -560,11 +567,17 @@
       "stripeSetupState_not_started": "Stripe はまだ接続されていません",
       "stripeSetupState_in_progress": "Stripe 設定の途中です",
       "stripeSetupState_action_required": "Stripe に追加情報が必要です",
+      "stripeSetupState_in_review": "Stripe がアカウントを審査中です",
+      "stripeSetupState_restricted": "Stripe アカウントが制限されています",
       "stripeSetupState_ready": "Stripe の準備が完了しました",
       "stripeSetupPolicyRequiredBody": "Stripe を接続する前に、下の講師向け支払いポリシーに同意してください。",
       "stripeSetupNotStartedBody": "レッスン代を受け取るには Stripe アカウントを接続してください。",
       "stripeSetupInProgressBody": "受講生がカードで支払えるように、Stripe のオンボーディングを完了してください。",
       "stripeSetupActionRequiredBody": "決済を有効にする前に、Stripe 側で追加の情報が必要です。",
+      "stripeSetupInReviewBody": "情報の送信は完了しています。カード決済を有効にする前に、Stripe が内容を確認しています。",
+      "stripeSetupInReviewNoAction": "現在、お客様に必要な操作はありません。審査は通常の手続きであり、問題があるわけではありません。",
+      "stripeSetupInReviewTimeline": "審査は通常数営業日で完了します。Stripe の承認後、有料レッスンは自動的に有効になります。",
+      "stripeSetupRestrictedBody": "このアカウントでは決済を有効にできません。Stripe ダッシュボードから Stripe サポートにお問い合わせください。",
       "stripeSetupReadyBody": "Stripe アカウントは決済と入金の準備ができています。",
       "stripeSetupStepPolicy": "支払いポリシーに同意",
       "stripeSetupStepConnect": "Stripe を接続",
@@ -574,6 +587,7 @@
       "stripeReturnChecking": "Stripe の状態を確認しています…",
       "stripeReturnReady": "Stripe 設定が完了しました。受講生がレッスン代を支払えます。",
       "stripeReturnIncomplete": "Stripe の設定がまだ完了していません。オンボーディングを続けるか、状態を更新してください。",
+      "stripeReturnInReview": "情報の送信が完了しました。Stripe が審査中のため、追加の操作は不要です。",
       "stripeAccountLabel_PENDING": "Stripe：設定中",
       "stripeAccountLabel_ENABLED": "Stripe：利用可能",
       "stripeAccountLabel_REQUIREMENTS_DUE": "Stripe：対応が必要",

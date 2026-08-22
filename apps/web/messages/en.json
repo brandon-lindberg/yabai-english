@@ -66,6 +66,11 @@
     "footerTermsLink": "Terms",
     "footerPrivacyLink": "Privacy"
   },
+  "guides": {
+    "stripeOnboardingPageTitle": "Stripe setup guide for teachers",
+    "stripeOnboardingMetaDescription": "How to answer every question Stripe asks when setting up your teacher payment account.",
+    "stripeOnboardingFooterNotice": "This guide explains how English Studio Japan works so you can answer Stripe accurately. Stripe may change its questions at any time, and every answer you give is your own declaration. If a question is not covered here, answer it truthfully and contact Stripe support if you are unsure."
+  },
   "lessonSlotMeta": {
     "levels": {
       "beginner": "Beginner",
@@ -535,6 +540,8 @@
       "continueStripeSetup": "Continue Stripe setup",
       "continueStripeSetupPrefix": "Continue setup with",
       "refreshStripe": "Refresh Stripe status",
+      "stripeCheckStatusOnStripe": "Check your status on Stripe",
+      "stripeSetupGuideLink": "How do I answer Stripe's questions?",
       "connectStripeHelp": "Stripe opens a hosted setup flow where you own and manage your Stripe account. English Studio Japan only receives the connected account ID and collects the platform fee on paid lessons.",
       "connectStripeError": "Could not start Stripe setup.",
       "refreshStripeError": "Could not refresh Stripe status.",
@@ -560,11 +567,17 @@
       "stripeSetupState_not_started": "Stripe not connected yet",
       "stripeSetupState_in_progress": "Stripe setup in progress",
       "stripeSetupState_action_required": "Stripe needs more information",
+      "stripeSetupState_in_review": "Stripe is reviewing your account",
+      "stripeSetupState_restricted": "Stripe has restricted your account",
       "stripeSetupState_ready": "Stripe is ready",
       "stripeSetupPolicyRequiredBody": "Accept the teacher payment policy below before connecting Stripe.",
       "stripeSetupNotStartedBody": "Connect your Stripe account to receive lesson payments.",
       "stripeSetupInProgressBody": "Finish Stripe onboarding so students can pay with card.",
       "stripeSetupActionRequiredBody": "Stripe still needs details before charges can go live.",
+      "stripeSetupInReviewBody": "Your details are submitted. Stripe is verifying them before card payments can go live.",
+      "stripeSetupInReviewNoAction": "There is nothing for you to do right now. A review is a normal part of setup and does not mean anything is wrong.",
+      "stripeSetupInReviewTimeline": "Reviews usually finish within a few business days. Paid lessons turn on automatically once Stripe approves your account.",
+      "stripeSetupRestrictedBody": "Stripe cannot enable payments for this account. Open your Stripe dashboard and contact Stripe support to resolve it.",
       "stripeSetupReadyBody": "Your Stripe account is ready for charges and payouts.",
       "stripeSetupStepPolicy": "Accept payment policy",
       "stripeSetupStepConnect": "Connect Stripe",
@@ -574,6 +587,7 @@
       "stripeReturnChecking": "Checking your Stripe status…",
       "stripeReturnReady": "Stripe setup is complete. Students can pay for lessons.",
       "stripeReturnIncomplete": "Stripe still needs setup. Continue onboarding or refresh status.",
+      "stripeReturnInReview": "Your details are submitted. Stripe is reviewing your account — no further action is needed.",
       "stripeAccountLabel_PENDING": "Stripe: setup in progress",
       "stripeAccountLabel_ENABLED": "Stripe: ready",
       "stripeAccountLabel_REQUIREMENTS_DUE": "Stripe: action required",

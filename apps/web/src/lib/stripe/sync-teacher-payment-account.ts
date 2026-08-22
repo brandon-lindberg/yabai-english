@@ -26,6 +26,9 @@ type SyncPrisma = {
         chargesEnabled: boolean;
         payoutsEnabled: boolean;
         requirementsDue: string[];
+        detailsSubmitted: boolean;
+        pendingVerification: string[];
+        disabledReason: string | null;
       };
       select?: Record<string, unknown>;
     }) => Promise<unknown>;
@@ -75,6 +78,9 @@ export async function syncTeacherPaymentAccountFromStripe(
       chargesEnabled: status.chargesEnabled,
       payoutsEnabled: status.payoutsEnabled,
       requirementsDue: status.requirementsDue,
+      detailsSubmitted: status.detailsSubmitted,
+      pendingVerification: status.pendingVerification,
+      disabledReason: status.disabledReason,
     },
     ...(select ? { select } : {}),
   });

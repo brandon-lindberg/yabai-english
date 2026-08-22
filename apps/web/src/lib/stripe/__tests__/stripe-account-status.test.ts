@@ -27,6 +27,34 @@ describe("resolveStripeAccountStatus", () => {
     expect(status.status).toBe("REQUIREMENTS_DUE");
     expect(status.requirementsDue).toEqual(["individual.id_number"]);
   });
+
+  test("carries the review signals through so the UI can tell waiting from acting", () => {
+    const status = resolveStripeAccountStatus({
+      charges_enabled: false,
+      payouts_enabled: true,
+      details_submitted: true,
+      requirements: {
+        currently_due: [],
+        past_due: [],
+        pending_verification: ["individual.verification.document"],
+        disabled_reason: "under_review",
+      },
+    });
+
+    expect(status.detailsSubmitted).toBe(true);
+    expect(status.pendingVerification).toEqual(["individual.verification.document"]);
+    expect(status.disabledReason).toBe("under_review");
+    // Nothing is due, so this must not be reported as the teacher's problem.
+    expect(status.requirementsDue).toEqual([]);
+  });
+
+  test("defaults the review signals when Stripe omits them", () => {
+    const status = resolveStripeAccountStatus(ready);
+
+    expect(status.detailsSubmitted).toBe(false);
+    expect(status.pendingVerification).toEqual([]);
+    expect(status.disabledReason).toBeNull();
+  });
 });
 
 describe("payment methods derived from Stripe capabilities", () => {

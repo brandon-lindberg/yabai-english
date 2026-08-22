@@ -32,6 +32,9 @@ export type TeacherPaymentsSettingsAccount = {
   chargesEnabled: boolean;
   payoutsEnabled: boolean;
   requirementsDue?: string[];
+  detailsSubmitted?: boolean;
+  pendingVerification?: string[];
+  disabledReason?: string | null;
   methods: Array<{
     method: Method;
     enabled: boolean;
@@ -65,9 +68,9 @@ export function TeacherPaymentsSettings({
   const [savingDevMethod, setSavingDevMethod] = useState(false);
   const [connectingStripe, setConnectingStripe] = useState(false);
   const [refreshingStripe, setRefreshingStripe] = useState(false);
-  const [returnBanner, setReturnBanner] = useState<"checking" | "ready" | "incomplete" | null>(
-    null,
-  );
+  const [returnBanner, setReturnBanner] = useState<
+    "checking" | "ready" | "in_review" | "incomplete" | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
   const enabledMethods = getEnabledTeacherPaymentMethods(accounts);
   const hasLocalDevStripe = accounts.some(
@@ -152,7 +155,7 @@ export function TeacherPaymentsSettings({
             (account) => account.provider !== data.account!.provider && account.id !== data.account!.id,
           ),
         ]);
-        setReturnBanner(isStripeAccountReady(data.account) ? "ready" : "incomplete");
+        setReturnBanner(resolveReturnBanner(data.account));
       } else {
         setReturnBanner("incomplete");
       }
@@ -181,6 +184,18 @@ export function TeacherPaymentsSettings({
       void refreshStripe();
     }
   }, [searchParams, stripeConnectEnabled]);
+
+  // Reuses the same state machine the status card renders from, so the banner
+  // and the card can never disagree about whether a teacher must act.
+  function resolveReturnBanner(account: TeacherPaymentsSettingsAccount) {
+    if (isStripeAccountReady(account)) return "ready" as const;
+    const state = resolveTeacherStripeSetupState({
+      paymentPolicyAcceptedAt,
+      accounts: [account],
+      stripeConnectEnabled,
+    }).state;
+    return state === "in_review" ? ("in_review" as const) : ("incomplete" as const);
+  }
 
   function focusPolicySection() {
     policySectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });

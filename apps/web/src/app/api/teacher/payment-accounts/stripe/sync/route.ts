@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
-import { syncTeacherPaymentAccountFromStripe } from "@/lib/stripe/sync-teacher-payment-account";
+import { syncAndNotifyTeacherPaymentAccount } from "@/lib/stripe/sync-and-notify-teacher-payment-account";
 import {
   retrieveStripeAccount,
   stripeConnectConfigured,
@@ -40,7 +40,7 @@ export async function POST() {
   }
 
   const stripeAccount = await retrieveStripeAccount(paymentAccount.providerAccountId);
-  const account = await syncTeacherPaymentAccountFromStripe(prisma, {
+  const account = await syncAndNotifyTeacherPaymentAccount({
     paymentAccountId: paymentAccount.id,
     stripeAccount,
     select: {
@@ -51,6 +51,9 @@ export async function POST() {
       chargesEnabled: true,
       payoutsEnabled: true,
       requirementsDue: true,
+      detailsSubmitted: true,
+      pendingVerification: true,
+      disabledReason: true,
       methods: { select: { method: true, enabled: true } },
     },
   });

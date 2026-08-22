@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { syncTeacherPaymentAccountFromStripe } from "@/lib/stripe/sync-teacher-payment-account";
+import { syncAndNotifyTeacherPaymentAccount } from "@/lib/stripe/sync-and-notify-teacher-payment-account";
 import { constructStripeWebhookEvent } from "@/lib/stripe/stripe-connect";
 import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-booking-from-stripe-checkout";
 import { mapStripeRefundStatus } from "@/lib/payment-refunds";
@@ -30,11 +30,14 @@ async function syncConnectedAccountFromWebhook(event: StripeEventLike) {
   });
   if (!paymentAccount) return null;
 
-  return syncTeacherPaymentAccountFromStripe(prisma, {
+  return syncAndNotifyTeacherPaymentAccount({
     paymentAccountId: paymentAccount.id,
     stripeAccount: {
       charges_enabled: Boolean(stripeAccount.charges_enabled),
       payouts_enabled: Boolean(stripeAccount.payouts_enabled),
+      // Omitting this is what made every webhook-observed account look like it
+      // had never finished onboarding, review or not.
+      details_submitted: Boolean(stripeAccount.details_submitted),
       requirements: stripeAccount.requirements as never,
       capabilities: stripeAccount.capabilities as never,
     },

@@ -46,6 +46,80 @@ describe("TeacherPaymentsSettings", () => {
     expect(screen.getByText(en.dashboard.settingsPage.paymentPolicyAccepted)).toBeTruthy();
   });
 
+  // The bug this covers: an account under Stripe review is not "ready", so it
+  // fell through to the same "finish your setup" copy and Continue button as an
+  // account that had never been onboarded. Nothing the teacher clicked helped.
+  test("tells a teacher under Stripe review to wait, and offers nothing to click", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherPaymentsSettings
+          paymentPolicyAcceptedAt="2026-05-15T00:00:00.000Z"
+          devPaymentsEnabled={false}
+          stripeConnectEnabled
+          accounts={[
+            {
+              id: "acct-1",
+              provider: "STRIPE",
+              status: "PENDING",
+              chargesEnabled: false,
+              payoutsEnabled: true,
+              providerAccountId: "acct_test",
+              detailsSubmitted: true,
+              disabledReason: "under_review",
+              methods: [{ method: "CARD", enabled: false }],
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    const copy = en.dashboard.settingsPage;
+    expect(screen.getByText(copy.stripeSetupState_in_review)).toBeTruthy();
+    expect(screen.getByText(copy.stripeSetupInReviewNoAction)).toBeTruthy();
+    expect(screen.getByText(copy.stripeSetupInReviewTimeline)).toBeTruthy();
+
+    // The misleading half: no "setup in progress", and no button implying the
+    // teacher has onboarding left to do.
+    expect(screen.queryByText(copy.stripeSetupState_in_progress)).toBeNull();
+    expect(screen.queryByLabelText(copy.continueStripeSetup)).toBeNull();
+    // Refreshing is still allowed \u2014 it is how the wait ends early.
+    expect(screen.getByText(copy.refreshStripe)).toBeTruthy();
+
+    // ...and instead of a dead Continue button, a way to go look at Stripe.
+    const stripeLink = screen.getByText(copy.stripeCheckStatusOnStripe);
+    expect(stripeLink.getAttribute("href")).toBe("https://dashboard.stripe.com/");
+    expect(stripeLink.getAttribute("target")).toBe("_blank");
+  });
+
+  test("keeps telling a rejected account to act, rather than to wait it out", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherPaymentsSettings
+          paymentPolicyAcceptedAt="2026-05-15T00:00:00.000Z"
+          devPaymentsEnabled={false}
+          stripeConnectEnabled
+          accounts={[
+            {
+              id: "acct-1",
+              provider: "STRIPE",
+              status: "PENDING",
+              chargesEnabled: false,
+              payoutsEnabled: false,
+              providerAccountId: "acct_test",
+              detailsSubmitted: true,
+              disabledReason: "rejected.fraud",
+              methods: [{ method: "CARD", enabled: false }],
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    const copy = en.dashboard.settingsPage;
+    expect(screen.getByText(copy.stripeSetupState_restricted)).toBeTruthy();
+    expect(screen.queryByText(copy.stripeSetupInReviewTimeline)).toBeNull();
+  });
+
   test("does not present a local dev Stripe account as real Connect-ready", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>

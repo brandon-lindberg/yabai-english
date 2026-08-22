@@ -15,6 +15,27 @@ describe("Field", () => {
     expect(screen.getByLabelText("Display name")).toBeInTheDocument();
   });
 
+  // jsdom does no layout, so this asserts the cause rather than the symptom:
+  // the required marker must share the label's type scale. When it inherited
+  // the 16px body size instead, its taller line box grew the baseline-aligned
+  // label row, and a required field sat lower than the optional field beside
+  // it in every two-column grid.
+  test("the required marker renders at the label's type scale, not the body's", () => {
+    const { container } = render(
+      <Field label="Display name" required>
+        {(control) => <Input {...control} defaultValue="" />}
+      </Field>,
+    );
+
+    const marker = container.querySelector('[aria-hidden="true"]');
+    expect(marker?.textContent).toBe("*");
+
+    const labelRow = marker?.parentElement;
+    expect(labelRow?.className).toContain("text-sm");
+    // Nothing inside the row may reintroduce a competing size.
+    expect(marker?.className).not.toMatch(/text-(base|lg|xl)/);
+  });
+
   test("the control bag is safe to spread straight onto a DOM element", () => {
     // Every Field call site in the app does `{...control}`. Anything in that
     // bag that is not a real DOM attribute lands on the element, so group-mode

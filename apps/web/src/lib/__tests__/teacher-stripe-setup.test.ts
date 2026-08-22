@@ -84,6 +84,115 @@ describe("resolveTeacherStripeSetupState", () => {
     ).toEqual({ state: "ready", stripeAccountId: "acct-1" });
   });
 
+  test("returns in_review once details are submitted and nothing is outstanding", () => {
+    expect(
+      resolveTeacherStripeSetupState({
+        paymentPolicyAcceptedAt: "2026-05-01T00:00:00.000Z",
+        accounts: [
+          {
+            ...readyStripe,
+            status: "PENDING",
+            chargesEnabled: false,
+            payoutsEnabled: true,
+            detailsSubmitted: true,
+          },
+        ],
+        stripeConnectEnabled: true,
+      }),
+    ).toEqual({
+      state: "in_review",
+      stripeAccountId: "acct-1",
+      pendingVerification: [],
+    });
+  });
+
+  test("returns in_review when Stripe reports a review even before details_submitted lands", () => {
+    expect(
+      resolveTeacherStripeSetupState({
+        paymentPolicyAcceptedAt: "2026-05-01T00:00:00.000Z",
+        accounts: [
+          {
+            ...readyStripe,
+            status: "PENDING",
+            chargesEnabled: false,
+            disabledReason: "under_review",
+          },
+        ],
+        stripeConnectEnabled: true,
+      }),
+    ).toEqual({
+      state: "in_review",
+      stripeAccountId: "acct-1",
+      pendingVerification: [],
+    });
+  });
+
+  test("surfaces what Stripe is verifying", () => {
+    const state = resolveTeacherStripeSetupState({
+      paymentPolicyAcceptedAt: "2026-05-01T00:00:00.000Z",
+      accounts: [
+        {
+          ...readyStripe,
+          status: "PENDING",
+          chargesEnabled: false,
+          detailsSubmitted: true,
+          pendingVerification: ["individual.verification.document"],
+        },
+      ],
+      stripeConnectEnabled: true,
+    });
+
+    expect(state).toEqual({
+      state: "in_review",
+      stripeAccountId: "acct-1",
+      pendingVerification: ["individual.verification.document"],
+    });
+  });
+
+  test("an outstanding requirement outranks a review, because the teacher can act on it", () => {
+    expect(
+      resolveTeacherStripeSetupState({
+        paymentPolicyAcceptedAt: "2026-05-01T00:00:00.000Z",
+        accounts: [
+          {
+            ...readyStripe,
+            status: "REQUIREMENTS_DUE",
+            chargesEnabled: false,
+            requirementsDue: ["individual.id_number"],
+            detailsSubmitted: true,
+            disabledReason: "under_review",
+          },
+        ],
+        stripeConnectEnabled: true,
+      }),
+    ).toEqual({
+      state: "action_required",
+      stripeAccountId: "acct-1",
+      requirementsDue: ["individual.id_number"],
+    });
+  });
+
+  test.each(["rejected.fraud", "rejected.terms_of_service", "platform_paused", "listed"])(
+    "reports %s as restricted rather than a review that will clear on its own",
+    (disabledReason) => {
+      expect(
+        resolveTeacherStripeSetupState({
+          paymentPolicyAcceptedAt: "2026-05-01T00:00:00.000Z",
+          accounts: [
+            {
+              ...readyStripe,
+              status: "PENDING",
+              chargesEnabled: false,
+              detailsSubmitted: true,
+              disabledReason,
+            },
+          ],
+          stripeConnectEnabled: true,
+        }),
+      ).toEqual({ state: "restricted", stripeAccountId: "acct-1", disabledReason });
+    },
+  );
+
   test("ignores local dev Stripe accounts when resolving real Connect state", () => {
     expect(
       resolveTeacherStripeSetupState({

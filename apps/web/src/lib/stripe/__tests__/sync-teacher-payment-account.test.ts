@@ -69,6 +69,44 @@ describe("syncTeacherPaymentAccountFromStripe", () => {
         chargesEnabled: true,
         payoutsEnabled: false,
         requirementsDue: ["external_account"],
+        detailsSubmitted: false,
+        pendingVerification: [],
+        disabledReason: null,
+      },
+    });
+  });
+
+  // The review columns are what let the teacher UI say "Stripe is checking,
+  // sit tight" instead of "go finish setup", so they have to survive the sync.
+  test("persists the review signals Stripe reports", async () => {
+    const prisma = syncPrisma();
+
+    await syncTeacherPaymentAccountFromStripe(prisma, {
+      paymentAccountId: "acct-row-1",
+      stripeAccount: {
+        charges_enabled: false,
+        payouts_enabled: true,
+        details_submitted: true,
+        requirements: {
+          currently_due: [],
+          past_due: [],
+          pending_verification: ["individual.verification.document"],
+          disabled_reason: "under_review",
+        },
+        capabilities: { card_payments: "pending" },
+      },
+    });
+
+    expect(prisma.teacherPaymentAccount.update).toHaveBeenCalledWith({
+      where: { id: "acct-row-1" },
+      data: {
+        status: "PENDING",
+        chargesEnabled: false,
+        payoutsEnabled: true,
+        requirementsDue: [],
+        detailsSubmitted: true,
+        pendingVerification: ["individual.verification.document"],
+        disabledReason: "under_review",
       },
     });
   });

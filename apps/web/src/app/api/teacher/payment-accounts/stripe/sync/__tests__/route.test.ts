@@ -4,7 +4,7 @@ const { authMock, prismaMock, retrieveAccountMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
     teacherProfile: { findUnique: vi.fn() },
-    teacherPaymentAccount: { update: vi.fn() },
+    teacherPaymentAccount: { update: vi.fn(), findUnique: vi.fn() },
     teacherPaymentMethod: { upsert: vi.fn() },
   },
   retrieveAccountMock: vi.fn(),
@@ -26,6 +26,23 @@ describe("POST /api/teacher/payment-accounts/stripe/sync", () => {
     prismaMock.teacherProfile.findUnique.mockResolvedValue({
       id: "teacher-profile-1",
       paymentAccounts: [{ id: "payacct-1", providerAccountId: "acct_123" }],
+    });
+    // The sync now reads the row either side of the write to spot a phase
+    // change worth notifying about. Same row both times = no notification,
+    // which keeps these tests about the sync itself.
+    prismaMock.teacherPaymentAccount.findUnique.mockResolvedValue({
+      id: "payacct-1",
+      provider: "STRIPE",
+      providerAccountId: "acct_123",
+      status: "PENDING",
+      chargesEnabled: false,
+      payoutsEnabled: false,
+      requirementsDue: [],
+      detailsSubmitted: false,
+      pendingVerification: [],
+      disabledReason: null,
+      methods: [],
+      teacher: { userId: "teacher-user-1" },
     });
   });
 

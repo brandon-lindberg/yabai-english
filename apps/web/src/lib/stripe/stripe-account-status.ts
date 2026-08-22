@@ -30,9 +30,15 @@ export const SUPPORTED_METHOD_TYPES = Object.keys(
 type StripeAccountSnapshot = {
   charges_enabled?: boolean | null;
   payouts_enabled?: boolean | null;
+  /** False until the connected account completes Stripe's hosted onboarding. */
+  details_submitted?: boolean | null;
   requirements?: {
     currently_due?: string[] | null;
     past_due?: string[] | null;
+    /** Submitted and awaiting Stripe — nothing for the teacher to supply. */
+    pending_verification?: string[] | null;
+    /** Why charges are off: a routine review, a rejection, a platform pause. */
+    disabled_reason?: string | null;
   } | null;
   /** Stripe's `Capabilities` is an interface with no index signature, so it is
    *  taken as unknown and narrowed here rather than fought with a cast. */
@@ -75,6 +81,9 @@ export function resolveStripeAccountStatus(account: StripeAccountSnapshot) {
     chargesEnabled,
     payoutsEnabled,
     requirementsDue,
+    detailsSubmitted: Boolean(account.details_submitted),
+    pendingVerification: account.requirements?.pending_verification ?? [],
+    disabledReason: account.requirements?.disabled_reason ?? null,
     enabledMethods: resolveEnabledMethods(account, ready),
   };
 }

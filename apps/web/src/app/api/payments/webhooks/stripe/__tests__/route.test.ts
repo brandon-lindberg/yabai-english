@@ -5,7 +5,7 @@ const { prismaMock, constructEventMock, confirmFromCheckoutMock, notifyStuckRefu
     paymentWebhookEvent: { createMany: vi.fn() },
     payment: { update: vi.fn(), updateMany: vi.fn() },
     refund: { updateMany: vi.fn(), findFirst: vi.fn() },
-    teacherPaymentAccount: { findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
+    teacherPaymentAccount: { findFirst: vi.fn(), findMany: vi.fn(), findUnique: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     teacherPaymentMethod: { upsert: vi.fn(), updateMany: vi.fn() },
   },
   constructEventMock: vi.fn(),
@@ -30,6 +30,23 @@ describe("POST /api/payments/webhooks/stripe", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     prismaMock.paymentWebhookEvent.createMany.mockResolvedValue({ count: 1 });
+    // Read either side of the account sync to detect a phase change. Identical
+    // rows mean no phase change and no notification, so these tests stay about
+    // the webhook's own behaviour.
+    prismaMock.teacherPaymentAccount.findUnique.mockResolvedValue({
+      id: "payacct-1",
+      provider: "STRIPE",
+      providerAccountId: "acct_123",
+      status: "PENDING",
+      chargesEnabled: false,
+      payoutsEnabled: false,
+      requirementsDue: [],
+      detailsSubmitted: false,
+      pendingVerification: [],
+      disabledReason: null,
+      methods: [],
+      teacher: { userId: "teacher-user-1" },
+    });
     prismaMock.refund.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.refund.findFirst.mockResolvedValue({
       amountYen: 5000,

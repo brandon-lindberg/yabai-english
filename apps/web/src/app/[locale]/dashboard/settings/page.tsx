@@ -66,6 +66,9 @@ export default async function DashboardSettingsPage({
               chargesEnabled: true,
               payoutsEnabled: true,
               requirementsDue: true,
+              detailsSubmitted: true,
+              pendingVerification: true,
+              disabledReason: true,
               methods: {
                 select: {
                   method: true,

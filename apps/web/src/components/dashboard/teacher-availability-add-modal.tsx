@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
 import { weekdayLabel } from "@/lib/weekdays";
 import { buttonClasses } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { InlineAlert } from "@/components/ui/inline-alert";
+import { ModalShell } from "@/components/ui/modal-shell";
 
 export type TaxonomyOption = {
   id: string;
@@ -402,33 +403,16 @@ function TeacherAvailabilityAddModalInner({
 }
 
 export function TeacherAvailabilityAddModal(props: Props) {
-  useEffect(() => {
-    if (!props.open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") props.onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [props]);
-
-  if (!props.open || !props.dayKey) return null;
+  if (!props.dayKey) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="teacher-availability-add-title"
+    <ModalShell
+      open={props.open}
+      onClose={props.onClose}
+      labelledBy="teacher-availability-add-title"
+      dismissLabel={props.cancelLabel}
     >
-      <button
-        type="button"
-        className="absolute inset-0 bg-[var(--storm-ink)]/40"
-        aria-label={props.cancelLabel}
-        onClick={props.onClose}
-      />
-      <div className="relative z-[101] w-full max-w-md rounded-2xl border border-border bg-surface p-5">
-        <TeacherAvailabilityAddModalInner {...props} dayKey={props.dayKey} />
-      </div>
-    </div>
+      <TeacherAvailabilityAddModalInner {...props} dayKey={props.dayKey} />
+    </ModalShell>
   );
 }
