@@ -18,10 +18,7 @@ function toClientLessons(completed: Completed): TeacherCompletedLessonItem[] {
     studentDisplay: b.student.name ?? b.student.email ?? "—",
     initialCompletionNotesMd: b.completionNotesMd,
     initialExternalTranscriptUrl: b.externalTranscriptUrl,
-    notesDocId: b.notesDocId,
-    transcriptArtifactIds: b.transcriptArtifactIds,
-    smartNotesIds: b.smartNotesIds,
-    recordingIds: b.recordingIds,
+    canFetchNotesLink: Boolean(b.googleEventId),
     hasSavedContent: Boolean(
       (b.completionNotesMd ?? "").trim() || (b.externalTranscriptUrl ?? "").trim(),
     ),
