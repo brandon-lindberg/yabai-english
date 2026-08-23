@@ -56,6 +56,16 @@ describe("TierExplainer", () => {
     expect(screen.getByText(copy.movementAnnual)).toBeInTheDocument();
   });
 
+  test("says why the system exists and how to move up, not just how it works", () => {
+    renderExplainer();
+
+    fireEvent.click(screen.getByRole("button", { name: copy.trigger }));
+
+    expect(screen.getByText(copy.whyBody)).toBeInTheDocument();
+    expect(screen.getByText(copy.improveIntro)).toBeInTheDocument();
+    expect(screen.getByText(copy.improveQuarterly)).toBeInTheDocument();
+  });
+
   test("reads the fee schedule from the marketplace notice, not a second copy", () => {
     renderExplainer();
 
@@ -104,6 +114,19 @@ describe("tier explainer copy matches the rules it describes", () => {
 
     expect(copy.calcTier3).toContain("More than 10");
     expect(resolveRecommendedTeacherTier(10.1)).toBe("TIER_3");
+  });
+
+  test("the lesson counts quoted for a quarterly promotion are reachable", () => {
+    // The copy turns "average more than 5 a month" into a concrete target over
+    // a 3-month review. That arithmetic is the most fragile claim in the modal,
+    // so it is pinned against the function that actually grades the average.
+    expect(copy.improveQuarterly).toContain("16");
+    expect(resolveRecommendedTeacherTier(15 / 3)).toBe("TIER_1");
+    expect(resolveRecommendedTeacherTier(16 / 3)).toBe("TIER_2");
+
+    expect(copy.improveQuarterly).toContain("31");
+    expect(resolveRecommendedTeacherTier(30 / 3)).toBe("TIER_2");
+    expect(resolveRecommendedTeacherTier(31 / 3)).toBe("TIER_3");
   });
 
   test("the stated fee schedule is the schedule the code charges", () => {

@@ -75,6 +75,10 @@ export function TierExplainer() {
             both ends of a short viewport with nothing able to scroll. Capping
             the body keeps the title and the close action reachable. */}
         <div className="max-h-[min(60vh,30rem)] space-y-5 overflow-y-auto overscroll-contain pr-1">
+          <Rule title={t("whyTitle")}>
+            <p>{t("whyBody")}</p>
+          </Rule>
+
           <Rule title={t("feesTitle")}>
             <p>{t("feesIntro")}</p>
             <dl className="mt-3 space-y-0">
@@ -100,6 +104,15 @@ export function TierExplainer() {
               <li>{t("calcTier1")}</li>
               <li>{t("calcTier2")}</li>
               <li>{t("calcTier3")}</li>
+            </ul>
+          </Rule>
+
+          <Rule title={t("improveTitle")}>
+            <p>{t("improveIntro")}</p>
+            <ul className="mt-1 list-none space-y-1 p-0">
+              <li>{t("improveQuarterly")}</li>
+              <li>{t("improveApplies")}</li>
+              <li>{t("improveRefunds")}</li>
             </ul>
           </Rule>
 
