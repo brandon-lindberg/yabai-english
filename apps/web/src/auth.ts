@@ -82,6 +82,16 @@ async function logAuthError(error: Error) {
     lines.push(
       `[auth][request] host=${h.get("host") ?? "?"} ua=${h.get("user-agent") ?? "?"}`,
     );
+    // Names only, never values. A missing PKCE cookie is ambiguous on its own:
+    // the browser deletes it at Max-Age, so "expired" and "never set" both
+    // arrive as absent. The sibling cookies settle it — csrf-token and
+    // callback-url have no Max-Age, so if they are here and the verifier is
+    // not, the verifier was set and then aged out.
+    const names = (await cookies())
+      .getAll()
+      .map((c) => c.name)
+      .filter((name) => name.includes("authjs"));
+    lines.push(`[auth][cookies] ${names.join(" ") || "none"}`);
   } catch {
     // Outside a request scope (startup, tests) there are no headers to attach;
     // the error itself is the part that matters, so log it without them.

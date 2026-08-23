@@ -3,7 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { InlineAlert } from "@/components/ui/inline-alert";
@@ -21,6 +21,9 @@ type Props = {
   authError?: AuthErrorKind | null;
 };
 
+/** Marks that this tab has already spent its one automatic retry. */
+const AUTH_RETRY_KEY = "auth:retried-expired-signin";
+
 export function SignInForm({
   hasGoogleOAuth,
   devEmailSignIn,
@@ -32,6 +35,38 @@ export function SignInForm({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [retrying, setRetrying] = useState(false);
+  const retryFired = useRef(false);
+
+  /*
+    One expired sign-in should not cost the user a second one.
+
+    Auth.js seals the PKCE verifier in a cookie with Max-Age 900, and the
+    browser deletes it the moment that elapses — so a Google sign-in that runs
+    long (a new machine asking for password, 2FA and a trust prompt) returns to
+    a callback with no verifier and fails. By then the user is authenticated
+    with Google, so simply starting the flow again lands them straight through
+    without another prompt. Retrying for them turns a dead end into a flicker.
+
+    Guarded to exactly one attempt: if the second pass fails too, the cause is
+    not a stale cookie and looping through Google would never converge, so the
+    message below is allowed to stand instead. The flag is cleared on any clean
+    visit, and a stale one only ever suppresses a retry — never causes a loop.
+  */
+  useEffect(() => {
+    if (!hasGoogleOAuth) return;
+    if (authError === null) {
+      sessionStorage.removeItem(AUTH_RETRY_KEY);
+      return;
+    }
+    if (authError !== "retry") return;
+    if (retryFired.current) return;
+    retryFired.current = true;
+    if (sessionStorage.getItem(AUTH_RETRY_KEY)) return;
+    sessionStorage.setItem(AUTH_RETRY_KEY, "1");
+    setRetrying(true);
+    void signIn("google", { redirectTo: safePostLoginPath });
+  }, [authError, hasGoogleOAuth, safePostLoginPath]);
 
   async function onDevSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,11 +102,15 @@ export function SignInForm({
         ) : null}
       </div>
 
-      {authError && (
+      {retrying ? (
+        <InlineAlert variant="info" role="status">
+          {t("signInRetrying")}
+        </InlineAlert>
+      ) : authError ? (
         <InlineAlert variant="warning" role="alert">
           {t(authError === "denied" ? "signInDenied" : "signInRetry")}
         </InlineAlert>
-      )}
+      ) : null}
 
       {devEmailSignIn && (
         <InlineAlert variant="warning" role="status">
@@ -86,8 +125,8 @@ export function SignInForm({
             setGoogleLoading(true);
             void signIn("google", { redirectTo: safePostLoginPath });
           }}
-          disabled={googleLoading}
-          aria-busy={googleLoading}
+          disabled={googleLoading || retrying}
+          aria-busy={googleLoading || retrying}
           aria-label="Sign in with Google"
           /*
             Google's button keeps its own light chrome in both themes — it is
@@ -100,7 +139,7 @@ export function SignInForm({
           */
           className="group flex min-h-12 w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-[#dadce0] bg-white px-4 py-3 text-sm font-semibold text-[#1f1f1f] transition duration-150 ease-out hover:bg-[#f8f9fa] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 motion-reduce:transition-none"
         >
-          {googleLoading ? (
+          {googleLoading || retrying ? (
             <span
               aria-hidden="true"
               className="h-5 w-5 animate-spin rounded-full border-2 border-[#1f1f1f]/20 border-t-[#1f1f1f]"

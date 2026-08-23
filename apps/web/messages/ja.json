@@ -94,6 +94,7 @@
     "continueWithGoogle": "Google で続ける",
     "signingIn": "サインイン中…",
     "signInRetry": "ログインを完了できませんでした。ログインの有効期限が切れたか、すでに使用済みの可能性があります。もう一度お試しください。",
+    "signInRetrying": "ログインの有効期限が切れました。Google に再接続しています…",
     "signInDenied": "このアカウントは現在ログインできません。お心当たりがない場合はお問い合わせください。",
     "email": "メールアドレス",
     "signInWithEmail": "メールでサインイン",

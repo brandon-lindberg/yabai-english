@@ -94,6 +94,7 @@
     "continueWithGoogle": "Continue with Google",
     "signingIn": "Signing in…",
     "signInRetry": "We couldn't finish signing you in. This usually means the sign-in link expired or was already used — please try again.",
+    "signInRetrying": "Your sign-in timed out. Reconnecting you to Google…",
     "signInDenied": "This account can't sign in right now. If you think that's a mistake, please contact us.",
     "email": "Email",
     "signInWithEmail": "Sign in with email",
