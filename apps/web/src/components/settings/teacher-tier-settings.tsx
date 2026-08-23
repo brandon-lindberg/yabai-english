@@ -6,6 +6,7 @@ import { DataList, DataRow } from "@/components/ui/data-row";
 import { Section } from "@/components/ui/section";
 import { StatLedger } from "@/components/ui/stat-ledger";
 import { Status } from "@/components/ui/status";
+import { TierExplainer } from "@/components/settings/tier-explainer";
 
 type TierSource = "CALCULATED" | "OVERRIDE";
 
@@ -69,7 +70,13 @@ export function TeacherTierSettings({
     value ? format.dateTime(new Date(value), { dateStyle: "medium" }) : t("notStarted");
 
   return (
-    <Section title={t("title")} description={t("intro")} size="lg" ruled={false}>
+    <Section
+      title={t("title")}
+      description={t("intro")}
+      size="lg"
+      ruled={false}
+      actions={<TierExplainer />}
+    >
       {/* The tier is the answer this page exists to give, so it carries itself
           at figure scale. It used to sit under an uppercase "CURRENT TIER"
           eyebrow inside a tinted box. */}
