@@ -135,10 +135,6 @@ export function TierExplainer() {
               <li>{t("movementAnnual")}</li>
             </ul>
           </Rule>
-
-          <Rule title={t("overrideTitle")}>
-            <p>{t("overrideBody")}</p>
-          </Rule>
         </div>
       </Modal>
     </>

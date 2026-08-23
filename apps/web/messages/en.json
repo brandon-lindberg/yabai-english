@@ -676,8 +676,6 @@
         "movementUp": "A review that puts you in a higher tier applies it straight away.",
         "movementQuarterly": "A quarterly review never lowers your tier.",
         "movementAnnual": "Only the annual review can lower it, and an admin has to approve that before it takes effect.",
-        "overrideTitle": "Admin adjustments",
-        "overrideBody": "Support can also set your tier directly. While that is active your tier shows as an admin override, along with its expiry date if one was set.",
         "close": "Close"
       }
     },
