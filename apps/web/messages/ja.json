@@ -40,7 +40,8 @@
     "metaTitle": "お問い合わせ — English Studio Japan",
     "metaDescription": "English Studio Japan へのお問い合わせ。",
     "title": "お問い合わせ",
-    "placeholderBody": "このページは準備中です。近日中にフォームやサポート情報を掲載する予定です。"
+    "body": "メールでお問い合わせください。できるだけ早くご返信いたします。",
+    "emailLabel": "メールアドレス"
   },
   "legal": {
     "navAria": "法務ドキュメント",

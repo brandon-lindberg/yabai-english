@@ -9,6 +9,16 @@
  */
 export const APP_NAME = "English Studio Japan";
 
+/**
+ * Where a visitor reaches a human.
+ *
+ * On the operating company's domain, not the product's: Yabai Studios runs
+ * English Studio Japan, and the footer already says so. Kept here rather than
+ * in the translation files because an address is not copy — a translator
+ * editing it would silently break the only route into the business.
+ */
+export const SUPPORT_EMAIL = "info@yabaistudios.com";
+
 /** iCalendar PRODID. Escaped by the ICS writer, so no punctuation concerns. */
 export const ICS_PRODUCT_ID = `-//${APP_NAME}//Schedule Export//EN`;
 
