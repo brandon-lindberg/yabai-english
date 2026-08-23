@@ -93,6 +93,8 @@
     "googleIntro": "You don't need a Gmail address—any email you use with Google (for example work or school) is fine to sign up or sign in.",
     "continueWithGoogle": "Continue with Google",
     "signingIn": "Signing in…",
+    "signInRetry": "We couldn't finish signing you in. This usually means the sign-in link expired or was already used — please try again.",
+    "signInDenied": "This account can't sign in right now. If you think that's a mistake, please contact us.",
     "email": "Email",
     "signInWithEmail": "Sign in with email",
     "devOnlyHint": "Development mode: use any email that exists in the database. Seeded demo teacher:",

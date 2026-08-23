@@ -10,15 +10,23 @@ import { InlineAlert } from "@/components/ui/inline-alert";
 import { Section } from "@/components/ui/section";
 import { Status } from "@/components/ui/status";
 import { actionLinkClass } from "@/components/ui/inline-link";
+import type { AuthErrorKind } from "@/lib/auth-error-kind";
 
 type Props = {
   hasGoogleOAuth: boolean;
   devEmailSignIn: boolean;
   /** Server-validated path (+ optional query) after successful sign-in. */
   safePostLoginPath: string;
+  /** Set when Auth.js bounced a failed sign-in back to this page. */
+  authError?: AuthErrorKind | null;
 };
 
-export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }: Props) {
+export function SignInForm({
+  hasGoogleOAuth,
+  devEmailSignIn,
+  safePostLoginPath,
+  authError = null,
+}: Props) {
   const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +66,12 @@ export function SignInForm({ hasGoogleOAuth, devEmailSignIn, safePostLoginPath }
           <p className="mt-3 text-sm leading-relaxed text-muted">{t("googleIntro")}</p>
         ) : null}
       </div>
+
+      {authError && (
+        <InlineAlert variant="warning" role="alert">
+          {t(authError === "denied" ? "signInDenied" : "signInRetry")}
+        </InlineAlert>
+      )}
 
       {devEmailSignIn && (
         <InlineAlert variant="warning" role="status">

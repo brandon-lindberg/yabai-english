@@ -11,7 +11,7 @@ import { claimPendingMemberships } from "@/lib/claim-pending-memberships";
 import { claimTeacherRosterInvites } from "@/lib/claim-teacher-roster-invites";
 import { pickOidcProfilePicture, syncUserImageIfChanged } from "@/lib/oauth-profile-picture";
 import { AccountStatus, Role, type OrgRole } from "@/generated/prisma/client";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
 
@@ -59,6 +59,38 @@ if (useDevCredentialsOnly) {
 
 // Apple, LINE: add providers here when AUTH_APPLE_* / LINE OAuth env vars are ready
 
+/**
+ * Auth.js funnels every error whose type is not on its 8-entry client-safe allowlist
+ * into `?error=Configuration`, and its default logger only prints `cause` when that
+ * cause is shaped `{ err: Error }`. `InvalidCheck` is neither: it carries the real
+ * reason directly on `.cause`, so an expired PKCE cookie, a missing one, and a dead
+ * database all log as the same opaque line. Unwrap the chain and attach the request
+ * context so an occurrence in the Render logs identifies itself.
+ */
+async function logAuthError(error: Error) {
+  const label = (e: Error) => (e as { type?: string }).type ?? e.name;
+  const lines = [`[auth][error] ${label(error)}: ${error.message}`];
+
+  let cause: unknown = error.cause;
+  for (let depth = 0; cause instanceof Error && depth < 4; depth += 1) {
+    lines.push(`[auth][cause] ${label(cause)}: ${cause.message}`);
+    cause = cause.cause;
+  }
+
+  try {
+    const h = await headers();
+    lines.push(
+      `[auth][request] host=${h.get("host") ?? "?"} ua=${h.get("user-agent") ?? "?"}`,
+    );
+  } catch {
+    // Outside a request scope (startup, tests) there are no headers to attach;
+    // the error itself is the part that matters, so log it without them.
+  }
+
+  console.error(lines.join("\n"));
+  if (error.stack) console.error(error.stack);
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: hasGoogleOAuth ? prismaAdapter : undefined,
   session: {
@@ -67,6 +99,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     updateAge: Math.min(300, getSessionMaxAgeSeconds()),
   },
   trustHost: true,
+  // Auth.js's built-in error page renders `Configuration` with a hardcoded HTTP 500.
+  // The condition behind it is usually user-recoverable — a replayed OAuth callback,
+  // or a PKCE cookie past its 15-minute TTL — so route it back to our own sign-in
+  // page, where the retry button already lives, instead of a dead-end server error.
+  pages: { error: "/auth/signin" },
+  logger: {
+    error(error) {
+      void logAuthError(error);
+    },
+  },
   providers,
   callbacks: {
     async signIn({ user, account, profile }) {
