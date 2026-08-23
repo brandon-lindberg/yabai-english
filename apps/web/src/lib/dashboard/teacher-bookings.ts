@@ -20,13 +20,17 @@ type TeacherScheduleBooking = {
   };
 };
 
-export function buildTeacherScheduleItems(bookings: TeacherScheduleBooking[]) {
+export function buildTeacherScheduleItems(
+  bookings: TeacherScheduleBooking[],
+  { past = false }: { past?: boolean } = {},
+) {
   return bookings.map((b) => ({
     id: b.id,
     startsAtIso: b.startsAt.toISOString(),
     endsAtIso: b.endsAt.toISOString(),
     title: `${b.lessonProduct.nameJa} / ${b.lessonProduct.nameEn}`,
     teacherName: b.student.name ?? b.student.email ?? "",
+    isPast: past,
   }));
 }
 
@@ -84,7 +88,15 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
   const completedSorted = sortTeacherCompletedBookings(
     excludeArchivedStudents(completed, archivedStudentIds),
   );
-  const scheduleItems = buildTeacherScheduleItems(upcoming);
+  // The calendar is a record, not just a plan: a teacher looking back at last
+  // month needs to see the lessons they taught, not an empty grid. Past lessons
+  // use the archive-filtered set so the calendar and the completed history agree
+  // — archiving a student should not leave their lessons visible on one surface
+  // and hidden on the other. Upcoming stays unfiltered, for the reason above.
+  const scheduleItems = [
+    ...buildTeacherScheduleItems(upcoming),
+    ...buildTeacherScheduleItems(completedSorted, { past: true }),
+  ];
 
   return { bookings, upcoming, completed: completedSorted, scheduleItems };
 }

@@ -17,13 +17,20 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
   const { upcoming, completed } = groupBookingsForDashboard(bookings, now);
   // By teacher, then newest first — the order the grouped history relies on.
   const completedSorted = sortStudentCompletedBookings(completed);
-  const scheduleItems = upcoming.map((b) => ({
+  const toScheduleItem = (b: (typeof bookings)[number], past: boolean) => ({
     id: b.id,
     startsAtIso: b.startsAt.toISOString(),
     endsAtIso: b.endsAt.toISOString(),
     title: `${b.lessonProduct.nameJa} / ${b.lessonProduct.nameEn}`,
     teacherName: b.teacher.user.name ?? b.teacher.user.email ?? "",
-  }));
+    isPast: past,
+  });
+  // Past lessons belong on the calendar too — a student looking back at a month
+  // they studied should see it, not an empty grid.
+  const scheduleItems = [
+    ...upcoming.map((b) => toScheduleItem(b, false)),
+    ...completedSorted.map((b) => toScheduleItem(b, true)),
+  ];
 
   return { bookings, upcoming, completed: completedSorted, scheduleItems };
 }

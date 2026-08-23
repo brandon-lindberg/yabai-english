@@ -28,6 +28,7 @@ describe("teacher dashboard helpers", () => {
         endsAtIso: "2026-04-20T09:20:00.000Z",
         title: "無料体験 / Free trial",
         teacherName: "Aiko",
+        isPast: false,
       },
       {
         id: "b2",
@@ -35,8 +36,26 @@ describe("teacher dashboard helpers", () => {
         endsAtIso: "2026-04-20T10:50:00.000Z",
         title: "通常 / Standard",
         teacherName: "fallback@example.com",
+        isPast: false,
       },
     ]);
+  });
+
+  test("buildTeacherScheduleItems marks lessons already taught", () => {
+    const items = buildTeacherScheduleItems(
+      [
+        {
+          id: "b0",
+          startsAt: new Date("2026-03-01T09:00:00.000Z"),
+          endsAt: new Date("2026-03-01T09:20:00.000Z"),
+          lessonProduct: { nameJa: "無料体験", nameEn: "Free trial" },
+          student: { name: "Aiko", email: "aiko@example.com" },
+        },
+      ],
+      { past: true },
+    );
+
+    expect(items[0].isPast).toBe(true);
   });
 
   test("normalizeAvailabilitySlotsInput rejects invalid ranges", () => {

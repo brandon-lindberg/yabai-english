@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
@@ -10,7 +10,8 @@ import {
   CalendarWeekColumns,
 } from "@/components/ui/calendar-frame";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
-import { SLOT_BOOKED } from "@/components/ui/slot-state";
+import { slotClasses } from "@/components/ui/slot-state";
+import { Link } from "@/i18n/navigation";
 import {
   buildMonthCells,
   buildWeekDays,
@@ -29,8 +30,11 @@ import {
  * scaffolding; it now shares `ui/calendar-frame` with the picker, the teacher
  * availability editor and the school schedule, so all five move together.
  *
- * Every lesson on this grid is booked, so every mark uses the value ladder's
- * strongest state: solid ink. Nothing here is a hue.
+ * The grid holds both halves of a lesson's life. An upcoming lesson is a
+ * commitment and takes the value ladder's strongest state, solid ink; a lesson
+ * already taught is a record and drops to the spent state. A teacher scanning a
+ * week must never mistake one for the other, and the distinction is value, not
+ * hue, so it survives colour blindness and either theme.
  */
 
 type DashboardScheduleItem = {
@@ -40,6 +44,8 @@ type DashboardScheduleItem = {
   title: string;
   /** The other person in the lesson — a teacher for students, a student for teachers. */
   teacherName: string;
+  /** Already taught. Renders as a record rather than a commitment. */
+  isPast: boolean;
 };
 
 type Props = {
@@ -47,12 +53,49 @@ type Props = {
   timeZone: string;
 };
 
+/**
+ * Where a mark on the grid leads.
+ *
+ * An upcoming lesson is in the list directly below this calendar, so it stays a
+ * same-page hash. A past one is rendered on the completed history page instead,
+ * so it needs a real route — a bare `#booking-…` would point at an anchor that
+ * does not exist on this page and silently do nothing when clicked.
+ */
+function ScheduleItemLink({
+  item,
+  className,
+  children,
+}: {
+  item: DashboardScheduleItem;
+  className?: string;
+  children: ReactNode;
+}) {
+  if (item.isPast) {
+    return (
+      <Link href={`/dashboard/schedule/completed#booking-${item.id}`} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a href={`#booking-${item.id}`} className={className}>
+      {children}
+    </a>
+  );
+}
+
 export function DashboardScheduleCalendar({ items, timeZone }: Props) {
   const locale = useLocale();
   const isMobile = useIsMobile();
   const t = useTranslations("dashboard");
   const [view, setView] = useState<CalendarViewMode>("week");
-  const [anchorIso, setAnchorIso] = useState(items[0]?.startsAtIso ?? new Date().toISOString());
+  // Open on the next lesson, not the first item: `items` now leads with the
+  // upcoming ones but carries the whole past archive behind them, and anchoring
+  // on `items[0]` blindly would land the teacher in their oldest lesson ever
+  // the moment they have nothing booked.
+  const [anchorIso, setAnchorIso] = useState(
+    () => items.find((item) => !item.isPast)?.startsAtIso ?? new Date().toISOString(),
+  );
 
   function formatTime(iso: string) {
     return new Date(iso).toLocaleTimeString(locale, {
@@ -135,16 +178,21 @@ export function DashboardScheduleCalendar({ items, timeZone }: Props) {
           <ul className="list-none border-t border-border p-0">
             {(mapByDay.get(anchorKey) ?? []).map((item) => (
               <li key={item.id} className="border-b border-border">
-                <a
-                  href={`#booking-${item.id}`}
+                <ScheduleItemLink
+                  item={item}
                   className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3 transition-colors hover:bg-[var(--app-hover)]"
                 >
-                  <span className="min-w-0 font-semibold text-foreground">{item.title}</span>
+                  <span
+                    className={`min-w-0 font-semibold ${item.isPast ? "text-muted" : "text-foreground"}`}
+                  >
+                    {item.title}
+                  </span>
                   <span className="shrink-0 text-sm tabular-nums text-muted">
                     {formatTime(item.startsAtIso)} – {formatTime(item.endsAtIso)} ·{" "}
                     {item.teacherName}
+                    {item.isPast ? ` · ${t("statusCompleted")}` : ""}
                   </span>
-                </a>
+                </ScheduleItemLink>
               </li>
             ))}
           </ul>
@@ -159,16 +207,16 @@ export function DashboardScheduleCalendar({ items, timeZone }: Props) {
               return <CalendarEmpty size="cell">{t("unavailableShort")}</CalendarEmpty>;
             }
             return dayItems.slice(0, 4).map((item) => (
-              <a
+              <ScheduleItemLink
                 key={item.id}
-                href={`#booking-${item.id}`}
-                className={`block rounded-md px-2 py-1 text-xs tabular-nums ${SLOT_BOOKED}`}
+                item={item}
+                className={`block rounded-md px-2 py-1 text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast })}`}
               >
                 <span className="block whitespace-nowrap font-semibold">
                   {formatTime(item.startsAtIso)}
                 </span>
-                <span className="mt-0.5 block truncate text-[10px]">{t("slotReserved")}</span>
-              </a>
+                <span className="mt-0.5 block truncate text-[10px]">{t(item.isPast ? "statusCompleted" : "slotReserved")}</span>
+              </ScheduleItemLink>
             ));
           }}
         />
@@ -193,10 +241,10 @@ export function DashboardScheduleCalendar({ items, timeZone }: Props) {
                 ) : (
                   <div className="mt-2 space-y-1.5">
                     {dayItems.slice(0, 4).map((item) => (
-                      <a
+                      <ScheduleItemLink
                         key={item.id}
-                        href={`#booking-${item.id}`}
-                        className={`block rounded-md px-2.5 py-1.5 text-xs tabular-nums ${SLOT_BOOKED}`}
+                        item={item}
+                        className={`block rounded-md px-2.5 py-1.5 text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast })}`}
                       >
                         <span className="font-semibold">
                           {formatTime(item.startsAtIso)} – {formatTime(item.endsAtIso)}
@@ -204,7 +252,7 @@ export function DashboardScheduleCalendar({ items, timeZone }: Props) {
                         {item.teacherName ? (
                           <span className="ml-2">{item.teacherName}</span>
                         ) : null}
-                      </a>
+                      </ScheduleItemLink>
                     ))}
                   </div>
                 )}
@@ -227,17 +275,17 @@ export function DashboardScheduleCalendar({ items, timeZone }: Props) {
             return (
               <>
                 {chips.map((item) => (
-                  <a
+                  <ScheduleItemLink
                     key={item.id}
-                    href={`#booking-${item.id}`}
-                    className={`w-full truncate rounded px-1 py-0.5 text-left text-[9px] font-semibold leading-tight tabular-nums ${SLOT_BOOKED}`}
+                    item={item}
+                    className={`w-full truncate rounded px-1 py-0.5 text-left text-[9px] font-semibold leading-tight tabular-nums ${slotClasses({ kind: "booked", past: item.isPast })}`}
                   >
                     <span className="block truncate">{formatTime(item.startsAtIso)}</span>
-                    <span className="mt-0.5 block truncate">{t("slotReserved")}</span>
+                    <span className="mt-0.5 block truncate">{t(item.isPast ? "statusCompleted" : "slotReserved")}</span>
                     {item.teacherName ? (
                       <span className="mt-0.5 block truncate font-medium">{item.teacherName}</span>
                     ) : null}
-                  </a>
+                  </ScheduleItemLink>
                 ))}
                 {more > 0 ? (
                   <button
@@ -284,10 +332,10 @@ export function DashboardScheduleCalendar({ items, timeZone }: Props) {
                     </button>
                     <div className="mt-2 space-y-1.5">
                       {dayItems.map((item) => (
-                        <a
+                        <ScheduleItemLink
                           key={item.id}
-                          href={`#booking-${item.id}`}
-                          className={`block rounded-md px-2.5 py-1.5 text-xs tabular-nums ${SLOT_BOOKED}`}
+                          item={item}
+                          className={`block rounded-md px-2.5 py-1.5 text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast })}`}
                         >
                           <span className="font-semibold">
                             {formatTime(item.startsAtIso)} – {formatTime(item.endsAtIso)}
@@ -295,7 +343,7 @@ export function DashboardScheduleCalendar({ items, timeZone }: Props) {
                           {item.teacherName ? (
                             <span className="ml-2">{item.teacherName}</span>
                           ) : null}
-                        </a>
+                        </ScheduleItemLink>
                       ))}
                     </div>
                   </li>
