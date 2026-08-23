@@ -9,7 +9,6 @@ import { Status } from "@/components/ui/status";
 import { groupConsecutive } from "@/components/ui/grouped-list";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { groupLessonsByYearAndMonth } from "@/lib/dashboard/group-lessons-by-period";
-import { actionLinkClass } from "@/components/ui/inline-link";
 
 /**
  * A teacher's teaching history.
@@ -42,10 +41,8 @@ export type TeacherCompletedLessonItem = {
   studentDisplay: string;
   initialCompletionNotesMd: string | null;
   initialExternalTranscriptUrl: string | null;
-  notesDocId: string | null;
-  transcriptArtifactIds: string[];
-  smartNotesIds: string[];
-  recordingIds: string[];
+  /** Has a Calendar event, so its Gemini notes document can be looked up. */
+  canFetchNotesLink: boolean;
   hasSavedContent: boolean;
   invoiceId: string | null;
 };
@@ -83,15 +80,6 @@ export function TeacherCompletedLessonsClient({
   const renderLesson = (lesson: TeacherCompletedLessonItem) => {
     const expanded = expandedId === lesson.id;
     const panelId = `${groupId}-panel-${lesson.id}`;
-    const notesDocUrl = lesson.notesDocId
-      ? `https://docs.google.com/document/d/${lesson.notesDocId}/edit`
-      : "";
-    const hasGoogleRecap =
-      notesDocUrl.length > 0 ||
-      lesson.transcriptArtifactIds.length > 0 ||
-      lesson.smartNotesIds.length > 0 ||
-      lesson.recordingIds.length > 0;
-
     return (
       <li key={lesson.id} id={`booking-${lesson.id}`} className="scroll-mt-24 border-b border-border">
         <button
@@ -133,45 +121,12 @@ export function TeacherCompletedLessonsClient({
 
         {expanded ? (
           <div id={panelId} className="border-t border-border py-4 pl-6">
-            {hasGoogleRecap ? (
-              <div className="mb-4 space-y-1">
-                <p className="text-sm font-semibold text-foreground">
-                  {t("googleRecapSectionLabel")}
-                </p>
-                {notesDocUrl ? (
-                  <p className="text-sm">
-                    <a
-                      href={notesDocUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={actionLinkClass}
-                    >
-                      {t("googleDocNotesCta")}
-                    </a>
-                  </p>
-                ) : null}
-                {lesson.transcriptArtifactIds.length > 0 ? (
-                  <p className="text-sm text-muted">
-                    {t("syncedTranscriptRefsLabel")}: {lesson.transcriptArtifactIds.join(", ")}
-                  </p>
-                ) : null}
-                {lesson.smartNotesIds.length > 0 ? (
-                  <p className="text-sm text-muted">
-                    {t("syncedSmartNotesRefsLabel")}: {lesson.smartNotesIds.join(", ")}
-                  </p>
-                ) : null}
-                {lesson.recordingIds.length > 0 ? (
-                  <p className="text-sm text-muted">
-                    {t("syncedRecordingRefsLabel")}: {lesson.recordingIds.join(", ")}
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
             <TeacherLessonCompletionNotesForm
               variant="embedded"
               bookingId={lesson.id}
               initialCompletionNotesMd={lesson.initialCompletionNotesMd}
               initialExternalTranscriptUrl={lesson.initialExternalTranscriptUrl}
+              canFetchNotesLink={lesson.canFetchNotesLink}
             />
           </div>
         ) : null}

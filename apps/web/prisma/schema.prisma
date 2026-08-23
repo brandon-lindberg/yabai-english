@@ -716,10 +716,6 @@ model Booking {
   googleCalendarId      String?
   meetConferenceId      String?
   meetCode              String?
-  notesDocId            String?
-  transcriptArtifactIds String[]      @default([])
-  smartNotesIds         String[]      @default([])
-  recordingIds          String[]      @default([])
   studentGoogleEventId  String?
   invoice               Invoice?
   payments              Payment[]
