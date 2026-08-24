@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
+import { countOpenAvailabilitySlots } from "@/lib/dashboard/teacher-open-availability";
 import { isTeacherCalendarReady } from "@/lib/teacher-calendar-status";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { TEACHER_HOME_SCHEDULE_HREFS, withDashboardOnboarding } from "@/lib/teacher-dashboard-home-links";
@@ -50,7 +51,25 @@ export async function TeacherDashboard({
         bio: true,
         googleCalendarRefreshToken: true,
         user: { select: { name: true, email: true, image: true } },
-        availabilitySlots: { where: { active: true }, select: { id: true } },
+        /*
+          The open-slot stat needs the recurrence shape, not just row ids: an
+          active row is not the same as open availability once its date has
+          passed or its occurrence is booked.
+        */
+        availabilitySlots: {
+          where: { active: true },
+          select: {
+            id: true,
+            dayOfWeek: true,
+            startMin: true,
+            endMin: true,
+            timezone: true,
+            recurrence: true,
+            startsOn: true,
+            endsOn: true,
+          },
+        },
+        availabilityOccurrenceSkips: { select: { startsAtIso: true } },
       },
     }),
     prisma.googleIntegrationSettings.findUnique({
@@ -73,6 +92,26 @@ export async function TeacherDashboard({
   });
 
   const nextBooking = bookings.upcoming[0];
+
+  /*
+    Counting active slot rows overstated this: a one-off slot whose date has
+    passed, a weekly slot past its `endsOn`, and a slot whose occurrence is
+    already booked all stay active. The stat says "open", so it counts the
+    slots that still have a free occurrence ahead — the same past/skipped/booked
+    rules the availability calendar draws with.
+  */
+  const openAvailabilitySlots = countOpenAvailabilitySlots({
+    slots: teacherProfile?.availabilitySlots ?? [],
+    bookings: bookings.bookings
+      .filter((b) => b.status !== "CANCELLED")
+      .map((b) => ({
+        startsAtIso: b.startsAt.toISOString(),
+        endsAtIso: b.endsAt.toISOString(),
+      })),
+    skippedStartsAtIso: new Set(
+      (teacherProfile?.availabilityOccurrenceSkips ?? []).map((s) => s.startsAtIso),
+    ),
+  });
 
   return (
     <DashboardSpine
@@ -135,14 +174,14 @@ export async function TeacherDashboard({
         },
         {
           label: t("teacherHome.statSlots"),
-          value: teacherProfile?.availabilitySlots.length ?? 0,
+          value: openAvailabilitySlots,
           render: ({ className, children }) => (
             <Link
               href={withDashboardOnboarding(
                 TEACHER_HOME_SCHEDULE_HREFS.availability,
                 onboardingHref,
               )}
-              aria-label={`${t("teacherHome.statSlots")}: ${teacherProfile?.availabilitySlots.length ?? 0}`}
+              aria-label={`${t("teacherHome.statSlots")}: ${openAvailabilitySlots}`}
               className={className}
             >
               {children}
