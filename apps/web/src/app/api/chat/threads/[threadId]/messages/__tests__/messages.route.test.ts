@@ -193,7 +193,7 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
     expect(createMessageMock).not.toHaveBeenCalled();
   });
 
-  test("creates notification when a teacher sends a message to a student", async () => {
+  test("does not bell-notify a student when their teacher writes", async () => {
     authMock.mockResolvedValue({
       user: { id: "teacher-1", role: "TEACHER" },
     });
@@ -229,13 +229,10 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
     );
 
     expect(res.status).toBe(200);
-    expect(createUserNotificationMock).toHaveBeenCalledWith({
-      userId: "student-1",
-      titleJa: "先生から新しいメッセージがあります",
-      titleEn: "You have a new message from your teacher",
-      bodyJa: "See you tomorrow",
-      bodyEn: "See you tomorrow",
-    });
+    // The Messages button carries its own unread badge, so a bell notification
+    // for the same message would be a second copy of the body and a second
+    // thing to dismiss. Only admin messages earn a bell entry.
+    expect(createUserNotificationMock).not.toHaveBeenCalled();
   });
 
   test("creates notification when admin sends a message", async () => {
