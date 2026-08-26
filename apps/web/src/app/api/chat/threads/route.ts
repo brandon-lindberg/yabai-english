@@ -8,17 +8,28 @@ import {
   chatThreadParticipantWhere,
 } from "@/lib/chat-threads";
 
-function studentThreadLabel(student: { name: string | null; email: string | null }) {
+type ThreadParty = {
+  name: string | null;
+  email: string | null;
+  role: Role;
+};
+
+/**
+ * Admins act as the studio, not as themselves, so their personal name and email
+ * never leave this endpoint. The client renders the localized "Admin" label off
+ * the accompanying flag instead.
+ */
+function studentThreadLabel(student: ThreadParty) {
+  if (student.role === Role.SUPER_ADMIN) return null;
   return student.name ?? student.email ?? "—";
 }
 
 function teacherThreadLabel(
-  teacher: {
-    name: string | null;
-    email: string | null;
+  teacher: ThreadParty & {
     teacherProfile: { displayName: string | null } | null;
   },
 ) {
+  if (teacher.role === Role.SUPER_ADMIN) return null;
   return (
     teacher.teacherProfile?.displayName ?? teacher.name ?? teacher.email ?? "—"
   );
@@ -103,6 +114,11 @@ export async function GET(req: Request) {
             where: { threadId: thread.id, readAt: null },
           })
         : unreadCount;
+      const studentIsAdmin = thread.student.role === Role.SUPER_ADMIN;
+      const teacherIsAdmin = thread.teacher.role === Role.SUPER_ADMIN;
+      const viewerIsStudentParty = session.user.id === thread.studentId;
+      const studentName = studentThreadLabel(thread.student);
+      const teacherName = teacherThreadLabel(thread.teacher);
       return {
         id: thread.id,
         studentId: thread.studentId,
@@ -116,15 +132,22 @@ export async function GET(req: Request) {
         teacherReportReason: thread.teacherReportReason,
         studentArchivedAt: thread.studentArchivedAt,
         teacherArchivedAt: thread.teacherArchivedAt,
-        studentName: studentThreadLabel(thread.student),
-        studentEmail: thread.student.email,
-        teacherName: teacherThreadLabel(thread.teacher),
-        teacherEmail: thread.teacher.email,
+        studentName,
+        studentEmail: studentIsAdmin ? null : thread.student.email,
+        studentIsAdmin,
+        teacherName,
+        teacherEmail: teacherIsAdmin ? null : thread.teacher.email,
+        teacherIsAdmin,
         counterpartName: isAdminViewer
-          ? `${studentThreadLabel(thread.student)} · ${teacherThreadLabel(thread.teacher)}`
-          : session.user.id === thread.studentId
-            ? teacherThreadLabel(thread.teacher)
-            : studentThreadLabel(thread.student),
+          ? [studentName, teacherName].filter(Boolean).join(" · ") || null
+          : viewerIsStudentParty
+            ? teacherName
+            : studentName,
+        counterpartIsAdmin: isAdminViewer
+          ? false
+          : viewerIsStudentParty
+            ? teacherIsAdmin
+            : studentIsAdmin,
         latestMessage: thread.messages[0]?.body ?? null,
         latestMessageAt: thread.messages[0]?.createdAt ?? null,
         unreadCount,
@@ -145,7 +168,15 @@ export async function GET(req: Request) {
   const filtered =
     q.length > 0
       ? filteredByQueue.filter((t) =>
-          `${t.studentName} ${t.studentEmail ?? ""} ${t.teacherName} ${t.teacherEmail ?? ""} ${t.counterpartName}`
+          [
+            t.studentName,
+            t.studentEmail,
+            t.teacherName,
+            t.teacherEmail,
+            t.counterpartName,
+          ]
+            .filter(Boolean)
+            .join(" ")
             .toLowerCase()
             .includes(q),
         )

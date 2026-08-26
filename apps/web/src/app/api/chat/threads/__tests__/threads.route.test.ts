@@ -357,6 +357,121 @@ describe("GET /api/chat/threads", () => {
     expect(call.include.messages.where).toBeUndefined();
   });
 
+  test("shows a student the generic admin label, not the admin's name", async () => {
+    authMock.mockResolvedValue({ user: { id: "stu-1", role: "STUDENT" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([
+      {
+        id: "admin-thread",
+        studentId: "stu-1",
+        teacherId: "admin-1",
+        twoWayEnabled: true,
+        studentBlockedAt: null,
+        teacherBlockedAt: null,
+        studentReportedAt: null,
+        teacherReportedAt: null,
+        studentReportReason: null,
+        teacherReportReason: null,
+        student: { name: "Dwight", email: null, role: "STUDENT" },
+        teacher: {
+          name: "Brandon Lindberg",
+          email: "brandon@test.com",
+          role: "SUPER_ADMIN",
+          teacherProfile: null,
+        },
+        messages: [],
+      },
+    ]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    if (!res) throw new Error("expected response");
+    const body = await res.text();
+    const data = JSON.parse(body) as {
+      counterpartName: string | null;
+      counterpartIsAdmin: boolean;
+      teacherName: string | null;
+      teacherIsAdmin: boolean;
+    }[];
+
+    expect(data[0]?.counterpartIsAdmin).toBe(true);
+    expect(data[0]?.teacherIsAdmin).toBe(true);
+    expect(data[0]?.counterpartName).toBeNull();
+    expect(data[0]?.teacherName).toBeNull();
+    // The admin's personal name must not reach the recipient at all.
+    expect(body).not.toContain("Brandon Lindberg");
+    expect(body).not.toContain("brandon@test.com");
+  });
+
+  test("shows a teacher the generic admin label when the admin holds the student slot", async () => {
+    authMock.mockResolvedValue({ user: { id: "teach-1", role: "TEACHER" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([
+      {
+        id: "admin-thread",
+        studentId: "admin-1",
+        teacherId: "teach-1",
+        twoWayEnabled: true,
+        studentBlockedAt: null,
+        teacherBlockedAt: null,
+        studentReportedAt: null,
+        teacherReportedAt: null,
+        studentReportReason: null,
+        teacherReportReason: null,
+        student: { name: "Brandon Lindberg", email: null, role: "SUPER_ADMIN" },
+        teacher: { name: "Mika", email: null, role: "TEACHER", teacherProfile: null },
+        messages: [],
+      },
+    ]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    if (!res) throw new Error("expected response");
+    const body = await res.text();
+    const data = JSON.parse(body) as {
+      counterpartIsAdmin: boolean;
+      studentName: string | null;
+    }[];
+
+    expect(data[0]?.counterpartIsAdmin).toBe(true);
+    expect(data[0]?.studentName).toBeNull();
+    expect(body).not.toContain("Brandon Lindberg");
+  });
+
+  test("keeps real names for non-admin counterparts", async () => {
+    authMock.mockResolvedValue({ user: { id: "stu-1", role: "STUDENT" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([
+      {
+        id: "t1",
+        studentId: "stu-1",
+        teacherId: "teach-1",
+        twoWayEnabled: true,
+        studentBlockedAt: null,
+        teacherBlockedAt: null,
+        studentReportedAt: null,
+        teacherReportedAt: null,
+        studentReportReason: null,
+        teacherReportReason: null,
+        student: { name: "Dwight", email: null, role: "STUDENT" },
+        teacher: {
+          name: "Mika Sato",
+          email: null,
+          role: "TEACHER",
+          teacherProfile: { displayName: "Ms. Mika" },
+        },
+        messages: [],
+      },
+    ]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    if (!res) throw new Error("expected response");
+    const data = (await res.json()) as {
+      counterpartName: string | null;
+      counterpartIsAdmin: boolean;
+    }[];
+    expect(data[0]?.counterpartIsAdmin).toBe(false);
+    expect(data[0]?.counterpartName).toBe("Ms. Mika");
+  });
+
   afterAll(() => {
     vi.restoreAllMocks();
   });

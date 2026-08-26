@@ -25,11 +25,14 @@ type ThreadItem = {
   teacherReportReason: string | null;
   unreadCount: number;
   participantUnreadCount: number;
-  studentName: string;
+  studentName: string | null;
   studentEmail: string | null;
-  teacherName: string;
+  studentIsAdmin: boolean;
+  teacherName: string | null;
   teacherEmail: string | null;
+  teacherIsAdmin: boolean;
   counterpartName: string | null;
+  counterpartIsAdmin: boolean;
   latestMessage: string | null;
   latestMessageAt: string | null;
 };
@@ -53,6 +56,16 @@ type BroadcastHistoryItem = {
 
 export function ChatPanel() {
   const t = useTranslations("chat");
+  /**
+   * Admins act as the studio rather than as themselves, so every place a party
+   * is named renders the generic label for them; the API never sends their
+   * personal name in the first place.
+   */
+  const partyLabel = useCallback(
+    (name: string | null, isAdmin: boolean) =>
+      isAdmin ? t("messageFromAdmin") : (name ?? t("unknownUser")),
+    [t],
+  );
   const { data: session } = useSession();
   const isAdminViewer = session?.user?.role === "SUPER_ADMIN";
   const [open, setOpen] = useState(false);
@@ -559,14 +572,17 @@ export function ChatPanel() {
       { id: string; name: string; email: string; count: number; unreadCount: number }
     >();
     for (const thread of threads) {
-      const id = adminContactType === "teacher" ? thread.teacherId : thread.studentId;
+      const isTeacherSlot = adminContactType === "teacher";
       // Admin conversations put the admin in whichever slot the counterpart
-      // does not occupy, so skip their own account rather than listing the
-      // admin as one of their own contacts.
-      if (id === session?.user?.id) continue;
-      const name = adminContactType === "teacher" ? thread.teacherName : thread.studentName;
-      const email =
-        (adminContactType === "teacher" ? thread.teacherEmail : thread.studentEmail) ?? "";
+      // does not occupy, so that slot holds an admin rather than a contact.
+      const slotIsAdmin = isTeacherSlot ? thread.teacherIsAdmin : thread.studentIsAdmin;
+      if (slotIsAdmin) continue;
+      const id = isTeacherSlot ? thread.teacherId : thread.studentId;
+      const name = partyLabel(
+        isTeacherSlot ? thread.teacherName : thread.studentName,
+        slotIsAdmin,
+      );
+      const email = (isTeacherSlot ? thread.teacherEmail : thread.studentEmail) ?? "";
       const existing = map.get(id);
       if (existing) {
         existing.count += 1;
@@ -585,14 +601,7 @@ export function ChatPanel() {
             c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q),
         )
       : contacts;
-  }, [
-    isAdminViewer,
-    adminQueue,
-    threads,
-    adminContactType,
-    adminSearch,
-    session?.user?.id,
-  ]);
+  }, [isAdminViewer, adminQueue, threads, adminContactType, adminSearch, partyLabel]);
 
   const adminContactThreads = useMemo(() => {
     if (!isAdminViewer || adminQueue !== "all" || !adminSelectedContactId) return [];
@@ -995,7 +1004,8 @@ export function ChatPanel() {
                                   >
                                     <div className="flex items-center justify-between gap-2">
                                       <p className="font-semibold text-foreground">
-                                        {thread.studentName} · {thread.teacherName}
+                                        {partyLabel(thread.studentName, thread.studentIsAdmin)} ·{" "}
+                                        {partyLabel(thread.teacherName, thread.teacherIsAdmin)}
                                       </p>
                                       <UnreadBadge
                                         count={thread.unreadCount}
@@ -1027,7 +1037,8 @@ export function ChatPanel() {
                           >
                             <div className="flex items-center justify-between gap-2">
                               <p className="font-semibold text-foreground">
-                                {thread.studentName} · {thread.teacherName}
+                                {partyLabel(thread.studentName, thread.studentIsAdmin)} ·{" "}
+                                {partyLabel(thread.teacherName, thread.teacherIsAdmin)}
                               </p>
                               <div className="flex items-center gap-1">
                                 {(thread.studentReportedAt || thread.teacherReportedAt) && (
@@ -1116,7 +1127,7 @@ export function ChatPanel() {
                             >
                               <div className="flex items-center justify-between gap-2">
                                 <p className="font-semibold text-foreground">
-                                  {thread.counterpartName ?? t("unknownUser")}
+                                  {partyLabel(thread.counterpartName, thread.counterpartIsAdmin)}
                                 </p>
                                 <UnreadBadge
                                   count={thread.unreadCount}
@@ -1253,15 +1264,20 @@ export function ChatPanel() {
                   {isAdminViewer && activeThread ? (
                     <>
                       <p className="text-sm font-semibold text-foreground">
-                        {t("messageFromStudent")}: {activeThread.studentName}
+                        {t("messageFromStudent")}:{" "}
+                        {partyLabel(activeThread.studentName, activeThread.studentIsAdmin)}
                       </p>
                       <p className="text-xs font-semibold text-foreground">
-                        {t("messageFromTeacher")}: {activeThread.teacherName}
+                        {t("messageFromTeacher")}:{" "}
+                        {partyLabel(activeThread.teacherName, activeThread.teacherIsAdmin)}
                       </p>
                     </>
                   ) : (
                     <p className="text-sm font-semibold text-foreground">
-                      {activeThread?.counterpartName ?? t("unknownUser")}
+                      {partyLabel(
+                        activeThread?.counterpartName ?? null,
+                        Boolean(activeThread?.counterpartIsAdmin),
+                      )}
                     </p>
                   )}
                   <p className="text-xs text-muted">{t("conversations")}</p>

@@ -58,11 +58,15 @@ function threadsPayload(unreadCount: number) {
       studentReportReason: null,
       teacherReportReason: null,
       unreadCount,
+      participantUnreadCount: unreadCount,
       studentName: "Student One",
       studentEmail: null,
+      studentIsAdmin: false,
       teacherName: "Teacher One",
       teacherEmail: null,
+      teacherIsAdmin: false,
       counterpartName: "Teacher One",
+      counterpartIsAdmin: false,
       latestMessage: unreadCount > 0 ? "hello" : null,
       latestMessageAt: unreadCount > 0 ? new Date().toISOString() : null,
     },
@@ -92,9 +96,12 @@ function adminThreadsPayload() {
       participantUnreadCount: 4,
       studentName: "Student One",
       studentEmail: null,
+      studentIsAdmin: false,
       teacherName: "Teacher One",
       teacherEmail: null,
+      teacherIsAdmin: false,
       counterpartName: "Student One · Teacher One",
+      counterpartIsAdmin: false,
     },
     {
       ...base,
@@ -103,11 +110,14 @@ function adminThreadsPayload() {
       teacherId: "teacher-1",
       unreadCount: 3,
       participantUnreadCount: 3,
-      studentName: "Admin One",
+      studentName: null,
       studentEmail: null,
+      studentIsAdmin: true,
       teacherName: "Teacher One",
       teacherEmail: null,
-      counterpartName: "Admin One · Teacher One",
+      teacherIsAdmin: false,
+      counterpartName: "Teacher One",
+      counterpartIsAdmin: false,
     },
   ];
 }
@@ -427,7 +437,7 @@ describe("ChatPanel admin direct messaging", () => {
     });
 
     const adminThreadRow = await screen.findByRole("button", {
-      name: /Admin One · Teacher One/,
+      name: /Admin · Teacher One/,
     });
     expect(within(adminThreadRow).getByTestId("unread-badge")).toHaveTextContent("3");
 
@@ -469,7 +479,10 @@ describe("ChatPanel admin direct messaging", () => {
       (el) => el.textContent,
     );
     expect(contactNames.some((name) => name?.includes("Student One"))).toBe(true);
-    expect(contactNames.some((name) => name?.includes("Admin One"))).toBe(false);
+    // The admin holds the student slot of their own thread with the teacher;
+    // that slot is not a contact.
+    expect(contactNames).toHaveLength(1);
+    expect(contactNames.some((name) => name?.includes("Admin"))).toBe(false);
   });
 
   test("lets the admin reply in review mode only in threads they are part of", async () => {
@@ -499,7 +512,7 @@ describe("ChatPanel admin direct messaging", () => {
 
     await act(async () => {
       fireEvent.click(
-        screen.getByRole("button", { name: /Admin One · Teacher One/ }),
+        screen.getByRole("button", { name: /Admin · Teacher One/ }),
       );
     });
     expect(screen.getByLabelText("Type a message...")).not.toBeDisabled();
@@ -510,5 +523,78 @@ describe("ChatPanel admin direct messaging", () => {
       );
     });
     expect(screen.getByLabelText("Type a message...")).toBeDisabled();
+  });
+});
+
+describe("ChatPanel admin identity", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    sessionState.user = { id: "student-1", role: "STUDENT" };
+    fetchMock.mockReset();
+    subscribeRealtimeMock.mockClear();
+    vi.stubGlobal("fetch", fetchMock);
+    const proto = Element.prototype as unknown as { scrollIntoView?: () => void };
+    if (typeof proto.scrollIntoView !== "function") {
+      proto.scrollIntoView = function scrollIntoViewStub() {};
+    }
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("labels an admin counterpart 'Admin' rather than the person's name", async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse([
+          {
+            id: "admin-thread",
+            studentId: "student-1",
+            teacherId: "admin-1",
+            twoWayEnabled: true,
+            studentBlockedAt: null,
+            teacherBlockedAt: null,
+            studentReportedAt: null,
+            teacherReportedAt: null,
+            studentReportReason: null,
+            teacherReportReason: null,
+            unreadCount: 1,
+            participantUnreadCount: 1,
+            studentName: "Student One",
+            studentEmail: null,
+            studentIsAdmin: false,
+            teacherName: null,
+            teacherEmail: null,
+            teacherIsAdmin: true,
+            counterpartName: null,
+            counterpartIsAdmin: true,
+            latestMessage: "Hello from the studio",
+            latestMessageAt: new Date().toISOString(),
+          },
+        ]);
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    const fab = await screen.findByRole("button", { name: /open chat/i });
+    await act(async () => {
+      fireEvent.click(fab);
+    });
+
+    const row = await screen.findByRole("button", { name: /Hello from the studio/ });
+    expect(row).toHaveTextContent("Admin");
+    // "User" is the unknown-counterpart fallback; a missing name must not fall
+    // through to it when we already know the counterpart is the admin.
+    expect(row).not.toHaveTextContent("User");
   });
 });
