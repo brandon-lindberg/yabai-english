@@ -97,8 +97,16 @@ describe("POST /api/admin/chat/broadcast", () => {
       { id: "t-2", role: "TEACHER" },
     ]);
     prismaMock.chatThread.upsert
-      .mockResolvedValueOnce({ id: "admin-thread-t1" })
-      .mockResolvedValueOnce({ id: "admin-thread-t2" });
+      .mockResolvedValueOnce({
+        id: "admin-thread-t1",
+        studentId: "admin-1",
+        teacherId: "t-1",
+      })
+      .mockResolvedValueOnce({
+        id: "admin-thread-t2",
+        studentId: "admin-1",
+        teacherId: "t-2",
+      });
     prismaMock.chatMessage.createMany.mockResolvedValue({ count: 2 });
 
     const res = await POST(
@@ -156,8 +164,16 @@ describe("POST /api/admin/chat/broadcast", () => {
       { id: "s-1", role: "STUDENT" },
     ]);
     prismaMock.chatThread.upsert
-      .mockResolvedValueOnce({ id: "admin-thread-t1" })
-      .mockResolvedValueOnce({ id: "admin-thread-s1" });
+      .mockResolvedValueOnce({
+        id: "admin-thread-t1",
+        studentId: "admin-1",
+        teacherId: "t-1",
+      })
+      .mockResolvedValueOnce({
+        id: "admin-thread-s1",
+        studentId: "s-1",
+        teacherId: "admin-1",
+      });
     prismaMock.chatMessage.createMany.mockResolvedValue({ count: 2 });
 
     const res = await POST(
@@ -224,6 +240,57 @@ describe("POST /api/admin/chat/broadcast", () => {
       where: { id: "admin-thread-t1" },
       data: { updatedAt: expect.any(Date) },
     });
+  });
+
+  test("addresses every broadcast copy to the participant of its own thread", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
+    prismaMock.user.findMany.mockResolvedValue([
+      { id: "s-1", role: "STUDENT" },
+      { id: "t-1", role: "TEACHER" },
+      { id: "s-2", role: "STUDENT" },
+    ]);
+    const threads = [
+      { id: "th-s1", studentId: "s-1", teacherId: "admin-1" },
+      { id: "th-t1", studentId: "admin-1", teacherId: "t-1" },
+      { id: "th-s2", studentId: "s-2", teacherId: "admin-1" },
+    ];
+    // Resolve out of call order: a correct implementation reads the recipient
+    // off the thread it got back, never off the request list by position.
+    prismaMock.chatThread.upsert.mockImplementation(
+      async ({ where }: { where: { studentId_teacherId: { studentId: string; teacherId: string } } }) => {
+        const { studentId, teacherId } = where.studentId_teacherId;
+        return threads.find((t) => t.studentId === studentId && t.teacherId === teacherId)!;
+      },
+    );
+    prismaMock.chatMessage.createMany.mockResolvedValue({ count: 3 });
+
+    const res = await POST(
+      new Request("http://localhost/api/admin/chat/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: "Notice", target: "all" }),
+      }),
+    );
+    expect(res.status).toBe(200);
+
+    const rows = (
+      prismaMock.chatMessage.createMany.mock.calls[0]?.[0] as {
+        data: { threadId: string; senderId: string; recipientId: string }[];
+      }
+    ).data;
+    expect(rows).toHaveLength(3);
+    for (const row of rows) {
+      const thread = threads.find((t) => t.id === row.threadId)!;
+      expect([thread.studentId, thread.teacherId]).toContain(row.recipientId);
+      expect(row.recipientId).not.toBe("admin-1");
+      expect(row.senderId).toBe("admin-1");
+    }
+    // Every recipient gets exactly one copy, in their own thread.
+    expect(rows.map((r) => `${r.threadId}:${r.recipientId}`).sort()).toEqual([
+      "th-s1:s-1",
+      "th-s2:s-2",
+      "th-t1:t-1",
+    ]);
   });
 
   afterAll(() => {

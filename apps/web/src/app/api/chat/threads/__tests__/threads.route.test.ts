@@ -326,6 +326,37 @@ describe("GET /api/chat/threads", () => {
     );
   });
 
+  test("previews only the latest message the viewer is party to", async () => {
+    authMock.mockResolvedValue({ user: { id: "teach-1", role: "TEACHER" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+
+    await GET(new Request("http://localhost/api/chat/threads"));
+
+    expect(prismaMock.chatThread.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        include: expect.objectContaining({
+          messages: expect.objectContaining({
+            where: { OR: [{ senderId: "teach-1" }, { recipientId: "teach-1" }] },
+          }),
+        }),
+      }),
+    );
+  });
+
+  test("previews the whole thread for a moderating admin", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+
+    await GET(new Request("http://localhost/api/chat/threads"));
+
+    const call = prismaMock.chatThread.findMany.mock.calls[0]?.[0] as {
+      include: { messages: { where?: unknown } };
+    };
+    expect(call.include.messages.where).toBeUndefined();
+  });
+
   afterAll(() => {
     vi.restoreAllMocks();
   });

@@ -3,7 +3,11 @@ import { AccountStatus, Role } from "@/generated/prisma/client";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { ensureAdminUserThread, touchChatThread } from "@/lib/chat-threads";
+import {
+  chatMessageData,
+  ensureAdminUserThread,
+  touchChatThread,
+} from "@/lib/chat-threads";
 import { emitChatUpdate } from "@/lib/realtime-server";
 import { createUserNotification } from "@/lib/notifications";
 
@@ -87,37 +91,33 @@ export async function POST(req: Request) {
     });
   }
 
-  const threadAssignments = await Promise.all(
+  // Each delivery carries the thread it belongs to and the recipient derived
+  // from that same thread, so a broadcast cannot cross-pair the two lists and
+  // send one user's copy to another.
+  const deliveries = await Promise.all(
     recipients.map(async (recipient) => {
       const thread = await ensureAdminUserThread(session.user.id, {
         id: recipient.recipientId,
         role: recipient.role,
       });
-      return { recipientId: recipient.recipientId, threadId: thread.id };
+      return chatMessageData(thread, session.user.id, parsed.data.body);
     }),
   );
 
-  await prisma.chatMessage.createMany({
-    data: threadAssignments.map((entry) => ({
-      threadId: entry.threadId,
-      senderId: session.user.id,
-      recipientId: entry.recipientId,
-      body: parsed.data.body,
-    })),
-  });
+  await prisma.chatMessage.createMany({ data: deliveries });
 
   await Promise.all(
-    threadAssignments.map((entry) => touchChatThread(entry.threadId)),
+    deliveries.map((entry) => touchChatThread(entry.threadId)),
   );
 
   await Promise.all(
-    threadAssignments.flatMap((entry) => [
+    deliveries.flatMap((entry) => [
       emitChatUpdate(entry.recipientId, entry.threadId),
       emitChatUpdate(session.user.id, entry.threadId),
     ]),
   );
   await Promise.all(
-    threadAssignments.map((entry) =>
+    deliveries.map((entry) =>
       createUserNotification({
         userId: entry.recipientId,
         titleJa: "管理者から新しいメッセージがあります",
@@ -133,15 +133,15 @@ export async function POST(req: Request) {
       senderId: session.user.id,
       target: toBroadcastTarget(parsed.data.target),
       body: parsed.data.body,
-      targetedRecipients: threadAssignments.length,
-      sentMessages: threadAssignments.length,
+      targetedRecipients: deliveries.length,
+      sentMessages: deliveries.length,
     },
   });
 
   return NextResponse.json({
     ok: true,
     broadcastId: log.id,
-    targetedRecipients: threadAssignments.length,
-    sentMessages: threadAssignments.length,
+    targetedRecipients: deliveries.length,
+    sentMessages: deliveries.length,
   });
 }

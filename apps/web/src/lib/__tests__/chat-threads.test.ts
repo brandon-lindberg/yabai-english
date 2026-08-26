@@ -16,6 +16,8 @@ vi.mock("@/lib/prisma", () => ({
 
 import {
   adminThreadSlots,
+  chatMessageData,
+  chatMessagePartyWhere,
   chatThreadParticipantWhere,
   ensureAdminUserThread,
   resolveChatRecipientId,
@@ -58,6 +60,42 @@ describe("chatThreadParticipantWhere", () => {
   test("matches threads where the user sits in either slot", () => {
     expect(chatThreadParticipantWhere("user-1")).toEqual({
       OR: [{ studentId: "user-1" }, { teacherId: "user-1" }],
+    });
+  });
+});
+
+describe("chatMessageData", () => {
+  const thread = { id: "thread-1", studentId: "student-1", teacherId: "teacher-1" };
+
+  test("derives the recipient from the thread rather than the caller", () => {
+    expect(chatMessageData(thread, "teacher-1", "Hello")).toEqual({
+      threadId: "thread-1",
+      senderId: "teacher-1",
+      recipientId: "student-1",
+      body: "Hello",
+    });
+  });
+
+  test("addresses the teacher when the student writes", () => {
+    expect(chatMessageData(thread, "student-1", "Hi")).toEqual({
+      threadId: "thread-1",
+      senderId: "student-1",
+      recipientId: "teacher-1",
+      body: "Hi",
+    });
+  });
+
+  test("refuses to build a message from a sender outside the thread", () => {
+    expect(() => chatMessageData(thread, "admin-1", "Hello")).toThrow(
+      /not a participant/i,
+    );
+  });
+});
+
+describe("chatMessagePartyWhere", () => {
+  test("matches only messages the user sent or was sent", () => {
+    expect(chatMessagePartyWhere("user-1")).toEqual({
+      OR: [{ senderId: "user-1" }, { recipientId: "user-1" }],
     });
   });
 });

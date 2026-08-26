@@ -7,6 +7,8 @@ const {
   findBookingMock,
   findUserMock,
   createMessageMock,
+  findMessagesMock,
+  markReadMock,
   updateThreadMock,
   canSendChatMessageMock,
   emitChatUpdateMock,
@@ -18,6 +20,8 @@ const {
   findBookingMock: vi.fn(),
   findUserMock: vi.fn(),
   createMessageMock: vi.fn(),
+  findMessagesMock: vi.fn(),
+  markReadMock: vi.fn(),
   updateThreadMock: vi.fn(),
   canSendChatMessageMock: vi.fn(),
   emitChatUpdateMock: vi.fn(),
@@ -42,6 +46,8 @@ vi.mock("@/lib/prisma", () => ({
     },
     chatMessage: {
       create: createMessageMock,
+      findMany: findMessagesMock,
+      updateMany: markReadMock,
     },
     user: {
       findUnique: findUserMock,
@@ -61,7 +67,7 @@ vi.mock("@/lib/notifications", () => ({
   createUserNotification: createUserNotificationMock,
 }));
 
-import { POST } from "@/app/api/chat/threads/[threadId]/messages/route";
+import { GET, POST } from "@/app/api/chat/threads/[threadId]/messages/route";
 
 describe("POST /api/chat/threads/[threadId]/messages", () => {
   beforeEach(() => {
@@ -327,5 +333,77 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
       where: { id: "thread-1" },
       data: { updatedAt: expect.any(Date) },
     });
+  });
+});
+
+describe("GET /api/chat/threads/[threadId]/messages", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    findThreadMock.mockResolvedValue({
+      id: "thread-1",
+      studentId: "student-1",
+      teacherId: "teacher-1",
+      twoWayEnabled: true,
+      studentBlockedAt: null,
+      teacherBlockedAt: null,
+    });
+    markReadMock.mockResolvedValue({ count: 0 });
+    findMessagesMock.mockResolvedValue([]);
+  });
+
+  function get() {
+    return GET(new Request("http://localhost/api/chat/threads/thread-1/messages"), {
+      params: Promise.resolve({ threadId: "thread-1" }),
+    });
+  }
+
+  test("only returns messages the participant is a party to", async () => {
+    authMock.mockResolvedValue({ user: { id: "teacher-1", role: "TEACHER" } });
+
+    await get();
+
+    expect(findMessagesMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          threadId: "thread-1",
+          OR: [{ senderId: "teacher-1" }, { recipientId: "teacher-1" }],
+        },
+      }),
+    );
+  });
+
+  test("lets an admin read the whole thread for moderation", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
+
+    await get();
+
+    expect(findMessagesMock).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { threadId: "thread-1" } }),
+    );
+  });
+
+  test("scopes an admin who is a participant to their own conversation", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
+    findThreadMock.mockResolvedValue({
+      id: "thread-2",
+      studentId: "admin-1",
+      teacherId: "teacher-1",
+      twoWayEnabled: true,
+      studentBlockedAt: null,
+      teacherBlockedAt: null,
+    });
+
+    await GET(new Request("http://localhost/api/chat/threads/thread-2/messages"), {
+      params: Promise.resolve({ threadId: "thread-2" }),
+    });
+
+    expect(findMessagesMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          threadId: "thread-2",
+          OR: [{ senderId: "admin-1" }, { recipientId: "admin-1" }],
+        },
+      }),
+    );
   });
 });

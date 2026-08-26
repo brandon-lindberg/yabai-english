@@ -33,6 +33,7 @@
     "study:build-advanced1-json": "tsx scripts/build-advanced1-json.ts",
     "study:build-advanced2-json": "tsx scripts/build-advanced2-json.ts",
     "study:build-advanced3-json": "tsx scripts/build-advanced3-json.ts",
+    "chat:repair-scope": "tsx scripts/repair-chat-message-scope.ts",
     "db:seed": "prisma db seed"
   },
   "dependencies": {

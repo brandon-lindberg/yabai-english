@@ -4,7 +4,12 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canSendChatMessage } from "@/lib/chat-permissions";
 import { isConversationBlocked, isViewerBlockedByCounterpart } from "@/lib/chat-blocking";
-import { resolveChatRecipientId, touchChatThread } from "@/lib/chat-threads";
+import {
+  chatMessageData,
+  chatMessagePartyWhere,
+  resolveChatRecipientId,
+  touchChatThread,
+} from "@/lib/chat-threads";
 import { emitChatUpdate } from "@/lib/realtime-server";
 import { createUserNotification } from "@/lib/notifications";
 
@@ -55,8 +60,14 @@ export async function GET(_req: Request, { params }: Props) {
     ]);
   }
 
+  // Belonging to a thread is not the same as being party to every message in
+  // it. Participants only ever read what they sent or were sent; a non-
+  // participant admin reads the whole thread, which is what moderation is for.
   const messages = await prisma.chatMessage.findMany({
-    where: { threadId },
+    where: {
+      threadId,
+      ...(isParticipant ? chatMessagePartyWhere(session.user.id) : {}),
+    },
     orderBy: { createdAt: "asc" },
     take: 200,
   });
@@ -134,12 +145,7 @@ export async function POST(req: Request, { params }: Props) {
   }
 
   const message = await prisma.chatMessage.create({
-    data: {
-      threadId,
-      senderId: session.user.id,
-      recipientId,
-      body: parsed.data.body,
-    },
+    data: chatMessageData(thread, session.user.id, parsed.data.body),
   });
 
   await touchChatThread(threadId);

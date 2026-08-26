@@ -73,6 +73,36 @@ export function chatThreadParticipantWhere(userId: string) {
   return { OR: [{ studentId: userId }, { teacherId: userId }] };
 }
 
+/**
+ * Builds the row for a new ChatMessage. This is the only supported way to write
+ * one: the recipient is derived from the thread, so no call site can address a
+ * message to somebody who is not the sender's counterpart in that thread.
+ *
+ * @throws when `senderId` is not one of the thread's two participants.
+ */
+export function chatMessageData(
+  thread: ThreadParticipants & { id: string },
+  senderId: string,
+  body: string,
+) {
+  const recipientId = resolveChatRecipientId(thread, senderId);
+  if (!recipientId) {
+    throw new Error(
+      `Sender ${senderId} is not a participant of chat thread ${thread.id}.`,
+    );
+  }
+  return { threadId: thread.id, senderId, recipientId, body };
+}
+
+/**
+ * Restricts a ChatMessage query to the messages `userId` is actually party to.
+ * Thread membership alone is too coarse: a message is addressed to exactly one
+ * of the two participants, and only sender and recipient may read it.
+ */
+export function chatMessagePartyWhere(userId: string) {
+  return { OR: [{ senderId: userId }, { recipientId: userId }] };
+}
+
 /** The other party in `thread`, or null when `senderId` is not a participant. */
 export function resolveChatRecipientId(
   thread: ThreadParticipants,
