@@ -3,6 +3,7 @@ import { Role } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isViewerBlockedByCounterpart } from "@/lib/chat-blocking";
+import { chatThreadParticipantWhere } from "@/lib/chat-threads";
 
 function studentThreadLabel(student: { name: string | null; email: string | null }) {
   return student.name ?? student.email ?? "—";
@@ -29,14 +30,13 @@ export async function GET(req: Request) {
   const adminQueue = url.searchParams.get("queue");
   const q = url.searchParams.get("q")?.trim().toLowerCase() ?? "";
 
-  const roleScopedWhere =
-    session.user.role === "STUDENT"
-      ? { studentId: session.user.id }
-      : session.user.role === "TEACHER"
-        ? { teacherId: session.user.id }
-        : {};
-
-  const where = { ...roleScopedWhere } as Record<string, unknown>;
+  // Admins see every thread for moderation; everyone else sees the threads they
+  // take part in, whichever slot they occupy.
+  const where = (
+    session.user.role === Role.SUPER_ADMIN
+      ? {}
+      : chatThreadParticipantWhere(session.user.id)
+  ) as Record<string, unknown>;
 
   const threads = await prisma.chatThread.findMany({
     where,
@@ -81,15 +81,22 @@ export async function GET(req: Request) {
   const queue = session.user.role === Role.SUPER_ADMIN ? adminQueue ?? "all" : "all";
   const withUnread = await Promise.all(
     visibleThreads.map(async (thread) => {
+      // The viewer's own badge only ever counts messages addressed to them.
+      // Admins additionally get a thread-level count for the moderation queue,
+      // which is about what the participants have not read yet.
       const unreadCount = await prisma.chatMessage.count({
         where: {
           threadId: thread.id,
-          ...(session.user.role === Role.SUPER_ADMIN
-            ? {}
-            : { recipientId: session.user.id }),
+          recipientId: session.user.id,
           readAt: null,
         },
       });
+      const participantUnreadCount =
+        session.user.role === Role.SUPER_ADMIN
+          ? await prisma.chatMessage.count({
+              where: { threadId: thread.id, readAt: null },
+            })
+          : unreadCount;
       return {
         id: thread.id,
         studentId: thread.studentId,
@@ -116,6 +123,7 @@ export async function GET(req: Request) {
         latestMessage: thread.messages[0]?.body ?? null,
         latestMessageAt: thread.messages[0]?.createdAt ?? null,
         unreadCount,
+        participantUnreadCount,
       };
     }),
   );
@@ -126,7 +134,7 @@ export async function GET(req: Request) {
       : queue === "blocked"
         ? withUnread.filter((t) => t.studentBlockedAt || t.teacherBlockedAt)
         : queue === "unread"
-          ? withUnread.filter((t) => t.unreadCount > 0)
+          ? withUnread.filter((t) => t.participantUnreadCount > 0)
           : withUnread;
 
   const filtered =

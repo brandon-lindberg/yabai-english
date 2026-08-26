@@ -1,13 +1,19 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
 
+const { sessionState } = vi.hoisted(() => ({
+  sessionState: {
+    user: { id: "student-1", role: "STUDENT" } as { id: string; role: string },
+  },
+}));
+
 vi.mock("next-auth/react", () => ({
   useSession: () => ({
-    data: { user: { id: "student-1", role: "STUDENT" } },
+    data: { user: sessionState.user },
     update: vi.fn(),
   }),
 }));
@@ -63,6 +69,49 @@ function threadsPayload(unreadCount: number) {
   ];
 }
 
+
+function adminThreadsPayload() {
+  const base = {
+    twoWayEnabled: true,
+    studentBlockedAt: null,
+    teacherBlockedAt: null,
+    studentReportedAt: null,
+    teacherReportedAt: null,
+    studentReportReason: null,
+    teacherReportReason: null,
+    latestMessage: "hello",
+    latestMessageAt: new Date().toISOString(),
+  };
+  return [
+    {
+      ...base,
+      id: "thread-1",
+      studentId: "student-1",
+      teacherId: "teacher-1",
+      unreadCount: 0,
+      participantUnreadCount: 4,
+      studentName: "Student One",
+      studentEmail: null,
+      teacherName: "Teacher One",
+      teacherEmail: null,
+      counterpartName: "Student One · Teacher One",
+    },
+    {
+      ...base,
+      id: "admin-teacher-thread",
+      studentId: "admin-1",
+      teacherId: "teacher-1",
+      unreadCount: 3,
+      participantUnreadCount: 3,
+      studentName: "Admin One",
+      studentEmail: null,
+      teacherName: "Teacher One",
+      teacherEmail: null,
+      counterpartName: "Admin One · Teacher One",
+    },
+  ];
+}
+
 function jsonResponse(body: unknown) {
   return {
     ok: true,
@@ -74,6 +123,7 @@ describe("ChatPanel unread badge refresh", () => {
   const fetchMock = vi.fn();
 
   beforeEach(() => {
+    sessionState.user = { id: "student-1", role: "STUDENT" };
     fetchMock.mockReset();
     subscribeRealtimeMock.mockClear();
     vi.stubGlobal("fetch", fetchMock);
@@ -259,5 +309,206 @@ describe("ChatPanel unread badge refresh", () => {
       },
       { timeout: 2000 },
     );
+  });
+});
+
+describe("ChatPanel admin direct messaging", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    sessionState.user = { id: "admin-1", role: "SUPER_ADMIN" };
+    fetchMock.mockReset();
+    subscribeRealtimeMock.mockClear();
+    vi.stubGlobal("fetch", fetchMock);
+    const proto = Element.prototype as unknown as {
+      scrollIntoView?: () => void;
+    };
+    if (typeof proto.scrollIntoView !== "function") {
+      proto.scrollIntoView = function scrollIntoViewStub() {};
+    }
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("sends into the admin's own thread, never a student/teacher conversation", async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url === "/api/chat/threads/direct" && init?.method === "POST") {
+        return jsonResponse({ threadId: "admin-teacher-thread" });
+      }
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse(threadsPayload(0));
+      }
+      if (url.includes("/messages")) {
+        return jsonResponse(init?.method === "POST" ? { id: "msg-1" } : []);
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    const fab = await screen.findByRole("button", { name: /open chat/i });
+    await act(async () => {
+      fireEvent.click(fab);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Direct" }));
+    });
+
+    const contact = await screen.findByRole("button", { name: /Teacher One/ });
+    await act(async () => {
+      fireEvent.click(contact);
+    });
+
+    const composer = await screen.findByLabelText("Write direct message...");
+    await act(async () => {
+      fireEvent.change(composer, { target: { value: "Hello this is the Admin" } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Send direct message" }));
+    });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/chat/threads/direct",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ userId: "teacher-1" }),
+        }),
+      );
+    });
+
+    const messagePosts = fetchMock.mock.calls.filter(([input, init]) => {
+      const url = typeof input === "string" ? input : String(input);
+      return url.includes("/messages") && (init as RequestInit | undefined)?.method === "POST";
+    });
+    expect(messagePosts).toHaveLength(1);
+    expect(String(messagePosts[0]?.[0])).toBe(
+      "/api/chat/threads/admin-teacher-thread/messages",
+    );
+  });
+
+  test("badges admin conversations with the admin's own unread messages", async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse(adminThreadsPayload());
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    // The floating badge only counts what is addressed to the admin.
+    const fab = await screen.findByRole("button", { name: /open chat/i });
+    expect(screen.getByTestId("unread-badge")).toHaveTextContent("3");
+
+    await act(async () => {
+      fireEvent.click(fab);
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "All" }));
+    });
+
+    const adminThreadRow = await screen.findByRole("button", {
+      name: /Admin One · Teacher One/,
+    });
+    expect(within(adminThreadRow).getByTestId("unread-badge")).toHaveTextContent("3");
+
+    const thirdPartyRow = screen.getByRole("button", {
+      name: /Student One · Teacher One/,
+    });
+    expect(within(thirdPartyRow).queryByTestId("unread-badge")).not.toBeInTheDocument();
+  });
+
+  test("never lists the admin's own account as a contact", async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse(adminThreadsPayload());
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    const fab = await screen.findByRole("button", { name: /open chat/i });
+    await act(async () => {
+      fireEvent.click(fab);
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "All" }));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Students" }));
+    });
+
+    const contactNames = (await screen.findAllByTestId("admin-contact")).map(
+      (el) => el.textContent,
+    );
+    expect(contactNames.some((name) => name?.includes("Student One"))).toBe(true);
+    expect(contactNames.some((name) => name?.includes("Admin One"))).toBe(false);
+  });
+
+  test("lets the admin reply in review mode only in threads they are part of", async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse(adminThreadsPayload());
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    const fab = await screen.findByRole("button", { name: /open chat/i });
+    await act(async () => {
+      fireEvent.click(fab);
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "All" }));
+    });
+
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole("button", { name: /Admin One · Teacher One/ }),
+      );
+    });
+    expect(screen.getByLabelText("Type a message...")).not.toBeDisabled();
+
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole("button", { name: /Student One · Teacher One/ }),
+      );
+    });
+    expect(screen.getByLabelText("Type a message...")).toBeDisabled();
   });
 });

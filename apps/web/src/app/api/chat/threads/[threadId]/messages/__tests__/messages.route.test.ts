@@ -7,6 +7,7 @@ const {
   findBookingMock,
   findUserMock,
   createMessageMock,
+  updateThreadMock,
   canSendChatMessageMock,
   emitChatUpdateMock,
   createUserNotificationMock,
@@ -17,6 +18,7 @@ const {
   findBookingMock: vi.fn(),
   findUserMock: vi.fn(),
   createMessageMock: vi.fn(),
+  updateThreadMock: vi.fn(),
   canSendChatMessageMock: vi.fn(),
   emitChatUpdateMock: vi.fn(),
   createUserNotificationMock: vi.fn(),
@@ -30,6 +32,7 @@ vi.mock("@/lib/prisma", () => ({
   prisma: {
     chatThread: {
       findUnique: findThreadMock,
+      update: updateThreadMock,
     },
     teacherProfile: {
       findFirst: findTeacherProfileMock,
@@ -271,6 +274,58 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
       titleEn: "You have a new message from admin",
       bodyJa: "Admin update",
       bodyEn: "Admin update",
+    });
+  });
+
+  test("refuses to post into a conversation the admin is not part of", async () => {
+    authMock.mockResolvedValue({
+      user: { id: "admin-1", role: "SUPER_ADMIN" },
+    });
+    findThreadMock.mockResolvedValue({
+      id: "thread-1",
+      studentId: "student-1",
+      teacherId: "teacher-1",
+      twoWayEnabled: true,
+      studentBlockedAt: null,
+      teacherBlockedAt: null,
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/chat/threads/thread-1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: "Hello this is the Admin" }),
+      }),
+      { params: Promise.resolve({ threadId: "thread-1" }) },
+    );
+
+    expect(res.status).toBe(403);
+    expect(createMessageMock).not.toHaveBeenCalled();
+    expect(createUserNotificationMock).not.toHaveBeenCalled();
+  });
+
+  test("bumps the thread so it sorts to the top of every participant list", async () => {
+    canSendChatMessageMock.mockReturnValue(true);
+    createMessageMock.mockResolvedValue({
+      id: "msg-1",
+      threadId: "thread-1",
+      senderId: "student-1",
+      recipientId: "teacher-1",
+      body: "Hello",
+    });
+
+    await POST(
+      new Request("http://localhost/api/chat/threads/thread-1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: "Hello" }),
+      }),
+      { params: Promise.resolve({ threadId: "thread-1" }) },
+    );
+
+    expect(updateThreadMock).toHaveBeenCalledWith({
+      where: { id: "thread-1" },
+      data: { updatedAt: expect.any(Date) },
     });
   });
 });

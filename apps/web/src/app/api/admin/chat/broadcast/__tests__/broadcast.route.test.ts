@@ -8,6 +8,7 @@ const { authMock, prismaMock, emitChatUpdateMock, createUserNotificationMock } =
     },
     chatThread: {
       upsert: vi.fn(),
+      update: vi.fn(),
     },
     chatMessage: {
       createMany: vi.fn(),
@@ -43,6 +44,7 @@ describe("POST /api/admin/chat/broadcast", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     prismaMock.adminBroadcast.create.mockResolvedValue({ id: "b1" });
+    prismaMock.chatThread.update.mockResolvedValue({ id: "thread-1" });
   });
 
   test("rejects unauthenticated", async () => {
@@ -216,6 +218,12 @@ describe("POST /api/admin/chat/broadcast", () => {
         }),
       }),
     );
+    // Broadcast threads must sort to the top of the recipient's list, which
+    // only happens when the thread row itself is bumped.
+    expect(prismaMock.chatThread.update).toHaveBeenCalledWith({
+      where: { id: "admin-thread-t1" },
+      data: { updatedAt: expect.any(Date) },
+    });
   });
 
   afterAll(() => {

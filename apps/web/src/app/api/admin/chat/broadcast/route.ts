@@ -3,6 +3,7 @@ import { AccountStatus, Role } from "@/generated/prisma/client";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { ensureAdminUserThread, touchChatThread } from "@/lib/chat-threads";
 import { emitChatUpdate } from "@/lib/realtime-server";
 import { createUserNotification } from "@/lib/notifications";
 
@@ -88,37 +89,9 @@ export async function POST(req: Request) {
 
   const threadAssignments = await Promise.all(
     recipients.map(async (recipient) => {
-      // Admin <-> teacher threads are two-way by design so teachers can reply
-      // to admin messages. Admin <-> student threads stay read-only until the
-      // admin explicitly opens two-way on that thread.
-      const twoWayEnabled = recipient.role === Role.TEACHER;
-      const twoWayEnabledByRole = twoWayEnabled ? Role.SUPER_ADMIN : null;
-      const thread = await prisma.chatThread.upsert({
-        where: {
-          studentId_teacherId:
-            recipient.role === Role.TEACHER
-              ? { studentId: session.user.id, teacherId: recipient.recipientId }
-              : { studentId: recipient.recipientId, teacherId: session.user.id },
-        },
-        update: {
-          twoWayEnabled,
-          twoWayEnabledByRole,
-        },
-        create:
-          recipient.role === Role.TEACHER
-            ? {
-                studentId: session.user.id,
-                teacherId: recipient.recipientId,
-                twoWayEnabled,
-                twoWayEnabledByRole,
-              }
-            : {
-                studentId: recipient.recipientId,
-                teacherId: session.user.id,
-                twoWayEnabled,
-                twoWayEnabledByRole,
-              },
-        select: { id: true },
+      const thread = await ensureAdminUserThread(session.user.id, {
+        id: recipient.recipientId,
+        role: recipient.role,
       });
       return { recipientId: recipient.recipientId, threadId: thread.id };
     }),
@@ -132,6 +105,10 @@ export async function POST(req: Request) {
       body: parsed.data.body,
     })),
   });
+
+  await Promise.all(
+    threadAssignments.map((entry) => touchChatThread(entry.threadId)),
+  );
 
   await Promise.all(
     threadAssignments.flatMap((entry) => [

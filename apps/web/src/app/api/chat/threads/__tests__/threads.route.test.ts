@@ -247,6 +247,85 @@ describe("GET /api/chat/threads", () => {
     expect(data[0]?.id).toBe("reappeared");
   });
 
+  test("admin unread count only includes messages addressed to the admin", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([
+      {
+        id: "t1",
+        studentId: "stu-1",
+        teacherId: "teach-1",
+        twoWayEnabled: true,
+        studentBlockedAt: null,
+        teacherBlockedAt: null,
+        studentReportedAt: null,
+        teacherReportedAt: null,
+        studentReportReason: null,
+        teacherReportReason: null,
+        student: { name: "Stu One", email: null },
+        teacher: { name: "Tea One", email: null, teacherProfile: null },
+        messages: [{ body: "Hi", createdAt: new Date() }],
+      },
+    ]);
+    // Thread-level unread (someone else's) is 3, admin-addressed unread is 0.
+    prismaMock.chatMessage.count.mockImplementation(
+      async ({ where }: { where: { recipientId?: string } }) =>
+        where.recipientId === "admin-1" ? 0 : 3,
+    );
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    if (!res) throw new Error("expected response");
+    const data = (await res.json()) as { unreadCount: number }[];
+    expect(data[0]?.unreadCount).toBe(0);
+  });
+
+  test("admin queue=unread still surfaces threads unread by their participants", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([
+      {
+        id: "participant-unread",
+        studentId: "stu-1",
+        teacherId: "teach-1",
+        twoWayEnabled: true,
+        studentBlockedAt: null,
+        teacherBlockedAt: null,
+        studentReportedAt: null,
+        teacherReportedAt: null,
+        studentReportReason: null,
+        teacherReportReason: null,
+        student: { name: "Stu One", email: null },
+        teacher: { name: "Tea One", email: null, teacherProfile: null },
+        messages: [{ body: "Hi", createdAt: new Date() }],
+      },
+    ]);
+    prismaMock.chatMessage.count.mockImplementation(
+      async ({ where }: { where: { recipientId?: string } }) =>
+        where.recipientId === "admin-1" ? 0 : 3,
+    );
+
+    const res = await GET(
+      new Request("http://localhost/api/chat/threads?queue=unread"),
+    );
+    if (!res) throw new Error("expected response");
+    const data = (await res.json()) as { id: string; unreadCount: number }[];
+    expect(data).toHaveLength(1);
+    expect(data[0]?.id).toBe("participant-unread");
+    expect(data[0]?.unreadCount).toBe(0);
+  });
+
+  test("scopes a non-admin to threads they participate in, in either slot", async () => {
+    authMock.mockResolvedValue({ user: { id: "teach-1", role: "TEACHER" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+
+    await GET(new Request("http://localhost/api/chat/threads"));
+
+    expect(prismaMock.chatThread.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { OR: [{ studentId: "teach-1" }, { teacherId: "teach-1" }] },
+      }),
+    );
+  });
+
   afterAll(() => {
     vi.restoreAllMocks();
   });

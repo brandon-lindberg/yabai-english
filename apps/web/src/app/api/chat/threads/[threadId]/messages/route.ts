@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canSendChatMessage } from "@/lib/chat-permissions";
 import { isConversationBlocked, isViewerBlockedByCounterpart } from "@/lib/chat-blocking";
+import { resolveChatRecipientId, touchChatThread } from "@/lib/chat-threads";
 import { emitChatUpdate } from "@/lib/realtime-server";
 import { createUserNotification } from "@/lib/notifications";
 
@@ -81,10 +82,12 @@ export async function POST(req: Request, { params }: Props) {
   });
   if (!thread) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const isStudentSender = session.user.id === thread.studentId;
-  const isTeacherSender = session.user.id === thread.teacherId;
-  const isAdminSender = session.user.role === "SUPER_ADMIN";
-  if (!isStudentSender && !isTeacherSender && !isAdminSender) {
+  // Admins can read any thread for moderation, but they may only write into
+  // threads they are actually part of. Otherwise an admin message would land
+  // inside a student/teacher conversation and be delivered to whichever
+  // participant happened to occupy the other slot.
+  const recipientId = resolveChatRecipientId(thread, session.user.id);
+  if (!recipientId) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -114,8 +117,6 @@ export async function POST(req: Request, { params }: Props) {
       })),
   );
 
-  const recipientId =
-    session.user.id === thread.studentId ? thread.teacherId : thread.studentId;
   const counterpart = await prisma.user.findUnique({
     where: { id: recipientId },
     select: { role: true },
@@ -140,6 +141,8 @@ export async function POST(req: Request, { params }: Props) {
       body: parsed.data.body,
     },
   });
+
+  await touchChatThread(threadId);
 
   await Promise.all([
     emitChatUpdate(session.user.id, threadId),

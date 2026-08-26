@@ -24,6 +24,7 @@ type ThreadItem = {
   studentReportReason: string | null;
   teacherReportReason: string | null;
   unreadCount: number;
+  participantUnreadCount: number;
   studentName: string;
   studentEmail: string | null;
   teacherName: string;
@@ -361,9 +362,22 @@ export function ChatPanel() {
   }, [status]);
 
   async function sendDirectMessage() {
-    if (!isAdminViewer || adminMode !== "direct" || !directTargetThreadId || !draft.trim()) return;
+    if (!isAdminViewer || adminMode !== "direct" || !adminSelectedContactId || !draft.trim())
+      return;
     setStatus(null);
-    const res = await fetch(`/api/chat/threads/${directTargetThreadId}/messages`, {
+    // Resolve the admin's own conversation with this user first: an admin must
+    // never post into a student/teacher conversation they are not part of.
+    const threadRes = await fetch("/api/chat/threads/direct", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: adminSelectedContactId }),
+    });
+    const threadData = (await threadRes.json()) as { threadId?: string; error?: string };
+    if (!threadRes.ok || !threadData.threadId) {
+      setStatus(threadData.error ?? t("sendFailed"));
+      return;
+    }
+    const res = await fetch(`/api/chat/threads/${threadData.threadId}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ body: draft }),
@@ -515,16 +529,23 @@ export function ChatPanel() {
     };
   }, []);
 
-  const canSend =
-    session?.user?.role === "TEACHER" ||
-    (session?.user?.role === "SUPER_ADMIN" && (adminMode === "broadcast" || adminMode === "direct")) ||
-    Boolean(activeThread?.twoWayEnabled);
   const isBlocked = Boolean(
     activeThread?.studentBlockedAt || activeThread?.teacherBlockedAt,
   );
   const myUserId = session?.user?.id;
   const isStudentInThread = Boolean(activeThread && myUserId === activeThread.studentId);
   const isTeacherInThread = Boolean(activeThread && myUserId === activeThread.teacherId);
+  // Review mode is read-only for other people's conversations, but an admin's
+  // own conversations show up in the same list and are theirs to reply to.
+  const isAdminInActiveThread =
+    isAdminViewer && (isStudentInThread || isTeacherInThread);
+  const isAdminReviewOnly =
+    isAdminViewer && adminMode === "review" && !isAdminInActiveThread;
+  const canSend =
+    session?.user?.role === "TEACHER" ||
+    (isAdminViewer &&
+      (adminMode === "broadcast" || adminMode === "direct" || isAdminInActiveThread)) ||
+    Boolean(activeThread?.twoWayEnabled);
   const myBlockedAt = isStudentInThread
     ? activeThread?.studentBlockedAt
     : isTeacherInThread
@@ -533,17 +554,25 @@ export function ChatPanel() {
 
   const adminContacts = useMemo(() => {
     if (!isAdminViewer || adminQueue !== "all") return [];
-    const map = new Map<string, { id: string; name: string; email: string; count: number }>();
+    const map = new Map<
+      string,
+      { id: string; name: string; email: string; count: number; unreadCount: number }
+    >();
     for (const thread of threads) {
       const id = adminContactType === "teacher" ? thread.teacherId : thread.studentId;
+      // Admin conversations put the admin in whichever slot the counterpart
+      // does not occupy, so skip their own account rather than listing the
+      // admin as one of their own contacts.
+      if (id === session?.user?.id) continue;
       const name = adminContactType === "teacher" ? thread.teacherName : thread.studentName;
       const email =
         (adminContactType === "teacher" ? thread.teacherEmail : thread.studentEmail) ?? "";
       const existing = map.get(id);
       if (existing) {
         existing.count += 1;
+        existing.unreadCount += thread.unreadCount;
       } else {
-        map.set(id, { id, name, email, count: 1 });
+        map.set(id, { id, name, email, count: 1, unreadCount: thread.unreadCount });
       }
     }
     const q = adminSearch.trim().toLowerCase();
@@ -556,7 +585,14 @@ export function ChatPanel() {
             c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q),
         )
       : contacts;
-  }, [isAdminViewer, adminQueue, threads, adminContactType, adminSearch]);
+  }, [
+    isAdminViewer,
+    adminQueue,
+    threads,
+    adminContactType,
+    adminSearch,
+    session?.user?.id,
+  ]);
 
   const adminContactThreads = useMemo(() => {
     if (!isAdminViewer || adminQueue !== "all" || !adminSelectedContactId) return [];
@@ -571,8 +607,6 @@ export function ChatPanel() {
     if (!isAdminViewer || adminMode !== "direct") return null;
     return adminContacts.find((c) => c.id === adminSelectedContactId) ?? null;
   }, [isAdminViewer, adminMode, adminContacts, adminSelectedContactId]);
-
-  const directTargetThreadId = adminContactThreads[0]?.id ?? "";
 
   useEffect(() => {
     if (!isAdminViewer || adminQueue !== "all") return;
@@ -869,6 +903,7 @@ export function ChatPanel() {
                                 <button
                                   key={contact.id}
                                   type="button"
+                                  data-testid="admin-contact"
                                   onClick={() => {
                                     setAdminSelectedContactId(contact.id);
                                     setStatus(null);
@@ -906,6 +941,7 @@ export function ChatPanel() {
                                   <button
                                     key={contact.id}
                                     type="button"
+                                    data-testid="admin-contact"
                                     onClick={() => setAdminSelectedContactId(contact.id)}
                                     className={`w-full rounded-lg border px-2 py-1.5 text-left text-xs ${
                                       adminSelectedContactId === contact.id
@@ -920,9 +956,15 @@ export function ChatPanel() {
                                           <p className="text-[10px] text-muted">{contact.email}</p>
                                         ) : null}
                                       </div>
-                                      <span className="text-[10px] text-muted">
-                                        {contact.count}
-                                      </span>
+                                      <div className="flex items-center gap-1.5">
+                                        <UnreadBadge
+                                          count={contact.unreadCount}
+                                          label={(n) => t("unreadBadgeLabel", { count: n })}
+                                        />
+                                        <span className="text-[10px] text-muted">
+                                          {contact.count}
+                                        </span>
+                                      </div>
                                     </div>
                                   </button>
                                 ))
@@ -955,6 +997,10 @@ export function ChatPanel() {
                                       <p className="font-semibold text-foreground">
                                         {thread.studentName} · {thread.teacherName}
                                       </p>
+                                      <UnreadBadge
+                                        count={thread.unreadCount}
+                                        label={(n) => t("unreadBadgeLabel", { count: n })}
+                                      />
                                     </div>
                                     <p className="mt-0.5 line-clamp-2 text-muted">
                                       {thread.latestMessage ?? t("noMessagesYet")}
@@ -994,6 +1040,10 @@ export function ChatPanel() {
                                     {t("adminBadgeBlocked")}
                                   </span>
                                 )}
+                                <UnreadBadge
+                                  count={thread.unreadCount}
+                                  label={(n) => t("unreadBadgeLabel", { count: n })}
+                                />
                               </div>
                             </div>
                             <p className="mt-0.5 line-clamp-2 text-muted">
@@ -1185,7 +1235,7 @@ export function ChatPanel() {
                         <button
                           type="button"
                           onClick={() => void sendDirectMessage()}
-                          disabled={!draft.trim() || !directTargetThreadId}
+                          disabled={!draft.trim() || !adminSelectedContactId}
                           className={buttonClasses()}
                         >
                           {t("directSend")}
@@ -1366,10 +1416,10 @@ export function ChatPanel() {
                   aria-label={t("messagePlaceholder")}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  disabled={!canSend || isBlocked || (isAdminViewer && adminMode === "review")}
+                  disabled={!canSend || isBlocked || isAdminReviewOnly}
                   className="flex-1 rounded-full border border-border bg-surface px-3 py-2 text-base text-foreground"
                   placeholder={
-                    isAdminViewer && adminMode === "review"
+                    isAdminReviewOnly
                       ? t("adminReviewOnlyPlaceholder")
                       : t("messagePlaceholder")
                   }
@@ -1377,7 +1427,7 @@ export function ChatPanel() {
                 <button
                   type="button"
                   onClick={() => void send()}
-                  disabled={!canSend || isBlocked || (isAdminViewer && adminMode === "review")}
+                  disabled={!canSend || isBlocked || isAdminReviewOnly}
                   className={buttonClasses()}
                 >
                   {t("send")}
@@ -1386,7 +1436,7 @@ export function ChatPanel() {
               {!canSend && (
                 <p className="mt-2 text-xs text-muted">{t("readOnlyHint")}</p>
               )}
-              {isAdminViewer && adminMode === "review" && (
+              {isAdminReviewOnly && (
                 <p className="mt-2 text-xs text-muted">{t("adminReviewOnlyHint")}</p>
               )}
               {isBlocked && (
