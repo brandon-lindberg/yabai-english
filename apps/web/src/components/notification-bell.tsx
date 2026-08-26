@@ -109,7 +109,11 @@ export function NotificationBell() {
   }
 
   return (
-    <div ref={rootRef} className="relative">
+    /* No positioning context below `sm`: the panel then resolves against the
+       sticky <header>, which spans the viewport, so it can sit between the
+       screen edges instead of hanging off the left of a bell that is not
+       itself at the edge. From `sm` up it anchors to the bell as usual. */
+    <div ref={rootRef} className="sm:relative">
       <button
         type="button"
         aria-label={
@@ -133,7 +137,10 @@ export function NotificationBell() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-border bg-surface p-3">
+        <div
+          data-testid="notification-panel"
+          className="absolute inset-x-3 top-full z-[60] mt-2 rounded-2xl border border-border bg-surface p-3 sm:inset-x-auto sm:left-auto sm:right-0 sm:w-80"
+        >
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-semibold text-foreground">{t("notifications")}</p>
             <div className="flex flex-wrap items-center gap-2">
@@ -155,7 +162,9 @@ export function NotificationBell() {
             </div>
           </div>
           <ul
-            className="max-h-96 space-y-2 overflow-auto"
+            /* Cap against the viewport too, so a long list on a short phone
+               scrolls inside the panel instead of running off the bottom. */
+            className="max-h-[min(24rem,calc(100dvh-11rem))] space-y-2 overflow-auto"
             aria-busy={!hasLoadedOnce || undefined}
           >
             {!hasLoadedOnce && items.length === 0 ? (

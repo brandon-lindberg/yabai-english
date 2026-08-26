@@ -236,4 +236,32 @@ describe("NotificationBell", () => {
     expect(await screen.findByText("Lesson confirmed")).toBeTruthy();
     expect(screen.queryByRole("link", { name: /Lesson confirmed/i })).toBeNull();
   });
+
+  test("keeps the dropdown inside the viewport on mobile", async () => {
+    fetchMock.mockImplementation(async () =>
+      jsonResponse({ items: [], unreadCount: 0 }),
+    );
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <NotificationBell />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /notifications/i }));
+    });
+
+    const panel = screen.getByTestId("notification-panel");
+    // The bell is not at the screen edge (the account menu sits to its right),
+    // so a fixed width anchored to the bell hangs off the left of the screen.
+    // Below `sm` the panel spans the viewport instead; the fixed width and the
+    // right-anchoring are both gated behind `sm:`.
+    expect(panel.className).toContain("inset-x-3");
+    expect(panel.className).toContain("sm:w-80");
+    expect(panel.className).not.toMatch(/(^|\s)w-80(\s|$)/);
+    expect(panel.className).not.toMatch(/(^|\s)right-0(\s|$)/);
+  });
 });
