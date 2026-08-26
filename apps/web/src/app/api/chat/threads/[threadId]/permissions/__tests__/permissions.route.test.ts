@@ -35,6 +35,8 @@ describe("POST /api/chat/threads/[threadId]/permissions", () => {
       teacherId: "teacher-1",
       studentBlockedAt: null,
       teacherBlockedAt: null,
+      student: { role: "STUDENT" },
+      teacher: { role: "TEACHER" },
     });
     updateThreadMock.mockResolvedValue({
       id: "thread-1",
@@ -109,6 +111,68 @@ describe("POST /api/chat/threads/[threadId]/permissions", () => {
         twoWayEnabled: true,
         twoWayEnabledByRole: "SUPER_ADMIN",
       },
+    });
+  });
+
+  test("rejects a teacher toggling two-way in their conversation with an admin", async () => {
+    // Admin conversations put the admin in the student slot, which would
+    // otherwise make the teacher "the thread's teacher" and let them open
+    // two-way chat with the studio themselves.
+    findThreadMock.mockResolvedValue({
+      id: "admin-thread",
+      studentId: "admin-1",
+      teacherId: "teacher-1",
+      studentBlockedAt: null,
+      teacherBlockedAt: null,
+      student: { role: "SUPER_ADMIN" },
+      teacher: { role: "TEACHER" },
+    });
+    authMock.mockResolvedValue({ user: { id: "teacher-1", role: "TEACHER" } });
+
+    const res = await POST(
+      new Request("http://localhost/api/chat/threads/admin-thread/permissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ twoWayEnabled: true }),
+      }),
+      { params: Promise.resolve({ threadId: "admin-thread" }) },
+    );
+
+    expect(res.status).toBe(403);
+    expect(updateThreadMock).not.toHaveBeenCalled();
+  });
+
+  test("still lets the admin toggle two-way in their own conversation", async () => {
+    findThreadMock.mockResolvedValue({
+      id: "admin-thread",
+      studentId: "admin-1",
+      teacherId: "teacher-1",
+      studentBlockedAt: null,
+      teacherBlockedAt: null,
+      student: { role: "SUPER_ADMIN" },
+      teacher: { role: "TEACHER" },
+    });
+    updateThreadMock.mockResolvedValue({
+      id: "admin-thread",
+      studentId: "admin-1",
+      teacherId: "teacher-1",
+      twoWayEnabled: false,
+    });
+    authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
+
+    const res = await POST(
+      new Request("http://localhost/api/chat/threads/admin-thread/permissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ twoWayEnabled: false }),
+      }),
+      { params: Promise.resolve({ threadId: "admin-thread" }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(updateThreadMock).toHaveBeenCalledWith({
+      where: { id: "admin-thread" },
+      data: { twoWayEnabled: false, twoWayEnabledByRole: "SUPER_ADMIN" },
     });
   });
 });

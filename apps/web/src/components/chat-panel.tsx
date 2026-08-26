@@ -1294,7 +1294,9 @@ export function ChatPanel() {
               {activeThread &&
                 (isAdminViewer
                   ? adminMode !== "broadcast"
-                  : isTeacherInThread) && (
+                  : // Whether a conversation with the studio is two-way is the
+                    // admin's call, so the counterpart never gets the toggle.
+                    isTeacherInThread && !activeThread.counterpartIsAdmin) && (
                 <CheckRow
                   className="mb-2"
                   checked={activeThread.twoWayEnabled}

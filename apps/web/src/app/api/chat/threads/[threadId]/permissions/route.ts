@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Role } from "@/generated/prisma/client";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -26,16 +27,28 @@ export async function POST(req: Request, { params }: Props) {
   }
 
   const { threadId } = await params;
-  const thread = await prisma.chatThread.findUnique({ where: { id: threadId } });
+  const thread = await prisma.chatThread.findUnique({
+    where: { id: threadId },
+    include: {
+      student: { select: { role: true } },
+      teacher: { select: { role: true } },
+    },
+  });
   if (!thread) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (isViewerBlockedByCounterpart(thread, session.user.id)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const isAdmin = session.user.role === "SUPER_ADMIN";
+  const isAdmin = session.user.role === Role.SUPER_ADMIN;
   const isThreadTeacher =
-    session.user.role === "TEACHER" && session.user.id === thread.teacherId;
-  if (!isAdmin && !isThreadTeacher) {
+    session.user.role === Role.TEACHER && session.user.id === thread.teacherId;
+  // An admin conversation borrows the slot its counterpart does not occupy, so
+  // a teacher messaging the studio is also "the thread's teacher". Who may talk
+  // to an admin is the admin's call alone, so the counterpart never toggles it.
+  const involvesAdmin =
+    thread.student.role === Role.SUPER_ADMIN ||
+    thread.teacher.role === Role.SUPER_ADMIN;
+  if (!isAdmin && (!isThreadTeacher || involvesAdmin)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

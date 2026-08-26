@@ -597,4 +597,112 @@ describe("ChatPanel admin identity", () => {
     // through to it when we already know the counterpart is the admin.
     expect(row).not.toHaveTextContent("User");
   });
+
+  test("hides the two-way toggle from a teacher in their admin conversation", async () => {
+    sessionState.user = { id: "teacher-1", role: "TEACHER" };
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse([
+          {
+            id: "admin-thread",
+            studentId: "admin-1",
+            teacherId: "teacher-1",
+            twoWayEnabled: true,
+            studentBlockedAt: null,
+            teacherBlockedAt: null,
+            studentReportedAt: null,
+            teacherReportedAt: null,
+            studentReportReason: null,
+            teacherReportReason: null,
+            unreadCount: 0,
+            participantUnreadCount: 0,
+            studentName: null,
+            studentEmail: null,
+            studentIsAdmin: true,
+            teacherName: "Teacher One",
+            teacherEmail: null,
+            teacherIsAdmin: false,
+            counterpartName: null,
+            counterpartIsAdmin: true,
+            latestMessage: "This is the Admin",
+            latestMessageAt: new Date().toISOString(),
+          },
+        ]);
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    const fab = await screen.findByRole("button", { name: /open chat/i });
+    await act(async () => {
+      fireEvent.click(fab);
+    });
+
+    await screen.findByText("This is the Admin");
+    // Whether a conversation with the studio is two-way is the admin's call.
+    expect(
+      screen.queryByRole("checkbox", { name: /Enable two-way student chat/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("keeps the two-way toggle for a teacher in a student conversation", async () => {
+    sessionState.user = { id: "teacher-1", role: "TEACHER" };
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse([
+          {
+            id: "student-thread",
+            studentId: "student-1",
+            teacherId: "teacher-1",
+            twoWayEnabled: false,
+            studentBlockedAt: null,
+            teacherBlockedAt: null,
+            studentReportedAt: null,
+            teacherReportedAt: null,
+            studentReportReason: null,
+            teacherReportReason: null,
+            unreadCount: 0,
+            participantUnreadCount: 0,
+            studentName: "Student One",
+            studentEmail: null,
+            studentIsAdmin: false,
+            teacherName: "Teacher One",
+            teacherEmail: null,
+            teacherIsAdmin: false,
+            counterpartName: "Student One",
+            counterpartIsAdmin: false,
+            latestMessage: "Hi",
+            latestMessageAt: new Date().toISOString(),
+          },
+        ]);
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    const fab = await screen.findByRole("button", { name: /open chat/i });
+    await act(async () => {
+      fireEvent.click(fab);
+    });
+
+    expect(
+      await screen.findByRole("checkbox", { name: /Enable two-way student chat/i }),
+    ).toBeInTheDocument();
+  });
 });
