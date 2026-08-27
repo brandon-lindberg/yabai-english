@@ -9,6 +9,12 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
     chatMessage: {
       count: vi.fn(),
     },
+    teacherProfile: {
+      findMany: vi.fn(),
+    },
+    booking: {
+      findMany: vi.fn(),
+    },
   },
 }));
 
@@ -29,7 +35,27 @@ import { GET } from "@/app/api/chat/threads/route";
 describe("GET /api/chat/threads", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaMock.teacherProfile.findMany.mockResolvedValue([]);
+    prismaMock.booking.findMany.mockResolvedValue([]);
   });
+
+  function adminCounterpartThread(twoWayEnabled: boolean) {
+    return {
+      id: "admin-thread",
+      studentId: "admin-1",
+      teacherId: "teach-1",
+      twoWayEnabled,
+      studentBlockedAt: null,
+      teacherBlockedAt: null,
+      studentReportedAt: null,
+      teacherReportedAt: null,
+      studentReportReason: null,
+      teacherReportReason: null,
+      student: { name: "Admin", email: null, role: "SUPER_ADMIN" },
+      teacher: { name: "Mika", email: null, role: "TEACHER", teacherProfile: null },
+      messages: [],
+    };
+  }
 
   test("admin counterpartName lists student and teacher", async () => {
     authMock.mockResolvedValue({ user: { id: "admin-1", role: "SUPER_ADMIN" } });
@@ -470,6 +496,92 @@ describe("GET /api/chat/threads", () => {
     }[];
     expect(data[0]?.counterpartIsAdmin).toBe(false);
     expect(data[0]?.counterpartName).toBe("Ms. Mika");
+  });
+
+  test("tells a teacher they cannot reply while the admin has replies closed", async () => {
+    authMock.mockResolvedValue({ user: { id: "teach-1", role: "TEACHER" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([adminCounterpartThread(false)]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    if (!res) throw new Error("expected response");
+    const data = (await res.json()) as { viewerCanSend: boolean }[];
+    expect(data[0]?.viewerCanSend).toBe(false);
+  });
+
+  test("tells a teacher they can reply once the admin opens replies", async () => {
+    authMock.mockResolvedValue({ user: { id: "teach-1", role: "TEACHER" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([adminCounterpartThread(true)]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    if (!res) throw new Error("expected response");
+    const data = (await res.json()) as { viewerCanSend: boolean }[];
+    expect(data[0]?.viewerCanSend).toBe(true);
+  });
+
+  test("a teacher can always write to their own student", async () => {
+    authMock.mockResolvedValue({ user: { id: "teach-1", role: "TEACHER" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([
+      {
+        id: "student-thread",
+        studentId: "stu-1",
+        teacherId: "teach-1",
+        twoWayEnabled: false,
+        studentBlockedAt: null,
+        teacherBlockedAt: null,
+        studentReportedAt: null,
+        teacherReportedAt: null,
+        studentReportReason: null,
+        teacherReportReason: null,
+        student: { name: "Dwight", email: null, role: "STUDENT" },
+        teacher: { name: "Mika", email: null, role: "TEACHER", teacherProfile: null },
+        messages: [],
+      },
+    ]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    if (!res) throw new Error("expected response");
+    const data = (await res.json()) as { viewerCanSend: boolean }[];
+    expect(data[0]?.viewerCanSend).toBe(true);
+  });
+
+  test("a student with two-way on but no booked lesson still cannot write", async () => {
+    authMock.mockResolvedValue({ user: { id: "stu-1", role: "STUDENT" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([
+      {
+        id: "t1",
+        studentId: "stu-1",
+        teacherId: "teach-1",
+        twoWayEnabled: true,
+        studentBlockedAt: null,
+        teacherBlockedAt: null,
+        studentReportedAt: null,
+        teacherReportedAt: null,
+        studentReportReason: null,
+        teacherReportReason: null,
+        student: { name: "Dwight", email: null, role: "STUDENT" },
+        teacher: { name: "Mika", email: null, role: "TEACHER", teacherProfile: null },
+        messages: [],
+      },
+    ]);
+    prismaMock.chatMessage.count.mockResolvedValue(0);
+    prismaMock.teacherProfile.findMany.mockResolvedValue([
+      { id: "profile-1", userId: "teach-1" },
+    ]);
+    prismaMock.booking.findMany.mockResolvedValue([]);
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    if (!res) throw new Error("expected response");
+    const data = (await res.json()) as { viewerCanSend: boolean }[];
+    expect(data[0]?.viewerCanSend).toBe(false);
+
+    prismaMock.booking.findMany.mockResolvedValue([{ teacherId: "profile-1" }]);
+    const res2 = await GET(new Request("http://localhost/api/chat/threads"));
+    if (!res2) throw new Error("expected response");
+    const data2 = (await res2.json()) as { viewerCanSend: boolean }[];
+    expect(data2[0]?.viewerCanSend).toBe(true);
   });
 
   afterAll(() => {

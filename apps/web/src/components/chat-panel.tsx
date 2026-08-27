@@ -25,6 +25,7 @@ type ThreadItem = {
   teacherReportReason: string | null;
   unreadCount: number;
   participantUnreadCount: number;
+  viewerCanSend: boolean;
   studentName: string | null;
   studentEmail: string | null;
   studentIsAdmin: boolean;
@@ -519,11 +520,18 @@ export function ChatPanel() {
     isAdminViewer && (isStudentInThread || isTeacherInThread);
   const isAdminReviewOnly =
     isAdminViewer && adminMode === "review" && !isAdminInActiveThread;
-  const canSend =
-    session?.user?.role === "TEACHER" ||
-    (isAdminViewer &&
-      (adminMode === "broadcast" || adminMode === "direct" || isAdminInActiveThread)) ||
-    Boolean(activeThread?.twoWayEnabled);
+  // The API decides this with the same rule the send endpoint enforces, so the
+  // composer is never enabled for a message the server would refuse. Admin
+  // modes are a property of this panel, not of a thread, so they stay here.
+  const canSend = isAdminViewer
+    ? adminMode === "broadcast" || adminMode === "direct" || isAdminInActiveThread
+    : Boolean(activeThread?.viewerCanSend);
+  const composerDisabled = !canSend || isBlocked || isAdminReviewOnly;
+  const composerLabel = isAdminReviewOnly
+    ? t("adminReviewOnlyPlaceholder")
+    : !canSend
+      ? t("readOnlyPlaceholder")
+      : t("messagePlaceholder");
   const myBlockedAt = isStudentInThread
     ? activeThread?.studentBlockedAt
     : isTeacherInThread
@@ -1256,6 +1264,11 @@ export function ChatPanel() {
                   {t("blockedHint")}
                 </p>
               )}
+              {activeThread && !canSend && !isBlocked && (
+                <p className="mb-2 rounded-lg border border-border bg-surface px-2 py-1 text-xs text-muted">
+                  {t("readOnlyHint")}
+                </p>
+              )}
               <div className="flex-1 space-y-2 overflow-auto overscroll-contain">
                 {messagesLoading && messages.length === 0 ? (
                   <div
@@ -1384,29 +1397,23 @@ export function ChatPanel() {
               </div>
               <div className="mt-3 flex gap-2">
                 <input
-                  aria-label={t("messagePlaceholder")}
+                  data-testid="chat-composer"
+                  aria-label={composerLabel}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  disabled={!canSend || isBlocked || isAdminReviewOnly}
-                  className="flex-1 rounded-full border border-border bg-surface px-3 py-2 text-base text-foreground"
-                  placeholder={
-                    isAdminReviewOnly
-                      ? t("adminReviewOnlyPlaceholder")
-                      : t("messagePlaceholder")
-                  }
+                  disabled={composerDisabled}
+                  className="flex-1 rounded-full border border-border bg-surface px-3 py-2 text-base text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder={composerLabel}
                 />
                 <button
                   type="button"
                   onClick={() => void send()}
-                  disabled={!canSend || isBlocked || isAdminReviewOnly}
+                  disabled={composerDisabled}
                   className={buttonClasses()}
                 >
                   {t("send")}
                 </button>
               </div>
-              {!canSend && (
-                <p className="mt-2 text-xs text-muted">{t("readOnlyHint")}</p>
-              )}
               {isAdminReviewOnly && (
                 <p className="mt-2 text-xs text-muted">{t("adminReviewOnlyHint")}</p>
               )}

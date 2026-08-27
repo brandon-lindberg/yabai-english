@@ -59,6 +59,7 @@ function threadsPayload(unreadCount: number) {
       teacherReportReason: null,
       unreadCount,
       participantUnreadCount: unreadCount,
+      viewerCanSend: true,
       studentName: "Student One",
       studentEmail: null,
       studentIsAdmin: false,
@@ -94,6 +95,7 @@ function adminThreadsPayload() {
       teacherId: "teacher-1",
       unreadCount: 0,
       participantUnreadCount: 4,
+      viewerCanSend: true,
       studentName: "Student One",
       studentEmail: null,
       studentIsAdmin: false,
@@ -110,6 +112,7 @@ function adminThreadsPayload() {
       teacherId: "teacher-1",
       unreadCount: 3,
       participantUnreadCount: 3,
+      viewerCanSend: true,
       studentName: null,
       studentEmail: null,
       studentIsAdmin: true,
@@ -516,14 +519,14 @@ describe("ChatPanel admin direct messaging", () => {
         screen.getByRole("button", { name: /Admin · Teacher One/ }),
       );
     });
-    expect(screen.getByLabelText("Type a message...")).not.toBeDisabled();
+    expect(screen.getByTestId("chat-composer")).not.toBeDisabled();
 
     await act(async () => {
       fireEvent.click(
         screen.getByRole("button", { name: /Student One · Teacher One/ }),
       );
     });
-    expect(screen.getByLabelText("Type a message...")).toBeDisabled();
+    expect(screen.getByTestId("chat-composer")).toBeDisabled();
   });
 
   test("shows the conversation history with the selected contact", async () => {
@@ -871,5 +874,96 @@ describe("ChatPanel admin identity", () => {
     expect(
       await screen.findByRole("checkbox", { name: /Enable two-way student chat/i }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("ChatPanel read-only conversations", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    sessionState.user = { id: "teacher-1", role: "TEACHER" };
+    fetchMock.mockReset();
+    subscribeRealtimeMock.mockClear();
+    vi.stubGlobal("fetch", fetchMock);
+    const proto = Element.prototype as unknown as { scrollIntoView?: () => void };
+    if (typeof proto.scrollIntoView !== "function") {
+      proto.scrollIntoView = function scrollIntoViewStub() {};
+    }
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function adminThreadFor(viewerCanSend: boolean) {
+    return [
+      {
+        id: "admin-thread",
+        studentId: "admin-1",
+        teacherId: "teacher-1",
+        twoWayEnabled: viewerCanSend,
+        studentBlockedAt: null,
+        teacherBlockedAt: null,
+        studentReportedAt: null,
+        teacherReportedAt: null,
+        studentReportReason: null,
+        teacherReportReason: null,
+        unreadCount: 0,
+        participantUnreadCount: 0,
+        studentName: null,
+        studentEmail: null,
+        studentIsAdmin: true,
+        teacherName: "Teacher One",
+        teacherEmail: null,
+        teacherIsAdmin: false,
+        counterpartName: null,
+        counterpartIsAdmin: true,
+        viewerCanSend,
+        latestMessage: "This is the Admin",
+        latestMessageAt: new Date().toISOString(),
+      },
+    ];
+  }
+
+  async function openPanel(viewerCanSend: boolean) {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse(adminThreadFor(viewerCanSend));
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+    await act(async () => {
+      fireEvent.click(await screen.findByRole("button", { name: /open chat/i }));
+    });
+    await screen.findByText("This is the Admin");
+  }
+
+  test("disables the composer and says so when the viewer cannot reply", async () => {
+    await openPanel(false);
+
+    expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();
+    expect(screen.getByLabelText("You can't reply in this conversation")).toBeDisabled();
+    expect(
+      screen.getByText(/Read-only — you can read this conversation/),
+    ).toBeInTheDocument();
+  });
+
+  test("leaves the composer usable when the viewer can reply", async () => {
+    await openPanel(true);
+
+    expect(screen.getByRole("button", { name: "Send" })).not.toBeDisabled();
+    expect(screen.getByLabelText("Type a message...")).not.toBeDisabled();
+    expect(
+      screen.queryByText(/Read-only — you can read this conversation/),
+    ).not.toBeInTheDocument();
   });
 });

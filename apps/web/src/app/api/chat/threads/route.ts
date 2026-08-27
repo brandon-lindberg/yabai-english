@@ -3,6 +3,7 @@ import { Role } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isViewerBlockedByCounterpart } from "@/lib/chat-blocking";
+import { canSendChatMessage } from "@/lib/chat-permissions";
 import {
   chatMessagePartyWhere,
   chatThreadParticipantWhere,
@@ -96,6 +97,31 @@ export async function GET(req: Request) {
     },
   );
 
+  // Whether the viewer may write is decided by the same rule the send endpoint
+  // applies, so the composer is never enabled for a message the server will
+  // refuse. That rule consults a booked lesson only for student senders, so
+  // resolve those in two queries rather than one pair per thread.
+  const bookedTeacherUserIds = new Set<string>();
+  if (session.user.role === Role.STUDENT && visibleThreads.length > 0) {
+    const profiles = await prisma.teacherProfile.findMany({
+      where: { userId: { in: visibleThreads.map((thread) => thread.teacherId) } },
+      select: { id: true, userId: true },
+    });
+    if (profiles.length > 0) {
+      const bookings = await prisma.booking.findMany({
+        where: {
+          studentId: session.user.id,
+          teacherId: { in: profiles.map((profile) => profile.id) },
+        },
+        select: { teacherId: true },
+      });
+      const bookedProfileIds = new Set(bookings.map((booking) => booking.teacherId));
+      for (const profile of profiles) {
+        if (bookedProfileIds.has(profile.id)) bookedTeacherUserIds.add(profile.userId);
+      }
+    }
+  }
+
   const queue = isAdminViewer ? adminQueue ?? "all" : "all";
   const withUnread = await Promise.all(
     visibleThreads.map(async (thread) => {
@@ -119,6 +145,14 @@ export async function GET(req: Request) {
       const viewerIsStudentParty = session.user.id === thread.studentId;
       const studentName = studentThreadLabel(thread.student);
       const teacherName = teacherThreadLabel(thread.teacher);
+      const viewerCanSend = canSendChatMessage({
+        role: session.user.role,
+        threadTwoWayEnabled: thread.twoWayEnabled,
+        hasScheduledLessonWithTeacher: bookedTeacherUserIds.has(thread.teacherId),
+        counterpartRole: viewerIsStudentParty
+          ? thread.teacher.role
+          : thread.student.role,
+      });
       return {
         id: thread.id,
         studentId: thread.studentId,
@@ -152,6 +186,7 @@ export async function GET(req: Request) {
         latestMessageAt: thread.messages[0]?.createdAt ?? null,
         unreadCount,
         participantUnreadCount,
+        viewerCanSend,
       };
     }),
   );
