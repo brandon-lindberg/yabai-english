@@ -1268,6 +1268,7 @@
     "unreadBadgeLabel": "{count, plural, one {# unread message} other {# unread messages}}",
     "moreActions": "More actions",
     "enableTwoWay": "Enable two-way student chat",
+    "enableTwoWayReplies": "Allow the recipient to reply",
     "noThreads": "No chat threads yet.",
     "unknownUser": "User",
     "noMessagesYet": "No messages yet.",
@@ -1328,13 +1329,7 @@
     "broadcastMessagePlaceholder": "Write announcement message...",
     "broadcastClear": "Clear",
     "adminReviewOnlyHint": "Review mode: admin sending is disabled here.",
-    "adminReviewOnlyPlaceholder": "Review mode (sending disabled)",
-    "directPanelHint": "Send a direct message to the selected contact.",
-    "directRecipientLabel": "Recipient",
-    "directMessagePlaceholder": "Write direct message...",
-    "directSend": "Send direct message",
-    "directSelectContactFirst": "Select a contact first.",
-    "directSent": "Direct message sent to {name}."
+    "adminReviewOnlyPlaceholder": "Review mode (sending disabled)"
   },
   "org": {
     "nav": {

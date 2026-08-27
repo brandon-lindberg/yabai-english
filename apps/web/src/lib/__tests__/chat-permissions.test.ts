@@ -42,7 +42,9 @@ describe("canSendChatMessage", () => {
     ).toBe(true);
   });
 
-  test("teacher can always reply to admin because admin\u2194teacher is two-way by design", () => {
+  test("teacher replies to admin only while the admin leaves two-way on", () => {
+    // Admin\u2194teacher threads open two-way by default, but the admin can close
+    // it to send an announcement the recipient cannot reply to.
     expect(
       canSendChatMessage({
         role: "TEACHER",
@@ -50,7 +52,7 @@ describe("canSendChatMessage", () => {
         threadTwoWayEnabled: false,
         hasScheduledLessonWithTeacher: false,
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       canSendChatMessage({
         role: "TEACHER",

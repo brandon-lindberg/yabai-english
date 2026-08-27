@@ -113,7 +113,9 @@ describe("ensureAdminUserThread", () => {
       where: {
         studentId_teacherId: { studentId: "admin-1", teacherId: "teacher-1" },
       },
-      update: { twoWayEnabled: true, twoWayEnabledByRole: "SUPER_ADMIN" },
+      // Defaults apply on create only: reopening a thread must not undo an
+      // admin who deliberately closed replies on it.
+      update: {},
       create: {
         studentId: "admin-1",
         teacherId: "teacher-1",
@@ -130,7 +132,7 @@ describe("ensureAdminUserThread", () => {
       where: {
         studentId_teacherId: { studentId: "student-1", teacherId: "admin-1" },
       },
-      update: { twoWayEnabled: false, twoWayEnabledByRole: null },
+      update: {},
       create: {
         studentId: "student-1",
         teacherId: "admin-1",

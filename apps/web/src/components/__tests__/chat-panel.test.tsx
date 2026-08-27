@@ -349,7 +349,9 @@ describe("ChatPanel admin direct messaging", () => {
         return jsonResponse({ threadId: "admin-teacher-thread" });
       }
       if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
-        return jsonResponse(threadsPayload(0));
+        // thread-1 here is a student/teacher conversation the admin is only
+        // reviewing; admin-teacher-thread is the admin's own.
+        return jsonResponse(adminThreadsPayload());
       }
       if (url.includes("/messages")) {
         return jsonResponse(init?.method === "POST" ? { id: "msg-1" } : []);
@@ -374,18 +376,17 @@ describe("ChatPanel admin direct messaging", () => {
       fireEvent.click(screen.getByRole("button", { name: "Direct" }));
     });
 
-    const contact = await screen.findByRole("button", { name: /Teacher One/ });
     await act(async () => {
-      fireEvent.click(contact);
+      fireEvent.click(await screen.findByTestId("admin-contact"));
     });
 
-    const composer = await screen.findByLabelText("Write direct message...");
+    const composer = await screen.findByLabelText("Type a message...");
     await act(async () => {
       fireEvent.change(composer, { target: { value: "Hello this is the Admin" } });
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Send direct message" }));
+      fireEvent.click(screen.getByRole("button", { name: "Send" }));
     });
 
     await waitFor(() => {
@@ -524,6 +525,172 @@ describe("ChatPanel admin direct messaging", () => {
     });
     expect(screen.getByLabelText("Type a message...")).toBeDisabled();
   });
+
+  test("shows the conversation history with the selected contact", async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url === "/api/chat/threads/direct" && init?.method === "POST") {
+        return jsonResponse({ threadId: "admin-teacher-thread" });
+      }
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse(adminThreadsPayload());
+      }
+      if (url === "/api/chat/threads/admin-teacher-thread/messages") {
+        return jsonResponse([
+          {
+            id: "m1",
+            senderId: "admin-1",
+            body: "Earlier note from the studio",
+            readAt: null,
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "m2",
+            senderId: "teacher-1",
+            body: "Thanks, understood",
+            readAt: null,
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    await act(async () => {
+      fireEvent.click(await screen.findByRole("button", { name: /open chat/i }));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Direct" }));
+    });
+    await act(async () => {
+      fireEvent.click(await screen.findByTestId("admin-contact"));
+    });
+
+    // Direct mode is a real conversation, not a fire-and-forget composer.
+    expect(await screen.findByText("Earlier note from the studio")).toBeInTheDocument();
+    expect(screen.getByText("Thanks, understood")).toBeInTheDocument();
+  });
+
+  test("lets the admin close replies on a direct conversation", async () => {
+    const permissionCalls: unknown[] = [];
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url === "/api/chat/threads/direct" && init?.method === "POST") {
+        return jsonResponse({ threadId: "admin-teacher-thread" });
+      }
+      if (url.endsWith("/permissions") && init?.method === "POST") {
+        permissionCalls.push({ url, body: init.body });
+        return jsonResponse({ ok: true });
+      }
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse(adminThreadsPayload());
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    await act(async () => {
+      fireEvent.click(await screen.findByRole("button", { name: /open chat/i }));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Direct" }));
+    });
+    await act(async () => {
+      fireEvent.click(await screen.findByTestId("admin-contact"));
+    });
+
+    const toggle = await screen.findByRole("checkbox", {
+      name: /Allow the recipient to reply/i,
+    });
+    expect(toggle).toBeChecked();
+
+    await act(async () => {
+      fireEvent.click(toggle);
+    });
+
+    expect(permissionCalls).toEqual([
+      {
+        url: "/api/chat/threads/admin-teacher-thread/permissions",
+        body: JSON.stringify({ twoWayEnabled: false }),
+      },
+    ]);
+  });
+
+
+  test("labels the admin's own messages 'Admin', not by the slot they occupy", async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url === "/api/chat/threads/direct" && init?.method === "POST") {
+        return jsonResponse({ threadId: "admin-teacher-thread" });
+      }
+      if (url.startsWith("/api/chat/threads") && !url.includes("/messages")) {
+        return jsonResponse(adminThreadsPayload());
+      }
+      if (url === "/api/chat/threads/admin-teacher-thread/messages") {
+        return jsonResponse([
+          {
+            id: "m1",
+            senderId: "admin-1",
+            body: "Studio announcement",
+            readAt: null,
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "m2",
+            senderId: "teacher-1",
+            body: "Got it",
+            readAt: null,
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+      }
+      return jsonResponse([]);
+    });
+
+    await act(async () => {
+      render(
+        <NextIntlClientProvider locale="en" messages={en}>
+          <ChatPanel />
+        </NextIntlClientProvider>,
+      );
+    });
+
+    await act(async () => {
+      fireEvent.click(await screen.findByRole("button", { name: /open chat/i }));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Direct" }));
+    });
+    await act(async () => {
+      fireEvent.click(await screen.findByTestId("admin-contact"));
+    });
+
+    // The admin holds the student slot of their own thread with a teacher, so
+    // labelling by slot would call the admin "Student".
+    const adminBubble = (await screen.findByText("Studio announcement")).closest("div")!
+      .parentElement!;
+    expect(adminBubble).toHaveTextContent("Admin");
+    expect(adminBubble).not.toHaveTextContent("Student");
+
+    const teacherBubble = screen.getByText("Got it").closest("div")!.parentElement!;
+    expect(teacherBubble).toHaveTextContent("Teacher");
+  });
+
 });
 
 describe("ChatPanel admin identity", () => {

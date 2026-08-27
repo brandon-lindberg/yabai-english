@@ -13,15 +13,11 @@ export function canSendChatMessage({
 }) {
   if (role === "SUPER_ADMIN") return true;
 
-  // Admin <-> teacher threads are two-way by design: teachers are staff and
-  // must be able to respond to admin messages without admin having to flip a
-  // per-thread toggle.
-  if (role === "TEACHER" && counterpartRole === "SUPER_ADMIN") {
-    return true;
-  }
-
-  // Admin <-> student threads stay read-only for students unless the admin
-  // explicitly enables two-way on the thread.
+  // Whoever the counterpart is, replying to an admin is the admin's call.
+  // Admin <-> teacher threads open two-way by default (teachers are staff) and
+  // admin <-> student threads start closed, but either can be closed or opened
+  // from the thread, which is how an admin sends an announcement nobody can
+  // reply to.
   if (counterpartRole === "SUPER_ADMIN") {
     return threadTwoWayEnabled;
   }

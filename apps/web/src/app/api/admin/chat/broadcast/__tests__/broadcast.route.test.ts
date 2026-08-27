@@ -137,7 +137,7 @@ describe("POST /api/admin/chat/broadcast", () => {
     expect(prismaMock.chatThread.upsert).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        update: { twoWayEnabled: true, twoWayEnabledByRole: "SUPER_ADMIN" },
+        update: {},
         create: expect.objectContaining({
           twoWayEnabled: true,
           twoWayEnabledByRole: "SUPER_ADMIN",
@@ -216,7 +216,7 @@ describe("POST /api/admin/chat/broadcast", () => {
     expect(prismaMock.chatThread.upsert).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        update: { twoWayEnabled: true, twoWayEnabledByRole: "SUPER_ADMIN" },
+        update: {},
         create: expect.objectContaining({
           twoWayEnabled: true,
           twoWayEnabledByRole: "SUPER_ADMIN",
@@ -227,7 +227,7 @@ describe("POST /api/admin/chat/broadcast", () => {
     expect(prismaMock.chatThread.upsert).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        update: { twoWayEnabled: false, twoWayEnabledByRole: null },
+        update: {},
         create: expect.objectContaining({
           twoWayEnabled: false,
           twoWayEnabledByRole: null,

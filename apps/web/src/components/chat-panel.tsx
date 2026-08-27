@@ -374,41 +374,6 @@ export function ChatPanel() {
     return () => window.clearTimeout(timeout);
   }, [status]);
 
-  async function sendDirectMessage() {
-    if (!isAdminViewer || adminMode !== "direct" || !adminSelectedContactId || !draft.trim())
-      return;
-    setStatus(null);
-    // Resolve the admin's own conversation with this user first: an admin must
-    // never post into a student/teacher conversation they are not part of.
-    const threadRes = await fetch("/api/chat/threads/direct", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: adminSelectedContactId }),
-    });
-    const threadData = (await threadRes.json()) as { threadId?: string; error?: string };
-    if (!threadRes.ok || !threadData.threadId) {
-      setStatus(threadData.error ?? t("sendFailed"));
-      return;
-    }
-    const res = await fetch(`/api/chat/threads/${threadData.threadId}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body: draft }),
-    });
-    const data = (await res.json()) as { error?: string };
-    if (!res.ok) {
-      setStatus(data.error ?? t("sendFailed"));
-      return;
-    }
-    setDraft("");
-    setStatus(
-      t("directSent", {
-        name: selectedDirectContact?.name ?? t("unknownUser"),
-      }),
-    );
-    await loadThreads();
-  }
-
   async function setTwoWayEnabled(enabled: boolean) {
     if (!activeThreadId) return;
     const res = await fetch(`/api/chat/threads/${activeThreadId}/permissions`, {
@@ -612,10 +577,34 @@ export function ChatPanel() {
     );
   }, [isAdminViewer, adminQueue, threads, adminSelectedContactId, adminContactType]);
 
-  const selectedDirectContact = useMemo(() => {
-    if (!isAdminViewer || adminMode !== "direct") return null;
-    return adminContacts.find((c) => c.id === adminSelectedContactId) ?? null;
-  }, [isAdminViewer, adminMode, adminContacts, adminSelectedContactId]);
+  // Direct mode is a conversation with one person, so selecting a contact opens
+  // (creating on first use) the admin's own thread with them. Everything after
+  // that is the ordinary conversation pane: history, replies toggle, composer.
+  useEffect(() => {
+    if (!isAdminViewer || adminMode !== "direct" || !adminSelectedContactId) return;
+    let cancelled = false;
+    void (async () => {
+      let res: Response;
+      try {
+        res = await fetch("/api/chat/threads/direct", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: adminSelectedContactId }),
+        });
+      } catch {
+        return;
+      }
+      if (!res.ok) return;
+      const data = (await res.json()) as { threadId?: string };
+      if (cancelled || !data.threadId) return;
+      setActiveThreadId(data.threadId);
+      setMobilePane("chat");
+      await loadThreads();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAdminViewer, adminMode, adminSelectedContactId, loadThreads]);
 
   useEffect(() => {
     if (!isAdminViewer || adminQueue !== "all") return;
@@ -1209,59 +1198,14 @@ export function ChatPanel() {
                     </button>
                   </div>
                 </div>
-              ) : isAdminViewer && adminMode === "direct" ? (
-                <div className="flex h-full flex-col">
-                  <div className="mb-2 border-b border-border pb-2">
-                    <p className="text-sm font-semibold text-foreground">{t("adminModeDirect")}</p>
-                    <p className="text-xs text-muted">{t("directPanelHint")}</p>
-                  </div>
-                  {selectedDirectContact ? (
-                    <>
-                      <div className="border-t border-border pt-3">
-                        <p className="text-xs font-medium text-muted">{t("directRecipientLabel")}</p>
-                        <p className="text-sm font-semibold text-foreground">
-                          {selectedDirectContact.name}
-                        </p>
-                        {selectedDirectContact.email ? (
-                          <p className="text-xs text-muted">{selectedDirectContact.email}</p>
-                        ) : null}
-                      </div>
-                      <div className="mt-3 flex-1">
-                        <textarea
-                          aria-label={t("directMessagePlaceholder")}
-                          value={draft}
-                          onChange={(e) => setDraft(e.target.value)}
-                          className={controlClass("h-full min-h-[180px]")}
-                          placeholder={t("directMessagePlaceholder")}
-                        />
-                      </div>
-                      <div className="mt-3 flex items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setDraft("")}
-                          className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
-                        >
-                          {t("broadcastClear")}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void sendDirectMessage()}
-                          disabled={!draft.trim() || !adminSelectedContactId}
-                          className={buttonClasses()}
-                        >
-                          {t("directSend")}
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <p className="text-sm text-muted">{t("directSelectContactFirst")}</p>
-                  )}
-                </div>
               ) : (
                 <>
               <div className="mb-2 flex items-center justify-between gap-2 border-b border-border pb-2">
                 <div>
-                  {isAdminViewer && activeThread ? (
+                  {isAdminViewer && activeThread && !isAdminInActiveThread ? (
+                    // Reviewing someone else's conversation names both parties;
+                    // the admin's own conversation names the person they are
+                    // talking to.
                     <>
                       <p className="text-sm font-semibold text-foreground">
                         {t("messageFromStudent")}:{" "}
@@ -1302,7 +1246,9 @@ export function ChatPanel() {
                   checked={activeThread.twoWayEnabled}
                   onChange={(next) => void setTwoWayEnabled(next)}
                 >
-                  {t("enableTwoWay")}
+                  {isAdminInActiveThread
+                    ? t("enableTwoWayReplies")
+                    : t("enableTwoWay")}
                 </CheckRow>
               )}
               {isBlocked && (
@@ -1344,12 +1290,21 @@ export function ChatPanel() {
                 ) : (
                   messages.map((msg, index) => {
                     const isMine = msg.senderId === session?.user?.id;
-                    const isFromStudent = Boolean(
+                    const inStudentSlot = Boolean(
                       activeThread && msg.senderId === activeThread.studentId,
                     );
-                    const isFromTeacher = Boolean(
+                    const inTeacherSlot = Boolean(
                       activeThread && msg.senderId === activeThread.teacherId,
                     );
+                    // An admin conversation puts the admin in whichever slot the
+                    // counterpart left free, so name the sender by who they are
+                    // rather than by the slot they happen to sit in.
+                    const isFromAdmin =
+                      (inStudentSlot && Boolean(activeThread?.studentIsAdmin)) ||
+                      (inTeacherSlot && Boolean(activeThread?.teacherIsAdmin)) ||
+                      (!inStudentSlot && !inTeacherSlot);
+                    const isFromStudent = inStudentSlot && !isFromAdmin;
+                    const isFromTeacher = inTeacherSlot && !isFromAdmin;
                     /** Admins are not thread participants; align by sender role (teacher right, student left). */
                     const bubbleOnRight = isAdminViewer
                       ? isFromTeacher || msg.senderId === session?.user?.id
@@ -1382,9 +1337,7 @@ export function ChatPanel() {
                                   ? t("messageFromStudent")
                                   : isFromTeacher
                                     ? t("messageFromTeacher")
-                                    : msg.senderId === session?.user?.id
-                                      ? t("messageFromAdmin")
-                                      : t("unknownUser")}
+                                    : t("messageFromAdmin")}
                               </p>
                             )}
                             <div

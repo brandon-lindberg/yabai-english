@@ -1268,6 +1268,7 @@
     "unreadBadgeLabel": "未読メッセージ {count}件",
     "moreActions": "その他の操作",
     "enableTwoWay": "受講生との双方向チャットを有効化",
+    "enableTwoWayReplies": "相手からの返信を許可",
     "noThreads": "チャットスレッドはまだありません。",
     "unknownUser": "ユーザー",
     "noMessagesYet": "メッセージはまだありません。",
@@ -1328,13 +1329,7 @@
     "broadcastMessagePlaceholder": "告知メッセージを入力...",
     "broadcastClear": "クリア",
     "adminReviewOnlyHint": "レビューモードでは管理者の送信はできません。",
-    "adminReviewOnlyPlaceholder": "レビューモード（送信不可）",
-    "directPanelHint": "選択した連絡先に個別メッセージを送信します。",
-    "directRecipientLabel": "送信先",
-    "directMessagePlaceholder": "個別メッセージを入力...",
-    "directSend": "個別送信",
-    "directSelectContactFirst": "先に連絡先を選択してください。",
-    "directSent": "{name} に個別メッセージを送信しました。"
+    "adminReviewOnlyPlaceholder": "レビューモード（送信不可）"
   },
   "org": {
     "nav": {

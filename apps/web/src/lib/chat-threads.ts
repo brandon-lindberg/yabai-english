@@ -55,11 +55,13 @@ export async function ensureAdminUserThread(
   target: { id: string; role: Role },
 ) {
   const slots = adminThreadSlots(adminUserId, target);
-  const twoWay = adminThreadTwoWay(target.role);
+  // The two-way default seeds a new thread only. Reopening an existing one must
+  // leave it as the admin last set it, or every broadcast and every click on a
+  // contact would silently undo an admin who closed replies on that thread.
   return prisma.chatThread.upsert({
     where: { studentId_teacherId: slots },
-    update: twoWay,
-    create: { ...slots, ...twoWay },
+    update: {},
+    create: { ...slots, ...adminThreadTwoWay(target.role) },
   });
 }
 
