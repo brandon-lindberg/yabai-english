@@ -1,5 +1,7 @@
 import { DateTime } from "luxon";
+import type { TeacherPaymentMethodType } from "@/generated/prisma/client";
 import { calculateTaxIncludedInvoiceTotals } from "@/lib/invoice-totals";
+import { paymentMethodLabel } from "@/lib/payment-method-label";
 
 export type TeacherInvoiceCsvRowInput = {
   invoiceNo: string;
@@ -9,7 +11,12 @@ export type TeacherInvoiceCsvRowInput = {
   lessonLengthMinutes: number;
   /** Stored instant; rendered as calendar date in Asia/Tokyo. */
   lessonStartsAt: Date;
+  /** When the invoice was paid. Reconciliation happens on this date, not the
+   *  lesson date, and the two can fall in different months. */
+  paidAt: Date;
   amountYenTaxIncluded: number;
+  /** Null when the booking has no recorded payment. */
+  paymentMethod?: TeacherPaymentMethodType | null;
 };
 
 export const TEACHER_INVOICE_CSV_HEADERS = [
@@ -19,9 +26,11 @@ export const TEACHER_INVOICE_CSV_HEADERS = [
   "Lesson type",
   "Lesson length (minutes)",
   "Lesson date (Asia/Tokyo)",
+  "Payment date (Asia/Tokyo)",
   "Amount before tax (JPY)",
   "Tax charged (JPY)",
   "Amount after tax (JPY)",
+  "Payment method",
 ] as const;
 
 export function escapeCsvCell(value: string): string {
@@ -31,8 +40,9 @@ export function escapeCsvCell(value: string): string {
   return value;
 }
 
-export function formatLessonDateTokyo(startsAt: Date): string {
-  return DateTime.fromJSDate(startsAt, { zone: "utc" })
+/** Renders a stored instant as the calendar date it fell on in Asia/Tokyo. */
+export function formatTokyoDate(instant: Date): string {
+  return DateTime.fromJSDate(instant, { zone: "utc" })
     .setZone("Asia/Tokyo")
     .toISODate()!;
 }
@@ -47,10 +57,12 @@ export function buildTeacherInvoiceCsvRow(input: TeacherInvoiceCsvRowInput): str
     input.studentDisplay,
     input.lessonTypeJaEn,
     String(input.lessonLengthMinutes),
-    formatLessonDateTokyo(input.lessonStartsAt),
+    formatTokyoDate(input.lessonStartsAt),
+    formatTokyoDate(input.paidAt),
     String(subtotalYen),
     String(taxYen),
     String(totalYen),
+    paymentMethodLabel(input.paymentMethod),
   ];
   return cells.map(escapeCsvCell).join(",");
 }

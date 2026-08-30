@@ -49,11 +49,14 @@ export async function GET(req: Request, { params }: Props) {
   const language = resolveInvoiceLanguage(req.url);
   const dateLocale = language === "ja" ? "ja-JP" : "en-US";
   const lessonDate = formatInvoiceDisplayDate(invoice.booking.startsAt, dateLocale);
+  // Accounting reconciles on when money moved. The lesson date still appears
+  // separately in the footer.
+  const invoiceDate = formatInvoiceDisplayDate(invoice.paidAt, dateLocale);
 
   const pdfBytes = await buildInvoicePdf({
     invoiceNo: invoice.invoiceNo,
     amountYen: invoice.amountYen,
-    paidAt: lessonDate,
+    paidAt: invoiceDate,
     studentName,
     className:
       language === "ja"

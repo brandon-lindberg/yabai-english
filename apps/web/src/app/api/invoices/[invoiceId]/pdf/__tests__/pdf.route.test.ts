@@ -88,7 +88,7 @@ describe("GET /api/invoices/[invoiceId]/pdf", () => {
     expect(res.headers.get("Content-Disposition")).toContain("INV-1-ja.pdf");
   });
 
-  test("uses the lesson date as the displayed invoice date for existing invoices", async () => {
+  test("dates the invoice by when it was paid, not when the lesson ran", async () => {
     prismaMock.invoice.findUnique.mockResolvedValue({
       id: "invoice-1",
       bookingId: "booking-1",
@@ -122,9 +122,11 @@ describe("GET /api/invoices/[invoiceId]/pdf", () => {
     );
 
     expect(res.status).toBe(200);
+    // Accounting reconciles on the payment date; the lesson date stays on the
+    // document separately in the footer.
     expect(buildInvoicePdfMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        paidAt: "June 21, 2026",
+        paidAt: "May 24, 2026",
         lessonDate: "June 21, 2026",
       }),
     );

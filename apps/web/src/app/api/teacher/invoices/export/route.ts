@@ -56,6 +56,15 @@ export async function GET(req: Request) {
     orderBy: [{ paidAt: "desc" }, { id: "desc" }],
   });
 
+  // One query for the whole export rather than one per invoice.
+  const payments = await prisma.payment.findMany({
+    where: { bookingId: { in: invoices.map((inv) => inv.bookingId) } },
+    select: { bookingId: true, method: true },
+  });
+  const methodByBookingId = new Map(
+    payments.map((payment) => [payment.bookingId, payment.method]),
+  );
+
   const rows: TeacherInvoiceCsvRowInput[] = invoices.map((inv) => ({
     invoiceNo: inv.invoiceNo,
     teacherDisplay: inv.booking.teacher.user.name ?? inv.booking.teacher.user.email ?? "—",
@@ -63,7 +72,9 @@ export async function GET(req: Request) {
     lessonTypeJaEn: `${inv.booking.lessonProduct.nameJa} / ${inv.booking.lessonProduct.nameEn}`,
     lessonLengthMinutes: inv.booking.lessonProduct.durationMin,
     lessonStartsAt: inv.booking.startsAt,
+    paidAt: inv.paidAt,
     amountYenTaxIncluded: inv.amountYen,
+    paymentMethod: methodByBookingId.get(inv.bookingId) ?? null,
   }));
 
   const csv = buildTeacherInvoicesCsv(rows);

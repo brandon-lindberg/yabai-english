@@ -4,6 +4,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
 import type { TeacherPaymentMethodType } from "@/generated/prisma/client";
 import { calculateTaxIncludedInvoiceTotals } from "@/lib/invoice-totals";
+import { paymentMethodLabel } from "@/lib/payment-method-label";
 
 export type InvoicePdfLanguage = "en" | "ja";
 
@@ -32,7 +33,6 @@ const invoiceCopy = {
     title: "INVOICE",
     dateLabel: "Invoice Date:",
     paymentMethodLabel: "Payment Method:",
-    paymentMethod: { CARD: "Credit card", PAYPAY: "PayPay" },
     issuerRole: "English Instructor",
     thankYou: (teacherName: string) => `Thank you for learning with ${teacherName}!`,
     item: "Item",
@@ -50,7 +50,6 @@ const invoiceCopy = {
     title: "請求書",
     dateLabel: "請求日:",
     paymentMethodLabel: "お支払い方法:",
-    paymentMethod: { CARD: "クレジットカード", PAYPAY: "PayPay" },
     issuerRole: "英語講師",
     thankYou: (teacherName: string) =>
       `${teacherName}のレッスンをご利用いただきありがとうございます。`,
@@ -71,7 +70,6 @@ const invoiceCopy = {
     title: string;
     dateLabel: string;
     paymentMethodLabel: string;
-    paymentMethod: Record<TeacherPaymentMethodType, string>;
     issuerRole: string;
     thankYou: (teacherName: string) => string;
     item: string;
@@ -197,7 +195,7 @@ export async function buildInvoicePdf(input: {
       font,
       color: black,
     });
-    page.drawText(copy.paymentMethod[input.paymentMethod], {
+    page.drawText(paymentMethodLabel(input.paymentMethod, language), {
       x: width - margin - 70,
       y,
       size: 10,

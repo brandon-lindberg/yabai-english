@@ -16,13 +16,34 @@ describe("buildInvoiceCsv", () => {
       bookingId: "b1",
       studentEmail: "student@example.com",
       teacherName: "Teacher A",
+      paymentMethod: "CARD",
     });
 
     expect(csv).toContain(
-      "invoiceNo,studentName,className,durationMin,priceYen,subtotalYen,taxYen,totalYen,paidAt,bookingId,studentEmail,teacherName",
+      "invoiceNo,studentName,className,durationMin,priceYen,subtotalYen,taxYen,totalYen,paidAt,bookingId,studentEmail,teacherName,paymentMethod",
     );
     expect(csv).toContain(
-      "INV-1,Yuki Tanaka,Beginner Conversation,30,3300,3000,300,3300,2026-04-10T12:00:00.000Z,b1,student@example.com,Teacher A",
+      "INV-1,Yuki Tanaka,Beginner Conversation,30,3300,3000,300,3300,2026-04-10T12:00:00.000Z,b1,student@example.com,Teacher A,Credit card",
     );
+  });
+
+  test("leaves the payment method blank when the booking has no payment", () => {
+    const csv = buildInvoiceCsv({
+      invoiceNo: "INV-1",
+      studentName: "Yuki Tanaka",
+      className: "Beginner Conversation",
+      durationMin: 30,
+      priceYen: 3300,
+      subtotalYen: 3000,
+      taxYen: 300,
+      totalYen: 3300,
+      paidAtIso: "2026-04-10T12:00:00.000Z",
+      bookingId: "b1",
+      studentEmail: "student@example.com",
+      teacherName: "Teacher A",
+      paymentMethod: null,
+    });
+
+    expect(csv.trimEnd().endsWith("Teacher A,")).toBe(true);
   });
 });

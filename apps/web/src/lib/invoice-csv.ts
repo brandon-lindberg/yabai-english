@@ -1,3 +1,6 @@
+import type { TeacherPaymentMethodType } from "@/generated/prisma/client";
+import { paymentMethodLabel } from "@/lib/payment-method-label";
+
 export function buildInvoiceCsv(input: {
   invoiceNo: string;
   studentName: string;
@@ -11,9 +14,11 @@ export function buildInvoiceCsv(input: {
   bookingId: string;
   studentEmail: string;
   teacherName: string;
+  /** Null when the booking has no recorded payment. */
+  paymentMethod?: TeacherPaymentMethodType | null;
 }) {
   const header =
-    "invoiceNo,studentName,className,durationMin,priceYen,subtotalYen,taxYen,totalYen,paidAt,bookingId,studentEmail,teacherName";
+    "invoiceNo,studentName,className,durationMin,priceYen,subtotalYen,taxYen,totalYen,paidAt,bookingId,studentEmail,teacherName,paymentMethod";
   const row = [
     input.invoiceNo,
     input.studentName,
@@ -27,6 +32,7 @@ export function buildInvoiceCsv(input: {
     input.bookingId,
     input.studentEmail,
     input.teacherName,
+    paymentMethodLabel(input.paymentMethod),
   ]
     .map(csvCell)
     .join(",");
