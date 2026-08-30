@@ -213,7 +213,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
               {t.rich("acceptTerms", {
                 terms: (chunks) => (
                   <Link
-                    href="/legal/terms"
+                    href="/legal/terms/students"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={inlineLinkClass}
@@ -237,9 +237,13 @@ export function OnboardingForm({ initialTimezone }: Props) {
                 ),
               })}
             </CheckRow>
+            {/* Consent asked for without saying what it is for is consent in
+                name only, and this is the one item here a student cannot infer
+                from its label. */}
             <CheckRow
               checked={acceptedRecordingConsent}
               onChange={setAcceptedRecordingConsent}
+              description={t("acceptRecordingExplainer")}
             >
               {t("acceptRecording")}
             </CheckRow>
