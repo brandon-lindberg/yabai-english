@@ -1,5 +1,8 @@
-import { Prisma } from "@/generated/prisma/client";
-import type { PrismaClient } from "@/generated/prisma/client";
+// Type-only: `Prisma` appears here solely as a cast target, and the client is
+// passed in rather than imported. A value import would pull the Prisma runtime
+// into every bundle that reaches this module — including the browser, since the
+// dashboard's quick-review panel is a client component.
+import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 import {
   countQuickReviewOutcomeStats,
   eligibleReplacementCandidates,

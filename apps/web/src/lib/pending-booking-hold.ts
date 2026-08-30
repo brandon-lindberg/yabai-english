@@ -1,4 +1,8 @@
-import { BookingStatus, type Prisma } from "@/generated/prisma/client";
+// The enum comes from the generated enums module, not the client: the client's
+// runtime needs node built-ins, and this file is reachable from client
+// components through booking-status.ts. `Prisma` is type-only, so it erases.
+import type { Prisma } from "@/generated/prisma/client";
+import { BookingStatus } from "@/generated/prisma/enums";
 
 /**
  * How long an unpaid booking keeps its slot to itself.
