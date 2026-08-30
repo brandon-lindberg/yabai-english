@@ -4,6 +4,7 @@ const { authMock, prismaMock, buildInvoicePdfMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
     invoice: { findUnique: vi.fn() },
+    payment: { findUnique: vi.fn() },
   },
   buildInvoicePdfMock: vi.fn(),
 }));
@@ -19,6 +20,7 @@ describe("GET /api/invoices/[invoiceId]/pdf", () => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "student-1" } });
     buildInvoicePdfMock.mockResolvedValue(new Uint8Array([1, 2, 3]));
+    prismaMock.payment.findUnique.mockResolvedValue({ method: "CARD" });
     prismaMock.invoice.findUnique.mockResolvedValue({
       id: "invoice-1",
       bookingId: "booking-1",
@@ -125,6 +127,64 @@ describe("GET /api/invoices/[invoiceId]/pdf", () => {
         paidAt: "June 21, 2026",
         lessonDate: "June 21, 2026",
       }),
+    );
+  });
+
+  test("issues the invoice in the teacher's name", async () => {
+    const res = await GET(
+      new Request("http://localhost/api/invoices/invoice-1/pdf?lang=en"),
+      { params: Promise.resolve({ invoiceId: "invoice-1" }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(buildInvoicePdfMock).toHaveBeenCalledWith(
+      expect.objectContaining({ teacherName: "Teacher A" }),
+    );
+  });
+
+  test("falls back to the teacher's account name when no display name is set", async () => {
+    const invoice = await prismaMock.invoice.findUnique();
+    prismaMock.invoice.findUnique.mockResolvedValue({
+      ...invoice,
+      booking: {
+        ...invoice.booking,
+        teacher: { ...invoice.booking.teacher, displayName: null },
+      },
+    });
+
+    await GET(new Request("http://localhost/api/invoices/invoice-1/pdf?lang=en"), {
+      params: Promise.resolve({ invoiceId: "invoice-1" }),
+    });
+
+    expect(buildInvoicePdfMock).toHaveBeenCalledWith(
+      expect.objectContaining({ teacherName: "Teacher User" }),
+    );
+  });
+
+  test("passes the booking's transaction type through to the PDF", async () => {
+    prismaMock.payment.findUnique.mockResolvedValue({ method: "PAYPAY" });
+
+    await GET(new Request("http://localhost/api/invoices/invoice-1/pdf?lang=en"), {
+      params: Promise.resolve({ invoiceId: "invoice-1" }),
+    });
+
+    expect(prismaMock.payment.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { bookingId: "booking-1" } }),
+    );
+    expect(buildInvoicePdfMock).toHaveBeenCalledWith(
+      expect.objectContaining({ paymentMethod: "PAYPAY" }),
+    );
+  });
+
+  test("omits the transaction type when the booking has no recorded payment", async () => {
+    prismaMock.payment.findUnique.mockResolvedValue(null);
+
+    await GET(new Request("http://localhost/api/invoices/invoice-1/pdf?lang=en"), {
+      params: Promise.resolve({ invoiceId: "invoice-1" }),
+    });
+
+    expect(buildInvoicePdfMock).toHaveBeenCalledWith(
+      expect.objectContaining({ paymentMethod: null }),
     );
   });
 });

@@ -35,6 +35,17 @@ export async function GET(req: Request, { params }: Props) {
 
   const studentName =
     invoice.student.name ?? invoice.student.email ?? "Student";
+  // Teachers invoice their own students, so the document is issued in their
+  // name. Prefer the name they present to students over their account name.
+  const teacherName =
+    invoice.booking.teacher.displayName ??
+    invoice.booking.teacher.user.name ??
+    invoice.booking.teacher.user.email ??
+    "Teacher";
+  const payment = await prisma.payment.findUnique({
+    where: { bookingId: invoice.bookingId },
+    select: { method: true },
+  });
   const language = resolveInvoiceLanguage(req.url);
   const dateLocale = language === "ja" ? "ja-JP" : "en-US";
   const lessonDate = formatInvoiceDisplayDate(invoice.booking.startsAt, dateLocale);
@@ -51,6 +62,8 @@ export async function GET(req: Request, { params }: Props) {
     durationMin: invoice.booking.lessonProduct.durationMin,
     lessonDate,
     language,
+    teacherName,
+    paymentMethod: payment?.method ?? null,
   });
 
   return new NextResponse(Buffer.from(pdfBytes), {

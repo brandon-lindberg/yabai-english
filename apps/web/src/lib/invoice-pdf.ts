@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
+import type { TeacherPaymentMethodType } from "@/generated/prisma/client";
 import { calculateTaxIncludedInvoiceTotals } from "@/lib/invoice-totals";
 
 export type InvoicePdfLanguage = "en" | "ja";
@@ -30,7 +31,10 @@ const invoiceCopy = {
   en: {
     title: "INVOICE",
     dateLabel: "Invoice Date:",
-    thankYou: "Thank you for learning with English Studio Japan!",
+    paymentMethodLabel: "Payment Method:",
+    paymentMethod: { CARD: "Credit card", PAYPAY: "PayPay" },
+    issuerRole: "English Instructor",
+    thankYou: (teacherName: string) => `Thank you for learning with ${teacherName}!`,
     item: "Item",
     className: "Class",
     duration: "Duration",
@@ -45,7 +49,11 @@ const invoiceCopy = {
   ja: {
     title: "請求書",
     dateLabel: "請求日:",
-    thankYou: "English Studio Japanをご利用いただきありがとうございます。",
+    paymentMethodLabel: "お支払い方法:",
+    paymentMethod: { CARD: "クレジットカード", PAYPAY: "PayPay" },
+    issuerRole: "英語講師",
+    thankYou: (teacherName: string) =>
+      `${teacherName}のレッスンをご利用いただきありがとうございます。`,
     item: "項目",
     className: "クラス",
     duration: "時間",
@@ -62,7 +70,10 @@ const invoiceCopy = {
   {
     title: string;
     dateLabel: string;
-    thankYou: string;
+    paymentMethodLabel: string;
+    paymentMethod: Record<TeacherPaymentMethodType, string>;
+    issuerRole: string;
+    thankYou: (teacherName: string) => string;
     item: string;
     className: string;
     duration: string;
@@ -85,6 +96,10 @@ export async function buildInvoicePdf(input: {
   durationMin: number;
   lessonDate: string;
   language?: InvoicePdfLanguage;
+  /** The independent teacher who issues this invoice. */
+  teacherName: string;
+  /** Omitted when the booking has no recorded payment. */
+  paymentMethod?: TeacherPaymentMethodType | null;
 }): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const page = doc.addPage([595, 842]); // A4
@@ -123,14 +138,16 @@ export async function buildInvoicePdf(input: {
     });
   };
 
-  page.drawText("English Studio Japan", {
+  // Teachers are independent and invoice their own students, so the issuer on
+  // the document is the teacher rather than the platform.
+  page.drawText(input.teacherName, {
     x: margin + 58,
     y: y - 8,
     size: 20,
     font: fontBold,
     color: navy,
   });
-  page.drawText("English Learning Platform", {
+  page.drawText(copy.issuerRole, {
     x: margin + 58,
     y: y - 26,
     size: 10,
@@ -171,7 +188,26 @@ export async function buildInvoicePdf(input: {
     color: black,
   });
 
-  y -= 70;
+  if (input.paymentMethod) {
+    y -= 18;
+    page.drawText(copy.paymentMethodLabel, {
+      x: width - margin - 160,
+      y,
+      size: 10,
+      font,
+      color: black,
+    });
+    page.drawText(copy.paymentMethod[input.paymentMethod], {
+      x: width - margin - 70,
+      y,
+      size: 10,
+      font,
+      color: black,
+    });
+    y -= 52;
+  } else {
+    y -= 70;
+  }
   page.drawText(input.studentName, {
     x: margin + 52,
     y,
@@ -180,7 +216,7 @@ export async function buildInvoicePdf(input: {
     color: navy,
   });
   y -= 20;
-  page.drawText(copy.thankYou, {
+  page.drawText(copy.thankYou(input.teacherName), {
     x: margin + 52,
     y,
     size: 10,
@@ -330,7 +366,7 @@ export async function buildInvoicePdf(input: {
     font,
     color: black,
   });
-  page.drawText(copy.thankYou, {
+  page.drawText(copy.thankYou(input.teacherName), {
     x: margin + 40,
     y: y + 20,
     size: 10,
@@ -338,20 +374,25 @@ export async function buildInvoicePdf(input: {
     color: black,
   });
 
-  page.drawText("English Studio Japan", {
-    x: width / 2 - 58,
-    y: margin,
-    size: 10,
-    font: fontBold,
-    color: navy,
-  });
-  page.drawText("English Learning Platform", {
-    x: width / 2 - 65,
-    y: margin - 16,
-    size: 9,
-    font,
-    color: gray,
-  });
+  const drawCenteredText = (
+    text: string,
+    textY: number,
+    size: number,
+    textFont: PDFFont,
+    color: ReturnType<typeof rgb>,
+  ) => {
+    page.drawText(text, {
+      x: width / 2 - textFont.widthOfTextAtSize(text, size) / 2,
+      y: textY,
+      size,
+      font: textFont,
+      color,
+    });
+  };
+
+  // Measured rather than nudged: a teacher's name is any length.
+  drawCenteredText(input.teacherName, margin, 10, fontBold, navy);
+  drawCenteredText(copy.issuerRole, margin - 16, 9, font, gray);
 
   page.drawText(copy.lessonDate(input.lessonDate), {
     x: margin,

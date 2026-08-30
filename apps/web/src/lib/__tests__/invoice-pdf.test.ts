@@ -84,11 +84,13 @@ describe("buildInvoicePdf", () => {
       durationMin: 30,
       lessonDate: "May 24, 2025",
       language: "en",
+      teacherName: "Mika Sato",
+      paymentMethod: "CARD",
     });
 
     expect(drawnTexts).toEqual(
       expect.arrayContaining([
-        "English Studio Japan",
+        "Mika Sato",
         "INVOICE",
         "Yuki Tanaka",
         "Beginner Conversation",
@@ -113,6 +115,8 @@ describe("buildInvoicePdf", () => {
       durationMin: 30,
       lessonDate: "May 24, 2025",
       language: "en",
+      teacherName: "Mika Sato",
+      paymentMethod: "CARD",
     });
 
     const priceHeader = drawnTextCalls.find((call) => call.text === "Price (JPY)");
@@ -131,6 +135,8 @@ describe("buildInvoicePdf", () => {
       durationMin: 30,
       lessonDate: "2025年5月24日",
       language: "ja",
+      teacherName: "佐藤 美香",
+      paymentMethod: "CARD",
     });
 
     expect(drawnTexts).toEqual(
@@ -138,7 +144,7 @@ describe("buildInvoicePdf", () => {
         "請求書",
         "請求日:",
         "田中 ゆき",
-        "English Studio Japanをご利用いただきありがとうございます。",
+        "佐藤 美香のレッスンをご利用いただきありがとうございます。",
         "項目",
         "クラス",
         "時間",
@@ -165,6 +171,8 @@ describe("buildInvoicePdf", () => {
       durationMin: 30,
       lessonDate: "2026年6月21日",
       language: "ja",
+      teacherName: "佐藤 美香",
+      paymentMethod: "CARD",
     });
 
     const invoiceNoCall = drawnTextCalls.find((call) => call.text === invoiceNo);
@@ -172,5 +180,96 @@ describe("buildInvoicePdf", () => {
     expect(invoiceNoCall).toBeDefined();
     expect(invoiceNoCall!.fontName).toBe("Helvetica");
     expect(invoiceNoCall!.x + invoiceNoCall!.width).toBeLessThanOrEqual(545);
+  });
+
+  test("issues the invoice in the teacher's name, not the platform's", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-2025-05-24-001",
+      amountYen: 3300,
+      paidAt: "May 24, 2025",
+      studentName: "Yuki Tanaka",
+      className: "Beginner Conversation",
+      durationMin: 30,
+      lessonDate: "May 24, 2025",
+      language: "en",
+      teacherName: "Mika Sato",
+      paymentMethod: "CARD",
+    });
+
+    // Teachers invoice their own students independently, so the platform must
+    // not appear as the issuer anywhere on the document.
+    expect(drawnTexts).toContain("Mika Sato");
+    expect(drawnTexts.join(" ")).not.toContain("English Studio Japan");
+    expect(drawnTexts).toContain("Thank you for learning with Mika Sato!");
+  });
+
+  test("labels the transaction type", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-2025-05-24-001",
+      amountYen: 3300,
+      paidAt: "May 24, 2025",
+      studentName: "Yuki Tanaka",
+      className: "Beginner Conversation",
+      durationMin: 30,
+      lessonDate: "May 24, 2025",
+      language: "en",
+      teacherName: "Mika Sato",
+      paymentMethod: "CARD",
+    });
+
+    expect(drawnTexts).toContain("Payment Method:");
+    expect(drawnTexts).toContain("Credit card");
+  });
+
+  test("labels a PayPay transaction", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-2025-05-24-001",
+      amountYen: 3300,
+      paidAt: "May 24, 2025",
+      studentName: "Yuki Tanaka",
+      className: "Beginner Conversation",
+      durationMin: 30,
+      lessonDate: "May 24, 2025",
+      language: "en",
+      teacherName: "Mika Sato",
+      paymentMethod: "PAYPAY",
+    });
+
+    expect(drawnTexts).toContain("PayPay");
+  });
+
+  test("localizes the transaction type", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-2025-05-24-001",
+      amountYen: 3300,
+      paidAt: "2025年5月24日",
+      studentName: "田中 ゆき",
+      className: "初級英会話",
+      durationMin: 30,
+      lessonDate: "2025年5月24日",
+      language: "ja",
+      teacherName: "佐藤 美香",
+      paymentMethod: "CARD",
+    });
+
+    expect(drawnTexts).toContain("お支払い方法:");
+    expect(drawnTexts).toContain("クレジットカード");
+  });
+
+  test("omits the payment row when the transaction type is unknown", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-2025-05-24-001",
+      amountYen: 3300,
+      paidAt: "May 24, 2025",
+      studentName: "Yuki Tanaka",
+      className: "Beginner Conversation",
+      durationMin: 30,
+      lessonDate: "May 24, 2025",
+      language: "en",
+      teacherName: "Mika Sato",
+    });
+
+    expect(drawnTexts).not.toContain("Payment Method:");
+    expect(drawnTexts).toContain("Invoice Date:");
   });
 });
