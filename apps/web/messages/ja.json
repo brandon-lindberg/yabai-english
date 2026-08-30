@@ -1178,6 +1178,7 @@
     "acceptTerms": "<terms>利用規約</terms>に同意します",
     "acceptPrivacy": "<privacy>プライバシーポリシー</privacy>に同意します",
     "acceptRecording": "レッスン録画に同意します",
+    "acceptRecordingExplainer": "オンラインレッスンを録画する講師もいます。多くはAIによる文字起こしのためで、発音のフィードバックや復習に使われることもあります。すべての講師が録画するわけではありませんので、気になる場合は講師に直接ご確認ください。録画は学習目的にのみ使用し、AIの学習や販売・マーケティングには一切使用しません。",
     "submit": "保存して続ける",
     "wizardProgress": "ステップ {current} / {total}",
     "wizardBack": "戻る",

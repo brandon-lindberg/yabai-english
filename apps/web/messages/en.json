@@ -1178,6 +1178,7 @@
     "acceptTerms": "I agree to the <terms>Terms of Service</terms>",
     "acceptPrivacy": "I agree to the <privacy>Privacy Policy</privacy>",
     "acceptRecording": "I consent to lesson recording",
+    "acceptRecordingExplainer": "Some teachers record online lessons — most often so AI can transcribe them, and sometimes for pronunciation feedback or review. Not every teacher records, so ask your teacher if you want to know. Recordings are used for learning only: never for AI training, and never for sales or marketing.",
     "submit": "Save and continue",
     "wizardProgress": "Step {current} of {total}",
     "wizardBack": "Back",

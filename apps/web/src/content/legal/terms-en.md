@@ -67,6 +67,14 @@ We may suspend or terminate access for conduct we reasonably believe violates th
 
 Where the Service supports **lesson recording**, recording may occur only in accordance with applicable law, our **Privacy Policy**, and any in-product consent you provide. By consenting to lesson recording in onboarding or elsewhere in the Service, you acknowledge that recordings may be stored and processed for purposes described in the Privacy Policy (such as quality, safety, dispute resolution, and service improvement).
 
+### What recordings are for
+
+Recording applies mainly to **online lessons**, where it is most often used so that **AI can transcribe the lesson** for the student's reference. Individual teachers may also record for their own teaching reasons, such as **pronunciation feedback** or letting a student **review** the lesson afterwards.
+
+**Not every teacher records.** Some do and some do not, and it is the student's responsibility to **ask their teacher** whether a given lesson will be recorded.
+
+Recordings are for **learning purposes only**. We do **not** use them to train AI models, and we do **not** use them for sales or marketing.
+
 If you withdraw consent where recording is optional, certain features or lessons may not be available.
 
 ---
