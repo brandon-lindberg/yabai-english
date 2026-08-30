@@ -25,6 +25,9 @@ import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { Status } from "@/components/ui/status";
 import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
+import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { PendingReservationNotice } from "@/components/booking/pending-reservation-notice";
+import { BookingStatus } from "@/generated/prisma/client";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -159,7 +162,7 @@ export default async function TeacherProfileBookingPage({
   const reservedBookings = await prisma.booking.findMany({
     where: {
       teacherId: teacher.id,
-      status: { in: ["CONFIRMED", "PENDING_PAYMENT"] },
+      ...slotHoldingBookingWhere(),
       startsAt: { gte: new Date() },
     },
     select: {
@@ -168,6 +171,28 @@ export default async function TeacherProfileBookingPage({
     },
     orderBy: { startsAt: "asc" },
   });
+
+  // The viewer's own unpaid holds, so the page can offer a way out of a
+  // checkout they backed out of. Kept separate from `reservedBookings`, which
+  // must stay free of any booker identity.
+  const ownPendingBookings =
+    session?.user?.id && session.user.role === "STUDENT"
+      ? await prisma.booking.findMany({
+          where: {
+            teacherId: teacher.id,
+            studentId: session.user.id,
+            startsAt: { gte: new Date() },
+            ...slotHoldingBookingWhere(),
+            status: BookingStatus.PENDING_PAYMENT,
+          },
+          select: { id: true, startsAt: true, holdExpiresAt: true },
+          orderBy: { startsAt: "asc" },
+        })
+      : [];
+
+  const ownPendingStartsAt = new Set(
+    ownPendingBookings.map((b) => b.startsAt.toISOString()),
+  );
 
   const displayName = teacher.displayName ?? teacher.user.name ?? "Teacher";
   if (session?.user?.id && session.user.role === "STUDENT") {
@@ -314,6 +339,15 @@ export default async function TeacherProfileBookingPage({
           <p className="mb-4 text-sm text-muted">
             {t("selectSlot")} · {t("timezoneShownAs")}: {viewerTimezone}
           </p>
+          {ownPendingBookings.map((pending) => (
+            <PendingReservationNotice
+              key={pending.id}
+              bookingId={pending.id}
+              startsAtIso={pending.startsAt.toISOString()}
+              expiresAtIso={pending.holdExpiresAt!.toISOString()}
+              viewerTimezone={viewerTimezone}
+            />
+          ))}
           <InlineAlert variant="warning">{t("leadTimeNotice")}</InlineAlert>
           <BookingForm
             teacherProfileId={teacher.id}
@@ -329,6 +363,7 @@ export default async function TeacherProfileBookingPage({
             bookedSlots={reservedBookings.map((b) => ({
               startsAtIso: b.startsAt.toISOString(),
               endsAtIso: b.endsAt.toISOString(),
+              mine: ownPendingStartsAt.has(b.startsAt.toISOString()),
             }))}
           />
         </Section>

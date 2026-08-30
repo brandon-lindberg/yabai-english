@@ -32,6 +32,10 @@ export async function GET(_req: Request, { params }: Props) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  const payment = await prisma.payment.findUnique({
+    where: { bookingId: invoice.bookingId },
+    select: { method: true },
+  });
   const totals = calculateTaxIncludedInvoiceTotals(invoice.amountYen);
   const studentName = invoice.student.name ?? invoice.student.email ?? "Student";
 
@@ -52,6 +56,7 @@ export async function GET(_req: Request, { params }: Props) {
       invoice.booking.teacher.user.name ??
       invoice.booking.teacher.user.email ??
       "Teacher",
+    paymentMethod: payment?.method ?? null,
   });
 
   return new NextResponse(csv, {

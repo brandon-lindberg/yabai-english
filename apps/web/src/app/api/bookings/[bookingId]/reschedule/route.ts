@@ -8,6 +8,7 @@ import { evaluateBookingReschedulePolicy } from "@/lib/booking-reschedule";
 import { validateBookingAgainstTeacherAvailability } from "@/lib/booking-slot-validation";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 import { patchMeetLessonEvent } from "@/lib/google-calendar";
+import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 
 type Props = { params: Promise<{ bookingId: string }> };
 
@@ -136,7 +137,7 @@ export async function POST(req: Request, { params }: Props) {
     where: {
       id: { not: booking.id },
       teacherId: booking.teacher.id,
-      status: { in: ["CONFIRMED", "PENDING_PAYMENT"] },
+      ...slotHoldingBookingWhere(),
       startsAt: { lt: endsAt },
       endsAt: { gt: start },
     },

@@ -1,5 +1,4 @@
 import { revalidatePath } from "next/cache";
-import { BookingStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { patchMeetLessonEvent } from "@/lib/google-calendar";
@@ -7,6 +6,7 @@ import { createUserNotification } from "@/lib/notifications";
 import { schoolClassRescheduledNotification } from "@/lib/reschedule-notification-copy";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 
 /** Shape required to validate conflicts and apply a school booking time change. */
 export type SchoolBookingReschedulePayload = {
@@ -62,7 +62,7 @@ export async function getSchoolBookingRescheduleConflictError(
     const marketplaceConflict = await prisma.booking.findFirst({
       where: {
         teacherId: teacherProfile.id,
-        status: { in: [BookingStatus.CONFIRMED, BookingStatus.PENDING_PAYMENT] },
+        ...slotHoldingBookingWhere(),
         startsAt: { lt: newEnd },
         endsAt: { gt: newStart },
       },

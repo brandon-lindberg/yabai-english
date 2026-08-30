@@ -122,4 +122,39 @@ describe("POST /api/bookings availability matching", () => {
     });
     expect(prismaMock.$transaction).not.toHaveBeenCalled();
   });
+
+  test("an abandoned reservation stops blocking its slot after three hours", async () => {
+    // Returning a clash makes the route answer 409 right after the query we
+    // care about, so the assertion does not depend on the rest of the flow.
+    prismaMock.booking.findFirst.mockResolvedValue({ id: "clashing-booking" });
+
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-40",
+          teacherProfileId: "teacher-profile-1",
+          teacherLessonOfferingId: "offer-40",
+          // 10:30 JST, matching the seeded availability slot.
+          startsAt: "2026-07-05T01:30:00.000Z",
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(409);
+    const conflictCall = prismaMock.booking.findFirst.mock.calls[0]?.[0] as {
+      where: { OR?: unknown; status?: unknown };
+    };
+
+    // Confirmed lessons always hold their slot; unpaid ones only inside the
+    // three-hour payment window, so an abandoned checkout frees the slot on its
+    // own rather than holding it until somebody cancels by hand.
+    expect(conflictCall.where.status).toBeUndefined();
+    expect(conflictCall.where.OR).toEqual([
+      { status: "CONFIRMED" },
+      { status: "PENDING_PAYMENT", holdExpiresAt: { gte: BOOKING_NOW } },
+    ]);
+  });
+
 });

@@ -3,8 +3,9 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { TeacherCard } from "@/components/teacher-card";
 import { TeacherFilterBar } from "@/components/teacher-filter-bar";
-import { filterTeacherCards } from "@/lib/teacher-discovery";
+import { filterTeacherCards, sortOwnTeachersFirst } from "@/lib/teacher-discovery";
 import { marketplaceTeacherWhere } from "@/lib/marketplace-teacher-filter";
+import { getStudentRosterTeachers } from "@/lib/student-roster-teachers";
 import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
@@ -115,7 +116,19 @@ export default async function BookPage({ searchParams }: Props) {
     }),
   }));
 
-  const filtered = filterTeacherCards(cards, { specialty, language });
+  // A student's own teachers head the list: they came to book their next lesson
+  // with someone they already study with.
+  const ownTeacherIds = new Set(
+    viewerStudentId
+      ? (await getStudentRosterTeachers(prisma, viewerStudentId)).map(
+          (entry) => entry.teacherProfileId,
+        )
+      : [],
+  );
+  const filtered = sortOwnTeachersFirst(
+    filterTeacherCards(cards, { specialty, language }),
+    ownTeacherIds,
+  );
   const bookHomeCallback = resolveSafeCallbackUrl(appPathForLocale(locale, "/book"), "/book");
 
   return (
