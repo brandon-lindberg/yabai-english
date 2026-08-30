@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { filterTeacherCards, type TeacherCard } from "@/lib/teacher-discovery";
+import {
+  filterTeacherCards,
+  sortOwnTeachersFirst,
+  type TeacherCard,
+} from "@/lib/teacher-discovery";
 
 const TEACHERS: TeacherCard[] = [
   {
@@ -62,5 +66,55 @@ describe("filterTeacherCards", () => {
     };
 
     expect(card.id).toBe("t3");
+  });
+});
+
+describe("sortOwnTeachersFirst", () => {
+  const card = (id: string, displayName: string): TeacherCard => ({
+    id,
+    displayName,
+    countryOfOrigin: null,
+    specialties: [],
+    instructionLanguages: [],
+    rateYen: null,
+    activeAvailabilityCount: 1,
+  });
+
+  test("lifts the student's own teachers above the public listings", () => {
+    const cards = [card("pub-1", "Public A"), card("mine", "My Teacher"), card("pub-2", "Public B")];
+
+    const sorted = sortOwnTeachersFirst(cards, new Set(["mine"]));
+
+    expect(sorted.map((c) => c.id)).toEqual(["mine", "pub-1", "pub-2"]);
+  });
+
+  test("keeps the incoming order within each group", () => {
+    const cards = [
+      card("pub-1", "Public A"),
+      card("mine-2", "Mine Two"),
+      card("pub-2", "Public B"),
+      card("mine-1", "Mine One"),
+    ];
+
+    const sorted = sortOwnTeachersFirst(cards, new Set(["mine-1", "mine-2"]));
+
+    expect(sorted.map((c) => c.id)).toEqual(["mine-2", "mine-1", "pub-1", "pub-2"]);
+  });
+
+  test("leaves the list untouched when the viewer has no teachers", () => {
+    const cards = [card("pub-1", "Public A"), card("pub-2", "Public B")];
+
+    expect(sortOwnTeachersFirst(cards, new Set()).map((c) => c.id)).toEqual([
+      "pub-1",
+      "pub-2",
+    ]);
+  });
+
+  test("does not mutate the array it is given", () => {
+    const cards = [card("pub-1", "Public A"), card("mine", "My Teacher")];
+
+    sortOwnTeachersFirst(cards, new Set(["mine"]));
+
+    expect(cards.map((c) => c.id)).toEqual(["pub-1", "mine"]);
   });
 });

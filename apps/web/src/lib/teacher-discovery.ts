@@ -36,3 +36,20 @@ export function filterTeacherCards(teachers: TeacherCard[], filters: Filters) {
     return true;
   });
 }
+
+/**
+ * Puts the student's own teachers at the top. They came here to book their next
+ * lesson with someone they already study with; leaving that teacher wherever
+ * the marketplace ordering dropped them is the problem this whole listing is
+ * meant to solve. Relative order within each group is preserved.
+ */
+export function sortOwnTeachersFirst(
+  teachers: TeacherCard[],
+  ownTeacherIds: ReadonlySet<string>,
+): TeacherCard[] {
+  if (ownTeacherIds.size === 0) return teachers;
+  return [
+    ...teachers.filter((teacher) => ownTeacherIds.has(teacher.id)),
+    ...teachers.filter((teacher) => !ownTeacherIds.has(teacher.id)),
+  ];
+}
