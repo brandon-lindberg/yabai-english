@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import type { BookingStatus } from "@/generated/prisma/enums";
+import type { BookingDisplayStatus } from "@/lib/booking-status";
 import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { NextLessonWhen } from "@/components/dashboard/next-lesson-when";
@@ -30,7 +30,7 @@ export type NextLessonView = {
   counterpartName: string;
   lessonNameJa: string;
   lessonNameEn: string;
-  status: BookingStatus;
+  status: BookingDisplayStatus;
   meetUrl: string | null;
 };
 

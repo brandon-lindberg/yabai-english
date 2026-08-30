@@ -54,6 +54,8 @@ type Props = {
   bookedSlots?: Array<{
     startsAtIso: string;
     endsAtIso: string;
+    /** The viewer's own unpaid hold, shown as theirs rather than as taken. */
+    mine?: boolean;
   }>;
 };
 
@@ -169,7 +171,7 @@ export function BookingForm({
     const reservedMarkers = (bookedSlots ?? []).map((b) => ({
       startsAtIso: b.startsAtIso,
       endsAtIso: b.endsAtIso,
-      label: t("reserved"),
+      label: b.mine ? t("yourReservation") : t("reserved"),
       kind: "booked" as const,
     }));
     return [...availability, ...reservedMarkers].sort((a, b) =>

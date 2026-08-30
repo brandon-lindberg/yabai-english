@@ -6,7 +6,7 @@ const { authMock, prismaMock, createCheckoutMock, calculateFeeMock } = vi.hoiste
     authMock: vi.fn(),
     prismaMock: {
       $transaction: vi.fn(),
-      booking: { findUnique: vi.fn() },
+      booking: { findUnique: vi.fn(), update: vi.fn() },
       payment: { update: vi.fn() },
       paymentLedgerEntry: { deleteMany: vi.fn(), createMany: vi.fn() },
       studentProfile: { upsert: vi.fn() },
@@ -35,6 +35,8 @@ function baseBooking(overrides: Partial<Record<string, unknown>> = {}) {
     studentId: "student-1",
     teacherId: "teacher-profile-1",
     status: BookingStatus.PENDING_PAYMENT,
+    createdAt: new Date(),
+    holdExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
     startsAt,
     endsAt: new Date(startsAt.getTime() + 30 * 60 * 1000),
     quotedPriceYen: 3500,
@@ -86,6 +88,7 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
     const booking = baseBooking();
     prismaMock.booking.findUnique.mockResolvedValue(booking);
+    prismaMock.booking.update.mockResolvedValue(booking);
     prismaMock.payment.update.mockImplementation(async ({ data }: { data: unknown }) => ({
       ...booking.payments[0],
       ...(data as object),
@@ -257,5 +260,69 @@ describe("POST /api/bookings/[bookingId]/pay", () => {
 
     expect(res.status).toBe(409);
     expect(createCheckoutMock).not.toHaveBeenCalled();
+  });
+
+  test("refuses payment once the reservation's hold has expired", async () => {
+    // The slot went back on sale three hours after it was reserved, so paying
+    // now could confirm a lesson in a slot somebody else has since taken.
+    prismaMock.booking.findUnique.mockResolvedValue(
+      baseBooking({ holdExpiresAt: new Date(Date.now() - 1000) }),
+    );
+
+    const res = await POST(
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
+      { params: Promise.resolve({ bookingId: "booking-1" }) },
+    );
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "This reservation expired and the time was released.",
+    });
+  });
+
+  test("still accepts payment inside the hold window", async () => {
+    prismaMock.booking.findUnique.mockResolvedValue(
+      baseBooking({ holdExpiresAt: new Date(Date.now() + 60 * 60 * 1000) }),
+    );
+
+    const res = await POST(
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
+      { params: Promise.resolve({ bookingId: "booking-1" }) },
+    );
+
+    expect(res.status).not.toBe(409);
+  });
+
+  test("extends the hold when the student starts checkout", async () => {
+    const before = new Date(Date.now() + 60 * 1000);
+    prismaMock.booking.findUnique.mockResolvedValue(
+      baseBooking({ holdExpiresAt: before }),
+    );
+
+    await POST(
+      new Request("http://localhost/api/bookings/booking-1/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acceptedMarketplaceTerms: true }),
+      }),
+      { params: Promise.resolve({ bookingId: "booking-1" }) },
+    );
+
+    // Otherwise a hold could lapse while the student is on the payment page and
+    // somebody else could take the slot out from under a payment in flight.
+    const call = prismaMock.booking.update.mock.calls.find(
+      ([args]) => (args as { data?: { holdExpiresAt?: Date } }).data?.holdExpiresAt,
+    );
+    expect(call).toBeDefined();
+    const extended = (call![0] as { data: { holdExpiresAt: Date } }).data.holdExpiresAt;
+    expect(extended.getTime()).toBeGreaterThan(before.getTime());
   });
 });

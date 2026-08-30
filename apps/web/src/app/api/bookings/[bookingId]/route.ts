@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { BookingStatus } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
@@ -11,6 +10,7 @@ import { createUserNotification } from "@/lib/notifications";
 import { marketplaceBookingRescheduledNotification } from "@/lib/reschedule-notification-copy";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 
 const patchBodySchema = z.object({
   startsAt: z.string().datetime(),
@@ -132,7 +132,7 @@ export async function PATCH(req: Request, { params }: Props) {
     where: {
       id: { not: booking.id },
       teacherId: booking.teacherId,
-      status: { in: [BookingStatus.CONFIRMED, BookingStatus.PENDING_PAYMENT] },
+      ...slotHoldingBookingWhere(),
       startsAt: { lt: newEnd },
       endsAt: { gt: newStart },
     },

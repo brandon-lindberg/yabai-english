@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { calculateMonthlyPlatformFeeForTeacher } from "@/lib/platform-fees";
 import { isLocalStripeProviderAccount } from "@/lib/payment-methods";
+import { isHoldExpired, newHoldExpiry } from "@/lib/pending-booking-hold";
 import {
   createStripeCheckoutSessionDirectCharge,
   stripeConnectConfigured,
@@ -67,6 +68,23 @@ export async function POST(req: Request, { params }: Props) {
   if (booking.status !== BookingStatus.PENDING_PAYMENT) {
     return NextResponse.json({ error: "Booking is not pending payment" }, { status: 409 });
   }
+
+  // The slot went back on sale when the hold lapsed, so paying now could
+  // confirm a lesson in a time somebody else has since booked.
+  if (isHoldExpired(booking.holdExpiresAt)) {
+    return NextResponse.json(
+      { error: "This reservation expired and the time was released." },
+      { status: 409 },
+    );
+  }
+
+  // Starting checkout renews the hold, so a reservation cannot lapse while the
+  // student is on the payment page and let somebody else take the slot out from
+  // under a payment already in flight.
+  await prisma.booking.update({
+    where: { id: booking.id },
+    data: { holdExpiresAt: newHoldExpiry() },
+  });
 
   const payment = booking.payments?.[0];
   if (!payment) {

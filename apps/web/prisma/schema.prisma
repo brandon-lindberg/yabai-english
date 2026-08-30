@@ -726,11 +726,17 @@ model Booking {
   /// External link only (e.g. Google Docs / Meet recap) — we do not host transcript files.
   externalTranscriptUrl String? @db.VarChar(2048)
 
+  /// When an unpaid booking stops holding its slot. The server writes it at
+  /// creation and refreshes it when the student starts checkout, so the deadline
+  /// never depends on a browser clock. Only meaningful while PENDING_PAYMENT.
+  holdExpiresAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([studentId, startsAt])
   @@index([teacherId, startsAt])
+  @@index([status, holdExpiresAt])
 }
 
 model Invoice {

@@ -37,6 +37,7 @@ import {
   SUPPORTED_PAYMENT_METHODS,
   SUPPORTED_PAYMENT_PROVIDERS,
 } from "@/lib/payment-methods";
+import { newHoldExpiry, slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 
 const teacherAvailabilityInclude = {
   availabilitySlots: {
@@ -297,7 +298,7 @@ export async function POST(req: Request) {
   const conflict = await prisma.booking.findFirst({
     where: {
       teacherId: teacher.id,
-      status: { in: [BookingStatus.CONFIRMED, BookingStatus.PENDING_PAYMENT] },
+      ...slotHoldingBookingWhere(),
       startsAt: { lt: endsAt },
       endsAt: { gt: start },
     },
@@ -465,6 +466,9 @@ export async function POST(req: Request) {
         startsAt: start,
         endsAt,
         status: flow.status,
+        // An unpaid booking holds the slot only until this deadline. Written
+        // here so the window starts on the server's clock, not the browser's.
+        holdExpiresAt: flow.requiresPayment ? newHoldExpiry() : null,
         quotedPriceYen,
         manualOverrideUsed: !outsideLeadWindow && canBypass,
         manualOverrideReason: !outsideLeadWindow && canBypass ? reasonCheck.normalizedReason : null,

@@ -18,6 +18,7 @@ import { DashboardStudyHighlight } from "@/components/dashboard/dashboard-study-
 import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-review";
 import { buttonClasses } from "@/components/ui/button";
 import { actionLinkClass } from "@/components/ui/inline-link";
+import { resolveBookingDisplayStatus } from "@/lib/booking-status";
 
 /**
  * A student's dashboard: the shared spine, then their own sections.
@@ -137,7 +138,7 @@ export async function StudentDashboard({
                 nextBooking.teacher.user.name ?? nextBooking.teacher.user.email ?? "—",
               lessonNameJa: nextBooking.lessonProduct.nameJa,
               lessonNameEn: nextBooking.lessonProduct.nameEn,
-              status: nextBooking.status,
+              status: resolveBookingDisplayStatus(nextBooking),
               meetUrl: nextBooking.meetUrl,
             }
           : null

@@ -1,6 +1,10 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
+import {
+  bookingStatusKey,
+  bookingStatusTone,
+  resolveBookingDisplayStatus,
+} from "@/lib/booking-status";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import type { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
@@ -21,7 +25,11 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
 
   return (
     <>
-      {upcoming.map((b) => (
+      {upcoming.map((b) => {
+        // An unpaid booking whose hold lapsed no longer owns its slot, so it
+        // must not still offer to take the student to checkout.
+        const displayStatus = resolveBookingDisplayStatus(b);
+        return (
         <LessonRow
           key={b.id}
           bookingId={b.id}
@@ -32,10 +40,13 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
           endsAtIso={b.endsAt.toISOString()}
           counterpartLabel={t("teacher")}
           counterpartName={b.teacher.user.name ?? b.teacher.user.email ?? "—"}
-          status={{ tone: bookingStatusTone(b.status), label: t(bookingStatusKey(b.status)) }}
+          status={{
+            tone: bookingStatusTone(displayStatus),
+            label: t(bookingStatusKey(displayStatus)),
+          }}
           inlineActions={
             <>
-              {b.status === "PENDING_PAYMENT" ? (
+              {displayStatus === "PENDING_PAYMENT" ? (
                 <Link href={`/book/checkout/${b.id}`} className={buttonClasses({ size: "sm" })}>
                   {t("completePayment")}
                 </Link>
@@ -88,7 +99,8 @@ export async function DashboardUpcomingLessons({ upcoming }: { upcoming: Upcomin
             ) : null
           }
         />
-      ))}
+        );
+      })}
     </>
   );
 }
