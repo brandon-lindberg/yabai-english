@@ -19,6 +19,7 @@ type Props = {
   onCalendarAnchorChange: (iso: string) => void;
   weekColumnAddLabel?: string;
   onAddForDayKey?: (dayKey: string) => void;
+  canAddForDayKey?: (dayKey: string) => boolean;
   /** Line shown on booked blocks (e.g. “Reserved”). */
   reservedBookingLabel?: string;
   timeZone?: string;
@@ -35,6 +36,7 @@ export function TeacherAvailabilityTimeGridWeek({
   onCalendarAnchorChange,
   weekColumnAddLabel,
   onAddForDayKey,
+  canAddForDayKey,
   reservedBookingLabel,
   timeZone,
 }: Props) {
@@ -94,7 +96,9 @@ export function TeacherAvailabilityTimeGridWeek({
                       {day.shortLabel}{" "}
                       <span className="tabular-nums text-foreground">{dayDate.getDate()}</span>
                     </p>
-                    {onAddForDayKey && weekColumnAddLabel ? (
+                    {onAddForDayKey &&
+                    weekColumnAddLabel &&
+                    (canAddForDayKey ? canAddForDayKey(day.dayKey) : true) ? (
                       <button
                         type="button"
                         onClick={() => onAddForDayKey(day.dayKey)}

@@ -8,6 +8,7 @@ import { getBookingPaymentFlow } from "@/lib/payment-flow";
 import { createUserNotification } from "@/lib/notifications";
 import { ensureStudentTeacherThread } from "@/lib/chat-threads";
 import {
+  BOOKING_MINIMUM_LEAD_HOURS,
   canBypassLeadTimeWindow,
   isBookingOutsideLeadWindow,
 } from "@/lib/lead-time-policy";
@@ -102,7 +103,7 @@ export async function POST(req: Request) {
   const start = new Date(startsAt);
   const outsideLeadWindow = isBookingOutsideLeadWindow({
     start,
-    minimumHours: 48,
+    minimumHours: BOOKING_MINIMUM_LEAD_HOURS,
   });
   const canBypass = canBypassLeadTimeWindow(
     session.user.role,
@@ -368,7 +369,7 @@ export async function POST(req: Request) {
       student.studentProfile.timezone ??
       teacher.availabilitySlots[0]?.timezone ??
       "Asia/Tokyo",
-    minimumLeadHours: canBypass && manualOverride ? 0 : 48,
+    minimumLeadHours: canBypass && manualOverride ? 0 : BOOKING_MINIMUM_LEAD_HOURS,
   });
   if (!slotValidation.ok) {
     return NextResponse.json({ error: slotValidation.error }, { status: 409 });

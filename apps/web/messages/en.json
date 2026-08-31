@@ -495,7 +495,8 @@
       "taxonomyMissingWarning": "You have no class levels or types yet. Add them under Taxonomy first.",
       "classOffer": "Class offer",
       "freeTrialOffering": "Free trial",
-      "availabilityWindowHint": "You can set availability up to {date} — the current month plus the next two. The month after opens automatically when the month changes."
+      "availabilityWindowHint": "You can set availability up to {date} — the current month plus the next two. The month after opens automatically when the month changes.",
+      "belowLeadTimeHint": "Students book at least 48 hours ahead, so this day has passed that cutoff and they can no longer book it themselves. You can still book it for a student."
     },
     "quickReview": {
       "title": "Quick review",

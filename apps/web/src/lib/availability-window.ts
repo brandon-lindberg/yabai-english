@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
+import { BOOKING_MINIMUM_LEAD_HOURS } from "@/lib/lead-time-policy";
 
 /**
  * How far ahead a teacher may publish availability, counted in whole calendar
@@ -38,6 +39,54 @@ export function isWithinAvailabilityWindow(
   timezone: string,
 ): boolean {
   return dayKey <= availabilityWindowEndDayKey(now, timezone);
+}
+
+/** Today's date in `timezone`, as `YYYY-MM-DD`. */
+export function todayDayKey(now: Date, timezone: string): string {
+  return DateTime.fromJSDate(now, { zone: "utc" }).setZone(timezone).toISODate()!;
+}
+
+/**
+ * The first day a student can book for themselves: the one the booking lead time
+ * lands in. The cutoff is an instant rather than a date, so that day counts —
+ * its later hours are still far enough out.
+ */
+export function earliestBookableDayKey(now: Date, timezone: string): string {
+  return DateTime.fromJSDate(now, { zone: "utc" })
+    .setZone(timezone)
+    .plus({ hours: BOOKING_MINIMUM_LEAD_HOURS })
+    .toISODate()!;
+}
+
+/**
+ * Whether this day is too soon for a student to book themselves.
+ *
+ * Not a reason to stop a teacher publishing it: a manual override waives the
+ * lead time but still needs availability to exist, so a teacher opening a slot
+ * for someone who called depends on being able to add one here. It only earns
+ * the day a mark, so the teacher knows it will not fill on its own.
+ */
+export function isBelowBookingLeadTime(
+  dayKey: string,
+  now: Date,
+  timezone: string,
+): boolean {
+  return dayKey < earliestBookableDayKey(now, timezone);
+}
+
+/**
+ * Whether a teacher may put availability on this day at all. A day that has
+ * already gone cannot be taught, and a day past the window cannot be published.
+ */
+export function isAvailabilityDaySelectable(
+  dayKey: string,
+  now: Date,
+  timezone: string,
+): boolean {
+  return (
+    dayKey >= todayDayKey(now, timezone) &&
+    isWithinAvailabilityWindow(dayKey, now, timezone)
+  );
 }
 
 /**

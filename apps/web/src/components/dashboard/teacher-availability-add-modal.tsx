@@ -8,7 +8,11 @@ import { buttonClasses } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { ModalShell } from "@/components/ui/modal-shell";
-import { availabilityWindowEndDayKey } from "@/lib/availability-window";
+import {
+  availabilityWindowEndDayKey,
+  isBelowBookingLeadTime,
+  todayDayKey,
+} from "@/lib/availability-window";
 
 export type TaxonomyOption = {
   id: string;
@@ -123,7 +127,16 @@ function TeacherAvailabilityAddModalInner({
   // The same ceiling the API enforces, so the picker cannot offer a date the
   // save would then reject.
   const windowEndDayKey = availabilityWindowEndDayKey(new Date(), draft.timezone);
+  const earliestDayKey = todayDayKey(new Date(), draft.timezone);
+  // A day inside the booking lead time is still worth publishing — a teacher can
+  // book it for a student who called — so it is flagged, not blocked.
+  const belowLeadTime = isBelowBookingLeadTime(
+    draft.startsOn ?? dayKey,
+    new Date(),
+    draft.timezone,
+  );
   const windowHint = tModal("availabilityWindowHint", { date: windowEndDayKey });
+  const dateHint = belowLeadTime ? tModal("belowLeadTimeHint") : windowHint;
   const offerById = new Map(lessonOfferings.map((offer) => [offer.id, offer]));
   const formatOfferingLabel = (offer: TeacherLessonOfferingOption) => {
     // A trial is its own kind of slot, not a class at a price of zero — naming
@@ -205,11 +218,16 @@ function TeacherAvailabilityAddModalInner({
                 )}
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={tModal("fromDate")} hint={windowHint}>
+                <Field
+                  label={tModal("fromDate")}
+                  hint={dateHint}
+                  hintTone={belowLeadTime ? "notice" : "muted"}
+                >
                   {(field) => (
                     <Input
                       {...field}
                       type="date"
+                      min={earliestDayKey}
                       max={windowEndDayKey}
                       value={draft.startsOn ?? dayKey}
                       onChange={(e) => {
@@ -234,6 +252,7 @@ function TeacherAvailabilityAddModalInner({
                     <Input
                       {...field}
                       type="date"
+                      min={earliestDayKey}
                       max={windowEndDayKey}
                       value={draft.endsOn ?? ""}
                       onChange={(e) =>
@@ -245,11 +264,16 @@ function TeacherAvailabilityAddModalInner({
               </div>
             </>
           ) : (
-            <Field label={tModal("date")} hint={windowHint}>
+            <Field
+              label={tModal("date")}
+              hint={dateHint}
+              hintTone={belowLeadTime ? "notice" : "muted"}
+            >
               {(field) => (
                 <Input
                   {...field}
                   type="date"
+                  min={earliestDayKey}
                   max={windowEndDayKey}
                   value={draft.startsOn ?? dayKey}
                   onChange={(e) => {

@@ -37,6 +37,7 @@ import { Field, Input, Select } from "@/components/ui/field";
 import {
   availabilityWindowEndDayKey,
   canAdvanceCalendarWithinWindow,
+  isAvailabilityDaySelectable,
 } from "@/lib/availability-window";
 
 type TeacherAvailabilityRecurrence = "WEEKLY" | "ONE_OFF";
@@ -215,6 +216,11 @@ export function TeacherAvailabilityCalendar({
 
   const skipSet = useMemo(() => new Set(occurrenceSkips), [occurrenceSkips]);
 
+  const canAddForDayKey = useCallback(
+    (dayKey: string) => isAvailabilityDaySelectable(dayKey, new Date(), teacherTz),
+    [teacherTz],
+  );
+
   const addForDayKey = useCallback((dayKey: string) => {
     setMonthAddDayKey(dayKey);
   }, []);
@@ -355,11 +361,13 @@ export function TeacherAvailabilityCalendar({
         onCalendarAnchorChange={setCalendarAnchor}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
+        canAddForDayKey={canAddForDayKey}
         reservedBookingLabel={td("slotReserved")}
         timeZone={teacherTz}
       />
     ),
     [
+      canAddForDayKey,
       locale,
       weekDays,
       blocksByDay,
@@ -444,6 +452,7 @@ export function TeacherAvailabilityCalendar({
         onCalendarAnchorChange={setCalendarAnchor}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
+        canAddForDayKey={canAddForDayKey}
         reservedBookingLabel={td("slotReserved")}
         emptyLabel={t("noAvailabilityYet")}
         timeZone={teacherTz}
@@ -459,6 +468,7 @@ export function TeacherAvailabilityCalendar({
       />
     ),
     [
+      canAddForDayKey,
       locale,
       anchorDayKey,
       focusDateLabel,
@@ -487,6 +497,7 @@ export function TeacherAvailabilityCalendar({
           setCalendarView("day");
         }}
         onAddForDayKey={addForDayKey}
+        canAddForDayKey={canAddForDayKey}
         addLabel={t("addForDay")}
         onSelectSlot={(iso, groupKey) => {
           setSelectedStartsAtIso(iso);
@@ -498,6 +509,7 @@ export function TeacherAvailabilityCalendar({
       />
     ),
     [
+      canAddForDayKey,
       locale,
       monthWeekdayHeaders,
       monthCells,
@@ -527,13 +539,15 @@ export function TeacherAvailabilityCalendar({
                 <p className="text-sm font-semibold text-foreground">
                   {day.shortLabel} {dayOfMonth}
                 </p>
-                <button
+                {canAddForDayKey(day.dayKey) ? (
+                  <button
                     type="button"
                     onClick={() => addForDayKey(day.dayKey)}
                     className="inline-flex min-h-8 items-center rounded border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
                   >
                     {t("addForDay")}
                   </button>
+                ) : null}
               </div>
               {blocks.length === 0 ? (
                 <p className="text-xs text-muted">{t("noAvailabilityYet")}</p>
@@ -592,6 +606,7 @@ export function TeacherAvailabilityCalendar({
     t,
     td,
     addForDayKey,
+    canAddForDayKey,
     formatCalendarTime,
   ]);
 
@@ -898,6 +913,7 @@ export function TeacherAvailabilityCalendar({
         }}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
+        canAddForDayKey={canAddForDayKey}
         timeZone={teacherTz}
       />
 

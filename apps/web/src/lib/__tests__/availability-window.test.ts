@@ -3,6 +3,9 @@ import {
   AVAILABILITY_WINDOW_MONTHS,
   availabilityWindowEndDayKey,
   canAdvanceCalendarWithinWindow,
+  earliestBookableDayKey,
+  isAvailabilityDaySelectable,
+  isBelowBookingLeadTime,
   isWithinAvailabilityWindow,
 } from "@/lib/availability-window";
 
@@ -108,5 +111,63 @@ describe("canAdvanceCalendarPast", () => {
     expect(
       canAdvanceCalendarWithinWindow("2026-10-31T00:00:00.000Z", "day", now, TZ),
     ).toBe(false);
+  });
+});
+
+describe("isAvailabilityDaySelectable", () => {
+  const now = new Date("2026-08-31T00:00:00Z");
+
+  test("a day that has already gone is never selectable", () => {
+    expect(isAvailabilityDaySelectable("2026-08-30", now, TZ)).toBe(false);
+    expect(isAvailabilityDaySelectable("2026-08-01", now, TZ)).toBe(false);
+  });
+
+  test("a future day inside the window is selectable", () => {
+    expect(isAvailabilityDaySelectable("2026-10-31", now, TZ)).toBe(true);
+  });
+
+  test("a day past the window is not", () => {
+    expect(isAvailabilityDaySelectable("2026-11-01", now, TZ)).toBe(false);
+  });
+
+  test("today is selectable", () => {
+    expect(isAvailabilityDaySelectable("2026-08-31", now, TZ)).toBe(true);
+  });
+});
+
+describe("the booking lead time marks days, it does not close them", () => {
+  // 11:00 JST on Aug 31 — the 48-hour cutoff lands at 11:00 JST on Sep 2.
+  const now = new Date("2026-08-31T02:00:00Z");
+
+  test("a teacher may still add on days inside the lead window", () => {
+    // No student can self-book these, but a teacher can open a slot and book it
+    // for someone who called — the manual override waives the lead time, not
+    // the need for availability to exist.
+    expect(isAvailabilityDaySelectable("2026-08-31", now, TZ)).toBe(true);
+    expect(isAvailabilityDaySelectable("2026-09-01", now, TZ)).toBe(true);
+  });
+
+  test("those days are flagged as below the booking lead time", () => {
+    expect(isBelowBookingLeadTime("2026-08-31", now, TZ)).toBe(true);
+    expect(isBelowBookingLeadTime("2026-09-01", now, TZ)).toBe(true);
+  });
+
+  test("the day the cutoff lands on is not flagged — its later hours are bookable", () => {
+    expect(earliestBookableDayKey(now, TZ)).toBe("2026-09-02");
+    expect(isBelowBookingLeadTime("2026-09-02", now, TZ)).toBe(false);
+  });
+
+  test("a day well ahead is not flagged", () => {
+    expect(isBelowBookingLeadTime("2026-10-15", now, TZ)).toBe(false);
+  });
+
+  test("the flag is read on the teacher's clock", () => {
+    const instant = new Date("2026-08-30T23:00:00Z");
+    expect(earliestBookableDayKey(instant, TZ)).toBe("2026-09-02");
+    expect(earliestBookableDayKey(instant, "UTC")).toBe("2026-09-01");
+  });
+
+  test("a day that has gone is still closed outright", () => {
+    expect(isAvailabilityDaySelectable("2026-08-30", now, TZ)).toBe(false);
   });
 });

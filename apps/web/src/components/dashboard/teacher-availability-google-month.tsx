@@ -23,6 +23,8 @@ type Props = {
   selectedGroupKey?: string | null;
   onOpenDay: (dayKey: string) => void;
   onAddForDayKey?: (dayKey: string) => void;
+  /** Days a teacher may still put availability on. Absent means all of them. */
+  canAddForDayKey?: (dayKey: string) => boolean;
   addLabel?: string;
   onSelectSlot: (startsAtIso: string, groupKey?: string) => void;
   onCalendarAnchorChange: (iso: string) => void;
@@ -71,6 +73,7 @@ export function TeacherAvailabilityGoogleMonth({
   selectedGroupKey = null,
   onOpenDay,
   onAddForDayKey,
+  canAddForDayKey,
   addLabel,
   onSelectSlot,
   onCalendarAnchorChange,
@@ -105,7 +108,10 @@ export function TeacherAvailabilityGoogleMonth({
             const hasBookable = bookable.length > 0;
             const isAvailable = cell.inCurrentMonth && hasBookable;
             const isUnavailable = cell.inCurrentMonth && !hasBookable;
-            const showAdd = Boolean(onAddForDayKey && addLabel && cell.inCurrentMonth);
+            // A day that has gone, or one past the publishing window, cannot
+            // take availability — so it neither offers Add nor reads as live.
+            const addable = canAddForDayKey ? canAddForDayKey(cell.dayKey) : true;
+            const showAdd = Boolean(onAddForDayKey && addLabel && cell.inCurrentMonth && addable);
 
             return (
               <div
@@ -114,8 +120,8 @@ export function TeacherAvailabilityGoogleMonth({
                 className={`flex min-h-[96px] flex-col border border-transparent p-1 text-left text-xs transition ${
                   isSelected ? monthSelectedRing : "border-border"
                 } ${
-                  !cell.inCurrentMonth
-                    ? "bg-surface text-muted"
+                  !cell.inCurrentMonth || !addable
+                    ? "bg-surface text-muted opacity-60"
                     : isAvailable
                       ? "bg-surface text-foreground"
                       : isUnavailable
