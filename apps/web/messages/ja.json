@@ -702,7 +702,11 @@
       "calendarConnectedToast": "Google カレンダーの連携が完了しました。",
       "calendarFailedToast": "Google カレンダーを連携できませんでした。もう一度お試しください。",
       "calendarSetupHint": "予約確定時に Meet リンクを自動作成するには、次の「Google とカレンダー」からカレンダーを連携してください。"
-    }
+    },
+    "refundedLessons": "返金されたレッスン",
+    "downloadCreditNoteEn": "適格返還請求書をダウンロード（英語）",
+    "downloadCreditNoteJa": "適格返還請求書をダウンロード（日本語）",
+    "noRefundedLessons": "返金されたレッスンはありません。"
   },
   "admin": {
     "title": "管理ダッシュボード",

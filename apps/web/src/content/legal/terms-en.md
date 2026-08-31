@@ -98,7 +98,7 @@ Role-specific terms and refund policies apply:
 - [Teacher Marketplace Terms](/legal/terms/teachers) and [Teacher Refund Policy](/legal/refund/teachers)
 - [Student Marketplace Terms](/legal/terms/students) and [Student Refund Policy](/legal/refund/students)
 
-The platform fee is calculated according to the teacher's platform tier. Tier 1 applies 20% for lessons 1-5, 15% for lessons 6-10, and 10% from lesson 11 onward. Tier 2 applies 15% for lessons 1-10 and 10% from lesson 11 onward. Tier 3 applies a flat 10%. If a lesson must be refunded under the cancellation policy, the teacher is responsible for the full refund amount owed to the student. The platform fee from the original transaction is not returned to the teacher as part of that teacher responsibility, unless we separately agree or applicable law requires otherwise.
+The platform fee is calculated according to the teacher's platform tier. Tier 1 applies 20% for lessons 1-5, 15% for lessons 6-10, and 10% from lesson 11 onward. Tier 2 applies 15% for lessons 1-10 and 10% from lesson 11 onward. Tier 3 applies a flat 10%. If a lesson must be refunded under the cancellation policy, the teacher is responsible for the full refund amount owed to the student. The platform fee from the original transaction is returned to the teacher in full; English Studio Japan retains nothing on a lesson that did not take place.
 
 Student refunds are automatic only when the cancellation policy allows them. Unless otherwise shown at checkout, cancellation more than 48 hours before the scheduled lesson start is eligible for refund. Rescheduling a lesson does not create a refund entitlement.
 

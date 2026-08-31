@@ -26,7 +26,7 @@ The platform fee on each paid lesson depends on your **platform tier** and how m
 
 Your tier is reviewed periodically based on teaching activity. An administrator may apply a temporary tier override.
 
-The platform fee is collected as an application fee at checkout. It is **not returned to you** when a lesson is refunded under the cancellation policy, unless we separately agree or applicable law requires otherwise. See our [Teacher Refund Policy](/legal/refund/teachers) for details.
+The platform fee is collected as an application fee at checkout. It is **returned to you in full** when a lesson is refunded under the cancellation policy: we retain nothing on a lesson that did not take place. See our [Teacher Refund Policy](/legal/refund/teachers) for details.
 
 ---
 

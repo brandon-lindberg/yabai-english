@@ -3,6 +3,7 @@ import {
   createStripeApplicationFeeRefund,
   createStripeRefundDirectCharge,
 } from "@/lib/stripe/stripe-connect";
+import { ensureCreditNoteNumber } from "@/lib/credit-notes";
 
 /** What a caller needs to decide whether the refund actually landed. */
 export type IssuedRefund = {
@@ -160,6 +161,11 @@ export async function issueAutomaticRefundForBooking(
         : []),
     ],
   });
+
+  // Stripe sometimes settles a refund immediately rather than via webhook, so
+  // the document is issued here too. `ensureCreditNoteNumber` is idempotent, so
+  // whichever path arrives first wins and the other is a no-op.
+  await ensureCreditNoteNumber(refund.id);
 
   return refund;
 }

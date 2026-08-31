@@ -4,7 +4,7 @@ const { prismaMock, constructEventMock, confirmFromCheckoutMock, notifyStuckRefu
   prismaMock: {
     paymentWebhookEvent: { createMany: vi.fn() },
     payment: { update: vi.fn(), updateMany: vi.fn() },
-    refund: { updateMany: vi.fn(), findFirst: vi.fn() },
+    refund: { updateMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
     teacherPaymentAccount: { findFirst: vi.fn(), findMany: vi.fn(), findUnique: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     teacherPaymentMethod: { upsert: vi.fn(), updateMany: vi.fn() },
   },

@@ -40,7 +40,7 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
     select: { userId: true },
   });
   if (!teacherProfile) {
-    return { bookings: [], upcoming: [], completed: [], scheduleItems: [] };
+    return { bookings: [], upcoming: [], completed: [], refunded: [], scheduleItems: [] };
   }
 
   const bookings = await prisma.booking.findMany({
@@ -68,6 +68,13 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
         },
       },
       invoice: true,
+      // Settled refunds only: one that failed or is still moving has no
+      // document to offer yet.
+      refunds: {
+        where: { status: "SUCCEEDED" },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, creditNoteNo: true, amountYen: true, createdAt: true },
+      },
     },
   });
 
@@ -84,7 +91,7 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
   );
 
   const now = new Date();
-  const { upcoming, completed } = groupBookingsForDashboard(bookings, now);
+  const { upcoming, completed, refunded } = groupBookingsForDashboard(bookings, now);
   const completedSorted = sortTeacherCompletedBookings(
     excludeArchivedStudents(completed, archivedStudentIds),
   );
@@ -98,5 +105,13 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
     ...buildTeacherScheduleItems(completedSorted, { past: true }),
   ];
 
-  return { bookings, upcoming, completed: completedSorted, scheduleItems };
+  return {
+    bookings,
+    upcoming,
+    completed: completedSorted,
+    // A refunded lesson is still the teacher's record even when the student
+    // has been archived: it is money that moved, and their books need it.
+    refunded,
+    scheduleItems,
+  };
 }
