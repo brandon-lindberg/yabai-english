@@ -494,7 +494,8 @@
       "invalidLessonMeta": "各スロットにクラスレベルとクラス種別の両方を選んでください。",
       "taxonomyMissingWarning": "クラスレベル・種別が未設定です。先に「分類」から追加してください。",
       "classOffer": "クラスオファー",
-      "freeTrialOffering": "無料トライアル"
+      "freeTrialOffering": "無料トライアル",
+      "availabilityWindowHint": "空き時間は{date}まで設定できます（当月と翌2か月）。月が変わると次の月が自動的に設定可能になります。"
     },
     "quickReview": {
       "title": "クイック復習",

@@ -34,6 +34,10 @@ import type { CalendarViewMode } from "@/lib/calendar-view";
 import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
 import { buttonClasses } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
+import {
+  availabilityWindowEndDayKey,
+  canAdvanceCalendarWithinWindow,
+} from "@/lib/availability-window";
 
 type TeacherAvailabilityRecurrence = "WEEKLY" | "ONE_OFF";
 
@@ -805,7 +809,14 @@ export function TeacherAvailabilityCalendar({
         teacherLessonOfferingId: r.teacherLessonOfferingId ?? "",
       };
       if (r.startsOn) slot.startsOn = r.startsOn;
-      if (r.endsOn) slot.endsOn = r.endsOn;
+      // A weekly slot saved before end dates were required arrives with none.
+      // Bound it at the window rather than refusing the save and leaving the
+      // teacher with a row they cannot edit their way out of.
+      if (r.recurrence !== "ONE_OFF") {
+        slot.endsOn = r.endsOn ?? availabilityWindowEndDayKey(new Date(), r.timezone);
+      } else if (r.endsOn) {
+        slot.endsOn = r.endsOn;
+      }
       return slot;
     });
     const parsed = teacherAvailabilitySchema.safeParse(payload);
@@ -876,6 +887,9 @@ export function TeacherAvailabilityCalendar({
         onCalendarViewChange={setCalendarView}
         calendarAnchor={calendarAnchor}
         onCalendarAnchorChange={setCalendarAnchor}
+        nextDisabled={
+          !canAdvanceCalendarWithinWindow(calendarAnchor, calendarView, new Date(), teacherTz)
+        }
         selectedStartsAtIso={selectedStartsAtIso}
         selectedGroupKey={selectedRuleId}
         onSelectSlot={(iso, groupKey) => {

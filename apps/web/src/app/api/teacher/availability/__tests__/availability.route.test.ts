@@ -201,7 +201,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-conv",
-          teacherLessonOfferingId: "off-conv-60",
+          endsOn: "2026-10-31",
+            teacherLessonOfferingId: "off-conv-60",
         },
         {
           dayOfWeek: 3,
@@ -210,7 +211,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-gram",
-          teacherLessonOfferingId: "off-gram-60",
+          endsOn: "2026-10-31",
+            teacherLessonOfferingId: "off-gram-60",
         },
       ]),
     );
@@ -253,7 +255,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-conv",
-          teacherLessonOfferingId: "off-conv-60",
+          endsOn: "2026-10-31",
+            teacherLessonOfferingId: "off-conv-60",
         },
       ]),
     );
@@ -303,7 +306,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-conv",
-          teacherLessonOfferingId: "off-conv-60",
+          endsOn: "2026-10-31",
+            teacherLessonOfferingId: "off-conv-60",
         },
       ]),
     );
@@ -353,7 +357,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-conv",
-          teacherLessonOfferingId: "off-conv-60",
+          endsOn: "2026-10-31",
+            teacherLessonOfferingId: "off-conv-60",
         },
       ]),
     );
@@ -408,7 +413,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-conv",
-          teacherLessonOfferingId: "off-conv-60",
+          endsOn: "2026-10-31",
+            teacherLessonOfferingId: "off-conv-60",
         },
       ]),
     );
@@ -476,6 +482,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
             timezone: "Asia/Tokyo",
             classLevelId: "lvl-int",
             classTypeId: "ty-conv",
+            endsOn: "2026-10-31",
             teacherLessonOfferingId: "off-conv-60",
           },
         ]),
@@ -508,7 +515,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-conv",
-          teacherLessonOfferingId: "off-conv-60",
+          endsOn: "2026-10-31",
+            teacherLessonOfferingId: "off-conv-60",
         },
       ]),
     );
@@ -545,7 +553,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-pron",
-          teacherLessonOfferingId: "off-pron-60",
+          endsOn: "2026-10-31",
+            teacherLessonOfferingId: "off-pron-60",
         },
       ]),
     );
@@ -593,7 +602,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
           timezone: "Asia/Tokyo",
           classLevelId: "lvl-int",
           classTypeId: "ty-pron",
-          teacherLessonOfferingId: "off-pron-60",
+          endsOn: "2026-10-31",
+            teacherLessonOfferingId: "off-pron-60",
         },
       ]),
     );
@@ -672,4 +682,150 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
       ],
     });
   });
+
+  test("refuses availability past the three-month window", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-31T00:00:00Z"));
+    try {
+      const res = await PATCH(
+        patchRequest([
+          {
+            dayOfWeek: 0,
+            startMin: 10 * 60,
+            endMin: 11 * 60,
+            timezone: "Asia/Tokyo",
+            recurrence: "ONE_OFF",
+            // November is the fourth month from August.
+            startsOn: "2026-11-01",
+            endsOn: "2026-11-01",
+            classLevelId: "lvl-int",
+            classTypeId: "ty-conv",
+            teacherLessonOfferingId: "off-conv-60",
+          },
+        ]),
+      );
+
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error: string };
+      // The message names the edge so a teacher knows how far they may go.
+      expect(body.error).toContain("2026-10-31");
+      expect(availabilityCreateManyMock).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("accepts availability on the last day of the window", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-31T00:00:00Z"));
+    try {
+      const res = await PATCH(
+        patchRequest([
+          {
+            dayOfWeek: 6,
+            startMin: 10 * 60,
+            endMin: 11 * 60,
+            timezone: "Asia/Tokyo",
+            recurrence: "ONE_OFF",
+            startsOn: "2026-10-31",
+            endsOn: "2026-10-31",
+            classLevelId: "lvl-int",
+            classTypeId: "ty-conv",
+            teacherLessonOfferingId: "off-conv-60",
+          },
+        ]),
+      );
+
+      expect(res.status).toBe(200);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("refuses a weekly slot that runs past the window", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-31T00:00:00Z"));
+    try {
+      const res = await PATCH(
+        patchRequest([
+          {
+            dayOfWeek: 1,
+            startMin: 10 * 60,
+            endMin: 11 * 60,
+            timezone: "Asia/Tokyo",
+            recurrence: "WEEKLY",
+            startsOn: "2026-09-01",
+            endsOn: "2027-03-01",
+            classLevelId: "lvl-int",
+            classTypeId: "ty-conv",
+            teacherLessonOfferingId: "off-conv-60",
+          },
+        ]),
+      );
+
+      expect(res.status).toBe(400);
+      expect(availabilityCreateManyMock).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("refuses an open-ended weekly slot, which would never stop repeating", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-31T00:00:00Z"));
+    try {
+      const res = await PATCH(
+        patchRequest([
+          {
+            dayOfWeek: 1,
+            startMin: 10 * 60,
+            endMin: 11 * 60,
+            timezone: "Asia/Tokyo",
+            recurrence: "WEEKLY",
+            startsOn: "2026-09-01",
+            endsOn: null,
+            classLevelId: "lvl-int",
+            classTypeId: "ty-conv",
+            teacherLessonOfferingId: "off-conv-60",
+          },
+        ]),
+      );
+
+      // A recurring slot with no end date outlives the teacher's attention: it
+      // keeps taking bookings after they stop using the app. Every weekly slot
+      // must carry an end date the teacher has to come back and extend.
+      expect(res.status).toBe(400);
+      expect(availabilityCreateManyMock).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("accepts a weekly slot bounded inside the window", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-31T00:00:00Z"));
+    try {
+      const res = await PATCH(
+        patchRequest([
+          {
+            dayOfWeek: 1,
+            startMin: 10 * 60,
+            endMin: 11 * 60,
+            timezone: "Asia/Tokyo",
+            recurrence: "WEEKLY",
+            startsOn: "2026-09-01",
+            endsOn: "2026-10-31",
+            classLevelId: "lvl-int",
+            classTypeId: "ty-conv",
+            teacherLessonOfferingId: "off-conv-60",
+          },
+        ]),
+      );
+
+      expect(res.status).toBe(200);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
 });

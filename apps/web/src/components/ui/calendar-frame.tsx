@@ -41,6 +41,7 @@ export function CalendarFrame({
   onViewChange,
   onPrevious,
   onNext,
+  nextDisabled = false,
   copy,
   viewsLabel,
   children,
@@ -51,6 +52,8 @@ export function CalendarFrame({
   onViewChange: (view: CalendarViewMode) => void;
   onPrevious: () => void;
   onNext: () => void;
+  /** Stops forward navigation at a boundary, e.g. a publishing window. */
+  nextDisabled?: boolean;
   copy: CalendarFrameCopy;
   /** Accessible name for the view switcher group. */
   viewsLabel?: string;
@@ -81,6 +84,7 @@ export function CalendarFrame({
           <button
             type="button"
             onClick={onNext}
+            disabled={nextDisabled}
             className={buttonClasses({ variant: "secondary", size: "sm" })}
           >
             {copy.next}

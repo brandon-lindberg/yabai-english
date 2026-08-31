@@ -81,6 +81,8 @@ type Props = {
   onCalendarViewChange: (view: CalendarViewMode) => void;
   calendarAnchor: string;
   onCalendarAnchorChange: (iso: string) => void;
+  /** Stops forward navigation, e.g. at the end of a publishing window. */
+  nextDisabled?: boolean;
   selectedStartsAtIso: string | null;
   /** Prefer matching `groupKey` when both this and `selectedStartsAtIso` are used. */
   selectedGroupKey?: string | null;
@@ -113,6 +115,7 @@ export function SlotSelectionCalendar({
   onCalendarViewChange,
   calendarAnchor,
   onCalendarAnchorChange,
+  nextDisabled,
   selectedStartsAtIso,
   selectedGroupKey = null,
   onSelectSlot,
@@ -197,6 +200,7 @@ export function SlotSelectionCalendar({
       onNext={() =>
         onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, 1, timeZone))
       }
+      nextDisabled={nextDisabled}
       copy={copy}
     >
       {calendarView === "day" &&

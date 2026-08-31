@@ -494,7 +494,8 @@
       "invalidLessonMeta": "Pick both a class level and a class type for every slot.",
       "taxonomyMissingWarning": "You have no class levels or types yet. Add them under Taxonomy first.",
       "classOffer": "Class offer",
-      "freeTrialOffering": "Free trial"
+      "freeTrialOffering": "Free trial",
+      "availabilityWindowHint": "You can set availability up to {date} — the current month plus the next two. The month after opens automatically when the month changes."
     },
     "quickReview": {
       "title": "Quick review",

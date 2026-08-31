@@ -8,6 +8,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { ModalShell } from "@/components/ui/modal-shell";
+import { availabilityWindowEndDayKey } from "@/lib/availability-window";
 
 export type TaxonomyOption = {
   id: string;
@@ -119,6 +120,10 @@ function TeacherAvailabilityAddModalInner({
 
   const noTaxonomy = classLevels.length === 0 || classTypes.length === 0 || lessonOfferings.length === 0;
   const invalidDateRange = Boolean(draft.startsOn && draft.endsOn && draft.startsOn > draft.endsOn);
+  // The same ceiling the API enforces, so the picker cannot offer a date the
+  // save would then reject.
+  const windowEndDayKey = availabilityWindowEndDayKey(new Date(), draft.timezone);
+  const windowHint = tModal("availabilityWindowHint", { date: windowEndDayKey });
   const offerById = new Map(lessonOfferings.map((offer) => [offer.id, offer]));
   const formatOfferingLabel = (offer: TeacherLessonOfferingOption) => {
     // A trial is its own kind of slot, not a class at a price of zero — naming
@@ -200,11 +205,12 @@ function TeacherAvailabilityAddModalInner({
                 )}
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={tModal("fromDate")}>
+                <Field label={tModal("fromDate")} hint={windowHint}>
                   {(field) => (
                     <Input
                       {...field}
                       type="date"
+                      max={windowEndDayKey}
                       value={draft.startsOn ?? dayKey}
                       onChange={(e) => {
                         const startsOn = e.target.value;
@@ -228,6 +234,7 @@ function TeacherAvailabilityAddModalInner({
                     <Input
                       {...field}
                       type="date"
+                      max={windowEndDayKey}
                       value={draft.endsOn ?? ""}
                       onChange={(e) =>
                         setDraft((d) => ({ ...d, endsOn: e.target.value || null }))
@@ -238,11 +245,12 @@ function TeacherAvailabilityAddModalInner({
               </div>
             </>
           ) : (
-            <Field label={tModal("date")}>
+            <Field label={tModal("date")} hint={windowHint}>
               {(field) => (
                 <Input
                   {...field}
                   type="date"
+                  max={windowEndDayKey}
                   value={draft.startsOn ?? dayKey}
                   onChange={(e) => {
                     const startsOn = e.target.value;
