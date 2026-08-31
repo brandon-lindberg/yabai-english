@@ -3,6 +3,7 @@ import {
   expandRecurringOccurrencesInRange,
   type RecurrencePattern,
 } from "@/lib/recurring-slot-occurrences";
+import { availabilityWindowEndDayKey } from "@/lib/availability-window";
 
 const DEFAULT_AVAILABILITY_HORIZON_DAYS = 365;
 
@@ -63,9 +64,17 @@ export function buildUpcomingSlotOptions({
   for (const slot of availabilitySlots) {
     const zoneNow = nowUtc.setZone(slot.timezone);
     const zoneRangeStart = zoneNow.startOf("day");
-    const zoneRangeEnd = zoneRangeStart
+    const horizonEnd = zoneRangeStart
       .plus({ days: Math.max(0, horizonDays - 1) })
       .endOf("day");
+    // The publishing window is a ceiling no caller can raise: an open-ended
+    // weekly slot would otherwise repeat for as long as the horizon allows, and
+    // a teacher who stops using the app would keep taking bookings for it.
+    const windowEnd = DateTime.fromISO(
+      availabilityWindowEndDayKey(nowUtc.toJSDate(), slot.timezone),
+      { zone: slot.timezone },
+    ).endOf("day");
+    const zoneRangeEnd = horizonEnd < windowEnd ? horizonEnd : windowEnd;
 
     const occurrences = expandRecurringOccurrencesInRange(
       {

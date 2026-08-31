@@ -1,3 +1,9 @@
+/**
+ * How far ahead a student must book. Teachers and admins can waive it with a
+ * written reason, but nothing else can.
+ */
+export const BOOKING_MINIMUM_LEAD_HOURS = 48;
+
 export function isBookingOutsideLeadWindow({
   start,
   now = new Date(),

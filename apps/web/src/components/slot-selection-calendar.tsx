@@ -81,6 +81,8 @@ type Props = {
   onCalendarViewChange: (view: CalendarViewMode) => void;
   calendarAnchor: string;
   onCalendarAnchorChange: (iso: string) => void;
+  /** Stops forward navigation, e.g. at the end of a publishing window. */
+  nextDisabled?: boolean;
   selectedStartsAtIso: string | null;
   /** Prefer matching `groupKey` when both this and `selectedStartsAtIso` are used. */
   selectedGroupKey?: string | null;
@@ -88,6 +90,8 @@ type Props = {
   /** When set, week columns show an add control for that calendar day. */
   weekColumnAddLabel?: string;
   onAddForDayKey?: (dayKey: string) => void;
+  /** Days that may still take an addition. Absent means all of them. */
+  canAddForDayKey?: (dayKey: string) => boolean;
   /**
    * When set, clicking a day in month view calls this instead of switching to day view
    * (e.g. teacher availability opens an add modal).
@@ -113,11 +117,13 @@ export function SlotSelectionCalendar({
   onCalendarViewChange,
   calendarAnchor,
   onCalendarAnchorChange,
+  nextDisabled,
   selectedStartsAtIso,
   selectedGroupKey = null,
   onSelectSlot,
   weekColumnAddLabel,
   onAddForDayKey,
+  canAddForDayKey,
   onMonthDayClick,
   dayViewExtra,
   weekViewReplacement = null,
@@ -197,6 +203,7 @@ export function SlotSelectionCalendar({
       onNext={() =>
         onCalendarAnchorChange(shiftCalendarAnchor(calendarAnchor, calendarView, 1, timeZone))
       }
+      nextDisabled={nextDisabled}
       copy={copy}
     >
       {calendarView === "day" &&
@@ -252,7 +259,8 @@ export function SlotSelectionCalendar({
             days={weekDays}
             dayAction={
               onAddForDayKey && weekColumnAddLabel
-                ? (day) => (
+                ? (day) =>
+                    canAddForDayKey && !canAddForDayKey(day.dayKey) ? null : (
                     <button
                       type="button"
                       onClick={() => onAddForDayKey(day.dayKey)}
@@ -337,7 +345,8 @@ export function SlotSelectionCalendar({
             dayAction={
               onAddForDayKey && weekColumnAddLabel
                 ? (cell) =>
-                    cell.inCurrentMonth ? (
+                    cell.inCurrentMonth &&
+                    (canAddForDayKey ? canAddForDayKey(cell.dayKey) : true) ? (
                       <button
                         type="button"
                         data-month-day-add={cell.dayKey}

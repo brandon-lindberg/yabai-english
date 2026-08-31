@@ -56,6 +56,12 @@ type FieldProps = {
   label: string;
   /** Rendered below the control unless an error replaces it. */
   hint?: string | null;
+  /**
+   * `notice` for a hint that reports something unusual about this particular
+   * field — a rule that applies here and not on a normal day. Muted grey reads
+   * as boilerplate and gets skipped, which is exactly wrong for those.
+   */
+  hintTone?: "muted" | "notice";
   error?: string | null;
   required?: boolean;
   /** Visually hides the label while leaving it available to screen readers. */
@@ -89,6 +95,7 @@ type FieldProps = {
 export function Field({
   label,
   hint,
+  hintTone = "muted",
   error,
   required = false,
   hideLabel = false,
@@ -154,7 +161,14 @@ export function Field({
           {error}
         </p>
       ) : hint ? (
-        <p id={hintId} className="text-sm text-muted">
+        <p
+          id={hintId}
+          className={
+            hintTone === "notice"
+              ? "text-sm font-semibold text-foreground"
+              : "text-sm text-muted"
+          }
+        >
           {hint}
         </p>
       ) : null}

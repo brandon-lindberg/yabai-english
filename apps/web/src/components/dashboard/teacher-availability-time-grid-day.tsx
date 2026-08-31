@@ -24,6 +24,7 @@ type Props = {
   onCalendarAnchorChange: (iso: string) => void;
   weekColumnAddLabel?: string;
   onAddForDayKey?: (dayKey: string) => void;
+  canAddForDayKey?: (dayKey: string) => boolean;
   footer?: ReactNode;
   emptyLabel: string;
   /** Line shown on booked blocks (e.g. “Reserved”). */
@@ -43,6 +44,7 @@ export function TeacherAvailabilityTimeGridDay({
   onCalendarAnchorChange,
   weekColumnAddLabel,
   onAddForDayKey,
+  canAddForDayKey,
   footer,
   emptyLabel,
   reservedBookingLabel,
@@ -85,7 +87,9 @@ export function TeacherAvailabilityTimeGridDay({
           <div className="min-w-0 flex-1 bg-surface">
             <div className="sticky top-0 z-20 flex h-[52px] items-center justify-between border-b border-border bg-surface px-2 py-1">
               <p className="text-sm font-semibold text-foreground">{dayHeading}</p>
-              {onAddForDayKey && weekColumnAddLabel ? (
+              {onAddForDayKey &&
+              weekColumnAddLabel &&
+              (canAddForDayKey ? canAddForDayKey(dayKey) : true) ? (
                 <button
                   type="button"
                   onClick={() => onAddForDayKey(dayKey)}

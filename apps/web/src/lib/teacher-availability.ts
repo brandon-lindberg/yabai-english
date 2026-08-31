@@ -38,7 +38,17 @@ export const teacherAvailabilitySlotSchema = z
   .refine((v) => !v.startsOn || !v.endsOn || v.startsOn <= v.endsOn, {
     message: "endsOn must be on or after startsOn",
     path: ["endsOn"],
-  });
+  })
+  // A recurring slot with no end date outlives the teacher's attention: it goes
+  // on taking bookings long after they stop opening the app. Every weekly slot
+  // carries an end date the teacher has to return and extend.
+  .refine(
+    (v) => v.recurrence === "ONE_OFF" || (typeof v.endsOn === "string" && v.endsOn.length > 0),
+    {
+      message: "WEEKLY recurrence requires endsOn",
+      path: ["endsOn"],
+    },
+  );
 
 export const teacherAvailabilitySchema = z.array(teacherAvailabilitySlotSchema).max(100);
 

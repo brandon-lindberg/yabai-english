@@ -13,6 +13,10 @@ import {
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 import { dateOnlyToUtcDateInZone } from "@/lib/date-only-in-zone";
+import {
+  availabilityWindowEndDayKey,
+  isWithinAvailabilityWindow,
+} from "@/lib/availability-window";
 import { canTeacherPublishAvailability, resolveTeacherPublishAvailabilityOptions } from "@/lib/payment-methods";
 
 export async function GET() {
@@ -68,6 +72,27 @@ export async function PATCH(req: Request) {
   const parsed = teacherAvailabilitySchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
+
+  // Availability may only be published inside the rolling three-calendar-month
+  // window. Checked here rather than in the zod schema because the schema is
+  // pure and the window depends on the current date.
+  const now = new Date();
+  const outOfWindow = parsed.data.find(
+    (slot) =>
+      (slot.startsOn && !isWithinAvailabilityWindow(slot.startsOn, now, slot.timezone)) ||
+      (slot.endsOn && !isWithinAvailabilityWindow(slot.endsOn, now, slot.timezone)),
+  );
+  if (outOfWindow) {
+    return NextResponse.json(
+      {
+        error: `Availability can only be set up to ${availabilityWindowEndDayKey(
+          now,
+          outOfWindow.timezone,
+        )}.`,
+      },
+      { status: 400 },
+    );
   }
 
   const userId = session.user.id;

@@ -61,6 +61,8 @@ function renderTeacherCalendar({
 
 describe("TeacherAvailabilityCalendar", () => {
   beforeEach(() => {
+    // The 48-hour booking lead time means the first addable day is 2026-04-17,
+    // so these tests work on 2026-04-18.
     vi.useFakeTimers({ now: new Date("2026-04-15T12:00:00.000Z") });
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 200 })));
   });
@@ -75,7 +77,7 @@ describe("TeacherAvailabilityCalendar", () => {
 
     expect(screen.getByTestId("google-month-grid")).toBeInTheDocument();
 
-    fireEvent.click(document.querySelector('[data-day-key="2026-04-16"]')!);
+    fireEvent.click(document.querySelector('[data-day-key="2026-04-18"]')!);
 
     expect(
       screen.getByRole("button", { name: en.dashboard.teacherAvailability.addForThisDay }),
@@ -83,7 +85,7 @@ describe("TeacherAvailabilityCalendar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: en.dashboard.calendarMonth }));
 
-    fireEvent.click(document.querySelector('[data-month-day-add="2026-04-16"]')!);
+    fireEvent.click(document.querySelector('[data-month-day-add="2026-04-18"]')!);
 
     expect(
       screen.getByRole("dialog", { name: en.dashboard.teacherAvailability.monthAddModalTitle }),
@@ -93,7 +95,7 @@ describe("TeacherAvailabilityCalendar", () => {
   test("adding availability saves a one-off slot by default", async () => {
     renderTeacherCalendar();
 
-    fireEvent.click(document.querySelector('[data-month-day-add="2026-04-16"]')!);
+    fireEvent.click(document.querySelector('[data-month-day-add="2026-04-18"]')!);
     const dialog = screen.getByRole("dialog", {
       name: en.dashboard.teacherAvailability.monthAddModalTitle,
     });
@@ -112,7 +114,7 @@ describe("TeacherAvailabilityCalendar", () => {
     const body = JSON.parse(String(init?.body));
     expect(body[0]).toMatchObject({
       recurrence: "ONE_OFF",
-      startsOn: "2026-04-16",
+      startsOn: "2026-04-18",
     });
   });
 
@@ -159,13 +161,13 @@ describe("TeacherAvailabilityCalendar", () => {
   test("the repeat toggle saves a weekly slot with From and Until bounds", async () => {
     renderTeacherCalendar();
 
-    fireEvent.click(document.querySelector('[data-month-day-add="2026-04-16"]')!);
+    fireEvent.click(document.querySelector('[data-month-day-add="2026-04-18"]')!);
     const dialog = screen.getByRole("dialog", {
       name: en.dashboard.teacherAvailability.monthAddModalTitle,
     });
     fireEvent.click(within(dialog).getByRole("switch"));
     expect(within(dialog).getByRole("switch")).toHaveAttribute("aria-checked", "true");
-    expect(within(dialog).getByLabelText("From")).toHaveValue("2026-04-16");
+    expect(within(dialog).getByLabelText("From")).toHaveValue("2026-04-18");
     fireEvent.change(within(dialog).getByLabelText("Until"), {
       target: { value: "2026-06-16" },
     });
@@ -183,8 +185,8 @@ describe("TeacherAvailabilityCalendar", () => {
     const body = JSON.parse(String(init?.body));
     expect(body[0]).toMatchObject({
       recurrence: "WEEKLY",
-      dayOfWeek: 4,
-      startsOn: "2026-04-16",
+      dayOfWeek: 6,
+      startsOn: "2026-04-18",
       endsOn: "2026-06-16",
     });
   });

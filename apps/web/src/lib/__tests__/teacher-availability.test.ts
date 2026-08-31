@@ -8,6 +8,9 @@ const baseSlot = {
   teacherLessonOfferingId: "offer-conv-40",
 };
 
+/** Weekly slots must be bounded, so a valid weekly fixture carries an end. */
+const weeklyEnd = { endsOn: "2026-10-31" };
+
 describe("teacherAvailabilitySchema", () => {
   test("rejects end time at or before start on the same day (e.g. noon to midnight)", () => {
     expect(
@@ -25,7 +28,7 @@ describe("teacherAvailabilitySchema", () => {
   test("accepts end after start on the same calendar day", () => {
     expect(
       teacherAvailabilitySchema.safeParse([
-        { dayOfWeek: 1, startMin: 10 * 60, endMin: 12 * 60, ...baseSlot },
+        { dayOfWeek: 1, startMin: 10 * 60, endMin: 12 * 60, ...baseSlot, ...weeklyEnd },
       ]).success,
     ).toBe(true);
   });
@@ -83,6 +86,7 @@ describe("teacherAvailabilitySchema", () => {
           classLevelId: "lvl-adv",
           classTypeId: "ty-biz",
           teacherLessonOfferingId: "offer-biz-60",
+          ...weeklyEnd,
         },
       ]).success,
     ).toBe(true);
@@ -115,7 +119,9 @@ describe("teacherAvailabilitySchema", () => {
     ).toBe(false);
   });
 
-  test("accepts weekly slots without date bounds", () => {
+  test("rejects a weekly slot with no end date", () => {
+    // An unbounded recurring slot keeps taking bookings after a teacher stops
+    // using the app; extending it has to be a deliberate act.
     expect(
       teacherAvailabilitySchema.safeParse([
         {
@@ -124,6 +130,38 @@ describe("teacherAvailabilitySchema", () => {
           endMin: 11 * 60,
           recurrence: "WEEKLY",
           ...baseSlot,
+          endsOn: null,
+        },
+      ]).success,
+    ).toBe(false);
+  });
+
+  test("accepts a weekly slot that carries an end date", () => {
+    expect(
+      teacherAvailabilitySchema.safeParse([
+        {
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          recurrence: "WEEKLY",
+          ...baseSlot,
+          ...weeklyEnd,
+        },
+      ]).success,
+    ).toBe(true);
+  });
+
+  test("a one-off slot needs no end date", () => {
+    expect(
+      teacherAvailabilitySchema.safeParse([
+        {
+          dayOfWeek: 1,
+          startMin: 10 * 60,
+          endMin: 11 * 60,
+          recurrence: "ONE_OFF",
+          ...baseSlot,
+          startsOn: "2026-10-05",
+          endsOn: null,
         },
       ]).success,
     ).toBe(true);

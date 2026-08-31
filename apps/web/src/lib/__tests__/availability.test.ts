@@ -154,3 +154,65 @@ describe("buildUpcomingSlotOptions", () => {
     expect(slots[0]?.label.endsWith(" · B1 · Grammar")).toBe(true);
   });
 });
+
+describe("the three-month publishing window caps every horizon", () => {
+  const slot = {
+    id: "slot-1",
+    dayOfWeek: 1,
+    startMin: 10 * 60,
+    endMin: 11 * 60,
+    timezone: "Asia/Tokyo",
+    recurrence: "WEEKLY" as const,
+    startsOn: null,
+    endsOn: null,
+    classLevelId: null,
+    classTypeId: null,
+    teacherLessonOfferingId: null,
+  };
+
+  // Unbounded rows can no longer be created; this is the backstop for anything
+  // that predates the rule or arrives by some other path.
+  test("a row with no end date is still capped at the window", () => {
+    const options = buildUpcomingSlotOptions({
+      availabilitySlots: [slot],
+      viewerTimezone: "Asia/Tokyo",
+      now: new Date("2026-08-31T00:00:00Z"),
+    });
+
+    const last = options.at(-1)!.startsAtIso;
+    expect(options.length).toBeGreaterThan(0);
+    expect(last < "2026-11-01").toBe(true);
+    expect(last > "2026-10-01").toBe(true);
+  });
+
+  test("a caller asking for a longer horizon still cannot reach past the window", () => {
+    const options = buildUpcomingSlotOptions({
+      availabilitySlots: [slot],
+      viewerTimezone: "Asia/Tokyo",
+      now: new Date("2026-08-31T00:00:00Z"),
+      horizonDays: 400,
+    });
+
+    expect(options.at(-1)!.startsAtIso < "2026-11-01").toBe(true);
+  });
+
+  test("a slot with a stored end date stops there and does not creep forward", () => {
+    const bounded = { ...slot, endsOn: "2026-10-31" };
+    const inAugust = buildUpcomingSlotOptions({
+      availabilitySlots: [bounded],
+      viewerTimezone: "Asia/Tokyo",
+      now: new Date("2026-08-31T00:00:00Z"),
+    });
+    const inSeptember = buildUpcomingSlotOptions({
+      availabilitySlots: [bounded],
+      viewerTimezone: "Asia/Tokyo",
+      now: new Date("2026-09-01T00:00:00Z"),
+    });
+
+    // The window moving does not extend a slot the teacher already bounded.
+    // Reaching further is a deliberate act, which is the whole point: a teacher
+    // who stops using the app stops being bookable.
+    expect(inAugust.at(-1)!.startsAtIso.slice(0, 7)).toBe("2026-10");
+    expect(inSeptember.at(-1)!.startsAtIso.slice(0, 7)).toBe("2026-10");
+  });
+});
