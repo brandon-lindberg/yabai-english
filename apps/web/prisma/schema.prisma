@@ -376,6 +376,10 @@ model TeacherProfile {
   offersFreeTrial            Boolean   @default(true)
   /// When true, profile is hidden from /book marketplace; only rostered students may book via direct link.
   marketplaceHidden          Boolean   @default(false)
+  /// 適格請求書発行事業者登録番号 (T + 13 digits). Teachers invoice their own
+  /// students, so the registration number is theirs. Null when a teacher is not
+  /// a registered issuer, in which case their documents omit the line.
+  invoiceRegistrationNumber  String?
   paymentPolicyAcceptedAt    DateTime?
   onboardingCompletedAt      DateTime?
   /// Steps the teacher explicitly skipped from the onboarding wizard.
@@ -810,6 +814,9 @@ model Refund {
   reason           String
   policyJson       Json?
   recoveryNote     String?
+  /// Number of the 適格返還請求書 issued for this refund. Assigned once the
+  /// refund succeeds, so a pending or failed refund carries no document.
+  creditNoteNo     String?       @unique
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 

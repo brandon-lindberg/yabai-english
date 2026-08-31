@@ -6,6 +6,7 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
     teacherProfile: { findUnique: vi.fn() },
     invoice: { findMany: vi.fn() },
     payment: { findMany: vi.fn() },
+    refund: { findMany: vi.fn() },
   },
 }));
 
@@ -22,6 +23,7 @@ describe("GET /api/teacher/invoices/export", () => {
     prismaMock.payment.findMany.mockResolvedValue([
       { bookingId: "booking-1", method: "CARD" },
     ]);
+    prismaMock.refund.findMany.mockResolvedValue([]);
     prismaMock.invoice.findMany.mockResolvedValue([
       {
         invoiceNo: "INV-1",
@@ -130,8 +132,9 @@ describe("GET /api/teacher/invoices/export", () => {
     );
     const [, row1, row2] = body.split("\r\n");
     // INV-1 has no payment row; INV-2 does. Each must get its own answer.
-    expect(row1!.endsWith(",")).toBe(true);
-    expect(row2!.endsWith(",PayPay")).toBe(true);
+    // Six empty refund cells follow the payment method on an unrefunded row.
+    expect(row1!.endsWith(",,,,,,,")).toBe(true);
+    expect(row2!.endsWith(",PayPay,,,,,,")).toBe(true);
   });
 
   test("carries the payment date alongside the lesson date", async () => {
@@ -143,5 +146,35 @@ describe("GET /api/teacher/invoices/export", () => {
     expect(body).toContain("Payment date (Asia/Tokyo)");
     // Lesson ran on the 11th Tokyo time; it was paid on the 28th of April.
     expect(body).toContain(",2026-05-11,2026-04-28,");
+  });
+
+  test("a refunded lesson carries its credit note and negative amounts", async () => {
+    prismaMock.refund.findMany.mockResolvedValue([
+      {
+        bookingId: "booking-1",
+        creditNoteNo: "CRN-1",
+        amountYen: 3300,
+        status: "SUCCEEDED",
+        createdAt: new Date("2026-05-12T02:00:00.000Z"),
+      },
+    ]);
+
+    const res = await GET(
+      new Request("http://localhost/api/teacher/invoices/export?studentId=all"),
+    );
+    const body = await res.text();
+
+    expect(body).toContain("Credit note number");
+    // The sale stays at full value and the return sits beside it, negative.
+    expect(body).toContain(",3000,300,3300,Credit card,CRN-1,2026-05-12,SUCCEEDED,-3000,-300,-3300");
+  });
+
+  test("looks refunds up in one query rather than one per invoice", async () => {
+    await GET(new Request("http://localhost/api/teacher/invoices/export?studentId=all"));
+
+    expect(prismaMock.refund.findMany).toHaveBeenCalledTimes(1);
+    expect(prismaMock.refund.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { bookingId: { in: ["booking-1"] } } }),
+    );
   });
 });

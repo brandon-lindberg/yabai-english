@@ -702,7 +702,11 @@
       "calendarConnectedToast": "Google Calendar connected successfully.",
       "calendarFailedToast": "Could not connect Google Calendar. Please try again.",
       "calendarSetupHint": "Connect Google Calendar there so confirmed bookings can create Meet links automatically."
-    }
+    },
+    "refundedLessons": "Refunded lessons",
+    "downloadCreditNoteEn": "Download credit note (English)",
+    "downloadCreditNoteJa": "Download credit note (Japanese)",
+    "noRefundedLessons": "No refunded lessons."
   },
   "admin": {
     "title": "Admin dashboard",

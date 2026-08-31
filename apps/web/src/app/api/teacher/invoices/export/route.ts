@@ -65,6 +65,26 @@ export async function GET(req: Request) {
     payments.map((payment) => [payment.bookingId, payment.method]),
   );
 
+  // One query for the refunds too. Newest first so a booking refunded more than
+  // once (a retry after a failure) reports the attempt that stands.
+  const refunds = await prisma.refund.findMany({
+    where: { bookingId: { in: invoices.map((inv) => inv.bookingId) } },
+    orderBy: { createdAt: "desc" },
+    select: {
+      bookingId: true,
+      creditNoteNo: true,
+      amountYen: true,
+      status: true,
+      createdAt: true,
+    },
+  });
+  const refundByBookingId = new Map<string, (typeof refunds)[number]>();
+  for (const refund of refunds) {
+    if (!refundByBookingId.has(refund.bookingId)) {
+      refundByBookingId.set(refund.bookingId, refund);
+    }
+  }
+
   const rows: TeacherInvoiceCsvRowInput[] = invoices.map((inv) => ({
     invoiceNo: inv.invoiceNo,
     teacherDisplay: inv.booking.teacher.user.name ?? inv.booking.teacher.user.email ?? "—",
@@ -75,6 +95,17 @@ export async function GET(req: Request) {
     paidAt: inv.paidAt,
     amountYenTaxIncluded: inv.amountYen,
     paymentMethod: methodByBookingId.get(inv.bookingId) ?? null,
+    refund: (() => {
+      const refund = refundByBookingId.get(inv.bookingId);
+      return refund
+        ? {
+            creditNoteNo: refund.creditNoteNo,
+            amountYen: refund.amountYen,
+            refundedAt: refund.createdAt,
+            status: refund.status,
+          }
+        : null;
+    })(),
   }));
 
   const csv = buildTeacherInvoicesCsv(rows);

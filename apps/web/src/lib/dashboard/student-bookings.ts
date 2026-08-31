@@ -10,11 +10,18 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
       lessonProduct: true,
       teacher: { include: { user: true } },
       invoice: true,
+      // Only settled refunds: one that failed or is still moving has no
+      // document to offer the student yet.
+      refunds: {
+        where: { status: "SUCCEEDED" },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, creditNoteNo: true, amountYen: true, createdAt: true },
+      },
     },
   });
 
   const now = new Date();
-  const { upcoming, completed } = groupBookingsForDashboard(bookings, now);
+  const { upcoming, completed, refunded } = groupBookingsForDashboard(bookings, now);
   // By teacher, then newest first — the order the grouped history relies on.
   const completedSorted = sortStudentCompletedBookings(completed);
   const toScheduleItem = (b: (typeof bookings)[number], past: boolean) => ({
@@ -32,5 +39,5 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
     ...completedSorted.map((b) => toScheduleItem(b, true)),
   ];
 
-  return { bookings, upcoming, completed: completedSorted, scheduleItems };
+  return { bookings, upcoming, completed: completedSorted, refunded, scheduleItems };
 }

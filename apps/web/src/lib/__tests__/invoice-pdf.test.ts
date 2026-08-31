@@ -272,4 +272,100 @@ describe("buildInvoicePdf", () => {
     expect(drawnTexts).not.toContain("Payment Method:");
     expect(drawnTexts).toContain("Invoice Date:");
   });
+
+  test("renders a qualified return invoice for a refund", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-2025-05-24-001",
+      amountYen: 3300,
+      paidAt: "May 24, 2025",
+      studentName: "田中 ゆき",
+      className: "初級英会話",
+      durationMin: 30,
+      lessonDate: "2025年5月24日",
+      language: "ja",
+      teacherName: "佐藤 美香",
+      paymentMethod: "CARD",
+      registrationNumber: "T1234567890123",
+      creditNote: {
+        creditNoteNo: "CRN-20260901-101500-AB12",
+        refundedAt: "2026年9月1日",
+      },
+    });
+
+    // 適格返還請求書 must carry: the issuer's registration number, the date of
+    // the return, the date of the original transaction, what was returned, and
+    // the amount and tax split by rate.
+    expect(drawnTexts).toEqual(
+      expect.arrayContaining([
+        "適格返還請求書",
+        "登録番号: T1234567890123",
+        "返還年月日:",
+        "2026年9月1日",
+        "対象請求書:",
+        "INV-2025-05-24-001",
+        "元取引年月日:",
+        "初級英会話",
+        "税抜金額",
+        "消費税 (10%)",
+      ]),
+    );
+  });
+
+  test("shows returned amounts as negative so a credit note cannot read as a sale", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-1",
+      amountYen: 3300,
+      paidAt: "May 24, 2025",
+      studentName: "Yuki Tanaka",
+      className: "Beginner Conversation",
+      durationMin: 30,
+      lessonDate: "May 24, 2025",
+      language: "en",
+      teacherName: "Mika Sato",
+      paymentMethod: "CARD",
+      creditNote: { creditNoteNo: "CRN-1", refundedAt: "September 1, 2026" },
+    });
+
+    expect(drawnTexts).toEqual(
+      expect.arrayContaining(["CREDIT NOTE", "-¥3,300", "-¥3,000", "-¥300"]),
+    );
+    expect(drawnTexts).not.toContain("¥3,300");
+  });
+
+  test("omits the registration line when the teacher is not a registered issuer", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-1",
+      amountYen: 3300,
+      paidAt: "May 24, 2025",
+      studentName: "Yuki Tanaka",
+      className: "Beginner Conversation",
+      durationMin: 30,
+      lessonDate: "May 24, 2025",
+      language: "en",
+      teacherName: "Mika Sato",
+      paymentMethod: "CARD",
+      creditNote: { creditNoteNo: "CRN-1", refundedAt: "September 1, 2026" },
+    });
+
+    expect(drawnTexts.join(" ")).not.toContain("Registration No.");
+  });
+
+  test("an ordinary invoice is unchanged and still shows positive amounts", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-1",
+      amountYen: 3300,
+      paidAt: "May 24, 2025",
+      studentName: "Yuki Tanaka",
+      className: "Beginner Conversation",
+      durationMin: 30,
+      lessonDate: "May 24, 2025",
+      language: "en",
+      teacherName: "Mika Sato",
+      paymentMethod: "CARD",
+    });
+
+    expect(drawnTexts).toContain("INVOICE");
+    expect(drawnTexts).toContain("¥3,300");
+    expect(drawnTexts).not.toContain("CREDIT NOTE");
+  });
 });

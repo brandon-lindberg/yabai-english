@@ -5,6 +5,7 @@ import { constructStripeWebhookEvent } from "@/lib/stripe/stripe-connect";
 import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-booking-from-stripe-checkout";
 import { mapStripeRefundStatus } from "@/lib/payment-refunds";
 import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
+import { ensureCreditNoteNumber } from "@/lib/credit-notes";
 
 type StripeEventLike = {
   id: string;
@@ -120,6 +121,11 @@ async function handleRefundStatusChanged(event: StripeEventLike) {
   }
 
   await prisma.refund.updateMany({ where, data: { status } });
+  if (status === "SUCCEEDED") {
+    // The money has gone back, so the return now has a document to name.
+    const settled = await prisma.refund.findFirst({ where, select: { id: true } });
+    if (settled) await ensureCreditNoteNumber(settled.id);
+  }
   return NextResponse.json({ ok: true, refundStatus: status });
 }
 

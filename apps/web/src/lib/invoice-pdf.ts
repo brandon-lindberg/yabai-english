@@ -31,6 +31,14 @@ let japaneseBoldFontBytes: Promise<Uint8Array> | undefined;
 const invoiceCopy = {
   en: {
     title: "INVOICE",
+    creditNoteTitle: "CREDIT NOTE",
+    creditNoteNoLabel: "Credit Note No.:",
+    againstInvoiceLabel: "Against invoice:",
+    refundDateLabel: "Refund Date:",
+    originalDateLabel: "Original Invoice Date:",
+    registrationNumberLabel: "Registration No.:",
+    creditNoteNote:
+      "This document records a return of consideration for the lesson below. The amounts are negative.",
     dateLabel: "Invoice Date:",
     paymentMethodLabel: "Payment Method:",
     issuerRole: "English Instructor",
@@ -48,6 +56,14 @@ const invoiceCopy = {
   },
   ja: {
     title: "請求書",
+    creditNoteTitle: "適格返還請求書",
+    creditNoteNoLabel: "返還請求書番号:",
+    againstInvoiceLabel: "対象請求書:",
+    refundDateLabel: "返還年月日:",
+    originalDateLabel: "元取引年月日:",
+    registrationNumberLabel: "登録番号:",
+    creditNoteNote:
+      "本書は下記レッスンに係る対価の返還等を記録するものです。金額はマイナス表示です。",
     dateLabel: "請求日:",
     paymentMethodLabel: "お支払い方法:",
     issuerRole: "英語講師",
@@ -68,6 +84,13 @@ const invoiceCopy = {
   InvoicePdfLanguage,
   {
     title: string;
+    creditNoteTitle: string;
+    creditNoteNoLabel: string;
+    againstInvoiceLabel: string;
+    refundDateLabel: string;
+    originalDateLabel: string;
+    registrationNumberLabel: string;
+    creditNoteNote: string;
     dateLabel: string;
     paymentMethodLabel: string;
     issuerRole: string;
@@ -98,6 +121,18 @@ export async function buildInvoicePdf(input: {
   teacherName: string;
   /** Omitted when the booking has no recorded payment. */
   paymentMethod?: TeacherPaymentMethodType | null;
+  /** 適格請求書発行事業者登録番号, when the teacher is a registered issuer. */
+  registrationNumber?: string | null;
+  /**
+   * Present when this document records a refund rather than a sale, turning it
+   * into a 適格返還請求書: the same lesson, referencing the invoice it reverses,
+   * with every amount negative.
+   */
+  creditNote?: {
+    creditNoteNo: string;
+    /** 返還年月日 — the date the money went back. */
+    refundedAt: string;
+  } | null;
 }): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const page = doc.addPage([595, 842]); // A4
@@ -116,9 +151,10 @@ export async function buildInvoicePdf(input: {
   const mint = rgb(0.86, 0.94, 0.92);
   const lineColor = rgb(0.78, 0.8, 0.84);
   const white = rgb(1, 1, 1);
+  const isCreditNote = Boolean(input.creditNote);
   const totals = calculateTaxIncludedInvoiceTotals(input.amountYen);
   const formatYen = (amountYen: number) =>
-    `¥${amountYen.toLocaleString("ja-JP")}`;
+    `${isCreditNote ? "-" : ""}¥${amountYen.toLocaleString("ja-JP")}`;
   const drawRightText = (
     text: string,
     rightX: number,
@@ -152,15 +188,38 @@ export async function buildInvoicePdf(input: {
     font,
     color: gray,
   });
+  // A qualified invoice or return invoice must name the issuer's registration
+  // number. A teacher who is not a registered issuer simply has no line.
+  if (input.registrationNumber) {
+    page.drawText(`${copy.registrationNumberLabel} ${input.registrationNumber}`, {
+      x: margin + 58,
+      y: y - 40,
+      size: 9,
+      font,
+      color: gray,
+    });
+  }
 
-  page.drawText(copy.title, {
-    x: width - margin - 152,
-    y: y - 4,
-    size: 30,
-    font: fontBold,
-    color: navy,
-  });
-  drawRightText(input.invoiceNo, width - margin, y - 28, 10, latinFont, black);
+  // Right-aligned rather than placed: the title is a different width in each
+  // language, and "適格返還請求書" is twice the width of "請求書".
+  drawRightText(
+    isCreditNote ? copy.creditNoteTitle : copy.title,
+    width - margin,
+    y - 4,
+    30,
+    fontBold,
+    navy,
+  );
+  // The document's own number, not the one it refers to — a credit note names
+  // the invoice it reverses in the meta block below.
+  drawRightText(
+    input.creditNote?.creditNoteNo ?? input.invoiceNo,
+    width - margin,
+    y - 34,
+    10,
+    latinFont,
+    black,
+  );
 
   y -= 72;
   page.drawLine({
@@ -171,38 +230,27 @@ export async function buildInvoicePdf(input: {
   });
 
   y -= 28;
-  page.drawText(copy.dateLabel, {
-    x: width - margin - 160,
-    y,
-    size: 10,
-    font,
-    color: black,
-  });
-  page.drawText(input.paidAt, {
-    x: width - margin - 70,
-    y,
-    size: 10,
-    font,
-    color: black,
-  });
+  const drawMetaRow = (label: string, value: string, textFont = font) => {
+    page.drawText(label, { x: width - margin - 190, y, size: 10, font, color: black });
+    page.drawText(value, { x: width - margin - 90, y, size: 10, font: textFont, color: black });
+    y -= 18;
+  };
+
+  if (input.creditNote) {
+    drawMetaRow(copy.creditNoteNoLabel, input.creditNote.creditNoteNo, latinFont);
+    drawMetaRow(copy.refundDateLabel, input.creditNote.refundedAt);
+    drawMetaRow(copy.againstInvoiceLabel, input.invoiceNo, latinFont);
+    drawMetaRow(copy.originalDateLabel, input.paidAt);
+    y += 18;
+  } else {
+    drawMetaRow(copy.dateLabel, input.paidAt);
+    y += 18;
+  }
 
   if (input.paymentMethod) {
     y -= 18;
-    page.drawText(copy.paymentMethodLabel, {
-      x: width - margin - 160,
-      y,
-      size: 10,
-      font,
-      color: black,
-    });
-    page.drawText(paymentMethodLabel(input.paymentMethod, language), {
-      x: width - margin - 70,
-      y,
-      size: 10,
-      font,
-      color: black,
-    });
-    y -= 52;
+    drawMetaRow(copy.paymentMethodLabel, paymentMethodLabel(input.paymentMethod, language));
+    y -= 34;
   } else {
     y -= 70;
   }
@@ -214,13 +262,10 @@ export async function buildInvoicePdf(input: {
     color: navy,
   });
   y -= 20;
-  page.drawText(copy.thankYou(input.teacherName), {
-    x: margin + 52,
-    y,
-    size: 10,
-    font,
-    color: black,
-  });
+  page.drawText(
+    isCreditNote ? copy.creditNoteNote : copy.thankYou(input.teacherName),
+    { x: margin + 52, y, size: 10, font, color: black },
+  );
 
   y -= 42;
   const tableX = margin;
@@ -364,13 +409,15 @@ export async function buildInvoicePdf(input: {
     font,
     color: black,
   });
-  page.drawText(copy.thankYou(input.teacherName), {
-    x: margin + 40,
-    y: y + 20,
-    size: 10,
-    font,
-    color: black,
-  });
+  if (!isCreditNote) {
+    page.drawText(copy.thankYou(input.teacherName), {
+      x: margin + 40,
+      y: y + 20,
+      size: 10,
+      font,
+      color: black,
+    });
+  }
 
   const drawCenteredText = (
     text: string,

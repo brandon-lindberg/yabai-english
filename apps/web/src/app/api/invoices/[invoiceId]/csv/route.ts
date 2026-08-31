@@ -36,6 +36,13 @@ export async function GET(_req: Request, { params }: Props) {
     where: { bookingId: invoice.bookingId },
     select: { method: true },
   });
+  // Newest first, so a booking refunded more than once reports the attempt
+  // that stands rather than a superseded one.
+  const refund = await prisma.refund.findFirst({
+    where: { bookingId: invoice.bookingId },
+    orderBy: { createdAt: "desc" },
+    select: { creditNoteNo: true, amountYen: true, status: true, createdAt: true },
+  });
   const totals = calculateTaxIncludedInvoiceTotals(invoice.amountYen);
   const studentName = invoice.student.name ?? invoice.student.email ?? "Student";
 
@@ -57,6 +64,14 @@ export async function GET(_req: Request, { params }: Props) {
       invoice.booking.teacher.user.email ??
       "Teacher",
     paymentMethod: payment?.method ?? null,
+    refund: refund
+      ? {
+          creditNoteNo: refund.creditNoteNo,
+          amountYen: refund.amountYen,
+          refundedAtIso: refund.createdAt.toISOString(),
+          status: refund.status,
+        }
+      : null,
   });
 
   return new NextResponse(csv, {
