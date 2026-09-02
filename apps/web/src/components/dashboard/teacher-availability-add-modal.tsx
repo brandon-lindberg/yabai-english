@@ -32,7 +32,11 @@ export type TeacherAvailabilityAddModalDraft = {
   classLevelId: string;
   classTypeId: string;
   teacherLessonOfferingId: string;
+  /** Reserves the slot for one student; null means open to everyone. */
+  assignedStudentId: string | null;
 };
+
+export type AssignableStudentOption = { id: string; label: string };
 
 export type TeacherLessonOfferingOption = {
   id: string;
@@ -63,6 +67,8 @@ type Props = {
   endLabel: string;
   timezoneLabel: string;
   classLevels: TaxonomyOption[];
+  /** The teacher's own students, for reserving a slot. */
+  assignableStudents?: AssignableStudentOption[];
   classTypes: TaxonomyOption[];
   lessonOfferings: TeacherLessonOfferingOption[];
 };
@@ -103,6 +109,7 @@ function TeacherAvailabilityAddModalInner({
   endLabel,
   timezoneLabel,
   classLevels,
+  assignableStudents = [],
   classTypes,
   lessonOfferings,
 }: InnerProps) {
@@ -117,6 +124,7 @@ function TeacherAvailabilityAddModalInner({
     recurrence: "ONE_OFF",
     startsOn: dayKey,
     endsOn: null,
+    assignedStudentId: null,
     classLevelId: defaultOffering?.classLevelId ?? classLevels[0]?.id ?? "",
     classTypeId: defaultOffering?.classTypeId ?? classTypes[0]?.id ?? "",
     teacherLessonOfferingId: defaultOffering?.id ?? "",
@@ -290,6 +298,27 @@ function TeacherAvailabilityAddModalInner({
               )}
             </Field>
           )}
+
+          {assignableStudents.length > 0 ? (
+            <Field label={tModal("reservedForLabel")} hint={tModal("reservedForHint")}>
+              {(field) => (
+                <Select
+                  {...field}
+                  value={draft.assignedStudentId ?? ""}
+                  onChange={(e) =>
+                    setDraft((d) => ({ ...d, assignedStudentId: e.target.value || null }))
+                  }
+                >
+                  <option value="">{tModal("reservedForEveryone")}</option>
+                  {assignableStudents.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {student.label}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+          ) : null}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={startLabel}>

@@ -7,6 +7,7 @@ import { buildUpcomingSlotOptions } from "@/lib/availability";
 import { weekdayLabel } from "@/lib/weekdays";
 import {
   TeacherAvailabilityAddModal,
+  type AssignableStudentOption,
   type TeacherLessonOfferingOption,
 } from "@/components/dashboard/teacher-availability-add-modal";
 import { TeacherAvailabilityRemoveModal } from "@/components/dashboard/teacher-availability-remove-modal";
@@ -61,6 +62,13 @@ export type InitialTeacherAvailabilitySlot = {
   classLevelId: string | null;
   classTypeId: string | null;
   teacherLessonOfferingId: string | null;
+  /** Reserved for one student; null means open to everyone. */
+  assignedStudentId: string | null;
+  /**
+   * Only ever populated for the teacher who owns the availability. Lessons are
+   * private: nobody else learns who a slot is reserved for.
+   */
+  assignedStudentName?: string | null;
   classLevel: TaxonomyOption | null;
   classType: TaxonomyOption | null;
 };
@@ -83,6 +91,8 @@ type Props = {
   initialOccurrenceSkips: string[];
   defaultTimezone: string;
   classLevels: TaxonomyOption[];
+  /** The teacher's own students, offered when reserving a slot. */
+  assignableStudents?: AssignableStudentOption[];
   classTypes: TaxonomyOption[];
   lessonOfferings: TeacherLessonOfferingOption[];
   /** Confirmed (or pending-payment) bookings to overlay on the schedule as "booked" blocks. */
@@ -155,6 +165,7 @@ export function TeacherAvailabilityCalendar({
   initialOccurrenceSkips,
   defaultTimezone,
   classLevels,
+  assignableStudents = [],
   classTypes,
   lessonOfferings,
   bookings = [],
@@ -230,7 +241,12 @@ export function TeacherAvailabilityCalendar({
     for (const r of rules) {
       const lvl = pickLabel(levelById.get(r.classLevelId ?? ""));
       const ty = pickLabel(typeById.get(r.classTypeId ?? ""));
-      metaBySlotId.set(r.id, [lvl, ty].filter(Boolean).join(" · "));
+      // A reserved slot leads with who it is for — that is what the teacher
+      // scans their week for.
+      const reserved = r.assignedStudentId
+        ? t("reservedForStudent", { name: r.assignedStudentName ?? "—" })
+        : "";
+      metaBySlotId.set(r.id, [reserved, lvl, ty].filter(Boolean).join(" · "));
     }
     const expanded = buildUpcomingSlotOptions({
       availabilitySlots: rules.map((r) => ({
@@ -258,7 +274,7 @@ export function TeacherAvailabilityCalendar({
       label: s.label,
       groupKey: s.slotId,
     }));
-  }, [rules, teacherTz, skipSet, levelById, typeById, pickLabel]);
+  }, [rules, teacherTz, skipSet, levelById, typeById, pickLabel, t]);
 
   const displayCalendarSlots = useMemo(
     () =>
@@ -822,6 +838,9 @@ export function TeacherAvailabilityCalendar({
         classLevelId: r.classLevelId ?? "",
         classTypeId: r.classTypeId ?? "",
         teacherLessonOfferingId: r.teacherLessonOfferingId ?? "",
+        // Saving replaces every row, so an assignment omitted here would be
+        // silently destroyed on the teacher's next unrelated edit.
+        assignedStudentId: r.assignedStudentId ?? null,
       };
       if (r.startsOn) slot.startsOn = r.startsOn;
       // A weekly slot saved before end dates were required arrives with none.
@@ -925,6 +944,7 @@ export function TeacherAvailabilityCalendar({
         classLevels={classLevels}
         classTypes={classTypes}
         lessonOfferings={lessonOfferings}
+        assignableStudents={assignableStudents}
         onClose={() => setMonthAddDayKey(null)}
         onConfirm={(draft) => {
           setRules((prev) => [
@@ -938,6 +958,10 @@ export function TeacherAvailabilityCalendar({
               recurrence: draft.recurrence,
               startsOn: draft.startsOn,
               endsOn: draft.endsOn,
+              assignedStudentId: draft.assignedStudentId ?? null,
+              assignedStudentName:
+                assignableStudents.find((s) => s.id === draft.assignedStudentId)?.label ??
+                null,
               classLevelId: draft.classLevelId,
               classTypeId: draft.classTypeId,
               teacherLessonOfferingId: draft.teacherLessonOfferingId,

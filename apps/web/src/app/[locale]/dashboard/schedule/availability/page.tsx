@@ -48,6 +48,9 @@ export default async function DashboardScheduleAvailabilityPage({
         include: {
           classLevel: { select: { id: true, code: true, labelEn: true, labelJa: true } },
           classType: { select: { id: true, code: true, labelEn: true, labelJa: true } },
+          // Only this teacher's own editor loads the name; every student-facing
+          // query selects the id at most, and only ever their own.
+          assignedStudent: { select: { name: true, email: true } },
         },
       },
       lessonOfferings: {
@@ -106,6 +109,19 @@ export default async function DashboardScheduleAvailabilityPage({
     publishAvailabilityOptions,
   );
 
+  // A slot can only be reserved for one of this teacher's own students, so the
+  // picker offers exactly the working roster.
+  const assignableStudents = (
+    await prisma.teacherRosterEntry.findMany({
+      where: { teacherId: profile.id, studentId: { not: null }, archivedAt: null },
+      select: { studentId: true, student: { select: { name: true, email: true } } },
+      orderBy: { createdAt: "asc" },
+    })
+  ).map((entry) => ({
+    id: entry.studentId!,
+    label: entry.student?.name ?? entry.student?.email ?? entry.studentId!,
+  }));
+
   return (
     <div className="space-y-8">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
@@ -113,11 +129,15 @@ export default async function DashboardScheduleAvailabilityPage({
 
       {canPublishAvailability ? (
         <TeacherAvailabilityCalendar
+          assignableStudents={assignableStudents}
           initialSlots={profile.availabilitySlots.map((slot) => ({
             id: slot.id,
             dayOfWeek: slot.dayOfWeek,
             startMin: slot.startMin,
             endMin: slot.endMin,
+            assignedStudentId: slot.assignedStudentId,
+            assignedStudentName:
+              slot.assignedStudent?.name ?? slot.assignedStudent?.email ?? null,
             timezone: slot.timezone,
             recurrence: slot.recurrence,
             startsOn: dateOnlyInZone(slot.startsOn, slot.timezone),

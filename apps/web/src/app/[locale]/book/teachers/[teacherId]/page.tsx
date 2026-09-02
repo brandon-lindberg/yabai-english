@@ -28,6 +28,7 @@ import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
 import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 import { PendingReservationNotice } from "@/components/booking/pending-reservation-notice";
 import { BookingStatus } from "@/generated/prisma/client";
+import { visibleAvailabilityWhere } from "@/lib/assigned-availability";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -54,6 +55,8 @@ export default async function TeacherProfileBookingPage({
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
   const session = await auth();
+  const viewerStudentIdForSlots =
+    session?.user?.role === "STUDENT" ? session.user.id : null;
 
   const viewerTeacherProfileId =
     session?.user?.role === "TEACHER"
@@ -105,7 +108,9 @@ export default async function TeacherProfileBookingPage({
         },
       },
       availabilitySlots: {
-        where: { active: true },
+        // Another student's reserved time is absent here, not marked taken:
+        // these lessons are private and its existence is not theirs to see.
+        where: { active: true, ...visibleAvailabilityWhere(viewerStudentIdForSlots) },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
         select: {
           id: true,

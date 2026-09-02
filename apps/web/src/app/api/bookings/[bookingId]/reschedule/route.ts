@@ -9,6 +9,7 @@ import { validateBookingAgainstTeacherAvailability } from "@/lib/booking-slot-va
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 import { patchMeetLessonEvent } from "@/lib/google-calendar";
 import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { visibleAvailabilitySlots } from "@/lib/assigned-availability";
 
 type Props = { params: Promise<{ bookingId: string }> };
 
@@ -71,6 +72,7 @@ export async function POST(req: Request, { params }: Props) {
               endsOn: true,
               classLevelId: true,
               classTypeId: true,
+              assignedStudentId: true,
             },
           },
           availabilityOccurrenceSkips: { select: { startsAtIso: true } },
@@ -114,7 +116,12 @@ export async function POST(req: Request, { params }: Props) {
   const slotValidation = validateBookingAgainstTeacherAvailability({
     startsAtIso: start.toISOString(),
     durationMin,
-    availabilitySlots: booking.teacher.availabilitySlots.map((slot) => ({
+    // Same rule as booking: a time reserved for someone else is not somewhere
+    // this student may move their lesson to.
+    availabilitySlots: visibleAvailabilitySlots(
+      booking.teacher.availabilitySlots,
+      booking.studentId,
+    ).map((slot) => ({
       id: slot.id,
       dayOfWeek: slot.dayOfWeek,
       startMin: slot.startMin,

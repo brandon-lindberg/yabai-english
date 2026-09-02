@@ -13,6 +13,7 @@ const {
   classTypeCreateManyMock,
   transactionMock,
   ensureCatalogProductsMock,
+  rosterFindManyMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
   profileUpsertMock: vi.fn(),
@@ -26,6 +27,7 @@ const {
   classTypeCreateManyMock: vi.fn(),
   transactionMock: vi.fn(),
   ensureCatalogProductsMock: vi.fn(),
+  rosterFindManyMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -41,6 +43,9 @@ vi.mock("@/lib/prisma", () => ({
     availabilitySlot: {
       deleteMany: availabilityDeleteManyMock,
       createMany: availabilityCreateManyMock,
+    },
+    teacherRosterEntry: {
+      findMany: rosterFindManyMock,
     },
     teacherLessonOffering: {
       createMany: offeringCreateManyMock,
@@ -76,6 +81,7 @@ function patchRequest(body: unknown): Request {
 describe("PATCH /api/teacher/availability — auto-sync lesson offerings from schedule", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    rosterFindManyMock.mockResolvedValue([]);
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
     profileUpsertMock.mockResolvedValue({
       id: "tp-1",
@@ -826,6 +832,84 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     } finally {
       vi.useRealTimers();
     }
+  });
+
+
+  test("reserves a slot for a student on the teacher's roster", async () => {
+    rosterFindManyMock.mockResolvedValue([{ studentId: "student-kana" }]);
+
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 2,
+          startMin: 19 * 60,
+          endMin: 20 * 60,
+          timezone: "Asia/Tokyo",
+          recurrence: "WEEKLY",
+          startsOn: "2026-09-01",
+          endsOn: "2026-10-31",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+          assignedStudentId: "student-kana",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(200);
+    expect(availabilityCreateManyMock).toHaveBeenCalledWith({
+      data: [expect.objectContaining({ assignedStudentId: "student-kana" })],
+    });
+  });
+
+  test("refuses to reserve a slot for someone who is not their student", async () => {
+    rosterFindManyMock.mockResolvedValue([{ studentId: "student-kana" }]);
+
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 2,
+          startMin: 19 * 60,
+          endMin: 20 * 60,
+          timezone: "Asia/Tokyo",
+          recurrence: "WEEKLY",
+          startsOn: "2026-09-01",
+          endsOn: "2026-10-31",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+          assignedStudentId: "some-other-user",
+        },
+      ]),
+    );
+
+    // Otherwise a teacher could point a reservation at any user id at all.
+    expect(res.status).toBe(400);
+    expect(availabilityCreateManyMock).not.toHaveBeenCalled();
+  });
+
+  test("an unassigned slot is stored as open to everyone", async () => {
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 2,
+          startMin: 19 * 60,
+          endMin: 20 * 60,
+          timezone: "Asia/Tokyo",
+          recurrence: "WEEKLY",
+          startsOn: "2026-09-01",
+          endsOn: "2026-10-31",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(200);
+    expect(availabilityCreateManyMock).toHaveBeenCalledWith({
+      data: [expect.objectContaining({ assignedStudentId: null })],
+    });
   });
 
 });

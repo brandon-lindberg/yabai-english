@@ -41,6 +41,7 @@ export async function GET() {
           recurrence: true,
           startsOn: true,
           endsOn: true,
+          assignedStudentId: true,
           classLevelId: true,
           classTypeId: true,
           teacherLessonOfferingId: true,
@@ -263,6 +264,29 @@ export async function PATCH(req: Request) {
     fallbackRateYen: profileSnapshot.rateYen ?? null,
   });
 
+  // A reservation may only point at one of this teacher's own students —
+  // otherwise the id could be any user at all.
+  const assignedIds = [
+    ...new Set(
+      parsed.data
+        .map((slot) => slot.assignedStudentId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  if (assignedIds.length > 0) {
+    const roster = await prisma.teacherRosterEntry.findMany({
+      where: { teacherId: profileSnapshot.id, studentId: { in: assignedIds } },
+      select: { studentId: true },
+    });
+    const rostered = new Set(roster.map((entry) => entry.studentId));
+    if (assignedIds.some((id) => !rostered.has(id))) {
+      return NextResponse.json(
+        { error: "Availability can only be reserved for your own students." },
+        { status: 400 },
+      );
+    }
+  }
+
   await prisma.$transaction(async (tx) => {
     await tx.availabilitySlot.deleteMany({ where: { teacherId: profileSnapshot.id } });
     if (parsed.data.length > 0) {
@@ -276,6 +300,7 @@ export async function PATCH(req: Request) {
           recurrence: slot.recurrence ?? "WEEKLY",
           startsOn: dateOnlyToUtcDateInZone(slot.startsOn, slot.timezone),
           endsOn: dateOnlyToUtcDateInZone(slot.endsOn, slot.timezone),
+          assignedStudentId: slot.assignedStudentId ?? null,
           classLevelId: slot.classLevelId,
           classTypeId: slot.classTypeId,
           teacherLessonOfferingId: slot.teacherLessonOfferingId,

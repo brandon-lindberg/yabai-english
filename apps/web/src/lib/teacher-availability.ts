@@ -23,6 +23,8 @@ export const teacherAvailabilitySlotSchema = z
     classTypeId: z.string().min(1),
     /** FK to TeacherLessonOffering.id — required so class, duration, and price stay linked. */
     teacherLessonOfferingId: z.string().min(1),
+    /** Reserves the slot for one student; absent or null means open to everyone. */
+    assignedStudentId: z.string().min(1).optional().nullable(),
   })
   .refine(weeklyTimeRangeOrdered, {
     message: "endMin must be greater than startMin",

@@ -182,4 +182,30 @@ describe("teacherAvailabilitySchema", () => {
       ]).success,
     ).toBe(false);
   });
+
+  test("accepts a slot reserved for one student", () => {
+    expect(
+      teacherAvailabilitySchema.safeParse([
+        {
+          dayOfWeek: 2,
+          startMin: 19 * 60,
+          endMin: 20 * 60,
+          ...baseSlot,
+          ...weeklyEnd,
+          assignedStudentId: "student-kana",
+        },
+      ]).success,
+    ).toBe(true);
+  });
+
+  test("treats an absent or null assignment as open to everyone", () => {
+    for (const assignedStudentId of [undefined, null]) {
+      expect(
+        teacherAvailabilitySchema.safeParse([
+          { dayOfWeek: 2, startMin: 19 * 60, endMin: 20 * 60, ...baseSlot, ...weeklyEnd, assignedStudentId },
+        ]).success,
+      ).toBe(true);
+    }
+  });
+
 });
