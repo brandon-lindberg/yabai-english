@@ -1,3 +1,8 @@
+import {
+  EMPTY_OCCURRENCE_SKIPS,
+  isOccurrenceSkipped,
+  type OccurrenceSkipIndex,
+} from "@/lib/availability-occurrence-skips";
 import { DateTime } from "luxon";
 import {
   expandRecurringOccurrencesInRange,
@@ -30,8 +35,8 @@ type BuildOptions = {
   minimumLeadHours?: number;
   /** When true, include instances that start in the past (for teacher availability editor). */
   allowPastInstances?: boolean;
-  /** UTC startsAtIso values to omit (single-occurrence removals). */
-  skippedStartsAtIso?: ReadonlySet<string>;
+  /** Occurrences the teacher has cancelled, by rule and instant. */
+  skippedOccurrences?: OccurrenceSkipIndex;
   /** Appends " · {result}" after the time range when provided. */
   formatLessonMeta?: (slot: AvailabilitySlotInput) => string;
 };
@@ -51,7 +56,7 @@ export function buildUpcomingSlotOptions({
   horizonDays = DEFAULT_AVAILABILITY_HORIZON_DAYS,
   minimumLeadHours = 0,
   allowPastInstances = false,
-  skippedStartsAtIso,
+  skippedOccurrences = EMPTY_OCCURRENCE_SKIPS,
   formatLessonMeta,
 }: BuildOptions): SlotOption[] {
   const nowUtc =
@@ -92,7 +97,7 @@ export function buildUpcomingSlotOptions({
 
     for (const occ of occurrences) {
       const startsAtIso = occ.startsAtIso;
-      if (skippedStartsAtIso?.has(startsAtIso)) continue;
+      if (isOccurrenceSkipped(skippedOccurrences, slot.id, startsAtIso)) continue;
 
       const startUtc = DateTime.fromISO(startsAtIso, { zone: "utc" });
       if (!allowPastInstances && startUtc <= nowUtc.plus({ milliseconds: leadMs })) continue;

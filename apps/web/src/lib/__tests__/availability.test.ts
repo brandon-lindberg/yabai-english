@@ -1,3 +1,4 @@
+import { buildOccurrenceSkipIndex } from "@/lib/availability-occurrence-skips";
 import { describe, expect, test } from "vitest";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 
@@ -105,14 +106,17 @@ describe("buildUpcomingSlotOptions", () => {
   });
 
   test("skippedStartsAtIso omits matching occurrences", () => {
-    const skip = new Set(["2026-04-13T01:00:00.000Z"]);
+    // Cancels this rule's occurrence, and only this rule's.
+    const skip = buildOccurrenceSkipIndex([
+      { slotId: "a1", startsAtIso: "2026-04-13T01:00:00.000Z" },
+    ]);
     const slots = buildUpcomingSlotOptions({
       availabilitySlots: [baseSlot],
       viewerTimezone: "Asia/Tokyo",
       now: "2026-04-10T00:00:00.000Z",
       horizonDays: 14,
       allowPastInstances: true,
-      skippedStartsAtIso: skip,
+      skippedOccurrences: skip,
     });
 
     expect(slots.some((s) => s.startsAtIso === "2026-04-13T01:00:00.000Z")).toBe(false);

@@ -107,6 +107,9 @@ export async function POST(req: Request) {
     await prisma.availabilityOccurrenceSkip.create({
       data: {
         teacherProfileId: profile.id,
+        // Naming the rule keeps this from cancelling anything else that starts
+        // at the same instant — including a one-off written to replace it.
+        slotId,
         startsAtIso,
       },
     });

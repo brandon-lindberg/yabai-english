@@ -157,4 +157,49 @@ describe("POST /api/bookings availability matching", () => {
     ]);
   });
 
+
+  test("refuses a slot another student has it reserved", async () => {
+    prismaMock.teacherProfile.findFirst.mockResolvedValue({
+      ...(await prismaMock.teacherProfile.findFirst()),
+      availabilitySlots: [
+        {
+          id: "slot-reserved",
+          dayOfWeek: 0,
+          startMin: 10 * 60 + 30,
+          endMin: 11 * 60 + 10,
+          timezone: "Asia/Tokyo",
+          recurrence: "WEEKLY",
+          startsOn: null,
+          endsOn: null,
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "offer-40",
+          // Reserved for somebody else entirely.
+          assignedStudentId: "student-someone-else",
+          teacherLessonOffering: { id: "offer-40", durationMin: 40, lessonProductId: "lp-40" },
+        },
+      ],
+    });
+
+    const res = await POST(
+      new Request("http://localhost/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonProductId: "lp-40",
+          teacherProfileId: "teacher-profile-1",
+          teacherLessonOfferingId: "offer-40",
+          startsAt: "2026-07-05T01:30:00.000Z",
+        }),
+      }),
+    );
+
+    // Hiding it in the calendar is not enough: the endpoint must refuse it, and
+    // say only that the time is unavailable — never that it is spoken for.
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "The selected time is not available.",
+    });
+  });
+
 });

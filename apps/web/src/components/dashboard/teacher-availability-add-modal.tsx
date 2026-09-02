@@ -32,7 +32,11 @@ export type TeacherAvailabilityAddModalDraft = {
   classLevelId: string;
   classTypeId: string;
   teacherLessonOfferingId: string;
+  /** Reserves the slot for one student; null means open to everyone. */
+  assignedStudentId: string | null;
 };
+
+export type AssignableStudentOption = { id: string; label: string };
 
 export type TeacherLessonOfferingOption = {
   id: string;
@@ -54,6 +58,15 @@ type Props = {
   initialTimezone: string;
   onClose: () => void;
   onConfirm: (draft: TeacherAvailabilityAddModalDraft) => void;
+  /**
+   * Seeds the form from an existing slot. Absent means a new one, which is the
+   * only difference between adding and editing — the fields are the same, and
+   * were once written out a second time below the calendar to say so.
+   */
+  initialDraft?: TeacherAvailabilityAddModalDraft | null;
+  /** Offered only when editing; the calendar owns what removal means. */
+  onRemove?: (() => void) | null;
+  removeLabel?: string;
   title: string;
   subtitle: string;
   cancelLabel: string;
@@ -63,6 +76,8 @@ type Props = {
   endLabel: string;
   timezoneLabel: string;
   classLevels: TaxonomyOption[];
+  /** The teacher's own students, for reserving a slot. */
+  assignableStudents?: AssignableStudentOption[];
   classTypes: TaxonomyOption[];
   lessonOfferings: TeacherLessonOfferingOption[];
 };
@@ -94,6 +109,9 @@ function TeacherAvailabilityAddModalInner({
   initialTimezone,
   onClose,
   onConfirm,
+  initialDraft = null,
+  onRemove = null,
+  removeLabel,
   title,
   subtitle,
   cancelLabel,
@@ -103,13 +121,16 @@ function TeacherAvailabilityAddModalInner({
   endLabel,
   timezoneLabel,
   classLevels,
+  assignableStudents = [],
   classTypes,
   lessonOfferings,
 }: InnerProps) {
   const tModal = useTranslations("dashboard.teacherAvailability");
   const defaultOffering = lessonOfferings[0];
-  const [weeklyOnCalendarDay, setWeeklyOnCalendarDay] = useState(false);
-  const [draft, setDraft] = useState<TeacherAvailabilityAddModalDraft>(() => ({
+  const [weeklyOnCalendarDay, setWeeklyOnCalendarDay] = useState(
+    initialDraft?.recurrence === "WEEKLY",
+  );
+  const [draft, setDraft] = useState<TeacherAvailabilityAddModalDraft>(() => initialDraft ?? ({
     dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, initialTimezone),
     startMin: 9 * 60,
     endMin: 9 * 60 + (defaultOffering?.durationMin ?? 60),
@@ -117,6 +138,7 @@ function TeacherAvailabilityAddModalInner({
     recurrence: "ONE_OFF",
     startsOn: dayKey,
     endsOn: null,
+    assignedStudentId: null,
     classLevelId: defaultOffering?.classLevelId ?? classLevels[0]?.id ?? "",
     classTypeId: defaultOffering?.classTypeId ?? classTypes[0]?.id ?? "",
     teacherLessonOfferingId: defaultOffering?.id ?? "",
@@ -291,6 +313,27 @@ function TeacherAvailabilityAddModalInner({
             </Field>
           )}
 
+          {assignableStudents.length > 0 ? (
+            <Field label={tModal("reservedForLabel")} hint={tModal("reservedForHint")}>
+              {(field) => (
+                <Select
+                  {...field}
+                  value={draft.assignedStudentId ?? ""}
+                  onChange={(e) =>
+                    setDraft((d) => ({ ...d, assignedStudentId: e.target.value || null }))
+                  }
+                >
+                  <option value="">{tModal("reservedForEveryone")}</option>
+                  {assignableStudents.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {student.label}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+          ) : null}
+
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={startLabel}>
               {(field) => (
@@ -404,11 +447,23 @@ function TeacherAvailabilityAddModalInner({
           </Field>
         </div>
 
-        <div className="mt-6 flex flex-wrap justify-end gap-2">
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          {onRemove ? (
+            <button
+              type="button"
+              onClick={() => {
+                onRemove();
+                onClose();
+              }}
+              className={buttonClasses({ variant: "destructive" })}
+            >
+              {removeLabel}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={onClose}
-            className={buttonClasses({ variant: "secondary" })}
+            className={buttonClasses({ variant: "secondary", className: "ml-auto" })}
           >
             {cancelLabel}
           </button>

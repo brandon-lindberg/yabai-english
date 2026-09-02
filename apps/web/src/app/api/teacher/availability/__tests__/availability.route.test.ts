@@ -13,6 +13,9 @@ const {
   classTypeCreateManyMock,
   transactionMock,
   ensureCatalogProductsMock,
+  rosterFindManyMock,
+  availabilityFindManyMock,
+  availabilityUpdateMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
   profileUpsertMock: vi.fn(),
@@ -26,6 +29,9 @@ const {
   classTypeCreateManyMock: vi.fn(),
   transactionMock: vi.fn(),
   ensureCatalogProductsMock: vi.fn(),
+  rosterFindManyMock: vi.fn(),
+  availabilityFindManyMock: vi.fn(),
+  availabilityUpdateMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -41,6 +47,11 @@ vi.mock("@/lib/prisma", () => ({
     availabilitySlot: {
       deleteMany: availabilityDeleteManyMock,
       createMany: availabilityCreateManyMock,
+      findMany: availabilityFindManyMock,
+      update: availabilityUpdateMock,
+    },
+    teacherRosterEntry: {
+      findMany: rosterFindManyMock,
     },
     teacherLessonOffering: {
       createMany: offeringCreateManyMock,
@@ -76,6 +87,8 @@ function patchRequest(body: unknown): Request {
 describe("PATCH /api/teacher/availability — auto-sync lesson offerings from schedule", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    rosterFindManyMock.mockResolvedValue([]);
+    availabilityFindManyMock.mockResolvedValue([]);
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
     profileUpsertMock.mockResolvedValue({
       id: "tp-1",
@@ -179,6 +192,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
         availabilitySlot: {
           deleteMany: availabilityDeleteManyMock,
           createMany: availabilityCreateManyMock,
+          findMany: availabilityFindManyMock,
+          update: availabilityUpdateMock,
         },
         teacherLessonOffering: {
           createMany: offeringCreateManyMock,
@@ -828,4 +843,146 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     }
   });
 
+
+  test("reserves a slot for a student on the teacher's roster", async () => {
+    rosterFindManyMock.mockResolvedValue([{ studentId: "student-kana" }]);
+
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 2,
+          startMin: 19 * 60,
+          endMin: 20 * 60,
+          timezone: "Asia/Tokyo",
+          recurrence: "WEEKLY",
+          startsOn: "2026-09-01",
+          endsOn: "2026-10-31",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+          assignedStudentId: "student-kana",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(200);
+    expect(availabilityCreateManyMock).toHaveBeenCalledWith({
+      data: [expect.objectContaining({ assignedStudentId: "student-kana" })],
+    });
+  });
+
+  test("refuses to reserve a slot for someone who is not their student", async () => {
+    rosterFindManyMock.mockResolvedValue([{ studentId: "student-kana" }]);
+
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 2,
+          startMin: 19 * 60,
+          endMin: 20 * 60,
+          timezone: "Asia/Tokyo",
+          recurrence: "WEEKLY",
+          startsOn: "2026-09-01",
+          endsOn: "2026-10-31",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+          assignedStudentId: "some-other-user",
+        },
+      ]),
+    );
+
+    // Otherwise a teacher could point a reservation at any user id at all.
+    expect(res.status).toBe(400);
+    expect(availabilityCreateManyMock).not.toHaveBeenCalled();
+  });
+
+  test("an unassigned slot is stored as open to everyone", async () => {
+    const res = await PATCH(
+      patchRequest([
+        {
+          dayOfWeek: 2,
+          startMin: 19 * 60,
+          endMin: 20 * 60,
+          timezone: "Asia/Tokyo",
+          recurrence: "WEEKLY",
+          startsOn: "2026-09-01",
+          endsOn: "2026-10-31",
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "off-conv-60",
+        },
+      ]),
+    );
+
+    expect(res.status).toBe(200);
+    expect(availabilityCreateManyMock).toHaveBeenCalledWith({
+      data: [expect.objectContaining({ assignedStudentId: null })],
+    });
+  });
+
+  describe("PATCH /api/teacher/availability — saving edits rows instead of replacing them", () => {
+    const slot = (overrides: Record<string, unknown> = {}) => ({
+      dayOfWeek: 1,
+      startMin: 10 * 60,
+      endMin: 11 * 60,
+      timezone: "Asia/Tokyo",
+      recurrence: "WEEKLY",
+      startsOn: "2026-09-01",
+      endsOn: "2026-10-31",
+      classLevelId: "lvl-int",
+      classTypeId: "ty-conv",
+      teacherLessonOfferingId: "off-conv-60",
+      ...overrides,
+    });
+
+    beforeEach(() => {
+      availabilityFindManyMock.mockResolvedValue([{ id: "kept" }, { id: "removed" }]);
+    });
+
+    test("an existing slot is updated in place, keeping its row", async () => {
+      const res = await PATCH(patchRequest([slot({ id: "kept", startMin: 19 * 60, endMin: 20 * 60 })]));
+
+      expect(res.status).toBe(200);
+      expect(availabilityUpdateMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "kept" },
+          data: expect.objectContaining({ startMin: 19 * 60 }),
+        }),
+      );
+      // Recreating it would mint a new id and lose anything the request omitted.
+      expect(availabilityCreateManyMock).not.toHaveBeenCalled();
+    });
+
+    test("only the rows the teacher removed are deleted", async () => {
+      await PATCH(patchRequest([slot({ id: "kept" })]));
+
+      expect(availabilityDeleteManyMock).toHaveBeenCalledWith({
+        where: { id: { in: ["removed"] } },
+      });
+    });
+
+    test("nothing is deleted when every row is kept", async () => {
+      await PATCH(patchRequest([slot({ id: "kept" }), slot({ id: "removed" })]));
+
+      expect(availabilityDeleteManyMock).not.toHaveBeenCalled();
+    });
+
+    test("a newly added slot is created", async () => {
+      await PATCH(patchRequest([slot({ id: "kept" }), slot({ id: "new_abc123" })]));
+
+      expect(availabilityCreateManyMock).toHaveBeenCalledWith({
+        data: [expect.objectContaining({ startMin: 10 * 60 })],
+      });
+      expect(availabilityUpdateMock).toHaveBeenCalledTimes(1);
+    });
+
+    test("an id belonging to somebody else is created, never updated", async () => {
+      // The id is not among this teacher's rows, so it cannot address one.
+      await PATCH(patchRequest([slot({ id: "another-teachers-slot" })]));
+
+      expect(availabilityUpdateMock).not.toHaveBeenCalled();
+      expect(availabilityCreateManyMock).toHaveBeenCalledTimes(1);
+    });
+  });
 });

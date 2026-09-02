@@ -235,6 +235,7 @@ model User {
   googleIntegrationSettings GoogleIntegrationSettings?
   organizationMemberships   OrganizationMembership[]
   teacherRosterEntriesAsStudent TeacherRosterEntry[] @relation("RosterStudent")
+  assignedAvailabilitySlots     AvailabilitySlot[]   @relation("AssignedAvailability")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -643,11 +644,20 @@ model AvailabilitySlot {
   /// FK to the teacher's per-teacher class type taxonomy.
   classTypeId  String?
   classType    TeacherClassType?  @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+  /// When set, this slot exists only for that student: nobody else sees it or
+  /// can book it. Null means open to everyone. Lessons are private, so an
+  /// assigned slot is absent from other students' calendars rather than shown
+  /// as taken.
+  assignedStudentId String?
+  assignedStudent   User?   @relation("AssignedAvailability", fields: [assignedStudentId], references: [id], onDelete: SetNull)
+
   /// FK to the priced class offer. This is the source of truth for duration/price.
   teacherLessonOfferingId String?
   teacherLessonOffering   TeacherLessonOffering? @relation(fields: [teacherLessonOfferingId], references: [id], onDelete: SetNull)
 
   active Boolean @default(true)
+
+  @@index([assignedStudentId])
 
   @@index([classLevelId])
   @@index([classTypeId])
@@ -678,10 +688,14 @@ model AvailabilityOccurrenceSkip {
   id               String         @id @default(cuid())
   teacherProfileId String
   teacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id], onDelete: Cascade)
+  /// The rule this cancels one occurrence of. Never null: a skip that named no
+  /// rule cancelled everything starting at that instant, including the one-off
+  /// written to replace an edited occurrence.
+  slotId           String
   startsAtIso      String
   createdAt        DateTime       @default(now())
 
-  @@unique([teacherProfileId, startsAtIso])
+  @@unique([teacherProfileId, slotId, startsAtIso])
   @@index([teacherProfileId])
 }
 

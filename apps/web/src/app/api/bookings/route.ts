@@ -39,6 +39,7 @@ import {
   SUPPORTED_PAYMENT_PROVIDERS,
 } from "@/lib/payment-methods";
 import { newHoldExpiry, slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { visibleAvailabilitySlots } from "@/lib/assigned-availability";
 
 const teacherAvailabilityInclude = {
   availabilitySlots: {
@@ -55,10 +56,13 @@ const teacherAvailabilityInclude = {
       classLevelId: true,
       classTypeId: true,
       teacherLessonOfferingId: true,
+      // Read so the booker's own reservations stay bookable and everybody
+      // else's are dropped before validation.
+      assignedStudentId: true,
     },
   },
   availabilityOccurrenceSkips: {
-    select: { startsAtIso: true },
+    select: { slotId: true, startsAtIso: true },
   },
 } as const;
 
@@ -349,10 +353,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No student profile" }, { status: 400 });
   }
 
+  // A slot reserved for another student is not availability as far as this
+  // booker is concerned. Dropped before validation so the refusal reads as
+  // "not available" and never reveals that the time is spoken for.
+  const bookableSlots = visibleAvailabilitySlots(
+    teacher.availabilitySlots,
+    session.user.id,
+  );
+
   const slotValidation = validateBookingAgainstTeacherAvailability({
     startsAtIso: start.toISOString(),
     durationMin: product.durationMin,
-    availabilitySlots: teacher.availabilitySlots.map((slot) => ({
+    availabilitySlots: bookableSlots.map((slot) => ({
       id: slot.id,
       dayOfWeek: slot.dayOfWeek,
       startMin: slot.startMin,
@@ -364,7 +376,7 @@ export async function POST(req: Request) {
       classLevelId: slot.classLevelId,
       classTypeId: slot.classTypeId,
     })),
-    occurrenceSkips: teacher.availabilityOccurrenceSkips.map((skip) => skip.startsAtIso),
+    occurrenceSkips: teacher.availabilityOccurrenceSkips,
     viewerTimezone:
       student.studentProfile.timezone ??
       teacher.availabilitySlots[0]?.timezone ??

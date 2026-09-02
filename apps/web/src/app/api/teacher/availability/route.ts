@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
+import {
+  teacherAvailabilitySchema,
+  type TeacherAvailabilitySlotInput,
+} from "@/lib/teacher-availability";
 import { deriveMissingOfferingsFromSchedule } from "@/lib/schedule-offering-sync";
 import {
   deriveFreeTrialOffering,
@@ -13,6 +16,7 @@ import {
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 import { dateOnlyToUtcDateInZone } from "@/lib/date-only-in-zone";
+import { availabilitySlotMatchesOffering } from "@/lib/availability-offering-match";
 import {
   availabilityWindowEndDayKey,
   isWithinAvailabilityWindow,
@@ -41,6 +45,7 @@ export async function GET() {
           recurrence: true,
           startsOn: true,
           endsOn: true,
+          assignedStudentId: true,
           classLevelId: true,
           classTypeId: true,
           teacherLessonOfferingId: true,
@@ -50,7 +55,7 @@ export async function GET() {
         },
       },
       availabilityOccurrenceSkips: {
-        select: { startsAtIso: true },
+        select: { slotId: true, startsAtIso: true },
       },
     },
   });
@@ -58,8 +63,30 @@ export async function GET() {
   return NextResponse.json({
     teacherProfileId: profile?.id ?? null,
     slots: profile?.availabilitySlots ?? [],
-    occurrenceSkips: profile?.availabilityOccurrenceSkips?.map((s) => s.startsAtIso) ?? [],
+    occurrenceSkips: profile?.availabilityOccurrenceSkips ?? [],
   });
+}
+
+/**
+ * The columns a teacher owns on an availability slot. One mapping, used by both
+ * the update and the create, so an edited row and a new one can never end up
+ * with different fields set.
+ */
+function availabilitySlotData(slot: TeacherAvailabilitySlotInput) {
+  return {
+    dayOfWeek: slot.dayOfWeek,
+    startMin: slot.startMin,
+    endMin: slot.endMin,
+    timezone: slot.timezone,
+    recurrence: slot.recurrence ?? "WEEKLY",
+    startsOn: dateOnlyToUtcDateInZone(slot.startsOn, slot.timezone),
+    endsOn: dateOnlyToUtcDateInZone(slot.endsOn, slot.timezone),
+    assignedStudentId: slot.assignedStudentId ?? null,
+    classLevelId: slot.classLevelId,
+    classTypeId: slot.classTypeId,
+    teacherLessonOfferingId: slot.teacherLessonOfferingId,
+    active: true,
+  };
 }
 
 export async function PATCH(req: Request) {
@@ -198,15 +225,10 @@ export async function PATCH(req: Request) {
   }
   const codeByTypeId = new Map(foundTypes.map((t) => [t.id, t.code]));
   const offeringById = new Map(foundOfferings.map((offering) => [offering.id, offering]));
-  const mismatchedSlot = parsed.data.find((slot) => {
-    const offering = offeringById.get(slot.teacherLessonOfferingId);
-    return (
-      !offering ||
-      offering.classLevelId !== slot.classLevelId ||
-      offering.classTypeId !== slot.classTypeId ||
-      slot.endMin - slot.startMin !== offering.durationMin
-    );
-  });
+  const mismatchedSlot = parsed.data.find(
+    (slot) =>
+      !availabilitySlotMatchesOffering(slot, offeringById.get(slot.teacherLessonOfferingId)),
+  );
   if (mismatchedSlot) {
     return NextResponse.json(
       { error: "Availability must match the selected class offer." },
@@ -263,23 +285,62 @@ export async function PATCH(req: Request) {
     fallbackRateYen: profileSnapshot.rateYen ?? null,
   });
 
+  // A reservation may only point at one of this teacher's own students —
+  // otherwise the id could be any user at all.
+  const assignedIds = [
+    ...new Set(
+      parsed.data
+        .map((slot) => slot.assignedStudentId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  if (assignedIds.length > 0) {
+    const roster = await prisma.teacherRosterEntry.findMany({
+      where: { teacherId: profileSnapshot.id, studentId: { in: assignedIds } },
+      select: { studentId: true },
+    });
+    const rostered = new Set(roster.map((entry) => entry.studentId));
+    if (assignedIds.some((id) => !rostered.has(id))) {
+      return NextResponse.json(
+        { error: "Availability can only be reserved for your own students." },
+        { status: 400 },
+      );
+    }
+  }
+
   await prisma.$transaction(async (tx) => {
-    await tx.availabilitySlot.deleteMany({ where: { teacherId: profileSnapshot.id } });
-    if (parsed.data.length > 0) {
+    // Edit the rows that exist rather than replacing the whole set. Deleting
+    // and recreating minted new ids on every save and made the request the only
+    // source of truth for every column, so anything it did not carry was
+    // silently destroyed by an unrelated edit.
+    const existing = await tx.availabilitySlot.findMany({
+      where: { teacherId: profileSnapshot.id },
+      select: { id: true },
+    });
+    const existingIds = new Set(existing.map((row) => row.id));
+
+    // An id is only an address if it is one of this teacher's own rows: a
+    // locally minted id for a new slot, or somebody else's row, addresses
+    // nothing and becomes a new slot here.
+    const edits = parsed.data.filter((slot) => slot.id && existingIds.has(slot.id));
+    const additions = parsed.data.filter((slot) => !slot.id || !existingIds.has(slot.id));
+    const keptIds = new Set(edits.map((slot) => slot.id!));
+    const removedIds = [...existingIds].filter((id) => !keptIds.has(id));
+
+    if (removedIds.length > 0) {
+      await tx.availabilitySlot.deleteMany({ where: { id: { in: removedIds } } });
+    }
+    for (const slot of edits) {
+      await tx.availabilitySlot.update({
+        where: { id: slot.id! },
+        data: availabilitySlotData(slot),
+      });
+    }
+    if (additions.length > 0) {
       await tx.availabilitySlot.createMany({
-        data: parsed.data.map((slot) => ({
+        data: additions.map((slot) => ({
           teacherId: profileSnapshot.id,
-          dayOfWeek: slot.dayOfWeek,
-          startMin: slot.startMin,
-          endMin: slot.endMin,
-          timezone: slot.timezone,
-          recurrence: slot.recurrence ?? "WEEKLY",
-          startsOn: dateOnlyToUtcDateInZone(slot.startsOn, slot.timezone),
-          endsOn: dateOnlyToUtcDateInZone(slot.endsOn, slot.timezone),
-          classLevelId: slot.classLevelId,
-          classTypeId: slot.classTypeId,
-          teacherLessonOfferingId: slot.teacherLessonOfferingId,
-          active: true,
+          ...availabilitySlotData(slot),
         })),
       });
     }

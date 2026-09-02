@@ -1,3 +1,4 @@
+import { buildOccurrenceSkipIndex } from "@/lib/availability-occurrence-skips";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
@@ -69,7 +70,7 @@ export async function TeacherDashboard({
             endsOn: true,
           },
         },
-        availabilityOccurrenceSkips: { select: { startsAtIso: true } },
+        availabilityOccurrenceSkips: { select: { slotId: true, startsAtIso: true } },
       },
     }),
     prisma.googleIntegrationSettings.findUnique({
@@ -108,8 +109,8 @@ export async function TeacherDashboard({
         startsAtIso: b.startsAt.toISOString(),
         endsAtIso: b.endsAt.toISOString(),
       })),
-    skippedStartsAtIso: new Set(
-      (teacherProfile?.availabilityOccurrenceSkips ?? []).map((s) => s.startsAtIso),
+    skippedOccurrences: buildOccurrenceSkipIndex(
+      teacherProfile?.availabilityOccurrenceSkips ?? [],
     ),
   });
 

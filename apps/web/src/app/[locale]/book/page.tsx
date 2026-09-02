@@ -19,6 +19,7 @@ import { authSignInHref } from "@/lib/auth-sign-in-href";
 import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { buttonClasses } from "@/components/ui/button";
 import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
+import { visibleAvailabilityWhere } from "@/lib/assigned-availability";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -91,7 +92,9 @@ export default async function BookPage({ searchParams }: Props) {
       offersFreeTrial: true,
       user: { select: { name: true, image: true } },
       availabilitySlots: {
-        where: { active: true },
+        // Reserved slots count only for the student they belong to, so a
+        // teacher with nothing else open does not surface as available.
+        where: { active: true, ...visibleAvailabilityWhere(viewerStudentId) },
         select: {
           id: true,
           teacherLessonOffering: { select: { isFreeTrial: true } },
