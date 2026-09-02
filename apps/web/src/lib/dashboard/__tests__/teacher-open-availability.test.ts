@@ -122,7 +122,7 @@ describe("slotHasOpenOccurrence", () => {
 });
 
 describe("countOpenAvailabilitySlots", () => {
-  test("counts only slots with a free occurrence ahead", () => {
+  test("counts every free occurrence, not the rules that produce them", () => {
     const slots: OpenAvailabilitySlot[] = [
       oneOff("2026-08-10"), // past
       oneOff("2026-08-17"), // past
@@ -143,6 +143,91 @@ describe("countOpenAvailabilitySlots", () => {
         now: NOW,
       }),
     ).toBe(2);
+  });
+
+
+  test("a weekly rule counts each of its open occurrences", () => {
+    // The bug this replaced: a Sunday rule showing four times on the calendar
+    // counted as one, because the count was of rules rather than of the slots a
+    // student can actually pick.
+    const weekly: OpenAvailabilitySlot = {
+      id: "weekly-sunday",
+      dayOfWeek: 0,
+      startMin: 630,
+      endMin: 670,
+      timezone: TOKYO,
+      recurrence: "WEEKLY",
+      startsOn: "2026-08-30",
+      endsOn: "2026-09-20",
+    };
+
+    // Aug 30, Sep 6, Sep 13, Sep 20 — four Sundays.
+    expect(countOpenAvailabilitySlots({ slots: [weekly], now: NOW })).toBe(4);
+  });
+
+  test("a booked occurrence of a weekly rule is not counted, the rest still are", () => {
+    const weekly: OpenAvailabilitySlot = {
+      id: "weekly-sunday",
+      dayOfWeek: 0,
+      startMin: 630,
+      endMin: 670,
+      timezone: TOKYO,
+      recurrence: "WEEKLY",
+      startsOn: "2026-08-30",
+      endsOn: "2026-09-20",
+    };
+
+    expect(
+      countOpenAvailabilitySlots({
+        slots: [weekly],
+        bookings: [
+          {
+            startsAtIso: "2026-08-30T01:30:00.000Z",
+            endsAtIso: "2026-08-30T02:10:00.000Z",
+          },
+        ],
+        now: NOW,
+      }),
+    ).toBe(3);
+  });
+
+  test("a skipped occurrence is not counted", () => {
+    const weekly: OpenAvailabilitySlot = {
+      id: "weekly-sunday",
+      dayOfWeek: 0,
+      startMin: 630,
+      endMin: 670,
+      timezone: TOKYO,
+      recurrence: "WEEKLY",
+      startsOn: "2026-08-30",
+      endsOn: "2026-09-20",
+    };
+
+    expect(
+      countOpenAvailabilitySlots({
+        slots: [weekly],
+        skippedStartsAtIso: new Set(["2026-09-06T01:30:00.000Z"]),
+        now: NOW,
+      }),
+    ).toBe(3);
+  });
+
+  test("stops at the publishing window rather than counting a year ahead", () => {
+    // An open-ended rule would otherwise be counted to the horizon, reporting
+    // slots the teacher has not published and no student can book.
+    const openEnded: OpenAvailabilitySlot = {
+      id: "weekly-open",
+      dayOfWeek: 0,
+      startMin: 630,
+      endMin: 670,
+      timezone: TOKYO,
+      recurrence: "WEEKLY",
+      startsOn: "2026-08-30",
+      endsOn: null,
+    };
+
+    // August, September and October are open: Sundays from Aug 30 to Oct 25.
+    expect(countOpenAvailabilitySlots({ slots: [openEnded], now: NOW })).toBe(9);
   });
 
   test("returns 0 for no slots", () => {

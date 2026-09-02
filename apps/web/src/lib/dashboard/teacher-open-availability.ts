@@ -7,13 +7,8 @@ import {
   filterAvailabilityOverlappingBookings,
   type TimeRangeIso,
 } from "@/lib/teacher-availability-display";
+import { availabilityWindowEndDayKey } from "@/lib/availability-window";
 
-/**
- * How far ahead a slot may look for its next open occurrence. Matches the
- * marketplace horizon in `buildUpcomingSlotOptions` so the teacher's count and
- * what a student can actually pick are bounded the same way.
- */
-const OPEN_AVAILABILITY_HORIZON_DAYS = 365;
 
 export type OpenAvailabilitySlot = {
   id: string;
@@ -34,7 +29,6 @@ type CountArgs = {
   /** UTC startsAtIso values the teacher removed one occurrence at a time. */
   skippedStartsAtIso?: ReadonlySet<string>;
   now?: Date;
-  horizonDays?: number;
 };
 
 function dateOnly(
@@ -47,22 +41,26 @@ function dateOnly(
 }
 
 /**
- * True when the slot still has at least one occurrence a student could take:
- * ahead of `now`, not skipped, and not already booked.
+ * The occurrences of one slot a student could still take: ahead of `now`, not
+ * skipped, and not already booked.
  *
  * A row being `active` says only that the teacher has not deleted it. A one-off
  * slot whose date has passed, a weekly slot past its `endsOn`, and a one-off
  * slot whose only occurrence is booked are all still active rows — none of them
  * are open availability.
  */
-export function slotHasOpenOccurrence({
+export function openOccurrencesForSlot({
   slot,
   bookings = [],
   skippedStartsAtIso,
   now = new Date(),
-  horizonDays = OPEN_AVAILABILITY_HORIZON_DAYS,
-}: Omit<CountArgs, "slots"> & { slot: OpenAvailabilitySlot }): boolean {
-  const rangeEnd = new Date(now.getTime() + horizonDays * 24 * 60 * 60 * 1000);
+}: Omit<CountArgs, "slots"> & { slot: OpenAvailabilitySlot }) {
+  // Bounded by the publishing window rather than a horizon of its own, so the
+  // teacher's count cannot report slots they have not published and no student
+  // can book.
+  const rangeEnd = new Date(
+    `${availabilityWindowEndDayKey(now, slot.timezone)}T23:59:59.999Z`,
+  );
 
   const occurrences = expandRecurringOccurrencesInRange(
     {
@@ -81,22 +79,34 @@ export function slotHasOpenOccurrence({
   // The booking overlap check carries the same timezone-shift compatibility the
   // availability calendar uses, so a slot the calendar hides as booked is not
   // counted as open here.
-  const open = filterAvailabilityOverlappingBookings(occurrences, bookings, {
+  return filterAvailabilityOverlappingBookings(occurrences, bookings, {
     timezoneShiftCompatibility: { timeZone: slot.timezone },
   });
-
-  return open.length > 0;
 }
 
-/** How many published slots still have a bookable occurrence ahead of `now`. */
+/** True when the slot still has any occurrence a student could take. */
+export function slotHasOpenOccurrence(
+  args: Omit<CountArgs, "slots"> & { slot: OpenAvailabilitySlot },
+): boolean {
+  return openOccurrencesForSlot(args).length > 0;
+}
+
+/**
+ * How many bookable times the teacher currently has open.
+ *
+ * Counts occurrences, not the rules that produce them: one weekly rule shows as
+ * four times on the calendar and is four slots a student can take, so reporting
+ * it as "1" contradicts what the teacher is looking at.
+ */
 export function countOpenAvailabilitySlots({
   slots,
   bookings = [],
   skippedStartsAtIso,
   now = new Date(),
-  horizonDays = OPEN_AVAILABILITY_HORIZON_DAYS,
 }: CountArgs): number {
-  return slots.filter((slot) =>
-    slotHasOpenOccurrence({ slot, bookings, skippedStartsAtIso, now, horizonDays }),
-  ).length;
+  return slots.reduce(
+    (total, slot) =>
+      total + openOccurrencesForSlot({ slot, bookings, skippedStartsAtIso, now }).length,
+    0,
+  );
 }
