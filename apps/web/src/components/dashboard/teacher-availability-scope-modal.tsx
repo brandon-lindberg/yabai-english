@@ -2,10 +2,17 @@
 
 import { ModalShell } from "@/components/ui/modal-shell";
 
+/**
+ * A weekly rule means two different things by "this slot": the one time the
+ * teacher clicked, or every week it repeats. Removing has always asked; so does
+ * updating, and both ask with this.
+ */
 type Props = {
   open: boolean;
   onClose: () => void;
-  canRemoveThisOccurrence: boolean;
+  canApplyToThisOccurrence: boolean;
+  /** Removing is destructive and says so; updating is not. */
+  allSeriesTone?: "destructive" | "neutral";
   busy: boolean;
   error: string | null;
   title: string;
@@ -17,10 +24,11 @@ type Props = {
   onAllSeries: () => void;
 };
 
-export function TeacherAvailabilityRemoveModal({
+export function TeacherAvailabilityScopeModal({
   open,
   onClose,
-  canRemoveThisOccurrence,
+  canApplyToThisOccurrence,
+  allSeriesTone = "destructive",
   busy,
   error,
   title,
@@ -35,11 +43,11 @@ export function TeacherAvailabilityRemoveModal({
     <ModalShell
       open={open}
       onClose={onClose}
-      labelledBy="teacher-availability-remove-title"
+      labelledBy="teacher-availability-scope-title"
       dismissLabel={cancelLabel}
     >
       <>
-        <h3 id="teacher-availability-remove-title" className="text-lg font-semibold text-foreground">
+        <h3 id="teacher-availability-scope-title" className="text-lg font-semibold text-foreground">
           {title}
         </h3>
         <p className="mt-2 text-sm text-muted">{description}</p>
@@ -52,7 +60,7 @@ export function TeacherAvailabilityRemoveModal({
         <div className="mt-5 flex flex-col gap-2">
           <button
             type="button"
-            disabled={!canRemoveThisOccurrence || busy}
+            disabled={!canApplyToThisOccurrence || busy}
             onClick={() => void onThisOccurrence()}
             className="w-full rounded-xl border border-border bg-background px-4 py-3 text-left text-sm font-medium text-foreground hover:bg-[var(--app-hover)] disabled:cursor-not-allowed disabled:opacity-40"
           >
@@ -65,7 +73,11 @@ export function TeacherAvailabilityRemoveModal({
               onAllSeries();
               onClose();
             }}
-            className="w-full rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-left text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-40"
+            className={`w-full rounded-xl border px-4 py-3 text-left text-sm font-medium disabled:opacity-40 ${
+              allSeriesTone === "destructive"
+                ? "border-destructive/40 bg-destructive/5 text-destructive hover:bg-destructive/10"
+                : "border-border bg-background text-foreground hover:bg-[var(--app-hover)]"
+            }`}
           >
             {allSeriesLabel}
           </button>

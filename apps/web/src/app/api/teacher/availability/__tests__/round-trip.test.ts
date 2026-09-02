@@ -3,13 +3,14 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 
 /**
- * Saving availability deletes every row and recreates it from the request, so
- * any column the request does not carry is destroyed — silently, on a teacher's
- * next unrelated edit. `assignedStudentId` would have been lost that way.
+ * Saving availability writes every teacher-owned column from the request, so a
+ * column the request does not carry is left at its default on a new row and
+ * unchanged on an edited one. `assignedStudentId` was almost lost this way when
+ * saving still replaced the whole set.
  *
- * This pins the shape: every column a teacher owns must appear in the write.
- * A new column fails here until it is either round-tripped or listed below as
- * deliberately server-owned.
+ * This pins the shape: every column a teacher owns is written on save and sent
+ * by the editor. A new column fails here until it is either round-tripped or
+ * listed below as deliberately server-owned.
  */
 const ROOT = process.cwd();
 
@@ -41,9 +42,10 @@ describe("availability save round-trip", () => {
     path.join(ROOT, "src/app/api/teacher/availability/route.ts"),
     "utf8",
   );
+  // The one mapping both the update and the create go through.
   const createBlock = route.slice(
-    route.indexOf("createMany({"),
-    route.indexOf("});", route.indexOf("createMany({")),
+    route.indexOf("function availabilitySlotData"),
+    route.indexOf("\n}", route.indexOf("function availabilitySlotData")),
   );
 
   test("there are columns to check", () => {
@@ -66,7 +68,7 @@ describe("availability save round-trip", () => {
       "utf8",
     );
     const payload = editor.slice(
-      editor.indexOf("const payload = rules.map("),
+      editor.indexOf("const payload = nextRules.map("),
       editor.indexOf("const parsed = teacherAvailabilitySchema"),
     );
 

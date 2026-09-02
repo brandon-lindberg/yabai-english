@@ -174,7 +174,9 @@ describe("POST /api/bookings slot validation", () => {
       ],
       user: { email: "teacher@example.com", organizationMemberships: [] },
       availabilitySlots: [testAvailabilitySlot],
-      availabilityOccurrenceSkips: [{ startsAtIso: skippedStartsAt }],
+      availabilityOccurrenceSkips: [
+        { slotId: testAvailabilitySlot.id, startsAtIso: skippedStartsAt },
+      ],
     });
 
     const res = await POST(

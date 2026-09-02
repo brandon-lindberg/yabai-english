@@ -75,7 +75,7 @@ export async function POST(req: Request, { params }: Props) {
               assignedStudentId: true,
             },
           },
-          availabilityOccurrenceSkips: { select: { startsAtIso: true } },
+          availabilityOccurrenceSkips: { select: { slotId: true, startsAtIso: true } },
         },
       },
     },
@@ -133,7 +133,7 @@ export async function POST(req: Request, { params }: Props) {
       classLevelId: slot.classLevelId,
       classTypeId: slot.classTypeId,
     })),
-    occurrenceSkips: booking.teacher.availabilityOccurrenceSkips.map((s) => s.startsAtIso),
+    occurrenceSkips: booking.teacher.availabilityOccurrenceSkips,
     viewerTimezone: booking.student.studentProfile?.timezone ?? "Asia/Tokyo",
   });
   if (!slotValidation.ok) {

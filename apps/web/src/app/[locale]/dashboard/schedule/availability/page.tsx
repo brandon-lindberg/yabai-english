@@ -62,7 +62,7 @@ export default async function DashboardScheduleAvailabilityPage({
         },
       },
       availabilityOccurrenceSkips: {
-        select: { startsAtIso: true },
+        select: { slotId: true, startsAtIso: true },
       },
       paymentAccounts: {
         select: {
@@ -148,7 +148,7 @@ export default async function DashboardScheduleAvailabilityPage({
             classLevel: slot.classLevel,
             classType: slot.classType,
           }))}
-          initialOccurrenceSkips={profile.availabilityOccurrenceSkips.map((s) => s.startsAtIso)}
+          initialOccurrenceSkips={profile.availabilityOccurrenceSkips}
           defaultTimezone={profile.availabilitySlots[0]?.timezone ?? "Asia/Tokyo"}
           classLevels={profile.classLevels}
           classTypes={profile.classTypes}

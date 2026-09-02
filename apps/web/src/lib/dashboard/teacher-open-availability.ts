@@ -1,3 +1,8 @@
+import {
+  EMPTY_OCCURRENCE_SKIPS,
+  isOccurrenceSkipped,
+  type OccurrenceSkipIndex,
+} from "@/lib/availability-occurrence-skips";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 import {
   expandRecurringOccurrencesInRange,
@@ -27,7 +32,7 @@ type CountArgs = {
   /** Non-cancelled bookings; an occurrence they overlap is taken, not open. */
   bookings?: readonly TimeRangeIso[];
   /** UTC startsAtIso values the teacher removed one occurrence at a time. */
-  skippedStartsAtIso?: ReadonlySet<string>;
+  skippedOccurrences?: OccurrenceSkipIndex;
   now?: Date;
 };
 
@@ -52,7 +57,7 @@ function dateOnly(
 export function openOccurrencesForSlot({
   slot,
   bookings = [],
-  skippedStartsAtIso,
+  skippedOccurrences = EMPTY_OCCURRENCE_SKIPS,
   now = new Date(),
 }: Omit<CountArgs, "slots"> & { slot: OpenAvailabilitySlot }) {
   // Bounded by the publishing window rather than a horizon of its own, so the
@@ -74,7 +79,7 @@ export function openOccurrencesForSlot({
     },
     now,
     rangeEnd,
-  ).filter((occ) => !skippedStartsAtIso?.has(occ.startsAtIso));
+  ).filter((occ) => !isOccurrenceSkipped(skippedOccurrences, slot.id, occ.startsAtIso));
 
   // The booking overlap check carries the same timezone-shift compatibility the
   // availability calendar uses, so a slot the calendar hides as booked is not
@@ -101,12 +106,12 @@ export function slotHasOpenOccurrence(
 export function countOpenAvailabilitySlots({
   slots,
   bookings = [],
-  skippedStartsAtIso,
+  skippedOccurrences = EMPTY_OCCURRENCE_SKIPS,
   now = new Date(),
 }: CountArgs): number {
   return slots.reduce(
     (total, slot) =>
-      total + openOccurrencesForSlot({ slot, bookings, skippedStartsAtIso, now }).length,
+      total + openOccurrencesForSlot({ slot, bookings, skippedOccurrences, now }).length,
     0,
   );
 }

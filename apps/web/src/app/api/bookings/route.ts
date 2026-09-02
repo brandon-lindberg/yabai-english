@@ -62,7 +62,7 @@ const teacherAvailabilityInclude = {
     },
   },
   availabilityOccurrenceSkips: {
-    select: { startsAtIso: true },
+    select: { slotId: true, startsAtIso: true },
   },
 } as const;
 
@@ -376,7 +376,7 @@ export async function POST(req: Request) {
       classLevelId: slot.classLevelId,
       classTypeId: slot.classTypeId,
     })),
-    occurrenceSkips: teacher.availabilityOccurrenceSkips.map((skip) => skip.startsAtIso),
+    occurrenceSkips: teacher.availabilityOccurrenceSkips,
     viewerTimezone:
       student.studentProfile.timezone ??
       teacher.availabilitySlots[0]?.timezone ??

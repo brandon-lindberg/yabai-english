@@ -59,7 +59,7 @@ describe("validateBookingAgainstTeacherAvailability", () => {
       startsAtIso: validStartsAtIso,
       durationMin: 60,
       availabilitySlots: [slot],
-      occurrenceSkips: [validStartsAtIso],
+      occurrenceSkips: [{ slotId: "slot-1", startsAtIso: validStartsAtIso }],
       viewerTimezone: "Asia/Tokyo",
       now,
     });

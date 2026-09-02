@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../../messages/en.json";
 import { TeacherAvailabilityAddModal } from "../teacher-availability-add-modal";
-import { TeacherAvailabilityRemoveModal } from "../teacher-availability-remove-modal";
+import { TeacherAvailabilityScopeModal } from "../teacher-availability-scope-modal";
 
 /*
   A reported bug: on a short viewport the availability form ran off the top and
@@ -77,10 +77,10 @@ describe("availability modals fit the viewport", () => {
   test("the remove confirmation can scroll too", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
-        <TeacherAvailabilityRemoveModal
+        <TeacherAvailabilityScopeModal
           open
           onClose={vi.fn()}
-          canRemoveThisOccurrence
+          canApplyToThisOccurrence
           busy={false}
           error={null}
           title="Remove availability"

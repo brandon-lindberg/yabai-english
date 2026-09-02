@@ -4,13 +4,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
-import { weekdayLabel } from "@/lib/weekdays";
 import {
   TeacherAvailabilityAddModal,
   type AssignableStudentOption,
+  type TeacherAvailabilityAddModalDraft,
   type TeacherLessonOfferingOption,
 } from "@/components/dashboard/teacher-availability-add-modal";
-import { TeacherAvailabilityRemoveModal } from "@/components/dashboard/teacher-availability-remove-modal";
+import { TeacherAvailabilityScopeModal } from "@/components/dashboard/teacher-availability-scope-modal";
 import {
   TeacherAvailabilityGoogleMonth,
   type MonthDaySlotChip,
@@ -28,13 +28,16 @@ import {
   hasSlotMatchingAnchorDay,
 } from "@/lib/slot-calendar";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
+import {
+  buildOccurrenceSkipIndex,
+  type OccurrenceSkip,
+} from "@/lib/availability-occurrence-skips";
 import { filterAvailabilityOverlappingBookings } from "@/lib/teacher-availability-display";
 import { placeSlotsOnDayColumn, placeSlotsOnWeekGrid } from "@/lib/time-grid-week";
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
+import { offeringCanBackAvailabilitySlot } from "@/lib/availability-offering-match";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
-import { buttonClasses } from "@/components/ui/button";
-import { Field, Input, Select } from "@/components/ui/field";
 import {
   availabilityWindowEndDayKey,
   canAdvanceCalendarWithinWindow,
@@ -88,7 +91,7 @@ export type TeacherCalendarBooking = {
 
 type Props = {
   initialSlots: InitialTeacherAvailabilitySlot[];
-  initialOccurrenceSkips: string[];
+  initialOccurrenceSkips: OccurrenceSkip[];
   defaultTimezone: string;
   classLevels: TaxonomyOption[];
   /** The teacher's own students, offered when reserving a slot. */
@@ -99,16 +102,19 @@ type Props = {
   bookings?: TeacherCalendarBooking[];
 };
 
-function toTime(min: number) {
-  const h = String(Math.floor(min / 60)).padStart(2, "0");
-  const m = String(min % 60).padStart(2, "0");
-  return `${h}:${m}`;
-}
-
-function parseTime(value: string) {
-  const [h, m] = value.split(":").map((v) => Number(v));
-  if (!Number.isFinite(h) || !Number.isFinite(m)) return 0;
-  return h * 60 + m;
+/**
+ * Why this set of rules cannot be saved, as the message key naming it — or null.
+ * Confirming the modal is the save, so this is what stops a bad set going out.
+ */
+function unsaveableReason(rules: InitialTeacherAvailabilitySlot[]) {
+  if (rules.some((r) => r.endMin <= r.startMin)) return "invalidTimeRange" as const;
+  if (rules.some((r) => !r.classLevelId || !r.classTypeId || !r.teacherLessonOfferingId)) {
+    return "invalidLessonMeta" as const;
+  }
+  if (rules.some((r) => Boolean(r.startsOn && r.endsOn && r.startsOn > r.endsOn))) {
+    return "invalidDateRange" as const;
+  }
+  return null;
 }
 
 function newRuleId() {
@@ -124,18 +130,23 @@ function findBestOfferingForSlot(
     : undefined;
   if (existing) return existing;
 
+  // An offering the save route could never accept is no candidate at all: the
+  // later fallbacks below ignore taxonomy, so without this an incomplete
+  // offering gets paired anyway and the server rejects the entire save.
+  const candidates = lessonOfferings.filter(offeringCanBackAvailabilitySlot);
+
   const durationMin = slot.endMin - slot.startMin;
   const matchesKnownTaxonomy = (offer: TeacherLessonOfferingOption) =>
     (!slot.classLevelId || offer.classLevelId === slot.classLevelId) &&
     (!slot.classTypeId || offer.classTypeId === slot.classTypeId);
 
   return (
-    lessonOfferings.find(
+    candidates.find(
       (offer) => offer.durationMin === durationMin && matchesKnownTaxonomy(offer),
     ) ??
-    lessonOfferings.find(matchesKnownTaxonomy) ??
-    lessonOfferings.find((offer) => offer.durationMin === durationMin) ??
-    lessonOfferings[0] ??
+    candidates.find(matchesKnownTaxonomy) ??
+    candidates.find((offer) => offer.durationMin === durationMin) ??
+    candidates[0] ??
     null
   );
 }
@@ -151,11 +162,14 @@ function normalizeLegacyAvailabilitySlots(
     return {
       ...slot,
       endMin: slot.startMin + offer.durationMin,
-      classLevelId: offer.classLevelId ?? slot.classLevelId,
-      classTypeId: offer.classTypeId ?? slot.classTypeId,
+      // Adopted outright, not merged with the slot's own values: the route
+      // requires the pair to be equal, and a leftover value from the slot is
+      // exactly what made them unequal.
+      classLevelId: offer.classLevelId,
+      classTypeId: offer.classTypeId,
       teacherLessonOfferingId: offer.id,
-      classLevel: offer.classLevel ?? slot.classLevel,
-      classType: offer.classType ?? slot.classType,
+      classLevel: offer.classLevel,
+      classType: offer.classType,
     };
   });
 }
@@ -188,23 +202,30 @@ export function TeacherAvailabilityCalendar({
     () => new Map(classTypes.map((t) => [t.id, t])),
     [classTypes],
   );
-  const formatOfferingLabel = useCallback(
-    (offer: TeacherLessonOfferingOption) => {
-      const size = offer.isGroup && offer.groupSize ? `, group ${offer.groupSize}` : "";
-      return `${pickLabel(offer.classLevel)} / ${pickLabel(offer.classType)} (${offer.durationMin} min, ¥${offer.rateYen.toLocaleString()}${size})`;
-    },
-    [pickLabel],
-  );
   const [rules, setRules] = useState<InitialTeacherAvailabilitySlot[]>(() =>
     normalizeLegacyAvailabilitySlots(initialSlots, lessonOfferings),
   );
-  const [occurrenceSkips, setOccurrenceSkips] = useState<string[]>(initialOccurrenceSkips);
+  const [occurrenceSkips, setOccurrenceSkips] = useState<OccurrenceSkip[]>(initialOccurrenceSkips);
   const [calendarView, setCalendarView] = useState<CalendarViewMode>("month");
   const [calendarAnchor, setCalendarAnchor] = useState(new Date().toISOString());
   const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
   const [selectedStartsAtIso, setSelectedStartsAtIso] = useState<string | null>(null);
+  /**
+   * The slot the modal is editing. Separate from `selectedRuleId` so closing
+   * the modal leaves the slot selected — the calendar still highlights it, and
+   * removing an occurrence still knows which one.
+   */
+  const [editRuleId, setEditRuleId] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [monthAddDayKey, setMonthAddDayKey] = useState<string | null>(null);
+  /** An update waiting on the teacher's choice of scope. */
+  const [pendingUpdate, setPendingUpdate] = useState<{
+    ruleId: string;
+    startsAtIso: string;
+    draft: TeacherAvailabilityAddModalDraft;
+  } | null>(null);
+  const [updateBusy, setUpdateBusy] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
   const [removeOpen, setRemoveOpen] = useState(false);
   const [removeBusy, setRemoveBusy] = useState(false);
   const [removeError, setRemoveError] = useState<string | null>(null);
@@ -225,7 +246,7 @@ export function TeacherAvailabilityCalendar({
     [locale, teacherTz],
   );
 
-  const skipSet = useMemo(() => new Set(occurrenceSkips), [occurrenceSkips]);
+  const skipIndex = useMemo(() => buildOccurrenceSkipIndex(occurrenceSkips), [occurrenceSkips]);
 
   const canAddForDayKey = useCallback(
     (dayKey: string) => isAvailabilityDaySelectable(dayKey, new Date(), teacherTz),
@@ -234,6 +255,56 @@ export function TeacherAvailabilityCalendar({
 
   const addForDayKey = useCallback((dayKey: string) => {
     setMonthAddDayKey(dayKey);
+  }, []);
+
+  /**
+   * The modal's draft and a stored rule are the same nine fields in two
+   * shapes. Adding and editing both go through these, so neither can drift.
+   */
+  const ruleFromDraft = useCallback(
+    (draft: TeacherAvailabilityAddModalDraft, id: string): InitialTeacherAvailabilitySlot => ({
+      id,
+      dayOfWeek: draft.dayOfWeek,
+      startMin: draft.startMin,
+      endMin: draft.endMin,
+      timezone: draft.timezone,
+      recurrence: draft.recurrence,
+      startsOn: draft.startsOn,
+      endsOn: draft.endsOn,
+      assignedStudentId: draft.assignedStudentId ?? null,
+      assignedStudentName:
+        assignableStudents.find((s) => s.id === draft.assignedStudentId)?.label ?? null,
+      classLevelId: draft.classLevelId,
+      classTypeId: draft.classTypeId,
+      teacherLessonOfferingId: draft.teacherLessonOfferingId,
+      classLevel: levelById.get(draft.classLevelId) ?? null,
+      classType: typeById.get(draft.classTypeId) ?? null,
+    }),
+    [assignableStudents, levelById, typeById],
+  );
+
+  const draftFromRule = useCallback(
+    (rule: InitialTeacherAvailabilitySlot): TeacherAvailabilityAddModalDraft => ({
+      dayOfWeek: rule.dayOfWeek,
+      startMin: rule.startMin,
+      endMin: rule.endMin,
+      timezone: rule.timezone,
+      recurrence: rule.recurrence,
+      startsOn: rule.startsOn,
+      endsOn: rule.endsOn,
+      assignedStudentId: rule.assignedStudentId ?? null,
+      classLevelId: rule.classLevelId ?? "",
+      classTypeId: rule.classTypeId ?? "",
+      teacherLessonOfferingId: rule.teacherLessonOfferingId ?? "",
+    }),
+    [],
+  );
+
+  /** Picking a slot anywhere in the calendar means editing it. */
+  const selectSlotForEdit = useCallback((startsAtIso: string | null, groupKey: string | null) => {
+    setSelectedStartsAtIso(startsAtIso);
+    setSelectedRuleId(groupKey);
+    setEditRuleId(groupKey);
   }, []);
 
   const calendarSlots = useMemo(() => {
@@ -265,7 +336,7 @@ export function TeacherAvailabilityCalendar({
       horizonDays: 365,
       minimumLeadHours: 0,
       allowPastInstances: true,
-      skippedStartsAtIso: skipSet,
+      skippedOccurrences: skipIndex,
       formatLessonMeta: (slot) => metaBySlotId.get(slot.id) ?? "",
     });
     return expanded.map((s) => ({
@@ -274,7 +345,7 @@ export function TeacherAvailabilityCalendar({
       label: s.label,
       groupKey: s.slotId,
     }));
-  }, [rules, teacherTz, skipSet, levelById, typeById, pickLabel, t]);
+  }, [rules, teacherTz, skipIndex, levelById, typeById, pickLabel, t]);
 
   const displayCalendarSlots = useMemo(
     () =>
@@ -370,10 +441,7 @@ export function TeacherAvailabilityCalendar({
         blocksByDay={blocksByDay}
         selectedStartsAtIso={selectedStartsAtIso}
         selectedGroupKey={selectedRuleId}
-        onSelectSlot={(iso, groupKey) => {
-          setSelectedStartsAtIso(iso);
-          setSelectedRuleId(groupKey ?? null);
-        }}
+        onSelectSlot={(iso, groupKey) => selectSlotForEdit(iso, groupKey ?? null)}
         onCalendarAnchorChange={setCalendarAnchor}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
@@ -389,6 +457,7 @@ export function TeacherAvailabilityCalendar({
       blocksByDay,
       selectedStartsAtIso,
       selectedRuleId,
+    selectSlotForEdit,
       t,
       addForDayKey,
       td,
@@ -397,32 +466,11 @@ export function TeacherAvailabilityCalendar({
   );
 
   const selectedRule = selectedRuleId ? rules.find((r) => r.id === selectedRuleId) : undefined;
-  /* Each of these was spelled out twice: once to colour a border, once to
-     decide whether to print the message beneath it. */
-  const selectedRuleDateRangeInvalid = Boolean(
-    selectedRule?.startsOn && selectedRule?.endsOn && selectedRule.startsOn > selectedRule.endsOn,
-  );
-  const selectedRuleMetaMissing = Boolean(
-    selectedRule &&
-      (!selectedRule.classLevelId ||
-        !selectedRule.classTypeId ||
-        !selectedRule.teacherLessonOfferingId),
-  );
-
-  const invalidSlotRanges = useMemo(
-    () => rules.some((r) => r.endMin <= r.startMin),
-    [rules],
-  );
-
-  const invalidDateRanges = useMemo(
-    () => rules.some((r) => Boolean(r.startsOn && r.endsOn && r.startsOn > r.endsOn)),
-    [rules],
-  );
-
-  const hasInvalidLessonMeta = useMemo(
-    () => rules.some((r) => !r.classLevelId || !r.classTypeId || !r.teacherLessonOfferingId),
-    [rules],
-  );
+  const editingRule = editRuleId ? rules.find((r) => r.id === editRuleId) : undefined;
+  const editingDayKey = editingRule
+    ? (editingRule.startsOn ??
+      (selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso, teacherTz) : null))
+    : null;
 
   const hasSlotsOnFocusDay = useMemo(
     () => hasSlotMatchingAnchorDay(calendarSlots, calendarAnchor, teacherTz),
@@ -461,10 +509,7 @@ export function TeacherAvailabilityCalendar({
         blocks={dayBlocks}
         selectedStartsAtIso={selectedStartsAtIso}
         selectedGroupKey={selectedRuleId}
-        onSelectSlot={(iso, groupKey) => {
-          setSelectedStartsAtIso(iso);
-          setSelectedRuleId(groupKey ?? null);
-        }}
+        onSelectSlot={(iso, groupKey) => selectSlotForEdit(iso, groupKey ?? null)}
         onCalendarAnchorChange={setCalendarAnchor}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
@@ -491,6 +536,7 @@ export function TeacherAvailabilityCalendar({
       dayBlocks,
       selectedStartsAtIso,
       selectedRuleId,
+    selectSlotForEdit,
       t,
       addForDayKey,
       td,
@@ -515,10 +561,7 @@ export function TeacherAvailabilityCalendar({
         onAddForDayKey={addForDayKey}
         canAddForDayKey={canAddForDayKey}
         addLabel={t("addForDay")}
-        onSelectSlot={(iso, groupKey) => {
-          setSelectedStartsAtIso(iso);
-          setSelectedRuleId(groupKey ?? null);
-        }}
+        onSelectSlot={(iso, groupKey) => selectSlotForEdit(iso, groupKey ?? null)}
         onCalendarAnchorChange={setCalendarAnchor}
         reservedLabel={td("slotReserved")}
         timeZone={teacherTz}
@@ -533,6 +576,7 @@ export function TeacherAvailabilityCalendar({
       focusedMonthDayKey,
       selectedStartsAtIso,
       selectedRuleId,
+    selectSlotForEdit,
       t,
       addForDayKey,
       td,
@@ -594,8 +638,7 @@ export function TeacherAvailabilityCalendar({
                         key={`${block.startsAtIso}-${block.groupKey ?? ""}`}
                         type="button"
                         onClick={() => {
-                          setSelectedStartsAtIso(block.startsAtIso);
-                          setSelectedRuleId(block.groupKey ?? null);
+                          selectSlotForEdit(block.startsAtIso, block.groupKey ?? null);
                           setCalendarAnchor(block.startsAtIso);
                         }}
                         className={`w-full rounded-md px-2.5 py-1.5 text-left text-xs font-medium ${SLOT_FIGURE} ${selected ? selRing : idleRing}`}
@@ -619,6 +662,7 @@ export function TeacherAvailabilityCalendar({
     blocksByDay,
     selectedStartsAtIso,
     selectedRuleId,
+    selectSlotForEdit,
     t,
     td,
     addForDayKey,
@@ -699,8 +743,7 @@ export function TeacherAvailabilityCalendar({
                         key={`${slot.startsAtIso}-${slot.groupKey ?? ""}`}
                         type="button"
                         onClick={() => {
-                          setSelectedStartsAtIso(slot.startsAtIso);
-                          setSelectedRuleId(slot.groupKey ?? null);
+                          selectSlotForEdit(slot.startsAtIso, slot.groupKey ?? null);
                           setCalendarAnchor(slot.startsAtIso);
                         }}
                         className={`w-full rounded-md px-2.5 py-1.5 text-left text-xs font-medium ${SLOT_FIGURE} ${selected ? selRing : idleRing}`}
@@ -725,6 +768,7 @@ export function TeacherAvailabilityCalendar({
     locale,
     selectedStartsAtIso,
     selectedRuleId,
+    selectSlotForEdit,
     t,
     td,
     addForDayKey,
@@ -732,58 +776,33 @@ export function TeacherAvailabilityCalendar({
     formatCalendarTime,
   ]);
 
-  function patchSelected(
-    patch: Partial<
-      Pick<
-        InitialTeacherAvailabilitySlot,
-        | "dayOfWeek"
-        | "startMin"
-        | "endMin"
-        | "timezone"
-        | "recurrence"
-        | "startsOn"
-        | "endsOn"
-        | "classLevelId"
-        | "classTypeId"
-        | "teacherLessonOfferingId"
-      >
-    >,
-  ) {
-    if (!selectedRuleId) return;
-    setRules((prev) =>
-      prev.map((r) => {
-        if (r.id !== selectedRuleId) return r;
-        const next: InitialTeacherAvailabilitySlot = { ...r, ...patch };
-        if (patch.classLevelId !== undefined) {
-          next.classLevel = patch.classLevelId
-            ? (levelById.get(patch.classLevelId) ?? null)
-            : null;
-        }
-        if (patch.classTypeId !== undefined) {
-          next.classType = patch.classTypeId
-            ? (typeById.get(patch.classTypeId) ?? null)
-            : null;
-        }
-        if (patch.teacherLessonOfferingId !== undefined) {
-          const offer = lessonOfferings.find((o) => o.id === patch.teacherLessonOfferingId);
-          if (offer) {
-            next.classLevelId = offer.classLevelId;
-            next.classTypeId = offer.classTypeId;
-            next.classLevel = offer.classLevel;
-            next.classType = offer.classType;
-            next.endMin = next.startMin + offer.durationMin;
-          }
-        }
-        return next;
-      }),
-    );
+  /** Changing the availability is saving it: there is no second step. */
+  function commitRules(next: InitialTeacherAvailabilitySlot[]) {
+    setRules(next);
+    void save(next);
   }
 
   function removeEntireWeeklyRule() {
     if (!selectedRuleId) return;
-    setRules((prev) => prev.filter((r) => r.id !== selectedRuleId));
+    commitRules(rules.filter((r) => r.id !== selectedRuleId));
     setSelectedRuleId(null);
     setSelectedStartsAtIso(null);
+  }
+
+  /** Marks one occurrence of a weekly rule as not happening. */
+  async function skipOccurrence(slotId: string, startsAtIso: string) {
+    const res = await fetch("/api/teacher/availability/occurrence-skips", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slotId, startsAtIso }),
+    });
+    if (!res.ok) return false;
+    setOccurrenceSkips((prev) =>
+      prev.some((skip) => skip.slotId === slotId && skip.startsAtIso === startsAtIso)
+        ? prev
+        : [...prev, { slotId, startsAtIso }],
+    );
+    return true;
   }
 
   async function removeThisOccurrenceOnly() {
@@ -791,18 +810,10 @@ export function TeacherAvailabilityCalendar({
     setRemoveBusy(true);
     setRemoveError(null);
     try {
-      const res = await fetch("/api/teacher/availability/occurrence-skips", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slotId: selectedRuleId, startsAtIso: selectedStartsAtIso }),
-      });
-      if (!res.ok) {
+      if (!(await skipOccurrence(selectedRuleId, selectedStartsAtIso))) {
         setRemoveError(t("removeOccurrenceFailed"));
         return;
       }
-      setOccurrenceSkips((prev) =>
-        prev.includes(selectedStartsAtIso) ? prev : [...prev, selectedStartsAtIso],
-      );
       setRemoveOpen(false);
       setSelectedRuleId(null);
       setSelectedStartsAtIso(null);
@@ -811,25 +822,57 @@ export function TeacherAvailabilityCalendar({
     }
   }
 
-  async function save() {
+  function applyUpdateToAllTimes() {
+    if (!pendingUpdate) return;
+    const { ruleId, draft } = pendingUpdate;
+    commitRules(rules.map((r) => (r.id === ruleId ? ruleFromDraft(draft, r.id) : r)));
+    setPendingUpdate(null);
+  }
+
+  /**
+   * Changing one occurrence of a weekly rule splits it: that week stops
+   * happening under the rule, and a one-off carries the change in its place.
+   */
+  async function applyUpdateToThisOccurrenceOnly() {
+    if (!pendingUpdate) return;
+    const { ruleId, startsAtIso, draft } = pendingUpdate;
+    setUpdateBusy(true);
+    setUpdateError(null);
+    try {
+      if (!(await skipOccurrence(ruleId, startsAtIso))) {
+        setUpdateError(t("updateOccurrenceFailed"));
+        return;
+      }
+      const dayKey = dayKeyFromIso(startsAtIso, draft.timezone);
+      commitRules([
+        ...rules,
+        {
+          ...ruleFromDraft(draft, newRuleId()),
+          recurrence: "ONE_OFF",
+          startsOn: dayKey,
+          endsOn: null,
+          dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, draft.timezone),
+        },
+      ]);
+      setPendingUpdate(null);
+    } finally {
+      setUpdateBusy(false);
+    }
+  }
+
+  async function save(nextRules: InitialTeacherAvailabilitySlot[]) {
     setSaveErrorMessage(null);
-    if (invalidSlotRanges) {
+    const reason = unsaveableReason(nextRules);
+    if (reason) {
       setStatus("error");
-      setSaveErrorMessage(t("invalidTimeRange"));
+      setSaveErrorMessage(t(reason));
       return;
     }
-    if (hasInvalidLessonMeta) {
-      setStatus("error");
-      setSaveErrorMessage(t("invalidLessonMeta"));
-      return;
-    }
-    if (invalidDateRanges) {
-      setStatus("error");
-      setSaveErrorMessage(t("invalidDateRange"));
-      return;
-    }
-    const payload = rules.map((r) => {
+    const payload = nextRules.map((r) => {
       const slot: Record<string, unknown> = {
+        // The row this entry edits. A locally minted `new_…` id matches nothing
+        // on the server and becomes a new row there.
+        id: r.id,
         dayOfWeek: r.dayOfWeek,
         startMin: r.startMin,
         endMin: r.endMin,
@@ -926,10 +969,7 @@ export function TeacherAvailabilityCalendar({
         }
         selectedStartsAtIso={selectedStartsAtIso}
         selectedGroupKey={selectedRuleId}
-        onSelectSlot={(iso, groupKey) => {
-          setSelectedStartsAtIso(iso);
-          setSelectedRuleId(groupKey ?? null);
-        }}
+        onSelectSlot={(iso, groupKey) => selectSlotForEdit(iso, groupKey ?? null)}
         weekColumnAddLabel={t("addForDay")}
         onAddForDayKey={addForDayKey}
         canAddForDayKey={canAddForDayKey}
@@ -937,260 +977,111 @@ export function TeacherAvailabilityCalendar({
       />
 
       <TeacherAvailabilityAddModal
-        open={monthAddDayKey !== null}
-        dayKey={monthAddDayKey}
+        open={monthAddDayKey !== null || editingRule !== undefined}
+        dayKey={monthAddDayKey ?? editingDayKey}
         locale={locale}
         initialTimezone={teacherTz}
         classLevels={classLevels}
         classTypes={classTypes}
         lessonOfferings={lessonOfferings}
         assignableStudents={assignableStudents}
-        onClose={() => setMonthAddDayKey(null)}
+        initialDraft={editingRule ? draftFromRule(editingRule) : null}
+        onRemove={
+          editingRule
+            ? () => {
+                setRemoveError(null);
+                setRemoveOpen(true);
+              }
+            : null
+        }
+        removeLabel={t("removeRule")}
+        onClose={() => {
+          setMonthAddDayKey(null);
+          setEditRuleId(null);
+        }}
         onConfirm={(draft) => {
-          setRules((prev) => [
-            ...prev,
-            {
-              id: newRuleId(),
-              dayOfWeek: draft.dayOfWeek,
-              startMin: draft.startMin,
-              endMin: draft.endMin,
-              timezone: draft.timezone,
-              recurrence: draft.recurrence,
-              startsOn: draft.startsOn,
-              endsOn: draft.endsOn,
-              assignedStudentId: draft.assignedStudentId ?? null,
-              assignedStudentName:
-                assignableStudents.find((s) => s.id === draft.assignedStudentId)?.label ??
-                null,
-              classLevelId: draft.classLevelId,
-              classTypeId: draft.classTypeId,
-              teacherLessonOfferingId: draft.teacherLessonOfferingId,
-              classLevel: levelById.get(draft.classLevelId) ?? null,
-              classType: typeById.get(draft.classTypeId) ?? null,
-            },
-          ]);
+          if (editRuleId) {
+            // A weekly rule means either this week or every week, so ask before
+            // rewriting weeks the teacher may not have meant to touch.
+            if (editingRule?.recurrence === "WEEKLY" && selectedStartsAtIso) {
+              setUpdateError(null);
+              setPendingUpdate({ ruleId: editRuleId, startsAtIso: selectedStartsAtIso, draft });
+              return;
+            }
+            // Editing rewrites the slot in place, and leaves it selected so the
+            // calendar still marks what was just changed.
+            commitRules(rules.map((r) => (r.id === editRuleId ? ruleFromDraft(draft, r.id) : r)));
+            return;
+          }
+          commitRules([...rules, ruleFromDraft(draft, newRuleId())]);
           setSelectedRuleId(null);
           setSelectedStartsAtIso(null);
         }}
-        title={t("monthAddModalTitle")}
-        subtitle={
-          monthAddDayKey
-            ? t("monthAddModalSubtitle", {
-                date: formatDayKeyLabel(
-                  monthAddDayKey,
-                  locale,
-                  {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  },
-                  teacherTz,
-                ),
-              })
-            : ""
-        }
+        title={editingRule ? t("monthEditModalTitle") : t("monthAddModalTitle")}
+        subtitle={(() => {
+          const dayKey = monthAddDayKey ?? editingDayKey;
+          if (!dayKey) return "";
+          const date = formatDayKeyLabel(
+            dayKey,
+            locale,
+            { weekday: "long", month: "long", day: "numeric", year: "numeric" },
+            teacherTz,
+          );
+          return editingRule
+            ? t("monthEditModalSubtitle", { date })
+            : t("monthAddModalSubtitle", { date });
+        })()}
         cancelLabel={t("monthAddModalCancel")}
-        confirmLabel={t("monthAddModalConfirm")}
+        confirmLabel={
+          editingRule ? t("monthEditModalConfirm") : t("monthAddModalConfirm")
+        }
         dayOfWeekLabel={t("dayOfWeek")}
         startLabel={t("start")}
         endLabel={t("end")}
         timezoneLabel={t("timezone")}
       />
 
-      {selectedRule ? (
-        /*
-          The same nine fields as the add modal, written out a second time with
-          the same `text-xs text-muted` labels and the same hardcoded English
-          "Class offer". Both now go through `Field`, which is what carries the
-          invalid-range messages to the control they describe instead of leaving
-          them as loose paragraphs underneath.
-        */
-        <div className="space-y-4 border-t border-border pt-4">
-          {selectedRule.recurrence === "ONE_OFF" ? (
-            <Field label={t("date")} className="sm:max-w-xs">
-              {(field) => (
-                <Input
-                  {...field}
-                  type="date"
-                  value={selectedRule.startsOn ?? ""}
-                  onChange={(e) => {
-                    const startsOn = e.target.value;
-                    patchSelected({
-                      startsOn,
-                      dayOfWeek: startsOn
-                        ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
-                        : selectedRule.dayOfWeek,
-                    });
-                  }}
-                />
-              )}
-            </Field>
-          ) : (
-            <>
-              <Field label={t("dayOfWeek")} className="sm:max-w-xs">
-                {(field) => (
-                  <Select
-                    {...field}
-                    value={selectedRule.dayOfWeek}
-                    onChange={(e) => patchSelected({ dayOfWeek: Number(e.target.value) })}
-                  >
-                    {Array.from({ length: 7 }, (_, i) => (
-                      <option key={i} value={i}>
-                        {weekdayLabel(i, locale)}
-                      </option>
-                    ))}
-                  </Select>
-                )}
-              </Field>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={t("fromDate")}>
-                  {(field) => (
-                    <Input
-                      {...field}
-                      type="date"
-                      value={selectedRule.startsOn ?? ""}
-                      onChange={(e) => {
-                        const startsOn = e.target.value;
-                        patchSelected({
-                          startsOn,
-                          dayOfWeek: startsOn
-                            ? luxonWeekdayMod7FromDayKey(startsOn, selectedRule.timezone)
-                            : selectedRule.dayOfWeek,
-                        });
-                      }}
-                    />
-                  )}
-                </Field>
-                <Field
-                  label={t("untilDate")}
-                  hint={t("weeklyDateRangeHint")}
-                  error={selectedRuleDateRangeInvalid ? t("invalidDateRange") : null}
-                >
-                  {(field) => (
-                    <Input
-                      {...field}
-                      type="date"
-                      value={selectedRule.endsOn ?? ""}
-                      onChange={(e) => patchSelected({ endsOn: e.target.value || null })}
-                    />
-                  )}
-                </Field>
-              </div>
-            </>
-          )}
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label={t("start")}>
-              {(field) => (
-                <Input
-                  {...field}
-                  type="time"
-                  value={toTime(selectedRule.startMin)}
-                  onChange={(e) => {
-                    const startMin = parseTime(e.target.value);
-                    const offer = lessonOfferings.find(
-                      (o) => o.id === selectedRule.teacherLessonOfferingId,
-                    );
-                    patchSelected({
-                      startMin,
-                      endMin: offer ? startMin + offer.durationMin : selectedRule.endMin,
-                    });
-                  }}
-                />
-              )}
-            </Field>
-            <Field
-              label={t("end")}
-              error={
-                selectedRule.endMin <= selectedRule.startMin ? t("invalidTimeRange") : null
-              }
-            >
-              {(field) => (
-                <Input {...field} type="time" value={toTime(selectedRule.endMin)} readOnly />
-              )}
-            </Field>
-            <Field label={t("timezone")}>
-              {(field) => (
-                <Input
-                  {...field}
-                  value={selectedRule.timezone}
-                  onChange={(e) => patchSelected({ timezone: e.target.value })}
-                />
-              )}
-            </Field>
-          </div>
-
-          <Field
-            label={t("classOffer")}
-            className="sm:max-w-xs"
-            error={selectedRuleMetaMissing ? t("invalidLessonMeta") : null}
-          >
-            {(field) => (
-              <Select
-                {...field}
-                required
-                value={selectedRule.teacherLessonOfferingId ?? ""}
-                onChange={(e) => patchSelected({ teacherLessonOfferingId: e.target.value })}
-              >
-                {!selectedRule.teacherLessonOfferingId ? <option value="">—</option> : null}
-                {lessonOfferings.map((offer) => (
-                  <option key={offer.id} value={offer.id}>
-                    {formatOfferingLabel(offer)}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Field>
-
-          <div className="grid gap-4 sm:max-w-xl sm:grid-cols-2">
-            {/* Derived from the offer above, so disabled rather than read-only:
-                never editable, and never worth a tab stop. */}
-            <Field label={t("lessonLevel")}>
-              {(field) => <Input {...field} disabled value={pickLabel(selectedRule.classLevel)} />}
-            </Field>
-            <Field label={t("lessonType")}>
-              {(field) => <Input {...field} disabled value={pickLabel(selectedRule.classType)} />}
-            </Field>
-          </div>
-        </div>
-      ) : null}
-
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            setRemoveError(null);
-            setRemoveOpen(true);
-          }}
-          disabled={!selectedRuleId}
-          className="rounded-full border border-destructive/40 px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive/5 disabled:opacity-40"
+      {/* No Save button: the modal's confirm is the save. What is left is
+          telling the teacher it happened — or did not. */}
+      {status === "idle" ? null : (
+        <p
+          role="status"
+          className={`text-sm ${status === "error" ? "text-destructive" : "text-foreground"}`}
         >
-          {t("removeRule")}
-        </button>
-        <button
-          type="button"
-          onClick={() => void save()}
-          disabled={status === "saving" || invalidSlotRanges || invalidDateRanges || hasInvalidLessonMeta}
-          className={buttonClasses()}
-        >
-          {status === "saving" ? t("saving") : t("save")}
-        </button>
-        {status === "saved" ? (
-          <span className="text-sm text-foreground">{t("saved")}</span>
-        ) : null}
-        {status === "error" ? (
-          <span className="text-sm text-destructive">{saveErrorMessage ?? t("error")}</span>
-        ) : null}
-      </div>
+          {status === "saving"
+            ? t("saving")
+            : status === "saved"
+              ? t("saved")
+              : (saveErrorMessage ?? t("error"))}
+        </p>
+      )}
 
-      <TeacherAvailabilityRemoveModal
+      <TeacherAvailabilityScopeModal
+        open={pendingUpdate !== null}
+        onClose={() => {
+          setPendingUpdate(null);
+          setUpdateError(null);
+        }}
+        canApplyToThisOccurrence
+        allSeriesTone="neutral"
+        busy={updateBusy}
+        error={updateError}
+        title={t("updateDialogTitle")}
+        description={t("updateDialogDescriptionWeekly")}
+        thisOccurrenceLabel={t("updateThisOccurrence")}
+        allSeriesLabel={t("updateAllSeries")}
+        cancelLabel={t("removeDialogCancel")}
+        onThisOccurrence={() => void applyUpdateToThisOccurrenceOnly()}
+        onAllSeries={applyUpdateToAllTimes}
+      />
+
+      <TeacherAvailabilityScopeModal
         open={removeOpen}
         onClose={() => {
           setRemoveOpen(false);
           setRemoveError(null);
         }}
-        canRemoveThisOccurrence={Boolean(
+        canApplyToThisOccurrence={Boolean(
           selectedRuleId && selectedStartsAtIso && selectedRule?.recurrence === "WEEKLY",
         )}
         busy={removeBusy}

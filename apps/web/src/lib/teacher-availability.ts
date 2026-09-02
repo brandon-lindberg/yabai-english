@@ -12,6 +12,11 @@ const dateOnlySchema = z
 
 export const teacherAvailabilitySlotSchema = z
   .object({
+    /**
+     * The row this entry is editing. Absent for a slot the teacher just added.
+     * An id the teacher does not own addresses nothing and is created instead.
+     */
+    id: z.string().min(1).optional(),
     ...weeklyTimeRangeShape,
     timezone: z.string().min(1).max(100),
     recurrence: teacherAvailabilityRecurrenceSchema.optional(),

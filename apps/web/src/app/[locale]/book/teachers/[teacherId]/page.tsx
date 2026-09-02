@@ -1,3 +1,4 @@
+import { buildOccurrenceSkipIndex } from "@/lib/availability-occurrence-skips";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getLocale } from "next-intl/server";
@@ -129,7 +130,7 @@ export default async function TeacherProfileBookingPage({
         },
       },
       availabilityOccurrenceSkips: {
-        select: { startsAtIso: true },
+        select: { slotId: true, startsAtIso: true },
       },
       offersFreeTrial: true,
       lessonOfferings: {
@@ -220,8 +221,8 @@ export default async function TeacherProfileBookingPage({
       })
     : null;
   const viewerTimezone = studentProfile?.timezone ?? "Asia/Tokyo";
-  const skippedStartsAtIso = new Set(
-    teacher.availabilityOccurrenceSkips.map((s) => s.startsAtIso),
+  const skippedOccurrences = buildOccurrenceSkipIndex(
+    teacher.availabilityOccurrenceSkips,
   );
   const slotMetaById = new Map<string, string>();
   for (const slot of teacher.availabilitySlots) {
@@ -242,7 +243,7 @@ export default async function TeacherProfileBookingPage({
     })),
     viewerTimezone,
     minimumLeadHours: 48,
-    skippedStartsAtIso,
+    skippedOccurrences,
     formatLessonMeta: (slot) => slotMetaById.get(slot.id) ?? "",
   });
 

@@ -1,3 +1,7 @@
+import {
+  buildOccurrenceSkipIndex,
+  type OccurrenceSkip,
+} from "@/lib/availability-occurrence-skips";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 import type { RecurrencePattern } from "@/lib/recurring-slot-occurrences";
 
@@ -26,19 +30,19 @@ export function validateBookingAgainstTeacherAvailability({
   startsAtIso: string;
   durationMin: number;
   availabilitySlots: TeacherAvailabilitySlotInput[];
-  occurrenceSkips?: string[];
+  occurrenceSkips?: readonly OccurrenceSkip[];
   viewerTimezone: string;
   minimumLeadHours?: number;
   now?: Date | string;
 }):
   | { ok: true; slotId: string; classTypeId: string | null }
   | { ok: false; error: string } {
-  const skippedStartsAtIso = new Set(occurrenceSkips);
+  const skippedOccurrences = buildOccurrenceSkipIndex(occurrenceSkips);
   const options = buildUpcomingSlotOptions({
     availabilitySlots,
     viewerTimezone,
     minimumLeadHours,
-    skippedStartsAtIso,
+    skippedOccurrences,
     now,
   });
 

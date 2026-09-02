@@ -688,10 +688,14 @@ model AvailabilityOccurrenceSkip {
   id               String         @id @default(cuid())
   teacherProfileId String
   teacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id], onDelete: Cascade)
+  /// The rule this cancels one occurrence of. Never null: a skip that named no
+  /// rule cancelled everything starting at that instant, including the one-off
+  /// written to replace an edited occurrence.
+  slotId           String
   startsAtIso      String
   createdAt        DateTime       @default(now())
 
-  @@unique([teacherProfileId, startsAtIso])
+  @@unique([teacherProfileId, slotId, startsAtIso])
   @@index([teacherProfileId])
 }
 

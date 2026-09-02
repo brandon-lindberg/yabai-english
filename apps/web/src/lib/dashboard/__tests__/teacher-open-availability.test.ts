@@ -1,3 +1,4 @@
+import { buildOccurrenceSkipIndex } from "@/lib/availability-occurrence-skips";
 import { describe, expect, test } from "vitest";
 import {
   countOpenAvailabilitySlots,
@@ -60,7 +61,9 @@ describe("slotHasOpenOccurrence", () => {
     expect(
       slotHasOpenOccurrence({
         slot: oneOff("2026-08-30", 630, 670),
-        skippedStartsAtIso: new Set(["2026-08-30T01:30:00.000Z"]),
+        skippedOccurrences: buildOccurrenceSkipIndex([
+          { slotId: "one-off-2026-08-30-630", startsAtIso: "2026-08-30T01:30:00.000Z" },
+        ]),
         now: NOW,
       }),
     ).toBe(false);
@@ -206,7 +209,9 @@ describe("countOpenAvailabilitySlots", () => {
     expect(
       countOpenAvailabilitySlots({
         slots: [weekly],
-        skippedStartsAtIso: new Set(["2026-09-06T01:30:00.000Z"]),
+        skippedOccurrences: buildOccurrenceSkipIndex([
+          { slotId: "weekly-sunday", startsAtIso: "2026-09-06T01:30:00.000Z" },
+        ]),
         now: NOW,
       }),
     ).toBe(3);

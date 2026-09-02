@@ -58,6 +58,15 @@ type Props = {
   initialTimezone: string;
   onClose: () => void;
   onConfirm: (draft: TeacherAvailabilityAddModalDraft) => void;
+  /**
+   * Seeds the form from an existing slot. Absent means a new one, which is the
+   * only difference between adding and editing — the fields are the same, and
+   * were once written out a second time below the calendar to say so.
+   */
+  initialDraft?: TeacherAvailabilityAddModalDraft | null;
+  /** Offered only when editing; the calendar owns what removal means. */
+  onRemove?: (() => void) | null;
+  removeLabel?: string;
   title: string;
   subtitle: string;
   cancelLabel: string;
@@ -100,6 +109,9 @@ function TeacherAvailabilityAddModalInner({
   initialTimezone,
   onClose,
   onConfirm,
+  initialDraft = null,
+  onRemove = null,
+  removeLabel,
   title,
   subtitle,
   cancelLabel,
@@ -115,8 +127,10 @@ function TeacherAvailabilityAddModalInner({
 }: InnerProps) {
   const tModal = useTranslations("dashboard.teacherAvailability");
   const defaultOffering = lessonOfferings[0];
-  const [weeklyOnCalendarDay, setWeeklyOnCalendarDay] = useState(false);
-  const [draft, setDraft] = useState<TeacherAvailabilityAddModalDraft>(() => ({
+  const [weeklyOnCalendarDay, setWeeklyOnCalendarDay] = useState(
+    initialDraft?.recurrence === "WEEKLY",
+  );
+  const [draft, setDraft] = useState<TeacherAvailabilityAddModalDraft>(() => initialDraft ?? ({
     dayOfWeek: luxonWeekdayMod7FromDayKey(dayKey, initialTimezone),
     startMin: 9 * 60,
     endMin: 9 * 60 + (defaultOffering?.durationMin ?? 60),
@@ -433,11 +447,23 @@ function TeacherAvailabilityAddModalInner({
           </Field>
         </div>
 
-        <div className="mt-6 flex flex-wrap justify-end gap-2">
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          {onRemove ? (
+            <button
+              type="button"
+              onClick={() => {
+                onRemove();
+                onClose();
+              }}
+              className={buttonClasses({ variant: "destructive" })}
+            >
+              {removeLabel}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={onClose}
-            className={buttonClasses({ variant: "secondary" })}
+            className={buttonClasses({ variant: "secondary", className: "ml-auto" })}
           >
             {cancelLabel}
           </button>

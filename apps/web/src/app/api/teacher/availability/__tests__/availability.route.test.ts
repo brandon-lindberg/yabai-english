@@ -14,6 +14,8 @@ const {
   transactionMock,
   ensureCatalogProductsMock,
   rosterFindManyMock,
+  availabilityFindManyMock,
+  availabilityUpdateMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
   profileUpsertMock: vi.fn(),
@@ -28,6 +30,8 @@ const {
   transactionMock: vi.fn(),
   ensureCatalogProductsMock: vi.fn(),
   rosterFindManyMock: vi.fn(),
+  availabilityFindManyMock: vi.fn(),
+  availabilityUpdateMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -43,6 +47,8 @@ vi.mock("@/lib/prisma", () => ({
     availabilitySlot: {
       deleteMany: availabilityDeleteManyMock,
       createMany: availabilityCreateManyMock,
+      findMany: availabilityFindManyMock,
+      update: availabilityUpdateMock,
     },
     teacherRosterEntry: {
       findMany: rosterFindManyMock,
@@ -82,6 +88,7 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
   beforeEach(() => {
     vi.clearAllMocks();
     rosterFindManyMock.mockResolvedValue([]);
+    availabilityFindManyMock.mockResolvedValue([]);
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
     profileUpsertMock.mockResolvedValue({
       id: "tp-1",
@@ -185,6 +192,8 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
         availabilitySlot: {
           deleteMany: availabilityDeleteManyMock,
           createMany: availabilityCreateManyMock,
+          findMany: availabilityFindManyMock,
+          update: availabilityUpdateMock,
         },
         teacherLessonOffering: {
           createMany: offeringCreateManyMock,
@@ -912,4 +921,68 @@ describe("PATCH /api/teacher/availability — auto-sync lesson offerings from sc
     });
   });
 
+  describe("PATCH /api/teacher/availability — saving edits rows instead of replacing them", () => {
+    const slot = (overrides: Record<string, unknown> = {}) => ({
+      dayOfWeek: 1,
+      startMin: 10 * 60,
+      endMin: 11 * 60,
+      timezone: "Asia/Tokyo",
+      recurrence: "WEEKLY",
+      startsOn: "2026-09-01",
+      endsOn: "2026-10-31",
+      classLevelId: "lvl-int",
+      classTypeId: "ty-conv",
+      teacherLessonOfferingId: "off-conv-60",
+      ...overrides,
+    });
+
+    beforeEach(() => {
+      availabilityFindManyMock.mockResolvedValue([{ id: "kept" }, { id: "removed" }]);
+    });
+
+    test("an existing slot is updated in place, keeping its row", async () => {
+      const res = await PATCH(patchRequest([slot({ id: "kept", startMin: 19 * 60, endMin: 20 * 60 })]));
+
+      expect(res.status).toBe(200);
+      expect(availabilityUpdateMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "kept" },
+          data: expect.objectContaining({ startMin: 19 * 60 }),
+        }),
+      );
+      // Recreating it would mint a new id and lose anything the request omitted.
+      expect(availabilityCreateManyMock).not.toHaveBeenCalled();
+    });
+
+    test("only the rows the teacher removed are deleted", async () => {
+      await PATCH(patchRequest([slot({ id: "kept" })]));
+
+      expect(availabilityDeleteManyMock).toHaveBeenCalledWith({
+        where: { id: { in: ["removed"] } },
+      });
+    });
+
+    test("nothing is deleted when every row is kept", async () => {
+      await PATCH(patchRequest([slot({ id: "kept" }), slot({ id: "removed" })]));
+
+      expect(availabilityDeleteManyMock).not.toHaveBeenCalled();
+    });
+
+    test("a newly added slot is created", async () => {
+      await PATCH(patchRequest([slot({ id: "kept" }), slot({ id: "new_abc123" })]));
+
+      expect(availabilityCreateManyMock).toHaveBeenCalledWith({
+        data: [expect.objectContaining({ startMin: 10 * 60 })],
+      });
+      expect(availabilityUpdateMock).toHaveBeenCalledTimes(1);
+    });
+
+    test("an id belonging to somebody else is created, never updated", async () => {
+      // The id is not among this teacher's rows, so it cannot address one.
+      await PATCH(patchRequest([slot({ id: "another-teachers-slot" })]));
+
+      expect(availabilityUpdateMock).not.toHaveBeenCalled();
+      expect(availabilityCreateManyMock).toHaveBeenCalledTimes(1);
+    });
+  });
 });
