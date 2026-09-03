@@ -1,6 +1,8 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
 import { sortStudentCompletedBookings } from "@/lib/dashboard/sort-completed-bookings";
+import { buildScheduleItems } from "@/lib/dashboard/schedule-items";
+import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 
 export async function getStudentBookingsForDashboard(prisma: PrismaClient, studentId: string) {
   const bookings = await prisma.booking.findMany({
@@ -10,6 +12,16 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
       lessonProduct: true,
       teacher: { include: { user: true } },
       invoice: true,
+      // The class this booking is a seat in, so the calendar can say "Group
+      // 2/5". The count is of seats still held, never of rows: a lapsed hold
+      // has already given its seat back.
+      groupLessonSession: {
+        select: {
+          id: true,
+          capacity: true,
+          _count: { select: { bookings: { where: slotHoldingBookingWhere() } } },
+        },
+      },
       // Only settled refunds: one that failed or is still moving has no
       // document to offer the student yet.
       refunds: {
@@ -24,19 +36,13 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
   const { upcoming, completed, refunded } = groupBookingsForDashboard(bookings, now);
   // By teacher, then newest first — the order the grouped history relies on.
   const completedSorted = sortStudentCompletedBookings(completed);
-  const toScheduleItem = (b: (typeof bookings)[number], past: boolean) => ({
-    id: b.id,
-    startsAtIso: b.startsAt.toISOString(),
-    endsAtIso: b.endsAt.toISOString(),
-    title: `${b.lessonProduct.nameJa} / ${b.lessonProduct.nameEn}`,
-    teacherName: b.teacher.user.name ?? b.teacher.user.email ?? "",
-    isPast: past,
-  });
-  // Past lessons belong on the calendar too — a student looking back at a month
-  // they studied should see it, not an empty grid.
+  const counterpartName = (b: (typeof bookings)[number]) =>
+    b.teacher.user.name ?? b.teacher.user.email ?? "";
+  // `classmates` is deliberately not passed: a student learns that three seats
+  // are taken, never by whom.
   const scheduleItems = [
-    ...upcoming.map((b) => toScheduleItem(b, false)),
-    ...completedSorted.map((b) => toScheduleItem(b, true)),
+    ...buildScheduleItems(upcoming, { counterpartName, now }),
+    ...buildScheduleItems(completedSorted, { past: true, counterpartName, now }),
   ];
 
   return { bookings, upcoming, completed: completedSorted, refunded, scheduleItems };

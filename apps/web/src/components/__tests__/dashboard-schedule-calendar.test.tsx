@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, test, vi } from "vitest";
 import en from "../../../messages/en.json";
 import { DashboardScheduleCalendar } from "../dashboard-schedule-calendar";
 
@@ -10,77 +10,127 @@ vi.mock("@/hooks/use-is-mobile", () => ({
   useIsMobile: () => false,
 }));
 
+// Only the router: `Link` stays real, because a past lesson's href — locale
+// prefix and all — is one of the things under test here.
+vi.mock("@/i18n/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/i18n/navigation")>()),
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
+
 const upcomingLesson = {
   id: "booking-1",
   startsAtIso: "2026-07-05T01:30:00.000Z",
   endsAtIso: "2026-07-05T02:10:00.000Z",
-  title: "Conversation",
-  teacherName: "Kana Minami Miura",
+  title: "英会話 / Conversation",
+  counterpartName: "Kana Minami Miura",
   isPast: false,
+  status: "CONFIRMED" as const,
+  durationMin: 40,
+  priceYen: 4000,
+  meetUrl: "https://meet.example/abc",
+  groupSeats: null,
 };
 
 // Same week as the upcoming one, so a single month view holds both.
 const pastLesson = {
+  ...upcomingLesson,
   id: "booking-0",
   startsAtIso: "2026-07-02T01:30:00.000Z",
   endsAtIso: "2026-07-02T02:10:00.000Z",
-  title: "Pronunciation",
-  teacherName: "Kana Minami Miura",
+  title: "発音 / Pronunciation",
   isPast: true,
+  status: "COMPLETED" as const,
 };
 
-function renderCalendar(items = [upcomingLesson]) {
+const groupLesson = {
+  ...upcomingLesson,
+  id: "booking-2",
+  groupSeats: { capacity: 5, taken: 2 },
+};
+
+function renderCalendar(
+  items: Array<Record<string, unknown>> = [upcomingLesson],
+  viewer: "student" | "teacher" = "student",
+) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
-      <DashboardScheduleCalendar timeZone="Asia/Tokyo" items={items} />
+      <DashboardScheduleCalendar
+        timeZone="Asia/Tokyo"
+        viewer={viewer}
+        items={items as never}
+      />
     </NextIntlClientProvider>,
   );
 }
 
+/** Stands in for the media query the calendar reads to pick its first view. */
+function stubViewport(wide: boolean) {
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn().mockReturnValue({
+      matches: wide,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }),
+  );
+}
+
+function openMonth() {
+  fireEvent.click(screen.getByRole("button", { name: en.dashboard.calendarMonth }));
+}
+
 describe("DashboardScheduleCalendar", () => {
+  beforeEach(() => {
+    // Narrow unless a test says otherwise, so the week view every other
+    // assertion here was written against stays the one that opens.
+    stubViewport(false);
+    // jsdom does not implement showModal, and it has to actually set `open` or
+    // the dialog's contents stay out of the accessibility tree.
+    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+      this.open = false;
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   test("renders booked lesson times in the provided dashboard timezone", () => {
     renderCalendar();
+    openMonth();
 
-    fireEvent.click(screen.getByRole("button", { name: en.dashboard.calendarMonth }));
-
-    expect(screen.getByText("10:30 AM")).toBeInTheDocument();
+    expect(screen.getAllByText("10:30 AM").length).toBeGreaterThan(0);
     expect(screen.queryByText("07:30 PM")).toBeNull();
   });
 
-  test("shows lessons already taught, so the calendar reads as a record", () => {
-    renderCalendar([upcomingLesson, pastLesson]);
-
-    fireEvent.click(screen.getByRole("button", { name: en.dashboard.calendarMonth }));
-
-    expect(screen.getByText(en.dashboard.statusCompleted)).toBeInTheDocument();
-    expect(screen.getByText(en.dashboard.slotReserved)).toBeInTheDocument();
-  });
-
   test("sends a past lesson to the completed history, not a dead hash", () => {
-    // The upcoming list sits under this calendar, so `#booking-…` resolves for a
-    // future lesson but would land nowhere for one already taught.
+    // A finished lesson's record — notes, invoice — lives on the history page,
+    // so it stays a link. Only a lesson still ahead opens the reservation.
     renderCalendar([upcomingLesson, pastLesson]);
+    openMonth();
 
-    fireEvent.click(screen.getByRole("button", { name: en.dashboard.calendarMonth }));
-
-    const links = screen.getAllByRole("link");
-    const past = links.find((a) => a.getAttribute("href")?.includes("booking-0"));
-    const upcoming = links.find((a) => a.getAttribute("href")?.includes("booking-1"));
+    const past = screen
+      .getAllByRole("link")
+      .find((a) => a.getAttribute("href")?.includes("booking-0"));
 
     // Locale-prefixed, so the hash survives next-intl's routing rather than
     // dropping the visitor on the default locale's history page.
     expect(past?.getAttribute("href")).toBe("/en/dashboard/schedule/completed#booking-booking-0");
-    expect(upcoming?.getAttribute("href")).toBe("#booking-booking-1");
   });
 
   test("marks a past lesson as spent rather than committed", () => {
     renderCalendar([upcomingLesson, pastLesson]);
+    openMonth();
 
-    fireEvent.click(screen.getByRole("button", { name: en.dashboard.calendarMonth }));
-
-    const links = screen.getAllByRole("link");
-    const past = links.find((a) => a.getAttribute("href")?.includes("booking-0"));
-    const upcoming = links.find((a) => a.getAttribute("href")?.includes("booking-1"));
+    const past = screen
+      .getAllByRole("link")
+      .find((a) => a.getAttribute("href")?.includes("booking-0"));
+    const upcoming = screen
+      .getAllByTestId("schedule-chip")
+      .find((el) => el.getAttribute("data-booking-id") === "booking-1");
 
     // Solid ink means "you are committed here" — a finished lesson must not claim it.
     expect(upcoming?.className).toContain("bg-foreground");
@@ -93,5 +143,117 @@ describe("DashboardScheduleCalendar", () => {
     renderCalendar([upcomingLesson, pastLesson]);
 
     expect(screen.getByText(/Jul 5, 2026|Jun 28/)).toBeInTheDocument();
+  });
+
+  test("names the other person on the chip, in every view", () => {
+    // The chip used to spend its second line on "Reserved" — the one word the
+    // value ladder already says — and clipped the name it was there to carry.
+    renderCalendar();
+    expect(screen.getAllByText("Kana Minami Miura").length).toBeGreaterThan(0);
+
+    openMonth();
+    expect(screen.getAllByText("Kana Minami Miura").length).toBeGreaterThan(0);
+  });
+
+  test("a group class says how full it is instead of naming one person", () => {
+    renderCalendar([groupLesson]);
+
+    expect(screen.getAllByText("Group 2/5").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Kana Minami Miura")).toBeNull();
+  });
+
+  test("still says a chip is a reservation, for anyone not reading the ink", () => {
+    renderCalendar();
+
+    expect(screen.getAllByTestId("schedule-chip")[0]).toHaveAccessibleName(
+      new RegExp(en.dashboard.slotReserved),
+    );
+  });
+
+  test("a student can open their own reservation", () => {
+    renderCalendar();
+
+    fireEvent.click(screen.getAllByTestId("schedule-chip")[0]!);
+
+    expect(screen.getByText(en.booking.bookingDetailTitle)).toBeInTheDocument();
+    expect(screen.getByText("英会話 / Conversation")).toBeInTheDocument();
+    expect(screen.getByText(/40 min/)).toBeInTheDocument();
+    expect(screen.getByText(/¥4,000/)).toBeInTheDocument();
+  });
+
+  test("the student's dialog names the teacher, not a student", () => {
+    renderCalendar();
+
+    fireEvent.click(screen.getAllByTestId("schedule-chip")[0]!);
+
+    expect(screen.getByText(en.booking.bookingDetailWithTeacher)).toBeInTheDocument();
+    expect(screen.queryByText(en.booking.bookingDetailWho)).toBeNull();
+  });
+
+  test("a student is never told who else is in their class", () => {
+    // Seats are a count on this side of the marketplace. The teacher may see
+    // their own students by name; one classmate may not see another.
+    renderCalendar([groupLesson]);
+
+    fireEvent.click(screen.getAllByTestId("schedule-chip")[0]!);
+
+    // The chip says it and so does the dialog — a count, in both places.
+    expect(screen.getAllByText("Group 2/5").length).toBe(2);
+    expect(screen.queryByText(en.booking.bookingDetailClassmates)).toBeNull();
+  });
+
+  test("an unpaid reservation offers the student the way to finish paying", () => {
+    renderCalendar([{ ...upcomingLesson, status: "PENDING_PAYMENT" }]);
+
+    fireEvent.click(screen.getAllByTestId("schedule-chip")[0]!);
+
+    expect(
+      screen.getByRole("button", { name: en.booking.pendingReservationPay }),
+    ).toBeInTheDocument();
+  });
+
+  test("opens on the month when there is room for it", () => {
+    // A month is what a person wants when they have the room: the whole shape
+    // of their teaching or study, rather than one week at a time.
+    stubViewport(true);
+    renderCalendar();
+
+    expect(screen.getByRole("button", { name: en.dashboard.calendarMonth })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  test("opens on the week on a narrow screen", () => {
+    stubViewport(false);
+    renderCalendar();
+
+    expect(screen.getByRole("button", { name: en.dashboard.calendarWeek })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  test("a chosen view stays chosen when the window is resized", () => {
+    // The viewport only supplies a default. Once someone has picked a view,
+    // dragging the window must not throw them back to the month.
+    stubViewport(true);
+    renderCalendar();
+
+    fireEvent.click(screen.getByRole("button", { name: en.dashboard.calendarWeek }));
+
+    expect(screen.getByRole("button", { name: en.dashboard.calendarWeek })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  test("a teacher is never offered to pay for somebody else's lesson", () => {
+    renderCalendar([{ ...upcomingLesson, status: "PENDING_PAYMENT" }], "teacher");
+
+    fireEvent.click(screen.getAllByTestId("schedule-chip")[0]!);
+
+    expect(screen.queryByRole("button", { name: en.booking.pendingReservationPay })).toBeNull();
+    expect(screen.getByText(en.booking.bookingDetailWho)).toBeInTheDocument();
   });
 });

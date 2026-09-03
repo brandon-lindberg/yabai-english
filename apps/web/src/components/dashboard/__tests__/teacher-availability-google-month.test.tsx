@@ -52,7 +52,7 @@ describe("TeacherAvailabilityGoogleMonth", () => {
     expect(onAnchor).toHaveBeenCalledWith(start.toISOString());
   });
 
-  test("booking chips show Reserved and are not selectable buttons", () => {
+  test("a booking chip opens the reservation, never the availability editor", () => {
     const anchor = new Date(2026, 5, 10, 12, 0, 0).toISOString();
     const monthCells = buildMonthCells(anchor, "en-US");
     const headers = buildWeekdayColumnHeaders("en-US");
@@ -69,6 +69,7 @@ describe("TeacherAvailabilityGoogleMonth", () => {
     ]);
 
     const onSelect = vi.fn();
+    const onSelectBooking = vi.fn();
 
     const { getByTestId } = render(
       <TeacherAvailabilityGoogleMonth
@@ -81,15 +82,22 @@ describe("TeacherAvailabilityGoogleMonth", () => {
         selectedGroupKey={null}
         onOpenDay={vi.fn()}
         onSelectSlot={onSelect}
+        onSelectBooking={onSelectBooking}
         onCalendarAnchorChange={vi.fn()}
         reservedLabel="Reserved"
       />,
     );
 
     const bookingChip = getByTestId("month-booking-chip");
-    expect(bookingChip.tagName.toLowerCase()).toBe("div");
-    expect(bookingChip.textContent).toMatch(/Reserved/i);
+    // Two lines of room: when, and who with. "Reserved" is in the accessible
+    // name so a short block cannot clip the name the teacher came to read.
     expect(bookingChip.textContent).toMatch(/Alex Student/);
+    expect(bookingChip).toHaveAccessibleName(/Reserved/);
+
+    fireEvent.click(bookingChip);
+    expect(onSelectBooking).toHaveBeenCalledWith("booking-1");
+    // A reservation is not an availability slot; it must not open that editor.
+    expect(onSelect).not.toHaveBeenCalled();
   });
 
   test("does not render availability chips when only a booking is provided for a slot time", () => {

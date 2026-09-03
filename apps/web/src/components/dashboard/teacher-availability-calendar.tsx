@@ -25,7 +25,6 @@ import {
   dayKeyToIsoAtNoon,
   dayKeyFromIso,
   formatDayKeyLabel,
-  hasSlotMatchingAnchorDay,
 } from "@/lib/slot-calendar";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
 import {
@@ -38,6 +37,9 @@ import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import { offeringCanBackAvailabilitySlot } from "@/lib/availability-offering-match";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import type { BookingDisplayStatus } from "@/lib/booking-status";
+import { BookingDetailModal } from "@/components/booking/booking-detail-modal";
+import { bookingChipWho } from "@/lib/booking-chip-label";
 import {
   availabilityWindowEndDayKey,
   canAdvanceCalendarWithinWindow,
@@ -87,6 +89,15 @@ export type TeacherCalendarBooking = {
   startsAtIso: string;
   endsAtIso: string;
   studentLabel: string;
+  lessonLabel: string;
+  durationMin: number;
+  priceYen: number | null;
+  status: BookingDisplayStatus;
+  meetUrl: string | null;
+  /** Present only for a seat in a group class. */
+  groupSeats?: { capacity: number; taken: number } | null;
+  /** Everyone holding a seat in that class. */
+  classmates?: string[];
 };
 
 type Props = {
@@ -188,6 +199,12 @@ export function TeacherAvailabilityCalendar({
   const isMobile = useIsMobile();
   const t = useTranslations("dashboard.teacherAvailability");
   const td = useTranslations("dashboard");
+  const tb = useTranslations("booking");
+  const groupSeatsLabel = useCallback(
+    (seats: { capacity: number; taken: number }) =>
+      tb("slotGroupSeats", { taken: seats.taken, capacity: seats.capacity }),
+    [tb],
+  );
   const isJa = locale.toLowerCase().startsWith("ja");
   const pickLabel = useCallback(
     (opt: TaxonomyOption | null | undefined): string =>
@@ -360,17 +377,30 @@ export function TeacherAvailabilityCalendar({
     [calendarAnchor, teacherTz],
   );
 
+  const [openBookingId, setOpenBookingId] = useState<string | null>(null);
+  const openBooking = useCallback((groupKey: string | null) => {
+    // Blocks carry `booking-<id>` as their group key, which is how a click on a
+    // chip finds the reservation behind it.
+    setOpenBookingId(groupKey?.startsWith("booking-") ? groupKey.slice(8) : null);
+  }, []);
+  const openedBooking = bookings.find((b) => b.id === openBookingId) ?? null;
+
   const bookingGridInputs = useMemo(
     () =>
-      bookings.map((b) => ({
-        startsAtIso: b.startsAtIso,
-        endsAtIso: b.endsAtIso,
-        label: b.studentLabel,
-        groupKey: `booking-${b.id}`,
-        kind: "booking" as const,
-        subtitle: b.studentLabel,
-      })),
-    [bookings],
+      bookings.map((b) => {
+        // A group class has no single student to name, so the chip says how
+        // full it is; the dialog lists who is in it.
+        const who = bookingChipWho({ counterpartLabel: b.studentLabel, groupSeats: b.groupSeats }, groupSeatsLabel);
+        return {
+          startsAtIso: b.startsAtIso,
+          endsAtIso: b.endsAtIso,
+          label: who,
+          groupKey: `booking-${b.id}`,
+          kind: "booking" as const,
+          subtitle: who,
+        };
+      }),
+    [bookings, groupSeatsLabel],
   );
 
   const weekAndDayGridInputs = useMemo(
@@ -409,7 +439,7 @@ export function TeacherAvailabilityCalendar({
       const chip: MonthDaySlotChip = {
         startsAtIso: b.startsAtIso,
         endsAtIso: b.endsAtIso,
-        label: b.studentLabel,
+        label: bookingChipWho({ counterpartLabel: b.studentLabel, groupSeats: b.groupSeats }, groupSeatsLabel),
         groupKey: `booking-${b.id}`,
         kind: "booking",
       };
@@ -421,7 +451,7 @@ export function TeacherAvailabilityCalendar({
       list.sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso));
     }
     return m;
-  }, [displayCalendarSlots, bookings, teacherTz]);
+  }, [displayCalendarSlots, bookings, teacherTz, groupSeatsLabel]);
 
   const weekDays = useMemo(
     () => buildWeekDays(calendarAnchor, locale, teacherTz),
@@ -447,6 +477,7 @@ export function TeacherAvailabilityCalendar({
         onAddForDayKey={addForDayKey}
         canAddForDayKey={canAddForDayKey}
         reservedBookingLabel={td("slotReserved")}
+        onSelectBooking={openBooking}
         timeZone={teacherTz}
       />
     ),
@@ -460,8 +491,9 @@ export function TeacherAvailabilityCalendar({
     selectSlotForEdit,
       t,
       addForDayKey,
-      td,
       teacherTz,
+      openBooking,
+      td,
     ],
   );
 
@@ -471,11 +503,6 @@ export function TeacherAvailabilityCalendar({
     ? (editingRule.startsOn ??
       (selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso, teacherTz) : null))
     : null;
-
-  const hasSlotsOnFocusDay = useMemo(
-    () => hasSlotMatchingAnchorDay(calendarSlots, calendarAnchor, teacherTz),
-    [calendarSlots, calendarAnchor, teacherTz],
-  );
 
   const focusDateLabel = useMemo(() => {
     const dk = dayKeyFromIso(calendarAnchor, teacherTz);
@@ -515,6 +542,7 @@ export function TeacherAvailabilityCalendar({
         onAddForDayKey={addForDayKey}
         canAddForDayKey={canAddForDayKey}
         reservedBookingLabel={td("slotReserved")}
+        onSelectBooking={openBooking}
         emptyLabel={t("noAvailabilityYet")}
         timeZone={teacherTz}
         footer={
@@ -539,8 +567,9 @@ export function TeacherAvailabilityCalendar({
     selectSlotForEdit,
       t,
       addForDayKey,
-      td,
       teacherTz,
+      openBooking,
+      td,
     ],
   );
 
@@ -564,6 +593,7 @@ export function TeacherAvailabilityCalendar({
         onSelectSlot={(iso, groupKey) => selectSlotForEdit(iso, groupKey ?? null)}
         onCalendarAnchorChange={setCalendarAnchor}
         reservedLabel={td("slotReserved")}
+        onSelectBooking={openBooking}
         timeZone={teacherTz}
       />
     ),
@@ -581,6 +611,7 @@ export function TeacherAvailabilityCalendar({
       addForDayKey,
       td,
       teacherTz,
+      openBooking,
     ],
   );
 
@@ -616,18 +647,23 @@ export function TeacherAvailabilityCalendar({
                   {blocks.map((block) => {
                     if (block.kind === "booking") {
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
-                          className={`rounded-md px-2.5 py-1.5 text-xs ${SLOT_BOOKED}`}
+                          onClick={() => openBooking(block.groupKey ?? null)}
+                          className={`block w-full rounded-md px-2.5 py-1.5 text-left text-xs ${SLOT_BOOKED}`}
                         >
                           <span className="font-medium">
                             {formatCalendarTime(block.startsAtIso)}
                             {" – "}
                             {formatCalendarTime(block.endsAtIso)}
                           </span>
-                          <span className="ml-2 text-[var(--app-canvas)]/75">{td("slotReserved")}</span>
-                          {block.subtitle ? <span className="ml-1 text-[var(--app-canvas)]/75">· {block.subtitle}</span> : null}
-                        </div>
+                          {block.subtitle ? (
+                            <span className="ml-2 block truncate text-[var(--app-canvas)]/75">
+                              {block.subtitle}
+                            </span>
+                          ) : null}
+                        </button>
                       );
                     }
                     const selected =
@@ -664,10 +700,10 @@ export function TeacherAvailabilityCalendar({
     selectedRuleId,
     selectSlotForEdit,
     t,
-    td,
     addForDayKey,
     canAddForDayKey,
     formatCalendarTime,
+    openBooking,
   ]);
 
   /* ── Mobile-friendly month view (agenda list for days with slots) ── */
@@ -721,18 +757,23 @@ export function TeacherAvailabilityCalendar({
                   {slots.map((slot) => {
                     if (slot.kind === "booking") {
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={`booking-${slot.startsAtIso}-${slot.groupKey ?? ""}`}
-                          className={`rounded-md px-2.5 py-1.5 text-xs ${SLOT_BOOKED}`}
+                          onClick={() => openBooking(slot.groupKey ?? null)}
+                          className={`block w-full rounded-md px-2.5 py-1.5 text-left text-xs ${SLOT_BOOKED}`}
                         >
                           <span className="font-medium">
                             {formatCalendarTime(slot.startsAtIso)}
                             {" – "}
                             {formatCalendarTime(slot.endsAtIso)}
                           </span>
-                          <span className="ml-2 text-[var(--app-canvas)]/75">{td("slotReserved")}</span>
-                          {slot.label ? <span className="ml-1 text-muted">· {slot.label}</span> : null}
-                        </div>
+                          {slot.label ? (
+                            <span className="ml-2 block truncate text-[var(--app-canvas)]/75">
+                              {slot.label}
+                            </span>
+                          ) : null}
+                        </button>
                       );
                     }
                     const selected =
@@ -770,10 +811,10 @@ export function TeacherAvailabilityCalendar({
     selectedRuleId,
     selectSlotForEdit,
     t,
-    td,
     addForDayKey,
     teacherTz,
     formatCalendarTime,
+    openBooking,
   ]);
 
   /** Changing the availability is saving it: there is no second step. */
@@ -920,30 +961,38 @@ export function TeacherAvailabilityCalendar({
   }
 
   return (
-    <section className="space-y-4 border-t border-border pt-4">
-      <h2 className="text-lg font-semibold text-foreground">{t("sectionTitle")}</h2>
+    /*
+      No visible heading: this sits under a tab already labelled "Availability",
+      and the tab, a page intro and this heading all said the same word before
+      the teacher reached the grid. The name stays as the region's accessible
+      name, so landmark navigation still finds it.
+    */
+    <section className="space-y-4" aria-label={t("sectionTitle")}>
 
-      {hasSlotsOnFocusDay ? (
-        <div className="border-t border-border px-0 py-3">
-          <h3 className="text-sm font-semibold text-foreground">
-            {t("currentAvailabilityForDate", { date: focusDateLabel })}
-          </h3>
-          <p className="mt-1 text-sm text-muted">
-            {selectedRule && selectedStartsAtIso
-              ? t("editingOccurrence", {
-                  time: new Date(selectedStartsAtIso).toLocaleString(locale, {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    timeZone: teacherTz,
-                  }),
-                })
-              : t("currentAvailabilityPickHint")}
-          </p>
-        </div>
-      ) : null}
+      {/* A chip has room for a time and who it is with; everything else about
+          the reservation lives here, one click away. */}
+      <BookingDetailModal
+        timeZone={teacherTz}
+        viewer="teacher"
+        booking={
+          openedBooking
+            ? {
+                id: openedBooking.id,
+                startsAtIso: openedBooking.startsAtIso,
+                endsAtIso: openedBooking.endsAtIso,
+                status: openedBooking.status,
+                counterpartLabel: openedBooking.studentLabel,
+                lessonLabel: openedBooking.lessonLabel,
+                durationMin: openedBooking.durationMin,
+                priceYen: openedBooking.priceYen,
+                meetUrl: openedBooking.meetUrl,
+                groupSeats: openedBooking.groupSeats ?? null,
+                classmates: openedBooking.classmates,
+              }
+            : null
+        }
+        onClose={() => setOpenBookingId(null)}
+      />
 
       <SlotSelectionCalendar
         weekViewReplacement={isMobile ? mobileWeekView : weekTimeGrid}

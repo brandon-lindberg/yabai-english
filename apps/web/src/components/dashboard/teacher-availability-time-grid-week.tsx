@@ -20,8 +20,10 @@ type Props = {
   weekColumnAddLabel?: string;
   onAddForDayKey?: (dayKey: string) => void;
   canAddForDayKey?: (dayKey: string) => boolean;
-  /** Line shown on booked blocks (e.g. “Reserved”). */
+  /** Names a booked block for assistive tech (e.g. “Reserved”). */
   reservedBookingLabel?: string;
+  /** Opens the reservation. Receives the block's groupKey. */
+  onSelectBooking?: (groupKey: string | null) => void;
   timeZone?: string;
 };
 
@@ -38,6 +40,7 @@ export function TeacherAvailabilityTimeGridWeek({
   onAddForDayKey,
   canAddForDayKey,
   reservedBookingLabel,
+  onSelectBooking,
   timeZone,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -124,11 +127,32 @@ export function TeacherAvailabilityTimeGridWeek({
 
                   {blocks.map((block) => {
                     if (block.kind === "booking") {
+                      const range = `${new Date(block.startsAtIso).toLocaleTimeString(locale, {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        timeZone,
+                      })} – ${new Date(block.endsAtIso).toLocaleTimeString(locale, {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        timeZone,
+                      })}`;
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
                           data-testid="time-grid-booking"
                           data-starts-at={block.startsAtIso}
+                          onClick={() => onSelectBooking?.(block.groupKey ?? null)}
+                          /*
+                            Two lines is all a 30-minute block affords, so it
+                            spends them on the time and on who it is with. The
+                            "Reserved" line it used to carry was the third, and
+                            was the one being clipped — it lives in the
+                            accessible name and in the dialog instead.
+                          */
+                          aria-label={[reservedBookingLabel, range, block.subtitle]
+                            .filter(Boolean)
+                            .join(" · ")}
                           className={`absolute right-0.5 left-0.5 overflow-hidden rounded-md px-1 py-0.5 text-left text-[10px] leading-tight ${SLOT_BOOKED}`}
                           style={{
                             top: `${block.topPct}%`,
@@ -136,29 +160,14 @@ export function TeacherAvailabilityTimeGridWeek({
                           }}
                         >
                           <span className="block truncate font-semibold tabular-nums">
-                            {new Date(block.startsAtIso).toLocaleTimeString(locale, {
-                              hour: "numeric",
-                              minute: "2-digit",
-                              timeZone,
-                            })}
-                            {" – "}
-                            {new Date(block.endsAtIso).toLocaleTimeString(locale, {
-                              hour: "numeric",
-                              minute: "2-digit",
-                              timeZone,
-                            })}
+                            {range}
                           </span>
-                          {reservedBookingLabel ? (
-                            <span className="block truncate text-[9px] font-medium text-muted">
-                              {reservedBookingLabel}
-                            </span>
-                          ) : null}
                           {block.subtitle ? (
                             <span className="block truncate text-[10px] text-[var(--app-canvas)]/75">
                               {block.subtitle}
                             </span>
                           ) : null}
-                        </div>
+                        </button>
                       );
                     }
                     const selected = isTimeGridBlockSelected(block, selectedStartsAtIso, selectedGroupKey);

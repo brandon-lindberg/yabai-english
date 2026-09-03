@@ -410,19 +410,18 @@
     },
     "schedulePage": {
       "title": "スケジュール",
-      "intro": "今後のレッスンを確認し、カレンダーに追加できます。",
       "subNavAvailability": "空き時間",
       "subNavUpcoming": "予定",
       "subNavCompleted": "受講済み",
-      "availabilityIntro": "空き時間を設定し、週間スケジュールを管理しましょう。",
+      "subNavRefunded": "返金済み",
       "availabilityPaymentRequiredTitle": "空き時間の公開には Stripe 設定が必要です",
       "availabilityPaymentRequiredBody": "空き時間を公開する前に、Stripe の設定を完了し、講師向け支払いポリシーに同意してください。",
       "availabilityPaymentRequiredCta": "支払い設定を開く",
-      "upcomingIntro": "予約済みのレッスンを確認できます。",
       "ariaScheduleSections": "スケジュールの区分",
       "completedSectionTitle": "受講済みレッスン",
       "completedIntro": "過去のレッスンを確認できます。講師がレッスンメモや、Google Meet／Gemini の要約・Google ドキュメントなどのリンクを追加すると、ここからブラウザで開けます（ファイルの保存は行いません）。",
       "completedEmpty": "まだ受講済みのレッスンはありません。",
+      "refundedIntro": "キャンセルされ、返金されたレッスンです。元の請求書はそのまま有効で、それを取り消すのが適格返還請求書（クレジットノート）です。記録用に両方をご用意しています。",
       "studentLabel": "受講生",
       "transcriptLinkLabel": "ミーティングメモ・書き起こしのリンク",
       "transcriptLinkHelp": "URL のみ貼り付け（Google ドキュメントや Meet の要約など）。ファイル本体は保存しません。",
@@ -485,9 +484,6 @@
     },
     "teacherAvailability": {
       "sectionTitle": "出勤可能時間",
-      "currentAvailabilityForDate": "{date}の出勤枠",
-      "currentAvailabilityPickHint": "時間を選ぶと、編集や削除ができます。",
-      "editingOccurrence": "編集中: {time}",
       "noAvailabilityYet": "この日に枠はありません。",
       "emptyDay": "なし",
       "addForDay": "追加",
@@ -1106,7 +1102,14 @@
     "reviewSeats": "クラスの人数",
     "reviewSeatsValue": "{capacity}席中{taken}席が予約済み",
     "reviewLessonKind": "レッスン形式",
-    "reviewDurationValue": "{count}分"
+    "reviewDurationValue": "{count}分",
+    "slotGroupSeats": "グループ {taken}/{capacity}",
+    "bookingDetailTitle": "予約の詳細",
+    "bookingDetailClose": "閉じる",
+    "bookingDetailWho": "受講生",
+    "bookingDetailWithTeacher": "講師",
+    "bookingDetailClassmates": "このクラスの受講生",
+    "bookingDetailStatus": "ステータス"
   },
   "paymentPolicy": {
     "student": {

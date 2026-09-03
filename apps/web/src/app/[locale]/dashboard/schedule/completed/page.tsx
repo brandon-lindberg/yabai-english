@@ -33,7 +33,6 @@ export default async function DashboardScheduleCompletedPage({
     return (
       <div className="space-y-8">
         <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
-        <p className="text-muted">Review your completed lessons and teaching history.</p>
         <section>
           <h2 className="mb-3 text-lg font-semibold text-foreground">{t("completedSectionTitle")}</h2>
           <div className="mt-4">

@@ -1,37 +1,50 @@
 import type { PrismaClient } from "@/generated/prisma/client";
+import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
 import { sortTeacherCompletedBookings } from "@/lib/dashboard/sort-completed-bookings";
 import { excludeArchivedStudents } from "@/lib/dashboard/exclude-archived-students";
+import { buildScheduleItems, type ScheduleSourceBooking } from "@/lib/dashboard/schedule-items";
 
-type TeacherScheduleBooking = {
-  id: string;
-  startsAt: Date;
-  endsAt: Date;
-  lessonProduct: {
-    nameJa: string;
-    nameEn: string;
-  };
+type TeacherScheduleBooking = ScheduleSourceBooking & {
+  groupLessonSessionId?: string | null;
   student: {
     name: string | null;
     email: string | null;
-    studentProfile?: {
-      learningGoals: string[];
-    } | null;
   };
 };
 
+/**
+ * A teacher's own students, by the class they share.
+ *
+ * Built from the bookings already in hand rather than a second query: the
+ * dialog for a group class lists who is in it, and the teacher is entitled to
+ * see that for their own class. Cancelled seats are left out — the point of the
+ * list is who will actually be in the room.
+ */
+function classmatesByGroupSession(bookings: readonly TeacherScheduleBooking[]) {
+  const byGroup = new Map<string, string[]>();
+  for (const b of bookings) {
+    if (!b.groupLessonSessionId || b.status === "CANCELLED") continue;
+    const name = b.student.name ?? b.student.email ?? "";
+    const names = byGroup.get(b.groupLessonSessionId);
+    if (names) names.push(name);
+    else byGroup.set(b.groupLessonSessionId, [name]);
+  }
+  return byGroup;
+}
+
 export function buildTeacherScheduleItems(
   bookings: TeacherScheduleBooking[],
-  { past = false }: { past?: boolean } = {},
+  { past = false, now }: { past?: boolean; now?: Date } = {},
 ) {
-  return bookings.map((b) => ({
-    id: b.id,
-    startsAtIso: b.startsAt.toISOString(),
-    endsAtIso: b.endsAt.toISOString(),
-    title: `${b.lessonProduct.nameJa} / ${b.lessonProduct.nameEn}`,
-    teacherName: b.student.name ?? b.student.email ?? "",
-    isPast: past,
-  }));
+  const classmates = classmatesByGroupSession(bookings);
+  return buildScheduleItems(bookings, {
+    past,
+    now,
+    counterpartName: (b) => b.student.name ?? b.student.email ?? "",
+    classmates: (b) =>
+      b.groupLessonSessionId ? classmates.get(b.groupLessonSessionId) : undefined,
+  });
 }
 
 export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teacherProfileId: string) {
@@ -68,6 +81,15 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
         },
       },
       invoice: true,
+      // The class this booking is a seat in, so the calendar can say "Group
+      // 2/5" instead of naming one student for a lesson with several.
+      groupLessonSession: {
+        select: {
+          id: true,
+          capacity: true,
+          _count: { select: { bookings: { where: slotHoldingBookingWhere() } } },
+        },
+      },
       // Settled refunds only: one that failed or is still moving has no
       // document to offer yet.
       refunds: {
@@ -101,8 +123,8 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
   // — archiving a student should not leave their lessons visible on one surface
   // and hidden on the other. Upcoming stays unfiltered, for the reason above.
   const scheduleItems = [
-    ...buildTeacherScheduleItems(upcoming),
-    ...buildTeacherScheduleItems(completedSorted, { past: true }),
+    ...buildTeacherScheduleItems(upcoming, { now }),
+    ...buildTeacherScheduleItems(completedSorted, { past: true, now }),
   ];
 
   return {

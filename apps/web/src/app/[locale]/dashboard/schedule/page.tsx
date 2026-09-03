@@ -11,7 +11,6 @@ import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { shouldLoadTeacherBookingsOnSchedule } from "@/lib/dashboard/schedule-view-role";
 import { Section } from "@/components/ui/section";
-import { RefundedLessons } from "@/components/dashboard/refunded-lessons";
 import { TeacherGroupClasses } from "@/components/dashboard/teacher-group-classes";
 import { buildGroupClassRows, type GroupClassRow } from "@/lib/dashboard/group-classes";
 
@@ -19,10 +18,14 @@ import { buildGroupClassRows, type GroupClassRow } from "@/lib/dashboard/group-c
  * One schedule, two roles.
  *
  * A teacher's schedule and a student's schedule are the same page: a calendar
- * of what is booked, then the list of those lessons. Only the data source, the
- * intro line and the row's actions differ. The two branches had each grown
- * their own heading, spacing and calendar placement, which is why the same
- * feature read as two different screens depending on who signed in.
+ * of what is booked, then the list of those lessons. Only the data source and
+ * the row's actions differ. The two branches had each grown their own heading,
+ * spacing and calendar placement, which is why the same feature read as two
+ * different screens depending on who signed in.
+ *
+ * Everything here is still ahead. Refunded lessons have their own tab — they
+ * are neither upcoming nor completed, and listing them under a heading that
+ * says "upcoming" made a cancelled lesson read as a commitment.
  */
 
 export default async function DashboardSchedulePage({
@@ -38,11 +41,10 @@ export default async function DashboardSchedulePage({
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
 
-  let intro: string;
   let timeZone: string;
+  /** Whose reservations these are, which is what the detail dialog acts on. */
+  let viewer: "teacher" | "student";
   let scheduleItems: Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["scheduleItems"];
-  let refundedLessons: React.ReactNode = null;
-  let hasRefunded = false;
   let lessons: ReactNode;
   /** Teacher-only: a class is one time with several students, so it does not
    *  fit the one-row-per-lesson list above. */
@@ -88,18 +90,10 @@ export default async function DashboardSchedulePage({
       : [];
     groupClasses = buildGroupClassRows(sessions);
 
-    intro = t("upcomingIntro");
+    viewer = "teacher";
     timeZone = profile?.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
     scheduleItems = teacherBookings.scheduleItems;
     lessons = <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />;
-    refundedLessons = (
-      <RefundedLessons
-        refunded={teacherBookings.refunded}
-        counterpartLabel={t("studentLabel")}
-        counterpartName={(b) => b.student.name ?? b.student.email ?? "—"}
-      />
-    );
-    hasRefunded = teacherBookings.refunded.length > 0;
   } else {
     const studentProfile = await prisma.studentProfile.findUnique({
       where: { userId: session.user.id },
@@ -107,27 +101,22 @@ export default async function DashboardSchedulePage({
     });
     const student = await getStudentBookingsForDashboard(prisma, session.user.id);
 
-    intro = t("intro");
+    viewer = "student";
     timeZone = studentProfile?.timezone ?? "Asia/Tokyo";
     scheduleItems = student.scheduleItems;
     lessons = <DashboardUpcomingLessons upcoming={student.upcoming} />;
-    refundedLessons = (
-      <RefundedLessons
-        refunded={student.refunded}
-        counterpartLabel={td("teacher")}
-        counterpartName={(b) => b.teacher.user.name ?? b.teacher.user.email ?? "—"}
-      />
-    );
-    hasRefunded = student.refunded.length > 0;
   }
 
   return (
     <div className="space-y-10">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
-      <p className="max-w-[62ch] text-muted">{intro}</p>
 
       {scheduleItems.length > 0 ? (
-        <DashboardScheduleCalendar items={scheduleItems} timeZone={timeZone} />
+        <DashboardScheduleCalendar
+          items={scheduleItems}
+          timeZone={timeZone}
+          viewer={viewer}
+        />
       ) : null}
 
       <Section title={td("upcoming")} ruled={scheduleItems.length > 0}>
@@ -137,12 +126,6 @@ export default async function DashboardSchedulePage({
       {groupClasses.length > 0 ? (
         <Section title={t("groupClassesTitle")} ruled>
           <TeacherGroupClasses classes={groupClasses} timeZone={timeZone} />
-        </Section>
-      ) : null}
-
-      {hasRefunded ? (
-        <Section title={td("refundedLessons")} ruled>
-          <ul className="list-none border-t border-border p-0">{refundedLessons}</ul>
         </Section>
       ) : null}
     </div>

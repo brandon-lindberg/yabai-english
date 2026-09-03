@@ -27,6 +27,8 @@ type Props = {
   canAddForDayKey?: (dayKey: string) => boolean;
   addLabel?: string;
   onSelectSlot: (startsAtIso: string, groupKey?: string) => void;
+  /** Opens a reservation. Receives the chip's groupKey. */
+  onSelectBooking?: (groupKey: string | null) => void;
   onCalendarAnchorChange: (iso: string) => void;
   /** Shown on booking chips (e.g. “Reserved”). */
   reservedLabel: string;
@@ -76,6 +78,7 @@ export function TeacherAvailabilityGoogleMonth({
   canAddForDayKey,
   addLabel,
   onSelectSlot,
+  onSelectBooking,
   onCalendarAnchorChange,
   reservedLabel,
   timeZone,
@@ -157,10 +160,16 @@ export function TeacherAvailabilityGoogleMonth({
                   {chips.map((slot) => {
                     if (slot.kind === "booking") {
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={`booking-${slot.startsAtIso}-${slot.groupKey ?? ""}`}
                           data-testid="month-booking-chip"
                           data-starts-at={slot.startsAtIso}
+                          onClick={() => onSelectBooking?.(slot.groupKey ?? null)}
+                          /* Two lines: when, and who with. "Reserved" moves to
+                             the accessible name so a short block does not clip
+                             the one thing the teacher came to read. */
+                          aria-label={[reservedLabel, slot.label].filter(Boolean).join(" · ")}
                           className={`w-full truncate rounded-md px-1 py-0.5 text-left text-[9px] font-medium leading-tight ${SLOT_BOOKED}`}
                         >
                           <span className="block truncate font-semibold tabular-nums">
@@ -176,15 +185,12 @@ export function TeacherAvailabilityGoogleMonth({
                               timeZone,
                             })}
                           </span>
-                          <span className="mt-0.5 block truncate text-[8px] font-medium text-[var(--app-canvas)]/75">
-                            {reservedLabel}
-                          </span>
                           {slot.label ? (
                             <span className="mt-0.5 block truncate text-[8px] text-[var(--app-canvas)]/75">
                               {slot.label}
                             </span>
                           ) : null}
-                        </div>
+                        </button>
                       );
                     }
                     const sel = chipSelected(slot, selectedStartsAtIso, selectedGroupKey);

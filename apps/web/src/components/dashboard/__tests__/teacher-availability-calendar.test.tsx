@@ -12,6 +12,10 @@ import {
 } from "../teacher-availability-calendar";
 import { availabilitySlotMatchesOffering } from "@/lib/availability-offering-match";
 
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
+
 const sampleLevels = [
   { id: "lvl-int", code: "intermediate", labelEn: "Intermediate", labelJa: null },
 ];
@@ -31,6 +35,25 @@ const sampleOfferings: TeacherLessonOfferingOption[] = [
     classType: sampleTypes[0],
   },
 ];
+
+const privateBooking: TeacherCalendarBooking = {
+  id: "booking-1",
+  startsAtIso: "2026-07-05T14:30:00.000Z",
+  endsAtIso: "2026-07-05T15:10:00.000Z",
+  studentLabel: "Kana Minami Miura",
+  lessonLabel: "英会話 / Conversation",
+  durationMin: 40,
+  priceYen: 4000,
+  status: "CONFIRMED",
+  meetUrl: null,
+};
+
+const groupBooking: TeacherCalendarBooking = {
+  ...privateBooking,
+  id: "booking-group",
+  groupSeats: { capacity: 5, taken: 2 },
+  classmates: ["Kana Minami Miura", "Sho Tanaka"],
+};
 
 async function flushPromises() {
   await Promise.resolve();
@@ -574,6 +597,11 @@ describe("TeacherAvailabilityCalendar", () => {
           startsAtIso: "2026-07-05T14:30:00.000Z",
           endsAtIso: "2026-07-05T15:10:00.000Z",
           studentLabel: "Kana Miura",
+          lessonLabel: "英会話 / Conversation",
+          durationMin: 40,
+          priceYen: 4000,
+          status: "CONFIRMED" as const,
+          meetUrl: null,
         },
       ],
     });
@@ -583,7 +611,9 @@ describe("TeacherAvailabilityCalendar", () => {
     expect(within(july5 as HTMLElement).getByTestId("month-booking-chip")).toBeInTheDocument();
     expect(within(july5 as HTMLElement).queryByTestId("month-slot-chip")).toBeNull();
     expect(july5!.textContent).toContain("10:30 AM");
-    expect(july5!.textContent).toContain("Reserved");
+    expect(within(july5 as HTMLElement).getByTestId("month-booking-chip")).toHaveAccessibleName(
+      /Reserved/,
+    );
   });
 
   test("hides legacy timezone-shifted duplicate availability when the intended slot is booked", () => {
@@ -614,6 +644,11 @@ describe("TeacherAvailabilityCalendar", () => {
           startsAtIso: "2026-07-05T01:30:00.000Z",
           endsAtIso: "2026-07-05T02:30:00.000Z",
           studentLabel: "Kana Miura",
+          lessonLabel: "英会話 / Conversation",
+          durationMin: 40,
+          priceYen: 4000,
+          status: "CONFIRMED" as const,
+          meetUrl: null,
         },
       ],
     });
@@ -653,6 +688,11 @@ describe("TeacherAvailabilityCalendar", () => {
           startsAtIso: "2026-06-21T01:30:00.000Z",
           endsAtIso: "2026-06-21T02:10:00.000Z",
           studentLabel: "Kana Miura",
+          lessonLabel: "英会話 / Conversation",
+          durationMin: 40,
+          priceYen: 4000,
+          status: "CONFIRMED" as const,
+          meetUrl: null,
         },
       ],
     });
@@ -661,6 +701,124 @@ describe("TeacherAvailabilityCalendar", () => {
     expect(june21).toBeTruthy();
     expect(within(june21 as HTMLElement).getByTestId("month-booking-chip")).toBeInTheDocument();
     expect(within(june21 as HTMLElement).queryByTestId("month-slot-chip")).toBeNull();
-    expect(june21!.textContent).toContain("Reserved");
+    expect(within(june21 as HTMLElement).getByTestId("month-booking-chip")).toHaveAccessibleName(
+      /Reserved/,
+    );
+  });
+});
+
+describe("TeacherAvailabilityCalendar — reservations on the calendar", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ now: new Date("2026-07-01T12:00:00.000Z") });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 200 })));
+    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+      this.open = false;
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  // A chip has room for a time and one line about it, and the line it spent on
+  // "Reserved" was the one being clipped out of a 40-minute block.
+  test("a private reservation names the student", () => {
+    renderTeacherCalendar({ bookings: [privateBooking] });
+
+    expect(screen.getAllByText("Kana Minami Miura").length).toBeGreaterThan(0);
+  });
+
+  // A group class has no single student to name.
+  test("a group class says how full it is instead of naming one student", () => {
+    renderTeacherCalendar({ bookings: [groupBooking] });
+
+    expect(screen.getAllByText("Group 2/5").length).toBeGreaterThan(0);
+  });
+
+  test("a reservation can be opened", () => {
+    renderTeacherCalendar({ bookings: [privateBooking] });
+
+    fireEvent.click(screen.getAllByTestId("month-booking-chip")[0]!);
+
+    expect(screen.getByText(en.booking.bookingDetailTitle)).toBeInTheDocument();
+  });
+
+  test("the dialog carries what the chip had no room for", () => {
+    renderTeacherCalendar({ bookings: [privateBooking] });
+
+    fireEvent.click(screen.getAllByTestId("month-booking-chip")[0]!);
+
+    expect(screen.getByText("英会話 / Conversation")).toBeInTheDocument();
+    expect(screen.getByText(/40 min/)).toBeInTheDocument();
+    expect(screen.getByText(/¥4,000/)).toBeInTheDocument();
+  });
+
+  // The teacher may see who is in their own class; a student never does.
+  test("names the class members for the teacher", () => {
+    renderTeacherCalendar({ bookings: [groupBooking] });
+
+    fireEvent.click(screen.getAllByTestId("month-booking-chip")[0]!);
+
+    expect(screen.getByText("Kana Minami Miura, Sho Tanaka")).toBeInTheDocument();
+  });
+});
+
+describe("TeacherAvailabilityCalendar — nothing between the tab and the calendar", () => {
+  /*
+    The Availability tab opened with three lines that all said "availability":
+    a page intro, a section heading, and a header for whichever day the anchor
+    happened to sit on — the last of them above the calendar, labelling a day
+    the teacher had not chosen yet. The grid is the thing; it starts at the top.
+  */
+  test("does not repeat the tab's own name as a heading", () => {
+    renderTeacherCalendar();
+
+    expect(
+      screen.queryByRole("heading", { name: en.dashboard.teacherAvailability.sectionTitle }),
+    ).toBeNull();
+  });
+
+  test("keeps the region named for anyone navigating by landmark", () => {
+    // Dropping the visible heading must not cost the section its accessible
+    // name — that would turn a named region into an anonymous container.
+    const { container } = renderTeacherCalendar();
+
+    expect(container.querySelector("section")).toHaveAccessibleName(
+      en.dashboard.teacherAvailability.sectionTitle,
+    );
+  });
+
+  test("does not head the calendar with a day nobody picked", () => {
+    // A slot falling on today, so the block this asserts against would
+    // genuinely have rendered — the calendar anchors on the current date.
+    const today = new Date();
+    renderTeacherCalendar({
+      initialSlots: [
+        {
+          id: "weekly-today",
+          dayOfWeek: today.getUTCDay(),
+          startMin: 15 * 60,
+          endMin: 16 * 60,
+          timezone: "UTC",
+          recurrence: "WEEKLY",
+          startsOn: null,
+          endsOn: null,
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "offer-conv-60",
+          assignedStudentId: null,
+          classLevel: sampleLevels[0],
+          classType: sampleTypes[0],
+        },
+      ],
+    });
+
+    expect(screen.queryByText(/Current availability for/)).toBeNull();
+    expect(screen.queryByText(/^Editing:/)).toBeNull();
+    expect(screen.queryByText(/Pick a time to edit/)).toBeNull();
   });
 });
