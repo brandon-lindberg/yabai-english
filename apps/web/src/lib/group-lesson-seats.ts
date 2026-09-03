@@ -38,6 +38,27 @@ export function takenSeatCount(
   );
 }
 
+/**
+ * The same answer from a tally rather than the rows themselves, for the
+ * reservation path — which counts in the database under a lock and never wants
+ * the seats loaded into memory. Sharing this keeps one definition of "full",
+ * so a class cannot read as open on the booking page and closed at the
+ * endpoint.
+ */
+export function seatStateFromCount({
+  capacity,
+  taken,
+}: {
+  capacity: number;
+  taken: number;
+}): SeatState {
+  // A session snapshots its capacity at creation, so lowering `groupSize` later
+  // cannot evict anyone already enrolled. Should a session still end up over
+  // its own capacity, it closes rather than reporting negative seats.
+  const remaining = Math.max(0, capacity - taken);
+  return { capacity, taken, remaining, full: remaining === 0 };
+}
+
 export function seatState({
   capacity,
   bookings,
@@ -47,12 +68,5 @@ export function seatState({
   bookings: readonly SeatOccupant[];
   now?: Date;
 }): SeatState {
-  const taken = takenSeatCount(bookings, now);
-
-  // A session snapshots its capacity at creation, so lowering `groupSize` later
-  // cannot evict anyone already enrolled. Should a session still end up over
-  // its own capacity, it closes rather than reporting negative seats.
-  const remaining = Math.max(0, capacity - taken);
-
-  return { capacity, taken, remaining, full: remaining === 0 };
+  return seatStateFromCount({ capacity, taken: takenSeatCount(bookings, now) });
 }
