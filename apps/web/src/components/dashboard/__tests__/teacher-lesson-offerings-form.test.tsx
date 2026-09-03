@@ -112,11 +112,7 @@ describe("TeacherLessonOfferingsForm", () => {
     const priceInput = screen.getByPlaceholderText("3000") as HTMLInputElement;
     expect(priceInput.value).toBe("3300");
 
-    fireEvent.click(
-      screen.getByRole("radio", {
-        name: /Tax-exclusive/,
-      }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: /Switch to your fee before tax/ }));
     expect(priceInput.value).toBe("3000");
   });
 
@@ -151,11 +147,7 @@ describe("TeacherLessonOfferingsForm", () => {
       </NextIntlClientProvider>,
     );
 
-    fireEvent.click(
-      screen.getByRole("radio", {
-        name: /Tax-exclusive/,
-      }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: /Switch to your fee before tax/ }));
     const priceInput = screen.getByPlaceholderText("3000");
     fireEvent.change(priceInput, { target: { value: "4000" } });
 
@@ -300,7 +292,7 @@ describe("TeacherLessonOfferingsForm", () => {
   // reject a legitimate rate.
   test("judges the tax-included price, not the number typed", () => {
     renderWithOneRate(4000);
-    fireEvent.click(screen.getByRole("radio", { name: /tax-exclusive/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Switch to your fee before tax/ }));
 
     fireEvent.change(rateInput(), { target: { value: "2800" } }); // -> ¥3,080 incl.
 
@@ -520,5 +512,124 @@ describe("group class pricing", () => {
       rateYen: 4000,
       groupTotalRateYen: 16000,
     });
+  });
+});
+
+describe("price basis is per class", () => {
+  function renderTwoClasses() {
+    return render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherLessonOfferingsForm
+          initialRateYen={null}
+          initialOffersFreeTrial={false}
+          initialLessonOfferings={[
+            {
+              id: "offer-a",
+              durationMin: 30,
+              rateYen: 3300,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lvl-beginner",
+              classTypeId: "type-conversation",
+            },
+            {
+              id: "offer-b",
+              durationMin: 60,
+              rateYen: 6600,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lvl-beginner",
+              classTypeId: "type-conversation",
+            },
+          ]}
+          classLevels={classLevels}
+          classTypes={classTypes}
+        />
+      </NextIntlClientProvider>,
+    );
+  }
+
+  function rateInputs() {
+    return screen.getAllByPlaceholderText("3000") as HTMLInputElement[];
+  }
+
+  // The bug: one page-level control rewrote the figure in every row, including
+  // classes the teacher was not editing.
+  test("switching one class leaves the other class's figure alone", () => {
+    renderTwoClasses();
+    expect(rateInputs().map((i) => i.value)).toEqual(["3300", "6600"]);
+
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /Switch to your fee before tax/ })[0]!,
+    );
+
+    expect(rateInputs().map((i) => i.value)).toEqual(["3000", "6600"]);
+  });
+
+  test("each class keeps its own label", () => {
+    renderTwoClasses();
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /Switch to your fee before tax/ })[0]!,
+    );
+
+    expect(
+      screen.getByLabelText(en.dashboard.profilePage.teacherRateYenLabelTaxExclusive),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(en.dashboard.profilePage.teacherRateYenLabelTaxIncluded),
+    ).toBeInTheDocument();
+  });
+
+  test("saves each class from its own basis and remembers which", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    vi.stubGlobal("fetch", fetchMock);
+    renderTwoClasses();
+
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /Switch to your fee before tax/ })[0]!,
+    );
+    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.save }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+    // Both prices unchanged in what a student pays; only the entry mode differs.
+    expect(body.lessonOfferings).toMatchObject([
+      { rateYen: 3300, ratePriceBasis: "TAX_EXCLUSIVE" },
+      { rateYen: 6600, ratePriceBasis: "TAX_INCLUDED" },
+    ]);
+    vi.unstubAllGlobals();
+  });
+
+  // Toggling out and back used to move roughly one price in eleven by a yen,
+  // because both tax conversions floor.
+  test("reopens a class in the basis it was saved in", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherLessonOfferingsForm
+          initialRateYen={null}
+          initialOffersFreeTrial={false}
+          initialLessonOfferings={[
+            {
+              id: "offer-pre-tax",
+              durationMin: 30,
+              rateYen: 3300,
+              ratePriceBasis: "TAX_EXCLUSIVE",
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lvl-beginner",
+              classTypeId: "type-conversation",
+            },
+          ]}
+          classLevels={classLevels}
+          classTypes={classTypes}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    // Stored tax-included ¥3,300, shown back as the ¥3,000 fee that was typed.
+    expect((screen.getByPlaceholderText("3000") as HTMLInputElement).value).toBe("3000");
+    expect(
+      screen.getByLabelText(en.dashboard.profilePage.teacherRateYenLabelTaxExclusive),
+    ).toBeInTheDocument();
   });
 });

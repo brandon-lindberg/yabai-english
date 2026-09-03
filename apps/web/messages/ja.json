@@ -350,13 +350,6 @@
       "teacherLessonTypeCustomLabel": "カスタム名",
       "teacherLessonTypeCustomPlaceholder": "例：面接対策",
       "teacherDurationLabel": "時間",
-      "teacherRatePriceBasisTitle": "料金の入力方法",
-      "teacherRatePriceBasisIntro": "税抜を選ぶと、税抜の受取額を入力します（消費税と受講生の税込価格を表示）。税込を選ぶと、受講生が支払う税込価格を入力します（税の内訳を表示）。下の個人・グループの行の両方に適用されます。",
-      "teacherRatePriceBasisAppliesToGroupNote": "グループ料金も、上で選んだ入力方法と同じ扱いになります。",
-      "teacherRatePriceBasisTaxIncluded": "税込（受講生が支払う金額）",
-      "teacherRatePriceBasisTaxIncludedHelp": "表示・請求と同じ税込価格を入力します。内訳として消費税相当額と税抜の目安を表示します。",
-      "teacherRatePriceBasisTaxExclusive": "税抜（講師受取の税抜金額）",
-      "teacherRatePriceBasisTaxExclusiveHelp": "税抜で受け取りたい金額を入力します。消費税10%（円未満切り捨て）を加え、受講生が支払う税込価格を表示します。",
       "teacherRateBreakdownTaxIncluded": "消費税相当: ¥{tax} · 税抜の目安: ¥{subtotal}",
       "teacherRateBreakdownTaxExclusive": "消費税: ¥{tax} · 受講生の税込価格: ¥{total}",
       "teacherRateYenLabel": "料金（¥）",
@@ -391,7 +384,11 @@
       "profileVisible": "講師一覧に表示中",
       "profileHidden": "講師一覧で非表示",
       "emptyProfileHint": "プロフィールが未入力です。自己紹介と経歴を追加すると、受講生が予約前にあなたのことを知ることができます。",
-      "emptyStudentProfileHint": "プロフィールが未入力です。自己紹介を追加すると、講師がレッスンの目的を把握しやすくなります。"
+      "emptyStudentProfileHint": "プロフィールが未入力です。自己紹介を追加すると、講師がレッスンの目的を把握しやすくなります。",
+      "teacherRateBasisRowTaxIncluded": "受講生の支払額を入力中",
+      "teacherRateBasisRowTaxExclusive": "税抜の受取額を入力中",
+      "teacherRateBasisRowSwitchToIncluded": "受講生の支払額で入力する",
+      "teacherRateBasisRowSwitchToExclusive": "税抜の受取額で入力する"
     },
     "schedulePage": {
       "title": "スケジュール",

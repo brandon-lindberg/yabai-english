@@ -171,6 +171,7 @@ describe("PATCH /api/teacher/profile", () => {
           durationMin: 60,
           rateYen: 4500,
           groupTotalRateYen: null,
+          ratePriceBasis: "TAX_INCLUDED",
           isGroup: false,
           groupSize: null,
           active: true,
@@ -184,6 +185,7 @@ describe("PATCH /api/teacher/profile", () => {
           // null — the shape a row saved before group totals existed has.
           rateYen: 9000,
           groupTotalRateYen: null,
+          ratePriceBasis: "TAX_INCLUDED",
           isGroup: true,
           groupSize: 4,
           active: true,

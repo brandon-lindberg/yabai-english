@@ -31,6 +31,12 @@ const patchSchema = z.object({
         rateYen: z.number().int().min(1).max(9_999_999),
         /** The teacher's figure for the whole class. Group offerings only. */
         groupTotalRateYen: z.number().int().min(1).max(9_999_999).nullable().optional(),
+        /**
+         * Which figure the teacher typed. Storage is always tax-included, so
+         * this only decides what the form shows back — but it is per class,
+         * because one form-wide setting rewrote every row whenever it changed.
+         */
+        ratePriceBasis: z.enum(["TAX_INCLUDED", "TAX_EXCLUSIVE"]).optional(),
         isGroup: z.boolean(),
         groupSize: z.number().int().min(2).max(30).nullable(),
         /** FK to TeacherClassLevel.id; required so level/type/duration/price stay together. */
@@ -193,6 +199,7 @@ export async function PATCH(req: Request) {
             durationMin: o.durationMin,
             rateYen: o.rateYen,
             groupTotalRateYen: o.isGroup ? o.groupTotalRateYen ?? null : null,
+            ratePriceBasis: o.ratePriceBasis ?? "TAX_INCLUDED",
             isGroup: o.isGroup,
             groupSize: o.isGroup ? o.groupSize : null,
             active: true,

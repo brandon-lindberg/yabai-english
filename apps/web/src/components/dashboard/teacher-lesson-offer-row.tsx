@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { TeacherLessonRateTaxBreakdown } from "@/components/dashboard/teacher-lesson-rate-tax-breakdown";
+import { TeacherLessonRateBasisSwitch } from "@/components/dashboard/teacher-lesson-rate-basis-switch";
 
 /**
  * One priced lesson offering.
@@ -45,6 +46,7 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
   durations,
   pickLabel,
   ratePriceBasis,
+  onRatePriceBasisChange,
   ratePlaceholder,
   rateError = null,
   rateNote = null,
@@ -60,6 +62,8 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
   durations: readonly number[];
   pickLabel: (option: Option) => string;
   ratePriceBasis: "tax_included" | "tax_exclusive";
+  /** Changes the basis for THIS row only, converting only its own figure. */
+  onRatePriceBasisChange: (next: "tax_included" | "tax_exclusive") => void;
   ratePlaceholder: string;
   /** Shown under the rate instead of the tax breakdown when set. */
   rateError?: string | null;
@@ -150,7 +154,14 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
             replaces it when there is nothing worth breaking down. */}
         <div className={RATE_BREAKDOWN_SLOT}>
           {rateError ? (
-            <p className="text-xs text-destructive">{rateError}</p>
+            <>
+              <p className="text-xs text-destructive">{rateError}</p>
+              <TeacherLessonRateBasisSwitch
+                basis={ratePriceBasis}
+                onChange={onRatePriceBasisChange}
+                describedFieldLabel={labels.rate}
+              />
+            </>
           ) : (
             <>
               {rateNote ? (
@@ -161,6 +172,11 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
               <TeacherLessonRateTaxBreakdown
                 basis={ratePriceBasis}
                 rateYenInput={value.rateYenInput}
+              />
+              <TeacherLessonRateBasisSwitch
+                basis={ratePriceBasis}
+                onChange={onRatePriceBasisChange}
+                describedFieldLabel={labels.rate}
               />
             </>
           )}

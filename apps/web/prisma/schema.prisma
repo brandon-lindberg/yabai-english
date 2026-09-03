@@ -127,6 +127,13 @@ enum AvailabilitySlotRecurrence {
   ONE_OFF
 }
 
+/// How a teacher typed a class's price. Storage is always tax-included, so
+/// this only decides which figure the rates form shows back to them.
+enum LessonRatePriceBasis {
+  TAX_INCLUDED
+  TAX_EXCLUSIVE
+}
+
 enum PaymentProvider {
   STRIPE
   KOMOJU
@@ -600,6 +607,10 @@ model TeacherLessonOffering {
   /// the derived share so the rates form can show back what they typed; the
   /// share in `rateYen` is what anyone is ever charged.
   groupTotalRateYen Int?
+  /// Which figure the teacher typed for THIS class. Per class, because a
+  /// teacher may think of one in list prices and another in pre-tax fees, and a
+  /// single form-wide setting rewrote every row whenever it changed.
+  ratePriceBasis LessonRatePriceBasis @default(TAX_INCLUDED)
   active      Boolean        @default(true)
   /// Marks the teacher's free-trial offer. Priced at 0 and bookable once per
   /// student; exists as an offering so trial slots can be published like any

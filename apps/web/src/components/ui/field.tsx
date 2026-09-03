@@ -247,7 +247,7 @@ export function Select({
  * After the sweep, fourteen `<input>`/`<select>`/`<textarea>` remain outside
  * these primitives. Each is here on purpose:
  *
- * - **Radio groups** — `teacher-lesson-rate-basis-toggle`, `booking-form`'s
+ * - **Radio groups** — `booking-form`'s
  *   payment method. A radio group's name belongs on a `<fieldset>`/`<legend>`,
  *   not on each input; `Field` labels one control, which is the wrong shape.
  * - **The grid rate rows** — `teacher-lesson-offer-row`, and the group-size

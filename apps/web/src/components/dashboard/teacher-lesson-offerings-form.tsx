@@ -5,13 +5,14 @@ import { useState } from "react";
 import {
   type TeacherLessonRatePriceBasis,
   convertTeacherRateInputBetweenBases,
+  ratePriceBasisFromStored,
+  storedRatePriceBasis,
   taxIncludedRateFromTeacherInput,
 } from "@/lib/teacher-lesson-rate-basis";
 import {
   MIN_PUBLIC_LESSON_RATE_YEN,
   validatePublicLessonRateYen,
 } from "@/lib/lesson-rate-policy";
-import { TeacherLessonRateBasisToggle } from "./teacher-lesson-rate-basis-toggle";
 import { buttonClasses } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
 import {
@@ -45,6 +46,8 @@ type LessonOfferingInput = {
   rateYen: number;
   /** The teacher's figure for the whole class. Group classes only. */
   groupTotalRateYen?: number;
+  /** Which figure the teacher typed, so the form can show it back that way. */
+  ratePriceBasis: "TAX_INCLUDED" | "TAX_EXCLUSIVE";
   isGroup: boolean;
   groupSize: number | null;
   classLevelId: string;
@@ -57,6 +60,8 @@ type LessonOfferingRow = {
   classLevelId: string;
   classTypeId: string;
   rateYenInput: string;
+  /** Which figure `rateYenInput` is, for THIS class alone. */
+  ratePriceBasis: TeacherLessonRatePriceBasis;
 };
 
 type GroupOfferingRow = LessonOfferingRow & {
@@ -71,6 +76,8 @@ type Props = {
     durationMin: number;
     rateYen: number;
     groupTotalRateYen?: number | null;
+    /** How this class was priced last time. Absent means the list price. */
+    ratePriceBasis?: string | null;
     isGroup: boolean;
     groupSize: number | null;
     isFreeTrial?: boolean | null;
@@ -112,6 +119,26 @@ function meetAdvisoryMessage(
   }
 }
 
+/**
+ * Restates one row's figure in the other basis, leaving every other row alone.
+ *
+ * The whole point of the per-row control: switching a class from a list price
+ * to a pre-tax fee must not touch the class beside it.
+ */
+function convertRowToBasis<T extends { rateYenInput: string; ratePriceBasis: TeacherLessonRatePriceBasis }>(
+  row: T,
+  next: TeacherLessonRatePriceBasis,
+): T {
+  if (next === row.ratePriceBasis) return row;
+  const n = Number.parseInt(row.rateYenInput.trim(), 10);
+  if (Number.isNaN(n) || n <= 0) return { ...row, ratePriceBasis: next };
+  return {
+    ...row,
+    ratePriceBasis: next,
+    rateYenInput: String(convertTeacherRateInputBetweenBases(n, row.ratePriceBasis, next)),
+  };
+}
+
 function makeRowId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -140,7 +167,14 @@ export function TeacherLessonOfferingsForm({
         durationMin: o.durationMin,
         classLevelId: o.classLevelId ?? defaultClassLevelId,
         classTypeId: o.classTypeId ?? defaultClassTypeId,
-        rateYenInput: String(o.rateYen),
+        ratePriceBasis: ratePriceBasisFromStored(o.ratePriceBasis),
+        rateYenInput: String(
+          convertTeacherRateInputBetweenBases(
+            o.rateYen,
+            "tax_included",
+            ratePriceBasisFromStored(o.ratePriceBasis),
+          ),
+        ),
       }));
     if (rows.length > 0) return rows;
     if (initialRateYen != null) {
@@ -150,6 +184,7 @@ export function TeacherLessonOfferingsForm({
           durationMin: 30,
           classLevelId: defaultClassLevelId,
           classTypeId: defaultClassTypeId,
+          ratePriceBasis: "tax_included",
           rateYenInput: String(initialRateYen),
         },
       ];
@@ -165,24 +200,33 @@ export function TeacherLessonOfferingsForm({
         groupSize: o.groupSize ?? 2,
         classLevelId: o.classLevelId ?? defaultClassLevelId,
         classTypeId: o.classTypeId ?? defaultClassTypeId,
+        ratePriceBasis: ratePriceBasisFromStored(o.ratePriceBasis),
         // The field holds the class total. Rows written before the total was
         // stored only know the share, so the total is rebuilt from it.
-        rateYenInput: String(o.groupTotalRateYen ?? o.rateYen * (o.groupSize ?? 2)),
+        rateYenInput: String(
+          convertTeacherRateInputBetweenBases(
+            o.groupTotalRateYen ?? o.rateYen * (o.groupSize ?? 2),
+            "tax_included",
+            ratePriceBasisFromStored(o.ratePriceBasis),
+          ),
+        ),
       })),
   );
   const [offersFreeTrial, setOffersFreeTrial] = useState(initialOffersFreeTrial);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [ratePriceBasis, setRatePriceBasis] = useState<TeacherLessonRatePriceBasis>("tax_included");
 
   /**
    * The complaint for a typed rate, or null when it is acceptable. Judges the
    * tax-included price rather than the number typed, because that is what the
    * student pays and what the minimum is defined against.
    */
-  function rateErrorFor(rateYenInput: string): string | null {
+  function rateErrorFor(
+    rateYenInput: string,
+    basis: TeacherLessonRatePriceBasis,
+  ): string | null {
     const entered = Number.parseInt(rateYenInput.trim(), 10);
     if (Number.isNaN(entered)) return null; // an empty field is not yet wrong
-    const taxIncluded = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
+    const taxIncluded = taxIncludedRateFromTeacherInput(entered, basis);
     if (validatePublicLessonRateYen(taxIncluded).ok) return null;
     return t("teacherRateBelowMinimum", {
       amount: MIN_PUBLIC_LESSON_RATE_YEN.toLocaleString(),
@@ -197,7 +241,7 @@ export function TeacherLessonOfferingsForm({
     const entered = Number.parseInt(row.rateYenInput.trim(), 10);
     if (Number.isNaN(entered) || entered <= 0) return null;
     return validateGroupOfferingRate({
-      groupTotalYen: taxIncludedRateFromTeacherInput(entered, ratePriceBasis),
+      groupTotalYen: taxIncludedRateFromTeacherInput(entered, row.ratePriceBasis),
       capacity: row.groupSize,
     });
   }
@@ -215,33 +259,9 @@ export function TeacherLessonOfferingsForm({
   }
 
   const hasRateBelowMinimum =
-    individualOffers.some((row) => rateErrorFor(row.rateYenInput) !== null) ||
+    individualOffers.some((row) => rateErrorFor(row.rateYenInput, row.ratePriceBasis) !== null) ||
     groupOffers.some((row) => groupRateErrorFor(row) !== null);
 
-  function handleRatePriceBasisChange(next: TeacherLessonRatePriceBasis) {
-    if (next === ratePriceBasis) return;
-    setIndividualOffers((prev) =>
-      prev.map((row) => {
-        const n = Number.parseInt(row.rateYenInput.trim(), 10);
-        if (Number.isNaN(n) || n <= 0) return row;
-        return {
-          ...row,
-          rateYenInput: String(convertTeacherRateInputBetweenBases(n, ratePriceBasis, next)),
-        };
-      }),
-    );
-    setGroupOffers((prev) =>
-      prev.map((row) => {
-        const n = Number.parseInt(row.rateYenInput.trim(), 10);
-        if (Number.isNaN(n) || n <= 0) return row;
-        return {
-          ...row,
-          rateYenInput: String(convertTeacherRateInputBetweenBases(n, ratePriceBasis, next)),
-        };
-      }),
-    );
-    setRatePriceBasis(next);
-  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -254,7 +274,7 @@ export function TeacherLessonOfferingsForm({
         setStatus("error");
         return;
       }
-      const rate = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
+      const rate = taxIncludedRateFromTeacherInput(entered, row.ratePriceBasis);
       if (!validatePublicLessonRateYen(rate).ok) {
         setStatus("error");
         return;
@@ -262,6 +282,7 @@ export function TeacherLessonOfferingsForm({
       lessonOfferings.push({
         durationMin: row.durationMin,
         rateYen: rate,
+        ratePriceBasis: storedRatePriceBasis(row.ratePriceBasis),
         isGroup: false,
         groupSize: null,
         classLevelId: row.classLevelId,
@@ -281,7 +302,7 @@ export function TeacherLessonOfferingsForm({
         setStatus("error");
         return;
       }
-      const groupTotalRateYen = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
+      const groupTotalRateYen = taxIncludedRateFromTeacherInput(entered, group.ratePriceBasis);
       const check = validateGroupOfferingRate({
         groupTotalYen: groupTotalRateYen,
         capacity: group.groupSize,
@@ -295,6 +316,7 @@ export function TeacherLessonOfferingsForm({
         // The price is the share; the teacher's own figure rides alongside it.
         rateYen: check.perStudentYen,
         groupTotalRateYen,
+        ratePriceBasis: storedRatePriceBasis(group.ratePriceBasis),
         isGroup: true,
         groupSize: group.groupSize,
         classLevelId: group.classLevelId,
@@ -336,6 +358,7 @@ export function TeacherLessonOfferingsForm({
                   durationMin: 30,
                   classLevelId: defaultClassLevelId,
                   classTypeId: defaultClassTypeId,
+                  ratePriceBasis: "tax_included",
                   rateYenInput: "",
                 },
               ])
@@ -353,7 +376,6 @@ export function TeacherLessonOfferingsForm({
         </p>
         <p className="text-xs text-muted">{t("teacherLessonTypeForRateHelp")}</p>
 
-        <TeacherLessonRateBasisToggle basis={ratePriceBasis} onBasisChange={handleRatePriceBasisChange} />
 
         {individualOffers.length === 0 ? (
           <p className="text-xs text-muted">{t("teacherIndividualRatesEmpty")}</p>
@@ -373,15 +395,20 @@ export function TeacherLessonOfferingsForm({
                 classTypes={classTypes}
                 durations={INDIVIDUAL_DURATIONS}
                 pickLabel={(opt) => pickLabel(opt, locale)}
-                ratePriceBasis={ratePriceBasis}
+                ratePriceBasis={row.ratePriceBasis}
+                onRatePriceBasisChange={(next) =>
+                  setIndividualOffers((prev) =>
+                    prev.map((r, i) => (i === index ? convertRowToBasis(r, next) : r)),
+                  )
+                }
                 ratePlaceholder={String(MIN_PUBLIC_LESSON_RATE_YEN)}
-                rateError={rateErrorFor(row.rateYenInput)}
+                rateError={rateErrorFor(row.rateYenInput, row.ratePriceBasis)}
                 labels={{
                   level: t("teacherLessonLevelForRate"),
                   type: t("teacherLessonTypeForRate"),
                   duration: t("teacherDurationLabel"),
                   rate:
-                    ratePriceBasis === "tax_included"
+                    row.ratePriceBasis === "tax_included"
                       ? t("teacherRateYenLabelTaxIncluded")
                       : t("teacherRateYenLabelTaxExclusive"),
                   remove: t("teacherIndividualRatesRemove"),
@@ -406,6 +433,7 @@ export function TeacherLessonOfferingsForm({
                   groupSize: 2,
                   classLevelId: defaultClassLevelId,
                   classTypeId: defaultClassTypeId,
+                  ratePriceBasis: "tax_included",
                   rateYenInput: "",
                 },
               ])
@@ -416,7 +444,6 @@ export function TeacherLessonOfferingsForm({
           </button>
         </div>
         <p className="text-xs text-muted">{t("teacherGroupRatesHelp")}</p>
-        <p className="text-xs text-muted">{t("teacherRatePriceBasisAppliesToGroupNote")}</p>
         {groupOffers.length === 0 ? (
           <p className="text-xs text-muted">{t("teacherGroupRatesEmpty")}</p>
         ) : (
@@ -441,7 +468,12 @@ export function TeacherLessonOfferingsForm({
                 classTypes={classTypes}
                 durations={INDIVIDUAL_DURATIONS}
                 pickLabel={(opt) => pickLabel(opt, locale)}
-                ratePriceBasis={ratePriceBasis}
+                ratePriceBasis={group.ratePriceBasis}
+                onRatePriceBasisChange={(next) =>
+                  setGroupOffers((prev) =>
+                    prev.map((r, i) => (i === index ? convertRowToBasis(r, next) : r)),
+                  )
+                }
                 ratePlaceholder="8000"
                 rateError={groupRateErrorFor(group)}
                 rateNote={
@@ -457,7 +489,7 @@ export function TeacherLessonOfferingsForm({
                   type: t("teacherLessonTypeForRate"),
                   duration: t("teacherDurationLabel"),
                   rate:
-                    ratePriceBasis === "tax_included"
+                    group.ratePriceBasis === "tax_included"
                       ? t("teacherGroupTotalLabelTaxIncluded")
                       : t("teacherGroupTotalLabelTaxExclusive"),
                   remove: t("teacherGroupRatesRemove"),

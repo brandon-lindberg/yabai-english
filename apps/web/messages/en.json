@@ -350,13 +350,6 @@
       "teacherLessonTypeCustomLabel": "Custom label",
       "teacherLessonTypeCustomPlaceholder": "e.g. Interview coaching",
       "teacherDurationLabel": "Duration",
-      "teacherRatePriceBasisTitle": "How do you want to enter lesson prices?",
-      "teacherRatePriceBasisIntro": "Pick tax-exclusive to enter your fee before tax (we add tax and show the student's final price). Pick tax-included to enter what students pay (we show the tax split). This applies to individual and group rows below.",
-      "teacherRatePriceBasisAppliesToGroupNote": "Group rows use the same entry mode you choose above.",
-      "teacherRatePriceBasisTaxIncluded": "Tax-included (what students pay)",
-      "teacherRatePriceBasisTaxIncludedHelp": "Enter the final list price. We show the consumption tax portion and your amount before tax.",
-      "teacherRatePriceBasisTaxExclusive": "Tax-exclusive (your fee before tax)",
-      "teacherRatePriceBasisTaxExclusiveHelp": "Enter what you want to receive before 10% tax. We show the tax and the tax-included price students pay.",
       "teacherRateBreakdownTaxIncluded": "Consumption tax portion: ¥{tax} · Your fee before tax: ¥{subtotal}",
       "teacherRateBreakdownTaxExclusive": "Consumption tax: ¥{tax} · Student price (tax-included): ¥{total}",
       "teacherRateYenLabel": "Price (¥)",
@@ -391,7 +384,11 @@
       "profileVisible": "Visible in the teacher list",
       "profileHidden": "Hidden from the teacher list",
       "emptyProfileHint": "Your profile is empty. Add a bio and credentials so students know who they are booking.",
-      "emptyStudentProfileHint": "Your profile is empty. Add an introduction so teachers know what you want from lessons."
+      "emptyStudentProfileHint": "Your profile is empty. Add an introduction so teachers know what you want from lessons.",
+      "teacherRateBasisRowTaxIncluded": "Entering the price students pay",
+      "teacherRateBasisRowTaxExclusive": "Entering your fee before tax",
+      "teacherRateBasisRowSwitchToIncluded": "Switch to the price students pay",
+      "teacherRateBasisRowSwitchToExclusive": "Switch to your fee before tax"
     },
     "schedulePage": {
       "title": "Schedule",
