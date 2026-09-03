@@ -9,6 +9,8 @@ import { SlotSelectionCalendar } from "@/components/slot-selection-calendar";
 import type { CalendarViewMode } from "@/lib/calendar-view";
 import { Section } from "@/components/ui/section";
 import { Modal } from "@/components/ui/modal";
+import { useIsWideScreen } from "@/hooks/use-is-wide-screen";
+import { formatYen } from "@/lib/format-money";
 import { Button } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
 import { Field, Input } from "@/components/ui/field";
@@ -76,7 +78,15 @@ export function BookingForm({
   const [startsAt, setStartsAt] = useState("");
   const [manualOverride, setManualOverride] = useState(false);
   const [manualOverrideReason, setManualOverrideReason] = useState("");
-  const [calendarView, setCalendarView] = useState<CalendarViewMode>("week");
+  /*
+    A month is what a person wants when they have the room for it: it shows
+    every time this teacher offers, so choosing is comparing rather than paging
+    week by week. Null means "not chosen", so the default follows the viewport
+    until the student picks a view, and stays put once they have.
+  */
+  const isWideScreen = useIsWideScreen();
+  const [chosenCalendarView, setCalendarView] = useState<CalendarViewMode | null>(null);
+  const calendarView = chosenCalendarView ?? (isWideScreen ? "month" : "week");
   const [calendarAnchor, setCalendarAnchor] = useState(
     presetSlots?.[0]?.startsAtIso ?? new Date().toISOString(),
   );
@@ -107,6 +117,9 @@ export function BookingForm({
       setCalendarAnchor(presetSlots[0].startsAtIso);
     }
   }, [presetSlots]);
+
+  const selectedSlotSeats =
+    presetSlots?.find((slot) => slot.startsAtIso === startsAt)?.seats ?? null;
 
   /**
    * The lesson this time IS.
@@ -410,28 +423,45 @@ export function BookingForm({
           >
             {/* The same ruled key/value list the checkout summary uses, so the last
                 thing you read before booking matches the first thing you read after. */}
+            {/*
+              Everything the student is agreeing to, in one place. It used to
+              say only the time, the lesson name and the card — never the price,
+              which is the one number a person needs before they commit.
+            */}
             <dl className="border-t border-border text-sm">
-              <div className="flex justify-between gap-6 border-b border-border py-3">
-                <dt className="text-muted">{t("selectSlot")}</dt>
-                <dd className="text-right font-medium tabular-nums text-foreground">
-                  {formattedSelectedSlot ?? t("noSlotSelected")}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-6 border-b border-border py-3">
-                <dt className="text-muted">{t("selectProduct")}</dt>
-                <dd className="text-right font-medium text-foreground">
-                  {effectiveProduct
-                    ? buildProductOptionLabel(effectiveProduct, locale, t)
-                    : t("stepChooseLessonHint")}
-                </dd>
-              </div>
+              <ReviewRow label={t("reviewDateTime")} figure>
+                {formattedSelectedSlot ?? t("noSlotSelected")}
+              </ReviewRow>
+              <ReviewRow label={t("selectProduct")}>
+                {effectiveProduct
+                  ? buildProductOptionLabel(effectiveProduct, locale, t)
+                  : t("stepChooseLessonHint")}
+              </ReviewRow>
+              {effectiveProduct ? (
+                <ReviewRow label={t("reviewDuration")} figure>
+                  {t("reviewDurationValue", { count: effectiveProduct.durationMin })}
+                </ReviewRow>
+              ) : null}
+              {selectedSlotSeats ? (
+                <ReviewRow label={t("reviewSeats")} figure>
+                  {t("reviewSeatsValue", {
+                    taken: selectedSlotSeats.taken,
+                    capacity: selectedSlotSeats.capacity,
+                  })}
+                </ReviewRow>
+              ) : null}
+              {typeof effectiveProduct?.teacherRateYen === "number" ? (
+                <ReviewRow label={t("reviewPrice")} figure>
+                  {formatYen(effectiveProduct.teacherRateYen, locale)}{" "}
+                  <span className="font-normal text-muted">
+                    ({t("reviewPriceTaxNote")})
+                  </span>
+                </ReviewRow>
+              ) : null}
               {selectedPaymentMethod ? (
-                <div className="flex justify-between gap-6 border-b border-border py-3">
-                  <dt className="text-muted">{t("paymentMethod")}</dt>
-                  <dd className="text-right font-medium text-foreground">
-                    {selectedPaymentMethod.label}
-                  </dd>
-                </div>
+                <ReviewRow label={t("paymentMethod")}>
+                  {selectedPaymentMethod.label}
+                </ReviewRow>
               ) : null}
             </dl>
           </Section>
@@ -482,6 +512,29 @@ function paymentKey(method: {
   method: string;
 }): string {
   return `${method.accountId}:${method.provider}:${method.method}`;
+}
+
+/** One line of the summary: what it is on the left, what it says on the right. */
+function ReviewRow({
+  label,
+  figure = false,
+  children,
+}: {
+  label: string;
+  /** Figures line up in a column, so they take tabular numerals. */
+  figure?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex justify-between gap-6 border-b border-border py-3">
+      <dt className="text-muted">{label}</dt>
+      <dd
+        className={`text-right font-medium text-foreground${figure ? " tabular-nums" : ""}`}
+      >
+        {children}
+      </dd>
+    </div>
+  );
 }
 
 function buildProductOptionLabel(

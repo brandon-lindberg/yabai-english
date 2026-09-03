@@ -316,7 +316,9 @@
       "openAvailabilityCta": "空き時間を設定",
       "statUpcoming": "今後のレッスン",
       "statCompleted": "完了したレッスン",
-      "statRank": "学習ランク"
+      "statRank": "学習ランク",
+      "reservationTitle": "仮予約 — まだ確定していません",
+      "reservationExplain": "{expires}まで確保されています。お支払いを完了するとレッスンが確定します。完了しない場合、仮予約は解除されます。"
     },
     "profilePage": {
       "title": "プロフィール",
@@ -1096,7 +1098,15 @@
     "bookingModalTitle": "このレッスンを予約",
     "bookingModalCancel": "キャンセル",
     "seatsLeftShort": "残り{count}",
-    "classFullShort": "満席"
+    "classFullShort": "満席",
+    "reviewDateTime": "レッスン日時",
+    "reviewDuration": "レッスン時間",
+    "reviewPrice": "レッスン料金",
+    "reviewPriceTaxNote": "税込",
+    "reviewSeats": "クラスの人数",
+    "reviewSeatsValue": "{capacity}席中{taken}席が予約済み",
+    "reviewLessonKind": "レッスン形式",
+    "reviewDurationValue": "{count}分"
   },
   "paymentPolicy": {
     "student": {

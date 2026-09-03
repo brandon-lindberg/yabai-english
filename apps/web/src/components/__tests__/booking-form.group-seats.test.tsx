@@ -179,3 +179,54 @@ describe("BookingForm — picking a time opens the booking dialog", () => {
     expect(screen.getByRole("button", { name: /Private/ })).toBeInTheDocument();
   });
 });
+
+describe("BookingForm — which calendar view opens first", () => {
+  function stubViewport(wide: boolean) {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockReturnValue({
+        matches: wide,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }),
+    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => [] }));
+  }
+
+  // A month shows every time this teacher offers, so choosing becomes comparing
+  // rather than paging a week at a time.
+  test("opens on the month when there is room for it", () => {
+    stubViewport(true);
+    renderForm(groupSlot(null));
+
+    expect(screen.getByRole("button", { name: en.booking.calendarMonth })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    vi.unstubAllGlobals();
+  });
+
+  test("opens on the week on a narrow screen", () => {
+    stubViewport(false);
+    renderForm(groupSlot(null));
+
+    expect(screen.getByRole("button", { name: en.booking.calendarWeek })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    vi.unstubAllGlobals();
+  });
+
+  test("keeps the view the student picked", () => {
+    stubViewport(true);
+    renderForm(groupSlot(null));
+
+    fireEvent.click(screen.getByRole("button", { name: en.booking.calendarDay }));
+
+    expect(screen.getByRole("button", { name: en.booking.calendarDay })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    vi.unstubAllGlobals();
+  });
+});

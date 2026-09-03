@@ -316,7 +316,9 @@
       "openAvailabilityCta": "Set your availability",
       "statUpcoming": "Upcoming lessons",
       "statCompleted": "Lessons completed",
-      "statRank": "Study rank"
+      "statRank": "Study rank",
+      "reservationTitle": "Reserved — not booked yet",
+      "reservationExplain": "This time is held for you until {expires}. Finish paying to confirm the lesson, or the reservation will be released."
     },
     "profilePage": {
       "title": "Profile",
@@ -1096,7 +1098,15 @@
     "bookingModalTitle": "Book this lesson",
     "bookingModalCancel": "Cancel",
     "seatsLeftShort": "{count} left",
-    "classFullShort": "Full"
+    "classFullShort": "Full",
+    "reviewDateTime": "Lesson date and time",
+    "reviewDuration": "Duration",
+    "reviewPrice": "Lesson price",
+    "reviewPriceTaxNote": "tax included",
+    "reviewSeats": "Class size",
+    "reviewSeatsValue": "{taken} of {capacity} seats taken",
+    "reviewLessonKind": "Lesson",
+    "reviewDurationValue": "{count} min"
   },
   "paymentPolicy": {
     "student": {

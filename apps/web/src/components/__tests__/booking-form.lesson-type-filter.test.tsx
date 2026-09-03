@@ -211,4 +211,32 @@ describe("BookingForm lesson type filter", () => {
     expect(document.body.textContent).toMatch(/Sun 5\s*Unavailable/);
     expect(document.body.textContent).not.toContain("10:30 AM");
   });
+
+  // The one number a person needs before committing, and the summary never
+  // showed it: a student could reach "Confirm booking" without being told the
+  // price anywhere in the flow.
+  test("says what the lesson costs before it is confirmed", async () => {
+    renderForm(presetSlots);
+    await pickSlot(/10:00 AM/);
+
+    const price = screen.getByText(en.booking.reviewPrice);
+    expect(price.closest("div")).toHaveTextContent(/¥3,000/);
+    expect(price.closest("div")).toHaveTextContent(/tax included/);
+  });
+
+  test("says how long the lesson runs", async () => {
+    renderForm(presetSlots);
+    await pickSlot(/10:00 AM/);
+
+    const duration = screen.getByText(en.booking.reviewDuration);
+    expect(duration.closest("div")).toHaveTextContent(/30 min/);
+  });
+
+  // "Pick a time" described an action already taken by the time this is read.
+  test("names the time as a fact, not an instruction", async () => {
+    renderForm(presetSlots);
+    await pickSlot(/10:00 AM/);
+
+    expect(screen.getByText(en.booking.reviewDateTime)).toBeInTheDocument();
+  });
 });

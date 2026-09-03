@@ -6,6 +6,8 @@ import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
 import { NextLessonWhen } from "@/components/dashboard/next-lesson-when";
 import { Status } from "@/components/ui/status";
+import { InlineAlert } from "@/components/ui/inline-alert";
+import { PendingReservationActions } from "@/components/booking/pending-reservation-actions";
 import { buttonClasses } from "@/components/ui/button";
 
 /**
@@ -32,20 +34,39 @@ export type NextLessonView = {
   lessonNameEn: string;
   status: BookingDisplayStatus;
   meetUrl: string | null;
+  /** When an unpaid reservation stops holding its slot. Null once confirmed. */
+  holdExpiresAt?: Date | null;
 };
 
 export async function DashboardNextLesson({
   next,
   emptyMessage,
   emptyAction,
+  canCompletePayment = false,
 }: {
   next: NextLessonView | null;
   emptyMessage: string;
   emptyAction: ReactNode;
+  /**
+   * Whether this viewer is the one who owes the money. A teacher sees the same
+   * unpaid booking, but cannot settle it — offering them "Complete payment"
+   * would be offering to charge somebody else's card.
+   */
+  canCompletePayment?: boolean;
 }) {
   const locale = await getLocale();
   const t = await getTranslations("dashboard");
   const th = await getTranslations("dashboard.highlights");
+
+  /*
+    An unpaid booking is a reservation, not a lesson. Shown under "Next lesson"
+    with a big confirmed-looking time, it read as done — while a three-hour hold
+    quietly ran out and the slot went back on sale. So it says what it is, says
+    when it lapses, and leads with the way to finish.
+  */
+  const awaitingPayment = Boolean(
+    next && next.status === "PENDING_PAYMENT" && canCompletePayment,
+  );
 
   if (!next) {
     return (
@@ -74,7 +95,7 @@ export async function DashboardNextLesson({
         id="next-lesson-heading"
         className="text-xl font-bold tracking-[-0.02em] text-foreground"
       >
-        {th("nextLessonTitle")}
+        {awaitingPayment ? th("reservationTitle") : th("nextLessonTitle")}
       </h2>
 
       <NextLessonWhen
@@ -93,8 +114,25 @@ export async function DashboardNextLesson({
         {next.lessonNameJa} / {next.lessonNameEn}
       </p>
 
+      {awaitingPayment ? (
+        <InlineAlert variant="warning" role="status" className="mt-5">
+          {next.holdExpiresAt
+            ? th("reservationExplain", {
+                expires: new Intl.DateTimeFormat(locale, {
+                  weekday: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }).format(next.holdExpiresAt),
+              })
+            : th("reservationExplain", { expires: "—" })}
+        </InlineAlert>
+      ) : null}
+
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <Status tone={bookingStatusTone(next.status)}>{t(bookingStatusKey(next.status))}</Status>
+        {awaitingPayment ? null : (
+          <Status tone={bookingStatusTone(next.status)}>{t(bookingStatusKey(next.status))}</Status>
+        )}
+        {awaitingPayment ? <PendingReservationActions bookingId={next.id} /> : null}
         {next.meetUrl && next.status === "CONFIRMED" ? (
           <a
             href={next.meetUrl}
@@ -108,9 +146,7 @@ export async function DashboardNextLesson({
         <Link href="/dashboard/schedule" className={buttonClasses({ variant: "ghost", size: "sm" })}>
           {th("fullSchedule")}
         </Link>
-        {next.status === "CONFIRMED" || next.status === "PENDING_PAYMENT" ? (
-          <BookingCancelButton bookingId={next.id} />
-        ) : null}
+        {next.status === "CONFIRMED" ? <BookingCancelButton bookingId={next.id} /> : null}
       </div>
     </section>
   );

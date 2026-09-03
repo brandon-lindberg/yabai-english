@@ -140,9 +140,11 @@ export async function StudentDashboard({
               lessonNameEn: nextBooking.lessonProduct.nameEn,
               status: resolveBookingDisplayStatus(nextBooking),
               meetUrl: nextBooking.meetUrl,
+              holdExpiresAt: nextBooking.holdExpiresAt ?? null,
             }
           : null
       }
+      canCompletePayment
       nextEmptyMessage={th("noNextLesson")}
       nextEmptyAction={
         <Link href="/book" className={buttonClasses({ size: "lg" })}>
