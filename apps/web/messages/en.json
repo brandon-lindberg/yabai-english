@@ -430,7 +430,14 @@
       "lessonNotesReadLabel": "Teacher notes",
       "lessonNotesEmptyStudent": "Your teacher has not added notes for this lesson yet.",
       "completedLessonsHasNotes": "Saved notes or link",
-      "completedLessonsCount": "{count, plural, one {# lesson} other {# lessons}}"
+      "completedLessonsCount": "{count, plural, one {# lesson} other {# lessons}}",
+      "groupClassesTitle": "Group classes",
+      "groupClassesEmpty": "No group classes coming up.",
+      "groupClassesSeatsLeft": "{count, plural, =1 {1 seat left} other {# seats left}}",
+      "groupClassesFull": "Full",
+      "groupClassesCancelled": "Cancelled",
+      "groupClassesNobodyYet": "No students yet",
+      "groupClassesSeatCount": "{taken} of {capacity}"
     },
     "lessonDetail": {
       "backToSchedule": "Back to schedule",

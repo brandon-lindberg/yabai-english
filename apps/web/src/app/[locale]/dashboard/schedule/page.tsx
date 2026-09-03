@@ -12,6 +12,8 @@ import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { shouldLoadTeacherBookingsOnSchedule } from "@/lib/dashboard/schedule-view-role";
 import { Section } from "@/components/ui/section";
 import { RefundedLessons } from "@/components/dashboard/refunded-lessons";
+import { TeacherGroupClasses } from "@/components/dashboard/teacher-group-classes";
+import { buildGroupClassRows, type GroupClassRow } from "@/lib/dashboard/group-classes";
 
 /**
  * One schedule, two roles.
@@ -42,6 +44,9 @@ export default async function DashboardSchedulePage({
   let refundedLessons: React.ReactNode = null;
   let hasRefunded = false;
   let lessons: ReactNode;
+  /** Teacher-only: a class is one time with several students, so it does not
+   *  fit the one-row-per-lesson list above. */
+  let groupClasses: GroupClassRow[] = [];
 
   if (shouldLoadTeacherBookingsOnSchedule(session.user.role)) {
     const profile = await prisma.teacherProfile.findUnique({
@@ -58,6 +63,30 @@ export default async function DashboardSchedulePage({
     const teacherBookings = profile
       ? await getTeacherBookingsForDashboard(prisma, profile.id)
       : { bookings: [], upcoming: [], completed: [], refunded: [], scheduleItems: [] };
+
+    const sessions = profile
+      ? await prisma.groupLessonSession.findMany({
+          where: { teacherId: profile.id, startsAt: { gte: new Date() } },
+          orderBy: { startsAt: "asc" },
+          select: {
+            id: true,
+            startsAt: true,
+            endsAt: true,
+            capacity: true,
+            cancelledAt: true,
+            bookings: {
+              orderBy: { createdAt: "asc" },
+              select: {
+                id: true,
+                status: true,
+                holdExpiresAt: true,
+                student: { select: { id: true, name: true, email: true } },
+              },
+            },
+          },
+        })
+      : [];
+    groupClasses = buildGroupClassRows(sessions);
 
     intro = t("upcomingIntro");
     timeZone = profile?.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
@@ -104,6 +133,12 @@ export default async function DashboardSchedulePage({
       <Section title={td("upcoming")} ruled={scheduleItems.length > 0}>
         <ul className="list-none border-t border-border p-0">{lessons}</ul>
       </Section>
+
+      {groupClasses.length > 0 ? (
+        <Section title={t("groupClassesTitle")} ruled>
+          <TeacherGroupClasses classes={groupClasses} timeZone={timeZone} />
+        </Section>
+      ) : null}
 
       {hasRefunded ? (
         <Section title={td("refundedLessons")} ruled>

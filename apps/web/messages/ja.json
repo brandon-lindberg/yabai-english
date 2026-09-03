@@ -430,7 +430,14 @@
       "lessonNotesReadLabel": "講師からのメモ",
       "lessonNotesEmptyStudent": "このレッスンにはまだメモがありません。",
       "completedLessonsHasNotes": "メモまたはリンクあり",
-      "completedLessonsCount": "{count}件"
+      "completedLessonsCount": "{count}件",
+      "groupClassesTitle": "グループクラス",
+      "groupClassesEmpty": "予定されているグループクラスはありません。",
+      "groupClassesSeatsLeft": "残り{count}席",
+      "groupClassesFull": "満席",
+      "groupClassesCancelled": "中止",
+      "groupClassesNobodyYet": "受講生はまだいません",
+      "groupClassesSeatCount": "{capacity}人中{taken}人"
     },
     "lessonDetail": {
       "backToSchedule": "スケジュールに戻る",
