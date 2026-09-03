@@ -437,7 +437,11 @@
       "groupClassesFull": "満席",
       "groupClassesCancelled": "中止",
       "groupClassesNobodyYet": "受講生はまだいません",
-      "groupClassesSeatCount": "{capacity}人中{taken}人"
+      "groupClassesSeatCount": "{capacity}人中{taken}人",
+      "groupClassCancel": "クラスを中止",
+      "groupClassCancelWorking": "中止しています…",
+      "groupClassCancelError": "このクラスを中止できませんでした。",
+      "groupClassCancelConfirm": "{count, plural, =0 {このクラスを中止しますか？まだ予約はありません。} other {このクラスを中止しますか？受講生{count}人に全額返金し、中止をお知らせします。}}"
     },
     "lessonDetail": {
       "backToSchedule": "スケジュールに戻る",

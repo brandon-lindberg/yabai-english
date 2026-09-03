@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
@@ -15,6 +15,10 @@ import {
  * test, so it is served from the real message file instead — the strings under
  * assertion are the ones that ship.
  */
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
 vi.mock("next-intl/server", () => ({
   getLocale: async () => "en",
   getTranslations: async () => {
@@ -124,5 +128,73 @@ describe("TeacherGroupClasses", () => {
     await renderClasses([]);
 
     expect(screen.getByText(/No group classes coming up/)).toBeInTheDocument();
+  });
+
+  describe("calling a class off", () => {
+    test("offers to cancel a class that is still on", async () => {
+      await renderClasses([session()]);
+
+      expect(screen.getByRole("button", { name: "Cancel class" })).toBeEnabled();
+    });
+
+    test("offers nothing on a class already called off", async () => {
+      await renderClasses([session({ cancelledAt: new Date("2026-07-02T00:00:00.000Z") })]);
+
+      expect(screen.queryByRole("button", { name: "Cancel class" })).not.toBeInTheDocument();
+    });
+
+    // The guard is the sentence: a teacher should see how many students they
+    // are about to refund before they agree to it.
+    test("says how many students will be refunded before doing it", async () => {
+      const confirm = vi.fn().mockReturnValue(false);
+      vi.stubGlobal("confirm", confirm);
+      const fetchMock = vi.fn();
+      vi.stubGlobal("fetch", fetchMock);
+
+      await renderClasses([session()]);
+      fireEvent.click(screen.getByRole("button", { name: "Cancel class" }));
+
+      expect(confirm).toHaveBeenCalledWith(
+        expect.stringContaining("2 students will be refunded in full"),
+      );
+      // Declined, so nothing happened.
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    test("calls the class off once the teacher agrees", async () => {
+      vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
+      vi.stubGlobal("fetch", fetchMock);
+
+      await renderClasses([session()]);
+      fireEvent.click(screen.getByRole("button", { name: "Cancel class" }));
+
+      await waitFor(() =>
+        expect(fetchMock).toHaveBeenCalledWith(
+          "/api/group-lesson-sessions/sess-1/cancel",
+          { method: "POST" },
+        ),
+      );
+    });
+
+    test("shows what went wrong when the server refuses", async () => {
+      vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: false,
+          json: async () => ({ error: "This class is already cancelled." }),
+        }),
+      );
+
+      await renderClasses([session()]);
+      fireEvent.click(screen.getByRole("button", { name: "Cancel class" }));
+
+      expect(
+        await screen.findByText("This class is already cancelled."),
+      ).toBeInTheDocument();
+    });
   });
 });

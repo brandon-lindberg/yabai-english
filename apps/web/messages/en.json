@@ -437,7 +437,11 @@
       "groupClassesFull": "Full",
       "groupClassesCancelled": "Cancelled",
       "groupClassesNobodyYet": "No students yet",
-      "groupClassesSeatCount": "{taken} of {capacity}"
+      "groupClassesSeatCount": "{taken} of {capacity}",
+      "groupClassCancel": "Cancel class",
+      "groupClassCancelWorking": "Cancelling…",
+      "groupClassCancelError": "Could not cancel this class.",
+      "groupClassCancelConfirm": "{count, plural, =0 {Call off this class? Nobody has booked it yet.} =1 {Call off this class? 1 student will be refunded in full and told it is off.} other {Call off this class? # students will be refunded in full and told it is off.}}"
     },
     "lessonDetail": {
       "backToSchedule": "Back to schedule",

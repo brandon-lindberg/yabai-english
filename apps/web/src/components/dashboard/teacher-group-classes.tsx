@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { DataList, DataRow } from "@/components/ui/data-row";
 import { Status } from "@/components/ui/status";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
+import { GroupClassCancelButton } from "@/components/dashboard/group-class-cancel-button";
 import type { GroupClassRow } from "@/lib/dashboard/group-classes";
 
 /**
@@ -45,7 +46,21 @@ export async function TeacherGroupClasses({
             : t("groupClassesSeatsLeft", { count: row.seats.remaining });
 
         return (
-          <DataRow key={row.sessionId} actions={<Status tone={tone}>{label}</Status>}>
+          <DataRow
+            key={row.sessionId}
+            actions={
+              <>
+                <Status tone={tone}>{label}</Status>
+                {/* A class already called off has nothing left to call off. */}
+                {row.cancelled ? null : (
+                  <GroupClassCancelButton
+                    sessionId={row.sessionId}
+                    seatedCount={row.seats.taken}
+                  />
+                )}
+              </>
+            }
+          >
             <p className="text-sm font-semibold tabular-nums text-foreground">
               <LocalBookingDateTimeRange
                 locale={locale}
