@@ -396,7 +396,9 @@
       "teacherAddClassWorking": "Adding…",
       "teacherAddClassCancel": "Cancel",
       "teacherAddClassError": "Could not add this class.",
-      "teacherAddClassNoTaxonomy": "Add a class level and a class type first."
+      "teacherAddClassNoTaxonomy": "Add a class level and a class type first.",
+      "teacherRemoveClassConfirm": "Remove this class? Students will no longer be able to book it.",
+      "teacherRatesAutosaveNote": "Changes save as you make them."
     },
     "schedulePage": {
       "title": "Schedule",

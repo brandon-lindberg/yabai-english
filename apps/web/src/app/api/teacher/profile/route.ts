@@ -4,15 +4,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
-import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
-import {
-  lessonOfferingCreateData,
-  lessonOfferingInputSchema,
-  lessonOfferingRateError,
-  normalizeLessonOfferingInput,
-} from "@/lib/teacher-lesson-offering-input";
-import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
 import { TEACHER_BIO_MAX_CHARS, TEACHER_CREDENTIALS_MAX_CHARS } from "@/lib/markdown/limits";
 
 const patchSchema = z.object({
@@ -29,7 +21,6 @@ const patchSchema = z.object({
   /** When true, teacher is hidden from /book and only rostered students may book via direct link. */
   marketplaceHidden: z.boolean().optional(),
   /** When true, the 10% refund processing fee is deducted from the student's refund instead of covered by the teacher. */
-  lessonOfferings: z.array(lessonOfferingInputSchema).max(40).optional(),
 });
 
 export async function PATCH(req: Request) {
@@ -50,19 +41,6 @@ export async function PATCH(req: Request) {
   if (!fallbackRateCheck.ok) {
     return NextResponse.json({ error: fallbackRateCheck.error }, { status: 400 });
   }
-  // Same rules as the add-a-class modal, from the same module: a class one
-  // path accepts and the other refuses would be a bug nobody could explain.
-  const lessonOfferings = data.lessonOfferings?.map(normalizeLessonOfferingInput);
-  const invalidOffering = lessonOfferings?.find(
-    (offering) => lessonOfferingRateError(offering) !== null,
-  );
-  if (invalidOffering) {
-    return NextResponse.json(
-      { error: lessonOfferingRateError(invalidOffering) },
-      { status: 400 },
-    );
-  }
-
   let profile;
   try {
     profile = await prisma.$transaction(async (tx) => {
@@ -116,71 +94,6 @@ export async function PATCH(req: Request) {
           data: { active: false },
         });
       }
-    }
-
-    if (lessonOfferings !== undefined) {
-      const refTypeIds = Array.from(
-        new Set(
-          lessonOfferings
-            .map((o) => o.classTypeId)
-            .filter((id): id is string => typeof id === "string"),
-        ),
-      );
-      const refLevelIds = Array.from(new Set(lessonOfferings.map((o) => o.classLevelId)));
-      const [foundLevels, foundTypes] = await Promise.all([
-        tx.teacherClassLevel.findMany({
-          where: { id: { in: refLevelIds }, teacherId: updated.id },
-          select: { id: true },
-        }),
-        refTypeIds.length > 0
-          ? tx.teacherClassType.findMany({
-              where: { id: { in: refTypeIds }, teacherId: updated.id },
-              select: { id: true, code: true },
-            })
-          : Promise.resolve([]),
-      ]);
-      if (foundLevels.length !== refLevelIds.length) {
-        throw Object.assign(
-          new Error("classLevelId does not belong to this teacher"),
-          { status: 400 },
-        );
-      }
-      if (foundTypes.length !== refTypeIds.length) {
-        throw Object.assign(
-          new Error("classTypeId does not belong to this teacher"),
-          { status: 400 },
-        );
-      }
-      const codeByTypeId = new Map(foundTypes.map((t) => [t.id, t.code]));
-
-      // Replace only what the teacher authored. The free trial and any
-      // admin-granted below-minimum class live in this table too, and deleting
-      // them here would also unbind the availability slots pointing at them.
-      const existingOfferings = await tx.teacherLessonOffering.findMany({
-        where: { teacherId: updated.id },
-        select: { id: true, isFreeTrial: true, adminRateOverrideByUserId: true },
-      });
-      const { editable } = partitionOfferingsByTeacherEditable(existingOfferings);
-      await tx.teacherLessonOffering.deleteMany({
-        where: { teacherId: updated.id, id: { in: editable.map((o) => o.id) } },
-      });
-      if (lessonOfferings.length > 0) {
-        await tx.teacherLessonOffering.createMany({
-          data: lessonOfferings.map((o) => lessonOfferingCreateData(o, updated.id)),
-        });
-      }
-      // Make sure a matching LessonProduct exists for every offering so the
-      // student booking dropdown can surface it. Safe to run even when empty.
-      await ensureCatalogProductsForOfferings(
-        tx,
-        lessonOfferings.map((o) => ({
-          classType: o.classTypeId
-            ? { code: codeByTypeId.get(o.classTypeId) ?? "" }
-            : null,
-          durationMin: o.durationMin,
-          active: true,
-        })),
-      );
     }
 
       return updated;

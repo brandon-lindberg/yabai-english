@@ -23,7 +23,6 @@ describe("TeacherLessonOfferingsForm", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={2500}
           initialOffersFreeTrial={true}
           initialLessonOfferings={[
             {
@@ -57,7 +56,6 @@ describe("TeacherLessonOfferingsForm", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={null}
           initialOffersFreeTrial={true}
           initialLessonOfferings={[
             {
@@ -90,7 +88,6 @@ describe("TeacherLessonOfferingsForm", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={null}
           initialOffersFreeTrial={true}
           initialLessonOfferings={[
             {
@@ -128,7 +125,6 @@ describe("TeacherLessonOfferingsForm", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={null}
           initialOffersFreeTrial={true}
           initialLessonOfferings={[
             {
@@ -150,17 +146,14 @@ describe("TeacherLessonOfferingsForm", () => {
     fireEvent.click(screen.getByRole("button", { name: /Switch to your fee before tax/ }));
     const priceInput = screen.getByPlaceholderText("3000");
     fireEvent.change(priceInput, { target: { value: "4000" } });
+    // No Save button: leaving the field is what writes it.
+    fireEvent.blur(priceInput);
 
-    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.save }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
 
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled();
-    });
-
-    const call0 = fetchMock.mock.calls[0] as unknown as [string, { body?: string }];
-    expect(call0?.[1]?.body).toBeDefined();
-    const body = JSON.parse(call0![1].body!) as { lessonOfferings: { rateYen: number }[] };
-    expect(body.lessonOfferings[0]?.rateYen).toBe(4400);
+    const [url, init] = fetchMock.mock.calls.at(-1) as unknown as [string, { body: string }];
+    expect(url).toBe("/api/teacher/lesson-offerings/offer-1");
+    expect(JSON.parse(init.body)).toMatchObject({ rateYen: 4400 });
 
     vi.unstubAllGlobals();
   });
@@ -169,7 +162,6 @@ describe("TeacherLessonOfferingsForm", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={4000}
           initialOffersFreeTrial
           initialLessonOfferings={[
             {
@@ -228,7 +220,6 @@ describe("TeacherLessonOfferingsForm", () => {
     return render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={rateYen}
           initialOffersFreeTrial
           initialLessonOfferings={[
             {
@@ -263,28 +254,33 @@ describe("TeacherLessonOfferingsForm", () => {
     expect(rateInput().getAttribute("aria-invalid")).toBe("true");
   });
 
-  test("refuses to submit while a rate is below the minimum", () => {
+  // Nothing is written while the figure is refused, so a bad price cannot be
+  // saved by leaving the field.
+  test("does not write a rate below the minimum", () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
     renderWithOneRate(4000);
 
     fireEvent.change(rateInput(), { target: { value: "500" } });
+    fireEvent.blur(rateInput());
 
-    expect(
-      (screen.getByRole("button", { name: en.dashboard.profilePage.save }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true);
+    expect(screen.getByText(BELOW_MIN)).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
   });
 
-  test("clears the complaint once the rate is acceptable", () => {
+  test("writes it once the rate is acceptable", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    vi.stubGlobal("fetch", fetchMock);
     renderWithOneRate(4000);
 
     fireEvent.change(rateInput(), { target: { value: "500" } });
     fireEvent.change(rateInput(), { target: { value: "3000" } });
+    fireEvent.blur(rateInput());
 
     expect(screen.queryByText(BELOW_MIN)).toBeNull();
-    expect(
-      (screen.getByRole("button", { name: en.dashboard.profilePage.save }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(false);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    vi.unstubAllGlobals();
   });
 
   // The minimum is on the tax-included price, so a tax-exclusive entry below
@@ -311,7 +307,6 @@ describe("Google Meet group-call limit", () => {
     return render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={3000}
           initialOffersFreeTrial={false}
           initialLessonOfferings={[
             {
@@ -358,7 +353,6 @@ describe("Google Meet group-call limit", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={3000}
           initialOffersFreeTrial={false}
           initialLessonOfferings={[
             {
@@ -387,7 +381,6 @@ describe("group class pricing", () => {
     return render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={3000}
           initialOffersFreeTrial={false}
           initialLessonOfferings={[
             {
@@ -491,7 +484,7 @@ describe("group class pricing", () => {
     fireEvent.change(totalField(), { target: { value: "8000" } });
     expect(screen.getByText(/Each student would pay ¥2,000/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.save }));
+    fireEvent.blur(totalField());
     await waitFor(() => expect(fetchMock).not.toHaveBeenCalled());
   });
 
@@ -501,12 +494,12 @@ describe("group class pricing", () => {
     renderGroupForm();
 
     fireEvent.change(totalField(), { target: { value: "16000" } });
-    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.save }));
+    fireEvent.blur(totalField());
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-    const body = JSON.parse(fetchMock.mock.calls[0][1].body as string);
-    const group = body.lessonOfferings.find((o: { isGroup: boolean }) => o.isGroup);
-    expect(group).toMatchObject({
+    const [url, init] = fetchMock.mock.calls.at(-1) as unknown as [string, { body: string }];
+    expect(url).toBe("/api/teacher/lesson-offerings/offer-group");
+    expect(JSON.parse(init.body)).toMatchObject({
       isGroup: true,
       groupSize: 4,
       rateYen: 4000,
@@ -520,7 +513,6 @@ describe("price basis is per class", () => {
     return render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={null}
           initialOffersFreeTrial={false}
           initialLessonOfferings={[
             {
@@ -585,18 +577,21 @@ describe("price basis is per class", () => {
     vi.stubGlobal("fetch", fetchMock);
     renderTwoClasses();
 
+    // Switching a row's basis is a change worth keeping, so it writes itself.
     fireEvent.click(
       screen.getAllByRole("button", { name: /Switch to your fee before tax/ })[0]!,
     );
-    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.save }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-    const body = JSON.parse(fetchMock.mock.calls[0][1].body as string);
-    // Both prices unchanged in what a student pays; only the entry mode differs.
-    expect(body.lessonOfferings).toMatchObject([
-      { rateYen: 3300, ratePriceBasis: "TAX_EXCLUSIVE" },
-      { rateYen: 6600, ratePriceBasis: "TAX_INCLUDED" },
-    ]);
+    const [url, init] = fetchMock.mock.calls.at(-1) as unknown as [string, { body: string }];
+    // Only the switched class is written, and its price is unchanged in what a
+    // student pays — just entered a different way.
+    expect(url).toBe("/api/teacher/lesson-offerings/offer-a");
+    expect(JSON.parse(init.body)).toMatchObject({
+      rateYen: 3300,
+      ratePriceBasis: "TAX_EXCLUSIVE",
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     vi.unstubAllGlobals();
   });
 
@@ -606,7 +601,6 @@ describe("price basis is per class", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
         <TeacherLessonOfferingsForm
-          initialRateYen={null}
           initialOffersFreeTrial={false}
           initialLessonOfferings={[
             {
@@ -631,5 +625,108 @@ describe("price basis is per class", () => {
     expect(
       screen.getByLabelText(en.dashboard.profilePage.teacherRateYenLabelTaxExclusive),
     ).toBeInTheDocument();
+  });
+});
+
+describe("everything saves itself", () => {
+  function renderOneClass() {
+    return render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherLessonOfferingsForm
+          initialOffersFreeTrial={false}
+          initialLessonOfferings={[
+            {
+              id: "offer-1",
+              durationMin: 30,
+              rateYen: 3300,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lvl-beginner",
+              classTypeId: "type-conversation",
+            },
+          ]}
+          classLevels={classLevels}
+          classTypes={classTypes}
+        />
+      </NextIntlClientProvider>,
+    );
+  }
+
+  test("offers no Save button, because there is nothing left to save", () => {
+    renderOneClass();
+
+    expect(
+      screen.queryByRole("button", { name: en.dashboard.profilePage.save }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("saves the free trial setting the moment it is toggled", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    vi.stubGlobal("fetch", fetchMock);
+    renderOneClass();
+
+    fireEvent.click(
+      screen.getByRole("checkbox", {
+        name: new RegExp(en.dashboard.profilePage.teacherOffersFreeTrialLabel),
+      }),
+    );
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const [url, init] = fetchMock.mock.calls.at(-1) as unknown as [string, { body: string }];
+    expect(url).toBe("/api/teacher/profile");
+    expect(JSON.parse(init.body)).toEqual({ offersFreeTrial: true });
+    vi.unstubAllGlobals();
+  });
+
+  // Removing used to only drop the row locally, relying on Save to commit it.
+  test("deletes a class on the server when it is removed", async () => {
+    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    vi.stubGlobal("fetch", fetchMock);
+    renderOneClass();
+
+    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.teacherGroupRatesRemove }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(fetchMock).toHaveBeenCalledWith("/api/teacher/lesson-offerings/offer-1", {
+      method: "DELETE",
+    });
+    vi.unstubAllGlobals();
+  });
+
+  test("asks before removing a class", () => {
+    const confirmMock = vi.fn().mockReturnValue(false);
+    vi.stubGlobal("confirm", confirmMock);
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    renderOneClass();
+
+    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.teacherGroupRatesRemove }));
+
+    expect(confirmMock).toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  // The server refuses while availability still points at the class; the row
+  // must stay put rather than vanishing from a list it is still in.
+  test("keeps the class listed when the server refuses to delete it", async () => {
+    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        json: async () => ({ error: "Remove this class from your schedule before deleting it." }),
+      }),
+    );
+    renderOneClass();
+
+    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.teacherGroupRatesRemove }));
+
+    expect(
+      await screen.findByText("Remove this class from your schedule before deleting it."),
+    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue("3300")).toBeInTheDocument();
+    vi.unstubAllGlobals();
   });
 });

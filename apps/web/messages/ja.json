@@ -396,7 +396,9 @@
       "teacherAddClassWorking": "追加しています…",
       "teacherAddClassCancel": "キャンセル",
       "teacherAddClassError": "このクラスを追加できませんでした。",
-      "teacherAddClassNoTaxonomy": "先にクラスレベルとクラスタイプを追加してください。"
+      "teacherAddClassNoTaxonomy": "先にクラスレベルとクラスタイプを追加してください。",
+      "teacherRemoveClassConfirm": "このクラスを削除しますか？受講生は予約できなくなります。",
+      "teacherRatesAutosaveNote": "変更は自動的に保存されます。"
     },
     "schedulePage": {
       "title": "スケジュール",

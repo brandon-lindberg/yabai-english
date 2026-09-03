@@ -13,7 +13,7 @@ import {
   MIN_PUBLIC_LESSON_RATE_YEN,
   validatePublicLessonRateYen,
 } from "@/lib/lesson-rate-policy";
-import { buttonClasses } from "@/components/ui/button";
+import { FormStatus } from "@/components/ui/form-status";
 import { CheckRow } from "@/components/ui/check-row";
 import {
   TeacherLessonOfferRow,
@@ -44,19 +44,6 @@ export type TaxonomyOption = {
   labelJa: string | null;
 };
 
-type LessonOfferingInput = {
-  durationMin: number;
-  /** What ONE student pays. For a group class, the derived share. */
-  rateYen: number;
-  /** The teacher's figure for the whole class. Group classes only. */
-  groupTotalRateYen?: number;
-  /** Which figure the teacher typed, so the form can show it back that way. */
-  ratePriceBasis: "TAX_INCLUDED" | "TAX_EXCLUSIVE";
-  isGroup: boolean;
-  groupSize: number | null;
-  classLevelId: string;
-  classTypeId: string | null;
-};
 
 type LessonOfferingRow = {
   clientId: string;
@@ -73,7 +60,6 @@ type GroupOfferingRow = LessonOfferingRow & {
 };
 
 type Props = {
-  initialRateYen: number | null;
   initialOffersFreeTrial: boolean;
   initialLessonOfferings: Array<{
     id: string;
@@ -150,7 +136,6 @@ function makeRowId() {
 /** Aligns multi-line rate labels with single-line taxonomy labels; pairs with `RATE_CONTROL_HEIGHT`. */
 
 export function TeacherLessonOfferingsForm({
-  initialRateYen,
   initialOffersFreeTrial,
   initialLessonOfferings,
   classLevels,
@@ -180,20 +165,7 @@ export function TeacherLessonOfferingsForm({
           ),
         ),
       }));
-    if (rows.length > 0) return rows;
-    if (initialRateYen != null) {
-      return [
-        {
-          clientId: makeRowId(),
-          durationMin: 30,
-          classLevelId: defaultClassLevelId,
-          classTypeId: defaultClassTypeId,
-          ratePriceBasis: "tax_included",
-          rateYenInput: String(initialRateYen),
-        },
-      ];
-    }
-    return [];
+    return rows;
   });
   const [groupOffers, setGroupOffers] = useState<GroupOfferingRow[]>(
     editableOfferings
@@ -219,6 +191,87 @@ export function TeacherLessonOfferingsForm({
   const [offersFreeTrial, setOffersFreeTrial] = useState(initialOffersFreeTrial);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [addingKind, setAddingKind] = useState<"individual" | "group" | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  /**
+   * Every control here saves itself. There is no Save button, because the one
+   * that used to sit at the bottom saved by deleting the teacher's whole set of
+   * classes and recreating it — which nulled `teacherLessonOfferingId` on every
+   * published availability slot, silently, on every save.
+   */
+  async function persist(request: () => Promise<Response>) {
+    setStatus("saving");
+    setSaveError(null);
+    try {
+      const res = await request();
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setStatus("error");
+        setSaveError(data.error ?? null);
+        return false;
+      }
+      setStatus("saved");
+      setTimeout(() => setStatus("idle"), 2000);
+      return true;
+    } catch {
+      setStatus("error");
+      return false;
+    }
+  }
+
+  /** The class as the endpoint wants it, from a row as the form holds it. */
+  function rowToPayload(row: LessonOfferingRow | GroupOfferingRow) {
+    const entered = Number.parseInt(row.rateYenInput.trim(), 10);
+    if (Number.isNaN(entered) || entered <= 0) return null;
+    const taxIncluded = taxIncludedRateFromTeacherInput(entered, row.ratePriceBasis);
+    const shared = {
+      durationMin: row.durationMin,
+      ratePriceBasis: storedRatePriceBasis(row.ratePriceBasis),
+      classLevelId: row.classLevelId,
+      classTypeId: row.classTypeId,
+    };
+    if ("groupSize" in row) {
+      const check = validateGroupOfferingRate({
+        groupTotalYen: taxIncluded,
+        capacity: row.groupSize,
+      });
+      if (!check.ok) return null;
+      return {
+        ...shared,
+        rateYen: check.perStudentYen,
+        groupTotalRateYen: taxIncluded,
+        isGroup: true,
+        groupSize: row.groupSize,
+      };
+    }
+    if (!validatePublicLessonRateYen(taxIncluded).ok) return null;
+    return { ...shared, rateYen: taxIncluded, isGroup: false, groupSize: null };
+  }
+
+  /** Writes one row, once the teacher has finished with the field. */
+  function commitRow(row: LessonOfferingRow | GroupOfferingRow) {
+    const payload = rowToPayload(row);
+    // An incomplete or refused figure is not saved; the row already says why.
+    if (!payload) return;
+    void persist(() =>
+      fetch(`/api/teacher/lesson-offerings/${row.clientId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }),
+    );
+  }
+
+  async function removeRow(
+    clientId: string,
+    drop: () => void,
+  ) {
+    if (!window.confirm(t("teacherRemoveClassConfirm"))) return;
+    const ok = await persist(() =>
+      fetch(`/api/teacher/lesson-offerings/${clientId}`, { method: "DELETE" }),
+    );
+    if (ok) drop();
+  }
 
   /**
    * The complaint for a typed rate, or null when it is acceptable. Judges the
@@ -263,96 +316,9 @@ export function TeacherLessonOfferingsForm({
     });
   }
 
-  const hasRateBelowMinimum =
-    individualOffers.some((row) => rateErrorFor(row.rateYenInput, row.ratePriceBasis) !== null) ||
-    groupOffers.some((row) => groupRateErrorFor(row) !== null);
 
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus("saving");
-    const lessonOfferings: LessonOfferingInput[] = [];
-
-    for (const row of individualOffers) {
-      const entered = Number.parseInt(row.rateYenInput.trim(), 10);
-      if (Number.isNaN(entered) || entered <= 0 || !row.classLevelId || !row.classTypeId) {
-        setStatus("error");
-        return;
-      }
-      const rate = taxIncludedRateFromTeacherInput(entered, row.ratePriceBasis);
-      if (!validatePublicLessonRateYen(rate).ok) {
-        setStatus("error");
-        return;
-      }
-      lessonOfferings.push({
-        durationMin: row.durationMin,
-        rateYen: rate,
-        ratePriceBasis: storedRatePriceBasis(row.ratePriceBasis),
-        isGroup: false,
-        groupSize: null,
-        classLevelId: row.classLevelId,
-        classTypeId: row.classTypeId,
-      });
-    }
-
-    for (const group of groupOffers) {
-      const entered = Number.parseInt(group.rateYenInput.trim(), 10);
-      if (
-        Number.isNaN(entered) ||
-        entered <= 0 ||
-        group.groupSize < MIN_GROUP_CAPACITY ||
-        !group.classLevelId ||
-        !group.classTypeId
-      ) {
-        setStatus("error");
-        return;
-      }
-      const groupTotalRateYen = taxIncludedRateFromTeacherInput(entered, group.ratePriceBasis);
-      const check = validateGroupOfferingRate({
-        groupTotalYen: groupTotalRateYen,
-        capacity: group.groupSize,
-      });
-      if (!check.ok) {
-        setStatus("error");
-        return;
-      }
-      lessonOfferings.push({
-        durationMin: group.durationMin,
-        // The price is the share; the teacher's own figure rides alongside it.
-        rateYen: check.perStudentYen,
-        groupTotalRateYen,
-        ratePriceBasis: storedRatePriceBasis(group.ratePriceBasis),
-        isGroup: true,
-        groupSize: group.groupSize,
-        classLevelId: group.classLevelId,
-        classTypeId: group.classTypeId,
-      });
-    }
-
-    const fallbackRate = lessonOfferings.find((o) => !o.isGroup)?.rateYen ?? null;
-    const response = await fetch("/api/teacher/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        rateYen: fallbackRate,
-        offersFreeTrial,
-        lessonOfferings,
-      }),
-    });
-
-    if (!response.ok) {
-      setStatus("error");
-      return;
-    }
-    setStatus("saved");
-    setTimeout(() => setStatus("idle"), 2000);
-  }
-
-  /**
-   * A class the dialog has already saved. It joins the list here because the
-   * page's Save replaces the teacher's whole set — a saved class missing from
-   * this list would be deleted by the next unrelated edit.
-   */
+  /** A class the dialog has already saved joins the list without a reload. */
   function absorbAddedOffering(offering: AddedOffering) {
     const basis = ratePriceBasisFromStored(offering.ratePriceBasis);
     const shared = {
@@ -407,7 +373,7 @@ export function TeacherLessonOfferingsForm({
           onAdded={absorbAddedOffering}
         />
       ) : null}
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
       <section className="space-y-3 border-t border-border pt-6">
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-base font-bold tracking-[-0.02em] text-foreground">{t("teacherRatesByDurationTitle")}</h3>
@@ -441,17 +407,24 @@ export function TeacherLessonOfferingsForm({
                     prev.map((r, i) => (i === index ? { ...r, ...patch } : r)),
                   )
                 }
-                onRemove={() => setIndividualOffers((prev) => prev.filter((_, i) => i !== index))}
+                onCommit={() => commitRow(row)}
+                onRemove={() =>
+                  removeRow(row.clientId, () =>
+                    setIndividualOffers((prev) => prev.filter((_, i) => i !== index)),
+                  )
+                }
                 classLevels={classLevels}
                 classTypes={classTypes}
                 durations={INDIVIDUAL_DURATIONS}
                 pickLabel={(opt) => pickLabel(opt, locale)}
                 ratePriceBasis={row.ratePriceBasis}
-                onRatePriceBasisChange={(next) =>
+                onRatePriceBasisChange={(next) => {
+                  const converted = convertRowToBasis(row, next);
                   setIndividualOffers((prev) =>
-                    prev.map((r, i) => (i === index ? convertRowToBasis(r, next) : r)),
-                  )
-                }
+                    prev.map((r, i) => (i === index ? converted : r)),
+                  );
+                  commitRow(converted);
+                }}
                 ratePlaceholder={String(MIN_PUBLIC_LESSON_RATE_YEN)}
                 rateError={rateErrorFor(row.rateYenInput, row.ratePriceBasis)}
                 labels={{
@@ -501,17 +474,24 @@ export function TeacherLessonOfferingsForm({
                     prev.map((row, i) => (i === index ? { ...row, ...patch } : row)),
                   )
                 }
-                onRemove={() => setGroupOffers((prev) => prev.filter((_, i) => i !== index))}
+                onCommit={() => commitRow(group)}
+                onRemove={() =>
+                  removeRow(group.clientId, () =>
+                    setGroupOffers((prev) => prev.filter((_, i) => i !== index)),
+                  )
+                }
                 classLevels={classLevels}
                 classTypes={classTypes}
                 durations={INDIVIDUAL_DURATIONS}
                 pickLabel={(opt) => pickLabel(opt, locale)}
                 ratePriceBasis={group.ratePriceBasis}
-                onRatePriceBasisChange={(next) =>
+                onRatePriceBasisChange={(next) => {
+                  const converted = convertRowToBasis(group, next);
                   setGroupOffers((prev) =>
-                    prev.map((r, i) => (i === index ? convertRowToBasis(r, next) : r)),
-                  )
-                }
+                    prev.map((r, i) => (i === index ? converted : r)),
+                  );
+                  commitRow(converted);
+                }}
                 ratePlaceholder="8000"
                 rateError={groupRateErrorFor(group)}
                 rateNote={
@@ -554,6 +534,8 @@ export function TeacherLessonOfferingsForm({
                           ),
                         )
                       }
+                      onBlur={() => commitRow(group)
+                      }
                       className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-surface`}
                     />
                   </label>
@@ -573,24 +555,34 @@ export function TeacherLessonOfferingsForm({
 
       <CheckRow
         checked={offersFreeTrial}
-        onChange={setOffersFreeTrial}
+        onChange={(next) => {
+          setOffersFreeTrial(next);
+          void persist(() =>
+            fetch("/api/teacher/profile", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ offersFreeTrial: next }),
+            }),
+          );
+        }}
         description={t("teacherOffersFreeTrialHelp")}
       >
         <span className="font-medium text-foreground">{t("teacherOffersFreeTrialLabel")}</span>
       </CheckRow>
 
-      <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={status === "saving" || hasRateBelowMinimum}
-          className={buttonClasses()}
-        >
-          {status === "saving" ? t("saving") : t("save")}
-        </button>
-        {status === "saved" ? (
-          <span className="text-sm text-foreground">{t("saved")}</span>
+      {/* No Save button: every control on this page writes itself. The one that
+          used to live here saved by deleting the teacher's whole set of classes
+          and recreating it, which unlinked every published availability slot. */}
+      <div className="flex flex-col gap-1">
+        <FormStatus
+          state={status}
+          savingLabel={t("saving")}
+          savedLabel={t("saved")}
+          errorLabel={saveError ?? t("error")}
+        />
+        {status === "idle" ? (
+          <p className="text-xs text-muted">{t("teacherRatesAutosaveNote")}</p>
         ) : null}
-        {status === "error" ? <span className="text-sm text-destructive">{t("error")}</span> : null}
       </div>
     </form>
     </>

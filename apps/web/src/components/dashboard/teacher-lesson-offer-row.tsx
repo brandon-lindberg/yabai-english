@@ -40,6 +40,7 @@ export type OfferRowValue = {
 export function TeacherLessonOfferRow<Option extends { id: string }>({
   value,
   onChange,
+  onCommit,
   onRemove,
   classLevels,
   classTypes,
@@ -56,6 +57,12 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
   value: OfferRowValue;
   /** Receives only the changed keys. */
   onChange: (patch: Partial<OfferRowValue>) => void;
+  /**
+   * The teacher has finished with a field and the row is worth writing.
+   * Fires when a select changes and when the price field loses focus — not on
+   * every keystroke, which would save half-typed prices.
+   */
+  onCommit: () => void;
   onRemove: () => void;
   classLevels: Option[];
   classTypes: Option[];
@@ -92,7 +99,10 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
         <span className={RATE_FIELD_LABEL_ROW}>{labels.level}</span>
         <select
           value={value.classLevelId}
-          onChange={(e) => onChange({ classLevelId: e.target.value })}
+          onChange={(e) => {
+            onChange({ classLevelId: e.target.value });
+            queueMicrotask(onCommit);
+          }}
           className={CONTROL}
         >
           {classLevels.map((opt) => (
@@ -107,7 +117,10 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
         <span className={RATE_FIELD_LABEL_ROW}>{labels.type}</span>
         <select
           value={value.classTypeId}
-          onChange={(e) => onChange({ classTypeId: e.target.value })}
+          onChange={(e) => {
+            onChange({ classTypeId: e.target.value });
+            queueMicrotask(onCommit);
+          }}
           className={CONTROL}
         >
           {classTypes.map((opt) => (
@@ -122,7 +135,10 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
         <span className={RATE_FIELD_LABEL_ROW}>{labels.duration}</span>
         <select
           value={value.durationMin}
-          onChange={(e) => onChange({ durationMin: Number.parseInt(e.target.value, 10) })}
+          onChange={(e) => {
+            onChange({ durationMin: Number.parseInt(e.target.value, 10) });
+            queueMicrotask(onCommit);
+          }}
           className={CONTROL}
         >
           {durations.map((d) => (
@@ -141,6 +157,7 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
           pattern="[0-9]*"
           value={value.rateYenInput}
           onChange={(e) => onChange({ rateYenInput: e.target.value.replace(/\D/g, "") })}
+          onBlur={onCommit}
           placeholder={ratePlaceholder}
           // The label beside this is a plain span, so nothing associated it
           // with the field for anyone not looking at the screen.
