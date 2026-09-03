@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma";
 import { BookingForm } from "@/components/booking-form";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 import { auth } from "@/auth";
-import { weekdayLabel } from "@/lib/weekdays";
 import { redirectTargetForTeacherBookingPage } from "@/lib/teacher-booking-page-access";
 import { formatYenRange, getTeacherRateRangeByType } from "@/lib/teacher-rate-range";
 import { redirect } from "@/i18n/navigation";
@@ -14,7 +13,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Avatar } from "@/components/ui/avatar";
 import { Section } from "@/components/ui/section";
 import { StatLedger } from "@/components/ui/stat-ledger";
-import { DataList, DataRow } from "@/components/ui/data-row";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
@@ -351,33 +349,8 @@ export default async function TeacherProfileBookingPage({
         ]}
       />
 
-      <Section title={t("availability")} className="mt-10">
-        {teacher.availabilitySlots.length === 0 ? (
-          <p className="border-y border-border py-6 text-sm text-muted">{t("noAvailabilityYet")}</p>
-        ) : (
-          <DataList className="max-h-80 overflow-y-auto">
-            {teacher.availabilitySlots.map((slot) => (
-              <DataRow key={slot.id}>
-                <p className="text-sm font-semibold text-foreground">
-                  {weekdayLabel(slot.dayOfWeek, locale)}{" "}
-                  <span className="tabular-nums">
-                    {String(Math.floor(slot.startMin / 60)).padStart(2, "0")}:
-                    {String(slot.startMin % 60).padStart(2, "0")} –{" "}
-                    {String(Math.floor(slot.endMin / 60)).padStart(2, "0")}:
-                    {String(slot.endMin % 60).padStart(2, "0")}
-                  </span>
-                </p>
-                <p className="mt-0.5 text-sm text-muted">
-                  {[slot.timezone, formatSlotMeta(slot)].filter(Boolean).join(" · ")}
-                </p>
-              </DataRow>
-            ))}
-          </DataList>
-        )}
-      </Section>
-
       {session?.user ? (
-        <Section title={t("scheduleWithTeacher")} size="lg" className="mt-10">
+        <Section title={t("availability")} size="lg" className="mt-10">
           <p className="mb-4 text-sm text-muted">
             {t("selectSlot")} · {t("timezoneShownAs")}: {viewerTimezone}
           </p>
@@ -390,7 +363,9 @@ export default async function TeacherProfileBookingPage({
               viewerTimezone={viewerTimezone}
             />
           ))}
-          <InlineAlert variant="warning">{t("leadTimeNotice")}</InlineAlert>
+          <InlineAlert variant="warning" className="mb-6">
+            {t("leadTimeNotice")}
+          </InlineAlert>
           <BookingForm
             teacherProfileId={teacher.id}
             currentUserRole={session.user.role}

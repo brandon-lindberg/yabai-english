@@ -294,7 +294,12 @@ export function SlotSelectionCalendar({
                           <span className="block whitespace-nowrap font-semibold">
                             {slotTime(slot.startsAtIso)}
                           </span>
-                          <span className="block truncate text-[10px]">{slot.label}</span>
+                          {/* The badge when there is one: a full class's label
+                              opens with its date, so truncating it hides the
+                              part that says why the slot cannot be taken. */}
+                          <span className="block truncate text-[10px]">
+                            {slot.badge ?? slot.label}
+                          </span>
                         </div>
                       );
                     }
@@ -317,7 +322,7 @@ export function SlotSelectionCalendar({
                           {slotTime(slot.startsAtIso)}
                         </span>
                         {slot.badge ? (
-                          <span className="block whitespace-nowrap text-[0.65rem] font-normal opacity-80">
+                          <span className="block text-[0.65rem] font-normal leading-tight opacity-80">
                             {slot.badge}
                           </span>
                         ) : null}

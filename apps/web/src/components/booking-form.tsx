@@ -7,18 +7,14 @@ import { useRouter } from "@/i18n/navigation";
 import { canShowManualOverrideToggle } from "@/lib/manual-override";
 import { SlotSelectionCalendar } from "@/components/slot-selection-calendar";
 import type { CalendarViewMode } from "@/lib/calendar-view";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Section } from "@/components/ui/section";
+import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
-import { Field, Input, Select } from "@/components/ui/field";
+import { Field, Input } from "@/components/ui/field";
 import { MarkdownField } from "@/components/ui/markdown-field";
 import { Status } from "@/components/ui/status";
-import {
-  ALL_LESSON_TYPES_KEY,
-  filterSlotsForSelection,
-  slotMatchesProduct,
-} from "@/lib/booking-lesson-type-filter";
+import { slotMatchesProduct } from "@/lib/booking-lesson-type-filter";
 import { occurrenceBookability } from "@/lib/occurrence-bookability";
 import type { EnabledTeacherPaymentMethod } from "@/lib/payment-methods";
 
@@ -76,7 +72,6 @@ export function BookingForm({
   const t = useTranslations("booking");
   const router = useRouter();
   const [products, setProducts] = useState<LessonProductOption[]>([]);
-  const [selectedOptionKey, setSelectedOptionKey] = useState<string>(ALL_LESSON_TYPES_KEY);
   const [selectedPaymentKey, setSelectedPaymentKey] = useState("");
   const [startsAt, setStartsAt] = useState("");
   const [manualOverride, setManualOverride] = useState(false);
@@ -113,19 +108,17 @@ export function BookingForm({
     }
   }, [presetSlots]);
 
-  const selectedSlot = presetSlots?.find((slot) => slot.startsAtIso === startsAt);
-  const productsForSelectedSlot = useMemo(() => {
-    if (!selectedSlot) return products;
-    return products.filter((product) => slotMatchesProduct(selectedSlot, product));
-  }, [products, selectedSlot]);
-
-  const selectedOption =
-    selectedOptionKey === ALL_LESSON_TYPES_KEY
-      ? undefined
-      : products.find((p) => optionKey(p) === selectedOptionKey);
-
-  const resolvedProductForAllTypes = useMemo(() => {
-    if (selectedOptionKey !== ALL_LESSON_TYPES_KEY || !startsAt || !presetSlots?.length) {
+  /**
+   * The lesson this time IS.
+   *
+   * A slot carries its own offering — level, focus, length and price — so once
+   * a time is picked there is nothing left to choose. This used to be a picker
+   * listing every catalog product matching the slot's class type and length,
+   * which asked the student to decide something the teacher had already
+   * decided, inside a dialog they had opened by choosing that very lesson.
+   */
+  const effectiveProduct = useMemo(() => {
+    if (!startsAt || !presetSlots?.length) {
       return undefined;
     }
     const slot = presetSlots.find((s) => s.startsAtIso === startsAt);
@@ -140,9 +133,7 @@ export function BookingForm({
       if (byDuration.length >= 1) return byDuration[0];
     }
     return candidates[0];
-  }, [selectedOptionKey, startsAt, presetSlots, products]);
-
-  const effectiveProduct = selectedOption ?? resolvedProductForAllTypes;
+  }, [startsAt, presetSlots, products]);
   const availablePaymentMethods = useMemo(
     () => effectiveProduct?.paymentMethods ?? [],
     [effectiveProduct],
@@ -166,7 +157,7 @@ export function BookingForm({
     const blocking = bookedSlots ?? [];
     const availability = [];
 
-    for (const s of filterSlotsForSelection(presetSlots, selectedOption)) {
+    for (const s of presetSlots) {
       // A slot with no end is treated as an instant, so only an exact match
       // counts against it — the behaviour before seats existed.
       const exactClash =
@@ -190,20 +181,21 @@ export function BookingForm({
         availability.push({
           ...s,
           label: `${s.label} · ${t("classFull")}`,
-          badge: t("classFull"),
+          badge: `${t("slotGroup")} · ${t("classFullShort")}`,
           kind: "booked" as const,
         });
         continue;
       }
 
-      availability.push(
-        bookability.seats
-          ? {
-              ...s,
-              badge: t("seatsLeft", { count: bookability.seats.remaining }),
-            }
-          : s,
-      );
+      // Every slot says which kind of lesson it is. A seat count alone only
+      // told you about group classes, so a private lesson was identified by
+      // the absence of something — which is not something you can notice.
+      availability.push({
+        ...s,
+        badge: bookability.seats
+          ? `${t("slotGroup")} · ${t("seatsLeftShort", { count: bookability.seats.remaining })}`
+          : t("slotPrivate"),
+      });
     }
 
     const reservedMarkers = blocking.map((b) => ({
@@ -215,7 +207,7 @@ export function BookingForm({
     return [...availability, ...reservedMarkers].sort((a, b) =>
       a.startsAtIso.localeCompare(b.startsAtIso),
     );
-  }, [presetSlots, selectedOption, bookedSlots, t]);
+  }, [presetSlots, bookedSlots, t]);
 
   useEffect(() => {
     if (!filteredPresetSlots || !startsAt) return;
@@ -224,8 +216,6 @@ export function BookingForm({
     );
     if (!isSelectedBookable) setStartsAt("");
   }, [filteredPresetSlots, startsAt]);
-
-  const lessonStepDisabled = !startsAt;
   const paymentStepDisabled = !effectiveProduct;
   const formattedSelectedSlot = startsAt
     ? new Date(startsAt).toLocaleString(locale, {
@@ -238,8 +228,7 @@ export function BookingForm({
       })
     : null;
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function onSubmit() {
     setMessage(null);
     setLoading(true);
     try {
@@ -295,37 +284,18 @@ export function BookingForm({
   }
 
   return (
-    /* No card around the form: it is the page's whole purpose, so a border
-       around it only says "this is a thing on a page" — which the page already
-       says. The steps are ruled instead, so the flow reads as a sequence. */
-    <form onSubmit={onSubmit} className="space-y-8">
+    /* The calendar is the page. Choosing a lesson, reviewing it and paying
+       are decisions about one particular time, so they live in a dialog that
+       opens when a time is picked rather than as steps below the fold. */
+    <>
       {filteredPresetSlots ? (
-        <Section
-          index={1}
-          title={t("stepChooseTimeTitle")}
-          description={t("leadTimeNotice")}
-          ruled={false}
-        >
+        <Section title={t("stepChooseTimeTitle")} ruled={false}>
           {filteredPresetSlots.length === 0 ? (
             <p className="border-y border-border py-6 text-center text-sm text-muted">
               {t("noAvailabilityYet")}
             </p>
           ) : (
             <>
-              {/* The chosen time is the fact the rest of the form depends on, so
-                  it lands at figure scale — but only once it is real. An empty
-                  placeholder at that size would out-shout the step's own
-                  heading while saying nothing. */}
-              <p className="mb-6 border-b border-border pb-4">
-                <span className="block text-sm text-muted">{t("selectedSlot")}</span>
-                {formattedSelectedSlot ? (
-                  <span className="mt-1 block text-xl font-black tracking-[-0.02em] tabular-nums text-foreground sm:text-2xl">
-                    {formattedSelectedSlot}
-                  </span>
-                ) : (
-                  <span className="mt-1 block text-muted">{t("noSlotSelected")}</span>
-                )}
-              </p>
               <SlotSelectionCalendar
                 locale={locale}
                 copy={{
@@ -345,7 +315,6 @@ export function BookingForm({
                 selectedStartsAtIso={startsAt || null}
                 onSelectSlot={(iso) => {
                   setStartsAt(iso);
-                  setSelectedOptionKey(ALL_LESSON_TYPES_KEY);
                 }}
                 timeZone={viewerTimezone}
               />
@@ -353,7 +322,7 @@ export function BookingForm({
           )}
         </Section>
       ) : (
-        <Section index={1} title={t("stepChooseTimeTitle")} ruled={false}>
+        <Section title={t("stepChooseTimeTitle")} ruled={false}>
           <Field label={t("selectSlot")}>
             {(field) => (
               <Input
@@ -368,156 +337,144 @@ export function BookingForm({
         </Section>
       )}
 
-      <Section
-        index={2}
-        title={t("stepChooseLessonTitle")}
-        description={lessonStepDisabled ? t("stepChooseLessonHint") : undefined}
-        disabled={lessonStepDisabled}
-      >
-        {productsLoading ? (
-          <div data-testid="booking-products-loading" aria-busy="true" className="space-y-2">
-            <Skeleton height="10" rounded="lg" />
-            <Skeleton height="3" width="1/3" />
-          </div>
-        ) : (
-          <Select
-            aria-label={t("selectProduct")}
-            value={selectedOptionKey}
-            disabled={lessonStepDisabled}
-            onChange={(e) => setSelectedOptionKey(e.target.value)}
-          >
-            <option value={ALL_LESSON_TYPES_KEY}>{t("allLessonTypes")}</option>
-            {productsForSelectedSlot.map((p) => (
-              <option key={optionKey(p)} value={optionKey(p)}>
-                {buildProductOptionLabel(p, locale, t)} — {p.durationMin}
-                {p.tier === "FREE_TRIAL" ? ` · ${t("freeTrialOption")}` : ""}
-              </option>
-            ))}
-          </Select>
-        )}
-      </Section>
 
-      {availablePaymentMethods.length > 0 ? (
-        <Section index={3} title={t("stepChoosePaymentTitle")} disabled={paymentStepDisabled}>
-          <fieldset className="space-y-2" disabled={paymentStepDisabled}>
-            <legend className="sr-only">{t("paymentMethod")}</legend>
-            <div className="flex flex-wrap gap-2">
-              {availablePaymentMethods.map((method) => {
-                const key = paymentKey(method);
-                const selected = selectedPaymentKey === key;
-                return (
-                  <label
-                    key={key}
-                    /* Selection is a ring in ink, the same mark the slot picker
-                       uses — not a tinted fill, which was the only place in the
-                       flow where "chosen" was said with colour. */
-                    className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
-                      selected
-                        ? "border-foreground text-foreground ring-2 ring-foreground"
-                        : "border-border text-muted hover:bg-[var(--app-hover)]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value={key}
-                      checked={selected}
-                      onChange={() => setSelectedPaymentKey(key)}
-                      className="sr-only"
-                      disabled={paymentStepDisabled}
-                    />
-                    <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${method.logoClassName}`}>
-                      {method.logoLabel}
-                    </span>
-                    <span>{method.label}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
-        </Section>
-      ) : null}
-
-      <Section
-        index={availablePaymentMethods.length > 0 ? 4 : 3}
-        title={t("stepReviewTitle")}
-        disabled={!startsAt || !effectiveProduct}
+      {/* Mounted only once a time is picked: a closed dialog still leaves its
+          fields and headings in the page for anything reading the document. */}
+      {startsAt ? (
+      <Modal
+        open
+        onClose={() => setStartsAt("")}
+        title={t("bookingModalTitle")}
+        description={formattedSelectedSlot}
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => setStartsAt("")} disabled={loading}>
+              {t("bookingModalCancel")}
+            </Button>
+            <Button
+              onClick={onSubmit}
+              loading={loading}
+              disabled={productsLoading || !effectiveProduct}
+            >
+              {t("confirm")}
+            </Button>
+          </>
+        }
       >
-        {/* The same ruled key/value list the checkout summary uses, so the last
-            thing you read before booking matches the first thing you read after. */}
-        <dl className="border-t border-border text-sm">
-          <div className="flex justify-between gap-6 border-b border-border py-3">
-            <dt className="text-muted">{t("selectSlot")}</dt>
-            <dd className="text-right font-medium tabular-nums text-foreground">
-              {formattedSelectedSlot ?? t("noSlotSelected")}
-            </dd>
-          </div>
-          <div className="flex justify-between gap-6 border-b border-border py-3">
-            <dt className="text-muted">{t("selectProduct")}</dt>
-            <dd className="text-right font-medium text-foreground">
-              {effectiveProduct
-                ? buildProductOptionLabel(effectiveProduct, locale, t)
-                : t("stepChooseLessonHint")}
-            </dd>
-          </div>
-          {selectedPaymentMethod ? (
-            <div className="flex justify-between gap-6 border-b border-border py-3">
-              <dt className="text-muted">{t("paymentMethod")}</dt>
-              <dd className="text-right font-medium text-foreground">
-                {selectedPaymentMethod.label}
-              </dd>
-            </div>
+        <div className="space-y-6">
+
+          {availablePaymentMethods.length > 0 ? (
+            <Section title={t("stepChoosePaymentTitle")} disabled={paymentStepDisabled}>
+              <fieldset className="space-y-2" disabled={paymentStepDisabled}>
+                <legend className="sr-only">{t("paymentMethod")}</legend>
+                <div className="flex flex-wrap gap-2">
+                  {availablePaymentMethods.map((method) => {
+                    const key = paymentKey(method);
+                    const selected = selectedPaymentKey === key;
+                    return (
+                      <label
+                        key={key}
+                        /* Selection is a ring in ink, the same mark the slot picker
+                           uses — not a tinted fill, which was the only place in the
+                           flow where "chosen" was said with colour. */
+                        className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
+                          selected
+                            ? "border-foreground text-foreground ring-2 ring-foreground"
+                            : "border-border text-muted hover:bg-[var(--app-hover)]"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value={key}
+                          checked={selected}
+                          onChange={() => setSelectedPaymentKey(key)}
+                          className="sr-only"
+                          disabled={paymentStepDisabled}
+                        />
+                        <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${method.logoClassName}`}>
+                          {method.logoLabel}
+                        </span>
+                        <span>{method.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            </Section>
           ) : null}
-        </dl>
-      </Section>
 
-      {canShowManualOverrideToggle(currentUserRole) && (
-        /* Staff-only escape hatch. It stays an inset panel because it genuinely
-           sits apart from the student's flow rather than in sequence with it. */
-        <div className="rounded-xl border border-border px-4 py-3 text-sm text-foreground">
-          <CheckRow
-            checked={manualOverride}
-            onChange={setManualOverride}
-            description={t("manualOverrideHelp")}
+          <Section
+            title={t("stepReviewTitle")}
+            disabled={!startsAt || !effectiveProduct}
           >
-            {t("manualOverrideLabel")}
-          </CheckRow>
-          {manualOverride && (
-            <MarkdownField
-              label={t("manualOverrideReasonLabel")}
-              className="mt-3"
-              value={manualOverrideReason}
-              placeholder={t("manualOverrideReasonPlaceholder")}
-              required
-              tone="background"
-              size="sm"
-              minHeightClass="[&_.mdxeditor-root-contenteditable]:min-h-[96px]"
-              onChange={setManualOverrideReason}
-            />
+            {/* The same ruled key/value list the checkout summary uses, so the last
+                thing you read before booking matches the first thing you read after. */}
+            <dl className="border-t border-border text-sm">
+              <div className="flex justify-between gap-6 border-b border-border py-3">
+                <dt className="text-muted">{t("selectSlot")}</dt>
+                <dd className="text-right font-medium tabular-nums text-foreground">
+                  {formattedSelectedSlot ?? t("noSlotSelected")}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-6 border-b border-border py-3">
+                <dt className="text-muted">{t("selectProduct")}</dt>
+                <dd className="text-right font-medium text-foreground">
+                  {effectiveProduct
+                    ? buildProductOptionLabel(effectiveProduct, locale, t)
+                    : t("stepChooseLessonHint")}
+                </dd>
+              </div>
+              {selectedPaymentMethod ? (
+                <div className="flex justify-between gap-6 border-b border-border py-3">
+                  <dt className="text-muted">{t("paymentMethod")}</dt>
+                  <dd className="text-right font-medium text-foreground">
+                    {selectedPaymentMethod.label}
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
+          </Section>
+
+          {canShowManualOverrideToggle(currentUserRole) && (
+            /* Staff-only escape hatch. It stays an inset panel because it genuinely
+               sits apart from the student's flow rather than in sequence with it. */
+            <div className="rounded-xl border border-border px-4 py-3 text-sm text-foreground">
+              <CheckRow
+                checked={manualOverride}
+                onChange={setManualOverride}
+                description={t("manualOverrideHelp")}
+              >
+                {t("manualOverrideLabel")}
+              </CheckRow>
+              {manualOverride && (
+                <MarkdownField
+                  label={t("manualOverrideReasonLabel")}
+                  className="mt-3"
+                  value={manualOverrideReason}
+                  placeholder={t("manualOverrideReasonPlaceholder")}
+                  required
+                  tone="background"
+                  size="sm"
+                  minHeightClass="[&_.mdxeditor-root-contenteditable]:min-h-[96px]"
+                  onChange={setManualOverrideReason}
+                />
+              )}
+            </div>
           )}
+          {message ? (
+            <p role={message.tone === "error" ? "alert" : "status"}>
+              <Status tone={message.tone}>{message.text}</Status>
+            </p>
+          ) : null}
+
         </div>
-      )}
-      {message ? (
-        <p role={message.tone === "error" ? "alert" : "status"}>
-          <Status tone={message.tone}>{message.text}</Status>
-        </p>
+      </Modal>
       ) : null}
-      <Button
-        type="submit"
-        size="lg"
-        fullWidth
-        loading={loading}
-        disabled={productsLoading || !startsAt || !effectiveProduct}
-      >
-        {t("confirm")}
-      </Button>
-    </form>
+    </>
   );
 }
 
-function optionKey(p: LessonProductOption): string {
-  return `${p.id}::${p.teacherLessonOfferingId ?? ""}`;
-}
 
 function paymentKey(method: {
   accountId: string;

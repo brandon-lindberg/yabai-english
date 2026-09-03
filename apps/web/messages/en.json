@@ -1090,7 +1090,13 @@
     "filterLanguageLabel": "Instruction language",
     "filterSpecialtyPlaceholder": "conversation, business, exam…",
     "filterLanguagePlaceholder": "JP or EN",
-    "freeTrialAvailable": "Free trial available"
+    "freeTrialAvailable": "Free trial available",
+    "slotPrivate": "Private",
+    "slotGroup": "Group",
+    "bookingModalTitle": "Book this lesson",
+    "bookingModalCancel": "Cancel",
+    "seatsLeftShort": "{count} left",
+    "classFullShort": "Full"
   },
   "paymentPolicy": {
     "student": {

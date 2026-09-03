@@ -1090,7 +1090,13 @@
     "filterLanguageLabel": "指導言語",
     "filterSpecialtyPlaceholder": "日常会話、ビジネス、試験対策など",
     "filterLanguagePlaceholder": "JP または EN",
-    "freeTrialAvailable": "無料トライアルあり"
+    "freeTrialAvailable": "無料トライアルあり",
+    "slotPrivate": "個人",
+    "slotGroup": "グループ",
+    "bookingModalTitle": "このレッスンを予約",
+    "bookingModalCancel": "キャンセル",
+    "seatsLeftShort": "残り{count}",
+    "classFullShort": "満席"
   },
   "paymentPolicy": {
     "student": {

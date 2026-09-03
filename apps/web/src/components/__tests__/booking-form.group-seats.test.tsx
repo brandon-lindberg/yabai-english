@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
 import { BookingForm } from "../booking-form";
@@ -51,12 +51,18 @@ describe("BookingForm — group seats", () => {
       "fetch",
       vi.fn().mockResolvedValue({ ok: true, json: async () => [] }),
     );
+    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+      this.open = false;
+    });
   });
 
   test("an empty class offers every seat", () => {
     renderForm(groupSlot({ capacity: 5, taken: 0 }));
 
-    expect(screen.getByText(/5 seats left/)).toBeInTheDocument();
+    expect(screen.getByText(/5 left/)).toBeInTheDocument();
   });
 
   // The behaviour this whole feature exists for: a class with people already in
@@ -64,28 +70,28 @@ describe("BookingForm — group seats", () => {
   test("a partly filled class stays selectable and says what is left", () => {
     renderForm(groupSlot({ capacity: 5, taken: 2 }));
 
-    const slot = screen.getByRole("button", { name: /3 seats left/ });
+    const slot = screen.getByRole("button", { name: /3 left/ });
     expect(slot).toBeEnabled();
   });
 
-  test("counts down to the last seat in the singular", () => {
+  // The badge has to survive a week-view column, so it counts tersely.
+  test("counts down to the last seat", () => {
     renderForm(groupSlot({ capacity: 5, taken: 4 }));
 
-    expect(screen.getByText(/1 seat left/)).toBeInTheDocument();
-    expect(screen.queryByText(/1 seats left/)).not.toBeInTheDocument();
+    expect(screen.getByText(/1 left/)).toBeInTheDocument();
   });
 
   test("a full class is shown as full and cannot be chosen", () => {
     renderForm(groupSlot({ capacity: 5, taken: 5 }));
 
-    expect(screen.getAllByTestId("slot-reserved-week")[0]!).toHaveTextContent(/Class full/);
-    expect(screen.queryByRole("button", { name: /seats left/ })).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("slot-reserved-week")[0]!).toHaveTextContent(/Full/);
+    expect(screen.queryByRole("button", { name: /left/ })).not.toBeInTheDocument();
   });
 
   test("says nothing about seats for a private lesson", () => {
     renderForm(groupSlot(null));
 
-    expect(screen.queryByText(/seats left/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ left/)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /10:30/ })).toBeEnabled();
   });
 
@@ -109,7 +115,67 @@ describe("BookingForm — group seats", () => {
       { startsAtIso: START, endsAtIso: END },
     ]);
 
-    expect(screen.queryByText(/seats left/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ left/)).not.toBeInTheDocument();
     expect(screen.getAllByTestId("slot-reserved-week")[0]!).toHaveTextContent(/Reserved/);
+  });
+
+  // Which kind of lesson a time is was previously only visible on group slots,
+  // as a seat count — so a private lesson was identified by the absence of
+  // something, which is not something anyone notices.
+  test("says a private lesson is private", () => {
+    renderForm(groupSlot(null));
+
+    expect(screen.getByRole("button", { name: /Private/ })).toBeInTheDocument();
+  });
+
+  test("says a group class is a group, and how much room is left", () => {
+    renderForm(groupSlot({ capacity: 5, taken: 2 }));
+
+    expect(screen.getByRole("button", { name: /Group · 3 left/ })).toBeInTheDocument();
+  });
+
+  test("says a full class is a group that is full", () => {
+    renderForm(groupSlot({ capacity: 5, taken: 5 }));
+
+    expect(screen.getAllByTestId("slot-reserved-week")[0]!).toHaveTextContent(/Full/);
+  });
+});
+
+describe("BookingForm — picking a time opens the booking dialog", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => [] }));
+    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+      this.open = false;
+    });
+  });
+
+  test("shows no booking controls before a time is picked", () => {
+    renderForm(groupSlot(null));
+
+    expect(screen.queryByRole("button", { name: en.booking.confirm })).toBeNull();
+    expect(screen.queryByText(en.booking.stepChooseLessonTitle)).toBeNull();
+  });
+
+  test("opens the dialog on the time that was picked", async () => {
+    renderForm(groupSlot(null));
+
+    fireEvent.click(screen.getByRole("button", { name: /Private/ }));
+
+    expect(await screen.findByText(en.booking.bookingModalTitle)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: en.booking.confirm })).toBeInTheDocument();
+  });
+
+  test("closing the dialog puts the student back on the calendar", async () => {
+    renderForm(groupSlot(null));
+
+    fireEvent.click(screen.getByRole("button", { name: /Private/ }));
+    await screen.findByText(en.booking.bookingModalTitle);
+    fireEvent.click(screen.getByRole("button", { name: en.booking.bookingModalCancel }));
+
+    expect(screen.queryByText(en.booking.bookingModalTitle)).toBeNull();
+    expect(screen.getByRole("button", { name: /Private/ })).toBeInTheDocument();
   });
 });

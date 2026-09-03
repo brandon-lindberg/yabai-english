@@ -5,11 +5,16 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
 import { BookingForm } from "../booking-form";
-import { ALL_LESSON_TYPES_KEY } from "@/lib/booking-lesson-type-filter";
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
+
+/** Picks a time, which is what opens the booking dialog. */
+async function pickSlot(name: string | RegExp) {
+  fireEvent.click(await screen.findByRole("button", { name }));
+  await screen.findByText(en.booking.bookingModalTitle);
+}
 
 function renderForm(presetSlots: React.ComponentProps<typeof BookingForm>["presetSlots"]) {
   return render(
@@ -92,59 +97,36 @@ describe("BookingForm lesson type filter", () => {
     vi.unstubAllGlobals();
   });
 
-  test("defaults to 'All lesson types' with an explicit sentinel option", async () => {
-    renderForm(presetSlots);
-
-    const select = (await screen.findByLabelText(
-      en.booking.selectProduct,
-    )) as HTMLSelectElement;
-
-    await waitFor(() => {
-      const hasAllOption = Array.from(select.querySelectorAll("option")).some(
-        (o) => o.value === ALL_LESSON_TYPES_KEY,
-      );
-      expect(hasAllOption).toBe(true);
+  beforeEach(() => {
+    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+      this.open = true;
     });
+    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+      this.open = false;
+    });
+  });
 
-    expect(select.value).toBe(ALL_LESSON_TYPES_KEY);
-    const allOption = Array.from(select.querySelectorAll("option")).find(
-      (o) => o.value === ALL_LESSON_TYPES_KEY,
+  test("confirm is available once the chosen slot maps to a product", async () => {
+    renderForm(presetSlots);
+    await pickSlot(/10:00 AM/);
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: en.booking.confirm })).toBeEnabled(),
     );
-    expect(allOption?.textContent).toMatch(/All lesson types/i);
   });
 
-  test("confirm button is enabled with 'All lesson types' once the selected slot maps to a product", async () => {
+  // The slot decides the lesson, so the dialog states it rather than asking.
+  test("resolves the lesson from the slot that was picked", async () => {
     renderForm(presetSlots);
 
-    await screen.findByLabelText(en.booking.selectProduct);
-    const confirm = screen.getByRole("button", { name: en.booking.confirm });
-    expect(confirm).toBeDisabled();
+    // The pronunciation slot (Tue May 5, 11:00 JST).
+    await pickSlot(/11:00 AM/);
 
-    // Pick the conversation slot (Mon May 4, 10:00 JST) from the calendar.
-    fireEvent.click(await screen.findByRole("button", { name: "10:00 AM" }));
-
-    await waitFor(() => expect(confirm).not.toBeDisabled());
+    const review = screen.getByText(en.booking.selectProduct);
+    expect(review.closest("div")).toHaveTextContent(/Pronunciation|発音/);
+    expect(document.body.textContent).not.toMatch(/Conversation|英会話/);
   });
 
-  test("lesson type options are limited to products matching the chosen slot", async () => {
-    renderForm(presetSlots);
-
-    const select = (await screen.findByLabelText(
-      en.booking.selectProduct,
-    )) as HTMLSelectElement;
-    // Before a slot is chosen, all products are listed and the step is locked.
-    await waitFor(() => expect(select.querySelectorAll("option").length).toBe(3));
-    expect(select).toBeDisabled();
-
-    // Pick the pronunciation slot (Tue May 5, 11:00 JST).
-    fireEvent.click(await screen.findByRole("button", { name: "11:00 AM" }));
-
-    await waitFor(() => expect(select).not.toBeDisabled());
-    const optionValues = Array.from(select.querySelectorAll("option")).map((o) => o.value);
-    expect(optionValues).toContain(ALL_LESSON_TYPES_KEY);
-    expect(optionValues).toContain("prod-pron::off-pron");
-    expect(optionValues).not.toContain("prod-conv::off-conv");
-  });
 
   test("booked slots appear as 'Reserved' markers and never leak student names", async () => {
     render(
@@ -162,8 +144,6 @@ describe("BookingForm lesson type filter", () => {
         />
       </NextIntlClientProvider>,
     );
-
-    await screen.findByLabelText(en.booking.selectProduct);
 
     const reservedBlocks = await screen.findAllByTestId("slot-reserved-week");
     expect(reservedBlocks.length).toBeGreaterThanOrEqual(1);
@@ -200,10 +180,8 @@ describe("BookingForm lesson type filter", () => {
       </NextIntlClientProvider>,
     );
 
-    await screen.findByLabelText(en.booking.selectProduct);
-
     expect(await screen.findByTestId("slot-reserved-week")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: en.booking.confirm })).toBeDisabled();
+    // The overlapped 10:30 slot is gone, so there is nothing there to pick.
     expect(document.body.textContent).not.toContain("10:30 AM");
   });
 
@@ -226,8 +204,6 @@ describe("BookingForm lesson type filter", () => {
         />
       </NextIntlClientProvider>,
     );
-
-    await screen.findByLabelText(en.booking.selectProduct);
 
     expect((await screen.findAllByText(/9:30 PM/)).length).toBeGreaterThan(0);
     // The slot lands on Saturday Jul 4 in Toronto (not Sunday Jul 5 in Tokyo).
