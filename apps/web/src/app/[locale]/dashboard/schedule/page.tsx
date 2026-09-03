@@ -40,6 +40,8 @@ export default async function DashboardSchedulePage({
 
   let intro: string;
   let timeZone: string;
+  /** Whose reservations these are, which is what the detail dialog acts on. */
+  let viewer: "teacher" | "student";
   let scheduleItems: Awaited<ReturnType<typeof getStudentBookingsForDashboard>>["scheduleItems"];
   let refundedLessons: React.ReactNode = null;
   let hasRefunded = false;
@@ -89,6 +91,7 @@ export default async function DashboardSchedulePage({
     groupClasses = buildGroupClassRows(sessions);
 
     intro = t("upcomingIntro");
+    viewer = "teacher";
     timeZone = profile?.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
     scheduleItems = teacherBookings.scheduleItems;
     lessons = <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />;
@@ -108,6 +111,7 @@ export default async function DashboardSchedulePage({
     const student = await getStudentBookingsForDashboard(prisma, session.user.id);
 
     intro = t("intro");
+    viewer = "student";
     timeZone = studentProfile?.timezone ?? "Asia/Tokyo";
     scheduleItems = student.scheduleItems;
     lessons = <DashboardUpcomingLessons upcoming={student.upcoming} />;
@@ -127,7 +131,11 @@ export default async function DashboardSchedulePage({
       <p className="max-w-[62ch] text-muted">{intro}</p>
 
       {scheduleItems.length > 0 ? (
-        <DashboardScheduleCalendar items={scheduleItems} timeZone={timeZone} />
+        <DashboardScheduleCalendar
+          items={scheduleItems}
+          timeZone={timeZone}
+          viewer={viewer}
+        />
       ) : null}
 
       <Section title={td("upcoming")} ruled={scheduleItems.length > 0}>

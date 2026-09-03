@@ -160,6 +160,26 @@ export default async function DashboardScheduleAvailabilityPage({
             startsAtIso: b.startsAt.toISOString(),
             endsAtIso: b.endsAt.toISOString(),
             studentLabel: b.student.name ?? b.student.email ?? "Student",
+            lessonLabel: `${b.lessonProduct.nameJa} / ${b.lessonProduct.nameEn}`,
+            durationMin: b.lessonProduct.durationMin,
+            priceYen: b.quotedPriceYen,
+            status: b.status,
+            meetUrl: b.meetUrl,
+            groupSeats: b.groupLessonSession
+              ? {
+                  capacity: b.groupLessonSession.capacity,
+                  taken: b.groupLessonSession._count.bookings,
+                }
+              : null,
+            classmates: b.groupLessonSession
+              ? teacherBookings.bookings
+                  .filter(
+                    (other) =>
+                      other.groupLessonSessionId === b.groupLessonSessionId &&
+                      other.status !== "CANCELLED",
+                  )
+                  .map((other) => other.student.name ?? other.student.email ?? "Student")
+              : undefined,
           }))}
         />
       ) : (

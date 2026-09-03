@@ -29,6 +29,8 @@ type Props = {
   emptyLabel: string;
   /** Line shown on booked blocks (e.g. “Reserved”). */
   reservedBookingLabel?: string;
+  /** Opens the reservation. Receives the block's groupKey. */
+  onSelectBooking?: (groupKey: string | null) => void;
   timeZone?: string;
 };
 
@@ -48,6 +50,7 @@ export function TeacherAvailabilityTimeGridDay({
   footer,
   emptyLabel,
   reservedBookingLabel,
+  onSelectBooking,
   timeZone,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -120,11 +123,25 @@ export function TeacherAvailabilityTimeGridDay({
 
               {blocks.map((block) => {
                 if (block.kind === "booking") {
+                  const range = `${new Date(block.startsAtIso).toLocaleTimeString(locale, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    timeZone,
+                  })} – ${new Date(block.endsAtIso).toLocaleTimeString(locale, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    timeZone,
+                  })}`;
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
                       data-testid="time-grid-day-booking"
                       data-starts-at={block.startsAtIso}
+                      onClick={() => onSelectBooking?.(block.groupKey ?? null)}
+                      aria-label={[reservedBookingLabel, range, block.subtitle]
+                        .filter(Boolean)
+                        .join(" · ")}
                       className={`absolute right-1 left-1 overflow-hidden rounded-md px-1.5 py-1 text-left text-xs leading-tight ${SLOT_BOOKED}`}
                       style={{
                         top: `${block.topPct}%`,
@@ -132,31 +149,16 @@ export function TeacherAvailabilityTimeGridDay({
                       }}
                     >
                       <span className={`block truncate font-semibold ${SLOT_FIGURE}`}>
-                        {new Date(block.startsAtIso).toLocaleTimeString(locale, {
-                          hour: "numeric",
-                          minute: "2-digit",
-                          timeZone,
-                        })}
-                        {" – "}
-                        {new Date(block.endsAtIso).toLocaleTimeString(locale, {
-                          hour: "numeric",
-                          minute: "2-digit",
-                          timeZone,
-                        })}
+                        {range}
                       </span>
                       {/* Secondary text sits on solid ink, so it tints from the
                           canvas rather than using the page's muted grey. */}
-                      {reservedBookingLabel ? (
-                        <span className="block truncate text-[10px] font-medium text-[var(--app-canvas)]/75">
-                          {reservedBookingLabel}
-                        </span>
-                      ) : null}
                       {block.subtitle ? (
                         <span className="block truncate text-[11px] text-[var(--app-canvas)]/75">
                           {block.subtitle}
                         </span>
                       ) : null}
-                    </div>
+                    </button>
                   );
                 }
                 const selected = isTimeGridBlockSelected(block, selectedStartsAtIso, selectedGroupKey);

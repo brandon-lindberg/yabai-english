@@ -1106,7 +1106,14 @@
     "reviewSeats": "Class size",
     "reviewSeatsValue": "{taken} of {capacity} seats taken",
     "reviewLessonKind": "Lesson",
-    "reviewDurationValue": "{count} min"
+    "reviewDurationValue": "{count} min",
+    "slotGroupSeats": "Group {taken}/{capacity}",
+    "bookingDetailTitle": "Reservation",
+    "bookingDetailClose": "Close",
+    "bookingDetailWho": "Student",
+    "bookingDetailWithTeacher": "Teacher",
+    "bookingDetailClassmates": "In this class",
+    "bookingDetailStatus": "Status"
   },
   "paymentPolicy": {
     "student": {

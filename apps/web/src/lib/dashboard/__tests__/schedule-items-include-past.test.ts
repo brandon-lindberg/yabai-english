@@ -12,7 +12,8 @@ import type { PrismaClient } from "@/generated/prisma/client";
 const PAST = new Date(Date.now() - 86_400_000);
 const FUTURE = new Date(Date.now() + 86_400_000);
 
-const lessonProduct = { nameJa: "初級", nameEn: "Beginner" };
+const lessonProduct = { nameJa: "初級", nameEn: "Beginner", durationMin: 40 };
+const groupSession = { id: "gs-1", capacity: 5, _count: { bookings: 2 } };
 
 function teacherLesson(id: string, startsAt: Date, status = "COMPLETED") {
   return {
@@ -105,6 +106,46 @@ describe("schedule calendar items", () => {
     const { scheduleItems } = await getTeacherBookingsForDashboard(prisma, "tp-1");
 
     expect(scheduleItems).toEqual([]);
+  });
+
+  test("a teacher's group class names the students in it", async () => {
+    // A teacher may see who is in their own class; the dialog behind the chip
+    // is where that list lives.
+    const prisma = teacherPrisma([
+      {
+        ...teacherLesson("b-a", FUTURE, "CONFIRMED"),
+        groupLessonSessionId: "gs-1",
+        groupLessonSession: groupSession,
+      },
+      {
+        ...teacherLesson("b-b", FUTURE, "CONFIRMED"),
+        groupLessonSessionId: "gs-1",
+        groupLessonSession: groupSession,
+        student: { name: "Student Two", email: null, studentProfile: { learningGoals: [] } },
+      },
+    ]);
+
+    const { scheduleItems } = await getTeacherBookingsForDashboard(prisma, "tp-1");
+
+    expect(scheduleItems[0].groupSeats).toEqual({ capacity: 5, taken: 2 });
+    expect(scheduleItems[0].classmates).toEqual(["Student One", "Student Two"]);
+  });
+
+  test("a student's group class is a count, never a list of names", async () => {
+    // The one rule this whole feature is built around: a student learns how
+    // many seats are taken, never by whom.
+    const prisma = studentPrisma([
+      {
+        ...studentLesson("b-a", FUTURE, "CONFIRMED"),
+        groupLessonSessionId: "gs-1",
+        groupLessonSession: groupSession,
+      },
+    ]);
+
+    const { scheduleItems } = await getStudentBookingsForDashboard(prisma, "u-1");
+
+    expect(scheduleItems[0].groupSeats).toEqual({ capacity: 5, taken: 2 });
+    expect(scheduleItems[0].classmates).toBeUndefined();
   });
 
   test("an archived student's upcoming lesson still shows", async () => {

@@ -9,25 +9,30 @@ describe("teacher dashboard helpers", () => {
         id: "b1",
         startsAt: new Date("2026-04-20T09:00:00.000Z"),
         endsAt: new Date("2026-04-20T09:20:00.000Z"),
-        lessonProduct: { nameJa: "無料体験", nameEn: "Free trial" },
+        status: "CONFIRMED" as const,
+        lessonProduct: { nameJa: "無料体験", nameEn: "Free trial", durationMin: 20 },
         student: { name: "Aiko", email: "aiko@example.com" },
       },
       {
         id: "b2",
         startsAt: new Date("2026-04-20T10:00:00.000Z"),
         endsAt: new Date("2026-04-20T10:50:00.000Z"),
-        lessonProduct: { nameJa: "通常", nameEn: "Standard" },
+        status: "CONFIRMED" as const,
+        lessonProduct: { nameJa: "通常", nameEn: "Standard", durationMin: 50 },
         student: { name: null, email: "fallback@example.com" },
       },
     ]);
 
-    expect(items).toEqual([
+    // `counterpartName` rather than `teacherName`: on a teacher's own calendar
+    // the other person is the student, which is what the field always held.
+    expect(items).toMatchObject([
       {
         id: "b1",
         startsAtIso: "2026-04-20T09:00:00.000Z",
         endsAtIso: "2026-04-20T09:20:00.000Z",
         title: "無料体験 / Free trial",
-        teacherName: "Aiko",
+        counterpartName: "Aiko",
+        durationMin: 20,
         isPast: false,
       },
       {
@@ -35,7 +40,7 @@ describe("teacher dashboard helpers", () => {
         startsAtIso: "2026-04-20T10:00:00.000Z",
         endsAtIso: "2026-04-20T10:50:00.000Z",
         title: "通常 / Standard",
-        teacherName: "fallback@example.com",
+        counterpartName: "fallback@example.com",
         isPast: false,
       },
     ]);
@@ -48,7 +53,8 @@ describe("teacher dashboard helpers", () => {
           id: "b0",
           startsAt: new Date("2026-03-01T09:00:00.000Z"),
           endsAt: new Date("2026-03-01T09:20:00.000Z"),
-          lessonProduct: { nameJa: "無料体験", nameEn: "Free trial" },
+          status: "COMPLETED" as const,
+          lessonProduct: { nameJa: "無料体験", nameEn: "Free trial", durationMin: 20 },
           student: { name: "Aiko", email: "aiko@example.com" },
         },
       ],

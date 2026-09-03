@@ -1106,7 +1106,14 @@
     "reviewSeats": "クラスの人数",
     "reviewSeatsValue": "{capacity}席中{taken}席が予約済み",
     "reviewLessonKind": "レッスン形式",
-    "reviewDurationValue": "{count}分"
+    "reviewDurationValue": "{count}分",
+    "slotGroupSeats": "グループ {taken}/{capacity}",
+    "bookingDetailTitle": "予約の詳細",
+    "bookingDetailClose": "閉じる",
+    "bookingDetailWho": "受講生",
+    "bookingDetailWithTeacher": "講師",
+    "bookingDetailClassmates": "このクラスの受講生",
+    "bookingDetailStatus": "ステータス"
   },
   "paymentPolicy": {
     "student": {
