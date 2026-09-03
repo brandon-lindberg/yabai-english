@@ -37,6 +37,7 @@ const {
     teacherRosterEntry: { findFirst: vi.fn() },
     chatThread: { findUnique: vi.fn() },
     booking: { findFirst: vi.fn() },
+    groupLessonSession: { findUnique: vi.fn() },
     schoolScheduleSlot: { findMany: vi.fn() },
     teacherStudentLessonRate: { findUnique: vi.fn() },
     freeTrialRedemption: { findUnique: vi.fn(), create: vi.fn() },
@@ -101,6 +102,7 @@ describe("POST /api/bookings pricing", () => {
     prismaMock.teacherRosterEntry.findFirst.mockResolvedValue(null);
     prismaMock.chatThread.findUnique.mockResolvedValue(null);
     prismaMock.booking.findFirst.mockResolvedValue(null);
+    prismaMock.groupLessonSession.findUnique.mockResolvedValue(null);
     prismaMock.schoolScheduleSlot.findMany.mockResolvedValue([]);
     prismaMock.teacherStudentLessonRate.findUnique.mockResolvedValue(null);
     prismaMock.user.findUnique.mockResolvedValue({
@@ -595,7 +597,14 @@ describe("POST /api/bookings pricing", () => {
         studentProfile: {
           findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
         },
+        groupLessonSession: {
+          createMany: vi.fn().mockResolvedValue({ count: 1 }),
+          findUnique: vi
+            .fn()
+            .mockResolvedValue({ id: "sess-1", capacity: 4, cancelledAt: null }),
+        },
         booking: {
+          count: vi.fn().mockResolvedValue(0),
           create: vi.fn().mockResolvedValue({
             id: "booking-1",
             status: BookingStatus.PENDING_PAYMENT,

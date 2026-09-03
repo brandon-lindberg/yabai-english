@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   availabilitySlotMatchesOffering,
+  groupSlotRulesViolation,
   offeringCanBackAvailabilitySlot,
 } from "@/lib/availability-offering-match";
 
@@ -60,5 +61,54 @@ describe("availabilitySlotMatchesOffering", () => {
 
   test("rejects a missing offering", () => {
     expect(availabilitySlotMatchesOffering(slot, undefined)).toBe(false);
+  });
+});
+
+describe("groupSlotRulesViolation", () => {
+  const groupOffering = { isGroup: true, groupSize: 4, isFreeTrial: false };
+  const privateOffering = { isGroup: false, groupSize: null, isFreeTrial: false };
+
+  test("accepts a group slot open to everyone", () => {
+    expect(groupSlotRulesViolation({ assignedStudentId: null }, groupOffering)).toBe(null);
+  });
+
+  test("accepts a slot that omits the field entirely", () => {
+    expect(groupSlotRulesViolation({}, groupOffering)).toBe(null);
+  });
+
+  // A reservation makes the slot invisible to everyone but that one student,
+  // which is the opposite of a class other people are supposed to fill.
+  test("rejects a group slot reserved for one student", () => {
+    expect(groupSlotRulesViolation({ assignedStudentId: "stu-1" }, groupOffering)).toBe(
+      "ASSIGNED_GROUP_SLOT",
+    );
+  });
+
+  test("leaves a reserved private slot alone", () => {
+    expect(groupSlotRulesViolation({ assignedStudentId: "stu-1" }, privateOffering)).toBe(null);
+  });
+
+  test("rejects a group offering marked as the free trial", () => {
+    expect(
+      groupSlotRulesViolation({ assignedStudentId: null }, { ...groupOffering, isFreeTrial: true }),
+    ).toBe("GROUP_FREE_TRIAL");
+  });
+
+  test("rejects a group offering seating fewer than two", () => {
+    expect(
+      groupSlotRulesViolation({ assignedStudentId: null }, { ...groupOffering, groupSize: 1 }),
+    ).toBe("INVALID_GROUP_SIZE");
+  });
+
+  test("rejects a group offering with no capacity set at all", () => {
+    expect(
+      groupSlotRulesViolation({ assignedStudentId: null }, { ...groupOffering, groupSize: null }),
+    ).toBe("INVALID_GROUP_SIZE");
+  });
+
+  test("has nothing to say about a missing offering", () => {
+    // availabilitySlotMatchesOffering already refuses that payload; saying it
+    // twice would just give the teacher the wrong reason.
+    expect(groupSlotRulesViolation({ assignedStudentId: null }, undefined)).toBe(null);
   });
 });

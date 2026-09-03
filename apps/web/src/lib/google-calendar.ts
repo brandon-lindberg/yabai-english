@@ -260,6 +260,95 @@ export async function patchMeetLessonEvent(params: {
   }
 }
 
+/**
+ * Adds one guest to an existing event without disturbing the others.
+ *
+ * A group class is one event that gains a student each time a seat sells, and
+ * Google replaces the whole `attendees` array on patch — so this reads the
+ * current list first. Patching the array straight from our own records would
+ * silently uninvite every classmate.
+ *
+ * Best-effort like the rest of the calendar layer: a student who cannot be
+ * added still has their booking and still has the class's Meet link.
+ */
+export async function addMeetLessonEventAttendee(params: {
+  organizerUserId?: string;
+  refreshTokenEncrypted: string | null | undefined;
+  calendarId?: string | null;
+  eventId: string;
+  attendeeEmail: string;
+}): Promise<boolean> {
+  if (!params.eventId || !params.attendeeEmail) return false;
+  const ctx = await resolveCalendarContext(params);
+  if (!ctx) return false;
+
+  try {
+    const existing = await ctx.cal.events.get({
+      calendarId: ctx.calendarId,
+      eventId: params.eventId,
+    });
+    const attendees = existing.data.attendees ?? [];
+    const already = attendees.some(
+      (a) => a.email?.toLowerCase() === params.attendeeEmail.toLowerCase(),
+    );
+    if (already) return true;
+
+    await ctx.cal.events.patch({
+      calendarId: ctx.calendarId,
+      eventId: params.eventId,
+      requestBody: { attendees: [...attendees, { email: params.attendeeEmail }] },
+      sendUpdates: "all",
+    });
+    return true;
+  } catch (err) {
+    console.error("Google Calendar attendee add failed:", err);
+    return false;
+  }
+}
+
+/**
+ * Takes one guest off an event and leaves the rest alone.
+ *
+ * The counterpart to adding a student to a group class: when they cancel their
+ * seat, the class carries on without them. Deleting the event instead — which
+ * is what a private lesson's cancellation does — would take the whole class off
+ * everybody's calendar.
+ */
+export async function removeMeetLessonEventAttendee(params: {
+  organizerUserId?: string;
+  refreshTokenEncrypted: string | null | undefined;
+  calendarId?: string | null;
+  eventId: string;
+  attendeeEmail: string;
+}): Promise<boolean> {
+  if (!params.eventId || !params.attendeeEmail) return false;
+  const ctx = await resolveCalendarContext(params);
+  if (!ctx) return false;
+
+  try {
+    const existing = await ctx.cal.events.get({
+      calendarId: ctx.calendarId,
+      eventId: params.eventId,
+    });
+    const attendees = existing.data.attendees ?? [];
+    const remaining = attendees.filter(
+      (a) => a.email?.toLowerCase() !== params.attendeeEmail.toLowerCase(),
+    );
+    if (remaining.length === attendees.length) return true;
+
+    await ctx.cal.events.patch({
+      calendarId: ctx.calendarId,
+      eventId: params.eventId,
+      requestBody: { attendees: remaining },
+      sendUpdates: "all",
+    });
+    return true;
+  } catch (err) {
+    console.error("Google Calendar attendee removal failed:", err);
+    return false;
+  }
+}
+
 export async function deleteMeetLessonEvent(params: {
   organizerUserId?: string;
   refreshTokenEncrypted: string | null | undefined;

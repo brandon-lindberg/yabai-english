@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma";
 import { BookingForm } from "@/components/booking-form";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 import { auth } from "@/auth";
-import { weekdayLabel } from "@/lib/weekdays";
 import { redirectTargetForTeacherBookingPage } from "@/lib/teacher-booking-page-access";
 import { formatYenRange, getTeacherRateRangeByType } from "@/lib/teacher-rate-range";
 import { redirect } from "@/i18n/navigation";
@@ -14,7 +13,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Avatar } from "@/components/ui/avatar";
 import { Section } from "@/components/ui/section";
 import { StatLedger } from "@/components/ui/stat-ledger";
-import { DataList, DataRow } from "@/components/ui/data-row";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
@@ -126,7 +124,9 @@ export default async function TeacherProfileBookingPage({
           classTypeId: true,
           classLevel: { select: { labelEn: true, labelJa: true } },
           classType: { select: { labelEn: true, labelJa: true } },
-          teacherLessonOffering: { select: { isFreeTrial: true } },
+          teacherLessonOffering: {
+            select: { isFreeTrial: true, isGroup: true, groupSize: true },
+          },
         },
       },
       availabilityOccurrenceSkips: {
@@ -170,6 +170,10 @@ export default async function TeacherProfileBookingPage({
       teacherId: teacher.id,
       ...slotHoldingBookingWhere(),
       startsAt: { gte: new Date() },
+      // Seats in a group class are counted as seats below, never as bookings
+      // that block the class — otherwise a class would disappear from the page
+      // the moment its first student joined.
+      groupLessonSessionId: null,
     },
     select: {
       startsAt: true,
@@ -177,6 +181,36 @@ export default async function TeacherProfileBookingPage({
     },
     orderBy: { startsAt: "asc" },
   });
+
+  // How full each already-opened class is. Aggregate counts only: no student
+  // learns who their classmates are, only that three seats are gone.
+  const groupSessions = await prisma.groupLessonSession.findMany({
+    where: {
+      teacherId: teacher.id,
+      startsAt: { gte: new Date() },
+      cancelledAt: null,
+    },
+    select: {
+      availabilitySlotId: true,
+      startsAt: true,
+      capacity: true,
+      _count: { select: { bookings: { where: slotHoldingBookingWhere() } } },
+    },
+  });
+  const occurrenceKey = (slotId: string, startsAtIso: string) => `${slotId}|${startsAtIso}`;
+  const seatsByOccurrence = new Map(
+    groupSessions
+      .filter((session) => session.availabilitySlotId)
+      .map((session) => [
+        occurrenceKey(session.availabilitySlotId!, session.startsAt.toISOString()),
+        { capacity: session.capacity, taken: session._count.bookings },
+      ]),
+  );
+  const groupSizeBySlotId = new Map(
+    teacher.availabilitySlots
+      .filter((slot) => slot.teacherLessonOffering?.isGroup && slot.teacherLessonOffering.groupSize)
+      .map((slot) => [slot.id, slot.teacherLessonOffering!.groupSize!]),
+  );
 
   // The viewer's own unpaid holds, so the page can offer a way out of a
   // checkout they backed out of. Kept separate from `reservedBookings`, which
@@ -315,33 +349,8 @@ export default async function TeacherProfileBookingPage({
         ]}
       />
 
-      <Section title={t("availability")} className="mt-10">
-        {teacher.availabilitySlots.length === 0 ? (
-          <p className="border-y border-border py-6 text-sm text-muted">{t("noAvailabilityYet")}</p>
-        ) : (
-          <DataList className="max-h-80 overflow-y-auto">
-            {teacher.availabilitySlots.map((slot) => (
-              <DataRow key={slot.id}>
-                <p className="text-sm font-semibold text-foreground">
-                  {weekdayLabel(slot.dayOfWeek, locale)}{" "}
-                  <span className="tabular-nums">
-                    {String(Math.floor(slot.startMin / 60)).padStart(2, "0")}:
-                    {String(slot.startMin % 60).padStart(2, "0")} –{" "}
-                    {String(Math.floor(slot.endMin / 60)).padStart(2, "0")}:
-                    {String(slot.endMin % 60).padStart(2, "0")}
-                  </span>
-                </p>
-                <p className="mt-0.5 text-sm text-muted">
-                  {[slot.timezone, formatSlotMeta(slot)].filter(Boolean).join(" · ")}
-                </p>
-              </DataRow>
-            ))}
-          </DataList>
-        )}
-      </Section>
-
       {session?.user ? (
-        <Section title={t("scheduleWithTeacher")} size="lg" className="mt-10">
+        <Section title={t("availability")} size="lg" className="mt-10">
           <p className="mb-4 text-sm text-muted">
             {t("selectSlot")} · {t("timezoneShownAs")}: {viewerTimezone}
           </p>
@@ -354,18 +363,31 @@ export default async function TeacherProfileBookingPage({
               viewerTimezone={viewerTimezone}
             />
           ))}
-          <InlineAlert variant="warning">{t("leadTimeNotice")}</InlineAlert>
+          <InlineAlert variant="warning" className="mb-6">
+            {t("leadTimeNotice")}
+          </InlineAlert>
           <BookingForm
             teacherProfileId={teacher.id}
             currentUserRole={session.user.role}
             viewerTimezone={viewerTimezone}
-            presetSlots={slotOptions.map((slot) => ({
-              startsAtIso: slot.startsAtIso,
-              endsAtIso: slot.endsAtIso,
-              label: slot.label,
-              groupKey: slot.slotId,
-              classTypeId: slot.classTypeId,
-            }))}
+            presetSlots={slotOptions.map((slot) => {
+              const capacity = groupSizeBySlotId.get(slot.slotId);
+              return {
+                startsAtIso: slot.startsAtIso,
+                endsAtIso: slot.endsAtIso,
+                label: slot.label,
+                groupKey: slot.slotId,
+                classTypeId: slot.classTypeId,
+                // A class nobody has booked yet has no session row, so it is
+                // simply empty rather than missing.
+                seats: capacity
+                  ? seatsByOccurrence.get(occurrenceKey(slot.slotId, slot.startsAtIso)) ?? {
+                      capacity,
+                      taken: 0,
+                    }
+                  : null,
+              };
+            })}
             bookedSlots={reservedBookings.map((b) => ({
               startsAtIso: b.startsAt.toISOString(),
               endsAtIso: b.endsAt.toISOString(),

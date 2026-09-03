@@ -241,7 +241,9 @@ export function SlotSelectionCalendar({
                       aria-pressed={selected}
                     >
                       <span className="font-semibold">{slotTime(slot.startsAtIso)}</span>
-                      <span className="truncate pl-3 text-xs text-muted">{slot.label}</span>
+                      <span className="truncate pl-3 text-xs text-muted">
+                        {slot.badge ? `${slot.badge} · ${slot.label}` : slot.label}
+                      </span>
                     </button>
                   );
                 })}
@@ -292,7 +294,12 @@ export function SlotSelectionCalendar({
                           <span className="block whitespace-nowrap font-semibold">
                             {slotTime(slot.startsAtIso)}
                           </span>
-                          <span className="block truncate text-[10px]">{slot.label}</span>
+                          {/* The badge when there is one: a full class's label
+                              opens with its date, so truncating it hides the
+                              part that says why the slot cannot be taken. */}
+                          <span className="block truncate text-[10px]">
+                            {slot.badge ?? slot.label}
+                          </span>
                         </div>
                       );
                     }
@@ -314,6 +321,11 @@ export function SlotSelectionCalendar({
                         <span className="whitespace-nowrap font-semibold">
                           {slotTime(slot.startsAtIso)}
                         </span>
+                        {slot.badge ? (
+                          <span className="block text-[0.65rem] font-normal leading-tight opacity-80">
+                            {slot.badge}
+                          </span>
+                        ) : null}
                       </button>
                     );
                   })}

@@ -6,7 +6,7 @@ import { createUserNotification } from "@/lib/notifications";
 import { schoolClassRescheduledNotification } from "@/lib/reschedule-notification-copy";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
-import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
 
 /** Shape required to validate conflicts and apply a school booking time change. */
 export type SchoolBookingReschedulePayload = {
@@ -60,12 +60,11 @@ export async function getSchoolBookingRescheduleConflictError(
   });
   if (teacherProfile) {
     const marketplaceConflict = await prisma.booking.findFirst({
-      where: {
+      where: teacherBookingOverlapWhere({
         teacherId: teacherProfile.id,
-        ...slotHoldingBookingWhere(),
-        startsAt: { lt: newEnd },
-        endsAt: { gt: newStart },
-      },
+        start: newStart,
+        end: newEnd,
+      }),
     });
     if (marketplaceConflict) {
       return "That time overlaps a marketplace lesson for this teacher.";

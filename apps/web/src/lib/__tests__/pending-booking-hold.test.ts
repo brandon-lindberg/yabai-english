@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   PENDING_PAYMENT_HOLD_MS,
   newHoldExpiry,
+  bookingHoldsSlot,
   isHoldExpired,
   slotHoldingBookingWhere,
 } from "@/lib/pending-booking-hold";
@@ -49,5 +50,41 @@ describe("slotHoldingBookingWhere", () => {
       status: "PENDING_PAYMENT",
       holdExpiresAt: { gte: now },
     });
+  });
+});
+
+describe("bookingHoldsSlot", () => {
+  const now = new Date("2026-09-01T13:00:00.000Z");
+
+  test("a confirmed booking holds its slot with no deadline at all", () => {
+    expect(bookingHoldsSlot({ status: "CONFIRMED", holdExpiresAt: null }, now)).toBe(true);
+  });
+
+  test("an unpaid booking holds its slot until its deadline", () => {
+    expect(
+      bookingHoldsSlot(
+        { status: "PENDING_PAYMENT", holdExpiresAt: new Date("2026-09-01T14:00:00.000Z") },
+        now,
+      ),
+    ).toBe(true);
+  });
+
+  test("an unpaid booking releases its slot once the deadline passes", () => {
+    expect(
+      bookingHoldsSlot(
+        { status: "PENDING_PAYMENT", holdExpiresAt: new Date("2026-09-01T12:00:00.000Z") },
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  test("a cancelled booking holds nothing", () => {
+    expect(bookingHoldsSlot({ status: "CANCELLED", holdExpiresAt: null }, now)).toBe(false);
+  });
+
+  // Matches slotHoldingBookingWhere, which lists only CONFIRMED and unexpired
+  // PENDING_PAYMENT. A finished lesson is not competing for its slot.
+  test("a completed booking holds nothing", () => {
+    expect(bookingHoldsSlot({ status: "COMPLETED", holdExpiresAt: null }, now)).toBe(false);
   });
 });

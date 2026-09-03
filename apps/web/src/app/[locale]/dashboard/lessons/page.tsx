@@ -37,6 +37,12 @@ export default async function DashboardLessonsPage({
           id: true,
           durationMin: true,
           rateYen: true,
+          // Without this the form rebuilds the total from the share, which is
+          // right only when the split was even.
+          groupTotalRateYen: true,
+          // Without this every class reopens as a list price, and a teacher who
+          // priced one pre-tax has to re-toggle it on every visit.
+          ratePriceBasis: true,
           isGroup: true,
           groupSize: true,
           isFreeTrial: true,
@@ -63,7 +69,6 @@ export default async function DashboardLessonsPage({
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       <PageHeader title={t("title")} description={t("intro")} />
       <TeacherLessonOfferingsForm
-        initialRateYen={profile?.rateYen ?? null}
         initialOffersFreeTrial={profile?.offersFreeTrial ?? true}
         initialLessonOfferings={profile?.lessonOfferings ?? []}
         classLevels={profile?.classLevels ?? []}

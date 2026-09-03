@@ -32,6 +32,7 @@ export async function DashboardSpine({
   title,
   description,
   next,
+  canCompletePayment = false,
   nextEmptyMessage,
   nextEmptyAction,
   stats,
@@ -43,6 +44,7 @@ export async function DashboardSpine({
   title: string;
   description: string;
   next: NextLessonView | null;
+  canCompletePayment?: boolean;
   nextEmptyMessage: string;
   nextEmptyAction: ReactNode;
   stats: Stat[];
@@ -57,6 +59,7 @@ export async function DashboardSpine({
 
       <DashboardNextLesson
         next={next}
+        canCompletePayment={canCompletePayment}
         emptyMessage={nextEmptyMessage}
         emptyAction={nextEmptyAction}
       />

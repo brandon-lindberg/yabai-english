@@ -25,9 +25,21 @@ vi.mock("@/lib/prisma", () => ({
       update: updateMock,
       findFirst: bookingFindFirstMock,
     },
+    groupLessonSession: { findUnique: vi.fn().mockResolvedValue(null) },
+    // Taking a group seat and moving the booking onto it happen together, so
+    // the update now runs inside a transaction.
+    $transaction: (cb: (tx: unknown) => Promise<unknown>) =>
+      cb({
+        booking: { update: updateMock },
+        groupLessonSession: { createMany: vi.fn(), findUnique: vi.fn() },
+      }),
   },
 }));
-vi.mock("@/lib/google-calendar", () => ({ patchMeetLessonEvent: patchMeetMock }));
+vi.mock("@/lib/google-calendar", () => ({
+  patchMeetLessonEvent: patchMeetMock,
+  addMeetLessonEventAttendee: vi.fn(),
+  removeMeetLessonEventAttendee: vi.fn(),
+}));
 vi.mock("next/cache", () => ({ revalidatePath: revalidatePathMock }));
 
 import { POST } from "@/app/api/bookings/[bookingId]/reschedule/route";

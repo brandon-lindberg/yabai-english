@@ -2,26 +2,16 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import {
-  type TeacherLessonRatePriceBasis,
-  convertTeacherRateInputBetweenBases,
-  taxIncludedRateFromTeacherInput,
-} from "@/lib/teacher-lesson-rate-basis";
-import {
-  MIN_PUBLIC_LESSON_RATE_YEN,
-  validatePublicLessonRateYen,
-} from "@/lib/lesson-rate-policy";
-import { TeacherLessonRateBasisToggle } from "./teacher-lesson-rate-basis-toggle";
-import { buttonClasses } from "@/components/ui/button";
+import { MIN_PUBLIC_LESSON_RATE_YEN } from "@/lib/lesson-rate-policy";
+import { FormStatus } from "@/components/ui/form-status";
 import { CheckRow } from "@/components/ui/check-row";
-import {
-  TeacherLessonOfferRow,
-  RATE_FIELD_LABEL_ROW,
-  RATE_CONTROL_HEIGHT,
-} from "./teacher-lesson-offer-row";
+import { DataList } from "@/components/ui/data-row";
 import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
-
-const INDIVIDUAL_DURATIONS = [30, 40, 60, 90] as const;
+import {
+  TeacherLessonAddModal,
+  type AddedOffering,
+} from "@/components/dashboard/teacher-lesson-add-modal";
+import { TeacherLessonSummaryRow } from "@/components/dashboard/teacher-lesson-summary-row";
 
 export type TaxonomyOption = {
   id: string;
@@ -30,34 +20,14 @@ export type TaxonomyOption = {
   labelJa: string | null;
 };
 
-type LessonOfferingInput = {
-  durationMin: number;
-  rateYen: number;
-  isGroup: boolean;
-  groupSize: number | null;
-  classLevelId: string;
-  classTypeId: string | null;
-};
-
-type LessonOfferingRow = {
-  clientId: string;
-  durationMin: number;
-  classLevelId: string;
-  classTypeId: string;
-  rateYenInput: string;
-};
-
-type GroupOfferingRow = LessonOfferingRow & {
-  groupSize: number;
-};
-
 type Props = {
-  initialRateYen: number | null;
   initialOffersFreeTrial: boolean;
   initialLessonOfferings: Array<{
     id: string;
     durationMin: number;
     rateYen: number;
+    groupTotalRateYen?: number | null;
+    ratePriceBasis?: string | null;
     isGroup: boolean;
     groupSize: number | null;
     isFreeTrial?: boolean | null;
@@ -69,20 +39,36 @@ type Props = {
   classTypes: TaxonomyOption[];
 };
 
-function pickLabel(opt: TaxonomyOption, locale: string): string {
-  return locale.toLowerCase().startsWith("ja")
-    ? (opt.labelJa ?? opt.labelEn)
-    : opt.labelEn;
+/** What the dialog needs to prefill, and the row needs to display. */
+function toOffering(o: Props["initialLessonOfferings"][number]): AddedOffering {
+  return {
+    id: o.id,
+    durationMin: o.durationMin,
+    rateYen: o.rateYen,
+    groupTotalRateYen: o.groupTotalRateYen ?? null,
+    ratePriceBasis: o.ratePriceBasis ?? "TAX_INCLUDED",
+    isGroup: o.isGroup,
+    groupSize: o.groupSize,
+    classLevelId: o.classLevelId ?? null,
+    classTypeId: o.classTypeId ?? null,
+  };
 }
 
-function makeRowId() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-/** Aligns multi-line rate labels with single-line taxonomy labels; pairs with `RATE_CONTROL_HEIGHT`. */
-
+/**
+ * A teacher's classes, and what each costs.
+ *
+ * The list reads; the dialog writes. Editing was inline at first, but a class
+ * carries six decisions and the last of them — which figure the price is —
+ * needs a control showing both options at once. At the size that takes, it
+ * dominated the row it was describing. Moving it into the dialog gives it room
+ * and leaves every line of the list the same shape.
+ *
+ * Each change saves itself. There is no Save button, because the one that used
+ * to sit at the bottom saved by deleting the teacher's whole set of classes and
+ * recreating them, which silently unlinked every published availability slot
+ * from the class it belonged to.
+ */
 export function TeacherLessonOfferingsForm({
-  initialRateYen,
   initialOffersFreeTrial,
   initialLessonOfferings,
   classLevels,
@@ -90,341 +76,186 @@ export function TeacherLessonOfferingsForm({
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
   const locale = useLocale();
-  const defaultClassLevelId = classLevels[0]?.id ?? "";
-  const defaultClassTypeId = classTypes[0]?.id ?? "";
+
   // The free trial and any admin-granted below-minimum class share this table
-  // but are not the teacher's to price, so they never become editable rows.
-  const editableOfferings = partitionOfferingsByTeacherEditable(initialLessonOfferings).editable;
-  const [individualOffers, setIndividualOffers] = useState<LessonOfferingRow[]>(() => {
-    const rows = editableOfferings
-      .filter((o) => !o.isGroup)
-      .map((o) => ({
-        clientId: o.id || makeRowId(),
-        durationMin: o.durationMin,
-        classLevelId: o.classLevelId ?? defaultClassLevelId,
-        classTypeId: o.classTypeId ?? defaultClassTypeId,
-        rateYenInput: String(o.rateYen),
-      }));
-    if (rows.length > 0) return rows;
-    if (initialRateYen != null) {
-      return [
-        {
-          clientId: makeRowId(),
-          durationMin: 30,
-          classLevelId: defaultClassLevelId,
-          classTypeId: defaultClassTypeId,
-          rateYenInput: String(initialRateYen),
-        },
-      ];
-    }
-    return [];
-  });
-  const [groupOffers, setGroupOffers] = useState<GroupOfferingRow[]>(
-    editableOfferings
-      .filter((o) => o.isGroup && o.groupSize)
-      .map((o) => ({
-        clientId: o.id || makeRowId(),
-        durationMin: o.durationMin,
-        groupSize: o.groupSize ?? 2,
-        classLevelId: o.classLevelId ?? defaultClassLevelId,
-        classTypeId: o.classTypeId ?? defaultClassTypeId,
-        rateYenInput: String(o.rateYen),
-      })),
+  // but are not the teacher's to price, so they never appear here.
+  const [offerings, setOfferings] = useState<AddedOffering[]>(() =>
+    partitionOfferingsByTeacherEditable(initialLessonOfferings).editable.map(toOffering),
   );
   const [offersFreeTrial, setOffersFreeTrial] = useState(initialOffersFreeTrial);
+  const [dialog, setDialog] = useState<
+    { kind: "individual" | "group"; editing: AddedOffering | null } | null
+  >(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [ratePriceBasis, setRatePriceBasis] = useState<TeacherLessonRatePriceBasis>("tax_included");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
-  /**
-   * The complaint for a typed rate, or null when it is acceptable. Judges the
-   * tax-included price rather than the number typed, because that is what the
-   * student pays and what the minimum is defined against.
-   */
-  function rateErrorFor(rateYenInput: string): string | null {
-    const entered = Number.parseInt(rateYenInput.trim(), 10);
-    if (Number.isNaN(entered)) return null; // an empty field is not yet wrong
-    const taxIncluded = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
-    if (validatePublicLessonRateYen(taxIncluded).ok) return null;
-    return t("teacherRateBelowMinimum", {
-      amount: MIN_PUBLIC_LESSON_RATE_YEN.toLocaleString(),
-    });
-  }
+  const individual = offerings.filter((o) => !o.isGroup);
+  const groups = offerings.filter((o) => o.isGroup && o.groupSize);
 
-  const hasRateBelowMinimum =
-    individualOffers.some((row) => rateErrorFor(row.rateYenInput) !== null) ||
-    groupOffers.some((row) => rateErrorFor(row.rateYenInput) !== null);
-
-  function handleRatePriceBasisChange(next: TeacherLessonRatePriceBasis) {
-    if (next === ratePriceBasis) return;
-    setIndividualOffers((prev) =>
-      prev.map((row) => {
-        const n = Number.parseInt(row.rateYenInput.trim(), 10);
-        if (Number.isNaN(n) || n <= 0) return row;
-        return {
-          ...row,
-          rateYenInput: String(convertTeacherRateInputBetweenBases(n, ratePriceBasis, next)),
-        };
-      }),
-    );
-    setGroupOffers((prev) =>
-      prev.map((row) => {
-        const n = Number.parseInt(row.rateYenInput.trim(), 10);
-        if (Number.isNaN(n) || n <= 0) return row;
-        return {
-          ...row,
-          rateYenInput: String(convertTeacherRateInputBetweenBases(n, ratePriceBasis, next)),
-        };
-      }),
-    );
-    setRatePriceBasis(next);
-  }
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function persist(request: () => Promise<Response>) {
     setStatus("saving");
-    const lessonOfferings: LessonOfferingInput[] = [];
-
-    for (const row of individualOffers) {
-      const entered = Number.parseInt(row.rateYenInput.trim(), 10);
-      if (Number.isNaN(entered) || entered <= 0 || !row.classLevelId || !row.classTypeId) {
+    setSaveError(null);
+    try {
+      const res = await request();
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
         setStatus("error");
-        return;
+        setSaveError(data.error ?? null);
+        return false;
       }
-      const rate = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
-      if (!validatePublicLessonRateYen(rate).ok) {
-        setStatus("error");
-        return;
-      }
-      lessonOfferings.push({
-        durationMin: row.durationMin,
-        rateYen: rate,
-        isGroup: false,
-        groupSize: null,
-        classLevelId: row.classLevelId,
-        classTypeId: row.classTypeId,
-      });
-    }
-
-    for (const group of groupOffers) {
-      const entered = Number.parseInt(group.rateYenInput.trim(), 10);
-      if (
-        Number.isNaN(entered) ||
-        entered <= 0 ||
-        group.groupSize < 2 ||
-        !group.classLevelId ||
-        !group.classTypeId
-      ) {
-        setStatus("error");
-        return;
-      }
-      const rate = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
-      if (!validatePublicLessonRateYen(rate).ok) {
-        setStatus("error");
-        return;
-      }
-      lessonOfferings.push({
-        durationMin: group.durationMin,
-        rateYen: rate,
-        isGroup: true,
-        groupSize: group.groupSize,
-        classLevelId: group.classLevelId,
-        classTypeId: group.classTypeId,
-      });
-    }
-
-    const fallbackRate = lessonOfferings.find((o) => !o.isGroup)?.rateYen ?? null;
-    const response = await fetch("/api/teacher/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        rateYen: fallbackRate,
-        offersFreeTrial,
-        lessonOfferings,
-      }),
-    });
-
-    if (!response.ok) {
+      setStatus("saved");
+      setTimeout(() => setStatus("idle"), 2000);
+      return true;
+    } catch {
       setStatus("error");
-      return;
+      return false;
     }
-    setStatus("saved");
-    setTimeout(() => setStatus("idle"), 2000);
   }
+
+  /** The dialog has already written it; the list catches up without a reload. */
+  function absorb(saved: AddedOffering) {
+    setOfferings((prev) => {
+      const existing = prev.findIndex((o) => o.id === saved.id);
+      if (existing === -1) return [...prev, saved];
+      return prev.map((o, i) => (i === existing ? saved : o));
+    });
+  }
+
+  async function remove(offering: AddedOffering) {
+    if (!window.confirm(t("teacherRemoveClassConfirm"))) return;
+    setRemovingId(offering.id);
+    const ok = await persist(() =>
+      fetch(`/api/teacher/lesson-offerings/${offering.id}`, { method: "DELETE" }),
+    );
+    setRemovingId(null);
+    if (ok) setOfferings((prev) => prev.filter((o) => o.id !== offering.id));
+  }
+
+  function rowsFor(list: AddedOffering[]) {
+    return (
+      <DataList>
+        {list.map((offering) => (
+          <TeacherLessonSummaryRow
+            key={offering.id}
+            offering={offering}
+            classLevels={classLevels}
+            classTypes={classTypes}
+            locale={locale}
+            removing={removingId === offering.id}
+            onEdit={() =>
+              setDialog({
+                kind: offering.isGroup ? "group" : "individual",
+                editing: offering,
+              })
+            }
+            onRemove={() => remove(offering)}
+          />
+        ))}
+      </DataList>
+    );
+  }
+
+  const addButtonClass =
+    "rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]";
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <section className="space-y-3 border-t border-border pt-6">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="text-base font-bold tracking-[-0.02em] text-foreground">{t("teacherRatesByDurationTitle")}</h3>
-          <button
-            type="button"
-            onClick={() =>
-              setIndividualOffers((prev) => [
-                ...prev,
-                {
-                  clientId: makeRowId(),
-                  durationMin: 30,
-                  classLevelId: defaultClassLevelId,
-                  classTypeId: defaultClassTypeId,
-                  rateYenInput: "",
-                },
-              ])
-            }
-            className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
-          >
-            {t("teacherIndividualRatesAdd")}
-          </button>
-        </div>
-        <p className="text-xs text-muted">{t("teacherRatesByDurationHelp")}</p>
-        <p className="text-xs text-muted">
-          {t("teacherMinimumRateHelp", {
-            amount: MIN_PUBLIC_LESSON_RATE_YEN.toLocaleString(),
-          })}
-        </p>
-        <p className="text-xs text-muted">{t("teacherLessonTypeForRateHelp")}</p>
+    <>
+      {/* Mounted only while open, so a closed dialog does not leave its fields
+          on the page. Keyed so reopening it on another class starts fresh. */}
+      {dialog ? (
+        <TeacherLessonAddModal
+          key={dialog.editing?.id ?? `new-${dialog.kind}`}
+          open
+          kind={dialog.kind}
+          editing={dialog.editing}
+          classLevels={classLevels}
+          classTypes={classTypes}
+          locale={locale}
+          onClose={() => setDialog(null)}
+          onSaved={absorb}
+        />
+      ) : null}
 
-        <TeacherLessonRateBasisToggle basis={ratePriceBasis} onBasisChange={handleRatePriceBasisChange} />
-
-        {individualOffers.length === 0 ? (
-          <p className="text-xs text-muted">{t("teacherIndividualRatesEmpty")}</p>
-        ) : (
-          <div className="space-y-3">
-            {individualOffers.map((row, index) => (
-              <TeacherLessonOfferRow
-                key={row.clientId}
-                value={row}
-                onChange={(patch) =>
-                  setIndividualOffers((prev) =>
-                    prev.map((r, i) => (i === index ? { ...r, ...patch } : r)),
-                  )
-                }
-                onRemove={() => setIndividualOffers((prev) => prev.filter((_, i) => i !== index))}
-                classLevels={classLevels}
-                classTypes={classTypes}
-                durations={INDIVIDUAL_DURATIONS}
-                pickLabel={(opt) => pickLabel(opt, locale)}
-                ratePriceBasis={ratePriceBasis}
-                ratePlaceholder={String(MIN_PUBLIC_LESSON_RATE_YEN)}
-                rateError={rateErrorFor(row.rateYenInput)}
-                labels={{
-                  level: t("teacherLessonLevelForRate"),
-                  type: t("teacherLessonTypeForRate"),
-                  duration: t("teacherDurationLabel"),
-                  rate:
-                    ratePriceBasis === "tax_included"
-                      ? t("teacherRateYenLabelTaxIncluded")
-                      : t("teacherRateYenLabelTaxExclusive"),
-                  remove: t("teacherIndividualRatesRemove"),
-                }}
-              />
-            ))}
+      <div className="space-y-6">
+        <section className="space-y-3 border-t border-border pt-6">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-base font-bold tracking-[-0.02em] text-foreground">
+              {t("teacherRatesByDurationTitle")}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setDialog({ kind: "individual", editing: null })}
+              className={addButtonClass}
+            >
+              {t("teacherIndividualRatesAdd")}
+            </button>
           </div>
-        )}
-      </section>
+          <p className="text-xs text-muted">{t("teacherRatesByDurationHelp")}</p>
+          <p className="text-xs text-muted">
+            {t("teacherMinimumRateHelp", {
+              amount: MIN_PUBLIC_LESSON_RATE_YEN.toLocaleString(),
+            })}
+          </p>
+          {individual.length === 0 ? (
+            <p className="text-xs text-muted">{t("teacherIndividualRatesEmpty")}</p>
+          ) : (
+            rowsFor(individual)
+          )}
+        </section>
 
-      <section className="space-y-3 border-t border-border pt-6">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="text-base font-bold tracking-[-0.02em] text-foreground">{t("teacherGroupRatesTitle")}</h3>
-          <button
-            type="button"
-            onClick={() =>
-              setGroupOffers((prev) => [
-                ...prev,
-                {
-                  clientId: makeRowId(),
-                  durationMin: 60,
-                  groupSize: 2,
-                  classLevelId: defaultClassLevelId,
-                  classTypeId: defaultClassTypeId,
-                  rateYenInput: "",
-                },
-              ])
-            }
-            className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
-          >
-            {t("teacherGroupRatesAdd")}
-          </button>
-        </div>
-        <p className="text-xs text-muted">{t("teacherGroupRatesHelp")}</p>
-        <p className="text-xs text-muted">{t("teacherRatePriceBasisAppliesToGroupNote")}</p>
-        {groupOffers.length === 0 ? (
-          <p className="text-xs text-muted">{t("teacherGroupRatesEmpty")}</p>
-        ) : (
-          <div className="space-y-2">
-            {groupOffers.map((group, index) => (
-              <TeacherLessonOfferRow
-                key={group.clientId}
-                value={group}
-                onChange={(patch) =>
-                  setGroupOffers((prev) =>
-                    prev.map((row, i) => (i === index ? { ...row, ...patch } : row)),
-                  )
-                }
-                onRemove={() => setGroupOffers((prev) => prev.filter((_, i) => i !== index))}
-                classLevels={classLevels}
-                classTypes={classTypes}
-                durations={INDIVIDUAL_DURATIONS}
-                pickLabel={(opt) => pickLabel(opt, locale)}
-                ratePriceBasis={ratePriceBasis}
-                ratePlaceholder="8000"
-                rateError={rateErrorFor(group.rateYenInput)}
-                labels={{
-                  level: t("teacherLessonLevelForRate"),
-                  type: t("teacherLessonTypeForRate"),
-                  duration: t("teacherDurationLabel"),
-                  rate:
-                    ratePriceBasis === "tax_included"
-                      ? t("teacherRateYenLabelTaxIncluded")
-                      : t("teacherRateYenLabelTaxExclusive"),
-                  remove: t("teacherGroupRatesRemove"),
-                }}
-                leading={
-                  <label className="flex w-full flex-col gap-1.5 sm:w-20 sm:flex-none">
-                    <span className={RATE_FIELD_LABEL_ROW}>{t("teacherGroupSizeLabel")}</span>
-                    <input
-                      type="number"
-                      min={2}
-                      value={group.groupSize}
-                      onChange={(e) =>
-                        setGroupOffers((prev) =>
-                          prev.map((row, i) =>
-                            i === index
-                              ? { ...row, groupSize: Number.parseInt(e.target.value || "2", 10) }
-                              : row,
-                          ),
-                        )
-                      }
-                      className={`${RATE_CONTROL_HEIGHT} w-full border-border bg-surface`}
-                    />
-                  </label>
-                }
-              />
-            ))}
+        <section className="space-y-3 border-t border-border pt-6">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-base font-bold tracking-[-0.02em] text-foreground">
+              {t("teacherGroupRatesTitle")}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setDialog({ kind: "group", editing: null })}
+              className={addButtonClass}
+            >
+              {t("teacherGroupRatesAdd")}
+            </button>
           </div>
-        )}
-      </section>
+          <p className="text-xs text-muted">{t("teacherGroupRatesHelp")}</p>
+          {groups.length === 0 ? (
+            <p className="text-xs text-muted">{t("teacherGroupRatesEmpty")}</p>
+          ) : (
+            rowsFor(groups)
+          )}
+        </section>
 
-      <CheckRow
-        checked={offersFreeTrial}
-        onChange={setOffersFreeTrial}
-        description={t("teacherOffersFreeTrialHelp")}
-      >
-        <span className="font-medium text-foreground">{t("teacherOffersFreeTrialLabel")}</span>
-      </CheckRow>
-
-      <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={status === "saving" || hasRateBelowMinimum}
-          className={buttonClasses()}
+        <CheckRow
+          checked={offersFreeTrial}
+          onChange={(next) => {
+            setOffersFreeTrial(next);
+            void persist(() =>
+              fetch("/api/teacher/profile", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ offersFreeTrial: next }),
+              }),
+            );
+          }}
+          description={t("teacherOffersFreeTrialHelp")}
         >
-          {status === "saving" ? t("saving") : t("save")}
-        </button>
-        {status === "saved" ? (
-          <span className="text-sm text-foreground">{t("saved")}</span>
-        ) : null}
-        {status === "error" ? <span className="text-sm text-destructive">{t("error")}</span> : null}
+          <span className="font-medium text-foreground">
+            {t("teacherOffersFreeTrialLabel")}
+          </span>
+        </CheckRow>
+
+        <div className="flex flex-col gap-1">
+          <FormStatus
+            state={status}
+            savingLabel={t("saving")}
+            savedLabel={t("saved")}
+            errorLabel={saveError ?? t("error")}
+          />
+          {status === "idle" ? (
+            <p className="text-xs text-muted">{t("teacherRatesAutosaveNote")}</p>
+          ) : null}
+        </div>
       </div>
-    </form>
+    </>
   );
 }

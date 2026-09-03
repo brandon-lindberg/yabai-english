@@ -144,17 +144,23 @@ describe("POST /api/bookings availability matching", () => {
 
     expect(res.status).toBe(409);
     const conflictCall = prismaMock.booking.findFirst.mock.calls[0]?.[0] as {
-      where: { OR?: unknown; status?: unknown };
+      where: { AND?: unknown[]; status?: unknown };
     };
 
     // Confirmed lessons always hold their slot; unpaid ones only inside the
     // three-hour payment window, so an abandoned checkout frees the slot on its
     // own rather than holding it until somebody cancels by hand.
+    //
+    // The clause sits under AND since teacherBookingOverlapWhere took this
+    // predicate over — it composes the holding rule with the group-seat
+    // exemption, and two bare ORs cannot share one object.
     expect(conflictCall.where.status).toBeUndefined();
-    expect(conflictCall.where.OR).toEqual([
-      { status: "CONFIRMED" },
-      { status: "PENDING_PAYMENT", holdExpiresAt: { gte: BOOKING_NOW } },
-    ]);
+    expect(conflictCall.where.AND).toContainEqual({
+      OR: [
+        { status: "CONFIRMED" },
+        { status: "PENDING_PAYMENT", holdExpiresAt: { gte: BOOKING_NOW } },
+      ],
+    });
   });
 
 

@@ -13,6 +13,13 @@ export type SlotOption = {
    * Defaults to "available".
    */
   kind?: "available" | "booked";
+  /**
+   * Short, always-visible annotation — "3 seats left" on a group class.
+   * Separate from `label` because the compact views render only the time, and
+   * a student choosing between classes needs the seat count in every view, not
+   * just the roomy one.
+   */
+  badge?: string | null;
 };
 
 export type SlotDayGroup = {

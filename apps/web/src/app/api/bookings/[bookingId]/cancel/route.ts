@@ -5,7 +5,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { evaluateBookingCancellationPolicy } from "@/lib/booking-policy";
-import { deleteMeetLessonEvent } from "@/lib/google-calendar";
+import {
+  deleteMeetLessonEvent,
+  removeMeetLessonEventAttendee,
+} from "@/lib/google-calendar";
+import { bookingOwnsItsCalendarEvent } from "@/lib/booking-calendar-ownership";
 import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
 import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
 
@@ -35,7 +39,7 @@ export async function POST(_req: Request, { params }: Props) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
-      student: { select: { name: true } },
+      student: { select: { name: true, email: true } },
       teacher: {
         select: {
           userId: true,
@@ -103,14 +107,25 @@ export async function POST(_req: Request, { params }: Props) {
     },
   });
 
+  // A seat's event belongs to the class, so cancelling one seat takes that
+  // student off the guest list. Deleting it — which is right for a private
+  // lesson — would cancel the lesson for every classmate.
+  const teacherCalendar = {
+    organizerUserId: booking.teacher.userId,
+    refreshTokenEncrypted: booking.teacher.googleCalendarRefreshToken,
+    calendarId: booking.googleCalendarId ?? booking.teacher.calendarId,
+  };
   await Promise.all([
     booking.googleEventId
-      ? deleteMeetLessonEvent({
-          organizerUserId: booking.teacher.userId,
-          refreshTokenEncrypted: booking.teacher.googleCalendarRefreshToken,
-          calendarId: booking.googleCalendarId ?? booking.teacher.calendarId,
-          eventId: booking.googleEventId,
-        })
+      ? bookingOwnsItsCalendarEvent(booking)
+        ? deleteMeetLessonEvent({ ...teacherCalendar, eventId: booking.googleEventId })
+        : booking.student?.email
+          ? removeMeetLessonEventAttendee({
+              ...teacherCalendar,
+              eventId: booking.googleEventId,
+              attendeeEmail: booking.student.email,
+            })
+          : Promise.resolve(false)
       : Promise.resolve(false),
     booking.studentGoogleEventId
       ? deleteMeetLessonEvent({

@@ -15,7 +15,9 @@ describe("BookingForm time-first flow", () => {
     vi.unstubAllGlobals();
   });
 
-  test("disables lesson selection until a time is chosen", async () => {
+  // Choosing a lesson is a decision about one particular time, so it does not
+  // exist until a time is picked — rather than sitting on the page disabled.
+  test("offers nothing to choose until a time is picked", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() =>
@@ -39,6 +41,9 @@ describe("BookingForm time-first flow", () => {
       <NextIntlClientProvider locale="en" messages={en}>
         <BookingForm
           teacherProfileId="teacher-1"
+          // Pinned, or the calendar formats in the machine's zone and the
+          // assertion below only holds where the developer happens to sit.
+          viewerTimezone="Asia/Tokyo"
           presetSlots={[
             {
               startsAtIso: "2026-05-19T01:00:00.000Z",
@@ -52,11 +57,12 @@ describe("BookingForm time-first flow", () => {
     );
 
     expect(screen.getByText(en.booking.stepChooseTimeTitle)).toBeTruthy();
-    expect(screen.getByText(en.booking.stepChooseLessonTitle)).toBeTruthy();
 
-    await waitFor(() => {
-      expect(screen.getByRole("combobox")).toBeDisabled();
-    });
-    expect(screen.getByRole("button", { name: en.booking.confirm })).toBeDisabled();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /10:00/ })).toBeEnabled(),
+    );
+    expect(screen.queryByRole("combobox")).toBeNull();
+    expect(screen.queryByRole("button", { name: en.booking.confirm })).toBeNull();
+    expect(screen.queryByText(en.booking.stepChooseLessonTitle)).toBeNull();
   });
 });

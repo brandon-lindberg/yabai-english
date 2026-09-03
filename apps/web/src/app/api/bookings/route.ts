@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
+import { ensureGroupSessionMeetEvent } from "@/lib/group-lesson-calendar";
 import { notifyBookingCalendarInviteFailure } from "@/lib/booking-calendar-failure";
 import { buildInvoiceNumber } from "@/lib/invoices";
 import { getBookingPaymentFlow } from "@/lib/payment-flow";
@@ -38,7 +39,12 @@ import {
   SUPPORTED_PAYMENT_METHODS,
   SUPPORTED_PAYMENT_PROVIDERS,
 } from "@/lib/payment-methods";
-import { newHoldExpiry, slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { newHoldExpiry } from "@/lib/pending-booking-hold";
+import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
+import {
+  GroupClassFullError,
+  reserveGroupSeat,
+} from "@/lib/group-lesson-session";
 import { visibleAvailabilitySlots } from "@/lib/assigned-availability";
 
 const teacherAvailabilityInclude = {
@@ -300,51 +306,6 @@ export async function POST(req: Request) {
 
   const endsAt = new Date(start.getTime() + product.durationMin * 60_000);
 
-  const conflict = await prisma.booking.findFirst({
-    where: {
-      teacherId: teacher.id,
-      ...slotHoldingBookingWhere(),
-      startsAt: { lt: endsAt },
-      endsAt: { gt: start },
-    },
-  });
-  if (conflict) {
-    return NextResponse.json(
-      { error: "That slot was just booked by another student." },
-      { status: 409 },
-    );
-  }
-
-  const teacherSchoolSlots = await prisma.schoolScheduleSlot.findMany({
-    where: {
-      active: true,
-      assignedTeacher: {
-        userId: teacher.userId,
-        status: "ACTIVE",
-      },
-    },
-    select: {
-      dayOfWeek: true,
-      startMin: true,
-      endMin: true,
-      timezone: true,
-      skips: { select: { startsAtIso: true } },
-    },
-  });
-  if (teacherSchoolSlots.length > 0) {
-    const schoolConflict = findOccurrenceConflict(
-      teacherSchoolSlots,
-      start,
-      endsAt,
-    );
-    if (schoolConflict) {
-      return NextResponse.json(
-        { error: "The teacher is teaching a school class during that time." },
-        { status: 409 },
-      );
-    }
-  }
-
   const student = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: { studentProfile: true },
@@ -385,6 +346,67 @@ export async function POST(req: Request) {
   });
   if (!slotValidation.ok) {
     return NextResponse.json({ error: slotValidation.error }, { status: 409 });
+  }
+
+  // Seats in the same class overlap each other by design. Read the class first,
+  // so the teacher's calendar check knows which overlaps to forgive; it does not
+  // exist until somebody books, and a first booker simply forgives nothing.
+  const groupCapacity = selectedOffering?.isGroup ? selectedOffering.groupSize ?? null : null;
+  const existingGroupSession = groupCapacity
+    ? await prisma.groupLessonSession.findUnique({
+        where: {
+          availabilitySlotId_startsAt: {
+            availabilitySlotId: slotValidation.slotId,
+            startsAt: start,
+          },
+        },
+        select: { id: true },
+      })
+    : null;
+
+  const conflict = await prisma.booking.findFirst({
+    where: teacherBookingOverlapWhere({
+      teacherId: teacher.id,
+      start,
+      end: endsAt,
+      allowGroupSessionId: existingGroupSession?.id ?? null,
+    }),
+  });
+  if (conflict) {
+    return NextResponse.json(
+      { error: "That slot was just booked by another student." },
+      { status: 409 },
+    );
+  }
+
+  const teacherSchoolSlots = await prisma.schoolScheduleSlot.findMany({
+    where: {
+      active: true,
+      assignedTeacher: {
+        userId: teacher.userId,
+        status: "ACTIVE",
+      },
+    },
+    select: {
+      dayOfWeek: true,
+      startMin: true,
+      endMin: true,
+      timezone: true,
+      skips: { select: { startsAtIso: true } },
+    },
+  });
+  if (teacherSchoolSlots.length > 0) {
+    const schoolConflict = findOccurrenceConflict(
+      teacherSchoolSlots,
+      start,
+      endsAt,
+    );
+    if (schoolConflict) {
+      return NextResponse.json(
+        { error: "The teacher is teaching a school class during that time." },
+        { status: 409 },
+      );
+    }
   }
 
   const isFreeTrial = product.tier === LessonTier.FREE_TRIAL;
@@ -471,11 +493,26 @@ export async function POST(req: Request) {
       });
     }
 
+    // Capacity is decided under a row lock here rather than before the
+    // transaction: counting seats and inserting one is a read-then-write, and
+    // two students would otherwise both be told the last seat was theirs.
+    const groupLessonSessionId = groupCapacity
+      ? await reserveGroupSeat(tx, {
+          teacherId: teacher.id,
+          availabilitySlotId: slotValidation.slotId,
+          teacherLessonOfferingId: selectedOffering!.id,
+          startsAt: start,
+          endsAt,
+          capacity: groupCapacity,
+        })
+      : null;
+
     const created = await tx.booking.create({
       data: {
         studentId: session.user.id,
         teacherId: teacher.id,
         lessonProductId: product.id,
+        groupLessonSessionId,
         startsAt: start,
         endsAt,
         status: flow.status,
@@ -525,6 +562,18 @@ export async function POST(req: Request) {
     if (e instanceof FreeTrialAlreadyUsedError) {
       return { _err: "TRIAL_USED" } as const;
     }
+    if (e instanceof GroupClassFullError) {
+      return { _err: "CLASS_FULL", _message: e.message } as const;
+    }
+    // The partial unique index is what settles two tabs racing for one seat in
+    // the same class; the loser lands here rather than paying twice.
+    if (
+      typeof e === "object" &&
+      e !== null &&
+      (e as { code?: string }).code === "P2002"
+    ) {
+      return { _err: "ALREADY_SEATED" } as const;
+    }
     const msg = String((e as Error).message);
     if (msg === "NO_PROFILE") {
       return { _err: msg } as const;
@@ -534,6 +583,18 @@ export async function POST(req: Request) {
 
   if (booking && typeof booking === "object" && "_err" in booking) {
     const code = (booking as { _err: string })._err;
+    if (code === "CLASS_FULL") {
+      return NextResponse.json(
+        { error: (booking as { _message?: string })._message ?? "This class is full." },
+        { status: 409 },
+      );
+    }
+    if (code === "ALREADY_SEATED") {
+      return NextResponse.json(
+        { error: "You already have a seat in this class." },
+        { status: 409 },
+      );
+    }
     if (code === "TRIAL_USED") {
       return NextResponse.json(
         {
@@ -565,28 +626,49 @@ export async function POST(req: Request) {
     });
   }
 
-  const meet = await createMeetLessonEvent({
-    organizerUserId: teacher.userId,
-    refreshTokenEncrypted: teacher.googleCalendarRefreshToken,
-    calendarId: teacher.calendarId,
-    summary: `Lesson — ${product.nameEn}`,
-    start,
-    end: endsAt,
-    attendeeEmails,
-  });
+  // A group class meets once, so a seat joins the class's event rather than
+  // opening a second room for the same lesson.
+  const meet = confirmedBooking.groupLessonSessionId
+    ? await ensureGroupSessionMeetEvent(prisma, {
+        sessionId: confirmedBooking.groupLessonSessionId,
+        teacher: {
+          userId: teacher.userId,
+          googleCalendarRefreshToken: teacher.googleCalendarRefreshToken,
+          calendarId: teacher.calendarId,
+        },
+        summary: `Lesson — ${product.nameEn}`,
+        startsAt: start,
+        endsAt,
+        studentEmail: student.email,
+        teacherEmail: teacher.user.email,
+      })
+    : await createMeetLessonEvent({
+        organizerUserId: teacher.userId,
+        refreshTokenEncrypted: teacher.googleCalendarRefreshToken,
+        calendarId: teacher.calendarId,
+        summary: `Lesson — ${product.nameEn}`,
+        start,
+        end: endsAt,
+        attendeeEmails,
+      });
 
   if (meet.meetUrl || meet.googleEventId) {
-    const meetCode = meet.meetUrl ? meet.meetUrl.split("/").pop() ?? null : null;
+    const meetCode =
+      ("meetCode" in meet ? meet.meetCode : null) ??
+      (meet.meetUrl ? meet.meetUrl.split("/").pop() ?? null : null);
     await prisma.booking.update({
       where: { id: confirmedBooking.id },
       data: {
         meetUrl: meet.meetUrl,
         googleEventId: meet.googleEventId,
-        googleCalendarId: teacher.calendarId ?? "primary",
+        googleCalendarId:
+          ("googleCalendarId" in meet ? meet.googleCalendarId : null) ??
+          teacher.calendarId ??
+          "primary",
         meetCode,
       },
     });
-  } else if (meet.errorCode) {
+  } else if ("errorCode" in meet && meet.errorCode) {
     await notifyBookingCalendarInviteFailure({
       teacherUserId: teacher.userId,
       studentUserId: session.user.id,
