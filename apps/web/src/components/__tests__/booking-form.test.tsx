@@ -41,6 +41,9 @@ describe("BookingForm time-first flow", () => {
       <NextIntlClientProvider locale="en" messages={en}>
         <BookingForm
           teacherProfileId="teacher-1"
+          // Pinned, or the calendar formats in the machine's zone and the
+          // assertion below only holds where the developer happens to sit.
+          viewerTimezone="Asia/Tokyo"
           presetSlots={[
             {
               startsAtIso: "2026-05-19T01:00:00.000Z",

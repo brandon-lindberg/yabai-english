@@ -377,6 +377,9 @@ describe("SlotSelectionCalendar", () => {
         onCalendarAnchorChange={vi.fn()}
         selectedStartsAtIso={null}
         onSelectSlot={onSelect}
+        // Pinned: without it the day keys come from the machine's zone, and at
+        // UTC+12 the 14:00Z slot falls on the next day and this cell is empty.
+        timeZone="UTC"
       />,
     );
 
