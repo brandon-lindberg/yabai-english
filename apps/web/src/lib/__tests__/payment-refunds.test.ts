@@ -249,3 +249,70 @@ describe("issueAutomaticRefundForBooking", () => {
     expect(prisma.paymentLedgerEntry.createMany).not.toHaveBeenCalled();
   });
 });
+
+describe("refunding one seat in a group class", () => {
+  // Each seat is its own booking, payment and payment intent, so a refund is
+  // already confined to the student cancelling. Pinned so nobody later
+  // "simplifies" this into refunding by class.
+  function seatBooking(seat: 1 | 2) {
+    return {
+      id: `booking-seat-${seat}`,
+      quotedPriceYen: 3000,
+      payments: [
+        {
+          id: `payment-seat-${seat}`,
+          provider: "STRIPE" as const,
+          amountYen: 3000,
+          status: "SUCCEEDED",
+          providerPaymentId: `pi_seat_${seat}`,
+          teacherPaymentAccount: { providerAccountId: "acct_123" },
+        },
+      ],
+    };
+  }
+
+  beforeEach(() => {
+    createStripeRefundMock.mockResolvedValue({ id: "re_seat_1", status: "succeeded" });
+    // 20% of this seat's ¥3,000 share — never a share of the whole class.
+    createAppFeeRefundMock.mockResolvedValue({ id: "fr_seat_1", amount: 600 });
+  });
+
+  test("returns only the cancelling student's money and fee", async () => {
+    const prisma = refundPrisma();
+    await issueAutomaticRefundForBooking(prisma, {
+      booking: seatBooking(1),
+      policy: refundEligiblePolicy,
+      actor: "STUDENT",
+    });
+
+    expect(createStripeRefundMock).toHaveBeenCalledWith(
+      expect.objectContaining({ paymentIntentId: "pi_seat_1", amountYen: 3000 }),
+    );
+    expect(createAppFeeRefundMock).toHaveBeenCalledWith(
+      expect.objectContaining({ paymentIntentId: "pi_seat_1" }),
+    );
+    // Nothing in the call names the class, so no classmate can be caught up in it.
+    const [feeArgs] = createAppFeeRefundMock.mock.calls[0] as [Record<string, unknown>];
+    expect(JSON.stringify(feeArgs)).not.toContain("groupLessonSession");
+  });
+
+  test("books the reversal against that seat's payment", async () => {
+    const prisma = refundPrisma();
+    await issueAutomaticRefundForBooking(prisma, {
+      booking: seatBooking(2),
+      policy: refundEligiblePolicy,
+      actor: "STUDENT",
+    });
+
+    const [args] = prisma.paymentLedgerEntry.createMany.mock.calls[0] as [
+      { data: Array<{ paymentId: string; type: string; amountYen: number }> },
+    ];
+    expect(args.data.every((entry) => entry.paymentId === "payment-seat-2")).toBe(true);
+    expect(args.data).toContainEqual(
+      expect.objectContaining({ type: "REFUND", amountYen: -3000 }),
+    );
+    expect(args.data).toContainEqual(
+      expect.objectContaining({ type: "PLATFORM_FEE", amountYen: -600 }),
+    );
+  });
+});
