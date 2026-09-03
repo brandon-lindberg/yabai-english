@@ -130,6 +130,9 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
           value={value.rateYenInput}
           onChange={(e) => onChange({ rateYenInput: e.target.value.replace(/\D/g, "") })}
           placeholder={ratePlaceholder}
+          // The label beside this is a plain span, so nothing associated it
+          // with the field for anyone not looking at the screen.
+          aria-label={labels.rate}
           aria-invalid={rateError ? true : undefined}
           className={`${CONTROL} max-w-full sm:max-w-none ${
             rateError ? "border-[var(--app-danger)] focus:border-[var(--app-danger)]" : ""

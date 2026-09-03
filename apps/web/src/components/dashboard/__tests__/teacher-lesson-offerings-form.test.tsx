@@ -389,3 +389,119 @@ describe("Google Meet group-call limit", () => {
     expect(screen.queryByText(/ends group calls after/i)).not.toBeInTheDocument();
   });
 });
+
+describe("group class pricing", () => {
+  function renderGroupForm(rateYen = 3000, groupSize = 4, groupTotalRateYen = 12000) {
+    return render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherLessonOfferingsForm
+          initialRateYen={3000}
+          initialOffersFreeTrial={false}
+          initialLessonOfferings={[
+            {
+              id: "offer-group",
+              durationMin: 40,
+              rateYen,
+              groupTotalRateYen,
+              isGroup: true,
+              groupSize,
+              classLevelId: "lvl-beginner",
+              classTypeId: "type-conversation",
+            },
+          ]}
+          classLevels={classLevels}
+          classTypes={classTypes}
+        />
+      </NextIntlClientProvider>,
+    );
+  }
+
+  function totalField() {
+    return screen.getByLabelText(
+      en.dashboard.profilePage.teacherGroupTotalLabelTaxIncluded,
+    );
+  }
+
+  test("asks for the price of the class, not the price of a seat", () => {
+    renderGroupForm();
+    expect(totalField()).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(en.dashboard.profilePage.teacherGroupSizeLabel),
+    ).toBeInTheDocument();
+  });
+
+  test("shows the share and what a full class collects", () => {
+    renderGroupForm();
+    fireEvent.change(totalField(), { target: { value: "16000" } });
+
+    // 16,000 across 4 seats.
+    expect(screen.getByText(/¥4,000 per student · ¥16,000 when full/)).toBeInTheDocument();
+  });
+
+  // A share under the floor is not summarised as though it were fine: the row
+  // says what is wrong instead.
+  test("replaces the summary with the reason when the share is too low", () => {
+    renderGroupForm();
+    fireEvent.change(totalField(), { target: { value: "8000" } });
+
+    expect(screen.queryByText(/per student · /)).not.toBeInTheDocument();
+    expect(screen.getByText(/Each student would pay ¥2,000/)).toBeInTheDocument();
+  });
+
+  // Ceiling division, so the class never collects less than the teacher asked.
+  test("rounds the share up when the split is uneven", () => {
+    renderGroupForm();
+    fireEvent.change(
+      screen.getByLabelText(en.dashboard.profilePage.teacherGroupSizeLabel),
+      { target: { value: "3" } },
+    );
+    fireEvent.change(totalField(), { target: { value: "10000" } });
+
+    expect(screen.getByText(/¥3,334 per student · ¥10,002 when full/)).toBeInTheDocument();
+  });
+
+  test("recomputes both figures when the seat count changes", () => {
+    renderGroupForm();
+    fireEvent.change(totalField(), { target: { value: "12000" } });
+    expect(screen.getByText(/¥3,000 per student/)).toBeInTheDocument();
+
+    fireEvent.change(
+      screen.getByLabelText(en.dashboard.profilePage.teacherGroupSizeLabel),
+      { target: { value: "3" } },
+    );
+    expect(screen.getByText(/¥4,000 per student/)).toBeInTheDocument();
+  });
+
+  // The locked decision, enforced where the teacher can see it: the ¥3,000
+  // floor is held against the share, not against the class total.
+  test("refuses a total whose share falls under the public minimum", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    renderGroupForm();
+
+    fireEvent.change(totalField(), { target: { value: "8000" } });
+    expect(screen.getByText(/Each student would pay ¥2,000/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.save }));
+    await waitFor(() => expect(fetchMock).not.toHaveBeenCalled());
+  });
+
+  test("sends the share as the price and keeps the total beside it", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    vi.stubGlobal("fetch", fetchMock);
+    renderGroupForm();
+
+    fireEvent.change(totalField(), { target: { value: "16000" } });
+    fireEvent.click(screen.getByRole("button", { name: en.dashboard.profilePage.save }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+    const group = body.lessonOfferings.find((o: { isGroup: boolean }) => o.isGroup);
+    expect(group).toMatchObject({
+      isGroup: true,
+      groupSize: 4,
+      rateYen: 4000,
+      groupTotalRateYen: 16000,
+    });
+  });
+});

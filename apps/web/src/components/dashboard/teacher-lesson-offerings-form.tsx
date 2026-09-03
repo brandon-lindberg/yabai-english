@@ -21,7 +21,10 @@ import {
 } from "./teacher-lesson-offer-row";
 import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
 import { InlineAlert } from "@/components/ui/inline-alert";
-import { MIN_GROUP_CAPACITY } from "@/lib/group-lesson-pricing";
+import {
+  MIN_GROUP_CAPACITY,
+  validateGroupOfferingRate,
+} from "@/lib/group-lesson-pricing";
 import {
   groupMeetAdvisory,
   type GroupMeetAdvisory,
@@ -38,7 +41,10 @@ export type TaxonomyOption = {
 
 type LessonOfferingInput = {
   durationMin: number;
+  /** What ONE student pays. For a group class, the derived share. */
   rateYen: number;
+  /** The teacher's figure for the whole class. Group classes only. */
+  groupTotalRateYen?: number;
   isGroup: boolean;
   groupSize: number | null;
   classLevelId: string;
@@ -64,6 +70,7 @@ type Props = {
     id: string;
     durationMin: number;
     rateYen: number;
+    groupTotalRateYen?: number | null;
     isGroup: boolean;
     groupSize: number | null;
     isFreeTrial?: boolean | null;
@@ -158,7 +165,9 @@ export function TeacherLessonOfferingsForm({
         groupSize: o.groupSize ?? 2,
         classLevelId: o.classLevelId ?? defaultClassLevelId,
         classTypeId: o.classTypeId ?? defaultClassTypeId,
-        rateYenInput: String(o.rateYen),
+        // The field holds the class total. Rows written before the total was
+        // stored only know the share, so the total is rebuilt from it.
+        rateYenInput: String(o.groupTotalRateYen ?? o.rateYen * (o.groupSize ?? 2)),
       })),
   );
   const [offersFreeTrial, setOffersFreeTrial] = useState(initialOffersFreeTrial);
@@ -180,9 +189,34 @@ export function TeacherLessonOfferingsForm({
     });
   }
 
+  /**
+   * What a group row is worth, once the teacher's total is divided up. Null
+   * while the field is empty, so an untouched row is not yet wrong.
+   */
+  function groupRateFor(row: GroupOfferingRow) {
+    const entered = Number.parseInt(row.rateYenInput.trim(), 10);
+    if (Number.isNaN(entered) || entered <= 0) return null;
+    return validateGroupOfferingRate({
+      groupTotalYen: taxIncludedRateFromTeacherInput(entered, ratePriceBasis),
+      capacity: row.groupSize,
+    });
+  }
+
+  /** The complaint under a group row, or null when the class is publishable. */
+  function groupRateErrorFor(row: GroupOfferingRow): string | null {
+    const result = groupRateFor(row);
+    if (!result || result.ok) return null;
+    if (result.reason !== "BELOW_PUBLIC_MINIMUM") return null;
+    return t("teacherGroupBelowMinimum", {
+      perStudent: (result.perStudentYen ?? 0).toLocaleString(),
+      capacity: row.groupSize,
+      minimum: (result.totalAtFloorYen ?? 0).toLocaleString(),
+    });
+  }
+
   const hasRateBelowMinimum =
     individualOffers.some((row) => rateErrorFor(row.rateYenInput) !== null) ||
-    groupOffers.some((row) => rateErrorFor(row.rateYenInput) !== null);
+    groupOffers.some((row) => groupRateErrorFor(row) !== null);
 
   function handleRatePriceBasisChange(next: TeacherLessonRatePriceBasis) {
     if (next === ratePriceBasis) return;
@@ -247,14 +281,20 @@ export function TeacherLessonOfferingsForm({
         setStatus("error");
         return;
       }
-      const rate = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
-      if (!validatePublicLessonRateYen(rate).ok) {
+      const groupTotalRateYen = taxIncludedRateFromTeacherInput(entered, ratePriceBasis);
+      const check = validateGroupOfferingRate({
+        groupTotalYen: groupTotalRateYen,
+        capacity: group.groupSize,
+      });
+      if (!check.ok) {
         setStatus("error");
         return;
       }
       lessonOfferings.push({
         durationMin: group.durationMin,
-        rateYen: rate,
+        // The price is the share; the teacher's own figure rides alongside it.
+        rateYen: check.perStudentYen,
+        groupTotalRateYen,
         isGroup: true,
         groupSize: group.groupSize,
         classLevelId: group.classLevelId,
@@ -386,6 +426,7 @@ export function TeacherLessonOfferingsForm({
                 durationMin: group.durationMin,
                 capacity: group.groupSize,
               });
+              const groupShare = groupRateFor(group);
               return (
               <div key={group.clientId} className="space-y-2">
               <TeacherLessonOfferRow
@@ -402,15 +443,15 @@ export function TeacherLessonOfferingsForm({
                 pickLabel={(opt) => pickLabel(opt, locale)}
                 ratePriceBasis={ratePriceBasis}
                 ratePlaceholder="8000"
-                rateError={rateErrorFor(group.rateYenInput)}
+                rateError={groupRateErrorFor(group)}
                 labels={{
                   level: t("teacherLessonLevelForRate"),
                   type: t("teacherLessonTypeForRate"),
                   duration: t("teacherDurationLabel"),
                   rate:
                     ratePriceBasis === "tax_included"
-                      ? t("teacherRateYenLabelTaxIncluded")
-                      : t("teacherRateYenLabelTaxExclusive"),
+                      ? t("teacherGroupTotalLabelTaxIncluded")
+                      : t("teacherGroupTotalLabelTaxExclusive"),
                   remove: t("teacherGroupRatesRemove"),
                 }}
                 leading={
@@ -418,13 +459,19 @@ export function TeacherLessonOfferingsForm({
                     <span className={RATE_FIELD_LABEL_ROW}>{t("teacherGroupSizeLabel")}</span>
                     <input
                       type="number"
-                      min={2}
+                      min={MIN_GROUP_CAPACITY}
                       value={group.groupSize}
                       onChange={(e) =>
                         setGroupOffers((prev) =>
                           prev.map((row, i) =>
                             i === index
-                              ? { ...row, groupSize: Number.parseInt(e.target.value || "2", 10) }
+                              ? {
+                                  ...row,
+                                  groupSize: Number.parseInt(
+                                    e.target.value || String(MIN_GROUP_CAPACITY),
+                                    10,
+                                  ),
+                                }
                               : row,
                           ),
                         )
@@ -434,6 +481,14 @@ export function TeacherLessonOfferingsForm({
                   </label>
                 }
               />
+              {groupShare?.ok ? (
+                <p className="text-xs text-muted" role="status">
+                  {t("teacherGroupPerStudentSummary", {
+                    perStudent: groupShare.perStudentYen.toLocaleString(),
+                    whenFull: groupShare.collectedWhenFullYen.toLocaleString(),
+                  })}
+                </p>
+              ) : null}
               {meetLimit ? (
                 <InlineAlert variant="warning" role="status">
                   {meetAdvisoryMessage(meetLimit, t)}

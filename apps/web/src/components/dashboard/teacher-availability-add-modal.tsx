@@ -168,8 +168,15 @@ function TeacherAvailabilityAddModalInner({
     }
     const level = offer.classLevel ? pickLabel(offer.classLevel, locale) : "";
     const type = offer.classType ? pickLabel(offer.classType, locale) : "";
-    const size = offer.isGroup && offer.groupSize ? `, group ${offer.groupSize}` : "";
-    return `${level} / ${type} (${offer.durationMin} min, ¥${offer.rateYen.toLocaleString()}${size})`;
+    // rateYen is what one student pays, for a group class as much as a private
+    // one — so a group offer names the seat price and the seat count, not a
+    // figure that could be read as the price of the whole class.
+    const rate = `¥${offer.rateYen.toLocaleString()}`;
+    const price =
+      offer.isGroup && offer.groupSize
+        ? `${rate}/student, max ${offer.groupSize}`
+        : rate;
+    return `${level} / ${type} (${offer.durationMin} min, ${price})`;
   };
 
   return (

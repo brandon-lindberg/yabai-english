@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
+import { perStudentRateYen } from "@/lib/group-lesson-pricing";
 import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
 import { TEACHER_BIO_MAX_CHARS, TEACHER_CREDENTIALS_MAX_CHARS } from "@/lib/markdown/limits";
 
@@ -28,6 +29,8 @@ const patchSchema = z.object({
       z.object({
         durationMin: z.number().int().min(15).max(180),
         rateYen: z.number().int().min(1).max(9_999_999),
+        /** The teacher's figure for the whole class. Group offerings only. */
+        groupTotalRateYen: z.number().int().min(1).max(9_999_999).nullable().optional(),
         isGroup: z.boolean(),
         groupSize: z.number().int().min(2).max(30).nullable(),
         /** FK to TeacherClassLevel.id; required so level/type/duration/price stay together. */
@@ -58,7 +61,21 @@ export async function PATCH(req: Request) {
   if (!fallbackRateCheck.ok) {
     return NextResponse.json({ error: fallbackRateCheck.error }, { status: 400 });
   }
-  const invalidOfferingRate = data.lessonOfferings?.find(
+  // For a group class the stored price is the share of the teacher's total, and
+  // the server does that division itself. Taking the client's `rateYen` on
+  // trust would let a crafted request store a share that does not match the
+  // total sitting beside it — two numbers claiming to describe one price.
+  const lessonOfferings = data.lessonOfferings?.map((offering) => {
+    if (!offering.isGroup || !offering.groupSize || !offering.groupTotalRateYen) {
+      return { ...offering, groupTotalRateYen: null };
+    }
+    return {
+      ...offering,
+      rateYen: perStudentRateYen(offering.groupTotalRateYen, offering.groupSize),
+    };
+  });
+
+  const invalidOfferingRate = lessonOfferings?.find(
     (offering) => !validatePublicLessonRateYen(offering.rateYen).ok,
   );
   if (invalidOfferingRate) {
@@ -123,15 +140,15 @@ export async function PATCH(req: Request) {
       }
     }
 
-    if (data.lessonOfferings !== undefined) {
+    if (lessonOfferings !== undefined) {
       const refTypeIds = Array.from(
         new Set(
-          data.lessonOfferings
+          lessonOfferings
             .map((o) => o.classTypeId)
             .filter((id): id is string => typeof id === "string"),
         ),
       );
-      const refLevelIds = Array.from(new Set(data.lessonOfferings.map((o) => o.classLevelId)));
+      const refLevelIds = Array.from(new Set(lessonOfferings.map((o) => o.classLevelId)));
       const [foundLevels, foundTypes] = await Promise.all([
         tx.teacherClassLevel.findMany({
           where: { id: { in: refLevelIds }, teacherId: updated.id },
@@ -169,12 +186,13 @@ export async function PATCH(req: Request) {
       await tx.teacherLessonOffering.deleteMany({
         where: { teacherId: updated.id, id: { in: editable.map((o) => o.id) } },
       });
-      if (data.lessonOfferings.length > 0) {
+      if (lessonOfferings.length > 0) {
         await tx.teacherLessonOffering.createMany({
-          data: data.lessonOfferings.map((o) => ({
+          data: lessonOfferings.map((o) => ({
             teacherId: updated.id,
             durationMin: o.durationMin,
             rateYen: o.rateYen,
+            groupTotalRateYen: o.isGroup ? o.groupTotalRateYen ?? null : null,
             isGroup: o.isGroup,
             groupSize: o.isGroup ? o.groupSize : null,
             active: true,
@@ -187,7 +205,7 @@ export async function PATCH(req: Request) {
       // student booking dropdown can surface it. Safe to run even when empty.
       await ensureCatalogProductsForOfferings(
         tx,
-        data.lessonOfferings.map((o) => ({
+        lessonOfferings.map((o) => ({
           classType: o.classTypeId
             ? { code: codeByTypeId.get(o.classTypeId) ?? "" }
             : null,

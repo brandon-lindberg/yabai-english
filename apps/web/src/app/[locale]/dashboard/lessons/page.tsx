@@ -37,6 +37,9 @@ export default async function DashboardLessonsPage({
           id: true,
           durationMin: true,
           rateYen: true,
+          // Without this the form rebuilds the total from the share, which is
+          // right only when the split was even.
+          groupTotalRateYen: true,
           isGroup: true,
           groupSize: true,
           isFreeTrial: true,

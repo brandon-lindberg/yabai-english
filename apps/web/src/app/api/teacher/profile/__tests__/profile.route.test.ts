@@ -170,6 +170,7 @@ describe("PATCH /api/teacher/profile", () => {
           teacherId: "tp-1",
           durationMin: 60,
           rateYen: 4500,
+          groupTotalRateYen: null,
           isGroup: false,
           groupSize: null,
           active: true,
@@ -179,7 +180,10 @@ describe("PATCH /api/teacher/profile", () => {
         {
           teacherId: "tp-1",
           durationMin: 90,
+          // No total sent, so the share stands as given and the total stays
+          // null — the shape a row saved before group totals existed has.
           rateYen: 9000,
+          groupTotalRateYen: null,
           isGroup: true,
           groupSize: 4,
           active: true,
@@ -416,5 +420,111 @@ describe("PATCH /api/teacher/profile", () => {
 
     expect(res.status).toBe(400);
     expect(createManyMock).not.toHaveBeenCalled();
+  });
+
+  describe("PATCH /api/teacher/profile — group class pricing", () => {
+    function saveGroupOffering(body: Record<string, unknown>) {
+      return PATCH(
+        new Request("http://localhost/api/teacher/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lessonOfferings: [
+              {
+                durationMin: 60,
+                isGroup: true,
+                classLevelId: "lvl-int",
+                classTypeId: "ty-pron",
+                ...body,
+              },
+            ],
+          }),
+        }),
+      );
+    }
+
+    function savedOffering() {
+      const [args] = createManyMock.mock.calls[0] as [
+        { data: Array<Record<string, unknown>> },
+      ];
+      return args.data[0]!;
+    }
+
+    test("stores the share as the price and the teacher's total beside it", async () => {
+      const res = await saveGroupOffering({
+        rateYen: 4000,
+        groupTotalRateYen: 16000,
+        groupSize: 4,
+      });
+
+      expect(res.status).toBe(200);
+      expect(savedOffering()).toMatchObject({
+        rateYen: 4000,
+        groupTotalRateYen: 16000,
+        groupSize: 4,
+        isGroup: true,
+      });
+    });
+
+    // Two numbers claiming to describe one price is a bug waiting to happen, so
+    // the server divides the total itself rather than believing the client.
+    test("recomputes the share rather than trusting the one it was sent", async () => {
+      const res = await saveGroupOffering({
+        rateYen: 99_999, // a crafted request claiming an absurd share
+        groupTotalRateYen: 16000,
+        groupSize: 4,
+      });
+
+      expect(res.status).toBe(200);
+      expect(savedOffering()).toMatchObject({ rateYen: 4000, groupTotalRateYen: 16000 });
+    });
+
+    test("rounds the share up when the total does not divide evenly", async () => {
+      await saveGroupOffering({ rateYen: 1, groupTotalRateYen: 10_000, groupSize: 3 });
+
+      expect(savedOffering()).toMatchObject({ rateYen: 3334 });
+    });
+
+    // The floor is held against the share, so a total that looks generous can
+    // still be refused once it is split.
+    test("refuses a class whose share falls under the public minimum", async () => {
+      const res = await saveGroupOffering({
+        rateYen: 8000,
+        groupTotalRateYen: 8000,
+        groupSize: 4,
+      });
+
+      expect(res.status).toBe(400);
+      await expect(res.json()).resolves.toEqual({
+        error: "Public lesson rates must be at least ¥3,000.",
+      });
+      expect(createManyMock).not.toHaveBeenCalled();
+    });
+
+    test("leaves a private lesson's price alone", async () => {
+      await PATCH(
+        new Request("http://localhost/api/teacher/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lessonOfferings: [
+              {
+                durationMin: 60,
+                rateYen: 5000,
+                isGroup: false,
+                groupSize: null,
+                classLevelId: "lvl-int",
+              },
+            ],
+          }),
+        }),
+      );
+
+      expect(savedOffering()).toMatchObject({
+        rateYen: 5000,
+        groupTotalRateYen: null,
+        groupSize: null,
+      });
+    });
   });
 });
