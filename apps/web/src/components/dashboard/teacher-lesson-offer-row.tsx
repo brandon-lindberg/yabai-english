@@ -47,6 +47,7 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
   ratePriceBasis,
   ratePlaceholder,
   rateError = null,
+  rateNote = null,
   labels,
   leading,
 }: {
@@ -62,6 +63,13 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
   ratePlaceholder: string;
   /** Shown under the rate instead of the tax breakdown when set. */
   rateError?: string | null;
+  /**
+   * Shown above the tax breakdown. A group class puts the per-student share
+   * here: the teacher types what the class costs, so the figure each student
+   * actually pays has to sit with the field they typed it into, not further
+   * down the page where it reads as unrelated.
+   */
+  rateNote?: ReactNode;
   labels: {
     level: string;
     type: string;
@@ -144,10 +152,17 @@ export function TeacherLessonOfferRow<Option extends { id: string }>({
           {rateError ? (
             <p className="text-xs text-destructive">{rateError}</p>
           ) : (
-            <TeacherLessonRateTaxBreakdown
-              basis={ratePriceBasis}
-              rateYenInput={value.rateYenInput}
-            />
+            <>
+              {rateNote ? (
+                <p className="m-0 text-xs font-medium leading-snug text-foreground">
+                  {rateNote}
+                </p>
+              ) : null}
+              <TeacherLessonRateTaxBreakdown
+                basis={ratePriceBasis}
+                rateYenInput={value.rateYenInput}
+              />
+            </>
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
@@ -436,6 +436,23 @@ describe("group class pricing", () => {
 
     // 16,000 across 4 seats.
     expect(screen.getByText(/¥4,000 per student · ¥16,000 when full/)).toBeInTheDocument();
+  });
+
+  // Placement is the point: the teacher types a class total, so the figure each
+  // student pays has to sit with that field. Below the whole row it read as
+  // unrelated to what they had just typed.
+  test("puts the share beside the total, above the tax breakdown", () => {
+    renderGroupForm();
+    fireEvent.change(totalField(), { target: { value: "20000" } });
+
+    // Scoped to the group row: the individual-rate row has its own tax line.
+    const share = screen.getByText(/per student · /);
+    const slot = share.parentElement!;
+    const tax = within(slot).getByText(/Consumption tax portion/);
+
+    expect(tax).toBeInTheDocument();
+    // Share first: it is the number the teacher came for.
+    expect(share.compareDocumentPosition(tax)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
   // A share under the floor is not summarised as though it were fine: the row

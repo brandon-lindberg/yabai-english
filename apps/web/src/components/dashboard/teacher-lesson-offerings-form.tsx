@@ -444,6 +444,14 @@ export function TeacherLessonOfferingsForm({
                 ratePriceBasis={ratePriceBasis}
                 ratePlaceholder="8000"
                 rateError={groupRateErrorFor(group)}
+                rateNote={
+                  groupShare?.ok
+                    ? t("teacherGroupPerStudentSummary", {
+                        perStudent: groupShare.perStudentYen.toLocaleString(),
+                        whenFull: groupShare.collectedWhenFullYen.toLocaleString(),
+                      })
+                    : null
+                }
                 labels={{
                   level: t("teacherLessonLevelForRate"),
                   type: t("teacherLessonTypeForRate"),
@@ -481,14 +489,6 @@ export function TeacherLessonOfferingsForm({
                   </label>
                 }
               />
-              {groupShare?.ok ? (
-                <p className="text-xs text-muted" role="status">
-                  {t("teacherGroupPerStudentSummary", {
-                    perStudent: groupShare.perStudentYen.toLocaleString(),
-                    whenFull: groupShare.collectedWhenFullYen.toLocaleString(),
-                  })}
-                </p>
-              ) : null}
               {meetLimit ? (
                 <InlineAlert variant="warning" role="status">
                   {meetAdvisoryMessage(meetLimit, t)}
