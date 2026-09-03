@@ -306,6 +306,49 @@ export async function addMeetLessonEventAttendee(params: {
   }
 }
 
+/**
+ * Takes one guest off an event and leaves the rest alone.
+ *
+ * The counterpart to adding a student to a group class: when they cancel their
+ * seat, the class carries on without them. Deleting the event instead — which
+ * is what a private lesson's cancellation does — would take the whole class off
+ * everybody's calendar.
+ */
+export async function removeMeetLessonEventAttendee(params: {
+  organizerUserId?: string;
+  refreshTokenEncrypted: string | null | undefined;
+  calendarId?: string | null;
+  eventId: string;
+  attendeeEmail: string;
+}): Promise<boolean> {
+  if (!params.eventId || !params.attendeeEmail) return false;
+  const ctx = await resolveCalendarContext(params);
+  if (!ctx) return false;
+
+  try {
+    const existing = await ctx.cal.events.get({
+      calendarId: ctx.calendarId,
+      eventId: params.eventId,
+    });
+    const attendees = existing.data.attendees ?? [];
+    const remaining = attendees.filter(
+      (a) => a.email?.toLowerCase() !== params.attendeeEmail.toLowerCase(),
+    );
+    if (remaining.length === attendees.length) return true;
+
+    await ctx.cal.events.patch({
+      calendarId: ctx.calendarId,
+      eventId: params.eventId,
+      requestBody: { attendees: remaining },
+      sendUpdates: "all",
+    });
+    return true;
+  } catch (err) {
+    console.error("Google Calendar attendee removal failed:", err);
+    return false;
+  }
+}
+
 export async function deleteMeetLessonEvent(params: {
   organizerUserId?: string;
   refreshTokenEncrypted: string | null | undefined;

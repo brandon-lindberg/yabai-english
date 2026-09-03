@@ -7,7 +7,13 @@ import { routing } from "@/i18n/routing";
 import { evaluateBookingReschedulePolicy } from "@/lib/booking-reschedule";
 import { validateBookingAgainstTeacherAvailability } from "@/lib/booking-slot-validation";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
-import { patchMeetLessonEvent } from "@/lib/google-calendar";
+import {
+  addMeetLessonEventAttendee,
+  patchMeetLessonEvent,
+  removeMeetLessonEventAttendee,
+} from "@/lib/google-calendar";
+import { bookingOwnsItsCalendarEvent } from "@/lib/booking-calendar-ownership";
+import { GroupClassFullError, reserveGroupSeat } from "@/lib/group-lesson-session";
 import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
 import { visibleAvailabilitySlots } from "@/lib/assigned-availability";
 
@@ -52,7 +58,9 @@ export async function POST(req: Request, { params }: Props) {
     where: { id: bookingId },
     include: {
       lessonProduct: { select: { durationMin: true } },
-      student: { select: { studentProfile: { select: { timezone: true } } } },
+      student: {
+      select: { email: true, studentProfile: { select: { timezone: true } } },
+    },
       teacher: {
         select: {
           id: true,
@@ -73,6 +81,10 @@ export async function POST(req: Request, { params }: Props) {
               classLevelId: true,
               classTypeId: true,
               assignedStudentId: true,
+              teacherLessonOfferingId: true,
+              teacherLessonOffering: {
+                select: { id: true, isGroup: true, groupSize: true },
+              },
             },
           },
           availabilityOccurrenceSkips: { select: { slotId: true, startsAtIso: true } },
@@ -140,12 +152,35 @@ export async function POST(req: Request, { params }: Props) {
     return NextResponse.json({ error: slotValidation.error }, { status: 409 });
   }
 
+  // Where the lesson is landing decides whether this is a seat in a class.
+  // The destination governs, not where the booking came from: a student can
+  // move out of a class into a private lesson and back again.
+  const targetSlot = booking.teacher.availabilitySlots.find(
+    (slot) => slot.id === slotValidation.slotId,
+  );
+  const targetOffering = targetSlot?.teacherLessonOffering ?? null;
+  const targetCapacity =
+    targetOffering?.isGroup && targetOffering.groupSize ? targetOffering.groupSize : null;
+
+  const existingTargetSession = targetCapacity
+    ? await prisma.groupLessonSession.findUnique({
+        where: {
+          availabilitySlotId_startsAt: {
+            availabilitySlotId: slotValidation.slotId,
+            startsAt: start,
+          },
+        },
+        select: { id: true },
+      })
+    : null;
+
   const clash = await prisma.booking.findFirst({
     where: teacherBookingOverlapWhere({
       teacherId: booking.teacher.id,
       start,
       end: endsAt,
       excludeBookingId: booking.id,
+      allowGroupSessionId: existingTargetSession?.id ?? null,
     }),
     select: { id: true },
   });
@@ -156,26 +191,89 @@ export async function POST(req: Request, { params }: Props) {
     );
   }
 
-  const updated = await prisma.booking.update({
-    where: { id: booking.id },
-    data: {
-      startsAt: start,
-      endsAt,
-      rescheduleCount: booking.rescheduleCount + 1,
-    },
-    select: { id: true, startsAt: true, endsAt: true, rescheduleCount: true },
-  });
+  // Taking the new seat and moving the booking onto it happen together: a seat
+  // claimed for a move that then failed would be held by nobody.
+  let updated;
+  try {
+    updated = await prisma.$transaction(async (tx) => {
+      const groupLessonSessionId =
+        targetCapacity && targetOffering
+          ? await reserveGroupSeat(tx, {
+              teacherId: booking.teacher.id,
+              availabilitySlotId: slotValidation.slotId,
+              teacherLessonOfferingId: targetOffering.id,
+              startsAt: start,
+              endsAt,
+              capacity: targetCapacity,
+            })
+          : null;
+
+      return tx.booking.update({
+        where: { id: booking.id },
+        data: {
+          startsAt: start,
+          endsAt,
+          groupLessonSessionId,
+          rescheduleCount: booking.rescheduleCount + 1,
+        },
+        select: {
+          id: true,
+          startsAt: true,
+          endsAt: true,
+          rescheduleCount: true,
+          groupLessonSessionId: true,
+        },
+      });
+    });
+  } catch (e) {
+    if (e instanceof GroupClassFullError) {
+      return NextResponse.json({ error: e.message }, { status: 409 });
+    }
+    throw e;
+  }
 
   // Best-effort: a calendar left on the old time is worse than no calendar, but
   // it must not fail the move the student has already been told happened.
+  const teacherCalendar = {
+    organizerUserId: booking.teacher.userId,
+    refreshTokenEncrypted: booking.teacher.googleCalendarRefreshToken,
+    calendarId: booking.googleCalendarId ?? booking.teacher.calendarId,
+  };
   if (booking.googleEventId) {
-    await patchMeetLessonEvent({
-      organizerUserId: booking.teacher.userId,
-      refreshTokenEncrypted: booking.teacher.googleCalendarRefreshToken,
-      calendarId: booking.googleCalendarId ?? booking.teacher.calendarId,
-      eventId: booking.googleEventId,
-      start,
-      end: endsAt,
+    if (bookingOwnsItsCalendarEvent(booking)) {
+      await patchMeetLessonEvent({
+        ...teacherCalendar,
+        eventId: booking.googleEventId,
+        start,
+        end: endsAt,
+      });
+    } else if (booking.student.email) {
+      // The event belongs to the class this student is leaving. Moving it would
+      // drag every classmate to the new time, so they step off the guest list
+      // instead; the class they are joining adds them on its own confirmation.
+      await removeMeetLessonEventAttendee({
+        ...teacherCalendar,
+        eventId: booking.googleEventId,
+        attendeeEmail: booking.student.email,
+      });
+    }
+  }
+
+  // The class it has joined may already be meeting somewhere, in which case
+  // this student goes on its guest list. A class with no event yet gets one on
+  // its first confirmation, with this student already on it.
+  const joinedSession = updated.groupLessonSessionId
+    ? await prisma.groupLessonSession.findUnique({
+        where: { id: updated.groupLessonSessionId },
+        select: { googleEventId: true, googleCalendarId: true },
+      })
+    : null;
+  if (joinedSession?.googleEventId && booking.student.email) {
+    await addMeetLessonEventAttendee({
+      ...teacherCalendar,
+      calendarId: joinedSession.googleCalendarId ?? booking.teacher.calendarId,
+      eventId: joinedSession.googleEventId,
+      attendeeEmail: booking.student.email,
     });
   }
   if (booking.studentGoogleEventId) {
