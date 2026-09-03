@@ -12,12 +12,15 @@ import {
   validateGroupOfferingRate,
 } from "@/lib/group-lesson-pricing";
 import { groupMeetAdvisory } from "@/lib/group-lesson-meet-limits";
+import { calculateTaxIncludedInvoiceTotals } from "@/lib/invoice-totals";
 import {
   MIN_PUBLIC_LESSON_RATE_YEN,
   validatePublicLessonRateYen,
 } from "@/lib/lesson-rate-policy";
 import {
   type TeacherLessonRatePriceBasis,
+  convertTeacherRateInputBetweenBases,
+  ratePriceBasisFromStored,
   storedRatePriceBasis,
   taxIncludedRateFromTeacherInput,
 } from "@/lib/teacher-lesson-rate-basis";
@@ -47,7 +50,7 @@ export type AddedOffering = {
 };
 
 /**
- * Adds one class, and saves it.
+ * Creates or changes one class, and saves it.
  *
  * Adding used to append a row to the bottom of the list, which on a page with a
  * few classes already on it put the new one below the fold — the button looked
@@ -55,35 +58,59 @@ export type AddedOffering = {
  * creating it, and gives its six fields room instead of a table row on a phone.
  *
  * It saves on confirm rather than staging a change for a Save button further
- * down the page, because that second step is one most people miss. Editing an
- * existing class stays inline: nudging one price should not cost a dialog.
+ * down the page, because that second step is one most people miss.
+ *
+ * Editing lives here too. It was inline at first, but a class carries six
+ * decisions — level, focus, length, size, price and which figure that price is
+ * — and the last of those needs a two-option control that simply does not fit
+ * in a table row. Squeezed in, it dominated the row it belonged to. In a dialog
+ * everything has room and the list stays a list.
  */
 export function TeacherLessonAddModal({
   open,
   kind,
+  editing = null,
   classLevels,
   classTypes,
   locale,
   onClose,
-  onAdded,
+  onSaved,
 }: {
   open: boolean;
   kind: "individual" | "group";
+  /** The class being changed. Absent when adding a new one. */
+  editing?: AddedOffering | null;
   classLevels: TaxonomyOption[];
   classTypes: TaxonomyOption[];
   locale: string;
   onClose: () => void;
-  onAdded: (offering: AddedOffering) => void;
+  onSaved: (offering: AddedOffering) => void;
 }) {
   const t = useTranslations("dashboard.profilePage");
   const isGroup = kind === "group";
 
-  const [classLevelId, setClassLevelId] = useState(classLevels[0]?.id ?? "");
-  const [classTypeId, setClassTypeId] = useState(classTypes[0]?.id ?? "");
-  const [durationMin, setDurationMin] = useState<number>(isGroup ? 60 : 30);
-  const [groupSize, setGroupSize] = useState(MIN_GROUP_CAPACITY);
-  const [rateInput, setRateInput] = useState("");
-  const [basis, setBasis] = useState<TeacherLessonRatePriceBasis>("tax_included");
+  const startingBasis = ratePriceBasisFromStored(editing?.ratePriceBasis);
+  const [classLevelId, setClassLevelId] = useState(
+    editing?.classLevelId ?? classLevels[0]?.id ?? "",
+  );
+  const [classTypeId, setClassTypeId] = useState(
+    editing?.classTypeId ?? classTypes[0]?.id ?? "",
+  );
+  const [durationMin, setDurationMin] = useState<number>(
+    editing?.durationMin ?? (isGroup ? 60 : 30),
+  );
+  const [groupSize, setGroupSize] = useState(editing?.groupSize ?? MIN_GROUP_CAPACITY);
+  const [rateInput, setRateInput] = useState(() => {
+    if (!editing) return "";
+    // Stored figures are tax-included; show them back the way they were typed.
+    const stored = editing.isGroup
+      ? editing.groupTotalRateYen ?? editing.rateYen * (editing.groupSize ?? MIN_GROUP_CAPACITY)
+      : editing.rateYen;
+    return String(
+      convertTeacherRateInputBetweenBases(stored, "tax_included", startingBasis),
+    );
+  });
+  const [basis, setBasis] = useState<TeacherLessonRatePriceBasis>(startingBasis);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -102,6 +129,13 @@ export function TeacherLessonAddModal({
       ? validateGroupOfferingRate({ groupTotalYen: taxIncluded, capacity: groupSize })
       : null;
   const meetLimit = isGroup ? groupMeetAdvisory({ durationMin, capacity: groupSize }) : null;
+
+  // What one student's invoice will say. Derived from the share rather than by
+  // dividing the class total's tax, because the share is the figure that is
+  // actually charged and rounded.
+  const perStudentTax = calculateTaxIncludedInvoiceTotals(
+    groupCheck?.ok ? groupCheck.perStudentYen : 0,
+  );
 
   const rateComplaint = !hasFigure
     ? null
@@ -139,8 +173,12 @@ export function TeacherLessonAddModal({
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch("/api/teacher/lesson-offerings", {
-        method: "POST",
+      const res = await fetch(
+        editing
+          ? `/api/teacher/lesson-offerings/${editing.id}`
+          : "/api/teacher/lesson-offerings",
+        {
+        method: editing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           durationMin,
@@ -152,13 +190,14 @@ export function TeacherLessonAddModal({
           classLevelId,
           classTypeId,
         }),
-      });
+        },
+      );
       const data = (await res.json()) as { error?: string; offering?: AddedOffering };
       if (!res.ok || !data.offering) {
         setError(data.error ?? t("teacherAddClassError"));
         return;
       }
-      onAdded(data.offering);
+      onSaved(data.offering);
       setRateInput("");
       onClose();
     } catch {
@@ -174,7 +213,13 @@ export function TeacherLessonAddModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={isGroup ? t("teacherAddClassGroupTitle") : t("teacherAddClassIndividualTitle")}
+      title={
+        editing
+          ? t("teacherEditClassTitle")
+          : isGroup
+            ? t("teacherAddClassGroupTitle")
+            : t("teacherAddClassIndividualTitle")
+      }
       description={t("teacherAddClassSubtitle")}
       actions={
         <>
@@ -182,7 +227,13 @@ export function TeacherLessonAddModal({
             {t("teacherAddClassCancel")}
           </Button>
           <Button onClick={onConfirm} disabled={!ready || noTaxonomy} loading={saving}>
-            {saving ? t("teacherAddClassWorking") : t("teacherAddClassConfirm")}
+            {saving
+              ? editing
+                ? t("teacherEditClassWorking")
+                : t("teacherAddClassWorking")
+              : editing
+                ? t("teacherEditClassConfirm")
+                : t("teacherAddClassConfirm")}
           </Button>
         </>
       }
@@ -273,20 +324,42 @@ export function TeacherLessonAddModal({
 
           <div className="space-y-1">
             {groupCheck?.ok ? (
-              <p className="m-0 text-xs font-medium leading-snug text-foreground">
-                {t("teacherGroupPerStudentSummary", {
-                  perStudent: groupCheck.perStudentYen.toLocaleString(),
-                  whenFull: groupCheck.collectedWhenFullYen.toLocaleString(),
-                })}
-              </p>
-            ) : null}
-            <TeacherLessonRateTaxBreakdown basis={basis} rateYenInput={rateInput} />
-            <TeacherLessonRateBasisSwitch
-              basis={basis}
-              onChange={setBasis}
-              describedFieldLabel={rateLabel}
-            />
+              <>
+                <p className="text-xs font-medium leading-snug text-foreground">
+                  {t("teacherGroupPerStudentSummary", {
+                    perStudent: groupCheck.perStudentYen.toLocaleString(),
+                    whenFull: groupCheck.collectedWhenFullYen.toLocaleString(),
+                  })}
+                </p>
+                {/*
+                  The tax split describes ONE SEAT, not the class total. Each
+                  student is invoiced their own share and the tax is computed on
+                  that invoice — so the class total's tax is a figure nobody is
+                  ever charged, and it does not even equal the seat taxes added
+                  up, because each is rounded separately.
+                */}
+                <p className="text-xs leading-snug text-muted">
+                  {t("teacherGroupPerStudentTax", {
+                    perStudent: groupCheck.perStudentYen.toLocaleString(),
+                    subtotal: perStudentTax.subtotalYen.toLocaleString(),
+                    tax: perStudentTax.taxYen.toLocaleString(),
+                  })}
+                </p>
+              </>
+            ) : (
+              <TeacherLessonRateTaxBreakdown basis={basis} rateYenInput={rateInput} />
+            )}
           </div>
+
+          <TeacherLessonRateBasisSwitch
+            basis={basis}
+            // The typed figure is the teacher's and stays put; the mode says
+            // how to read it. "Enter as ... your fee before tax" with 4,000 in
+            // the box means a ¥4,000 fee and a ¥4,400 student price. Rewriting
+            // the digits to hold the price fixed answered a question nobody
+            // asked, and made the mode look broken.
+            onChange={setBasis}
+          />
 
           {meetLimit ? (
             <InlineAlert variant="warning" role="status">

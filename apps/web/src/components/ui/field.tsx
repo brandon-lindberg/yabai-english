@@ -250,7 +250,7 @@ export function Select({
  * - **Radio groups** — `booking-form`'s
  *   payment method. A radio group's name belongs on a `<fieldset>`/`<legend>`,
  *   not on each input; `Field` labels one control, which is the wrong shape.
- * - **The grid rate rows** — `teacher-lesson-offer-row`, and the group-size
+ * - **The grid rate rows** — the group-size
  *   field that lines up beside them. `RATE_FIELD_LABEL_ROW` bottom-aligns
  *   labels across a row so controls stay level however the text wraps. `Field`
  *   stacks each label against its own control and would break that alignment.
