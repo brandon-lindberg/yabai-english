@@ -4,11 +4,14 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { SubNav, SubNavLink } from "@/components/ui/sub-nav";
 
-type Section = "availability" | "upcoming" | "completed";
+type Section = "availability" | "upcoming" | "completed" | "refunded";
 
 function scheduleSection(pathname: string): Section {
   if (pathname.includes("/dashboard/schedule/completed")) return "completed";
   if (pathname.includes("/dashboard/schedule/availability")) return "availability";
+  if (pathname.includes("/dashboard/schedule/refunded")) return "refunded";
+  // `/dashboard/schedule` is a prefix of every path above, so upcoming can only
+  // be the fallthrough — never a match tested first.
   return "upcoming";
 }
 
@@ -42,6 +45,18 @@ export function DashboardScheduleSubNav({ isTeacher }: { isTeacher: boolean }) {
         render={(p) => (
           <Link href="/dashboard/schedule/completed" {...p}>
             {t("subNavCompleted")}
+          </Link>
+        )}
+      />
+      {/*
+        Both parties, not just the teacher: a refund issues a credit note to
+        each of them, and this is the only place either can reach it.
+      */}
+      <SubNavLink
+        active={section === "refunded"}
+        render={(p) => (
+          <Link href="/dashboard/schedule/refunded" {...p}>
+            {t("subNavRefunded")}
           </Link>
         )}
       />

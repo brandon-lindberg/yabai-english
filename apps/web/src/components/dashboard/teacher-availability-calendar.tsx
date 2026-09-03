@@ -25,7 +25,6 @@ import {
   dayKeyToIsoAtNoon,
   dayKeyFromIso,
   formatDayKeyLabel,
-  hasSlotMatchingAnchorDay,
 } from "@/lib/slot-calendar";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
 import {
@@ -505,11 +504,6 @@ export function TeacherAvailabilityCalendar({
       (selectedStartsAtIso ? dayKeyFromIso(selectedStartsAtIso, teacherTz) : null))
     : null;
 
-  const hasSlotsOnFocusDay = useMemo(
-    () => hasSlotMatchingAnchorDay(calendarSlots, calendarAnchor, teacherTz),
-    [calendarSlots, calendarAnchor, teacherTz],
-  );
-
   const focusDateLabel = useMemo(() => {
     const dk = dayKeyFromIso(calendarAnchor, teacherTz);
     return formatDayKeyLabel(
@@ -967,8 +961,13 @@ export function TeacherAvailabilityCalendar({
   }
 
   return (
-    <section className="space-y-4 border-t border-border pt-4">
-      <h2 className="text-lg font-semibold text-foreground">{t("sectionTitle")}</h2>
+    /*
+      No visible heading: this sits under a tab already labelled "Availability",
+      and the tab, a page intro and this heading all said the same word before
+      the teacher reached the grid. The name stays as the region's accessible
+      name, so landmark navigation still finds it.
+    */
+    <section className="space-y-4" aria-label={t("sectionTitle")}>
 
       {/* A chip has room for a time and who it is with; everything else about
           the reservation lives here, one click away. */}
@@ -994,28 +993,6 @@ export function TeacherAvailabilityCalendar({
         }
         onClose={() => setOpenBookingId(null)}
       />
-
-      {hasSlotsOnFocusDay ? (
-        <div className="border-t border-border px-0 py-3">
-          <h3 className="text-sm font-semibold text-foreground">
-            {t("currentAvailabilityForDate", { date: focusDateLabel })}
-          </h3>
-          <p className="mt-1 text-sm text-muted">
-            {selectedRule && selectedStartsAtIso
-              ? t("editingOccurrence", {
-                  time: new Date(selectedStartsAtIso).toLocaleString(locale, {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    timeZone: teacherTz,
-                  }),
-                })
-              : t("currentAvailabilityPickHint")}
-          </p>
-        </div>
-      ) : null}
 
       <SlotSelectionCalendar
         weekViewReplacement={isMobile ? mobileWeekView : weekTimeGrid}

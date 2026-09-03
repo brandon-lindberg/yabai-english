@@ -125,7 +125,6 @@ export default async function DashboardScheduleAvailabilityPage({
   return (
     <div className="space-y-8">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
-      <p className="text-muted">{t("availabilityIntro")}</p>
 
       {canPublishAvailability ? (
         <TeacherAvailabilityCalendar

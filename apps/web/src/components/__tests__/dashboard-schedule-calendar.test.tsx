@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
@@ -63,12 +63,27 @@ function renderCalendar(
   );
 }
 
+/** Stands in for the media query the calendar reads to pick its first view. */
+function stubViewport(wide: boolean) {
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn().mockReturnValue({
+      matches: wide,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }),
+  );
+}
+
 function openMonth() {
   fireEvent.click(screen.getByRole("button", { name: en.dashboard.calendarMonth }));
 }
 
 describe("DashboardScheduleCalendar", () => {
   beforeEach(() => {
+    // Narrow unless a test says otherwise, so the week view every other
+    // assertion here was written against stays the one that opens.
+    stubViewport(false);
     // jsdom does not implement showModal, and it has to actually set `open` or
     // the dialog's contents stay out of the accessibility tree.
     HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
@@ -77,6 +92,10 @@ describe("DashboardScheduleCalendar", () => {
     HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
       this.open = false;
     });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   test("renders booked lesson times in the provided dashboard timezone", () => {
@@ -191,6 +210,42 @@ describe("DashboardScheduleCalendar", () => {
     expect(
       screen.getByRole("button", { name: en.booking.pendingReservationPay }),
     ).toBeInTheDocument();
+  });
+
+  test("opens on the month when there is room for it", () => {
+    // A month is what a person wants when they have the room: the whole shape
+    // of their teaching or study, rather than one week at a time.
+    stubViewport(true);
+    renderCalendar();
+
+    expect(screen.getByRole("button", { name: en.dashboard.calendarMonth })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  test("opens on the week on a narrow screen", () => {
+    stubViewport(false);
+    renderCalendar();
+
+    expect(screen.getByRole("button", { name: en.dashboard.calendarWeek })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  test("a chosen view stays chosen when the window is resized", () => {
+    // The viewport only supplies a default. Once someone has picked a view,
+    // dragging the window must not throw them back to the month.
+    stubViewport(true);
+    renderCalendar();
+
+    fireEvent.click(screen.getByRole("button", { name: en.dashboard.calendarWeek }));
+
+    expect(screen.getByRole("button", { name: en.dashboard.calendarWeek })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 
   test("a teacher is never offered to pay for somebody else's lesson", () => {

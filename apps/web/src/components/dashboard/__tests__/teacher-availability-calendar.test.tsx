@@ -766,3 +766,59 @@ describe("TeacherAvailabilityCalendar — reservations on the calendar", () => {
     expect(screen.getByText("Kana Minami Miura, Sho Tanaka")).toBeInTheDocument();
   });
 });
+
+describe("TeacherAvailabilityCalendar — nothing between the tab and the calendar", () => {
+  /*
+    The Availability tab opened with three lines that all said "availability":
+    a page intro, a section heading, and a header for whichever day the anchor
+    happened to sit on — the last of them above the calendar, labelling a day
+    the teacher had not chosen yet. The grid is the thing; it starts at the top.
+  */
+  test("does not repeat the tab's own name as a heading", () => {
+    renderTeacherCalendar();
+
+    expect(
+      screen.queryByRole("heading", { name: en.dashboard.teacherAvailability.sectionTitle }),
+    ).toBeNull();
+  });
+
+  test("keeps the region named for anyone navigating by landmark", () => {
+    // Dropping the visible heading must not cost the section its accessible
+    // name — that would turn a named region into an anonymous container.
+    const { container } = renderTeacherCalendar();
+
+    expect(container.querySelector("section")).toHaveAccessibleName(
+      en.dashboard.teacherAvailability.sectionTitle,
+    );
+  });
+
+  test("does not head the calendar with a day nobody picked", () => {
+    // A slot falling on today, so the block this asserts against would
+    // genuinely have rendered — the calendar anchors on the current date.
+    const today = new Date();
+    renderTeacherCalendar({
+      initialSlots: [
+        {
+          id: "weekly-today",
+          dayOfWeek: today.getUTCDay(),
+          startMin: 15 * 60,
+          endMin: 16 * 60,
+          timezone: "UTC",
+          recurrence: "WEEKLY",
+          startsOn: null,
+          endsOn: null,
+          classLevelId: "lvl-int",
+          classTypeId: "ty-conv",
+          teacherLessonOfferingId: "offer-conv-60",
+          assignedStudentId: null,
+          classLevel: sampleLevels[0],
+          classType: sampleTypes[0],
+        },
+      ],
+    });
+
+    expect(screen.queryByText(/Current availability for/)).toBeNull();
+    expect(screen.queryByText(/^Editing:/)).toBeNull();
+    expect(screen.queryByText(/Pick a time to edit/)).toBeNull();
+  });
+});

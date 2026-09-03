@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { useIsWideScreen } from "@/hooks/use-is-wide-screen";
 import {
   CalendarEmpty,
   CalendarFrame,
@@ -105,7 +106,15 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
   const isMobile = useIsMobile();
   const t = useTranslations("dashboard");
   const tb = useTranslations("booking");
-  const [view, setView] = useState<CalendarViewMode>("week");
+  /*
+    A month is what a person wants when they have the room for it: the whole
+    shape of a month's teaching or study at once, rather than paging a week at
+    a time. Null means "not chosen", so the default follows the viewport until
+    someone picks a view, and stays put once they have.
+  */
+  const isWideScreen = useIsWideScreen();
+  const [chosenView, setView] = useState<CalendarViewMode | null>(null);
+  const view = chosenView ?? (isWideScreen ? "month" : "week");
   // Open on the next lesson, not the first item: `items` now leads with the
   // upcoming ones but carries the whole past archive behind them, and anchoring
   // on `items[0]` blindly would land the teacher in their oldest lesson ever
