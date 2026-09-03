@@ -8,7 +8,7 @@ import {
   initialScrollTopForTimeGrid,
   isTimeGridBlockSelected,
 } from "@/lib/time-grid-week";
-import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { SLOT_BOOKED, SLOT_BOOKED_HOVER, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
 import { TimeGridSlotBlock } from "@/components/dashboard/time-grid-slot-block";
 
 type Props = {
@@ -142,7 +142,7 @@ export function TeacherAvailabilityTimeGridDay({
                       aria-label={[reservedBookingLabel, range, block.subtitle]
                         .filter(Boolean)
                         .join(" · ")}
-                      className={`absolute right-1 left-1 overflow-hidden rounded-md px-1.5 py-1 text-left text-xs leading-tight ${SLOT_BOOKED}`}
+                      className={`absolute right-1 left-1 overflow-hidden rounded-md px-1.5 py-1 text-left text-xs leading-tight ${SLOT_BOOKED} ${SLOT_BOOKED_HOVER}`}
                       style={{
                         top: `${block.topPct}%`,
                         height: `${block.heightPct}%`,

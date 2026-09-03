@@ -248,6 +248,14 @@ describe("DashboardScheduleCalendar", () => {
     );
   });
 
+  test("a reservation answers the pointer, so it does not read as dead text", () => {
+    // It is a button, so the base-layer rule gives it a pointer cursor; this is
+    // the other half — something visible happening when the pointer arrives.
+    renderCalendar();
+
+    expect(screen.getAllByTestId("schedule-chip")[0]!.className).toMatch(/hover:/);
+  });
+
   test("a teacher is never offered to pay for somebody else's lesson", () => {
     renderCalendar([{ ...upcomingLesson, status: "PENDING_PAYMENT" }], "teacher");
 

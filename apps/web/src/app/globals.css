@@ -292,6 +292,25 @@ body.chat-open {
   outline-offset: 2px;
 }
 
+/*
+  Tailwind v3's preflight set `button { cursor: pointer }`. v4 dropped it and
+  follows the browser default, which is `default` — so on this upgrade every
+  button in the app quietly stopped saying it was pressable. It reads worst on
+  the calendars, where a chip you can click looks like plain text.
+
+  In @layer base deliberately: `button:not(:disabled)` outranks a `.cursor-wait`
+  utility on specificity, and only the layer order lets a component still
+  override it. `[role="button"]` covers the handful of non-button controls;
+  anchors already get a pointer from the browser.
+*/
+@layer base {
+  button:not(:disabled):not([aria-disabled="true"]),
+  [role="button"]:not(:disabled):not([aria-disabled="true"]),
+  summary {
+    cursor: pointer;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  MDXEditor — Tailwind preflight strips the formatting the editor      */
 /*  relies on to show its own state: ul/ol markers, blockquote margins,  */

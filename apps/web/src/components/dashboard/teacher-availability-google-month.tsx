@@ -1,7 +1,7 @@
 "use client";
 
 import type { CalendarMonthCell } from "@/lib/slot-calendar";
-import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { SLOT_BOOKED, SLOT_BOOKED_HOVER, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
 
 export type MonthDaySlotChip = {
   startsAtIso: string;
@@ -170,7 +170,7 @@ export function TeacherAvailabilityGoogleMonth({
                              the accessible name so a short block does not clip
                              the one thing the teacher came to read. */
                           aria-label={[reservedLabel, slot.label].filter(Boolean).join(" · ")}
-                          className={`w-full truncate rounded-md px-1 py-0.5 text-left text-[9px] font-medium leading-tight ${SLOT_BOOKED}`}
+                          className={`w-full truncate rounded-md px-1 py-0.5 text-left text-[9px] font-medium leading-tight ${SLOT_BOOKED} ${SLOT_BOOKED_HOVER}`}
                         >
                           <span className="block truncate font-semibold tabular-nums">
                             {new Date(slot.startsAtIso).toLocaleTimeString(locale, {

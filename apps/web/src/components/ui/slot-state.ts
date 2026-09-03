@@ -49,6 +49,25 @@ export const SLOT_PAST =
 export const SLOT_FIGURE = "tabular-nums";
 
 /**
+ * Hover feedback for a booked slot you can actually act on.
+ *
+ * Deliberately not folded into SLOT_BOOKED: "booked" describes the lesson, not
+ * what you may do about it. The student's slot picker renders a booked slot as
+ * an inert marker meaning somebody else has this time, and a hover state there
+ * would promise an action that does not exist.
+ *
+ * The affordance is the border, not the fill. Fill is what the value ladder
+ * encodes state with, so an ink block that lightened under the pointer would
+ * read as the selected state; its border is already there at the same width,
+ * and turning it from ink to canvas draws a hairline inside the block with no
+ * layout shift and no confusion with SLOT_SELECTED's outer ring.
+ */
+export const SLOT_BOOKED_HOVER = "hover:border-[var(--app-canvas)]";
+
+/** The same, for a spent slot — which is drawn in outline, so it can lift. */
+export const SLOT_PAST_HOVER = "hover:border-foreground hover:text-foreground";
+
+/**
  * Resolve a slot's classes from its state.
  * `selected` wins over the base state so the active slot is never ambiguous.
  */
@@ -56,12 +75,19 @@ export function slotClasses({
   kind,
   selected = false,
   past = false,
+  interactive = false,
 }: {
   kind: "booked" | "open";
   selected?: boolean;
   past?: boolean;
+  /**
+   * This slot is a button or a link. Opt-in rather than assumed, because the
+   * same classes dress inert markers elsewhere — see SLOT_BOOKED_HOVER.
+   */
+  interactive?: boolean;
 }) {
-  if (past) return SLOT_PAST;
+  if (past) return interactive ? `${SLOT_PAST} ${SLOT_PAST_HOVER}` : SLOT_PAST;
   if (selected) return SLOT_SELECTED;
-  return kind === "booked" ? SLOT_BOOKED : SLOT_OPEN;
+  if (kind === "open") return SLOT_OPEN;
+  return interactive ? `${SLOT_BOOKED} ${SLOT_BOOKED_HOVER}` : SLOT_BOOKED;
 }

@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import type { CalendarDay } from "@/lib/slot-calendar";
 import type { PlacedTimeGridBlock } from "@/lib/time-grid-week";
 import { hourGutterLabels, initialScrollTopForTimeGrid, isTimeGridBlockSelected } from "@/lib/time-grid-week";
-import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { SLOT_BOOKED, SLOT_BOOKED_HOVER, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
 import { TimeGridSlotBlock } from "@/components/dashboard/time-grid-slot-block";
 
 type Props = {
@@ -153,7 +153,7 @@ export function TeacherAvailabilityTimeGridWeek({
                           aria-label={[reservedBookingLabel, range, block.subtitle]
                             .filter(Boolean)
                             .join(" · ")}
-                          className={`absolute right-0.5 left-0.5 overflow-hidden rounded-md px-1 py-0.5 text-left text-[10px] leading-tight ${SLOT_BOOKED}`}
+                          className={`absolute right-0.5 left-0.5 overflow-hidden rounded-md px-1 py-0.5 text-left text-[10px] leading-tight ${SLOT_BOOKED} ${SLOT_BOOKED_HOVER}`}
                           style={{
                             top: `${block.topPct}%`,
                             height: `${block.heightPct}%`,

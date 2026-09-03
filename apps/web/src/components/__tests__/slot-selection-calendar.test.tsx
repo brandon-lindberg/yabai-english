@@ -457,3 +457,28 @@ describe("SlotSelectionCalendar", () => {
     expect(screen.getByRole("button", { name: "Extra" })).toBeInTheDocument();
   });
 });
+
+describe("SlotSelectionCalendar — what the pointer is promised", () => {
+  test("a slot somebody else holds does not react to the pointer", () => {
+    // It is a marker, not a control: `aria-disabled`, no click handler. A hover
+    // state here would offer an action the student cannot take.
+    const iso = "2026-04-20T01:00:00.000Z";
+    render(
+      <SlotSelectionCalendar
+        locale="en-US"
+        copy={copy}
+        slots={[{ startsAtIso: iso, label: "Reserved", kind: "booked" }]}
+        calendarView="day"
+        onCalendarViewChange={vi.fn()}
+        calendarAnchor={iso}
+        onCalendarAnchorChange={vi.fn()}
+        selectedStartsAtIso={null}
+        onSelectSlot={vi.fn()}
+      />,
+    );
+
+    for (const marker of screen.getAllByTestId("slot-reserved")) {
+      expect(marker.className).not.toMatch(/hover:/);
+    }
+  });
+});

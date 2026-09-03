@@ -292,7 +292,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
                   item={item}
                   label={chipLabel(item)}
                   onOpen={setOpenBookingId}
-                  className={`block w-full overflow-hidden rounded-md px-2 py-1 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast })}`}
+                  className={`block w-full overflow-hidden rounded-md px-2 py-1 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`}
                 >
                   <ChipLines item={item} />
                 </ScheduleItemAction>
@@ -325,7 +325,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
                           item={item}
                           label={chipLabel(item)}
                           onOpen={setOpenBookingId}
-                          className={`flex w-full items-baseline gap-2 rounded-md px-2.5 py-1.5 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast })}`}
+                          className={`flex w-full items-baseline gap-2 rounded-md px-2.5 py-1.5 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`}
                         >
                           <span className="shrink-0 font-semibold">
                             {formatTime(item.startsAtIso)} – {formatTime(item.endsAtIso)}
@@ -359,7 +359,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
                       item={item}
                       label={chipLabel(item)}
                       onOpen={setOpenBookingId}
-                      className={`w-full overflow-hidden rounded px-1 py-0.5 text-left text-[9px] font-semibold leading-tight tabular-nums ${slotClasses({ kind: "booked", past: item.isPast })}`}
+                      className={`w-full overflow-hidden rounded px-1 py-0.5 text-left text-[9px] font-semibold leading-tight tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`}
                     >
                       <ChipLines item={item} />
                     </ScheduleItemAction>
@@ -414,7 +414,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
                             item={item}
                             label={chipLabel(item)}
                             onOpen={setOpenBookingId}
-                            className={`flex w-full items-baseline gap-2 rounded-md px-2.5 py-1.5 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast })}`}
+                            className={`flex w-full items-baseline gap-2 rounded-md px-2.5 py-1.5 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`}
                           >
                             <span className="shrink-0 font-semibold">
                               {formatTime(item.startsAtIso)} – {formatTime(item.endsAtIso)}

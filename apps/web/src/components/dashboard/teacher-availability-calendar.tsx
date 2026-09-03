@@ -36,7 +36,7 @@ import { placeSlotsOnDayColumn, placeSlotsOnWeekGrid } from "@/lib/time-grid-wee
 import { teacherAvailabilitySchema } from "@/lib/teacher-availability";
 import { offeringCanBackAvailabilitySlot } from "@/lib/availability-offering-match";
 import type { CalendarViewMode } from "@/lib/calendar-view";
-import { SLOT_BOOKED, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { SLOT_BOOKED, SLOT_BOOKED_HOVER, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
 import type { BookingDisplayStatus } from "@/lib/booking-status";
 import { BookingDetailModal } from "@/components/booking/booking-detail-modal";
 import { bookingChipWho } from "@/lib/booking-chip-label";
@@ -651,7 +651,7 @@ export function TeacherAvailabilityCalendar({
                           type="button"
                           key={`booking-${block.startsAtIso}-${block.groupKey ?? ""}`}
                           onClick={() => openBooking(block.groupKey ?? null)}
-                          className={`block w-full rounded-md px-2.5 py-1.5 text-left text-xs ${SLOT_BOOKED}`}
+                          className={`block w-full rounded-md px-2.5 py-1.5 text-left text-xs ${SLOT_BOOKED} ${SLOT_BOOKED_HOVER}`}
                         >
                           <span className="font-medium">
                             {formatCalendarTime(block.startsAtIso)}
@@ -761,7 +761,7 @@ export function TeacherAvailabilityCalendar({
                           type="button"
                           key={`booking-${slot.startsAtIso}-${slot.groupKey ?? ""}`}
                           onClick={() => openBooking(slot.groupKey ?? null)}
-                          className={`block w-full rounded-md px-2.5 py-1.5 text-left text-xs ${SLOT_BOOKED}`}
+                          className={`block w-full rounded-md px-2.5 py-1.5 text-left text-xs ${SLOT_BOOKED} ${SLOT_BOOKED_HOVER}`}
                         >
                           <span className="font-medium">
                             {formatCalendarTime(slot.startsAtIso)}
