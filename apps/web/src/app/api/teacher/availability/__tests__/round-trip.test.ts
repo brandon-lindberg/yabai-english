@@ -24,6 +24,7 @@ const SERVER_OWNED = new Set([
   "classLevel",
   "classType",
   "teacherLessonOffering",
+  "groupLessonSessions", // back-relation; sessions are written by the booking path
 ]);
 
 function availabilitySlotColumns(): string[] {

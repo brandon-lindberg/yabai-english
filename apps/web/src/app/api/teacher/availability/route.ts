@@ -16,7 +16,11 @@ import {
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 import { dateOnlyToUtcDateInZone } from "@/lib/date-only-in-zone";
-import { availabilitySlotMatchesOffering } from "@/lib/availability-offering-match";
+import {
+  availabilitySlotMatchesOffering,
+  GROUP_SLOT_RULE_MESSAGES,
+  groupSlotRulesViolation,
+} from "@/lib/availability-offering-match";
 import {
   availabilityWindowEndDayKey,
   isWithinAvailabilityWindow,
@@ -199,6 +203,7 @@ export async function PATCH(req: Request) {
         durationMin: true,
         active: true,
         isGroup: true,
+        groupSize: true,
         rateYen: true,
         isFreeTrial: true,
         classType: { select: { code: true } },
@@ -232,6 +237,20 @@ export async function PATCH(req: Request) {
   if (mismatchedSlot) {
     return NextResponse.json(
       { error: "Availability must match the selected class offer." },
+      { status: 400 },
+    );
+  }
+
+  // A slot can pair correctly with its offering and still be incoherent as a
+  // group class — reserved for one student, or seating fewer than two.
+  const groupRuleBreak = parsed.data
+    .map((slot) =>
+      groupSlotRulesViolation(slot, offeringById.get(slot.teacherLessonOfferingId)),
+    )
+    .find((violation): violation is NonNullable<typeof violation> => violation !== null);
+  if (groupRuleBreak) {
+    return NextResponse.json(
+      { error: GROUP_SLOT_RULE_MESSAGES[groupRuleBreak] },
       { status: 400 },
     );
   }

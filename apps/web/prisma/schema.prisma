@@ -399,6 +399,7 @@ model TeacherProfile {
   tierEvaluations             TeacherTierEvaluation[]
   tierAuditLogs               TeacherTierAuditLog[]
   freeTrialRedemptions        FreeTrialRedemption[]
+  groupLessonSessions         GroupLessonSession[]
 }
 
 model TeacherTierState {
@@ -588,9 +589,17 @@ model TeacherLessonOffering {
   teacherId   String
   teacher     TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   durationMin Int
+  /// What ONE student pays, tax-included. Same meaning for a group class as for
+  /// a private one, which is why no pricing, invoice, payment or refund path
+  /// needs to know a class was shared.
   rateYen     Int
   isGroup     Boolean        @default(false)
+  /// Maximum students in the class. Null for a private lesson.
   groupSize   Int?
+  /// What the teacher asked for the class as a whole. Their figure, kept beside
+  /// the derived share so the rates form can show back what they typed; the
+  /// share in `rateYen` is what anyone is ever charged.
+  groupTotalRateYen Int?
   active      Boolean        @default(true)
   /// Marks the teacher's free-trial offer. Priced at 0 and bookable once per
   /// student; exists as an offering so trial slots can be published like any
@@ -612,6 +621,7 @@ model TeacherLessonOffering {
 
   availabilitySlots AvailabilitySlot[]
   studentRateOverrides TeacherStudentLessonRate[]
+  groupLessonSessions  GroupLessonSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -657,6 +667,8 @@ model AvailabilitySlot {
 
   active Boolean @default(true)
 
+  groupLessonSessions GroupLessonSession[]
+
   @@index([assignedStudentId])
 
   @@index([classLevelId])
@@ -699,6 +711,65 @@ model AvailabilityOccurrenceSkip {
   @@index([teacherProfileId])
 }
 
+/// One occurrence of a group class: the thing students take a seat in.
+///
+/// Written lazily, by the first booking for that occurrence — there is no
+/// worker in this deployment, and a materialiser that had not run yet would
+/// leave a published class unbookable. The unique pair below is what makes that
+/// upsert safe when two students arrive at once.
+///
+/// Seats are NOT stored here. They are counted from `bookings`, because an
+/// unpaid booking gives its seat back when its hold lapses and no column could
+/// follow that on its own.
+model GroupLessonSession {
+  id        String         @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  /// The recurrence rule this occurrence came from. Nulled rather than
+  /// cascaded when the teacher removes that slot from their calendar: the save
+  /// route deletes slot rows outright, and a class students have paid for must
+  /// survive its own schedule being edited. `Booking` carries no slot FK at all
+  /// for the same reason.
+  availabilitySlotId String?
+  availabilitySlot   AvailabilitySlot? @relation(fields: [availabilitySlotId], references: [id], onDelete: SetNull)
+
+  /// Nulled on delete, matching how `AvailabilitySlot` already holds its
+  /// offering. Nothing is lost: capacity is snapshotted below and the price
+  /// each student agreed to is on their own booking.
+  teacherLessonOfferingId String?
+  teacherLessonOffering   TeacherLessonOffering? @relation(fields: [teacherLessonOfferingId], references: [id], onDelete: SetNull)
+
+  startsAt DateTime
+  endsAt   DateTime
+
+  /// Snapshot of the offering's `groupSize` when the class first took a
+  /// booking. Lowering the offering later must never evict a student who has
+  /// already paid for a seat, so capacity is frozen here rather than read back.
+  capacity Int
+
+  /// One Meet link for the whole class. Every seat mirrors it onto its own
+  /// booking, so the dashboard, the ICS feed and the notes link keep reading
+  /// one field and never learn a class was shared.
+  meetUrl          String? @db.Text
+  googleEventId    String?
+  googleCalendarId String?
+  meetCode         String?
+
+  /// Set when the teacher calls the whole class off, as distinct from every
+  /// student happening to cancel.
+  cancelledAt DateTime?
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([availabilitySlotId, startsAt])
+  @@index([teacherId, startsAt])
+  @@index([teacherLessonOfferingId])
+}
+
 model LessonProduct {
   id          String     @id @default(cuid())
   tier        LessonTier
@@ -718,6 +789,10 @@ model Booking {
   teacher         TeacherProfile @relation("TeacherBookings", fields: [teacherId], references: [id], onDelete: Cascade)
   lessonProductId String
   lessonProduct   LessonProduct  @relation(fields: [lessonProductId], references: [id])
+
+  /// The group class this booking is a seat in. Null for a private lesson.
+  groupLessonSessionId  String?
+  groupLessonSession    GroupLessonSession? @relation(fields: [groupLessonSessionId], references: [id], onDelete: SetNull)
 
   startsAt              DateTime
   endsAt                DateTime
@@ -755,6 +830,7 @@ model Booking {
   @@index([studentId, startsAt])
   @@index([teacherId, startsAt])
   @@index([status, holdExpiresAt])
+  @@index([groupLessonSessionId])
 }
 
 model Invoice {

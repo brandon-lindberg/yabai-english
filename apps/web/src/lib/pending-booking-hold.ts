@@ -32,6 +32,23 @@ export function isHoldExpired(
 }
 
 /**
+ * The same rule as an in-memory predicate, for callers holding rows they have
+ * already loaded — counting seats in a group class, most of all.
+ *
+ * Kept beside `slotHoldingBookingWhere` on purpose: these are one rule in two
+ * forms, and they have to move together. `assigned-availability.ts` pairs its
+ * query fragment and its predicate the same way and for the same reason.
+ */
+export function bookingHoldsSlot(
+  booking: { status: BookingStatus | string; holdExpiresAt?: Date | null },
+  now: Date = new Date(),
+): boolean {
+  if (booking.status === BookingStatus.CONFIRMED) return true;
+  if (booking.status !== BookingStatus.PENDING_PAYMENT) return false;
+  return !isHoldExpired(booking.holdExpiresAt, now);
+}
+
+/**
  * Matches the bookings that currently occupy their slot. Use this everywhere a
  * slot's availability is decided, so "still held" means one thing across the
  * booking page, the create path and every reschedule path.

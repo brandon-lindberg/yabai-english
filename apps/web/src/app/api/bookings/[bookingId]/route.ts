@@ -10,7 +10,7 @@ import { createUserNotification } from "@/lib/notifications";
 import { marketplaceBookingRescheduledNotification } from "@/lib/reschedule-notification-copy";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
-import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
 
 const patchBodySchema = z.object({
   startsAt: z.string().datetime(),
@@ -129,13 +129,12 @@ export async function PATCH(req: Request, { params }: Props) {
   }
 
   const conflict = await prisma.booking.findFirst({
-    where: {
-      id: { not: booking.id },
+    where: teacherBookingOverlapWhere({
       teacherId: booking.teacherId,
-      ...slotHoldingBookingWhere(),
-      startsAt: { lt: newEnd },
-      endsAt: { gt: newStart },
-    },
+      start: newStart,
+      end: newEnd,
+      excludeBookingId: booking.id,
+    }),
   });
   if (conflict) {
     return NextResponse.json(

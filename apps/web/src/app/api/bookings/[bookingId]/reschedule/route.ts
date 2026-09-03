@@ -8,7 +8,7 @@ import { evaluateBookingReschedulePolicy } from "@/lib/booking-reschedule";
 import { validateBookingAgainstTeacherAvailability } from "@/lib/booking-slot-validation";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 import { patchMeetLessonEvent } from "@/lib/google-calendar";
-import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
 import { visibleAvailabilitySlots } from "@/lib/assigned-availability";
 
 type Props = { params: Promise<{ bookingId: string }> };
@@ -141,13 +141,12 @@ export async function POST(req: Request, { params }: Props) {
   }
 
   const clash = await prisma.booking.findFirst({
-    where: {
-      id: { not: booking.id },
+    where: teacherBookingOverlapWhere({
       teacherId: booking.teacher.id,
-      ...slotHoldingBookingWhere(),
-      startsAt: { lt: endsAt },
-      endsAt: { gt: start },
-    },
+      start,
+      end: endsAt,
+      excludeBookingId: booking.id,
+    }),
     select: { id: true },
   });
   if (clash) {

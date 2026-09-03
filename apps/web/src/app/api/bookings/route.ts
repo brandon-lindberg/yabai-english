@@ -38,7 +38,8 @@ import {
   SUPPORTED_PAYMENT_METHODS,
   SUPPORTED_PAYMENT_PROVIDERS,
 } from "@/lib/payment-methods";
-import { newHoldExpiry, slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { newHoldExpiry } from "@/lib/pending-booking-hold";
+import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
 import { visibleAvailabilitySlots } from "@/lib/assigned-availability";
 
 const teacherAvailabilityInclude = {
@@ -301,12 +302,11 @@ export async function POST(req: Request) {
   const endsAt = new Date(start.getTime() + product.durationMin * 60_000);
 
   const conflict = await prisma.booking.findFirst({
-    where: {
+    where: teacherBookingOverlapWhere({
       teacherId: teacher.id,
-      ...slotHoldingBookingWhere(),
-      startsAt: { lt: endsAt },
-      endsAt: { gt: start },
-    },
+      start,
+      end: endsAt,
+    }),
   });
   if (conflict) {
     return NextResponse.json(
