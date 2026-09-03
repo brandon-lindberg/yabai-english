@@ -1,6 +1,7 @@
 import { BookingStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
+import { ensureGroupSessionMeetEvent } from "@/lib/group-lesson-calendar";
 import { buildInvoiceNumber } from "@/lib/invoices";
 import { createUserNotification } from "@/lib/notifications";
 import { ensureStudentTeacherThread } from "@/lib/chat-threads";
@@ -117,22 +118,42 @@ export async function confirmPaidBookingFromPayment(
   const attendeeEmails = [updated.student.email, updated.teacher.user.email].filter(
     Boolean,
   ) as string[];
-  const meet = await createMeetLessonEvent({
-    organizerUserId: updated.teacher.userId,
-    refreshTokenEncrypted: updated.teacher.googleCalendarRefreshToken,
-    calendarId: updated.teacher.calendarId,
-    summary: `Lesson — ${updated.lessonProduct.nameEn}`,
-    start: updated.startsAt,
-    end: updated.endsAt,
-    attendeeEmails,
-  });
+  const summary = `Lesson — ${updated.lessonProduct.nameEn}`;
+  // A group class meets once. Seats after the first join the event that exists
+  // instead of opening a second room for the same lesson.
+  const meet = updated.groupLessonSessionId
+    ? await ensureGroupSessionMeetEvent(prisma, {
+        sessionId: updated.groupLessonSessionId,
+        teacher: {
+          userId: updated.teacher.userId,
+          googleCalendarRefreshToken: updated.teacher.googleCalendarRefreshToken,
+          calendarId: updated.teacher.calendarId,
+        },
+        summary,
+        startsAt: updated.startsAt,
+        endsAt: updated.endsAt,
+        studentEmail: updated.student.email,
+        teacherEmail: updated.teacher.user.email,
+      })
+    : await createMeetLessonEvent({
+        organizerUserId: updated.teacher.userId,
+        refreshTokenEncrypted: updated.teacher.googleCalendarRefreshToken,
+        calendarId: updated.teacher.calendarId,
+        summary,
+        start: updated.startsAt,
+        end: updated.endsAt,
+        attendeeEmails,
+      });
 
   const finalBooking = await prisma.booking.update({
     where: { id: updated.id },
     data: {
       meetUrl: meet.meetUrl ?? updated.meetUrl,
       googleEventId: meet.googleEventId ?? updated.googleEventId,
-      googleCalendarId: updated.teacher.calendarId ?? "primary",
+      googleCalendarId:
+        ("googleCalendarId" in meet ? meet.googleCalendarId : null) ??
+        updated.teacher.calendarId ??
+        "primary",
       meetCode:
         meet.meetUrl?.split("/").pop() ??
         updated.meetUrl?.split("/").pop() ??
@@ -147,7 +168,7 @@ export async function confirmPaidBookingFromPayment(
 
   const studentMirrorEvent = await maybeCreateStudentMirrorLessonEvent({
     studentUserId: booking.studentId,
-    summary: `Lesson — ${updated.lessonProduct.nameEn}`,
+    summary,
     startsAt: updated.startsAt,
     endsAt: updated.endsAt,
     attendeeEmails,

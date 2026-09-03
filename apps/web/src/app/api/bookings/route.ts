@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
+import { ensureGroupSessionMeetEvent } from "@/lib/group-lesson-calendar";
 import { notifyBookingCalendarInviteFailure } from "@/lib/booking-calendar-failure";
 import { buildInvoiceNumber } from "@/lib/invoices";
 import { getBookingPaymentFlow } from "@/lib/payment-flow";
@@ -625,28 +626,49 @@ export async function POST(req: Request) {
     });
   }
 
-  const meet = await createMeetLessonEvent({
-    organizerUserId: teacher.userId,
-    refreshTokenEncrypted: teacher.googleCalendarRefreshToken,
-    calendarId: teacher.calendarId,
-    summary: `Lesson — ${product.nameEn}`,
-    start,
-    end: endsAt,
-    attendeeEmails,
-  });
+  // A group class meets once, so a seat joins the class's event rather than
+  // opening a second room for the same lesson.
+  const meet = confirmedBooking.groupLessonSessionId
+    ? await ensureGroupSessionMeetEvent(prisma, {
+        sessionId: confirmedBooking.groupLessonSessionId,
+        teacher: {
+          userId: teacher.userId,
+          googleCalendarRefreshToken: teacher.googleCalendarRefreshToken,
+          calendarId: teacher.calendarId,
+        },
+        summary: `Lesson — ${product.nameEn}`,
+        startsAt: start,
+        endsAt,
+        studentEmail: student.email,
+        teacherEmail: teacher.user.email,
+      })
+    : await createMeetLessonEvent({
+        organizerUserId: teacher.userId,
+        refreshTokenEncrypted: teacher.googleCalendarRefreshToken,
+        calendarId: teacher.calendarId,
+        summary: `Lesson — ${product.nameEn}`,
+        start,
+        end: endsAt,
+        attendeeEmails,
+      });
 
   if (meet.meetUrl || meet.googleEventId) {
-    const meetCode = meet.meetUrl ? meet.meetUrl.split("/").pop() ?? null : null;
+    const meetCode =
+      ("meetCode" in meet ? meet.meetCode : null) ??
+      (meet.meetUrl ? meet.meetUrl.split("/").pop() ?? null : null);
     await prisma.booking.update({
       where: { id: confirmedBooking.id },
       data: {
         meetUrl: meet.meetUrl,
         googleEventId: meet.googleEventId,
-        googleCalendarId: teacher.calendarId ?? "primary",
+        googleCalendarId:
+          ("googleCalendarId" in meet ? meet.googleCalendarId : null) ??
+          teacher.calendarId ??
+          "primary",
         meetCode,
       },
     });
-  } else if (meet.errorCode) {
+  } else if ("errorCode" in meet && meet.errorCode) {
     await notifyBookingCalendarInviteFailure({
       teacherUserId: teacher.userId,
       studentUserId: session.user.id,

@@ -313,3 +313,79 @@ describe("TeacherLessonOfferingsForm", () => {
     expect(rateInput().getAttribute("placeholder")).toBe("3000");
   });
 });
+
+describe("Google Meet group-call limit", () => {
+  function renderWithGroupOffering(durationMin: number, groupSize: number) {
+    return render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherLessonOfferingsForm
+          initialRateYen={3000}
+          initialOffersFreeTrial={false}
+          initialLessonOfferings={[
+            {
+              id: "offer-group",
+              durationMin,
+              rateYen: 3000,
+              isGroup: true,
+              groupSize,
+              classLevelId: "lvl-beginner",
+              classTypeId: "type-conversation",
+            },
+          ]}
+          classLevels={classLevels}
+          classTypes={classTypes}
+        />
+      </NextIntlClientProvider>,
+    );
+  }
+
+  // The teacher advertises 90 minutes and Google hangs up at 60. They cannot
+  // find that out from us after the fact — it has to be on the page.
+  test("warns that a 90 minute group class would be cut short", () => {
+    renderWithGroupOffering(90, 4);
+
+    expect(
+      screen.getByText(/ends group calls after 60 minutes/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/90-minute class would be cut short/i)).toBeInTheDocument();
+  });
+
+  test("flags a 60 minute group class as finishing on the buzzer", () => {
+    renderWithGroupOffering(60, 4);
+
+    expect(screen.getByText(/a late start loses time/i)).toBeInTheDocument();
+  });
+
+  test("says nothing about a 40 minute group class", () => {
+    renderWithGroupOffering(40, 4);
+
+    expect(screen.queryByText(/ends group calls after/i)).not.toBeInTheDocument();
+  });
+
+  test("says nothing about a long private lesson", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherLessonOfferingsForm
+          initialRateYen={3000}
+          initialOffersFreeTrial={false}
+          initialLessonOfferings={[
+            {
+              id: "offer-private",
+              durationMin: 90,
+              rateYen: 6000,
+              isGroup: false,
+              groupSize: null,
+              classLevelId: "lvl-beginner",
+              classTypeId: "type-conversation",
+            },
+          ]}
+          classLevels={classLevels}
+          classTypes={classTypes}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    // One-to-one calls run for 24 hours.
+    expect(screen.queryByText(/ends group calls after/i)).not.toBeInTheDocument();
+  });
+});

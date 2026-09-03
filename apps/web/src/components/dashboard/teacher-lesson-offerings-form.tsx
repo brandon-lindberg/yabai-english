@@ -20,6 +20,12 @@ import {
   RATE_CONTROL_HEIGHT,
 } from "./teacher-lesson-offer-row";
 import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
+import { InlineAlert } from "@/components/ui/inline-alert";
+import { MIN_GROUP_CAPACITY } from "@/lib/group-lesson-pricing";
+import {
+  groupMeetAdvisory,
+  type GroupMeetAdvisory,
+} from "@/lib/group-lesson-meet-limits";
 
 const INDIVIDUAL_DURATIONS = [30, 40, 60, 90] as const;
 
@@ -73,6 +79,30 @@ function pickLabel(opt: TaxonomyOption, locale: string): string {
   return locale.toLowerCase().startsWith("ja")
     ? (opt.labelJa ?? opt.labelEn)
     : opt.labelEn;
+}
+
+/**
+ * Google's group-call limit, in the teacher's language. The rule itself lives
+ * in `group-lesson-meet-limits`; this only chooses the sentence.
+ */
+function meetAdvisoryMessage(
+  advisory: GroupMeetAdvisory,
+  t: (key: string, values?: Record<string, string | number>) => string,
+): string {
+  switch (advisory.kind) {
+    case "DURATION_OVER_FREE_LIMIT":
+      return t("teacherGroupMeetLimitOver", {
+        limit: advisory.limitMin,
+        duration: advisory.durationMin,
+      });
+    case "DURATION_AT_FREE_LIMIT":
+      return t("teacherGroupMeetLimitAt", { limit: advisory.limitMin });
+    case "CAPACITY_OVER_MEET_LIMIT":
+      return t("teacherGroupMeetLimitCapacity", {
+        limit: advisory.limit,
+        participants: advisory.participants,
+      });
+  }
 }
 
 function makeRowId() {
@@ -210,7 +240,7 @@ export function TeacherLessonOfferingsForm({
       if (
         Number.isNaN(entered) ||
         entered <= 0 ||
-        group.groupSize < 2 ||
+        group.groupSize < MIN_GROUP_CAPACITY ||
         !group.classLevelId ||
         !group.classTypeId
       ) {
@@ -351,9 +381,14 @@ export function TeacherLessonOfferingsForm({
           <p className="text-xs text-muted">{t("teacherGroupRatesEmpty")}</p>
         ) : (
           <div className="space-y-2">
-            {groupOffers.map((group, index) => (
+            {groupOffers.map((group, index) => {
+              const meetLimit = groupMeetAdvisory({
+                durationMin: group.durationMin,
+                capacity: group.groupSize,
+              });
+              return (
+              <div key={group.clientId} className="space-y-2">
               <TeacherLessonOfferRow
-                key={group.clientId}
                 value={group}
                 onChange={(patch) =>
                   setGroupOffers((prev) =>
@@ -399,7 +434,14 @@ export function TeacherLessonOfferingsForm({
                   </label>
                 }
               />
-            ))}
+              {meetLimit ? (
+                <InlineAlert variant="warning" role="status">
+                  {meetAdvisoryMessage(meetLimit, t)}
+                </InlineAlert>
+              ) : null}
+              </div>
+              );
+            })}
           </div>
         )}
       </section>
