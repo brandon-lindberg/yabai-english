@@ -21,6 +21,10 @@ import {
   RATE_CONTROL_HEIGHT,
 } from "./teacher-lesson-offer-row";
 import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
+import {
+  TeacherLessonAddModal,
+  type AddedOffering,
+} from "@/components/dashboard/teacher-lesson-add-modal";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import {
   MIN_GROUP_CAPACITY,
@@ -214,6 +218,7 @@ export function TeacherLessonOfferingsForm({
   );
   const [offersFreeTrial, setOffersFreeTrial] = useState(initialOffersFreeTrial);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [addingKind, setAddingKind] = useState<"individual" | "group" | null>(null);
 
   /**
    * The complaint for a typed rate, or null when it is acceptable. Judges the
@@ -343,26 +348,72 @@ export function TeacherLessonOfferingsForm({
     setTimeout(() => setStatus("idle"), 2000);
   }
 
+  /**
+   * A class the dialog has already saved. It joins the list here because the
+   * page's Save replaces the teacher's whole set — a saved class missing from
+   * this list would be deleted by the next unrelated edit.
+   */
+  function absorbAddedOffering(offering: AddedOffering) {
+    const basis = ratePriceBasisFromStored(offering.ratePriceBasis);
+    const shared = {
+      clientId: offering.id,
+      durationMin: offering.durationMin,
+      classLevelId: offering.classLevelId ?? defaultClassLevelId,
+      classTypeId: offering.classTypeId ?? defaultClassTypeId,
+      ratePriceBasis: basis,
+    };
+    if (offering.isGroup) {
+      setGroupOffers((prev) => [
+        ...prev,
+        {
+          ...shared,
+          groupSize: offering.groupSize ?? MIN_GROUP_CAPACITY,
+          rateYenInput: String(
+            convertTeacherRateInputBetweenBases(
+              offering.groupTotalRateYen ??
+                offering.rateYen * (offering.groupSize ?? MIN_GROUP_CAPACITY),
+              "tax_included",
+              basis,
+            ),
+          ),
+        },
+      ]);
+      return;
+    }
+    setIndividualOffers((prev) => [
+      ...prev,
+      {
+        ...shared,
+        rateYenInput: String(
+          convertTeacherRateInputBetweenBases(offering.rateYen, "tax_included", basis),
+        ),
+      },
+    ]);
+  }
+
   return (
+    <>
+      {/* Mounted only while open, and outside the form: a closed dialog left in
+          the tree still contributes its fields to this form and to anything
+          looking for a control by its label. */}
+      {addingKind ? (
+        <TeacherLessonAddModal
+          open
+          kind={addingKind}
+          classLevels={classLevels}
+          classTypes={classTypes}
+          locale={locale}
+          onClose={() => setAddingKind(null)}
+          onAdded={absorbAddedOffering}
+        />
+      ) : null}
     <form onSubmit={onSubmit} className="space-y-6">
       <section className="space-y-3 border-t border-border pt-6">
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-base font-bold tracking-[-0.02em] text-foreground">{t("teacherRatesByDurationTitle")}</h3>
           <button
             type="button"
-            onClick={() =>
-              setIndividualOffers((prev) => [
-                ...prev,
-                {
-                  clientId: makeRowId(),
-                  durationMin: 30,
-                  classLevelId: defaultClassLevelId,
-                  classTypeId: defaultClassTypeId,
-                  ratePriceBasis: "tax_included",
-                  rateYenInput: "",
-                },
-              ])
-            }
+            onClick={() => setAddingKind("individual")}
             className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
             {t("teacherIndividualRatesAdd")}
@@ -424,20 +475,7 @@ export function TeacherLessonOfferingsForm({
           <h3 className="text-base font-bold tracking-[-0.02em] text-foreground">{t("teacherGroupRatesTitle")}</h3>
           <button
             type="button"
-            onClick={() =>
-              setGroupOffers((prev) => [
-                ...prev,
-                {
-                  clientId: makeRowId(),
-                  durationMin: 60,
-                  groupSize: 2,
-                  classLevelId: defaultClassLevelId,
-                  classTypeId: defaultClassTypeId,
-                  ratePriceBasis: "tax_included",
-                  rateYenInput: "",
-                },
-              ])
-            }
+            onClick={() => setAddingKind("group")}
             className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-[var(--app-hover)]"
           >
             {t("teacherGroupRatesAdd")}
@@ -555,5 +593,6 @@ export function TeacherLessonOfferingsForm({
         {status === "error" ? <span className="text-sm text-destructive">{t("error")}</span> : null}
       </div>
     </form>
+    </>
   );
 }

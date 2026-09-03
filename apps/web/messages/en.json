@@ -388,7 +388,15 @@
       "teacherRateBasisRowTaxIncluded": "Entering the price students pay",
       "teacherRateBasisRowTaxExclusive": "Entering your fee before tax",
       "teacherRateBasisRowSwitchToIncluded": "Switch to the price students pay",
-      "teacherRateBasisRowSwitchToExclusive": "Switch to your fee before tax"
+      "teacherRateBasisRowSwitchToExclusive": "Switch to your fee before tax",
+      "teacherAddClassIndividualTitle": "Add an individual class",
+      "teacherAddClassGroupTitle": "Add a group class",
+      "teacherAddClassSubtitle": "Saved as soon as you add it.",
+      "teacherAddClassConfirm": "Add class",
+      "teacherAddClassWorking": "Adding…",
+      "teacherAddClassCancel": "Cancel",
+      "teacherAddClassError": "Could not add this class.",
+      "teacherAddClassNoTaxonomy": "Add a class level and a class type first."
     },
     "schedulePage": {
       "title": "Schedule",

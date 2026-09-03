@@ -388,7 +388,15 @@
       "teacherRateBasisRowTaxIncluded": "受講生の支払額を入力中",
       "teacherRateBasisRowTaxExclusive": "税抜の受取額を入力中",
       "teacherRateBasisRowSwitchToIncluded": "受講生の支払額で入力する",
-      "teacherRateBasisRowSwitchToExclusive": "税抜の受取額で入力する"
+      "teacherRateBasisRowSwitchToExclusive": "税抜の受取額で入力する",
+      "teacherAddClassIndividualTitle": "個人レッスンを追加",
+      "teacherAddClassGroupTitle": "グループクラスを追加",
+      "teacherAddClassSubtitle": "追加すると同時に保存されます。",
+      "teacherAddClassConfirm": "クラスを追加",
+      "teacherAddClassWorking": "追加しています…",
+      "teacherAddClassCancel": "キャンセル",
+      "teacherAddClassError": "このクラスを追加できませんでした。",
+      "teacherAddClassNoTaxonomy": "先にクラスレベルとクラスタイプを追加してください。"
     },
     "schedulePage": {
       "title": "スケジュール",

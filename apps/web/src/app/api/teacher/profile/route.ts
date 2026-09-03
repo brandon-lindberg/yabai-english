@@ -6,7 +6,12 @@ import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { ensureCatalogProductsForOfferings } from "@/lib/lesson-product-catalog";
 import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
-import { perStudentRateYen } from "@/lib/group-lesson-pricing";
+import {
+  lessonOfferingCreateData,
+  lessonOfferingInputSchema,
+  lessonOfferingRateError,
+  normalizeLessonOfferingInput,
+} from "@/lib/teacher-lesson-offering-input";
 import { partitionOfferingsByTeacherEditable } from "@/lib/teacher-offering-permissions";
 import { TEACHER_BIO_MAX_CHARS, TEACHER_CREDENTIALS_MAX_CHARS } from "@/lib/markdown/limits";
 
@@ -24,29 +29,7 @@ const patchSchema = z.object({
   /** When true, teacher is hidden from /book and only rostered students may book via direct link. */
   marketplaceHidden: z.boolean().optional(),
   /** When true, the 10% refund processing fee is deducted from the student's refund instead of covered by the teacher. */
-  lessonOfferings: z
-    .array(
-      z.object({
-        durationMin: z.number().int().min(15).max(180),
-        rateYen: z.number().int().min(1).max(9_999_999),
-        /** The teacher's figure for the whole class. Group offerings only. */
-        groupTotalRateYen: z.number().int().min(1).max(9_999_999).nullable().optional(),
-        /**
-         * Which figure the teacher typed. Storage is always tax-included, so
-         * this only decides what the form shows back — but it is per class,
-         * because one form-wide setting rewrote every row whenever it changed.
-         */
-        ratePriceBasis: z.enum(["TAX_INCLUDED", "TAX_EXCLUSIVE"]).optional(),
-        isGroup: z.boolean(),
-        groupSize: z.number().int().min(2).max(30).nullable(),
-        /** FK to TeacherClassLevel.id; required so level/type/duration/price stay together. */
-        classLevelId: z.string().min(1),
-        /** FK to TeacherClassType.id; null/undefined = wildcard offering. */
-        classTypeId: z.string().min(1).nullable().optional(),
-      }),
-    )
-    .max(40)
-    .optional(),
+  lessonOfferings: z.array(lessonOfferingInputSchema).max(40).optional(),
 });
 
 export async function PATCH(req: Request) {
@@ -67,26 +50,15 @@ export async function PATCH(req: Request) {
   if (!fallbackRateCheck.ok) {
     return NextResponse.json({ error: fallbackRateCheck.error }, { status: 400 });
   }
-  // For a group class the stored price is the share of the teacher's total, and
-  // the server does that division itself. Taking the client's `rateYen` on
-  // trust would let a crafted request store a share that does not match the
-  // total sitting beside it — two numbers claiming to describe one price.
-  const lessonOfferings = data.lessonOfferings?.map((offering) => {
-    if (!offering.isGroup || !offering.groupSize || !offering.groupTotalRateYen) {
-      return { ...offering, groupTotalRateYen: null };
-    }
-    return {
-      ...offering,
-      rateYen: perStudentRateYen(offering.groupTotalRateYen, offering.groupSize),
-    };
-  });
-
-  const invalidOfferingRate = lessonOfferings?.find(
-    (offering) => !validatePublicLessonRateYen(offering.rateYen).ok,
+  // Same rules as the add-a-class modal, from the same module: a class one
+  // path accepts and the other refuses would be a bug nobody could explain.
+  const lessonOfferings = data.lessonOfferings?.map(normalizeLessonOfferingInput);
+  const invalidOffering = lessonOfferings?.find(
+    (offering) => lessonOfferingRateError(offering) !== null,
   );
-  if (invalidOfferingRate) {
+  if (invalidOffering) {
     return NextResponse.json(
-      { error: "Public lesson rates must be at least ¥3,000." },
+      { error: lessonOfferingRateError(invalidOffering) },
       { status: 400 },
     );
   }
@@ -194,18 +166,7 @@ export async function PATCH(req: Request) {
       });
       if (lessonOfferings.length > 0) {
         await tx.teacherLessonOffering.createMany({
-          data: lessonOfferings.map((o) => ({
-            teacherId: updated.id,
-            durationMin: o.durationMin,
-            rateYen: o.rateYen,
-            groupTotalRateYen: o.isGroup ? o.groupTotalRateYen ?? null : null,
-            ratePriceBasis: o.ratePriceBasis ?? "TAX_INCLUDED",
-            isGroup: o.isGroup,
-            groupSize: o.isGroup ? o.groupSize : null,
-            active: true,
-            classLevelId: o.classLevelId,
-            classTypeId: o.classTypeId ?? null,
-          })),
+          data: lessonOfferings.map((o) => lessonOfferingCreateData(o, updated.id)),
         });
       }
       // Make sure a matching LessonProduct exists for every offering so the
