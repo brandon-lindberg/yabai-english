@@ -241,7 +241,9 @@ export function SlotSelectionCalendar({
                       aria-pressed={selected}
                     >
                       <span className="font-semibold">{slotTime(slot.startsAtIso)}</span>
-                      <span className="truncate pl-3 text-xs text-muted">{slot.label}</span>
+                      <span className="truncate pl-3 text-xs text-muted">
+                        {slot.badge ? `${slot.badge} · ${slot.label}` : slot.label}
+                      </span>
                     </button>
                   );
                 })}
@@ -314,6 +316,11 @@ export function SlotSelectionCalendar({
                         <span className="whitespace-nowrap font-semibold">
                           {slotTime(slot.startsAtIso)}
                         </span>
+                        {slot.badge ? (
+                          <span className="block whitespace-nowrap text-[0.65rem] font-normal opacity-80">
+                            {slot.badge}
+                          </span>
+                        ) : null}
                       </button>
                     );
                   })}

@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { GroupClassFullError, reserveGroupSeat } from "@/lib/group-lesson-session";
+import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 
 /**
  * Capacity is enforced by the database, not by application logic, so this is
@@ -166,6 +167,25 @@ describe.skipIf(!hasDatabase)("booking concurrency", () => {
       where: { groupLessonSessionId: sessions[0]!.id },
     });
     expect(seats).toBe(CAPACITY);
+  });
+
+  // The booking page reads seat counts with a filtered relation count. It
+  // typechecks whether or not Postgres will run it, so it is executed here
+  // against a real database rather than assumed.
+  test("counts seats the way the booking page does", async () => {
+    const sessions = await prisma.groupLessonSession.findMany({
+      where: { teacherId: teacherProfileId, startsAt: STARTS_AT, cancelledAt: null },
+      select: {
+        availabilitySlotId: true,
+        startsAt: true,
+        capacity: true,
+        _count: { select: { bookings: { where: slotHoldingBookingWhere() } } },
+      },
+    });
+
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0]!._count.bookings).toBe(CAPACITY);
+    expect(sessions[0]!.availabilitySlotId).toBe(slotId);
   });
 
   test("refuses a second live seat to a student who already has one", async () => {

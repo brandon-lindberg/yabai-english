@@ -1047,6 +1047,8 @@
     "selectedSlot": "選択中",
     "noSlotSelected": "時間がまだ選択されていません",
     "reserved": "予約済み",
+    "seatsLeft": "残り{count}席",
+    "classFull": "満席",
     "pendingReservationTitle": "未完了の予約があります",
     "pendingReservationBody": "{when} のレッスンを {expires} まで確保しています。お支払いを完了して確定するか、キャンセルして時間を解放してください。",
     "pendingReservationPay": "支払いを完了する",

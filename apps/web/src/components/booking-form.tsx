@@ -19,7 +19,7 @@ import {
   filterSlotsForSelection,
   slotMatchesProduct,
 } from "@/lib/booking-lesson-type-filter";
-import { timeRangesOverlap } from "@/lib/teacher-availability-display";
+import { occurrenceBookability } from "@/lib/occurrence-bookability";
 import type { EnabledTeacherPaymentMethod } from "@/lib/payment-methods";
 
 type LessonProductOption = {
@@ -50,6 +50,12 @@ type Props = {
     label: string;
     groupKey?: string;
     classTypeId?: string | null;
+    /**
+     * Capacity for a group class, and how much of it is spoken for. Aggregate
+     * counts only — who is in the class is never sent to another student.
+     * Null or absent for a private lesson.
+     */
+    seats?: { capacity: number; taken: number } | null;
   }>;
   bookedSlots?: Array<{
     startsAtIso: string;
@@ -157,18 +163,50 @@ export function BookingForm({
 
   const filteredPresetSlots = useMemo(() => {
     if (!presetSlots) return presetSlots;
-    const availability = filterSlotsForSelection(presetSlots, selectedOption).filter(
-      (s) =>
-        !(bookedSlots ?? []).some((booking) => {
-          if (booking.startsAtIso === s.startsAtIso) return true;
-          if (!s.endsAtIso) return false;
-          return timeRangesOverlap(
-            { startsAtIso: s.startsAtIso, endsAtIso: s.endsAtIso },
-            booking,
-          );
-        }),
-    );
-    const reservedMarkers = (bookedSlots ?? []).map((b) => ({
+    const blocking = bookedSlots ?? [];
+    const availability = [];
+
+    for (const s of filterSlotsForSelection(presetSlots, selectedOption)) {
+      // A slot with no end is treated as an instant, so only an exact match
+      // counts against it — the behaviour before seats existed.
+      const exactClash =
+        !s.endsAtIso && blocking.some((b) => b.startsAtIso === s.startsAtIso);
+      const bookability = exactClash
+        ? ({ state: "taken", seats: null } as const)
+        : occurrenceBookability({
+            occurrence: {
+              startsAtIso: s.startsAtIso,
+              endsAtIso: s.endsAtIso ?? s.startsAtIso,
+            },
+            seats: s.seats ?? null,
+            blocking,
+          });
+
+      // A private lesson already has a reserved marker built below; adding the
+      // slot again would list the same time twice.
+      if (bookability.state === "taken") continue;
+
+      if (bookability.state === "full") {
+        availability.push({
+          ...s,
+          label: `${s.label} · ${t("classFull")}`,
+          badge: t("classFull"),
+          kind: "booked" as const,
+        });
+        continue;
+      }
+
+      availability.push(
+        bookability.seats
+          ? {
+              ...s,
+              badge: t("seatsLeft", { count: bookability.seats.remaining }),
+            }
+          : s,
+      );
+    }
+
+    const reservedMarkers = blocking.map((b) => ({
       startsAtIso: b.startsAtIso,
       endsAtIso: b.endsAtIso,
       label: b.mine ? t("yourReservation") : t("reserved"),

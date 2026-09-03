@@ -126,7 +126,9 @@ export default async function TeacherProfileBookingPage({
           classTypeId: true,
           classLevel: { select: { labelEn: true, labelJa: true } },
           classType: { select: { labelEn: true, labelJa: true } },
-          teacherLessonOffering: { select: { isFreeTrial: true } },
+          teacherLessonOffering: {
+            select: { isFreeTrial: true, isGroup: true, groupSize: true },
+          },
         },
       },
       availabilityOccurrenceSkips: {
@@ -170,6 +172,10 @@ export default async function TeacherProfileBookingPage({
       teacherId: teacher.id,
       ...slotHoldingBookingWhere(),
       startsAt: { gte: new Date() },
+      // Seats in a group class are counted as seats below, never as bookings
+      // that block the class — otherwise a class would disappear from the page
+      // the moment its first student joined.
+      groupLessonSessionId: null,
     },
     select: {
       startsAt: true,
@@ -177,6 +183,36 @@ export default async function TeacherProfileBookingPage({
     },
     orderBy: { startsAt: "asc" },
   });
+
+  // How full each already-opened class is. Aggregate counts only: no student
+  // learns who their classmates are, only that three seats are gone.
+  const groupSessions = await prisma.groupLessonSession.findMany({
+    where: {
+      teacherId: teacher.id,
+      startsAt: { gte: new Date() },
+      cancelledAt: null,
+    },
+    select: {
+      availabilitySlotId: true,
+      startsAt: true,
+      capacity: true,
+      _count: { select: { bookings: { where: slotHoldingBookingWhere() } } },
+    },
+  });
+  const occurrenceKey = (slotId: string, startsAtIso: string) => `${slotId}|${startsAtIso}`;
+  const seatsByOccurrence = new Map(
+    groupSessions
+      .filter((session) => session.availabilitySlotId)
+      .map((session) => [
+        occurrenceKey(session.availabilitySlotId!, session.startsAt.toISOString()),
+        { capacity: session.capacity, taken: session._count.bookings },
+      ]),
+  );
+  const groupSizeBySlotId = new Map(
+    teacher.availabilitySlots
+      .filter((slot) => slot.teacherLessonOffering?.isGroup && slot.teacherLessonOffering.groupSize)
+      .map((slot) => [slot.id, slot.teacherLessonOffering!.groupSize!]),
+  );
 
   // The viewer's own unpaid holds, so the page can offer a way out of a
   // checkout they backed out of. Kept separate from `reservedBookings`, which
@@ -359,13 +395,24 @@ export default async function TeacherProfileBookingPage({
             teacherProfileId={teacher.id}
             currentUserRole={session.user.role}
             viewerTimezone={viewerTimezone}
-            presetSlots={slotOptions.map((slot) => ({
-              startsAtIso: slot.startsAtIso,
-              endsAtIso: slot.endsAtIso,
-              label: slot.label,
-              groupKey: slot.slotId,
-              classTypeId: slot.classTypeId,
-            }))}
+            presetSlots={slotOptions.map((slot) => {
+              const capacity = groupSizeBySlotId.get(slot.slotId);
+              return {
+                startsAtIso: slot.startsAtIso,
+                endsAtIso: slot.endsAtIso,
+                label: slot.label,
+                groupKey: slot.slotId,
+                classTypeId: slot.classTypeId,
+                // A class nobody has booked yet has no session row, so it is
+                // simply empty rather than missing.
+                seats: capacity
+                  ? seatsByOccurrence.get(occurrenceKey(slot.slotId, slot.startsAtIso)) ?? {
+                      capacity,
+                      taken: 0,
+                    }
+                  : null,
+              };
+            })}
             bookedSlots={reservedBookings.map((b) => ({
               startsAtIso: b.startsAt.toISOString(),
               endsAtIso: b.endsAt.toISOString(),

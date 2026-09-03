@@ -1047,6 +1047,8 @@
     "selectedSlot": "Selected",
     "noSlotSelected": "No time selected yet",
     "reserved": "Reserved",
+    "seatsLeft": "{count, plural, =1 {1 seat left} other {# seats left}}",
+    "classFull": "Class full",
     "pendingReservationTitle": "You have an unfinished reservation",
     "pendingReservationBody": "Your lesson on {when} is being held until {expires}. Complete the payment to confirm it, or cancel to release the time.",
     "pendingReservationPay": "Complete payment",
