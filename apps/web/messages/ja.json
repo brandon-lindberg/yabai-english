@@ -766,6 +766,8 @@
     },
     "refundedLessons": "返金されたレッスン",
     "refundedAmount": "返金額 {amount}",
+    "refundPendingAmount": "{amount} を返金処理中です",
+    "refundFailedAmount": "{amount} の返金を完了できませんでした",
     "downloadCreditNoteEn": "返金分の請求書をダウンロード（英語）",
     "downloadCreditNoteJa": "返金分の請求書をダウンロード（日本語）",
     "noRefundedLessons": "返金されたレッスンはありません。"

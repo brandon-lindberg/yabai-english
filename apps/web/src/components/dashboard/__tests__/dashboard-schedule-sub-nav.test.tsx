@@ -28,10 +28,13 @@ vi.mock("@/i18n/navigation", () => ({
   usePathname: () => usePathnameMock(),
 }));
 
-function renderSubNav({ isTeacher = true }: { isTeacher?: boolean } = {}) {
+function renderSubNav({
+  isTeacher = true,
+  hasRefunds = true,
+}: { isTeacher?: boolean; hasRefunds?: boolean } = {}) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
-      <DashboardScheduleSubNav isTeacher={isTeacher} />
+      <DashboardScheduleSubNav isTeacher={isTeacher} hasRefunds={hasRefunds} />
     </NextIntlClientProvider>,
   );
 }
@@ -85,5 +88,37 @@ describe("DashboardScheduleSubNav", () => {
     expect(
       screen.getByRole("link", { name: en.dashboard.schedulePage.subNavUpcoming }),
     ).not.toHaveAttribute("aria-current");
+  });
+
+  test("no refunds, no tab", () => {
+    /*
+      A refund is an exception, and most accounts never have one. A permanent
+      tab leading to "No refunded lessons." is a promise of content that is not
+      coming — and it sat between the two tabs people actually use.
+    */
+    renderSubNav({ hasRefunds: false });
+
+    expect(
+      screen.queryByRole("link", { name: en.dashboard.schedulePage.subNavRefunded }),
+    ).toBeNull();
+  });
+
+  test("the tab appears once there is something in it", () => {
+    renderSubNav({ hasRefunds: true });
+
+    expect(
+      screen.getByRole("link", { name: en.dashboard.schedulePage.subNavRefunded }),
+    ).toBeInTheDocument();
+  });
+
+  test("hiding it leaves the other tabs alone", () => {
+    renderSubNav({ hasRefunds: false });
+
+    expect(
+      screen.getByRole("link", { name: en.dashboard.schedulePage.subNavUpcoming }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: en.dashboard.schedulePage.subNavCompleted }),
+    ).toBeInTheDocument();
   });
 });

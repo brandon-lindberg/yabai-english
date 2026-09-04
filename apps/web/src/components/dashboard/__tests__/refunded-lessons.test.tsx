@@ -40,7 +40,15 @@ const booking = {
   status: "CANCELLED" as const,
   lessonProduct: { nameJa: "\u82f1\u4f1a\u8a71", nameEn: "Conversation (Eikawa)" },
   invoice: null,
-  refunds: [{ id: "r-1", creditNoteNo: null, amountYen: 3500, createdAt: new Date("2026-07-09T00:00:00.000Z") }],
+  refunds: [
+    {
+      id: "r-1",
+      status: "SUCCEEDED" as const,
+      creditNoteNo: null,
+      amountYen: 3500,
+      createdAt: new Date("2026-07-09T00:00:00.000Z"),
+    },
+  ],
 };
 
 async function renderList(overrides: Record<string, unknown> = {}) {
@@ -86,5 +94,37 @@ describe("RefundedLessons", () => {
     await renderList();
 
     expect(screen.getByText(new RegExp(en.dashboard.refundedAmount.split("{")[0].trim()))).toBeInTheDocument();
+  });
+
+  test("shows a refund that is still moving, and says so", async () => {
+    /*
+      Both parties want to watch a refund while it is in flight — the money has
+      been promised and has not arrived. Listing only settled refunds hid the
+      lesson during exactly that stretch.
+    */
+    await renderList({
+      refunds: [{ id: "r-1", status: "PENDING", creditNoteNo: null, amountYen: 3500, createdAt: new Date() }],
+    });
+
+    expect(screen.getByText(/in progress/)).toBeInTheDocument();
+  });
+
+  test("offers no documents until the money has actually gone back", async () => {
+    // An invoice reversed by a credit note that does not exist yet would be a
+    // record of something that has not happened.
+    await renderList({
+      refunds: [{ id: "r-1", status: "PENDING", creditNoteNo: null, amountYen: 3500, createdAt: new Date() }],
+    });
+
+    expect(screen.queryByText(en.dashboard.downloadCreditNoteEn)).toBeNull();
+    expect(screen.queryByText(en.dashboard.downloadInvoiceEn)).toBeNull();
+  });
+
+  test("says when a refund could not be completed", async () => {
+    await renderList({
+      refunds: [{ id: "r-1", status: "FAILED", creditNoteNo: null, amountYen: 3500, createdAt: new Date() }],
+    });
+
+    expect(screen.getByText(/could not be completed/)).toBeInTheDocument();
   });
 });

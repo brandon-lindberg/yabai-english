@@ -15,7 +15,18 @@ function scheduleSection(pathname: string): Section {
   return "upcoming";
 }
 
-export function DashboardScheduleSubNav({ isTeacher }: { isTeacher: boolean }) {
+export function DashboardScheduleSubNav({
+  isTeacher,
+  hasRefunds,
+}: {
+  isTeacher: boolean;
+  /**
+   * A refund is an exception, and most accounts never have one. A permanent
+   * tab leading to "No refunded lessons." promises content that is not coming,
+   * and it sat between the two tabs people actually use.
+   */
+  hasRefunds: boolean;
+}) {
   const pathname = usePathname();
   const section = scheduleSection(pathname);
   const t = useTranslations("dashboard.schedulePage");
@@ -50,16 +61,19 @@ export function DashboardScheduleSubNav({ isTeacher }: { isTeacher: boolean }) {
       />
       {/*
         Both parties, not just the teacher: a refund issues a credit note to
-        each of them, and this is the only place either can reach it.
+        each of them, and this is the only place either can reach it. Shown
+        only once one exists.
       */}
-      <SubNavLink
-        active={section === "refunded"}
-        render={(p) => (
-          <Link href="/dashboard/schedule/refunded" {...p}>
-            {t("subNavRefunded")}
-          </Link>
-        )}
-      />
+      {hasRefunds ? (
+        <SubNavLink
+          active={section === "refunded"}
+          render={(p) => (
+            <Link href="/dashboard/schedule/refunded" {...p}>
+              {t("subNavRefunded")}
+            </Link>
+          )}
+        />
+      ) : null}
     </SubNav>
   );
 }

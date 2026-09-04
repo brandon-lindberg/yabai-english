@@ -60,3 +60,44 @@ describe("groupBookingsForDashboard", () => {
     ).toEqual(["newer", "older"]);
   });
 });
+
+describe("a refund that has not settled yet", () => {
+  /*
+    Both parties should be able to watch a refund while it is moving. Listing
+    only settled ones meant the lesson vanished from Upcoming the moment it was
+    cancelled and appeared under Refunded only once the money had landed —
+    invisible during exactly the stretch when somebody wants to check.
+  */
+  const base = {
+    startsAt: new Date("2026-07-18T02:00:00.000Z"),
+    endsAt: new Date("2026-07-18T02:30:00.000Z"),
+    status: "CANCELLED" as const,
+  };
+  const NOW = new Date("2026-08-01T00:00:00.000Z");
+
+  test("is listed while it is still moving", () => {
+    const { refunded } = groupBookingsForDashboard(
+      [{ ...base, refunds: [{ status: "PENDING" }] }],
+      NOW,
+    );
+
+    expect(refunded).toHaveLength(1);
+  });
+
+  test("is still listed once it settles", () => {
+    const { refunded } = groupBookingsForDashboard(
+      [{ ...base, refunds: [{ status: "SUCCEEDED" }] }],
+      NOW,
+    );
+
+    expect(refunded).toHaveLength(1);
+  });
+
+  test("a cancellation with no refund at all is not a refund", () => {
+    // Cancelling a free trial, or a lesson never paid for.
+    const { refunded } = groupBookingsForDashboard([{ ...base, refunds: [] }], NOW);
+
+    expect(refunded).toHaveLength(0);
+  });
+});
+

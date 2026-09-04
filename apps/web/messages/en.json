@@ -766,6 +766,8 @@
     },
     "refundedLessons": "Refunded lessons",
     "refundedAmount": "Refunded {amount}",
+    "refundPendingAmount": "Refund of {amount} in progress",
+    "refundFailedAmount": "Refund of {amount} could not be completed",
     "downloadCreditNoteEn": "Download refunded invoice (English)",
     "downloadCreditNoteJa": "Download refunded invoice (Japanese)",
     "noRefundedLessons": "No refunded lessons."

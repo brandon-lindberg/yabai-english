@@ -22,12 +22,21 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
           _count: { select: { bookings: { where: slotHoldingBookingWhere() } } },
         },
       },
-      // Only settled refunds: one that failed or is still moving has no
-      // document to offer the student yet.
+      /*
+        Every refund, not only settled ones: a refund in flight is exactly when
+        both parties want to look, and filtering here hid the lesson until the
+        money landed. The row says which state it is in and withholds the
+        documents until there is something to document.
+      */
       refunds: {
-        where: { status: "SUCCEEDED" },
         orderBy: { createdAt: "desc" },
-        select: { id: true, creditNoteNo: true, amountYen: true, createdAt: true },
+        select: {
+          id: true,
+          status: true,
+          creditNoteNo: true,
+          amountYen: true,
+          createdAt: true,
+        },
       },
     },
   });

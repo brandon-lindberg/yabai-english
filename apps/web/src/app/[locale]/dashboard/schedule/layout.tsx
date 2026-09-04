@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { DashboardScheduleSubNav } from "@/components/dashboard/dashboard-schedule-sub-nav";
+import { hasRefundedLessons } from "@/lib/dashboard/has-refunded-lessons";
 import { TeacherProfileForm } from "@/components/dashboard/teacher-profile-form";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -36,6 +37,11 @@ export default async function DashboardScheduleLayout({ children }: { children: 
         })
       : null;
   const hasTeacherProfile = Boolean(teacherProfile);
+  // The Refunded tab only exists for someone who has one.
+  const hasRefunds = await hasRefundedLessons(prisma, {
+    studentUserId: teacherProfile ? null : session?.user?.id,
+    teacherProfileId: teacherProfile?.id ?? null,
+  });
   const isTeacher =
     Boolean(session?.user?.role && shouldLoadTeacherBookingsOnSchedule(session.user.role)) &&
     hasTeacherProfile;
@@ -67,7 +73,7 @@ export default async function DashboardScheduleLayout({ children }: { children: 
         }
       />
 
-      <DashboardScheduleSubNav isTeacher={isTeacher} />
+      <DashboardScheduleSubNav isTeacher={isTeacher} hasRefunds={hasRefunds} />
 
       {children}
     </div>

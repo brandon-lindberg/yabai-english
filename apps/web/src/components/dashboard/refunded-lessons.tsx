@@ -20,7 +20,12 @@ export type RefundedLessonRow = {
   status: BookingStatus;
   lessonProduct: { nameJa: string; nameEn: string };
   invoice: { id: string } | null;
-  refunds: { id: string; creditNoteNo: string | null; amountYen: number }[];
+  refunds: {
+    id: string;
+    status: string;
+    creditNoteNo: string | null;
+    amountYen: number;
+  }[];
 };
 
 /**
@@ -48,6 +53,18 @@ export async function RefundedLessons<T extends RefundedLessonRow>({
     <>
       {refunded.map((booking) => {
         const refund = booking.refunds[0];
+        /*
+          A refund is listed as soon as it exists, so both parties can watch it
+          move. The documents wait for the money: an invoice reversed by a
+          credit note that has not been issued would record something that has
+          not happened.
+        */
+        const settled = refund?.status === "SUCCEEDED";
+        const amountLabelKey = settled
+          ? "refundedAmount"
+          : refund?.status === "FAILED"
+            ? "refundFailedAmount"
+            : "refundPendingAmount";
         return (
           <LessonRow
             key={booking.id}
@@ -69,7 +86,7 @@ export async function RefundedLessons<T extends RefundedLessonRow>({
             */
             meta={
               refund
-                ? t("refundedAmount", { amount: formatYen(refund.amountYen, locale) })
+                ? t(amountLabelKey, { amount: formatYen(refund.amountYen, locale) })
                 : undefined
             }
             status={{
@@ -91,17 +108,19 @@ export async function RefundedLessons<T extends RefundedLessonRow>({
                   what is owed on the way to serving it, and 404 where nothing
                   is owed.
                 */}
-                <InvoiceDownloadLinks
-                  bookingId={booking.id}
-                  englishLabel={t("downloadInvoiceEn")}
-                  japaneseLabel={t("downloadInvoiceJa")}
-                />
-                {refund ? (
-                  <CreditNoteDownloadLinks
-                    refundId={refund.id}
-                    englishLabel={t("downloadCreditNoteEn")}
-                    japaneseLabel={t("downloadCreditNoteJa")}
-                  />
+                {settled ? (
+                  <>
+                    <InvoiceDownloadLinks
+                      bookingId={booking.id}
+                      englishLabel={t("downloadInvoiceEn")}
+                      japaneseLabel={t("downloadInvoiceJa")}
+                    />
+                    <CreditNoteDownloadLinks
+                      refundId={refund!.id}
+                      englishLabel={t("downloadCreditNoteEn")}
+                      japaneseLabel={t("downloadCreditNoteJa")}
+                    />
+                  </>
                 ) : null}
               </>
             }
