@@ -23,6 +23,7 @@ import {
   dayKeyFromIso,
   dayKeyToIsoAtNoon,
   formatDayKeyLabel,
+  weekRangeLabel,
 } from "@/lib/slot-calendar";
 
 /**
@@ -196,17 +197,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
           new Date(anchorIso),
         )
       : view === "week"
-        ? `${formatDayKeyLabel(
-            weekDays[0].dayKey,
-            locale,
-            { month: "short", day: "numeric" },
-            timeZone,
-          )} - ${formatDayKeyLabel(
-            weekDays[6].dayKey,
-            locale,
-            { month: "short", day: "numeric", year: "numeric" },
-            timeZone,
-          )}`
+        ? weekRangeLabel([weekDays[0].dayKey, weekDays[6].dayKey], locale, timeZone)
         : formatDayKeyLabel(
             anchorKey,
             locale,

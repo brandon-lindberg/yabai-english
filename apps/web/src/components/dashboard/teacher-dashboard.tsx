@@ -9,6 +9,7 @@ import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { TEACHER_HOME_SCHEDULE_HREFS, withDashboardOnboarding } from "@/lib/teacher-dashboard-home-links";
 import { DashboardSpine } from "@/components/dashboard/dashboard-spine";
 import { DashboardProfileSummary } from "@/components/dashboard/dashboard-profile-summary";
+import { TeacherProfileForm } from "@/components/dashboard/teacher-profile-form";
 import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { inlineLinkClass } from "@/components/ui/inline-link";
@@ -50,6 +51,13 @@ export async function TeacherDashboard({
         id: true,
         displayName: true,
         bio: true,
+        // The rest are for the edit dialog in the profile card, which edits
+        // more of the profile than the card displays.
+        countryOfOrigin: true,
+        credentials: true,
+        instructionLanguages: true,
+        specialties: true,
+        marketplaceHidden: true,
         googleCalendarRefreshToken: true,
         user: { select: { name: true, email: true, image: true } },
         /*
@@ -198,6 +206,21 @@ export async function TeacherDashboard({
           shortBio={teacherProfile?.bio ?? null}
           rpg={null}
           emptyBioLabel={th("teacherProfileCardEmpty")}
+          editSlot={
+            <TeacherProfileForm
+              presentation="trigger"
+              showGooglePrefillHint={false}
+              avatarUrl={teacherProfile?.user.image ?? accountUser?.image ?? null}
+              initialTeacherProfileId={teacherProfile?.id ?? null}
+              initialDisplayName={teacherProfile?.displayName ?? null}
+              initialBio={teacherProfile?.bio ?? null}
+              initialCountryOfOrigin={teacherProfile?.countryOfOrigin ?? null}
+              initialCredentials={teacherProfile?.credentials ?? null}
+              initialInstructionLanguages={teacherProfile?.instructionLanguages ?? ["EN"]}
+              initialSpecialties={teacherProfile?.specialties ?? []}
+              initialMarketplaceHidden={teacherProfile?.marketplaceHidden ?? false}
+            />
+          }
         />
       }
     >

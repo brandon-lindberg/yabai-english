@@ -13,6 +13,7 @@ import {
 } from "@/lib/student-onboarding-next-links";
 import { DashboardSpine } from "@/components/dashboard/dashboard-spine";
 import { DashboardProfileSummary } from "@/components/dashboard/dashboard-profile-summary";
+import { DashboardProfileForm } from "@/components/dashboard/dashboard-profile-form";
 import { DashboardFlashcardStats } from "@/components/dashboard/dashboard-flashcard-stats";
 import { DashboardStudyHighlight } from "@/components/dashboard/dashboard-study-highlight";
 import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-review";
@@ -172,6 +173,15 @@ export async function StudentDashboard({
           image={user?.image ?? null}
           shortBio={user?.studentProfile?.shortBio ?? null}
           rpg={overview?.rpg ?? null}
+          editSlot={
+            <DashboardProfileForm
+              presentation="trigger"
+              showGooglePrefillHint={false}
+              initialName={user?.name ?? null}
+              initialShortBio={user?.studentProfile?.shortBio ?? null}
+              avatarUrl={user?.image ?? null}
+            />
+          }
         />
       }
     >

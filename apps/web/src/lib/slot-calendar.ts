@@ -254,3 +254,31 @@ export function buildMonthCells(anchorIso: string, locale: string, timeZone?: st
     };
   });
 }
+
+/**
+ * "Aug 31 – Sep 6, 2026" — which week a seven-column grid is showing.
+ *
+ * Day numbers and weekday names alone are ambiguous the moment a week crosses a
+ * month: "Mon 31 · Tue 1" could be any pair of months in any year, and reads as
+ * a generic timetable rather than a particular week. The year sits on the end
+ * only, so it is stated without being said twice.
+ */
+export function weekRangeLabel(
+  [firstDayKey, lastDayKey]: readonly [string, string] | readonly string[],
+  locale: string,
+  timeZone?: string,
+): string {
+  const first = formatDayKeyLabel(
+    firstDayKey,
+    locale,
+    { month: "short", day: "numeric" },
+    timeZone,
+  );
+  const last = formatDayKeyLabel(
+    lastDayKey,
+    locale,
+    { month: "short", day: "numeric", year: "numeric" },
+    timeZone,
+  );
+  return `${first} – ${last}`;
+}
