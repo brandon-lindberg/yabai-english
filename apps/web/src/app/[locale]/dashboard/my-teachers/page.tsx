@@ -6,6 +6,7 @@ import { getLocale } from "next-intl/server";
 import { getStudentRosterTeachers } from "@/lib/student-roster-teachers";
 import { reconcileTeacherRosterFromBookings } from "@/lib/reconcile-teacher-roster-from-bookings";
 import { PageHeader } from "@/components/ui/page-header";
+import { MyTeachersEmpty } from "@/components/dashboard/my-teachers-empty";
 
 export default async function DashboardMyTeachersPage() {
   const session = await auth();
@@ -24,7 +25,7 @@ export default async function DashboardMyTeachersPage() {
     <div className="space-y-6">
       <PageHeader title={t("title")} description={t("intro")} />
       {teachers.length === 0 ? (
-        <p className="text-sm text-muted">{t("empty")}</p>
+        <MyTeachersEmpty />
       ) : (
         <ul className="list-none border-t border-border p-0">
           {teachers.map((row) => (

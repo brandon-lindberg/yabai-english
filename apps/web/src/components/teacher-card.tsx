@@ -39,6 +39,8 @@ export async function TeacherCard({
 
   return (
     <DataRow
+      dataId={teacher.id}
+      interactive
       actions={
         <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
           <p className="text-right">
@@ -72,7 +74,14 @@ export async function TeacherCard({
           ) : null}
           {teacher.offersBookableFreeTrial ? (
             <p className="mt-2">
-              <Status tone="open">{t("freeTrialAvailable")}</Status>
+              {/*
+              A fact, not a lifecycle state, so it takes the settled mark. The
+              `open` tone means "exists but holds nothing yet" — a dashed square
+              beside these words read as an unticked checkbox, and the muted
+              label as switched off. The badge only renders when a trial *is*
+              offered, so the mark never had a second value to carry anyway.
+            */}
+              <Status tone="settled">{t("freeTrialAvailable")}</Status>
             </p>
           ) : null}
         </div>

@@ -2,7 +2,7 @@
 
 import { render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
 
 vi.mock("@/i18n/navigation", () => ({
@@ -65,6 +65,18 @@ function renderForm(overrides: Record<string, unknown> = {}) {
 function renderEditing(overrides: Record<string, unknown> = {}) {
   return renderForm({ postSaveRedirect: "/onboarding/next", ...overrides });
 }
+
+// jsdom does not implement showModal, and it has to actually set `open` or the
+// dialog's contents stay out of the accessibility tree. The profile form is
+// rendered inside one now.
+beforeEach(() => {
+  HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+    this.open = true;
+  });
+  HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+    this.open = false;
+  });
+});
 
 describe("TeacherProfileForm markdown fields", () => {
   test("collects the bio through a markdown editor, not a plain textarea", () => {

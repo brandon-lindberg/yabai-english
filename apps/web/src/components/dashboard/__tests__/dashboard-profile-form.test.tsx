@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../../messages/en.json";
@@ -49,6 +49,18 @@ function renderForm(initialShortBio: string | null = null) {
     </NextIntlClientProvider>,
   );
 }
+
+// jsdom does not implement showModal, and it has to actually set `open` or the
+// dialog's contents stay out of the accessibility tree. The profile form is
+// rendered inside one now.
+beforeEach(() => {
+  HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+    this.open = true;
+  });
+  HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+    this.open = false;
+  });
+});
 
 describe("DashboardProfileForm short bio", () => {
   test("collects the bio through a markdown editor", () => {

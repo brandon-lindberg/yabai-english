@@ -10,7 +10,6 @@ import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
-import { DataList } from "@/components/ui/data-row";
 import { Link } from "@/i18n/navigation";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
@@ -20,6 +19,12 @@ import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { buttonClasses } from "@/components/ui/button";
 import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
 import { visibleAvailabilityWhere } from "@/lib/assigned-availability";
+import { expandRecurringOccurrencesInRange } from "@/lib/recurring-slot-occurrences";
+import { availabilityBands, previewDays, previewWindow } from "@/lib/availability-bands";
+import { TeacherBrowseList, type TeacherPreview } from "@/components/teacher-browse-list";
+import { timeRangesOverlap } from "@/lib/teacher-availability-display";
+import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -98,6 +103,14 @@ export default async function BookPage({ searchParams }: Props) {
         select: {
           id: true,
           teacherLessonOffering: { select: { isFreeTrial: true } },
+          // The recurrence shape, for the availability preview beside the list.
+          dayOfWeek: true,
+          startMin: true,
+          endMin: true,
+          timezone: true,
+          recurrence: true,
+          startsOn: true,
+          endsOn: true,
         },
       },
     },
@@ -134,6 +147,79 @@ export default async function BookPage({ searchParams }: Props) {
   );
   const bookHomeCallback = resolveSafeCallbackUrl(appPathForLocale(locale, "/book"), "/book");
 
+
+  /*
+    The availability panel beside the list.
+
+    The row still says "N available slots", which counts recurrence *rules* —
+    not bookable times, and silent about when. This computes the real thing:
+    each teacher's rules expanded across the next week, minus what is already
+    taken, bucketed into four-hour bands in the **student's** timezone. For a
+    Tokyo student choosing between teachers in Canada and Australia, when is
+    the whole question.
+  */
+  const studentProfile = viewerStudentId
+    ? await prisma.studentProfile.findUnique({
+        where: { userId: viewerStudentId },
+        select: { timezone: true },
+      })
+    : null;
+  const viewerTimeZone = studentProfile?.timezone ?? "Asia/Tokyo";
+  const days = previewDays(viewerTimeZone, locale);
+  // The window is the week on screen, clamped so it never starts in the past.
+  const { start: windowStart, end: windowEnd } = previewWindow(
+    days.map((day) => day.dayKey),
+    viewerTimeZone,
+  );
+
+  // One query for every teacher on the page, not one each: a held booking
+  // takes its time off the grid, or the panel repeats the sin of the count.
+  const takenBookings = await prisma.booking.findMany({
+    where: {
+      teacherId: { in: teacherProfiles.map((teacher) => teacher.id) },
+      startsAt: { gte: windowStart, lt: windowEnd },
+      ...slotHoldingBookingWhere(),
+    },
+    select: { teacherId: true, startsAt: true, endsAt: true },
+  });
+  const takenByTeacher = new Map<string, { startsAtIso: string; endsAtIso: string }[]>();
+  for (const booking of takenBookings) {
+    const list = takenByTeacher.get(booking.teacherId) ?? [];
+    list.push({
+      startsAtIso: booking.startsAt.toISOString(),
+      endsAtIso: booking.endsAt.toISOString(),
+    });
+    takenByTeacher.set(booking.teacherId, list);
+  }
+
+  const previews: Record<string, TeacherPreview> = {};
+  for (const teacher of teacherProfiles) {
+    const taken = takenByTeacher.get(teacher.id) ?? [];
+    const occurrences = teacher.availabilitySlots
+      .flatMap((slot) =>
+        expandRecurringOccurrencesInRange(
+          {
+            dayOfWeek: slot.dayOfWeek,
+            startMin: slot.startMin,
+            endMin: slot.endMin,
+            timezone: slot.timezone,
+            recurrence: slot.recurrence,
+            startsOn: dateOnlyInZone(slot.startsOn, slot.timezone),
+            endsOn: dateOnlyInZone(slot.endsOn, slot.timezone),
+          },
+          windowStart,
+          windowEnd,
+        ),
+      )
+      .filter((occurrence) => !taken.some((booking) => timeRangesOverlap(occurrence, booking)));
+
+    previews[teacher.id] = {
+      days,
+      grid: availabilityBands({ occurrences, dayKeys: days.map((d) => d.dayKey), timeZone: viewerTimeZone }),
+      profileHref: `/book/teachers/${teacher.id}`,
+    };
+  }
+
   return (
     <main className="mx-auto max-w-5xl flex-1 px-4 py-10 sm:px-6">
       <OnboardingResumeBanner href={onboardingHref} step={params.onboardingStep ?? null} />
@@ -167,7 +253,7 @@ export default async function BookPage({ searchParams }: Props) {
             }
           />
         ) : (
-          <DataList>
+          <TeacherBrowseList previews={previews} timeZone={viewerTimeZone}>
             {filtered.map((teacher) => (
               <TeacherCard
                 key={teacher.id}
@@ -176,7 +262,7 @@ export default async function BookPage({ searchParams }: Props) {
                 onboardingStep={params.onboardingStep ?? null}
               />
             ))}
-          </DataList>
+          </TeacherBrowseList>
         )}
       </div>
     </main>

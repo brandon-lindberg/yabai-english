@@ -31,15 +31,32 @@ type RowProps = {
   actions?: ReactNode;
   /** Turns the whole row into a hover target when it is a link or button. */
   interactive?: boolean;
+  /** Identifies the row to a delegated handler on an ancestor, e.g. the
+   *  browse list's availability panel following the pointer. */
+  dataId?: string;
   className?: string;
 };
 
-export function DataRow({ children, actions, interactive = false, className = "" }: RowProps) {
+export function DataRow({
+  children,
+  actions,
+  interactive = false,
+  dataId,
+  className = "",
+}: RowProps) {
   return (
     <li
+      data-row-id={dataId}
       className={[
         "border-b border-border py-4",
-        interactive ? "transition-colors hover:bg-[var(--app-hover)]" : "",
+        /*
+          `focus-within` as well as `hover`: what takes focus is a control
+          inside the row, never the row itself, so a keyboard user would
+          otherwise have no idea which row they were on.
+        */
+        interactive
+          ? "transition-colors hover:bg-[var(--app-hover)] focus-within:bg-[var(--app-hover)]"
+          : "",
         className,
       ]
         .filter(Boolean)

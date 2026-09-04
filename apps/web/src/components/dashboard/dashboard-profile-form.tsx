@@ -17,6 +17,8 @@ type Props = {
   initialShortBio: string | null;
   avatarUrl: string | null;
   postSaveRedirect?: string | null;
+  /** See ProfileSurface: `trigger` renders the button and its dialog only. */
+  presentation?: "page" | "trigger";
 };
 
 export function DashboardProfileForm({
@@ -25,6 +27,7 @@ export function DashboardProfileForm({
   initialShortBio,
   avatarUrl,
   postSaveRedirect,
+  presentation,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
   const router = useRouter();
@@ -87,6 +90,7 @@ export function DashboardProfileForm({
       emptyHint={t("emptyStudentProfileHint")}
       isEmpty={isEmpty}
       startInEdit={Boolean(postSaveRedirect)}
+      presentation={presentation}
       saveState={status}
       copy={{
         edit: t("editProfile"),

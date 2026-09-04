@@ -332,7 +332,8 @@ export default async function TeacherProfileBookingPage({
           ) : null}
           {offersBookableFreeTrial ? (
             <p>
-              <Status tone="open">{t("freeTrialAvailable")}</Status>
+              {/* See TeacherCard: this states a fact, so it takes the settled mark. */}
+              <Status tone="settled">{t("freeTrialAvailable")}</Status>
             </p>
           ) : null}
         </div>

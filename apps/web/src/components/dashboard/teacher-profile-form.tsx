@@ -41,6 +41,8 @@ type Props = {
   initialSpecialties: string[];
   initialMarketplaceHidden?: boolean;
   postSaveRedirect?: string | null;
+  /** See ProfileSurface: `trigger` renders the button and its dialog only. */
+  presentation?: "page" | "trigger";
 };
 
 export function TeacherProfileForm({
@@ -55,6 +57,7 @@ export function TeacherProfileForm({
   initialSpecialties,
   initialMarketplaceHidden = false,
   postSaveRedirect,
+  presentation,
 }: Props) {
   const t = useTranslations("dashboard.profilePage");
   // Reading a profile and filling one in want different labels: the form says
@@ -158,6 +161,7 @@ export function TeacherProfileForm({
       emptyHint={t("emptyProfileHint")}
       isEmpty={isEmpty}
       startInEdit={Boolean(postSaveRedirect)}
+      presentation={presentation}
       saveState={status}
       footer={publicLink}
       copy={{

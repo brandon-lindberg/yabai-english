@@ -24,6 +24,8 @@ type Props = {
   actions?: ReactNode;
   /** Clicking the backdrop dismisses. Turn off for destructive confirmations. */
   dismissOnBackdrop?: boolean;
+  /** `lg` for a form; the default suits a confirmation or a short detail list. */
+  size?: "md" | "lg";
 };
 
 export function Modal({
@@ -34,6 +36,7 @@ export function Modal({
   children,
   actions,
   dismissOnBackdrop = true,
+  size = "md",
 }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -70,7 +73,7 @@ export function Modal({
         // wrapper stops propagation for clicks on actual content.
         if (e.target === ref.current) onClose();
       }}
-      className="m-auto w-[calc(100vw-2rem)] max-w-lg rounded-2xl border border-border bg-surface p-0 text-foreground backdrop:bg-[color-mix(in_srgb,var(--storm-ink)_55%,transparent)]"
+      className={`m-auto w-[calc(100vw-2rem)] ${size === "lg" ? "max-w-2xl" : "max-w-lg"} rounded-2xl border border-border bg-surface p-0 text-foreground backdrop:bg-[color-mix(in_srgb,var(--storm-ink)_55%,transparent)]`}
     >
       <div className="flex flex-col gap-4 p-5 sm:p-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col gap-1.5">
