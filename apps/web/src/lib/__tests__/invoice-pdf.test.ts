@@ -5,6 +5,7 @@ const { drawnTexts, drawnTextCalls } = vi.hoisted(() => ({
   drawnTextCalls: [] as Array<{
     text: string;
     x: number;
+    y: number;
     size: number;
     width: number;
     fontName: string;
@@ -22,6 +23,7 @@ vi.mock("pdf-lib", () => ({
             text: string,
             options: {
               x: number;
+              y: number;
               size: number;
               font: {
                 fontName?: string;
@@ -33,6 +35,7 @@ vi.mock("pdf-lib", () => ({
             drawnTextCalls.push({
               text,
               x: options.x,
+              y: options.y,
               size: options.size,
               width: options.font.widthOfTextAtSize(text, options.size),
               fontName: options.font.fontName ?? "unknown",
@@ -327,7 +330,7 @@ describe("buildInvoicePdf", () => {
     });
 
     expect(drawnTexts).toEqual(
-      expect.arrayContaining(["CREDIT NOTE", "-¥3,300", "-¥3,000", "-¥300"]),
+      expect.arrayContaining(["REFUNDED INVOICE", "- ¥3,300", "- ¥3,000", "- ¥300"]),
     );
     expect(drawnTexts).not.toContain("¥3,300");
   });
@@ -366,6 +369,179 @@ describe("buildInvoicePdf", () => {
 
     expect(drawnTexts).toContain("INVOICE");
     expect(drawnTexts).toContain("¥3,300");
-    expect(drawnTexts).not.toContain("CREDIT NOTE");
+    expect(drawnTexts).not.toContain("REFUNDED INVOICE");
   });
 });
+
+describe("buildInvoicePdf — the refunded invoice fits the page", () => {
+  /*
+    Renaming CREDIT NOTE to REFUNDED INVOICE made the title half again as wide.
+    It is right-aligned, so the extra width grew leftwards straight through the
+    teacher's name. The meta values were placed at a fixed x with 90pt of room
+    and ran off the right edge. And "-¥3,500" put a hyphen hard against the yen
+    sign.
+  */
+  const PAGE_WIDTH = 595;
+  const MARGIN = 50;
+
+  // The captured draws are module-level and shared. Without this the assertions
+  // below read every earlier test's output as well as this one's.
+  beforeEach(() => {
+    drawnTexts.length = 0;
+    drawnTextCalls.length = 0;
+  });
+
+  async function renderCreditNote() {
+    await buildInvoicePdf({
+      invoiceNo: "INV-20260904-103849-GVDS",
+      amountYen: 3500,
+      paidAt: "September 4, 2026",
+      studentName: "Kotatsu Chatsu",
+      className: "Conversation (Eikawa)",
+      durationMin: 30,
+      lessonDate: "July 18, 2026",
+      teacherName: "Brandon Lindberg",
+      language: "en",
+      paymentMethod: "CARD",
+      creditNote: {
+        creditNoteNo: "CRN-20260904-103900-G5UM",
+        refundedAt: "July 9, 2026",
+      },
+    });
+  }
+
+  function call(match: (text: string) => boolean) {
+    return drawnTextCalls.find((c) => match(c.text));
+  }
+
+  test("the title does not run into the issuer's name", async () => {
+    await renderCreditNote();
+
+    const title = call((t) => t === "REFUNDED INVOICE")!;
+    const issuer = call((t) => t === "Brandon Lindberg")!;
+    expect(title.x).toBeGreaterThan(issuer.x + issuer.width);
+  });
+
+  test("nothing crosses the right margin", async () => {
+    await renderCreditNote();
+
+    const overflowing = drawnTextCalls
+      .filter((c) => c.x + c.width > PAGE_WIDTH - MARGIN + 0.5)
+      .map((c) => `${c.text} @${Math.round(c.x)}+${Math.round(c.width)}`);
+    expect(overflowing).toEqual([]);
+  });
+
+  test("no two pieces of text sit on top of each other", async () => {
+    /*
+      Right-aligning the meta values to the margin fixed them running off the
+      page and immediately created the opposite problem: a long invoice number
+      reaches back far enough to land on top of its own label. Grouping by line
+      catches both, and would have caught the first.
+    */
+    await renderCreditNote();
+
+    /*
+      Scoped to the meta block. The crude width model in this harness — a fixed
+      factor per character — is far too generous for the table's tight columns
+      and reports collisions there that do not exist on the page. The meta rows
+      are two items on a line with room between them, which the model handles
+      fine, and they are what changed.
+    */
+    const META_LABELS = [
+      "Credit Note No.:",
+      "Refund Date:",
+      "Against invoice:",
+      "Original Invoice Date:",
+      "Payment Method:",
+    ];
+    const byLine = new Map<number, typeof drawnTextCalls>();
+    for (const c of drawnTextCalls) {
+      const line = byLine.get(c.y) ?? [];
+      line.push(c);
+      byLine.set(c.y, line);
+    }
+    for (const [y, line] of byLine) {
+      if (!line.some((c) => META_LABELS.includes(c.text))) byLine.delete(y);
+    }
+    expect(byLine.size).toBe(META_LABELS.length);
+
+    const collisions: string[] = [];
+    for (const line of byLine.values()) {
+      const sorted = [...line].sort((a, b) => a.x - b.x);
+      for (let i = 1; i < sorted.length; i += 1) {
+        const prev = sorted[i - 1];
+        if (prev.x + prev.width > sorted[i].x + 0.5) {
+          collisions.push(`"${prev.text}" overlaps "${sorted[i].text}"`);
+        }
+      }
+    }
+    expect(collisions).toEqual([]);
+  });
+
+  test("the name's cap-height lines up with the title's", async () => {
+    /*
+      Both were drawn at almost the same baseline, but the title is half again
+      as large — so its letters rose well above the name and the name appeared
+      to hang in the middle of it. Text is positioned by its baseline, so
+      aligning the tops means offsetting the smaller one down by the difference
+      in cap height.
+    */
+    await renderCreditNote();
+
+    const title = call((t) => t === "REFUNDED INVOICE")!;
+    const name = call((t) => t === "Brandon Lindberg")!;
+    const CAP = 0.72;
+    const titleTop = title.y + title.size * CAP;
+    const nameTop = name.y + name.size * CAP;
+    expect(Math.abs(titleTop - nameTop)).toBeLessThan(0.5);
+  });
+
+  test("they stay aligned when a long name shrinks the title", async () => {
+    // The title is sized to the space left beside the name, so the offset has
+    // to follow the size it actually ended up at, not the maximum.
+    await buildInvoicePdf({
+      invoiceNo: "INV-1",
+      amountYen: 3500,
+      paidAt: "September 4, 2026",
+      studentName: "Kotatsu Chatsu",
+      className: "Conversation (Eikawa)",
+      durationMin: 30,
+      lessonDate: "July 18, 2026",
+      teacherName: "Bartholomew Fitzwilliam-Montgomery III",
+      language: "en",
+      paymentMethod: "CARD",
+      creditNote: { creditNoteNo: "CRN-1", refundedAt: "July 9, 2026" },
+    });
+
+    const title = call((t) => t === "REFUNDED INVOICE")!;
+    const name = call((t) => t.startsWith("Bartholomew"))!;
+    const CAP = 0.72;
+    expect(title.size).toBeLessThan(30);
+    expect(Math.abs(title.y + title.size * CAP - (name.y + name.size * CAP))).toBeLessThan(0.5);
+  });
+
+  test("the issuer's name starts at the left margin, like everything else", async () => {
+    // It sat at an arbitrary 58pt indent, aligned to nothing — not the rule
+    // beneath it, not the table, not the page.
+    await renderCreditNote();
+
+    expect(call((t) => t === "Brandon Lindberg")!.x).toBe(MARGIN);
+  });
+
+  test("the minus is not welded to the yen sign", async () => {
+    await renderCreditNote();
+
+    const negative = drawnTexts.filter((t) => t.startsWith("-") && t.includes("¥"));
+    expect(negative.length).toBeGreaterThan(0);
+    for (const t of negative) {
+      expect(t).not.toMatch(/^-¥/);
+    }
+  });
+
+  test("still reads as a return, with negative amounts", async () => {
+    await renderCreditNote();
+
+    expect(drawnTexts.some((t) => t.includes("3,500") && t.startsWith("-"))).toBe(true);
+  });
+});
+

@@ -5,6 +5,7 @@ describe("getHeaderPrimaryNavLinks", () => {
   it("returns book link for guests", () => {
     expect(getHeaderPrimaryNavLinks({ signedIn: false, role: "STUDENT" })).toEqual([
       { id: "book", href: "/book", labelKey: "book" },
+      { id: "become-teacher", href: "/become-a-teacher", labelKey: "becomeTeacher" },
     ]);
   });
 
@@ -49,3 +50,35 @@ describe("getHeaderPrimaryNavLinks", () => {
     ).toEqual(["dashboard", "schedule", "admin"]);
   });
 });
+
+describe("becoming a teacher", () => {
+  /*
+    Teaching here is by invitation, so the page explaining that is for people
+    who have not signed up. It was in the footer of every page, which put it in
+    front of the students and teachers it has nothing to say to.
+  */
+  it("is offered to a visitor who has not signed in", () => {
+    const links = getHeaderPrimaryNavLinks({ signedIn: false, role: undefined });
+
+    expect(links.map((l) => l.href)).toContain("/become-a-teacher");
+  });
+
+  it("is not offered to a student", () => {
+    const links = getHeaderPrimaryNavLinks({ signedIn: true, role: "STUDENT" });
+
+    expect(links.map((l) => l.href)).not.toContain("/become-a-teacher");
+  });
+
+  it("is not offered to a teacher, who plainly got in", () => {
+    const links = getHeaderPrimaryNavLinks({ signedIn: true, role: "TEACHER" });
+
+    expect(links.map((l) => l.href)).not.toContain("/become-a-teacher");
+  });
+
+  it("still offers a visitor the teacher list", () => {
+    const links = getHeaderPrimaryNavLinks({ signedIn: false, role: undefined });
+
+    expect(links.map((l) => l.href)).toContain("/book");
+  });
+});
+

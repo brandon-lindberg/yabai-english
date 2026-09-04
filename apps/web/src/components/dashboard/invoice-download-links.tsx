@@ -22,18 +22,28 @@ function DocumentDownloadLinks({
   );
 }
 
+/**
+ * `bookingId` addresses the invoice by the booking instead, for rows where one
+ * may not have been issued yet — a paid-then-refunded lesson has an invoice
+ * owed but not necessarily written, and there is no id to link to. That route
+ * mints it and redirects here.
+ */
 export function InvoiceDownloadLinks({
   invoiceId,
+  bookingId,
   englishLabel = "Download invoice (English)",
   japaneseLabel = "Download invoice (Japanese)",
 }: {
-  invoiceId: string;
+  invoiceId?: string;
+  bookingId?: string;
   englishLabel?: string;
   japaneseLabel?: string;
 }) {
   return (
     <DocumentDownloadLinks
-      basePath={`/api/invoices/${invoiceId}/pdf`}
+      basePath={
+        invoiceId ? `/api/invoices/${invoiceId}/pdf` : `/api/bookings/${bookingId}/invoice`
+      }
       englishLabel={englishLabel}
       japaneseLabel={japaneseLabel}
     />

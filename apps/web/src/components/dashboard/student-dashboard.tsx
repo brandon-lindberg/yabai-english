@@ -16,7 +16,6 @@ import { DashboardFlashcardStats } from "@/components/dashboard/dashboard-flashc
 import { DashboardStudyHighlight } from "@/components/dashboard/dashboard-study-highlight";
 import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-review";
 import { buttonClasses } from "@/components/ui/button";
-import { actionLinkClass } from "@/components/ui/inline-link";
 import { resolveBookingDisplayStatus } from "@/lib/booking-status";
 
 /**
@@ -205,22 +204,15 @@ export async function StudentDashboard({
       {overview ? <DashboardStudyHighlight overview={overview} resume={resume} /> : null}
       {overview ? <DashboardFlashcardStats trackPractice={overview.trackPractice} /> : null}
 
-      <section>
-        <DashboardQuickReview
-          initialCards={quick.cards}
-          dayKey={quick.dayKey}
-          initialLearnedToday={quick.learnedToday}
-          initialNotYetToday={quick.notYetToday}
-        />
-      </section>
-
-      {bookings.scheduleItems.length > 0 ? (
-        <p className="text-center text-sm text-muted">
-          <Link href="/dashboard/schedule" className={actionLinkClass}>
-            {th("seeFullSchedule")}
-          </Link>
-        </p>
-      ) : null}
+      {/* No wrapping <section>: this brings its own, and renders nothing when
+          there is nothing to review — an empty wrapper would still take a gap
+          from the spine's `space-y-10`. */}
+      <DashboardQuickReview
+        initialCards={quick.cards}
+        dayKey={quick.dayKey}
+        initialLearnedToday={quick.learnedToday}
+        initialNotYetToday={quick.notYetToday}
+      />
     </DashboardSpine>
   );
 }

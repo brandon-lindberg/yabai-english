@@ -6,6 +6,7 @@
     "dashboard": "Dashboard",
     "admin": "Admin",
     "book": "Find teachers",
+    "becomeTeacher": "Become a teacher",
     "schedule": "Schedule",
     "profile": "Profile",
     "integrations": "Google & calendar",
@@ -35,6 +36,19 @@
     "markdownEditorLoading": "Loading editor…",
     "markdownCharCounter": "{current} / {max}",
     "markdownFormattingHint": "Supports Markdown — bold, lists, and links."
+  },
+  "becomeTeacher": {
+    "metaTitle": "Become a teacher — English Studio Japan",
+    "metaDescription": "How teaching on English Studio Japan works, and when applications open.",
+    "title": "Become a teacher",
+    "intro": "Teachers here set their own rates, publish their own availability, and keep their own students.",
+    "statusTitle": "Teaching is invite only right now",
+    "statusBody": "We are not accepting applications yet. Every teacher on the platform was invited directly, so there is no form to fill in and no waiting list to join.",
+    "nextTitle": "When this changes",
+    "nextBody": "We intend to open applications to everyone once the marketplace is ready for it. We have not set a date. This page is where it will be announced, so it is worth looking again from time to time.",
+    "questionsTitle": "Questions",
+    "questionsBody": "If you are unsure whether any of this applies to you, get in touch.",
+    "questionsCta": "Contact us"
   },
   "contact": {
     "metaTitle": "Contact — English Studio Japan",
@@ -293,7 +307,6 @@
       "noNextLesson": "No upcoming lesson. Book a slot to keep your routine.",
       "bookCta": "Book a lesson",
       "fullSchedule": "Full schedule",
-      "seeFullSchedule": "View full schedule & calendar",
       "studyTitle": "Flashcards",
       "studyBrowse": "All levels",
       "studyResume": "Where you left off",
@@ -558,7 +571,6 @@
       "tapToFlipBack": "Tap to flip back",
       "tapToReveal": "Tap to show the English answer.",
       "tapToHide": "Tap again to show the Japanese prompt.",
-      "empty": "Practice a few flashcards first — quick review uses cards you have already answered correctly.",
       "clearedForToday": "You have cleared today’s quick review slots (or no more eligible cards are left). Come back tomorrow for a fresh set."
     },
     "integrationsPage": {
@@ -753,8 +765,9 @@
       "calendarSetupHint": "Connect Google Calendar there so confirmed bookings can create Meet links automatically."
     },
     "refundedLessons": "Refunded lessons",
-    "downloadCreditNoteEn": "Download credit note (English)",
-    "downloadCreditNoteJa": "Download credit note (Japanese)",
+    "refundedAmount": "Refunded {amount}",
+    "downloadCreditNoteEn": "Download refunded invoice (English)",
+    "downloadCreditNoteJa": "Download refunded invoice (Japanese)",
     "noRefundedLessons": "No refunded lessons."
   },
   "admin": {
@@ -819,6 +832,21 @@
       "ownerEmailHint": "Must already have an account. They become the organization's owner.",
       "schoolSlug": "School slug",
       "slugHint": "Used in URLs. Filled from the name; edit it if you need something different."
+    },
+    "createUser": {
+      "open": "Add user",
+      "title": "Add a user",
+      "subtitle": "Creates the account with the role already set. They sign in with Google using this address.",
+      "email": "Email",
+      "name": "Name (optional)",
+      "role": "Role",
+      "roleTeacher": "Teacher",
+      "roleStudent": "Student",
+      "submit": "Create user",
+      "working": "Creating…",
+      "cancel": "Cancel",
+      "error": "Could not create the user.",
+      "hint": "No invitation email is sent. Tell them to sign in with Google using this address."
     },
     "usersPage": {
       "title": "All users"

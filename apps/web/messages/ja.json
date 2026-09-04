@@ -6,6 +6,7 @@
     "dashboard": "ダッシュボード",
     "admin": "管理画面",
     "book": "講師を探す",
+    "becomeTeacher": "講師になる",
     "schedule": "スケジュール",
     "profile": "プロフィール",
     "integrations": "Google とカレンダー",
@@ -35,6 +36,19 @@
     "markdownEditorLoading": "エディタを読み込み中…",
     "markdownCharCounter": "{current} / {max}",
     "markdownFormattingHint": "Markdownに対応しています（太字・箇条書き・リンク）。"
+  },
+  "becomeTeacher": {
+    "metaTitle": "講師になる — English Studio Japan",
+    "metaDescription": "English Studio Japan で教えるということ、そして応募受付の開始について。",
+    "title": "講師になる",
+    "intro": "本プラットフォームの講師は、ご自身で料金を設定し、空き時間を公開し、受講生との関係を築いていきます。",
+    "statusTitle": "現在は招待制です",
+    "statusBody": "現時点では応募を受け付けておりません。在籍する講師はすべて個別にご招待した方々です。応募フォームや順番待ちリストはございません。",
+    "nextTitle": "今後について",
+    "nextBody": "マーケットプレイスの準備が整い次第、どなたでも応募いただけるようにする予定です。時期は未定です。開始のご案内はこのページに掲載しますので、ときどきご確認ください。",
+    "questionsTitle": "お問い合わせ",
+    "questionsBody": "ご不明な点がありましたら、お気軽にご連絡ください。",
+    "questionsCta": "お問い合わせ"
   },
   "contact": {
     "metaTitle": "お問い合わせ — English Studio Japan",
@@ -293,7 +307,6 @@
       "noNextLesson": "予定のレッスンはありません。予約して続けましょう。",
       "bookCta": "レッスンを予約",
       "fullSchedule": "スケジュール一覧",
-      "seeFullSchedule": "カレンダーと一覧を見る",
       "studyTitle": "フラッシュカード",
       "studyBrowse": "レベル一覧",
       "studyResume": "前回の続き",
@@ -558,7 +571,6 @@
       "tapToFlipBack": "タップで戻す",
       "tapToReveal": "タップで英語の答えを表示",
       "tapToHide": "もう一度タップで日本語に戻す",
-      "empty": "まずフラッシュカードで練習しましょう。一度正解したカードから毎日選ばれます。",
       "clearedForToday": "今日のクイック復習はすべて完了したか、これ以上表示できるカードがありません。また明日どうぞ。"
     },
     "integrationsPage": {
@@ -753,8 +765,9 @@
       "calendarSetupHint": "予約確定時に Meet リンクを自動作成するには、次の「Google とカレンダー」からカレンダーを連携してください。"
     },
     "refundedLessons": "返金されたレッスン",
-    "downloadCreditNoteEn": "適格返還請求書をダウンロード（英語）",
-    "downloadCreditNoteJa": "適格返還請求書をダウンロード（日本語）",
+    "refundedAmount": "返金額 {amount}",
+    "downloadCreditNoteEn": "返金分の請求書をダウンロード（英語）",
+    "downloadCreditNoteJa": "返金分の請求書をダウンロード（日本語）",
     "noRefundedLessons": "返金されたレッスンはありません。"
   },
   "admin": {
@@ -819,6 +832,21 @@
       "ownerEmailHint": "既存のアカウントが必要です。組織のオーナーになります。",
       "schoolSlug": "スクールスラッグ",
       "slugHint": "URL に使われます。名前から自動入力されます。必要に応じて変更できます。"
+    },
+    "createUser": {
+      "open": "ユーザーを追加",
+      "title": "ユーザーを追加",
+      "subtitle": "権限を設定した状態でアカウントを作成します。本人はこのメールアドレスで Google サインインします。",
+      "email": "メールアドレス",
+      "name": "氏名（任意）",
+      "role": "権限",
+      "roleTeacher": "講師",
+      "roleStudent": "受講生",
+      "submit": "作成する",
+      "working": "作成中…",
+      "cancel": "キャンセル",
+      "error": "ユーザーを作成できませんでした。",
+      "hint": "招待メールは送信されません。このアドレスで Google サインインするようご案内ください。"
     },
     "usersPage": {
       "title": "全ユーザー"

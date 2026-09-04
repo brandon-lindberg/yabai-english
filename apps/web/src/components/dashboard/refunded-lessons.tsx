@@ -6,6 +6,7 @@ import {
   InvoiceDownloadLinks,
 } from "@/components/dashboard/invoice-download-links";
 import { LessonListEmpty, LessonRow } from "@/components/dashboard/lesson-row";
+import { formatYen } from "@/lib/format-money";
 
 /**
  * The shape both sides of a lesson share. Written structurally rather than
@@ -19,7 +20,7 @@ export type RefundedLessonRow = {
   status: BookingStatus;
   lessonProduct: { nameJa: string; nameEn: string };
   invoice: { id: string } | null;
-  refunds: { id: string; creditNoteNo: string | null }[];
+  refunds: { id: string; creditNoteNo: string | null; amountYen: number }[];
 };
 
 /**
@@ -58,22 +59,44 @@ export async function RefundedLessons<T extends RefundedLessonRow>({
             endsAtIso={booking.endsAt.toISOString()}
             counterpartLabel={counterpartLabel}
             counterpartName={counterpartName(booking)}
+            /*
+              The refunded amount, because it is the one fact that belongs to
+              this row and nothing else. A student who cancels a lesson and then
+              rebooks the same slot ends up with two bookings that are identical
+              on screen — same teacher, same title, same time — one of which has
+              an invoice. Saying only "Cancelled" left the invoice looking like
+              it belonged to this one.
+            */
+            meta={
+              refund
+                ? t("refundedAmount", { amount: formatYen(refund.amountYen, locale) })
+                : undefined
+            }
             status={{
               tone: bookingStatusTone(booking.status),
               label: t(bookingStatusKey(booking.status)),
             }}
             inlineActions={
               <>
-                {/* The original invoice stands and the credit note reverses it.
-                    Accounting needs the pair, so both are offered. */}
-                {booking.invoice ? (
-                  <InvoiceDownloadLinks
-                    invoiceId={booking.invoice.id}
-                    englishLabel={t("downloadInvoiceEn")}
-                    japaneseLabel={t("downloadInvoiceJa")}
-                  />
-                ) : null}
-                {refund?.creditNoteNo ? (
+                {/*
+                  The original invoice stands and the credit note reverses it;
+                  Japanese consumption-tax bookkeeping wants the pair, so both
+                  are always offered for a refund that succeeded.
+
+                  Addressed by booking and by refund rather than by document id,
+                  because neither document is guaranteed to have been written
+                  yet — the invoice is created at one point in the booking flow
+                  that not every paid booking passes through, and the credit
+                  note number is assigned by the refund path. Both routes mint
+                  what is owed on the way to serving it, and 404 where nothing
+                  is owed.
+                */}
+                <InvoiceDownloadLinks
+                  bookingId={booking.id}
+                  englishLabel={t("downloadInvoiceEn")}
+                  japaneseLabel={t("downloadInvoiceJa")}
+                />
+                {refund ? (
                   <CreditNoteDownloadLinks
                     refundId={refund.id}
                     englishLabel={t("downloadCreditNoteEn")}

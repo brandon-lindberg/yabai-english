@@ -1,4 +1,5 @@
 export type HeaderNavLinkId =
+  | "become-teacher"
   | "dashboard"
   | "book"
   | "learn"
@@ -9,6 +10,7 @@ export type HeaderNavLinkId =
 
 /** Keys under the `common` messages namespace for nav labels */
 export type CommonNavLabelKey =
+  | "becomeTeacher"
   | "dashboard"
   | "book"
   | "learn"
@@ -35,7 +37,15 @@ export type HeaderNavInput = {
  */
 export function getHeaderPrimaryNavLinks(input: HeaderNavInput): HeaderNavLink[] {
   if (!input.signedIn) {
-    return [{ id: "book", href: "/book", labelKey: "book" }];
+    /*
+      Teaching here is by invitation, so the page explaining that is for people
+      who have not signed up. It used to sit in the footer of every page, in
+      front of the students and teachers it has nothing to say to.
+    */
+    return [
+      { id: "book", href: "/book", labelKey: "book" },
+      { id: "become-teacher", href: "/become-a-teacher", labelKey: "becomeTeacher" },
+    ];
   }
   if (!input.role) return [];
 

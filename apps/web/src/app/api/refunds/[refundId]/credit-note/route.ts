@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { ensureCreditNoteNumber } from "@/lib/credit-notes";
+import { ensureInvoiceForPaidBooking } from "@/lib/ensure-invoice";
 import { buildInvoicePdf, type InvoicePdfLanguage } from "@/lib/invoice-pdf";
 
 type Props = {
@@ -40,9 +42,23 @@ export async function GET(req: Request, { params }: Props) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // No number means the money has not gone back, so there is no document to
-  // issue yet. The original invoice still stands on its own until then.
-  if (!refund.creditNoteNo || !booking.invoice) {
+  /*
+    A refund that has gone back is owed a credit note, so both halves of the
+    pair are minted here rather than refused.
+
+    Neither document existed for a real refunded booking — the invoice is
+    written at one point in the booking flow that this booking never passed
+    through, and the credit note number is assigned by the refund path, which
+    an out-of-band refund can miss. The student was left with a refunded lesson
+    and nothing to download, while the *rebooking* of the same slot sat
+    underneath it with an invoice.
+
+    Both helpers are idempotent and issue nothing where nothing is owed, so a
+    pending or failed refund still gets a 404 below.
+  */
+  const invoice = booking.invoice ?? (await ensureInvoiceForPaidBooking(booking.id));
+  const creditNoteNo = refund.creditNoteNo ?? (await ensureCreditNoteNumber(refund.id));
+  if (!creditNoteNo || !invoice) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -56,9 +72,9 @@ export async function GET(req: Request, { params }: Props) {
   const pdfBytes = await buildInvoicePdf({
     // The invoice this return reverses; the credit note carries its own number
     // separately.
-    invoiceNo: booking.invoice.invoiceNo,
+    invoiceNo: invoice.invoiceNo,
     amountYen: refund.amountYen,
-    paidAt: formatInvoiceDisplayDate(booking.invoice.paidAt, dateLocale),
+    paidAt: formatInvoiceDisplayDate(invoice.paidAt ?? refund.createdAt, dateLocale),
     studentName: booking.student.name ?? booking.student.email ?? "Student",
     className:
       language === "ja" ? booking.lessonProduct.nameJa : booking.lessonProduct.nameEn,
@@ -72,7 +88,7 @@ export async function GET(req: Request, { params }: Props) {
       "Teacher",
     paymentMethod: payment?.method ?? null,
     creditNote: {
-      creditNoteNo: refund.creditNoteNo,
+      creditNoteNo,
       refundedAt: formatInvoiceDisplayDate(refund.createdAt, dateLocale),
     },
   });
@@ -80,7 +96,7 @@ export async function GET(req: Request, { params }: Props) {
   return new NextResponse(Buffer.from(pdfBytes), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${refund.creditNoteNo}-${language}.pdf"`,
+      "Content-Disposition": `attachment; filename="${creditNoteNo}-${language}.pdf"`,
     },
   });
 }

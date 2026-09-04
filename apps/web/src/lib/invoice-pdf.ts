@@ -31,7 +31,7 @@ let japaneseBoldFontBytes: Promise<Uint8Array> | undefined;
 const invoiceCopy = {
   en: {
     title: "INVOICE",
-    creditNoteTitle: "CREDIT NOTE",
+    creditNoteTitle: "REFUNDED INVOICE",
     creditNoteNoLabel: "Credit Note No.:",
     againstInvoiceLabel: "Against invoice:",
     refundDateLabel: "Refund Date:",
@@ -153,8 +153,14 @@ export async function buildInvoicePdf(input: {
   const white = rgb(1, 1, 1);
   const isCreditNote = Boolean(input.creditNote);
   const totals = calculateTaxIncludedInvoiceTotals(input.amountYen);
+  /*
+    A space after the minus. Set tight, "-¥3,500" welds the hyphen to the yen
+    sign and reads as a glyph rather than a sign. A typographic minus (U+2212)
+    would space correctly but the English document is Helvetica in WinAnsi,
+    which has no such glyph, so it would fail to encode.
+  */
   const formatYen = (amountYen: number) =>
-    `${isCreditNote ? "-" : ""}¥${amountYen.toLocaleString("ja-JP")}`;
+    `${isCreditNote ? "- " : ""}¥${amountYen.toLocaleString("ja-JP")}`;
   const drawRightText = (
     text: string,
     rightX: number,
@@ -172,18 +178,48 @@ export async function buildInvoicePdf(input: {
     });
   };
 
+  /*
+    The title is measured first because the issuer's name is positioned against
+    it. Text sits on its baseline, and the title is half again as large — set
+    to the same baseline, its capitals rise well above the name and the name
+    reads as hanging in the middle of it. Offsetting the smaller line down by
+    the difference in cap height puts the two tops level.
+
+    0.72em is Helvetica's cap height, and both lines are the same face, so the
+    ratio cancels out of the comparison and only the size difference matters.
+  */
+  const CAP_HEIGHT_RATIO = 0.72;
+  const titleText = isCreditNote ? copy.creditNoteTitle : copy.title;
+  const titleBaselineY = y - 4;
+  const issuerNameSize = 20;
+  const issuerRightX =
+    margin + fontBold.widthOfTextAtSize(input.teacherName, issuerNameSize);
+  /*
+    Sized to fit what is left beside the issuer's name rather than always 30.
+    "REFUNDED INVOICE" is half again as wide as "CREDIT NOTE", and being
+    right-aligned it grew leftwards straight through the teacher's name.
+  */
+  const titleSpace = width - margin - issuerRightX - 16;
+  const titleSize = Math.min(
+    30,
+    (30 * titleSpace) / Math.max(1, fontBold.widthOfTextAtSize(titleText, 30)),
+  );
+
   // Teachers are independent and invoice their own students, so the issuer on
-  // the document is the teacher rather than the platform.
+  // the document is the teacher rather than the platform. Offset against the
+  // size the title actually ended up at, not the maximum it may have been.
+  const issuerNameY =
+    titleBaselineY + (titleSize - issuerNameSize) * CAP_HEIGHT_RATIO;
   page.drawText(input.teacherName, {
-    x: margin + 58,
-    y: y - 8,
-    size: 20,
+    x: margin,
+    y: issuerNameY,
+    size: issuerNameSize,
     font: fontBold,
     color: navy,
   });
   page.drawText(copy.issuerRole, {
-    x: margin + 58,
-    y: y - 26,
+    x: margin,
+    y: issuerNameY - 18,
     size: 10,
     font,
     color: gray,
@@ -192,24 +228,23 @@ export async function buildInvoicePdf(input: {
   // number. A teacher who is not a registered issuer simply has no line.
   if (input.registrationNumber) {
     page.drawText(`${copy.registrationNumberLabel} ${input.registrationNumber}`, {
-      x: margin + 58,
-      y: y - 40,
+      x: margin,
+      y: issuerNameY - 32,
       size: 9,
       font,
       color: gray,
     });
   }
 
-  // Right-aligned rather than placed: the title is a different width in each
-  // language, and "適格返還請求書" is twice the width of "請求書".
-  drawRightText(
-    isCreditNote ? copy.creditNoteTitle : copy.title,
-    width - margin,
-    y - 4,
-    30,
-    fontBold,
-    navy,
-  );
+  /*
+    Right-aligned rather than placed: the title is a different width in each
+    language, and "適格返還請求書" is twice the width of "請求書".
+
+    Sized to fit what is left beside the issuer's name, rather than always 30.
+    "REFUNDED INVOICE" is half again as wide as "CREDIT NOTE", and being
+    right-aligned it grew leftwards straight through the teacher's name.
+  */
+  drawRightText(titleText, width - margin, titleBaselineY, titleSize, fontBold, navy);
   // The document's own number, not the one it refers to — a credit note names
   // the invoice it reverses in the meta block below.
   drawRightText(
@@ -230,10 +265,33 @@ export async function buildInvoicePdf(input: {
   });
 
   y -= 28;
+  /*
+    The block is sized to its contents rather than to two guessed columns.
+
+    Values were placed at a fixed x with 90pt of room, and an invoice number is
+    wider than that, so it ran off the page. Right-aligning them to the margin
+    fixed that and created the opposite fault: a long number reaches back far
+    enough to land on top of its own label. Measuring both columns is the only
+    arrangement where neither can happen.
+  */
+  const metaRows: Array<[string, string, PDFFont]> = [];
   const drawMetaRow = (label: string, value: string, textFont = font) => {
-    page.drawText(label, { x: width - margin - 190, y, size: 10, font, color: black });
-    page.drawText(value, { x: width - margin - 90, y, size: 10, font: textFont, color: black });
-    y -= 18;
+    metaRows.push([label, value, textFont]);
+  };
+  const flushMetaRows = () => {
+    const labelWidth = Math.max(
+      ...metaRows.map(([label]) => font.widthOfTextAtSize(label, 10)),
+    );
+    const valueWidth = Math.max(
+      ...metaRows.map(([, value, textFont]) => textFont.widthOfTextAtSize(value, 10)),
+    );
+    const labelX = width - margin - valueWidth - labelWidth - 16;
+    for (const [label, value, textFont] of metaRows) {
+      page.drawText(label, { x: labelX, y, size: 10, font, color: black });
+      drawRightText(value, width - margin, y, 10, textFont);
+      y -= 18;
+    }
+    metaRows.length = 0;
   };
 
   if (input.creditNote) {
@@ -241,31 +299,55 @@ export async function buildInvoicePdf(input: {
     drawMetaRow(copy.refundDateLabel, input.creditNote.refundedAt);
     drawMetaRow(copy.againstInvoiceLabel, input.invoiceNo, latinFont);
     drawMetaRow(copy.originalDateLabel, input.paidAt);
-    y += 18;
   } else {
     drawMetaRow(copy.dateLabel, input.paidAt);
-    y += 18;
   }
 
   if (input.paymentMethod) {
-    y -= 18;
     drawMetaRow(copy.paymentMethodLabel, paymentMethodLabel(input.paymentMethod, language));
+    flushMetaRows();
     y -= 34;
   } else {
+    flushMetaRows();
     y -= 70;
   }
   page.drawText(input.studentName, {
-    x: margin + 52,
+    x: margin,
     y,
     size: 16,
     font: fontBold,
     color: navy,
   });
   y -= 20;
-  page.drawText(
-    isCreditNote ? copy.creditNoteNote : copy.thankYou(input.teacherName),
-    { x: margin + 52, y, size: 10, font, color: black },
-  );
+  /*
+    Wrapped rather than drawn as one line. The credit note's explanation is a
+    full sentence — long enough to run past the right edge of the page, which a
+    single `drawText` will happily do without complaint.
+
+    Japanese has no spaces to break on, so a line that cannot be split by word
+    is left whole; the Japanese sentence is short enough to fit, and a wrong
+    break mid-word would be worse than none.
+  */
+  const noteText = isCreditNote ? copy.creditNoteNote : copy.thankYou(input.teacherName);
+  const noteMaxWidth = width - margin * 2;
+  const noteWords = noteText.split(" ");
+  const noteLines: string[] = [];
+  let line = "";
+  for (const word of noteWords) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (line && font.widthOfTextAtSize(candidate, 10) > noteMaxWidth) {
+      noteLines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line) noteLines.push(line);
+  for (const noteLine of noteLines) {
+    page.drawText(noteLine, { x: margin, y, size: 10, font, color: black });
+    y -= 14;
+  }
+  y += 14;
 
   y -= 42;
   const tableX = margin;

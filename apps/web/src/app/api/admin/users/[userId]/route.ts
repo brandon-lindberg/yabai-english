@@ -3,10 +3,10 @@ import { z } from "zod";
 import { AccountStatus, PlacedLevel, Prisma, Role } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { provisionRoleProfile } from "@/lib/admin/provision-role-profile";
 import { checkAdminCanDeleteUser } from "@/lib/admin-user-guards";
 import { teacherProfileToAdminDto } from "@/lib/admin-user-dto";
 import { invalidateUserSessions } from "@/lib/admin-invalidate-sessions";
-import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
 import {
   PLACEMENT_NOTE_MAX_CHARS,
@@ -138,16 +138,16 @@ export async function PATCH(req: Request, { params }: Props) {
         });
       }
 
-      if (nextRole === Role.STUDENT && !existing.studentProfile) {
-        await tx.studentProfile.create({ data: { userId } });
-      }
-      if (nextRole === Role.TEACHER && !existing.teacherProfile) {
-        const created = await tx.teacherProfile.create({
-          data: { userId },
-          select: { id: true },
-        });
-        await seedDefaultTeacherTaxonomy(tx, created.id);
-      }
+      // Shared with the create endpoint: what a role needs beyond the column
+      // is the same whether the account is new or changing.
+      await provisionRoleProfile(tx as never, {
+        userId,
+        role: nextRole,
+        hasProfile:
+          nextRole === Role.STUDENT
+            ? Boolean(existing.studentProfile)
+            : Boolean(existing.teacherProfile),
+      });
 
       if (
         data.studentProfile &&

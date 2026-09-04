@@ -168,12 +168,17 @@ export function DashboardQuickReview({
     [dayKey],
   );
 
+  /*
+    Nothing to review and nothing reviewed: no section at all. This used to be a
+    paragraph explaining why there was nothing to show, which is a section whose
+    entire content is an apology for existing — and with the spine's `space-y-10`
+    it also took a gap either side of itself.
+
+    The state below is different and stays: having *cleared* today's cards is a
+    result rather than an absence.
+  */
   if (initialCards.length === 0 && cards.length === 0) {
-    return (
-      <div className="border-t border-border py-5 text-sm text-muted">
-        {t("empty")}
-      </div>
-    );
+    return null;
   }
 
   if (cards.length === 0) {

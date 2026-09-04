@@ -2,15 +2,19 @@
 
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
 import { SiteHeader } from "@/components/shell/site-header";
 
-vi.mock("@/hooks/use-verified-session", () => ({
-  useVerifiedSession: () => ({
+const { sessionMock } = vi.hoisted(() => ({
+  sessionMock: vi.fn(() => ({
     status: "authenticated",
     data: { user: { role: "TEACHER", canStartPlacement: false, activeOrgId: null } },
-  }),
+  })),
+}));
+
+vi.mock("@/hooks/use-verified-session", () => ({
+  useVerifiedSession: () => sessionMock(),
 }));
 
 vi.mock("@/i18n/navigation", () => ({
@@ -41,6 +45,15 @@ vi.mock("next-auth/react", () => ({ signOut: vi.fn(), useSession: () => ({ data:
 */
 
 describe("SiteHeader", () => {
+  // The mock's return value persists between tests; without this a signed-out
+  // case leaks into every test after it.
+  beforeEach(() => {
+    sessionMock.mockReturnValue({
+      status: "authenticated",
+      data: { user: { role: "TEACHER", canStartPlacement: false, activeOrgId: null } },
+    });
+  });
+
   test("shows the wordmark", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>
@@ -63,5 +76,31 @@ describe("SiteHeader", () => {
     expect(screen.getByRole("link", { name: en.common.appName }).className).toMatch(
       /\bmd:mr-(8|10|12|14|16)\b/,
     );
+  });
+
+  test("offers the teaching page to a visitor who has not signed in", () => {
+    // Teaching is by invitation, so the page explaining that is for people
+    // without an account. It has nothing to say to anyone already inside.
+    sessionMock.mockReturnValue({ status: "unauthenticated", data: null } as never);
+
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <SiteHeader />
+      </NextIntlClientProvider>,
+    );
+
+    expect(
+      screen.getAllByRole("link", { name: en.common.becomeTeacher }).length,
+    ).toBeGreaterThan(0);
+  });
+
+  test("does not offer it to somebody already signed in", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <SiteHeader />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.queryByRole("link", { name: en.common.becomeTeacher })).toBeNull();
   });
 });
