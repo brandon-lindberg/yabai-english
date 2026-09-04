@@ -407,29 +407,32 @@ function TeacherAvailabilityAddModalInner({
             )}
           </Field>
 
+          {/*
+            Not fields — consequences of the class chosen above. They were
+            disabled inputs, and `disabled` here means 40% opacity: the
+            treatment for something unavailable. A level that *had* been chosen
+            was drawn in the vocabulary of one that had not, so it read as an
+            empty placeholder. Stated as values instead.
+          */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={tModal("lessonLevel")}>
-              {(field) => (
-                <Input
-                  {...field}
-                  disabled
-                  value={pickLabel(
+            <Field as="group" label={tModal("lessonLevel")}>
+              {() => (
+                <p className="text-sm font-medium text-foreground">
+                  {pickLabel(
                     offerById.get(draft.teacherLessonOfferingId)?.classLevel ?? null,
                     locale,
-                  )}
-                />
+                  ) || "—"}
+                </p>
               )}
             </Field>
-            <Field label={tModal("lessonType")}>
-              {(field) => (
-                <Input
-                  {...field}
-                  disabled
-                  value={pickLabel(
+            <Field as="group" label={tModal("lessonType")}>
+              {() => (
+                <p className="text-sm font-medium text-foreground">
+                  {pickLabel(
                     offerById.get(draft.teacherLessonOfferingId)?.classType ?? null,
                     locale,
-                  )}
-                />
+                  ) || "—"}
+                </p>
               )}
             </Field>
           </div>
