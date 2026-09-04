@@ -208,3 +208,33 @@ describe("TeacherBrowseList", () => {
     expect(panel()).toHaveAttribute("aria-live", "off");
   });
 });
+
+describe("TeacherBrowseList header", () => {
+  test("puts the header in the list's column, not beside it", () => {
+    /*
+      The guest notice — "11 teachers" and the sign-in link — describes the
+      list, so it has to line up with the list. Rendered as a sibling above the
+      whole region it stretched to the page's full width instead, which put its
+      right-hand link out over the availability column: 300px clear of the rows
+      it belonged to, floating in the space the panel only occupies on hover.
+    */
+    const { getByTestId } = render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherBrowseList
+          timeZone="Asia/Tokyo"
+          previews={{}}
+          header={<p data-testid="browse-header">11 teachers</p>}
+        >
+          <li data-row-id="t-1">Mika Sato</li>
+        </TeacherBrowseList>
+      </NextIntlClientProvider>,
+    );
+
+    const header = getByTestId("browse-header");
+    expect(getByTestId("teacher-rows")).toContainElement(header);
+    expect(getByTestId("availability-column")).not.toContainElement(header);
+    // Above the rows, not after them.
+    expect(header.compareDocumentPosition(getByTestId("teacher-rows").querySelector("ul")!))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+});

@@ -34,10 +34,19 @@ export type TeacherPreview = {
 export function TeacherBrowseList({
   previews,
   timeZone,
+  header,
   children,
 }: {
   previews: Record<string, TeacherPreview>;
   timeZone: string;
+  /**
+   * Sits above the rows, inside the list's own column. Anything describing the
+   * list — the teacher count, the guest's sign-in link — has to line up with
+   * it; rendered as a sibling of the whole region instead, a right-aligned
+   * item lands out over the availability column, which is empty until you
+   * hover a row.
+   */
+  header?: ReactNode;
   children: ReactNode;
 }) {
   /*
@@ -104,6 +113,9 @@ export function TeacherBrowseList({
         onMouseOver={(e) => trackFrom(e.target)}
         onFocus={(e) => trackFrom(e.target)}
       >
+        {/* `trackFrom` finds nothing above the rows — no `data-row-id` to
+            close on — so hovering the header leaves the panel alone. */}
+        {header ? <div className="mb-8">{header}</div> : null}
         <ul className="list-none border-t border-border p-0">{children}</ul>
       </div>
 

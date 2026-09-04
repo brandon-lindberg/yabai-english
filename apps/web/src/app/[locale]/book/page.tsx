@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { TeacherCard } from "@/components/teacher-card";
-import { TeacherFilterBar } from "@/components/teacher-filter-bar";
+import { TeacherBrowseControls } from "@/components/teacher-browse-controls";
 import { filterTeacherCards, sortOwnTeachersFirst } from "@/lib/teacher-discovery";
 import { marketplaceTeacherWhere } from "@/lib/marketplace-teacher-filter";
 import { getStudentRosterTeachers } from "@/lib/student-roster-teachers";
@@ -15,8 +15,8 @@ import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { appPathForLocale } from "@/lib/i18n-app-path";
 import { authSignInHref } from "@/lib/auth-sign-in-href";
-import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { buttonClasses } from "@/components/ui/button";
+import { browseEmptyState } from "@/lib/teacher-browse-empty-state";
 import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
 import { visibleAvailabilityWhere } from "@/lib/assigned-availability";
 import { expandRecurringOccurrencesInRange } from "@/lib/recurring-slot-occurrences";
@@ -46,6 +46,7 @@ type Props = {
 
 export default async function BookPage({ searchParams }: Props) {
   const t = await getTranslations("booking");
+  const tCommon = await getTranslations("common");
   const params = await searchParams;
   const session = await auth();
   const locale = await getLocale();
@@ -145,7 +146,9 @@ export default async function BookPage({ searchParams }: Props) {
     filterTeacherCards(cards, { specialty, language }),
     ownTeacherIds,
   );
-  const bookHomeCallback = resolveSafeCallbackUrl(appPathForLocale(locale, "/book"), "/book");
+  // One sign-in route for this page, shared by the guest notice above the list
+  // and by the empty state below it.
+  const signInHref = authSignInHref(appPathForLocale(locale, "/book"), "/book");
 
 
   /*
@@ -220,51 +223,71 @@ export default async function BookPage({ searchParams }: Props) {
     };
   }
 
+  /*
+    What "nothing here" means, and the one move left from it. A guest is never
+    holding a filter — the redirect above strips it — so the old single message
+    blamed them for a choice they had not made, and described itself with the
+    sentence already sitting at the top of the page.
+  */
+  const empty = browseEmptyState({ guest, filtered: Boolean(specialty || language) });
+  /*
+    Built once and placed twice, because where it belongs depends on whether
+    there is a list. Beside a list it goes inside the list's own column, so its
+    right-hand link lines up with the rows instead of drifting out over the
+    availability panel's reserved width; with no list, that column does not
+    exist and it spans the page.
+  */
+  const controls = (
+    <TeacherBrowseControls
+      guest={guest}
+      count={filtered.length}
+      signInHref={signInHref}
+      specialty={specialty}
+      language={language}
+    />
+  );
+  const emptyAction = {
+    clearFilters: { href: "/book", label: t("clearFilters") },
+    signIn: { href: signInHref, label: tCommon("signIn") },
+    dashboard: { href: "/dashboard", label: t("backToDashboard") },
+  }[empty.action];
+
   return (
     <main className="mx-auto max-w-5xl flex-1 px-4 py-10 sm:px-6">
       <OnboardingResumeBanner href={onboardingHref} step={params.onboardingStep ?? null} />
       <PageHeader title={t("title")} description={t("teacherBrowseSubtitle")} />
-      <div className="mt-6">
-        <TeacherFilterBar specialty={specialty} language={language} guestLocked={guest} />
-      </div>
-      {/* A ruled list, not a card grid: teachers are compared against each other,
-          and a column of rates only lines up if the rows share an edge. */}
-      <div className="mt-8">
-        {filtered.length === 0 ? (
+      {/* A ruled list, not a card grid: teachers are compared against each
+          other, and a column of rates only lines up if the rows share an edge. */}
+      {filtered.length === 0 ? (
+        // The gap belongs to the column, so controls that render nothing —
+        // a guest above an empty list — leave no spacing behind either.
+        <div className="flex flex-col gap-8">
+          {controls}
           <EmptyState
-            title={t("noTeachersFound")}
-            description={t("teacherBrowseSubtitle")}
+            title={t(empty.titleKey)}
+            description={t(empty.bodyKey)}
             action={
-              guest ? (
-                <Link
-                  href={{
-                    pathname: "/auth/signin",
-                    query: { callbackUrl: bookHomeCallback },
-                  }}
-                  className={buttonClasses({ variant: "secondary" })}
-                >
-                  {t("guestEmptySignIn")}
-                </Link>
-              ) : (
-                <Link href="/dashboard" className={buttonClasses({ variant: "secondary" })}>
-                  {t("backToDashboard")}
-                </Link>
-              )
+              <Link
+                href={emptyAction.href as "/book"}
+                className={buttonClasses({ variant: "secondary" })}
+              >
+                {emptyAction.label}
+              </Link>
             }
           />
-        ) : (
-          <TeacherBrowseList previews={previews} timeZone={viewerTimeZone}>
-            {filtered.map((teacher) => (
-              <TeacherCard
-                key={teacher.id}
-                teacher={teacher}
-                onboardingNext={onboardingHref}
-                onboardingStep={params.onboardingStep ?? null}
-              />
-            ))}
-          </TeacherBrowseList>
-        )}
-      </div>
+        </div>
+      ) : (
+        <TeacherBrowseList previews={previews} timeZone={viewerTimeZone} header={controls}>
+          {filtered.map((teacher) => (
+            <TeacherCard
+              key={teacher.id}
+              teacher={teacher}
+              onboardingNext={onboardingHref}
+              onboardingStep={params.onboardingStep ?? null}
+            />
+          ))}
+        </TeacherBrowseList>
+      )}
     </main>
   );
 }

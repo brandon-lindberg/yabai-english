@@ -2,17 +2,24 @@
 
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { authSignInHref } from "@/lib/auth-sign-in-href";
 import { Field, Input } from "@/components/ui/field";
 
 type Props = {
   specialty: string;
   language: string;
-  /** When true, applying filters sends the user to sign-in with a callback URL instead of `router.replace`. */
-  guestLocked?: boolean;
 };
 
-export function TeacherFilterBar({ specialty, language, guestLocked = false }: Props) {
+/**
+ * Signed-in students only.
+ *
+ * This used to carry a guest mode that rendered the same two fields to a
+ * signed-out visitor and redirected them to sign-in on blur — a form that
+ * looked live and could not narrow anything, because `/book` strips a guest's
+ * filter params before it queries. Guests get `TeacherBrowseControls`' one-line
+ * notice instead, which makes that branch unreachable rather than merely
+ * unused, so it is gone.
+ */
+export function TeacherFilterBar({ specialty, language }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("booking");
@@ -24,16 +31,7 @@ export function TeacherFilterBar({ specialty, language, guestLocked = false }: P
     if (s) params.set("specialty", s);
     if (l) params.set("language", l);
     const query = params.toString();
-    const target = query ? `${pathname}?${query}` : pathname;
 
-    if (guestLocked) {
-      if (!query) {
-        router.replace(pathname);
-        return;
-      }
-      router.push(authSignInHref(target) as "/auth/signin");
-      return;
-    }
     router.replace(query ? `${pathname}?${query}` : pathname);
   }
 
@@ -47,33 +45,30 @@ export function TeacherFilterBar({ specialty, language, guestLocked = false }: P
     box was competing with the rows it filters.
   */
   return (
-    <div className="space-y-3">
-      {guestLocked ? <p className="text-sm text-muted">{t("guestFilterHint")}</p> : null}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("teacherSpecialties")}>
-          {(field) => (
-            <Input
-              {...field}
-              defaultValue={specialty}
-              placeholder={t("filterSpecialtyPlaceholder")}
-              onBlur={(e) => update({ specialty: e.target.value })}
-            />
-          )}
-        </Field>
-        <Field label={t("filterLanguageLabel")}>
-          {(field) => (
-            <Input
-              {...field}
-              defaultValue={language}
-              placeholder={t("filterLanguagePlaceholder")}
-              /* Uppercase the value the filter actually sends, not the hint
-                 telling you what to type. */
-              className="uppercase placeholder:normal-case"
-              onBlur={(e) => update({ language: e.target.value })}
-            />
-          )}
-        </Field>
-      </div>
+    <div className="grid gap-4 sm:grid-cols-2">
+      <Field label={t("teacherSpecialties")}>
+        {(field) => (
+          <Input
+            {...field}
+            defaultValue={specialty}
+            placeholder={t("filterSpecialtyPlaceholder")}
+            onBlur={(e) => update({ specialty: e.target.value })}
+          />
+        )}
+      </Field>
+      <Field label={t("filterLanguageLabel")}>
+        {(field) => (
+          <Input
+            {...field}
+            defaultValue={language}
+            placeholder={t("filterLanguagePlaceholder")}
+            /* Uppercase the value the filter actually sends, not the hint
+               telling you what to type. */
+            className="uppercase placeholder:normal-case"
+            onBlur={(e) => update({ language: e.target.value })}
+          />
+        )}
+      </Field>
     </div>
   );
 }
