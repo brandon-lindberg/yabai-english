@@ -19,6 +19,8 @@ export type StudentProfileSummary = {
   placedSubLevel: number | null;
   timezone: string;
   learningGoals: string[];
+  /** A goal in the student's own words. Written for the teacher to read. */
+  learningGoalsNote?: string | null;
   shortBio: string | null;
 };
 
@@ -86,6 +88,15 @@ export async function StudentProfilePanel({
                     </span>
                   ))}
                 </div>
+              </div>
+            ) : null}
+
+            {/* The student wrote this for a teacher to read; showing the
+                presets without it would drop the specific half. */}
+            {profile.learningGoalsNote ? (
+              <div>
+                <p className="text-sm font-medium text-muted">{t("goalOther")}</p>
+                <p className="mt-1 text-foreground">{profile.learningGoalsNote}</p>
               </div>
             ) : null}
 

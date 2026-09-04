@@ -8,8 +8,6 @@ import { isTeacherCalendarReady } from "@/lib/teacher-calendar-status";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { TEACHER_HOME_SCHEDULE_HREFS, withDashboardOnboarding } from "@/lib/teacher-dashboard-home-links";
 import { DashboardSpine } from "@/components/dashboard/dashboard-spine";
-import { DashboardProfileSummary } from "@/components/dashboard/dashboard-profile-summary";
-import { TeacherProfileForm } from "@/components/dashboard/teacher-profile-form";
 import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { inlineLinkClass } from "@/components/ui/inline-link";
@@ -38,7 +36,7 @@ export async function TeacherDashboard({
   const tCommon = await getTranslations("common");
   const th = await getTranslations("dashboard.highlights");
 
-  const [teacherProfile, googleSettings, accountUser] = await Promise.all([
+  const [teacherProfile, googleSettings] = await Promise.all([
     prisma.teacherProfile.findUnique({
       where: { userId },
       /*
@@ -49,17 +47,7 @@ export async function TeacherDashboard({
       */
       select: {
         id: true,
-        displayName: true,
-        bio: true,
-        // The rest are for the edit dialog in the profile card, which edits
-        // more of the profile than the card displays.
-        countryOfOrigin: true,
-        credentials: true,
-        instructionLanguages: true,
-        specialties: true,
-        marketplaceHidden: true,
         googleCalendarRefreshToken: true,
-        user: { select: { name: true, email: true, image: true } },
         /*
           The open-slot stat needs the recurrence shape, not just row ids: an
           active row is not the same as open availability once its date has
@@ -84,10 +72,6 @@ export async function TeacherDashboard({
     prisma.googleIntegrationSettings.findUnique({
       where: { userId },
       select: { calendarConnected: true },
-    }),
-    prisma.user.findUnique({
-      where: { id: userId },
-      select: { name: true, email: true, image: true },
     }),
   ]);
 
@@ -198,31 +182,6 @@ export async function TeacherDashboard({
           ),
         },
       ]}
-      profileSummary={
-        <DashboardProfileSummary
-          name={teacherProfile?.displayName ?? teacherProfile?.user.name ?? accountUser?.name ?? null}
-          email={teacherProfile?.user.email ?? accountUser?.email ?? null}
-          image={teacherProfile?.user.image ?? accountUser?.image ?? null}
-          shortBio={teacherProfile?.bio ?? null}
-          rpg={null}
-          emptyBioLabel={th("teacherProfileCardEmpty")}
-          editSlot={
-            <TeacherProfileForm
-              presentation="trigger"
-              showGooglePrefillHint={false}
-              avatarUrl={teacherProfile?.user.image ?? accountUser?.image ?? null}
-              initialTeacherProfileId={teacherProfile?.id ?? null}
-              initialDisplayName={teacherProfile?.displayName ?? null}
-              initialBio={teacherProfile?.bio ?? null}
-              initialCountryOfOrigin={teacherProfile?.countryOfOrigin ?? null}
-              initialCredentials={teacherProfile?.credentials ?? null}
-              initialInstructionLanguages={teacherProfile?.instructionLanguages ?? ["EN"]}
-              initialSpecialties={teacherProfile?.specialties ?? []}
-              initialMarketplaceHidden={teacherProfile?.marketplaceHidden ?? false}
-            />
-          }
-        />
-      }
     >
       {isTeacherCabinetRole(role) && !calendarReady ? (
         <InlineAlert variant="info">

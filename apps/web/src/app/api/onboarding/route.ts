@@ -31,6 +31,7 @@ export async function POST(req: Request) {
       userId: session.user.id,
       timezone: parsed.data.timezone,
       learningGoals: parsed.data.learningGoals,
+      learningGoalsNote: parsed.data.learningGoalsNote?.trim() || null,
       notifyLessonReminders: parsed.data.notifyLessonReminders,
       notifyMessages: parsed.data.notifyMessages,
       notifyPayments: parsed.data.notifyPayments,
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
     update: {
       timezone: parsed.data.timezone,
       learningGoals: parsed.data.learningGoals,
+      learningGoalsNote: parsed.data.learningGoalsNote?.trim() || null,
       notifyLessonReminders: parsed.data.notifyLessonReminders,
       notifyMessages: parsed.data.notifyMessages,
       notifyPayments: parsed.data.notifyPayments,

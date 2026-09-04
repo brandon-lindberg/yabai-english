@@ -36,7 +36,6 @@ export async function DashboardSpine({
   nextEmptyMessage,
   nextEmptyAction,
   stats,
-  profileSummary,
   children,
 }: {
   onboardingHref: string | null;
@@ -48,7 +47,6 @@ export async function DashboardSpine({
   nextEmptyMessage: string;
   nextEmptyAction: ReactNode;
   stats: Stat[];
-  profileSummary: ReactNode;
   /** Flow-specific sections, beneath the shared spine. */
   children?: ReactNode;
 }) {
@@ -65,8 +63,6 @@ export async function DashboardSpine({
       />
 
       <StatLedger stats={stats} />
-
-      {profileSummary}
 
       {children}
     </div>

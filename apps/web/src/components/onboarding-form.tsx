@@ -9,18 +9,11 @@ import { useOnboardingSubmit } from "@/hooks/use-onboarding-submit";
 import { useSessionDraft } from "@/hooks/use-session-draft";
 import { buttonClasses } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
-import { Choice, ChoiceList } from "@/components/ui/choice";
+import { LearningGoalsPicker } from "@/components/learning-goals-picker";
 import { Field, Select } from "@/components/ui/field";
 import { inlineLinkClass } from "@/components/ui/inline-link";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Status } from "@/components/ui/status";
-
-const GOALS = [
-  { id: "conversation", labelKey: "goalConversation" },
-  { id: "business", labelKey: "goalBusiness" },
-  { id: "exam", labelKey: "goalExam" },
-  { id: "travel", labelKey: "goalTravel" },
-] as const;
 
 const STEP_COUNT = 4;
 
@@ -59,6 +52,7 @@ type WizardDraft = {
   step: number;
   chosenTimezone: string | null;
   goals: string[];
+  goalsNote: string;
   notifyLessonReminders: boolean;
   notifyMessages: boolean;
   notifyPayments: boolean;
@@ -68,6 +62,7 @@ const EMPTY_DRAFT: WizardDraft = {
   step: 0,
   chosenTimezone: null,
   goals: ["conversation"],
+  goalsNote: "",
   notifyLessonReminders: true,
   notifyMessages: true,
   notifyPayments: true,
@@ -79,8 +74,15 @@ export function OnboardingForm({ initialTimezone }: Props) {
     "onboarding-wizard",
     EMPTY_DRAFT,
   );
-  const { step, chosenTimezone, goals, notifyLessonReminders, notifyMessages, notifyPayments } =
-    draft;
+  const {
+    step,
+    chosenTimezone,
+    goals,
+    goalsNote,
+    notifyLessonReminders,
+    notifyMessages,
+    notifyPayments,
+  } = draft;
   /*
     Consent is deliberately outside the draft, and so is never restored.
     Agreeing to the terms is an act performed on this page; a draft that could
@@ -133,12 +135,6 @@ export function OnboardingForm({ initialTimezone }: Props) {
       : initialTimezone;
   const timezone = chosenTimezone ?? detectedTimezone;
 
-  function toggleGoal(goal: string) {
-    patch({
-      goals: goals.includes(goal) ? goals.filter((g) => g !== goal) : [...goals, goal],
-    });
-  }
-
   function canAdvanceFromStep(s: number): boolean {
     if (s === 0) return Boolean(timezone);
     if (s === 1) return goals.length > 0;
@@ -156,6 +152,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
         body: JSON.stringify({
           timezone,
           learningGoals: goals,
+          learningGoalsNote: goalsNote,
           notifyLessonReminders,
           notifyMessages,
           notifyPayments,
@@ -214,18 +211,11 @@ export function OnboardingForm({ initialTimezone }: Props) {
       {step === 1 ? (
         <WizardStep legend={t("goalsLabel")}>
           {/* The same option row the quiz and flashcards use, as a multi-select. */}
-          <ChoiceList columns={2}>
-            {GOALS.map((goal) => (
-              <Choice
-                key={goal.id}
-                toggle
-                state={goals.includes(goal.id) ? "selected" : "idle"}
-                onSelect={() => toggleGoal(goal.id)}
-              >
-                {t(goal.labelKey)}
-              </Choice>
-            ))}
-          </ChoiceList>
+          <LearningGoalsPicker
+            goals={goals}
+            note={goalsNote}
+            onChange={(next) => patch({ goals: next.goals, goalsNote: next.note })}
+          />
         </WizardStep>
       ) : null}
 

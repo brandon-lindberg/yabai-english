@@ -38,6 +38,7 @@ export default async function LessonDetailPage({
               placedLevel: true,
               placedSubLevel: true,
               learningGoals: true,
+          learningGoalsNote: true,
               shortBio: true,
               timezone: true,
             },

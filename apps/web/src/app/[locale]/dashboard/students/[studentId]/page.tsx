@@ -64,6 +64,7 @@ export default async function TeacherViewStudentProfilePage({ params }: Props) {
           placedLevel: true,
           placedSubLevel: true,
           learningGoals: true,
+          learningGoalsNote: true,
           shortBio: true,
           timezone: true,
         },

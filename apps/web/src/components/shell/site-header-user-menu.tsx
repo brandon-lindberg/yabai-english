@@ -15,8 +15,8 @@ export function SiteHeaderUserMenu({ role }: Props) {
   const t = useTranslations("common");
   const detailsRef = useRef<HTMLDetailsElement>(null);
 
-  const showProfile =
-    role === "STUDENT" || role === "TEACHER" || role === "SUPER_ADMIN";
+  // No Profile entry: it has its own tab in the dashboard sub-nav, and this
+  // menu is for the things with nowhere else to live.
   const showSettings = role === "STUDENT" || role === "TEACHER" || role === "SUPER_ADMIN";
 
   // Close menu when tapping outside (iOS Safari doesn't do this natively for <details>)
@@ -40,14 +40,6 @@ export function SiteHeaderUserMenu({ role }: Props) {
       </summary>
       <div className="absolute right-0 top-11 z-[60] w-[min(18rem,calc(100vw-2rem))] rounded-xl border border-border bg-surface p-3">
         <div className="space-y-1 border-b border-border pb-3">
-          {showProfile ? (
-            <Link
-              href="/dashboard/profile"
-              className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-[var(--app-hover)]"
-            >
-              {t("profile")}
-            </Link>
-          ) : null}
           {showSettings ? (
             <Link
               href="/dashboard/settings"

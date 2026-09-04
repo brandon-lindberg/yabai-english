@@ -83,7 +83,15 @@ export default async function DashboardProfilePage({
       name: true,
       email: true,
       image: true,
-      studentProfile: { select: { shortBio: true } },
+      // Goals and level are what a teacher reads alongside the introduction.
+      studentProfile: {
+        select: {
+          shortBio: true,
+          learningGoals: true,
+          learningGoalsNote: true,
+          placedLevel: true,
+        },
+      },
     },
   });
 
@@ -106,6 +114,9 @@ export default async function DashboardProfilePage({
         showGooglePrefillHint={showPrefillHint}
         initialName={nameInitial === "" ? null : nameInitial}
         initialShortBio={user?.studentProfile?.shortBio ?? null}
+        initialLearningGoals={user?.studentProfile?.learningGoals ?? []}
+        initialLearningGoalsNote={user?.studentProfile?.learningGoalsNote ?? null}
+        placedLevel={user?.studentProfile?.placedLevel ?? null}
         avatarUrl={user?.image ?? null}
         postSaveRedirect={onboardingNextParam ?? null}
       />

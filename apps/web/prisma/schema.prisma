@@ -364,6 +364,11 @@ model StudentProfile {
 
   /// Short self-introduction / goals; visible to teachers with other profile context.
   shortBio String? @db.VarChar(300)
+
+  /// A goal in the student's own words, beyond the fixed list. The four
+  /// preset goals cover the common cases and nothing else — "pass N2 by
+  /// March", "talk to my in-laws" have nowhere to go without this.
+  learningGoalsNote String? @db.VarChar(200)
 }
 
 model TeacherProfile {
