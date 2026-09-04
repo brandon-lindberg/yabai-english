@@ -6,6 +6,7 @@ export const ADMIN_SUBNAV_ROUTES = [
   ["/admin", "overview"],
   ["/admin/schools", "schools"],
   ["/admin/users", "users"],
+  ["/admin/invite", "invite"],
   ["/admin/teachers", "teachers"],
   ["/admin/teacher-tiers", "teacherTiers"],
   ["/admin/students", "students"],

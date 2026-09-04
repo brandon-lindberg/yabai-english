@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/ui/modal";
 import { Field, Input, Select } from "@/components/ui/field";
 import { Status } from "@/components/ui/status";
 import { InlineAlert } from "@/components/ui/inline-alert";
@@ -26,20 +25,26 @@ import { InlineAlert } from "@/components/ui/inline-alert";
  * No administrator option: promoting an existing, known account is a deliberate
  * act against a record that already exists. Typing an address into a box is not
  * the same thing, and the endpoint refuses it either way.
+ *
+ * A page rather than a dialog. It was a button in the corner of the All users
+ * tab — a page about listing people, not about adding them — so an admin
+ * looking for it had no reason to go there.
  */
 export function AdminCreateUser() {
   const t = useTranslations("admin.createUser");
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState("TEACHER");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** The last address created, so the admin can see it landed. */
+  const [created, setCreated] = useState<string | null>(null);
 
   async function submit() {
     setBusy(true);
     setError(null);
+    setCreated(null);
     try {
       const res = await fetch("/api/admin/users", {
         method: "POST",
@@ -53,7 +58,7 @@ export function AdminCreateUser() {
         setError(data?.error ?? t("error"));
         return;
       }
-      setOpen(false);
+      setCreated(email.trim().toLowerCase());
       setEmail("");
       setName("");
       router.refresh();
@@ -65,67 +70,49 @@ export function AdminCreateUser() {
   }
 
   return (
-    <>
-      <Button variant="secondary" onClick={() => setOpen(true)}>
-        {t("open")}
-      </Button>
-
-      {open ? (
-        <Modal
-          open
-          onClose={() => setOpen(false)}
-          title={t("title")}
-          description={t("subtitle")}
-          actions={
-            <>
-              <Button variant="secondary" onClick={() => setOpen(false)} disabled={busy}>
-                {t("cancel")}
-              </Button>
-              <Button onClick={() => void submit()} disabled={!email.trim()} loading={busy}>
-                {busy ? t("working") : t("submit")}
-              </Button>
-            </>
-          }
-        >
-          <div className="space-y-4">
-            {error ? (
-              <p role="alert">
-                <Status tone="error">{error}</Status>
-              </p>
-            ) : null}
-
-            <Field label={t("email")}>
-              {(field) => (
-                <Input
-                  {...field}
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              )}
-            </Field>
-
-            <Field label={t("name")}>
-              {(field) => (
-                <Input {...field} value={name} onChange={(e) => setName(e.target.value)} />
-              )}
-            </Field>
-
-            <Field label={t("role")}>
-              {(field) => (
-                <Select {...field} value={role} onChange={(e) => setRole(e.target.value)}>
-                  <option value="TEACHER">{t("roleTeacher")}</option>
-                  <option value="STUDENT">{t("roleStudent")}</option>
-                </Select>
-              )}
-            </Field>
-
-            {/* Nothing is emailed. Saying so here stops an admin assuming the
-                invitee has been told anything at all. */}
-            <InlineAlert>{t("hint")}</InlineAlert>
-          </div>
-        </Modal>
+    <div className="max-w-md space-y-4">
+      {error ? (
+        <p role="alert">
+          <Status tone="error">{error}</Status>
+        </p>
       ) : null}
-    </>
+
+      <Field label={t("email")}>
+        {(field) => (
+          <Input
+            {...field}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        )}
+      </Field>
+
+      <Field label={t("name")}>
+        {(field) => (
+          <Input {...field} value={name} onChange={(e) => setName(e.target.value)} />
+        )}
+      </Field>
+
+      <Field label={t("role")}>
+        {(field) => (
+          <Select {...field} value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="TEACHER">{t("roleTeacher")}</option>
+            <option value="STUDENT">{t("roleStudent")}</option>
+          </Select>
+        )}
+      </Field>
+
+      {/* Nothing is emailed. Saying so here stops an admin assuming the
+          invitee has been told anything at all. */}
+      <InlineAlert>{t("hint")}</InlineAlert>
+
+      <div className="flex items-center gap-3">
+        <Button onClick={() => void submit()} disabled={!email.trim()} loading={busy}>
+          {busy ? t("working") : t("submit")}
+        </Button>
+        {created ? <Status tone="settled">{t("created", { email: created })}</Status> : null}
+      </div>
+    </div>
   );
 }

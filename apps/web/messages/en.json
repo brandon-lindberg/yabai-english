@@ -785,6 +785,7 @@
       "overview": "Overview",
       "schools": "Schools",
       "users": "All users",
+      "invite": "Invite teacher",
       "teachers": "Teachers",
       "teacherTiers": "Teacher tiers",
       "students": "Students",
@@ -836,6 +837,7 @@
       "slugHint": "Used in URLs. Filled from the name; edit it if you need something different."
     },
     "createUser": {
+      "created": "Created {email}. Tell them to sign in with Google using that address.",
       "open": "Add user",
       "title": "Add a user",
       "subtitle": "Creates the account with the role already set. They sign in with Google using this address.",

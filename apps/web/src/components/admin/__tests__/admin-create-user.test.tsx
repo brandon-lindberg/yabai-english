@@ -25,25 +25,13 @@ function renderForm() {
   );
 }
 
-const open = () =>
-  fireEvent.click(screen.getByRole("button", { name: en.admin.createUser.open }));
-
 describe("AdminCreateUser", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 201 })));
-    // jsdom does not implement showModal, and it has to actually set `open` or
-    // the dialog's contents stay out of the accessibility tree.
-    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
-      this.open = true;
-    });
-    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
-      this.open = false;
-    });
   });
 
   test("creates a teacher from an email address", async () => {
     renderForm();
-    open();
     fireEvent.change(screen.getByLabelText(en.admin.createUser.email), {
       target: { value: "mika@example.com" },
     });
@@ -62,7 +50,6 @@ describe("AdminCreateUser", () => {
 
   test("defaults to teacher, which is the reason this exists", () => {
     renderForm();
-    open();
 
     expect(screen.getByLabelText(en.admin.createUser.role)).toHaveValue("TEACHER");
   });
@@ -70,7 +57,6 @@ describe("AdminCreateUser", () => {
   test("offers no way to mint an administrator", () => {
     // The endpoint refuses it; the form should not suggest it either.
     renderForm();
-    open();
 
     const roles = Array.from(
       screen.getByLabelText(en.admin.createUser.role).querySelectorAll("option"),
@@ -88,7 +74,6 @@ describe("AdminCreateUser", () => {
       ),
     );
     renderForm();
-    open();
     fireEvent.change(screen.getByLabelText(en.admin.createUser.email), {
       target: { value: "taken@example.com" },
     });
@@ -96,5 +81,18 @@ describe("AdminCreateUser", () => {
     fireEvent.click(screen.getByRole("button", { name: en.admin.createUser.submit }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/already exists/);
+  });
+
+  test("confirms the address it created", async () => {
+    // Nothing is emailed, so the admin has to be told it worked and given the
+    // address to pass on.
+    renderForm();
+    fireEvent.change(screen.getByLabelText(en.admin.createUser.email), {
+      target: { value: "Mika@Example.com" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: en.admin.createUser.submit }));
+
+    expect(await screen.findByText(/mika@example\.com/)).toBeInTheDocument();
   });
 });

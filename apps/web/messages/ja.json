@@ -785,6 +785,7 @@
       "overview": "概要",
       "schools": "スクール",
       "users": "全ユーザー",
+      "invite": "講師を招待",
       "teachers": "講師",
       "teacherTiers": "講師ティア",
       "students": "受講生",
@@ -836,6 +837,7 @@
       "slugHint": "URL に使われます。名前から自動入力されます。必要に応じて変更できます。"
     },
     "createUser": {
+      "created": "{email} を作成しました。このアドレスで Google サインインするようご案内ください。",
       "open": "ユーザーを追加",
       "title": "ユーザーを追加",
       "subtitle": "権限を設定した状態でアカウントを作成します。本人はこのメールアドレスで Google サインインします。",
