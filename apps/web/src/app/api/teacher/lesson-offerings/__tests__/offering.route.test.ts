@@ -31,8 +31,6 @@ const body = {
   classTypeId: "ty-1",
 };
 
-const params = { params: Promise.resolve({ offeringId: "offer-1" }) };
-
 function patch(patchBody: Record<string, unknown> = body) {
   return PATCH(
     new Request("http://localhost/api/teacher/lesson-offerings/offer-1", {

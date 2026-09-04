@@ -5,6 +5,7 @@ import { useVerifiedSession } from "@/hooks/use-verified-session";
 import { useTranslations } from "next-intl";
 import { getReceiptKey } from "@/lib/chat-receipts";
 import { subscribeRealtime } from "@/lib/realtime-client";
+import { useLatestRef } from "@/hooks/use-latest-ref";
 import { ChatModerationMenu } from "@/components/chat-moderation-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UnreadBadge } from "@/components/unread-badge";
@@ -242,6 +243,21 @@ export function ChatPanel() {
     }
   }, [threads, activeThreadId]);
 
+  /*
+    What the stream handler needs to know, kept in a ref rather than in the
+    subscription's dependencies.
+
+    The subscription used to list `open`, `activeThreadId`, `loadThreads` and
+    `loadMessages`. All four change while the panel is in use — `loadThreads` is
+    memoised on the admin search box — so opening the panel, picking a thread or
+    typing a character tore down the SSE connection and opened a new one. Each
+    cycle leaves a socket closing against the browser's six-per-origin limit,
+    and once that budget is gone every other request simply queues.
+
+    The connection now depends on who is signed in, and nothing else.
+  */
+  const streamContextRef = useLatestRef({ open, activeThreadId, loadThreads, loadMessages });
+
   useEffect(() => {
     const userId = session?.user?.id;
     if (!userId) return;
@@ -249,19 +265,20 @@ export function ChatPanel() {
       // Pull a fresh snapshot on every (re)connect so we never show stale
       // unread counts after a dropped SSE connection.
       onConnected: () => {
-        void loadThreads();
+        void streamContextRef.current.loadThreads();
       },
       onChatUpdate: (payload) => {
-        void loadThreads();
+        const ctx = streamContextRef.current;
+        void ctx.loadThreads();
         // Never silently mark messages read when the user isn't actually
         // looking at the panel - that's what was wiping the unread badge on
         // dashboard mount before.
         if (
-          open &&
-          activeThreadId &&
-          (!payload?.threadId || payload.threadId === activeThreadId)
+          ctx.open &&
+          ctx.activeThreadId &&
+          (!payload?.threadId || payload.threadId === ctx.activeThreadId)
         ) {
-          void loadMessages(activeThreadId);
+          void ctx.loadMessages(ctx.activeThreadId);
         }
       },
       onNotificationsUpdate: () => {
@@ -269,7 +286,7 @@ export function ChatPanel() {
       },
     });
     return unsubscribe;
-  }, [session?.user?.id, activeThreadId, loadThreads, loadMessages, open]);
+  }, [session?.user?.id, streamContextRef]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });

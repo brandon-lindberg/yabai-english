@@ -3,7 +3,6 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(_req: Request) {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "TEACHER") {

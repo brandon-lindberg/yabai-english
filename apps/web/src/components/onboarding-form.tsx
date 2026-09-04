@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
 import { useOnboardingSubmit } from "@/hooks/use-onboarding-submit";
+import { useSessionDraft } from "@/hooks/use-session-draft";
 import { buttonClasses } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
 import { Choice, ChoiceList } from "@/components/ui/choice";
@@ -46,17 +47,52 @@ type Props = {
  * Teachers have no counterpart to this — they consent through the payment
  * policy step instead — so there is nothing here to share across flows.
  */
+/**
+ * Everything the wizard has been told so far.
+ *
+ * One object rather than nine `useState`s because it is saved and restored as
+ * a unit: switching language remounts this form, and a half-restored draft —
+ * the step without the answers — would put someone on the terms page with
+ * their goals silently back at the defaults.
+ */
+type WizardDraft = {
+  step: number;
+  chosenTimezone: string | null;
+  goals: string[];
+  notifyLessonReminders: boolean;
+  notifyMessages: boolean;
+  notifyPayments: boolean;
+};
+
+const EMPTY_DRAFT: WizardDraft = {
+  step: 0,
+  chosenTimezone: null,
+  goals: ["conversation"],
+  notifyLessonReminders: true,
+  notifyMessages: true,
+  notifyPayments: true,
+};
+
 export function OnboardingForm({ initialTimezone }: Props) {
   const t = useTranslations("onboarding");
-  const [step, setStep] = useState(0);
-  const [chosenTimezone, setChosenTimezone] = useState<string | null>(null);
-  const [goals, setGoals] = useState<string[]>(["conversation"]);
-  const [notifyLessonReminders, setNotifyLessonReminders] = useState(true);
-  const [notifyMessages, setNotifyMessages] = useState(true);
-  const [notifyPayments, setNotifyPayments] = useState(true);
+  const [draft, setDraft, clearDraft] = useSessionDraft<WizardDraft>(
+    "onboarding-wizard",
+    EMPTY_DRAFT,
+  );
+  const { step, chosenTimezone, goals, notifyLessonReminders, notifyMessages, notifyPayments } =
+    draft;
+  /*
+    Consent is deliberately outside the draft, and so is never restored.
+    Agreeing to the terms is an act performed on this page; a draft that could
+    assert it on the student's behalf would turn a stale storage entry into a
+    record of consent nobody gave.
+  */
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [acceptedRecordingConsent, setAcceptedRecordingConsent] = useState(false);
+  const patch = (changes: Partial<WizardDraft>) => setDraft({ ...draft, ...changes });
+  const setStep = (next: number) => patch({ step: next });
+  const setChosenTimezone = (next: string) => patch({ chosenTimezone: next });
   const { saving, error, submit } = useOnboardingSubmit();
   const canSubmit =
     acceptedTerms && acceptedPrivacy && acceptedRecordingConsent && goals.length > 0;
@@ -98,9 +134,9 @@ export function OnboardingForm({ initialTimezone }: Props) {
   const timezone = chosenTimezone ?? detectedTimezone;
 
   function toggleGoal(goal: string) {
-    setGoals((prev) =>
-      prev.includes(goal) ? prev.filter((g) => g !== goal) : [...prev, goal],
-    );
+    patch({
+      goals: goals.includes(goal) ? goals.filter((g) => g !== goal) : [...goals, goal],
+    });
   }
 
   function canAdvanceFromStep(s: number): boolean {
@@ -112,7 +148,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await submit("/api/onboarding", {
+    const saved = await submit("/api/onboarding", {
       destination: "/onboarding/next",
       init: {
         method: "POST",
@@ -129,6 +165,9 @@ export function OnboardingForm({ initialTimezone }: Props) {
         }),
       },
     });
+    // Only once it is on the server. A failed save leaves the draft in place,
+    // so a retry does not start from an empty form.
+    if (saved) clearDraft();
   }
 
   const progressLabel = t("wizardProgress", { current: step + 1, total: STEP_COUNT });
@@ -193,13 +232,13 @@ export function OnboardingForm({ initialTimezone }: Props) {
       {step === 2 ? (
         <WizardStep legend={t("notificationsLabel")}>
           <div className="divide-y divide-border border-y border-border">
-            <CheckRow checked={notifyLessonReminders} onChange={setNotifyLessonReminders}>
+            <CheckRow checked={notifyLessonReminders} onChange={(v) => patch({ notifyLessonReminders: v })}>
               {t("notifyLessons")}
             </CheckRow>
-            <CheckRow checked={notifyMessages} onChange={setNotifyMessages}>
+            <CheckRow checked={notifyMessages} onChange={(v) => patch({ notifyMessages: v })}>
               {t("notifyMessages")}
             </CheckRow>
-            <CheckRow checked={notifyPayments} onChange={setNotifyPayments}>
+            <CheckRow checked={notifyPayments} onChange={(v) => patch({ notifyPayments: v })}>
               {t("notifyPayments")}
             </CheckRow>
           </div>
@@ -262,7 +301,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
           type="button"
           className={buttonClasses({ variant: "secondary" })}
           disabled={step === 0}
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
+          onClick={() => setStep(Math.max(0, step - 1))}
         >
           {t("wizardBack")}
         </button>
@@ -271,7 +310,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
             type="button"
             className={buttonClasses({ size: "lg" })}
             disabled={!canAdvanceFromStep(step)}
-            onClick={() => setStep((s) => Math.min(STEP_COUNT - 1, s + 1))}
+            onClick={() => setStep(Math.min(STEP_COUNT - 1, step + 1))}
           >
             {t("wizardNext")}
           </button>

@@ -16,13 +16,37 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type Variant = "primary" | "secondary" | "ghost" | "destructive";
 type Size = "sm" | "md" | "lg";
 
+/**
+ * How a button answers the pointer.
+ *
+ * Two states, and they have to be told apart: hovered, and actually pressed.
+ * Primary used to shift only its opacity — ninety per cent of near-black on
+ * near-white moves it about twenty values, which is a change you can measure
+ * and not one you can see, so the solid buttons read as dead. Secondary and
+ * ghost declared the *same* fill for hover and active, so pressing them said
+ * nothing at all.
+ *
+ * Each variant now moves one step further on hover and another on press, along
+ * the value ladder rather than into a hue. Written with `color-mix` against the
+ * tokens because primary inverts between themes — ink on paper by day, paper on
+ * ink at night — so any literal would be right in one theme and wrong in the
+ * other. Mixing toward `--app-canvas` lifts the fill toward the page it sits on
+ * in both.
+ */
 const variantClass: Record<Variant, string> = {
   primary:
-    "bg-primary text-primary-foreground hover:opacity-90 active:opacity-80 disabled:opacity-40",
+    "bg-primary text-primary-foreground " +
+    "hover:bg-[color-mix(in_srgb,var(--app-primary)_86%,var(--app-canvas))] " +
+    "active:bg-[color-mix(in_srgb,var(--app-primary)_74%,var(--app-canvas))] " +
+    "disabled:opacity-40",
   secondary:
-    "border border-border bg-surface text-foreground hover:bg-[var(--app-hover)] active:bg-[var(--app-hover)] disabled:opacity-40",
+    "border border-border bg-surface text-foreground hover:bg-[var(--app-hover)] " +
+    "active:bg-[color-mix(in_srgb,var(--app-hover)_88%,var(--app-text))] " +
+    "disabled:opacity-40",
   ghost:
-    "text-foreground hover:bg-[var(--app-hover)] active:bg-[var(--app-hover)] disabled:opacity-40",
+    "text-foreground hover:bg-[var(--app-hover)] " +
+    "active:bg-[color-mix(in_srgb,var(--app-hover)_88%,var(--app-text))] " +
+    "disabled:opacity-40",
   destructive:
     "border border-[var(--app-danger)] text-[var(--app-danger)] hover:bg-[var(--app-danger)]/10 active:bg-[var(--app-danger)]/15 disabled:opacity-40",
 };
@@ -39,7 +63,7 @@ const sizeClass: Record<Size, string> = {
 };
 
 const base =
-  "inline-flex select-none items-center justify-center rounded-full font-semibold tracking-[-0.01em] transition-opacity duration-150 disabled:cursor-not-allowed";
+  "inline-flex select-none items-center justify-center rounded-full font-semibold tracking-[-0.01em] transition-colors duration-150 disabled:cursor-not-allowed";
 
 export function buttonClasses({
   variant = "primary",

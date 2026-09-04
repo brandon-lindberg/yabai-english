@@ -123,22 +123,46 @@ export async function GET(req: Request) {
   }
 
   const queue = isAdminViewer ? adminQueue ?? "all" : "all";
+
+  /*
+    Unread counts, for every thread at once.
+
+    These were two `count` calls inside the per-thread map — one round-trip per
+    thread for a reader, two for an admin — so the query count grew with exactly
+    the person who has the most threads. `groupBy` answers the same question in
+    one query per kind, and a thread with nothing unread simply has no row,
+    which is why the lookup below falls back to zero.
+  */
+  const threadIds = visibleThreads.map((thread) => thread.id);
+  const countsByThread = (rows: { threadId: string; _count: { _all: number } }[]) =>
+    new Map(rows.map((row) => [row.threadId, row._count._all]));
+
+  const [viewerUnreadRows, participantUnreadRows] = await Promise.all([
+    // The viewer's own badge only ever counts messages addressed to them.
+    prisma.chatMessage.groupBy({
+      by: ["threadId"],
+      where: { threadId: { in: threadIds }, recipientId: session.user.id, readAt: null },
+      _count: { _all: true },
+    }),
+    // Admins additionally get a thread-level count for the moderation queue,
+    // which is about what the participants have not read yet.
+    isAdminViewer
+      ? prisma.chatMessage.groupBy({
+          by: ["threadId"],
+          where: { threadId: { in: threadIds }, readAt: null },
+          _count: { _all: true },
+        })
+      : Promise.resolve([] as { threadId: string; _count: { _all: number } }[]),
+  ]);
+
+  const viewerUnread = countsByThread(viewerUnreadRows);
+  const participantUnread = countsByThread(participantUnreadRows);
+
   const withUnread = await Promise.all(
     visibleThreads.map(async (thread) => {
-      // The viewer's own badge only ever counts messages addressed to them.
-      // Admins additionally get a thread-level count for the moderation queue,
-      // which is about what the participants have not read yet.
-      const unreadCount = await prisma.chatMessage.count({
-        where: {
-          threadId: thread.id,
-          recipientId: session.user.id,
-          readAt: null,
-        },
-      });
+      const unreadCount = viewerUnread.get(thread.id) ?? 0;
       const participantUnreadCount = isAdminViewer
-        ? await prisma.chatMessage.count({
-            where: { threadId: thread.id, readAt: null },
-          })
+        ? participantUnread.get(thread.id) ?? 0
         : unreadCount;
       const studentIsAdmin = thread.student.role === Role.SUPER_ADMIN;
       const teacherIsAdmin = thread.teacher.role === Role.SUPER_ADMIN;

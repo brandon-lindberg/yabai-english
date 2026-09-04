@@ -14,6 +14,9 @@ import { useRouter } from "@/i18n/navigation";
  * The rule worth having in one place is the one it is easiest to get wrong:
  * **a save that failed must not navigate.** Two of the three copies got this
  * right by returning early; a fourth copy would have been a coin toss.
+ *
+ * Returns whether the save landed, so a caller with its own cleanup to do —
+ * discarding a saved draft, say — can tell success from failure.
  */
 export function useOnboardingSubmit() {
   const t = useTranslations("onboarding");
@@ -25,18 +28,20 @@ export function useOnboardingSubmit() {
     async (
       url: string,
       { destination, init }: { destination: string; init?: RequestInit },
-    ) => {
+    ): Promise<boolean> => {
       setSaving(true);
       setError(null);
       try {
         const res = await fetch(url, init ?? { method: "POST" });
         if (!res.ok) {
           setError(t("saveError"));
-          return;
+          return false;
         }
         router.push(destination);
+        return true;
       } catch {
         setError(t("saveError"));
+        return false;
       } finally {
         setSaving(false);
       }

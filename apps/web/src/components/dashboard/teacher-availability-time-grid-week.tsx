@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import type { CalendarDay } from "@/lib/slot-calendar";
 import type { PlacedTimeGridBlock } from "@/lib/time-grid-week";
 import { hourGutterLabels, initialScrollTopForTimeGrid, isTimeGridBlockSelected } from "@/lib/time-grid-week";
-import { SLOT_BOOKED, SLOT_BOOKED_HOVER, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
+import { SLOT_BOOKED, SLOT_BOOKED_HOVER, slotClasses } from "@/components/ui/slot-state";
 import { TimeGridSlotBlock } from "@/components/dashboard/time-grid-slot-block";
 
 type Props = {

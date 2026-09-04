@@ -24,8 +24,14 @@ const { sessionMock, updateMock } = vi.hoisted(() => ({
   updateMock: vi.fn(),
 }));
 
+/*
+  `update` is a fresh function on every render, exactly as next-auth builds it:
+  it is defined inside a `useMemo` keyed on `[session, loading]`, and `update`
+  itself flips `loading`. Anything of ours that keys an effect on its identity
+  therefore re-runs continuously.
+*/
 vi.mock("next-auth/react", () => ({
-  useSession: () => ({ ...sessionMock(), update: updateMock }),
+  useSession: () => ({ ...sessionMock(), update: (...args: unknown[]) => updateMock(...args) }),
 }));
 
 const signedIn = { user: { name: "Kana" } };
@@ -106,6 +112,23 @@ describe("useVerifiedSession", () => {
     });
 
     await waitFor(() => expect(updateMock).toHaveBeenCalled());
+  });
+
+  test("does not re-check on every render", () => {
+    // next-auth rebuilds `update` each render, and `update` itself causes a
+    // render. An effect keyed on its identity becomes an unbounded loop of
+    // requests to /api/auth/session — which is worse than the bug it fixes,
+    // because it degrades every other request on the page.
+    const fetchSpy = vi.fn().mockResolvedValue({ ok: true, json: async () => signedIn });
+    vi.stubGlobal("fetch", fetchSpy);
+    const view = render(<Probe />);
+    sessionMock.mockReturnValue({ data: null, status: "unauthenticated" });
+
+    for (let i = 0; i < 8; i += 1) {
+      view.rerender(<Probe />);
+    }
+
+    expect(fetchSpy.mock.calls.length).toBeLessThanOrEqual(1);
   });
 
   test("stays quiet while the session is merely loading", () => {

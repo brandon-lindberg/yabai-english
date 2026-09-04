@@ -81,17 +81,26 @@ export function TeacherOnboardingForm({
     return `${base}${separator}onboardingStep=${encodeURIComponent(step)}`;
   }
 
-  async function skipStep(step: TeacherOnboardingStep) {
-    setChecked((prev) => ({ ...prev, [step]: true }));
-    try {
-      await fetch("/api/onboarding/skip-step", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ step }),
-      });
-    } catch {
-      // swallow - UI state already reflects skipped
-    }
+  /**
+   * Record what the teacher says about a step.
+   *
+   * Ticking a box and skipping a step are the same claim — "this one is
+   * handled" — but only skipping was ever written down, so the boxes reset
+   * whenever the form remounted: switching language, or opening a step and
+   * coming back. Both go through here now.
+   *
+   * The UI updates first and the request is not awaited: the checkbox must
+   * answer immediately, and a failed write costs a tick, not the page.
+   */
+  function recordStep(step: TeacherOnboardingStep, done: boolean) {
+    setChecked((prev) => ({ ...prev, [step]: done }));
+    void fetch("/api/onboarding/skip-step", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ step, done }),
+    }).catch(() => {
+      // Swallowed: the box already reflects the teacher's intent.
+    });
   }
 
   /* Finish and skip land in the same place: the step record is the checklist. */
@@ -103,15 +112,13 @@ export function TeacherOnboardingForm({
     body: t(`teacherSteps.${step}.body`),
     href: buildStepHref(step),
     completed: checked[step],
-    onToggle: (next) => setChecked((prev) => ({ ...prev, [step]: next })),
+    onToggle: (next) => recordStep(step, next),
     action:
       isTeacherOnboardingOptionalStep(step) && !checked[step] ? (
         <button
           type="button"
           className={actionLinkClass}
-          onClick={() => {
-            void skipStep(step);
-          }}
+          onClick={() => recordStep(step, true)}
         >
           {t("teacherSkipOptional")}
         </button>

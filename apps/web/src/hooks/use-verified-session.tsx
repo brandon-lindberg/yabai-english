@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useLatestRef } from "@/hooks/use-latest-ref";
 import { useSession } from "next-auth/react";
 import type { Session } from "next-auth";
 
@@ -80,24 +81,27 @@ export function useVerifiedSession(): {
   /** next-auth says signed out, but we have seen a session in this tab. */
   const doubtful = status === "unauthenticated" && lastKnown !== null;
 
+  /*
+    Held in a ref so the effect below can key on `doubtful` alone.
+
+    next-auth rebuilds `update` on every render — it lives inside a `useMemo`
+    keyed on `[session, loading]`, and `update` itself flips `loading`. A
+    `verify` that depends on it therefore has a new identity each render, and an
+    effect listing it re-runs each render: one request to /api/auth/session per
+    render, forever, starving every other request on the page. Which is a great
+    deal worse than the stale header it was added to fix.
+  */
+  const verifyRef = useLatestRef(verify);
+
   useEffect(() => {
     if (!doubtful) return;
-    /*
-      The rule below guards against a setState running synchronously with the
-      effect and cascading a second render. Every setState in `verify` sits
-      behind `await fetch(...)`, so none can run in this tick — the linter
-      cannot see through the async boundary. Synchronising React with an
-      external system, which is what the session endpoint is, is precisely what
-      an effect is for.
-    */
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void verify();
+    void verifyRef.current();
     // next-auth will not retry once its cached session is null, so recovery
     // has to be armed here rather than left to it.
-    const onOnline = () => void verify();
+    const onOnline = () => void verifyRef.current();
     window.addEventListener("online", onOnline);
     return () => window.removeEventListener("online", onOnline);
-  }, [doubtful, verify]);
+  }, [doubtful, verifyRef]);
 
   if (doubtful && verdict !== "signed-out") {
     return { data: lastKnown, status: "authenticated" };
