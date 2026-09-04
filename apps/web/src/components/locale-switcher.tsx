@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 export function LocaleSwitcher() {
@@ -8,9 +9,19 @@ export function LocaleSwitcher() {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  /*
+    next-intl's `usePathname` is the path alone. Replacing with it drops every
+    search param on the page — a filter, a wizard's step, whatever the URL was
+    holding — so changing the language quietly restarted whatever you were
+    doing. The query is carried across explicitly.
+  */
+  const searchParams = useSearchParams();
 
   function setLocale(nextLocale: "ja" | "en") {
-    router.replace(pathname, { locale: nextLocale });
+    router.replace(
+      { pathname, query: Object.fromEntries(searchParams.entries()) },
+      { locale: nextLocale },
+    );
   }
 
   return (
