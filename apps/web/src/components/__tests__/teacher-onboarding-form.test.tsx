@@ -73,3 +73,64 @@ describe("TeacherOnboardingForm skip for now", () => {
     });
   });
 });
+
+describe("TeacherOnboardingForm — progress that survives leaving the page", () => {
+  /*
+    Teacher completion is self-reported, so the checkbox *is* the record.
+    Skipping a step was written to the profile; ticking one was component state
+    only. Switching language, or opening a step and coming back, remounted the
+    form and quietly cleared every box the teacher had ticked by hand.
+  */
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 200 })));
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("ticking a step records it", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherOnboardingForm />
+      </NextIntlClientProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("step-status-profile"));
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/onboarding/skip-step",
+      expect.objectContaining({
+        body: JSON.stringify({ step: "profile", done: true }),
+      }),
+    );
+  });
+
+  test("unticking takes it off again", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherOnboardingForm completedParam="profile" />
+      </NextIntlClientProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("step-status-profile"));
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/onboarding/skip-step",
+      expect.objectContaining({
+        body: JSON.stringify({ step: "profile", done: false }),
+      }),
+    );
+  });
+
+  test("a step already recorded on the server comes back ticked", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <TeacherOnboardingForm skippedSteps={["chat"]} />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByTestId("step-status-chat")).toBeChecked();
+  });
+});
+
