@@ -5,7 +5,6 @@ import {
   hasEnabledPaidPaymentMethod,
   isLocalDevStripeAccountReady,
   isTeacherPaymentAccountReady,
-  paymentMethodDisplay,
 } from "@/lib/payment-methods";
 
 describe("payment method availability", () => {

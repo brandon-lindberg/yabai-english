@@ -18,7 +18,7 @@ type Props = {
     | "refundStudentsMetaDescription";
 };
 
-export async function generateLegalDocMetadata({ doc, titleKey, descriptionKey }: Props) {
+export async function generateLegalDocMetadata({ titleKey, descriptionKey }: Props) {
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: "legal" });
   return {

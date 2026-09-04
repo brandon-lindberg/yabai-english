@@ -37,8 +37,7 @@ export type TeacherLessonOfferingLike = {
  */
 export function classTypeCodesForCatalogProduct(
   tier: LessonTier,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _durationMin: number,
+    _durationMin: number,
 ): readonly string[] | null {
   switch (tier) {
     case LessonTier.FREE_TRIAL:

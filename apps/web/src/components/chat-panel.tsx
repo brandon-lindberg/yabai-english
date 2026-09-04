@@ -5,6 +5,7 @@ import { useVerifiedSession } from "@/hooks/use-verified-session";
 import { useTranslations } from "next-intl";
 import { getReceiptKey } from "@/lib/chat-receipts";
 import { subscribeRealtime } from "@/lib/realtime-client";
+import { useLatestRef } from "@/hooks/use-latest-ref";
 import { ChatModerationMenu } from "@/components/chat-moderation-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UnreadBadge } from "@/components/unread-badge";
@@ -255,10 +256,7 @@ export function ChatPanel() {
 
     The connection now depends on who is signed in, and nothing else.
   */
-  const streamContextRef = useRef({ open, activeThreadId, loadThreads, loadMessages });
-  useEffect(() => {
-    streamContextRef.current = { open, activeThreadId, loadThreads, loadMessages };
-  }, [open, activeThreadId, loadThreads, loadMessages]);
+  const streamContextRef = useLatestRef({ open, activeThreadId, loadThreads, loadMessages });
 
   useEffect(() => {
     const userId = session?.user?.id;
@@ -288,7 +286,7 @@ export function ChatPanel() {
       },
     });
     return unsubscribe;
-  }, [session?.user?.id]);
+  }, [session?.user?.id, streamContextRef]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });

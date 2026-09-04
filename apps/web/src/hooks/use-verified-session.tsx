@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useLatestRef } from "@/hooks/use-latest-ref";
 import { useSession } from "next-auth/react";
 import type { Session } from "next-auth";
 
@@ -90,10 +91,7 @@ export function useVerifiedSession(): {
     render, forever, starving every other request on the page. Which is a great
     deal worse than the stale header it was added to fix.
   */
-  const verifyRef = useRef(verify);
-  useEffect(() => {
-    verifyRef.current = verify;
-  });
+  const verifyRef = useLatestRef(verify);
 
   useEffect(() => {
     if (!doubtful) return;
@@ -103,7 +101,7 @@ export function useVerifiedSession(): {
     const onOnline = () => void verifyRef.current();
     window.addEventListener("online", onOnline);
     return () => window.removeEventListener("online", onOnline);
-  }, [doubtful]);
+  }, [doubtful, verifyRef]);
 
   if (doubtful && verdict !== "signed-out") {
     return { data: lastKnown, status: "authenticated" };

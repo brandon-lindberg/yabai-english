@@ -8,6 +8,7 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
     },
     chatMessage: {
       count: vi.fn(),
+      groupBy: vi.fn(),
     },
     teacherProfile: {
       findMany: vi.fn(),
@@ -37,6 +38,7 @@ describe("GET /api/chat/threads", () => {
     vi.clearAllMocks();
     prismaMock.teacherProfile.findMany.mockResolvedValue([]);
     prismaMock.booking.findMany.mockResolvedValue([]);
+    prismaMock.chatMessage.groupBy.mockResolvedValue([]);
   });
 
   function adminCounterpartThread(twoWayEnabled: boolean) {
@@ -293,9 +295,17 @@ describe("GET /api/chat/threads", () => {
       },
     ]);
     // Thread-level unread (someone else's) is 3, admin-addressed unread is 0.
-    prismaMock.chatMessage.count.mockImplementation(
+    /*
+      Same fixture, expressed as grouped rows rather than per-thread counts:
+      nothing is addressed to the admin, and three messages are unread between
+      the participants. The distinction this test exists for — the admin's own
+      badge versus the moderation queue's — is unchanged.
+    */
+    prismaMock.chatMessage.groupBy.mockImplementation(
       async ({ where }: { where: { recipientId?: string } }) =>
-        where.recipientId === "admin-1" ? 0 : 3,
+        where.recipientId === "admin-1"
+          ? []
+          : [{ threadId: "participant-unread", _count: { _all: 3 } }],
     );
 
     const res = await GET(new Request("http://localhost/api/chat/threads"));
@@ -323,9 +333,17 @@ describe("GET /api/chat/threads", () => {
         messages: [{ body: "Hi", createdAt: new Date() }],
       },
     ]);
-    prismaMock.chatMessage.count.mockImplementation(
+    /*
+      Same fixture, expressed as grouped rows rather than per-thread counts:
+      nothing is addressed to the admin, and three messages are unread between
+      the participants. The distinction this test exists for — the admin's own
+      badge versus the moderation queue's — is unchanged.
+    */
+    prismaMock.chatMessage.groupBy.mockImplementation(
       async ({ where }: { where: { recipientId?: string } }) =>
-        where.recipientId === "admin-1" ? 0 : 3,
+        where.recipientId === "admin-1"
+          ? []
+          : [{ threadId: "participant-unread", _count: { _all: 3 } }],
     );
 
     const res = await GET(
@@ -588,3 +606,91 @@ describe("GET /api/chat/threads", () => {
     vi.restoreAllMocks();
   });
 });
+
+describe("GET /api/chat/threads — one query, not one per thread", () => {
+  /*
+    Unread counts were fetched with a `count` inside the per-thread map: two
+    round-trips per row for an admin, one for everyone else. It is invisible on
+    a test account and grows with exactly the person who has the most threads —
+    a busy teacher, or an admin looking at the moderation queue.
+
+    The assertion is on the shape rather than the timing: the number of queries
+    must not depend on the number of threads.
+  */
+  function thread(id: string) {
+    return {
+      id,
+      studentId: "s-1",
+      teacherId: "t-1",
+      twoWayEnabled: true,
+      studentBlockedAt: null,
+      teacherBlockedAt: null,
+      studentReportedAt: null,
+      teacherReportedAt: null,
+      studentReportReason: null,
+      teacherReportReason: null,
+      student: { name: "Aiko", email: null, role: "STUDENT" },
+      teacher: { name: "Mika", email: null, role: "TEACHER", teacherProfile: null },
+      messages: [],
+    };
+  }
+
+  async function queriesFor(count: number) {
+    vi.clearAllMocks();
+    prismaMock.teacherProfile.findMany.mockResolvedValue([]);
+    prismaMock.booking.findMany.mockResolvedValue([]);
+    prismaMock.chatMessage.groupBy.mockResolvedValue([]);
+    authMock.mockResolvedValue({ user: { id: "s-1", role: "STUDENT" } });
+    prismaMock.chatThread.findMany.mockResolvedValue(
+      Array.from({ length: count }, (_, i) => thread(`th-${i}`)),
+    );
+
+    await GET(new Request("http://localhost/api/chat/threads"));
+
+    return (
+      prismaMock.chatMessage.count.mock.calls.length +
+      prismaMock.chatMessage.groupBy.mock.calls.length
+    );
+  }
+
+  test("counting unread does not scale with the thread count", async () => {
+    const forOne = await queriesFor(1);
+    const forTwenty = await queriesFor(20);
+
+    expect(forTwenty).toBe(forOne);
+  });
+
+  test("a thread with no unread messages still reports zero", async () => {
+    // `groupBy` returns no row at all for a thread with nothing unread, so the
+    // absent key has to read as 0 rather than undefined.
+    vi.clearAllMocks();
+    prismaMock.teacherProfile.findMany.mockResolvedValue([]);
+    prismaMock.booking.findMany.mockResolvedValue([]);
+    prismaMock.chatMessage.groupBy.mockResolvedValue([]);
+    authMock.mockResolvedValue({ user: { id: "s-1", role: "STUDENT" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([thread("th-0")]);
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    const body = (await res.json()) as Array<{ unreadCount: number }>;
+
+    expect(body[0].unreadCount).toBe(0);
+  });
+
+  test("a thread with unread messages reports its own count", async () => {
+    vi.clearAllMocks();
+    prismaMock.teacherProfile.findMany.mockResolvedValue([]);
+    prismaMock.booking.findMany.mockResolvedValue([]);
+    authMock.mockResolvedValue({ user: { id: "s-1", role: "STUDENT" } });
+    prismaMock.chatThread.findMany.mockResolvedValue([thread("th-0"), thread("th-1")]);
+    prismaMock.chatMessage.groupBy.mockResolvedValue([
+      { threadId: "th-1", _count: { _all: 3 } },
+    ]);
+
+    const res = await GET(new Request("http://localhost/api/chat/threads"));
+    const body = (await res.json()) as Array<{ id: string; unreadCount: number }>;
+
+    expect(body.find((t) => t.id === "th-1")?.unreadCount).toBe(3);
+    expect(body.find((t) => t.id === "th-0")?.unreadCount).toBe(0);
+  });
+});
+

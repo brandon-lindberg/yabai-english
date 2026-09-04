@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLatestRef } from "@/hooks/use-latest-ref";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { PaymentMethodLogos } from "@/components/payment-method-logos";
@@ -167,6 +168,13 @@ export function TeacherPaymentsSettings({
     }
   }
 
+  /*
+    The two handlers are read through a ref rather than listed as dependencies.
+    They are redeclared on every render, so listing them would re-run this
+    effect constantly; omitting them silently is what the lint rule is for.
+  */
+  const stripeActionsRef = useLatestRef({ connectStripe, refreshStripe });
+
   useEffect(() => {
     if (!stripeConnectEnabled || handledStripeReturnRef.current) {
       return;
@@ -175,15 +183,15 @@ export function TeacherPaymentsSettings({
     const stripeParam = searchParams.get("stripe");
     if (stripeParam === "refresh") {
       handledStripeReturnRef.current = true;
-      void connectStripe();
+      void stripeActionsRef.current.connectStripe();
       return;
     }
 
     if (stripeParam === "return") {
       handledStripeReturnRef.current = true;
-      void refreshStripe();
+      void stripeActionsRef.current.refreshStripe();
     }
-  }, [searchParams, stripeConnectEnabled]);
+  }, [searchParams, stripeConnectEnabled, stripeActionsRef]);
 
   // Reuses the same state machine the status card renders from, so the banner
   // and the card can never disagree about whether a teacher must act.

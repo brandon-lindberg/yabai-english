@@ -89,6 +89,9 @@
     }
   },
   "auth": {
+    "idleLockTitle": "Signed out for your security",
+    "idleLockBody": "You were inactive for a while, so this page has been hidden. Sign in again to continue.",
+    "idleLockAction": "Sign in",
     "signInTitle": "Sign in",
     "signInSubtitle": "Continue with Google to create or access your account.",
     "googleIntro": "You don't need a Gmail address—any email you use with Google (for example work or school) is fine to sign up or sign in.",
