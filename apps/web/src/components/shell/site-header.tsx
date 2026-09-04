@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useVerifiedSession } from "@/hooks/use-verified-session";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { NotificationBell } from "@/components/notification-bell";
@@ -11,7 +11,7 @@ import { buttonClasses } from "@/components/ui/button";
 
 export function SiteHeader() {
   const t = useTranslations("common");
-  const { data: session, status } = useSession();
+  const { data: session, status } = useVerifiedSession();
 
   const navLinks =
     session?.user && status === "authenticated"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useVerifiedSession } from "@/hooks/use-verified-session";
 import { useTranslations } from "next-intl";
 import { getReceiptKey } from "@/lib/chat-receipts";
 import { subscribeRealtime } from "@/lib/realtime-client";
@@ -67,7 +67,7 @@ export function ChatPanel() {
       isAdmin ? t("messageFromAdmin") : (name ?? t("unknownUser")),
     [t],
   );
-  const { data: session } = useSession();
+  const { data: session } = useVerifiedSession();
   const isAdminViewer = session?.user?.role === "SUPER_ADMIN";
   const [open, setOpen] = useState(false);
   const [threads, setThreads] = useState<ThreadItem[]>([]);

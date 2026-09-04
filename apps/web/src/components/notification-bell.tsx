@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useVerifiedSession } from "@/hooks/use-verified-session";
 import { useLocale, useTranslations } from "next-intl";
 import { subscribeRealtime } from "@/lib/realtime-client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,7 +22,7 @@ type NotificationItem = {
 export function NotificationBell() {
   const t = useTranslations("common");
   const locale = useLocale();
-  const { data: session } = useSession();
+  const { data: session } = useVerifiedSession();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
