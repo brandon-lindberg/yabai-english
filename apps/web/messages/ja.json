@@ -1396,6 +1396,7 @@
     "title": "メッセージ",
     "conversations": "会話一覧",
     "backToThreads": "戻る",
+    "resizePanel": "メッセージパネルのサイズを変更",
     "open": "チャットを開く",
     "close": "閉じる",
     "unreadBadgeLabel": "未読メッセージ {count}件",

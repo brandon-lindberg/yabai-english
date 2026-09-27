@@ -1,6 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type {
+  CSSProperties,
+  KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+} from "react";
 import { useVerifiedSession } from "@/hooks/use-verified-session";
 import { useTranslations } from "next-intl";
 import { getReceiptKey } from "@/lib/chat-receipts";
@@ -56,6 +61,46 @@ type BroadcastHistoryItem = {
   createdAt: string;
 };
 
+/**
+ * From `md` up the panel is a right-hand sidebar the viewer can drag wider or
+ * narrower. The width is remembered per browser; it is a convenience, so a
+ * missing or unreadable value just falls back to the default.
+ */
+const PANEL_WIDTH_STORAGE_KEY = "chat-panel-width";
+const PANEL_WIDTH_DEFAULT = 420;
+const PANEL_WIDTH_MIN = 360;
+const PANEL_WIDTH_MAX = 1100;
+const PANEL_WIDTH_KEY_STEP = 32;
+/** Room left of the sidebar so the page behind it never disappears entirely. */
+const PANEL_VIEWPORT_GUTTER = 64;
+
+function clampPanelWidth(px: number) {
+  const viewportMax =
+    typeof window === "undefined" ? PANEL_WIDTH_MAX : window.innerWidth - PANEL_VIEWPORT_GUTTER;
+  return Math.round(
+    Math.max(Math.min(px, PANEL_WIDTH_MAX, viewportMax), PANEL_WIDTH_MIN),
+  );
+}
+
+function readStoredPanelWidth() {
+  if (typeof window === "undefined") return PANEL_WIDTH_DEFAULT;
+  try {
+    const stored = Number(localStorage.getItem(PANEL_WIDTH_STORAGE_KEY));
+    if (stored > 0) return clampPanelWidth(stored);
+  } catch {
+    /* ignore */
+  }
+  return PANEL_WIDTH_DEFAULT;
+}
+
+function storePanelWidth(px: number) {
+  try {
+    localStorage.setItem(PANEL_WIDTH_STORAGE_KEY, String(px));
+  } catch {
+    /* ignore */
+  }
+}
+
 export function ChatPanel() {
   const t = useTranslations("chat");
   /**
@@ -71,6 +116,11 @@ export function ChatPanel() {
   const { data: session } = useVerifiedSession();
   const isAdminViewer = session?.user?.role === "SUPER_ADMIN";
   const [open, setOpen] = useState(false);
+  // The panel is never server-rendered (it starts closed), so reading storage
+  // in the initializer cannot cause a hydration mismatch.
+  const [panelWidth, setPanelWidth] = useState(readStoredPanelWidth);
+  const [panelResizing, setPanelResizing] = useState(false);
+  const panelResizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [threads, setThreads] = useState<ThreadItem[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string>("");
   const [messages, setMessages] = useState<MessageItem[]>([]);
@@ -681,6 +731,46 @@ export function ChatPanel() {
 
   if (!session?.user?.id) return null;
 
+  const onPanelResizeStart = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    panelResizeRef.current = { startX: e.clientX, startWidth: panelWidth };
+    setPanelResizing(true);
+  };
+
+  const onPanelResizeMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = panelResizeRef.current;
+    if (!drag) return;
+    // The handle is on the left edge, so dragging left widens the panel.
+    setPanelWidth(clampPanelWidth(drag.startWidth + drag.startX - e.clientX));
+  };
+
+  const onPanelResizeEnd = () => {
+    if (!panelResizeRef.current) return;
+    panelResizeRef.current = null;
+    setPanelResizing(false);
+    storePanelWidth(panelWidth);
+  };
+
+  const onPanelResizeKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    const next =
+      e.key === "ArrowLeft"
+        ? panelWidth + PANEL_WIDTH_KEY_STEP
+        : e.key === "ArrowRight"
+          ? panelWidth - PANEL_WIDTH_KEY_STEP
+          : e.key === "Home"
+            ? PANEL_WIDTH_MIN
+            : e.key === "End"
+              ? PANEL_WIDTH_MAX
+              : null;
+    if (next === null) return;
+    e.preventDefault();
+    const clamped = clampPanelWidth(next);
+    setPanelWidth(clamped);
+    storePanelWidth(clamped);
+  };
+
   return (
     <>
       <button
@@ -700,10 +790,49 @@ export function ChatPanel() {
       </button>
 
       {open && (
+        /*
+          Full screen on phones; from `md` a full-height sidebar docked to the
+          right edge. It is a `@container` so the layout inside follows the
+          panel's own width, not the viewport's: a narrow sidebar shows one
+          pane at a time exactly as a phone does, and dragging it wide enough
+          puts the conversation list and the chat side by side.
+        */
         <div
-          className="fixed inset-0 z-[55] flex flex-col overscroll-none bg-surface pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] md:inset-auto md:bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] md:right-[max(1.25rem,env(safe-area-inset-right,0px))] md:top-20 md:h-auto md:max-h-[min(calc(100dvh-5rem),900px)] md:w-[min(760px,calc(100dvw-2rem))] md:rounded-2xl md:border md:border-border"
-          style={{ touchAction: "pan-x pan-y" }}
+          className={`@container fixed inset-0 z-[55] flex flex-col overscroll-none bg-surface pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] md:left-auto md:w-[min(var(--chat-panel-width),calc(100dvw-4rem))] md:border-l md:border-border md:pr-[env(safe-area-inset-right,0px)] ${
+            panelResizing ? "select-none" : ""
+          }`}
+          style={
+            {
+              touchAction: "pan-x pan-y",
+              "--chat-panel-width": `${panelWidth}px`,
+            } as CSSProperties
+          }
         >
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label={t("resizePanel")}
+            aria-valuemin={PANEL_WIDTH_MIN}
+            aria-valuemax={PANEL_WIDTH_MAX}
+            aria-valuenow={panelWidth}
+            tabIndex={0}
+            onPointerDown={onPanelResizeStart}
+            onPointerMove={onPanelResizeMove}
+            onPointerUp={onPanelResizeEnd}
+            onPointerCancel={onPanelResizeEnd}
+            onKeyDown={onPanelResizeKeyDown}
+            onDoubleClick={() => {
+              setPanelWidth(PANEL_WIDTH_DEFAULT);
+              storePanelWidth(PANEL_WIDTH_DEFAULT);
+            }}
+            className="group absolute inset-y-0 left-0 z-10 hidden w-3 -translate-x-1/2 cursor-col-resize touch-none focus-visible:outline-none md:block"
+          >
+            <span
+              className={`absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 transition-colors group-hover:bg-accent group-focus-visible:bg-accent ${
+                panelResizing ? "bg-accent" : "bg-transparent"
+              }`}
+            />
+          </div>
           <div className="mb-2 flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
             <div className="flex items-center gap-2">
@@ -730,10 +859,10 @@ export function ChatPanel() {
               </button>
             </div>
           </div>
-          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] gap-3 overflow-hidden p-3 md:grid-cols-[260px_minmax(0,1fr)]">
+          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] gap-3 overflow-hidden p-3 @[40rem]:grid-cols-[260px_minmax(0,1fr)]">
             <aside
               className={`min-h-0 min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain rounded-xl border border-border bg-background p-2 ${
-                mobilePane === "chat" ? "hidden md:block" : "block"
+                mobilePane === "chat" ? "hidden @[40rem]:block" : "block"
               }`}
             >
               <h2 className="px-2 pb-2 text-sm font-bold tracking-[-0.01em] text-foreground">
@@ -1166,7 +1295,7 @@ export function ChatPanel() {
 
             <div
               className={`flex min-h-0 min-w-0 flex-1 flex-col rounded-xl border border-border bg-background p-3 ${
-                mobilePane === "chat" ? "flex" : "hidden md:flex"
+                mobilePane === "chat" ? "flex" : "hidden @[40rem]:flex"
               }`}
             >
               {isAdminViewer && adminMode === "broadcast" ? (
@@ -1254,7 +1383,7 @@ export function ChatPanel() {
                 <button
                   type="button"
                   onClick={() => setMobilePane("threads")}
-                  className="shrink-0 rounded-full border border-border px-2 py-1 text-xs text-muted hover:bg-[var(--app-hover)] md:hidden"
+                  className="shrink-0 rounded-full border border-border px-2 py-1 text-xs text-muted hover:bg-[var(--app-hover)] @[40rem]:hidden"
                 >
                   {t("backToThreads")}
                 </button>

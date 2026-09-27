@@ -1396,6 +1396,7 @@
     "title": "Messages",
     "conversations": "Conversations",
     "backToThreads": "Back",
+    "resizePanel": "Resize messages panel",
     "open": "Open chat",
     "close": "Close",
     "unreadBadgeLabel": "{count, plural, one {# unread message} other {# unread messages}}",
