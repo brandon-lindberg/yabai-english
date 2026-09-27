@@ -730,9 +730,9 @@ export function ChatPanel() {
               </button>
             </div>
           </div>
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:grid-cols-[260px_1fr]">
+          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] gap-3 overflow-hidden p-3 md:grid-cols-[260px_minmax(0,1fr)]">
             <aside
-              className={`min-h-0 overflow-y-auto overscroll-contain rounded-xl border border-border bg-background p-2 ${
+              className={`min-h-0 min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain rounded-xl border border-border bg-background p-2 ${
                 mobilePane === "chat" ? "hidden md:block" : "block"
               }`}
             >
@@ -741,7 +741,7 @@ export function ChatPanel() {
               </h2>
               {isAdminViewer && (
                 <div className="mb-2 space-y-2 px-1">
-                  <div className="flex gap-1">
+                  <div className="flex flex-wrap gap-1">
                     <button
                       type="button"
                       onClick={() => setAdminMode("review")}
@@ -837,7 +837,7 @@ export function ChatPanel() {
                   )}
                 </div>
               )}
-              <div className="max-h-full space-y-2 overflow-auto overscroll-contain pr-1">
+              <div className="max-h-full space-y-2 overflow-y-auto overflow-x-hidden overscroll-contain pr-1">
                 {isAdminViewer && adminMode === "broadcast" ? (
                   <div className="space-y-2 px-1">
                     <p className="text-sm text-muted">{t("broadcastLeftPanelHint")}</p>
@@ -848,7 +848,7 @@ export function ChatPanel() {
                       {broadcastHistory.length === 0 ? (
                         <p className="text-xs text-muted">{t("broadcastHistoryEmpty")}</p>
                       ) : (
-                        <div className="max-h-[46vh] space-y-2 overflow-auto">
+                        <div className="max-h-[46vh] space-y-2 overflow-y-auto overflow-x-hidden">
                           {broadcastHistory.map((item) => (
                             <button
                               key={item.id}
@@ -863,7 +863,7 @@ export function ChatPanel() {
                                     ? t("broadcastTargetTeachers")
                                     : t("broadcastTargetStudents")}
                               </p>
-                              <p className="line-clamp-2 text-muted">{item.body}</p>
+                              <p className="line-clamp-2 text-muted wrap-anywhere">{item.body}</p>
                               <p className="text-[10px] text-muted">
                                 {new Date(item.createdAt).toLocaleString()} ·{" "}
                                 {t("broadcastHistoryRecipients", {
@@ -938,10 +938,10 @@ export function ChatPanel() {
                                   }`}
                                 >
                                   <div className="flex items-center justify-between gap-2">
-                                    <div>
-                                      <p className="font-semibold text-foreground">{contact.name}</p>
+                                    <div className="min-w-0">
+                                      <p className="font-semibold text-foreground wrap-anywhere">{contact.name}</p>
                                       {contact.email ? (
-                                        <p className="text-[10px] text-muted">{contact.email}</p>
+                                        <p className="truncate text-[10px] text-muted">{contact.email}</p>
                                       ) : null}
                                     </div>
                                   </div>
@@ -973,13 +973,13 @@ export function ChatPanel() {
                                     }`}
                                   >
                                     <div className="flex items-center justify-between gap-2">
-                                      <div>
-                                        <p className="font-semibold text-foreground">{contact.name}</p>
+                                      <div className="min-w-0">
+                                        <p className="font-semibold text-foreground wrap-anywhere">{contact.name}</p>
                                         {contact.email ? (
-                                          <p className="text-[10px] text-muted">{contact.email}</p>
+                                          <p className="truncate text-[10px] text-muted">{contact.email}</p>
                                         ) : null}
                                       </div>
-                                      <div className="flex items-center gap-1.5">
+                                      <div className="flex shrink-0 items-center gap-1.5">
                                         <UnreadBadge
                                           count={contact.unreadCount}
                                           label={(n) => t("unreadBadgeLabel", { count: n })}
@@ -1017,7 +1017,7 @@ export function ChatPanel() {
                                     }`}
                                   >
                                     <div className="flex items-center justify-between gap-2">
-                                      <p className="font-semibold text-foreground">
+                                      <p className="min-w-0 font-semibold text-foreground wrap-anywhere">
                                         {partyLabel(thread.studentName, thread.studentIsAdmin)} ·{" "}
                                         {partyLabel(thread.teacherName, thread.teacherIsAdmin)}
                                       </p>
@@ -1026,7 +1026,7 @@ export function ChatPanel() {
                                         label={(n) => t("unreadBadgeLabel", { count: n })}
                                       />
                                     </div>
-                                    <p className="mt-0.5 line-clamp-2 text-muted">
+                                    <p className="mt-0.5 line-clamp-2 text-muted wrap-anywhere">
                                       {thread.latestMessage ?? t("noMessagesYet")}
                                     </p>
                                   </button>
@@ -1050,11 +1050,11 @@ export function ChatPanel() {
                             }`}
                           >
                             <div className="flex items-center justify-between gap-2">
-                              <p className="font-semibold text-foreground">
+                              <p className="min-w-0 font-semibold text-foreground wrap-anywhere">
                                 {partyLabel(thread.studentName, thread.studentIsAdmin)} ·{" "}
                                 {partyLabel(thread.teacherName, thread.teacherIsAdmin)}
                               </p>
-                              <div className="flex items-center gap-1">
+                              <div className="flex shrink-0 items-center gap-1">
                                 {(thread.studentReportedAt || thread.teacherReportedAt) && (
                                   <span className="rounded-full border border-[var(--app-warning-border)] bg-[var(--app-warning-bg)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--app-warning-text)]">
                                     {t("adminBadgeReported")}
@@ -1071,7 +1071,7 @@ export function ChatPanel() {
                                 />
                               </div>
                             </div>
-                            <p className="mt-0.5 line-clamp-2 text-muted">
+                            <p className="mt-0.5 line-clamp-2 text-muted wrap-anywhere">
                               {thread.latestMessage ?? t("noMessagesYet")}
                             </p>
                           </button>
@@ -1140,7 +1140,7 @@ export function ChatPanel() {
                               } ${isSwipeOpen ? "pointer-events-none" : ""}`}
                             >
                               <div className="flex items-center justify-between gap-2">
-                                <p className="font-semibold text-foreground">
+                                <p className="min-w-0 font-semibold text-foreground wrap-anywhere">
                                   {partyLabel(thread.counterpartName, thread.counterpartIsAdmin)}
                                 </p>
                                 <UnreadBadge
@@ -1148,7 +1148,7 @@ export function ChatPanel() {
                                   label={(n) => t("unreadBadgeLabel", { count: n })}
                                 />
                               </div>
-                              <p className="mt-0.5 line-clamp-2 text-muted">
+                              <p className="mt-0.5 line-clamp-2 text-muted wrap-anywhere">
                                 {thread.latestMessage ?? t("noMessagesYet")}
                               </p>
                             </button>
@@ -1165,7 +1165,7 @@ export function ChatPanel() {
             </aside>
 
             <div
-              className={`flex min-h-0 flex-1 flex-col rounded-xl border border-border bg-background p-3 ${
+              className={`flex min-h-0 min-w-0 flex-1 flex-col rounded-xl border border-border bg-background p-3 ${
                 mobilePane === "chat" ? "flex" : "hidden md:flex"
               }`}
             >
@@ -1226,7 +1226,7 @@ export function ChatPanel() {
               ) : (
                 <>
               <div className="mb-2 flex items-center justify-between gap-2 border-b border-border pb-2">
-                <div>
+                <div className="min-w-0 wrap-anywhere">
                   {isAdminViewer && activeThread && !isAdminInActiveThread ? (
                     // Reviewing someone else's conversation names both parties;
                     // the admin's own conversation names the person they are
@@ -1254,7 +1254,7 @@ export function ChatPanel() {
                 <button
                   type="button"
                   onClick={() => setMobilePane("threads")}
-                  className="rounded-full border border-border px-2 py-1 text-xs text-muted hover:bg-[var(--app-hover)] md:hidden"
+                  className="shrink-0 rounded-full border border-border px-2 py-1 text-xs text-muted hover:bg-[var(--app-hover)] md:hidden"
                 >
                   {t("backToThreads")}
                 </button>
@@ -1286,7 +1286,7 @@ export function ChatPanel() {
                   {t("readOnlyHint")}
                 </p>
               )}
-              <div className="flex-1 space-y-2 overflow-auto overscroll-contain">
+              <div className="min-w-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden overscroll-contain">
                 {messagesLoading && messages.length === 0 ? (
                   <div
                     data-testid="chat-messages-loading"
@@ -1356,7 +1356,7 @@ export function ChatPanel() {
                         <div
                           className={`flex ${bubbleOnRight ? "justify-end" : "justify-start"}`}
                         >
-                          <div className="max-w-[75%]">
+                          <div className="min-w-0 max-w-[75%]">
                             {isAdminViewer && (
                               <p
                                 className={`mb-0.5 text-[10px] font-medium text-muted ${
@@ -1377,7 +1377,7 @@ export function ChatPanel() {
                                   : "rounded-bl-md border border-border bg-surface text-foreground"
                               }`}
                             >
-                              <p>{msg.body}</p>
+                              <p className="whitespace-pre-wrap wrap-anywhere">{msg.body}</p>
                               <span
                                 className={`pointer-events-none absolute bottom-0 h-2 w-2 ${
                                   bubbleOnRight
@@ -1419,7 +1419,7 @@ export function ChatPanel() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   disabled={composerDisabled}
-                  className="flex-1 rounded-full border border-border bg-surface px-3 py-2 text-base text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                  className="min-w-0 flex-1 rounded-full border border-border bg-surface px-3 py-2 text-base text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder={composerLabel}
                 />
                 <button
