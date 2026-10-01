@@ -14,9 +14,8 @@ import type { TeacherPaymentMethodType } from "@/generated/prisma/client";
  * turned on the day Stripe ships it; mapping it to a capability that never
  * activates would only look like support we do not have.
  *
- * The JP method Stripe *does* offer that we have not wired up is
- * `konbini_payments` — convenience-store payment, and a natural fit since the
- * webhook already handles the delayed-payment events it needs.
+ * The JP method Stripe *does* offer, `konbini_payments` (convenience-store
+ * payment), is deliberately not offered — see `EXCLUDED_CHECKOUT_METHODS`.
  */
 export const STRIPE_CAPABILITY_BY_METHOD = {
   CARD: "card_payments",

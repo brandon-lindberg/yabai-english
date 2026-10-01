@@ -16,6 +16,7 @@ const { prismaMock, constructEventMock, confirmFromCheckoutMock, notifyStuckRefu
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/stripe/stripe-connect", () => ({
   constructStripeWebhookEvent: constructEventMock,
+  retrieveStripeCheckoutMethods: vi.fn().mockResolvedValue(["card"]),
 }));
 vi.mock("@/lib/stripe/confirm-booking-from-stripe-checkout", () => ({
   confirmBookingFromStripeCheckoutSession: confirmFromCheckoutMock,

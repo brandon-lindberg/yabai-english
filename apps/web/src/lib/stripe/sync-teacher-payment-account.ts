@@ -29,6 +29,7 @@ type SyncPrisma = {
         detailsSubmitted: boolean;
         pendingVerification: string[];
         disabledReason: string | null;
+        checkoutMethods?: string[];
       };
       select?: Record<string, unknown>;
     }) => Promise<unknown>;
@@ -47,16 +48,22 @@ type StripeAccountLike = Parameters<typeof resolveStripeAccountStatus>[0];
  *
  * Writes a row for every supported method, enabled or not: a capability that
  * goes away has to switch the option off, not leave a stale row behind.
+ *
+ * `checkoutMethods` is what the account's payment method configuration offers
+ * at Checkout. Left out, the stored list is kept — a failed read of the
+ * configuration must not blank what students are shown.
  */
 export async function syncTeacherPaymentAccountFromStripe(
   prisma: SyncPrisma,
   {
     paymentAccountId,
     stripeAccount,
+    checkoutMethods,
     select,
   }: {
     paymentAccountId: string;
     stripeAccount: StripeAccountLike;
+    checkoutMethods?: string[];
     select?: Record<string, unknown>;
   },
 ) {
@@ -81,6 +88,7 @@ export async function syncTeacherPaymentAccountFromStripe(
       detailsSubmitted: status.detailsSubmitted,
       pendingVerification: status.pendingVerification,
       disabledReason: status.disabledReason,
+      ...(checkoutMethods ? { checkoutMethods } : {}),
     },
     ...(select ? { select } : {}),
   });

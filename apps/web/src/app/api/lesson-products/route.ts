@@ -47,6 +47,7 @@ export async function GET(req: Request) {
           status: true,
           chargesEnabled: true,
           payoutsEnabled: true,
+          checkoutMethods: true,
           methods: {
             select: {
               method: true,

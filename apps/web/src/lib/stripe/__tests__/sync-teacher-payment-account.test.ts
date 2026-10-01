@@ -135,4 +135,34 @@ describe("syncTeacherPaymentAccountFromStripe", () => {
       expect.objectContaining({ select: { id: true, provider: true } }),
     );
   });
+
+  test("stores the methods the account offers at Checkout", async () => {
+    const prisma = syncPrisma();
+
+    await syncTeacherPaymentAccountFromStripe(prisma, {
+      paymentAccountId: "acct-row-1",
+      stripeAccount: readyWithBoth,
+      checkoutMethods: ["card", "apple_pay"],
+    });
+
+    expect(prisma.teacherPaymentAccount.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ checkoutMethods: ["card", "apple_pay"] }),
+      }),
+    );
+  });
+
+  // A failed configuration read passes nothing; that must keep the stored list
+  // rather than blank what students are shown.
+  test("leaves the stored Checkout methods alone when none are passed", async () => {
+    const prisma = syncPrisma();
+
+    await syncTeacherPaymentAccountFromStripe(prisma, {
+      paymentAccountId: "acct-row-1",
+      stripeAccount: readyWithBoth,
+    });
+
+    const [[args]] = prisma.teacherPaymentAccount.update.mock.calls;
+    expect(args.data).not.toHaveProperty("checkoutMethods");
+  });
 });

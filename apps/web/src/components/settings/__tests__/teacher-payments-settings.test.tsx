@@ -42,7 +42,7 @@ describe("TeacherPaymentsSettings", () => {
     );
 
     expect(screen.getByText(en.dashboard.settingsPage.paymentsConnectedTitle)).toBeTruthy();
-    expect(screen.getByLabelText("Stripe available")).toBeTruthy();
+    expect(screen.getByRole("list", { name: en.paymentMethods.acceptedLabel })).toBeTruthy();
     expect(screen.getByText(en.dashboard.settingsPage.paymentPolicyAccepted)).toBeTruthy();
   });
 
@@ -142,7 +142,7 @@ describe("TeacherPaymentsSettings", () => {
       </NextIntlClientProvider>,
     );
 
-    expect(screen.queryByLabelText("Stripe available")).toBeNull();
+    expect(screen.queryByRole("list", { name: en.paymentMethods.acceptedLabel })).toBeNull();
     expect(screen.getByText(en.dashboard.settingsPage.paymentsNone)).toBeTruthy();
     expect(screen.getByText(en.dashboard.settingsPage.paymentAccountLocalReady)).toBeTruthy();
     expect(screen.queryByRole("button", { name: en.dashboard.settingsPage.enableDevStripe })).toBeNull();
@@ -324,7 +324,7 @@ describe("TeacherPaymentsSettings", () => {
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith("/api/teacher/payment-accounts/stripe/sync", { method: "POST" });
-      expect(screen.getByLabelText("Stripe available")).toBeTruthy();
+      expect(screen.getByRole("list", { name: en.paymentMethods.acceptedLabel })).toBeTruthy();
     });
   });
 

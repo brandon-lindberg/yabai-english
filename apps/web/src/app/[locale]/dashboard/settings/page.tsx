@@ -69,6 +69,7 @@ export default async function DashboardSettingsPage({
               detailsSubmitted: true,
               pendingVerification: true,
               disabledReason: true,
+              checkoutMethods: true,
               methods: {
                 select: {
                   method: true,

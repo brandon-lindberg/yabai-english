@@ -19,6 +19,7 @@ import { Status } from "@/components/ui/status";
 import { slotMatchesProduct } from "@/lib/booking-lesson-type-filter";
 import { occurrenceBookability } from "@/lib/occurrence-bookability";
 import type { EnabledTeacherPaymentMethod } from "@/lib/payment-methods";
+import { CheckoutMethodBadges } from "@/components/payment-method-logos";
 
 type LessonProductOption = {
   id: string;
@@ -376,7 +377,13 @@ export function BookingForm({
       >
         <div className="space-y-6">
 
-          {availablePaymentMethods.length > 0 ? (
+          {availablePaymentMethods.length === 1 ? (
+            /* One option leaves nothing to choose — the student picks the actual
+               method on Stripe's page — so this only says what they can pay with. */
+            <Section title={t("stepPaymentMethodsTitle")} disabled={paymentStepDisabled}>
+              <CheckoutMethodBadges methods={availablePaymentMethods[0].checkoutMethods} />
+            </Section>
+          ) : availablePaymentMethods.length > 1 ? (
             <Section title={t("stepChoosePaymentTitle")} disabled={paymentStepDisabled}>
               <fieldset className="space-y-2" disabled={paymentStepDisabled}>
                 <legend className="sr-only">{t("paymentMethod")}</legend>
@@ -405,10 +412,7 @@ export function BookingForm({
                           className="sr-only"
                           disabled={paymentStepDisabled}
                         />
-                        <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${method.logoClassName}`}>
-                          {method.logoLabel}
-                        </span>
-                        <span>{method.label}</span>
+                        <CheckoutMethodBadges methods={method.checkoutMethods} />
                       </label>
                     );
                   })}

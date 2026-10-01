@@ -497,6 +497,11 @@ model TeacherPaymentAccount {
   /// Stripe's `requirements.disabled_reason`. Separates a routine review (wait)
   /// from a rejection or platform pause (the teacher must contact Stripe).
   disabledReason    String?
+  /// Stripe payment method types (`card`, `apple_pay`, `konbini`, …) that the
+  /// account's payment method configuration marks `available` — what Stripe
+  /// Checkout will offer a student. Display only: whether the teacher can be
+  /// booked at all is still decided by `methods`.
+  checkoutMethods   String[]                    @default([])
   createdAt         DateTime                    @default(now())
   updatedAt         DateTime                    @updatedAt
 

@@ -54,6 +54,7 @@ export async function POST() {
       detailsSubmitted: true,
       pendingVerification: true,
       disabledReason: true,
+      checkoutMethods: true,
       methods: { select: { method: true, enabled: true } },
     },
   });

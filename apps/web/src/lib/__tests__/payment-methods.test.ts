@@ -5,6 +5,7 @@ import {
   hasEnabledPaidPaymentMethod,
   isLocalDevStripeAccountReady,
   isTeacherPaymentAccountReady,
+  rankCheckoutMethods,
 } from "@/lib/payment-methods";
 
 describe("payment method availability", () => {
@@ -205,5 +206,50 @@ describe("payment method availability", () => {
         },
       ]),
     ).toBe(false);
+  });
+});
+
+describe("checkout methods shown to students", () => {
+  test("orders what the teacher's Stripe account offers by popularity, card first", () => {
+    expect(rankCheckoutMethods(["link", "apple_pay", "card", "google_pay"])).toEqual([
+      "card",
+      "apple_pay",
+      "google_pay",
+      "link",
+    ]);
+  });
+
+  test("always includes card, even before the account's methods are synced", () => {
+    expect(rankCheckoutMethods(undefined)).toEqual(["card"]);
+    expect(rankCheckoutMethods([])).toEqual(["card"]);
+    expect(rankCheckoutMethods(["apple_pay"])).toEqual(["card", "apple_pay"]);
+  });
+
+  test("never shows konbini, even when the teacher has it turned on in Stripe", () => {
+    expect(rankCheckoutMethods(["card", "konbini", "apple_pay"])).toEqual(["card", "apple_pay"]);
+  });
+
+  test("drops methods Checkout does not offer for a yen charge", () => {
+    expect(rankCheckoutMethods(["card", "sepa_debit", "cashapp", "apple_pay"])).toEqual([
+      "card",
+      "apple_pay",
+    ]);
+  });
+
+  test("a method the teacher has not enabled is not offered", () => {
+    const [stripe] = getEnabledTeacherPaymentMethods([
+      {
+        id: "acct-1",
+        provider: "STRIPE",
+        providerAccountId: "acct_123",
+        status: "ENABLED",
+        chargesEnabled: true,
+        payoutsEnabled: true,
+        methods: [{ method: "CARD", enabled: true }],
+        checkoutMethods: ["card", "google_pay"],
+      },
+    ]);
+
+    expect(stripe.checkoutMethods).toEqual(["card", "google_pay"]);
   });
 });
