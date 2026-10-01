@@ -146,6 +146,24 @@ export default async function TeacherProfileBookingPage({
   const viewerStudentId =
     session?.user?.role === "STUDENT" ? session.user.id : null;
   if (teacher.marketplaceHidden) {
+    // A hidden teacher's page is reached through the link they share, usually
+    // by a student not yet signed in. Who may see it depends on who they are,
+    // so ask them to sign in and come straight back — a 404 here was a dead end
+    // for exactly the students the link was sent to.
+    if (!session?.user) {
+      redirect({
+        href: {
+          pathname: "/auth/signin",
+          query: {
+            callbackUrl: resolveSafeCallbackUrl(
+              buildLocalizedTeacherProfilePath(locale, teacherId, null, null),
+              "/book",
+            ),
+          },
+        },
+        locale,
+      });
+    }
     const onRoster =
       viewerStudentId &&
       (await prisma.teacherRosterEntry.findFirst({

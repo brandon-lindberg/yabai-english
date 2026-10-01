@@ -137,4 +137,26 @@ describe("TeacherProfileForm", () => {
     const img = screen.getByRole("presentation");
     expect(img).toHaveAttribute("src", "https://example.com/avatar.png");
   });
+
+  test("gives a hidden teacher their booking link to copy, in full", () => {
+    renderForm({ initialMarketplaceHidden: true });
+
+    expect(screen.getByText(copy.teacherPreviewWhenHidden).closest("a")).toBeNull();
+    expect(screen.getByRole("textbox", { name: copy.teacherBookingLinkLabel })).toHaveValue(
+      `${window.location.origin}/book/teachers/teacher-profile-1`,
+    );
+    expect(screen.getByRole("button", { name: en.common.copyLink })).toBeTruthy();
+  });
+
+  test("offers the same link to copy when the teacher is public", () => {
+    renderForm();
+
+    expect(screen.getByRole("link", { name: copy.teacherPreviewPublic })).toHaveAttribute(
+      "href",
+      "/book/teachers/teacher-profile-1",
+    );
+    expect(screen.getByRole("textbox", { name: copy.teacherBookingLinkLabel })).toHaveValue(
+      `${window.location.origin}/book/teachers/teacher-profile-1`,
+    );
+  });
 });

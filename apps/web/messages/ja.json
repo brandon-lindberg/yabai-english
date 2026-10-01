@@ -1,5 +1,7 @@
 {
   "common": {
+    "copyLink": "リンクをコピー",
+    "copied": "コピーしました",
     "appName": "English Studio Japan",
     "signIn": "ログイン",
     "signOut": "ログアウト",
@@ -395,6 +397,7 @@
       "teacherOffersFreeTrialHelp": "オフにすると、受講生はあなたのレッスンで無料トライアルを選択できません。",
       "teacherPreviewPublic": "公開の予約ページを見る",
       "teacherPreviewWhenHidden": "公開一覧に表示されないため、受講生一覧にいる方にこのリンクを共有してください。",
+      "teacherBookingLinkLabel": "予約ページのリンク",
       "teacherMarketplaceHiddenLabel": "公開の講師一覧に自分を表示しない",
       "teacherMarketplaceHiddenHelp": "オンにすると、「受講生一覧」で追加した受講生だけが予約ページを開いて予約できます。",
       "prefillFromGoogle": "ログイン（Google）の情報を表示しています。保存前に編集できます。",

@@ -1,5 +1,7 @@
 {
   "common": {
+    "copyLink": "Copy link",
+    "copied": "Copied",
     "appName": "English Studio Japan",
     "signIn": "Sign in",
     "signOut": "Sign out",
@@ -395,6 +397,7 @@
       "teacherOffersFreeTrialHelp": "If off, students will not be able to select free trial for your lessons.",
       "teacherPreviewPublic": "View public booking page",
       "teacherPreviewWhenHidden": "Share this link with students on your list — you are hidden from the public teacher list.",
+      "teacherBookingLinkLabel": "Your booking page link",
       "teacherMarketplaceHiddenLabel": "Hide my profile from the public teacher list",
       "teacherMarketplaceHiddenHelp": "When enabled, only students you add under “Students” can open your booking page and schedule with you.",
       "prefillFromGoogle": "Suggested from your sign-in (Google) — you can edit before saving.",

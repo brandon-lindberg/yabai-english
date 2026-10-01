@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Field, Input } from "@/components/ui/field";
 import { MarkdownField } from "@/components/ui/markdown-field";
@@ -12,6 +12,7 @@ import type { SaveState } from "@/components/ui/form-status";
 import { Status } from "@/components/ui/status";
 import { ProfileSurface } from "@/components/dashboard/profile-surface";
 import { actionLinkClass } from "@/components/ui/inline-link";
+import { CopyLinkField } from "@/components/ui/copy-link-field";
 
 /**
  * A teacher's public profile — shown as a profile, edited on request.
@@ -45,6 +46,10 @@ type Props = {
   presentation?: "page" | "trigger";
 };
 
+function noopSubscribe() {
+  return () => {};
+}
+
 export function TeacherProfileForm({
   showGooglePrefillHint = false,
   avatarUrl,
@@ -67,6 +72,13 @@ export function TeacherProfileForm({
   const router = useRouter();
 
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
+  // The site's own address, read in the browser so the copied link always
+  // points at the domain the teacher is on. Empty during server render.
+  const origin = useSyncExternalStore(
+    noopSubscribe,
+    () => window.location.origin,
+    () => "",
+  );
   const [saved, setSaved] = useState({
     marketplaceHidden: initialMarketplaceHidden,
     displayName: initialDisplayName ?? "",
@@ -133,15 +145,27 @@ export function TeacherProfileForm({
     return true;
   }
 
-  const publicLink = teacherProfileId ? (
-    <p>
-      <Link
-        href={`/book/teachers/${teacherProfileId}`}
-        className={`${actionLinkClass} text-sm`}
-      >
-        {saved.marketplaceHidden ? t("teacherPreviewWhenHidden") : t("teacherPreviewPublic")}
-      </Link>
-    </p>
+  // Unprefixed by locale on purpose: the student lands in their own language,
+  // not the teacher's.
+  const bookingPath = teacherProfileId ? `/book/teachers/${teacherProfileId}` : null;
+  const publicLink = bookingPath ? (
+    <div className="space-y-2">
+      {/* A hidden teacher's page exists only to be passed on, so the sentence
+          introduces the link to copy rather than being a link itself —
+          following it would only bounce a teacher back to their dashboard. */}
+      {saved.marketplaceHidden ? (
+        <p className="text-sm text-foreground">{t("teacherPreviewWhenHidden")}</p>
+      ) : (
+        <p>
+          <Link href={bookingPath} className={`${actionLinkClass} text-sm`}>
+            {t("teacherPreviewPublic")}
+          </Link>
+        </p>
+      )}
+      {origin ? (
+        <CopyLinkField value={`${origin}${bookingPath}`} label={t("teacherBookingLinkLabel")} />
+      ) : null}
+    </div>
   ) : null;
 
   const languages = saved.instructionLanguages.trim();

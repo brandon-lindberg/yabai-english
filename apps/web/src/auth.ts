@@ -282,6 +282,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
+  events: {
+    // `signIn` claims invites by looking the user up, but on a first Google
+    // sign-in it runs before the adapter has created the row, finds nobody, and
+    // claims nothing. Without this a student invited by email would be turned
+    // away from their teacher's hidden booking page until they signed in again.
+    // New users are students (the schema default), so no role check is needed.
+    async createUser({ user }) {
+      if (!user.id) return;
+      await claimTeacherRosterInvites(prisma, { userId: user.id, email: user.email ?? null });
+    },
+  },
 });
 
 declare module "next-auth" {
