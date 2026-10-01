@@ -608,6 +608,7 @@
       "paymentsConnectedTitle": "接続済みの支払い方法",
       "paymentsNone": "有効な支払い方法はまだ接続されていません。",
       "paymentsAvailableToStudents": "支払いポリシーに同意済みの場合、これらの方法が受講生に表示されます。",
+      "paymentsMethodsFromStripe": "Stripeダッシュボードの「設定 → 決済手段」で有効にしたお支払い方法が受講生に表示されます。変更後は「Stripe の状態を更新」を押すと、この一覧に反映されます。",
       "paymentAccountStatus": "{provider} アカウント: {status}",
       "paymentAccountReady": "決済と入金に利用できます",
       "paymentAccountNeedsSetup": "この方法で受講生が支払うには追加設定が必要です",
@@ -1050,6 +1051,7 @@
     "stepChooseTimeTitle": "日時を選ぶ",
     "stepChooseLessonTitle": "レッスンを選ぶ",
     "stepChooseLessonHint": "先に日時を選択してください",
+    "stepPaymentMethodsTitle": "お支払い方法",
     "stepChoosePaymentTitle": "支払い方法を選ぶ",
     "stepReviewTitle": "内容を確認して予約",
     "slotUnavailableError": "その日時は利用できません。別の時間を選んでください。",
@@ -1092,6 +1094,7 @@
     "checkoutCancelled": "お支払いはキャンセルされました。準備ができたら再度お試しください。",
     "teacher": "講師",
     "payNow": "今すぐ支払う",
+    "payNowMethodsHint": "Stripeの安全な決済ページで、次のいずれかの方法でお支払いいただけます：",
     "paymentMethod": "支払い方法",
     "acceptCheckoutTerms": "レッスン内容、支払金額、キャンセルポリシーを確認しました。受講生向けマーケットプレイス利用規約および受講生向け返金ポリシーを読み、同意します。取引は受講生と講師の間で行われ、返金対象の場合はレッスン代金の全額が返金されること、日時変更は返金対象にならないことを理解しています。",
     "acceptCheckoutTermsPrefix": "レッスン内容、支払金額、キャンセルポリシーを確認しました。",
@@ -1161,6 +1164,18 @@
     "bookingDetailWithTeacher": "講師",
     "bookingDetailClassmates": "このクラスの受講生",
     "bookingDetailStatus": "ステータス"
+  },
+  "paymentMethods": {
+    "card": "カード",
+    "apple_pay": "Apple Pay",
+    "google_pay": "Google Pay",
+    "paypay": "PayPay",
+    "link": "Link",
+    "alipay": "Alipay",
+    "wechat_pay": "WeChat Pay",
+    "acceptedLabel": "利用できるお支払い方法",
+    "more": "+{count}",
+    "moreLabel": "他{count}件：{names}"
   },
   "paymentPolicy": {
     "student": {

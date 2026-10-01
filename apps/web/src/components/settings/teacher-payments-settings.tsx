@@ -36,6 +36,7 @@ export type TeacherPaymentsSettingsAccount = {
   detailsSubmitted?: boolean;
   pendingVerification?: string[];
   disabledReason?: string | null;
+  checkoutMethods?: string[];
   methods: Array<{
     method: Method;
     enabled: boolean;
@@ -256,7 +257,14 @@ export function TeacherPaymentsSettings({
         </div>
 
         {enabledMethods.length > 0 ? (
-          <PaymentMethodLogos methods={enabledMethods} />
+          <>
+            {/* Uncapped: students see the shortlist, but a teacher should be
+                able to check everything their account is offering. */}
+            <PaymentMethodLogos methods={enabledMethods} max={Infinity} />
+            {enabledMethods.some((method) => method.provider === "STRIPE") ? (
+              <p className="text-xs text-muted">{t("paymentsMethodsFromStripe")}</p>
+            ) : null}
+          </>
         ) : (
           <p className="text-sm text-muted">{t("paymentsNone")}</p>
         )}

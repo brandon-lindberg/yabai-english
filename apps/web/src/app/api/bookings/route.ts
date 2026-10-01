@@ -27,7 +27,11 @@ import { BookingStatus, LessonTier } from "@/generated/prisma/client";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
-import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import {
+  getEnabledTeacherPaymentMethods,
+  paymentMethodDisplay,
+  rankCheckoutMethods,
+} from "@/lib/payment-methods";
 import {
   claimFreeTrialWithTeacher,
   FreeTrialAlreadyUsedError,
@@ -444,9 +448,8 @@ export async function POST(req: Request) {
           accountId: "",
           provider: "STRIPE" as const,
           method: "CARD" as const,
-          label: "Credit card",
-          logoLabel: "Stripe",
-          logoClassName: "bg-[#635bff] text-white",
+          ...paymentMethodDisplay("CARD"),
+          checkoutMethods: rankCheckoutMethods([]),
         },
       ];
   const selectedPaymentMethod = isFreeTrial

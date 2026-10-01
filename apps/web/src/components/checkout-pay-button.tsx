@@ -7,12 +7,15 @@ import { CheckoutTermsAgreementLabel } from "@/components/checkout-terms-agreeme
 import { buttonClasses } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/check-row";
 import { Status } from "@/components/ui/status";
+import { CheckoutMethodBadges } from "@/components/payment-method-logos";
+import type { CheckoutMethod } from "@/lib/payment-methods";
 
 type Props = {
   bookingId: string;
+  checkoutMethods?: CheckoutMethod[];
 };
 
-export function CheckoutPayButton({ bookingId }: Props) {
+export function CheckoutPayButton({ bookingId, checkoutMethods = [] }: Props) {
   const t = useTranslations("booking");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -64,6 +67,12 @@ export function CheckoutPayButton({ bookingId }: Props) {
       >
         {loading ? "…" : t("payNow")}
       </button>
+      {checkoutMethods.length > 0 ? (
+        <div className="space-y-2">
+          <p className="max-w-[56ch] text-sm text-muted">{t("payNowMethodsHint")}</p>
+          <CheckoutMethodBadges methods={checkoutMethods} />
+        </div>
+      ) : null}
     </div>
   );
 }

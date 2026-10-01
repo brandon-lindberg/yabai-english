@@ -7,6 +7,7 @@ import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import { BookingSummary } from "@/components/booking/booking-summary";
+import { rankCheckoutMethods } from "@/lib/payment-methods";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -28,7 +29,18 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
 
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: { lessonProduct: true, teacher: { include: { user: true } } },
+    include: {
+      lessonProduct: true,
+      teacher: { include: { user: true } },
+      payments: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          provider: true,
+          teacherPaymentAccount: { select: { checkoutMethods: true } },
+        },
+      },
+    },
   });
 
   if (!booking || booking.studentId !== session.user.id) {
@@ -38,6 +50,14 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   if (booking.status === "CONFIRMED") {
     redirect(`/book/checkout/${bookingId}/success?session_id=confirmed`);
   }
+
+  // What this teacher's Stripe Checkout will offer, so the student knows before
+  // leaving the site. Only Stripe hands off to a page that lists them.
+  const payment = booking.payments[0];
+  const checkoutMethods =
+    payment?.provider === "STRIPE"
+      ? rankCheckoutMethods(payment.teacherPaymentAccount?.checkoutMethods)
+      : [];
 
   return (
     <main className="mx-auto max-w-2xl flex-1 px-4 py-10 sm:px-6">
@@ -68,7 +88,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
           <>
             <PaymentPolicyNotice audience="student" className="mt-5" />
             <div className="mt-5">
-              <CheckoutPayButton bookingId={booking.id} />
+              <CheckoutPayButton bookingId={booking.id} checkoutMethods={checkoutMethods} />
             </div>
           </>
         ) : null}

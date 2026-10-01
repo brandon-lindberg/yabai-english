@@ -1,6 +1,7 @@
 import "server-only";
 
 import Stripe from "stripe";
+import { EXCLUDED_CHECKOUT_METHODS } from "@/lib/payment-methods";
 
 let stripeClient: Stripe | null = null;
 
@@ -54,6 +55,55 @@ export async function retrieveStripeAccount(accountId: string) {
   return stripe().accounts.retrieve(accountId);
 }
 
+type PaymentMethodConfigurationLike = {
+  active: boolean;
+  is_default: boolean;
+  application: string | null;
+};
+
+/**
+ * Picks the configuration Checkout applies to our direct charges on the
+ * account: the default one our platform manages for it when there is one, else
+ * the account's own default.
+ */
+export function pickCheckoutPaymentMethodConfiguration<T extends PaymentMethodConfigurationLike>(
+  configurations: T[],
+): T | null {
+  const active = configurations.filter((configuration) => configuration.active);
+  return (
+    active.find((configuration) => configuration.is_default && configuration.application) ??
+    active.find((configuration) => configuration.is_default) ??
+    active[0] ??
+    null
+  );
+}
+
+/**
+ * Every payment method type the configuration marks `available` — Stripe's own
+ * "display preference is on and the capability is active", i.e. what Checkout
+ * may show a student. Methods sit on the configuration as keys of their own
+ * name, so any key whose value carries an `available` flag is one.
+ */
+export function availablePaymentMethodTypes(configuration: object): string[] {
+  return Object.entries(configuration)
+    .filter(
+      ([, value]) =>
+        typeof value === "object" &&
+        value !== null &&
+        (value as { available?: unknown }).available === true,
+    )
+    .map(([type]) => type);
+}
+
+export async function retrieveStripeCheckoutMethods(connectedAccountId: string) {
+  const configurations = await stripe().paymentMethodConfigurations.list(
+    { limit: 100 },
+    { stripeAccount: connectedAccountId },
+  );
+  const configuration = pickCheckoutPaymentMethodConfiguration(configurations.data);
+  return configuration ? availablePaymentMethodTypes(configuration) : [];
+}
+
 export async function createStripeCheckoutSessionDirectCharge({
   connectedAccountId,
   paymentId,
@@ -101,6 +151,8 @@ export async function createStripeCheckoutSessionDirectCharge({
         paymentId,
         bookingId,
       },
+      // Methods otherwise follow the teacher's Stripe Dashboard settings.
+      excluded_payment_method_types: [...EXCLUDED_CHECKOUT_METHODS],
       ...(customerEmail ? { customer_email: customerEmail } : {}),
       success_url: successUrl,
       cancel_url: cancelUrl,

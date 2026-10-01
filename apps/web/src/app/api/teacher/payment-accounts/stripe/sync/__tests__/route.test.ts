@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { authMock, prismaMock, retrieveAccountMock } = vi.hoisted(() => ({
+const { authMock, prismaMock, retrieveAccountMock, retrieveCheckoutMethodsMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
     teacherProfile: { findUnique: vi.fn() },
@@ -8,12 +8,14 @@ const { authMock, prismaMock, retrieveAccountMock } = vi.hoisted(() => ({
     teacherPaymentMethod: { upsert: vi.fn() },
   },
   retrieveAccountMock: vi.fn(),
+  retrieveCheckoutMethodsMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/stripe/stripe-connect", () => ({
   retrieveStripeAccount: retrieveAccountMock,
+  retrieveStripeCheckoutMethods: retrieveCheckoutMethodsMock,
   stripeConnectConfigured: () => true,
 }));
 
@@ -22,6 +24,7 @@ import { POST } from "@/app/api/teacher/payment-accounts/stripe/sync/route";
 describe("POST /api/teacher/payment-accounts/stripe/sync", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    retrieveCheckoutMethodsMock.mockResolvedValue(["card", "apple_pay"]);
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
     prismaMock.teacherProfile.findUnique.mockResolvedValue({
       id: "teacher-profile-1",
@@ -121,5 +124,43 @@ describe("POST /api/teacher/payment-accounts/stripe/sync", () => {
 
     expect(res.status).toBe(404);
     expect(retrieveAccountMock).not.toHaveBeenCalled();
+  });
+
+  test("stores the payment methods the teacher has turned on in Stripe", async () => {
+    retrieveAccountMock.mockResolvedValue({
+      id: "acct_123",
+      charges_enabled: true,
+      payouts_enabled: true,
+      requirements: { currently_due: [], past_due: [] },
+    });
+    prismaMock.teacherPaymentAccount.update.mockResolvedValue({ id: "payacct-1" });
+
+    await POST();
+
+    expect(retrieveCheckoutMethodsMock).toHaveBeenCalledWith("acct_123");
+    expect(prismaMock.teacherPaymentAccount.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ checkoutMethods: ["card", "apple_pay"] }),
+      }),
+    );
+  });
+
+  test("still syncs the account, keeping the stored methods, when they cannot be read", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    retrieveCheckoutMethodsMock.mockRejectedValue(new Error("permission denied"));
+    retrieveAccountMock.mockResolvedValue({
+      id: "acct_123",
+      charges_enabled: true,
+      payouts_enabled: true,
+      requirements: { currently_due: [], past_due: [] },
+    });
+    prismaMock.teacherPaymentAccount.update.mockResolvedValue({ id: "payacct-1" });
+
+    const res = await POST();
+
+    expect(res.status).toBe(200);
+    const [[args]] = prismaMock.teacherPaymentAccount.update.mock.calls;
+    expect(args.data).toEqual(expect.objectContaining({ status: "ENABLED" }));
+    expect(args.data).not.toHaveProperty("checkoutMethods");
   });
 });

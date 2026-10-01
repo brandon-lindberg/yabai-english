@@ -3,6 +3,8 @@ import { syncTeacherPaymentAccountFromStripe } from "@/lib/stripe/sync-teacher-p
 import { notifyTeacherOfStripePhaseChange } from "@/lib/stripe/stripe-account-notifications";
 import { classifyStripeAccount } from "@/lib/teacher-stripe-setup";
 import type { resolveStripeAccountStatus } from "@/lib/stripe/stripe-account-status";
+import { retrieveStripeCheckoutMethods } from "@/lib/stripe/stripe-connect";
+import { isLocalStripeProviderAccount } from "@/lib/payment-methods";
 
 type StripeAccountLike = Parameters<typeof resolveStripeAccountStatus>[0];
 
@@ -41,9 +43,12 @@ export async function syncAndNotifyTeacherPaymentAccount(input: {
     select: PHASE_SELECT,
   });
 
+  const checkoutMethods = await readCheckoutMethods(before?.providerAccountId);
+
   const account = await syncTeacherPaymentAccountFromStripe(prisma, {
     paymentAccountId: input.paymentAccountId,
     stripeAccount: input.stripeAccount,
+    ...(checkoutMethods ? { checkoutMethods } : {}),
     ...(input.select ? { select: input.select } : {}),
   });
 
@@ -63,4 +68,20 @@ export async function syncAndNotifyTeacherPaymentAccount(input: {
   }
 
   return account;
+}
+
+/**
+ * Stripe sends no event when a teacher changes which payment methods they
+ * accept, so every account sync re-reads them. A failed read returns null and
+ * keeps what we had: the sync's real job is the account status, and an unread
+ * method list must not block it or blank the methods students see.
+ */
+async function readCheckoutMethods(providerAccountId: string | null | undefined) {
+  if (!providerAccountId || isLocalStripeProviderAccount(providerAccountId)) return null;
+  try {
+    return await retrieveStripeCheckoutMethods(providerAccountId);
+  } catch (err) {
+    console.error(`Stripe payment method configuration read failed for ${providerAccountId}:`, err);
+    return null;
+  }
 }

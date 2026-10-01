@@ -40,6 +40,8 @@ export type TeacherPaymentAccountLike = {
     method: TeacherPaymentMethodType;
     enabled: boolean;
   }>;
+  /** Stripe payment method types the account offers at Checkout. */
+  checkoutMethods?: string[];
 };
 
 export type EnabledTeacherPaymentMethod = {
@@ -49,7 +51,49 @@ export type EnabledTeacherPaymentMethod = {
   label: string;
   logoLabel: string;
   logoClassName: string;
+  /** What a student can pay with through this option, most popular first. */
+  checkoutMethods: CheckoutMethod[];
 };
+
+/**
+ * The ways to pay we know how to show, most popular with students in Japan
+ * first. Doubles as an allowlist: a Stripe account can have methods available
+ * that Checkout never offers for a yen charge (SEPA, Cash App…), and naming
+ * those would promise options the student will not find.
+ *
+ * `paypay` is not a Stripe method; it is here for legacy KOMOJU rows.
+ */
+export const CHECKOUT_METHODS_BY_POPULARITY = [
+  "card",
+  "apple_pay",
+  "google_pay",
+  "paypay",
+  "link",
+  "alipay",
+  "wechat_pay",
+] as const;
+export type CheckoutMethod = (typeof CHECKOUT_METHODS_BY_POPULARITY)[number];
+
+/**
+ * Methods we never offer, whatever a teacher has turned on in Stripe. Checkout
+ * is told to leave these out, and they are absent from the list above so they
+ * are never shown either.
+ *
+ * `konbini`: the student pays at a convenience store up to days later, long
+ * after the booking hold has released the slot to other students.
+ */
+export const EXCLUDED_CHECKOUT_METHODS = ["konbini"] as const;
+
+/**
+ * Orders an account's Checkout methods by popularity, dropping any we do not
+ * show. Card always leads: it is what every ready Stripe account charges with,
+ * and accounts not yet re-synced have an empty list until they are.
+ */
+export function rankCheckoutMethods(types: readonly string[] | undefined): CheckoutMethod[] {
+  const offered = new Set(types ?? []);
+  offered.add("card");
+  return CHECKOUT_METHODS_BY_POPULARITY.filter((type) => offered.has(type));
+}
 
 export function isLocalStripeProviderAccount(providerAccountId?: string | null): boolean {
   return Boolean(providerAccountId?.startsWith("acct_local_"));
@@ -167,6 +211,10 @@ export function getEnabledTeacherPaymentMethods(
         provider: account.provider,
         method: method.method,
         ...paymentMethodDisplay(method.method),
+        checkoutMethods:
+          method.method === "PAYPAY"
+            ? (["paypay"] as CheckoutMethod[])
+            : rankCheckoutMethods(account.checkoutMethods),
       }));
   });
 }

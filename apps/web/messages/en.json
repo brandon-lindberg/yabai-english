@@ -608,6 +608,7 @@
       "paymentsConnectedTitle": "Connected payment methods",
       "paymentsNone": "No valid payment method is connected yet.",
       "paymentsAvailableToStudents": "These methods are visible to students when your payment policy is accepted.",
+      "paymentsMethodsFromStripe": "Students see the payment methods turned on in your Stripe Dashboard under Settings → Payment methods. After changing them, use “Refresh Stripe status” to update this list.",
       "paymentAccountStatus": "{provider} account: {status}",
       "paymentAccountReady": "Ready for charges and payouts",
       "paymentAccountNeedsSetup": "Needs setup before students can pay with this method",
@@ -1050,6 +1051,7 @@
     "stepChooseTimeTitle": "Choose a time",
     "stepChooseLessonTitle": "Choose a lesson",
     "stepChooseLessonHint": "Select a time first",
+    "stepPaymentMethodsTitle": "Payment methods",
     "stepChoosePaymentTitle": "Choose payment method",
     "stepReviewTitle": "Review and book",
     "slotUnavailableError": "That time is no longer available. Please choose another slot.",
@@ -1092,6 +1094,7 @@
     "checkoutCancelled": "Payment was cancelled. You can try again when you are ready.",
     "teacher": "Teacher",
     "payNow": "Pay now",
+    "payNowMethodsHint": "You'll finish on Stripe's secure page and can pay with any of these:",
     "paymentMethod": "Payment method",
     "acceptCheckoutTerms": "I confirm the lesson details, payment amount, and cancellation policy. I have read and agree to the Student Marketplace Terms and Student Refund Policy. I understand the transaction is between me and the teacher, eligible refunds return the full lesson price, and rescheduling does not create a refund entitlement.",
     "acceptCheckoutTermsPrefix": "I confirm the lesson details, payment amount, and cancellation policy. I have read and agree to the",
@@ -1161,6 +1164,18 @@
     "bookingDetailWithTeacher": "Teacher",
     "bookingDetailClassmates": "In this class",
     "bookingDetailStatus": "Status"
+  },
+  "paymentMethods": {
+    "card": "Card",
+    "apple_pay": "Apple Pay",
+    "google_pay": "Google Pay",
+    "paypay": "PayPay",
+    "link": "Link",
+    "alipay": "Alipay",
+    "wechat_pay": "WeChat Pay",
+    "acceptedLabel": "Accepted payment methods",
+    "more": "+{count}",
+    "moreLabel": "{count} more: {names}"
   },
   "paymentPolicy": {
     "student": {
