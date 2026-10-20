@@ -32,6 +32,14 @@ export function evaluateBookingCancellationPolicy(input: {
     return empty();
   }
 
+  // A lesson that has begun has no time left to give back, and its status
+  // still reads CONFIRMED until someone marks it otherwise. Only an admin may
+  // reach behind that — settling a no-show is a refund decision, not a cancel.
+  const now = input.now ?? new Date();
+  if (input.lessonStartsAt.getTime() <= now.getTime() && input.actor !== "SUPER_ADMIN") {
+    return empty();
+  }
+
   if (input.bookingStatus === "PENDING_PAYMENT") {
     return {
       allowed: true,
@@ -49,7 +57,7 @@ export function evaluateBookingCancellationPolicy(input: {
   if (input.actor === "STUDENT") {
     const farEnough = isBookingOutsideLeadWindow({
       start: input.lessonStartsAt,
-      now: input.now ?? new Date(),
+      now,
       minimumHours: 48,
     });
     return {

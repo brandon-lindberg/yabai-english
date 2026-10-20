@@ -76,6 +76,12 @@ export async function POST(_req: Request, { params }: Props) {
   if (groupSession.cancelledAt) {
     return NextResponse.json({ error: "This class is already cancelled." }, { status: 409 });
   }
+  // Past its start, the per-seat policy would refuse every refund while this
+  // loop still cancelled every seat — so a class that has begun is not
+  // called off at all.
+  if (groupSession.startsAt.getTime() <= Date.now()) {
+    return NextResponse.json({ error: "This class has already started." }, { status: 409 });
+  }
 
   // Closed first, so a student cannot take one of the seats being emptied.
   await prisma.groupLessonSession.update({

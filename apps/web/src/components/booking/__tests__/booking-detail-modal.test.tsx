@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../../messages/en.json";
@@ -47,6 +47,13 @@ describe("BookingDetailModal", () => {
     HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
       this.open = false;
     });
+    // The lesson in the fixture is still ahead unless a test says otherwise.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-07-01T00:00:00.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test("says when the lesson is in the viewer's timezone, not the machine's", () => {
@@ -84,6 +91,35 @@ describe("BookingDetailModal", () => {
     // The hold ran out and the slot went back on sale; both actions point at
     // something that is no longer the student's to act on.
     renderModal({ status: "EXPIRED" });
+
+    expect(screen.queryByRole("button", { name: en.booking.pendingReservationPay })).toBeNull();
+    expect(screen.queryByRole("button", { name: en.dashboard.cancelBooking })).toBeNull();
+  });
+
+  test("a lesson under way can still be joined but no longer cancelled", () => {
+    // Someone running late should still find the call; giving the time back
+    // stopped being possible the moment it began.
+    vi.setSystemTime(new Date("2026-07-05T01:45:00.000Z"));
+    renderModal();
+
+    expect(screen.getByRole("link", { name: en.dashboard.meetLink })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: en.dashboard.cancelBooking })).toBeNull();
+  });
+
+  test("a past lesson still shows its details but offers nothing to act on", () => {
+    // Status alone does not say a lesson is over — it stays CONFIRMED after the
+    // fact — so the clock has to.
+    vi.setSystemTime(new Date("2026-07-06T00:00:00.000Z"));
+    renderModal();
+
+    expect(screen.getByText("Kana Minami Miura")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: en.dashboard.meetLink })).toBeNull();
+    expect(screen.queryByRole("button", { name: en.dashboard.cancelBooking })).toBeNull();
+  });
+
+  test("an unpaid reservation whose time has come offers neither payment nor cancelling", () => {
+    vi.setSystemTime(new Date("2026-07-06T00:00:00.000Z"));
+    renderModal({ status: "PENDING_PAYMENT" });
 
     expect(screen.queryByRole("button", { name: en.booking.pendingReservationPay })).toBeNull();
     expect(screen.queryByRole("button", { name: en.dashboard.cancelBooking })).toBeNull();

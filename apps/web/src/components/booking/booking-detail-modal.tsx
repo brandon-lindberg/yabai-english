@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/modal";
 import { Button, buttonClasses } from "@/components/ui/button";
@@ -67,11 +68,36 @@ export function BookingDetailModal({
   timeZone: string;
   onClose: () => void;
 }) {
+  if (!booking) return null;
+
+  // Keyed so each opening reads the clock afresh, rather than once when the
+  // calendar first mounted.
+  return (
+    <BookingDetailDialog
+      key={booking.id}
+      booking={booking}
+      viewer={viewer}
+      timeZone={timeZone}
+      onClose={onClose}
+    />
+  );
+}
+
+function BookingDetailDialog({
+  booking,
+  viewer,
+  timeZone,
+  onClose,
+}: {
+  booking: CalendarBookingDetail;
+  viewer: "teacher" | "student";
+  timeZone: string;
+  onClose: () => void;
+}) {
   const t = useTranslations("booking");
   const td = useTranslations("dashboard");
   const locale = useLocale();
-
-  if (!booking) return null;
+  const [now] = useState(() => Date.now());
 
   const when = new Intl.DateTimeFormat(locale, {
     weekday: "short",
@@ -82,14 +108,24 @@ export function BookingDetailModal({
     timeZone,
   }).format(new Date(booking.startsAtIso));
 
-  const awaitingPayment = booking.status === "PENDING_PAYMENT";
+  /*
+    A past lesson keeps its status — nothing flips CONFIRMED to COMPLETED when
+    the clock runs out — so the time itself decides what is still actionable.
+    The call stays joinable until it ends, for whoever is running late; paying
+    for or cancelling a lesson stops making sense the moment it begins.
+  */
+  const started = new Date(booking.startsAtIso).getTime() <= now;
+  const ended = new Date(booking.endsAtIso).getTime() <= now;
+
+  const awaitingPayment = booking.status === "PENDING_PAYMENT" && !started;
   /*
     Cancelling is about giving a time back, so it is offered only while there
     is a time to give back. A lesson already taught, one already cancelled, and
     a reservation whose hold has lapsed all have nothing left to release — the
     button would only fail at the API and read as a broken control.
   */
-  const canCancel = booking.status === "CONFIRMED" || awaitingPayment;
+  const canCancel = !started && (booking.status === "CONFIRMED" || awaitingPayment);
+  const canJoin = !ended && booking.status === "CONFIRMED" && Boolean(booking.meetUrl);
 
   return (
     <Modal
@@ -102,7 +138,7 @@ export function BookingDetailModal({
           <Button variant="secondary" onClick={onClose}>
             {t("bookingDetailClose")}
           </Button>
-          {booking.meetUrl && booking.status === "CONFIRMED" ? (
+          {canJoin && booking.meetUrl ? (
             <a
               href={booking.meetUrl}
               target="_blank"

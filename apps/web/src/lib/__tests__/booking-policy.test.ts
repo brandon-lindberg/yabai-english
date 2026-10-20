@@ -99,4 +99,35 @@ describe("evaluateBookingCancellationPolicy", () => {
     expect(r.allowed).toBe(true);
     expect(r.refundEligible).toBe(true);
   });
+
+  it("disallows a student or teacher cancelling a lesson that has begun", () => {
+    for (const actor of ["STUDENT", "TEACHER"] as const) {
+      for (const lessonStartsAt of [
+        t0, // starting right now
+        new Date("2026-04-09T12:00:00.000Z"), // a day ago, still CONFIRMED
+      ]) {
+        for (const bookingStatus of ["CONFIRMED", "PENDING_PAYMENT"] as const) {
+          const r = evaluateBookingCancellationPolicy({
+            actor,
+            bookingStatus,
+            lessonStartsAt,
+            now: t0,
+          });
+          expect(r.allowed).toBe(false);
+          expect(r.refundEligible).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("lets an admin settle a lesson that has already happened", () => {
+    const r = evaluateBookingCancellationPolicy({
+      actor: "SUPER_ADMIN",
+      bookingStatus: "CONFIRMED",
+      lessonStartsAt: new Date("2026-04-09T12:00:00.000Z"),
+      now: t0,
+    });
+    expect(r.allowed).toBe(true);
+    expect(r.refundEligible).toBe(true);
+  });
 });

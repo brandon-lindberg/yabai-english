@@ -61,6 +61,8 @@ function groupSession(overrides: Record<string, unknown> = {}) {
   return {
     id: "sess-1",
     cancelledAt: null,
+    startsAt: new Date("2026-07-05T01:30:00.000Z"),
+    endsAt: new Date("2026-07-05T02:10:00.000Z"),
     googleEventId: "evt-class",
     googleCalendarId: "primary",
     teacher: {
@@ -132,6 +134,19 @@ describe("POST /api/group-lesson-sessions/[sessionId]/cancel", () => {
     ];
     expect(args.policy.refundEligible).toBe(true);
     expect(args.actor).toBe("TEACHER");
+  });
+
+  // Past its start every seat's refund would be refused, so cancelling the
+  // seats anyway would leave students marked cancelled and unrefunded.
+  test("refuses to call off a class that has already started", async () => {
+    vi.setSystemTime(new Date("2026-07-05T01:45:00.000Z"));
+
+    const res = await cancelClass();
+
+    expect(res.status).toBe(409);
+    expect(prismaMock.groupLessonSession.update).not.toHaveBeenCalled();
+    expect(prismaMock.booking.update).not.toHaveBeenCalled();
+    expect(issueRefundMock).not.toHaveBeenCalled();
   });
 
   test("closes the class so no one can take a seat being emptied", async () => {

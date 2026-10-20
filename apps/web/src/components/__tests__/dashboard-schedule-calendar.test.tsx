@@ -92,10 +92,16 @@ describe("DashboardScheduleCalendar", () => {
     HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
       this.open = false;
     });
+    // Between the past lesson and the upcoming one, so "upcoming" stays true
+    // whatever day the suite runs on — the dialog reads the clock to decide
+    // what can still be acted on.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-07-03T00:00:00.000Z"));
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.useRealTimers();
   });
 
   test("renders booked lesson times in the provided dashboard timezone", () => {
