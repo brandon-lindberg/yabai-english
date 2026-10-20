@@ -26,11 +26,14 @@ const booking: CalendarBookingDetail = {
   groupSeats: null,
 };
 
-function renderModal(overrides: Partial<CalendarBookingDetail> = {}) {
+function renderModal(
+  overrides: Partial<CalendarBookingDetail> = {},
+  viewer: "student" | "teacher" = "student",
+) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
       <BookingDetailModal
-        viewer="student"
+        viewer={viewer}
         timeZone="Asia/Tokyo"
         booking={{ ...booking, ...overrides }}
         onClose={() => {}}
@@ -123,5 +126,55 @@ describe("BookingDetailModal", () => {
 
     expect(screen.queryByRole("button", { name: en.booking.pendingReservationPay })).toBeNull();
     expect(screen.queryByRole("button", { name: en.dashboard.cancelBooking })).toBeNull();
+  });
+
+  describe("a lesson already taught", () => {
+    const record = {
+      notesMd: "Practised **past tense**.",
+      transcriptUrl: "https://docs.example/notes",
+      invoiceId: "inv-1",
+      canFetchNotesLink: false,
+    };
+
+    beforeEach(() => {
+      vi.setSystemTime(new Date("2026-07-06T00:00:00.000Z"));
+    });
+
+    test("reads as completed, though its stored status still says confirmed", () => {
+      renderModal({ record });
+
+      expect(screen.getByText(en.booking.bookingDetailTitleCompleted)).toBeInTheDocument();
+      expect(screen.getByText(en.dashboard.statusCompleted)).toBeInTheDocument();
+      expect(screen.queryByText(en.dashboard.statusConfirmed)).toBeNull();
+    });
+
+    test("shows the student their teacher's notes, the transcript and the invoice", () => {
+      renderModal({ record });
+
+      expect(screen.getByText(en.dashboard.schedulePage.lessonNotesReadLabel)).toBeInTheDocument();
+      expect(screen.getByText("past tense")).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: en.dashboard.schedulePage.transcriptLinkStudentCta }),
+      ).toHaveAttribute("href", "https://docs.example/notes");
+      expect(screen.getByRole("link", { name: en.dashboard.downloadInvoiceJa })).toBeInTheDocument();
+    });
+
+    test("gives the teacher the notes form, filled with what was saved", () => {
+      renderModal({ record }, "teacher");
+
+      expect(screen.getByDisplayValue("https://docs.example/notes")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: en.dashboard.schedulePage.lessonNotesSave }),
+      ).toBeInTheDocument();
+    });
+
+    test("says nothing about notes the teacher never wrote", () => {
+      renderModal({
+        record: { notesMd: null, transcriptUrl: null, invoiceId: null, canFetchNotesLink: false },
+      });
+
+      expect(screen.queryByText(en.dashboard.schedulePage.lessonNotesReadLabel)).toBeNull();
+      expect(screen.queryByText(en.booking.bookingDetailInvoice)).toBeNull();
+    });
   });
 });

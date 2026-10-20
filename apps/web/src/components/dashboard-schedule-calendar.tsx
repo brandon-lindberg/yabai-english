@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/calendar-frame";
 import { shiftCalendarAnchor, type CalendarViewMode } from "@/lib/calendar-view";
 import { slotClasses } from "@/components/ui/slot-state";
-import { Link } from "@/i18n/navigation";
 import { BookingDetailModal } from "@/components/booking/booking-detail-modal";
 import { bookingChipWho } from "@/lib/booking-chip-label";
 import type { DashboardScheduleItem } from "@/lib/dashboard/schedule-items";
@@ -54,12 +53,12 @@ type Props = {
 };
 
 /**
- * Where a mark on the grid leads.
+ * Where a mark on the grid leads: always to its details, in place.
  *
- * A lesson still ahead is a reservation, and opens its details in place. One
- * already taught is a record — its notes and invoice live on the completed
- * history page — so it stays a link to that page rather than a dialog offering
- * to cancel something that already happened.
+ * A lesson already taught used to be a link to the completed history, which
+ * cost someone glancing back at last week a trip to another tab. It now opens
+ * the same dialog, carrying its notes and invoice; the dialog itself knows not
+ * to offer cancelling or joining something that already happened.
  */
 function ScheduleItemAction({
   item,
@@ -75,19 +74,6 @@ function ScheduleItemAction({
   onOpen: (id: string) => void;
   children: ReactNode;
 }) {
-  if (item.isPast) {
-    return (
-      <Link
-        href={`/dashboard/schedule/completed#booking-${item.id}`}
-        aria-label={label}
-        data-testid="schedule-chip"
-        data-booking-id={item.id}
-        className={className}
-      >
-        {children}
-      </Link>
-    );
-  }
   return (
     <button
       type="button"
@@ -439,6 +425,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
                 meetUrl: openedItem.meetUrl,
                 groupSeats: openedItem.groupSeats,
                 classmates: openedItem.classmates,
+                record: openedItem.record,
               }
             : null
         }

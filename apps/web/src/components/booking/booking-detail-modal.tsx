@@ -10,6 +10,11 @@ import type { BookingDisplayStatus } from "@/lib/booking-status";
 import { formatYen } from "@/lib/format-money";
 import { PendingReservationActions } from "@/components/booking/pending-reservation-actions";
 import { BookingCancelButton } from "@/components/dashboard/booking-cancel-button";
+import { InvoiceDownloadLinks } from "@/components/dashboard/invoice-download-links";
+import { TeacherLessonCompletionNotesForm } from "@/components/dashboard/teacher-lesson-completion-notes-form";
+import { MarkdownClamp } from "@/components/ui/markdown-clamp";
+import { actionLinkClass } from "@/components/ui/inline-link";
+import { useRouter } from "@/i18n/navigation";
 
 /**
  * What one reservation on a calendar actually is.
@@ -35,6 +40,22 @@ export type CalendarBookingDetail = {
   /** Who else is in the class. Teacher-side only — see the note below. */
   classmates?: string[];
   holdExpiresAtIso?: string | null;
+  /** Present only for a lesson already taught — see `LessonRecord`. */
+  record?: LessonRecord | null;
+};
+
+/**
+ * What the completed history shows for a lesson once it has been taught.
+ *
+ * Carried on the calendar so a past lesson opens in place, like any other,
+ * rather than sending someone to another tab to glance at what was covered.
+ */
+export type LessonRecord = {
+  notesMd: string | null;
+  transcriptUrl: string | null;
+  invoiceId: string | null;
+  /** Has a Calendar event, so its Gemini notes document can be looked up. */
+  canFetchNotesLink: boolean;
 };
 
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
@@ -97,6 +118,8 @@ function BookingDetailDialog({
   const t = useTranslations("booking");
   const td = useTranslations("dashboard");
   const locale = useLocale();
+  const tsp = useTranslations("dashboard.schedulePage");
+  const router = useRouter();
   const [now] = useState(() => Date.now());
 
   const when = new Intl.DateTimeFormat(locale, {
@@ -126,13 +149,22 @@ function BookingDetailDialog({
   */
   const canCancel = !started && (booking.status === "CONFIRMED" || awaitingPayment);
   const canJoin = !ended && booking.status === "CONFIRMED" && Boolean(booking.meetUrl);
+  // Taught, as far as anyone looking at it is concerned: the history page calls
+  // these completed, and the dialog should not disagree with it.
+  const displayStatus: BookingDisplayStatus =
+    ended && booking.status === "CONFIRMED" ? "COMPLETED" : booking.status;
+  const record = booking.record ?? null;
+  const notesMd = record?.notesMd?.trim() ?? "";
+  const transcriptUrl = record?.transcriptUrl?.trim() ?? "";
 
   return (
     <Modal
       open
       onClose={onClose}
-      title={t("bookingDetailTitle")}
+      title={displayStatus === "COMPLETED" ? t("bookingDetailTitleCompleted") : t("bookingDetailTitle")}
       description={when}
+      // The teacher's notes form needs the room; a read-only record does not.
+      size={record && viewer === "teacher" ? "lg" : "md"}
       actions={
         <>
           <Button variant="secondary" onClick={onClose}>
@@ -179,8 +211,8 @@ function BookingDetailDialog({
           </DetailRow>
         ) : null}
         <DetailRow label={t("bookingDetailStatus")}>
-          <Status tone={bookingStatusTone(booking.status)}>
-            {td(bookingStatusKey(booking.status))}
+          <Status tone={bookingStatusTone(displayStatus)}>
+            {td(bookingStatusKey(displayStatus))}
           </Status>
         </DetailRow>
         {/*
@@ -193,7 +225,56 @@ function BookingDetailDialog({
             {booking.classmates.join(", ")}
           </DetailRow>
         ) : null}
+        {record?.invoiceId ? (
+          <DetailRow label={t("bookingDetailInvoice")}>
+            <span className="inline-flex flex-wrap justify-end gap-2">
+              <InvoiceDownloadLinks
+                invoiceId={record.invoiceId}
+                englishLabel={td("downloadInvoiceEn")}
+                japaneseLabel={td("downloadInvoiceJa")}
+              />
+            </span>
+          </DetailRow>
+        ) : null}
       </dl>
+
+      {/*
+        The same record the completed history keeps: the teacher writes it, the
+        student reads it. Refreshed on save so reopening the lesson shows what
+        was just written rather than what the page loaded with.
+      */}
+      {record && viewer === "teacher" ? (
+        <TeacherLessonCompletionNotesForm
+          variant="embedded"
+          bookingId={booking.id}
+          initialCompletionNotesMd={record.notesMd}
+          initialExternalTranscriptUrl={record.transcriptUrl}
+          canFetchNotesLink={record.canFetchNotesLink}
+          onSaved={() => router.refresh()}
+        />
+      ) : null}
+      {record && viewer === "student" && (transcriptUrl || notesMd) ? (
+        <div className="space-y-2 text-sm">
+          {transcriptUrl ? (
+            <p>
+              <a
+                href={transcriptUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={actionLinkClass}
+              >
+                {tsp("transcriptLinkStudentCta")}
+              </a>
+            </p>
+          ) : null}
+          {notesMd ? (
+            <div>
+              <p className="text-xs font-semibold text-foreground">{tsp("lessonNotesReadLabel")}</p>
+              <MarkdownClamp markdown={notesMd} emptyLabel="" />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </Modal>
   );
 }

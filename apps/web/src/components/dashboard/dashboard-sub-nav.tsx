@@ -53,6 +53,14 @@ export function DashboardSubNav({
         )}
       />
       <SubNavLink
+        active={tab === "schedule"}
+        render={(p) => (
+          <Link href="/dashboard/schedule" {...p}>
+            {t("schedule")}
+          </Link>
+        )}
+      />
+      <SubNavLink
         active={tab === "profile"}
         render={(p) => (
           <Link href="/dashboard/profile" {...p}>
@@ -100,14 +108,6 @@ export function DashboardSubNav({
           )}
         />
       ) : null}
-      <SubNavLink
-        active={tab === "schedule"}
-        render={(p) => (
-          <Link href="/dashboard/schedule" {...p}>
-            {t("schedule")}
-          </Link>
-        )}
-      />
       {isTeacher ? (
         <SubNavLink
           active={tab === "taxonomy"}

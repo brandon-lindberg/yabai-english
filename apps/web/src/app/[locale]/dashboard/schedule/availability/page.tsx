@@ -6,6 +6,7 @@ import { TeacherAvailabilityCalendar } from "@/components/dashboard/teacher-avai
 import { AppCard } from "@/components/ui/app-card";
 import { PaymentPolicyNotice } from "@/components/payment-policy-notice";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
+import { lessonRecordOf } from "@/lib/dashboard/schedule-items";
 import {
   canTeacherPublishAvailability,
   resolveTeacherPublishAvailabilityOptions,
@@ -102,6 +103,7 @@ export default async function DashboardScheduleAvailabilityPage({
   });
 
   const teacherBookings = await getTeacherBookingsForDashboard(prisma, profile.id);
+  const completedIds = new Set(teacherBookings.completed.map((b) => b.id));
   const publishAvailabilityOptions = resolveTeacherPublishAvailabilityOptions();
   const canPublishAvailability = canTeacherPublishAvailability(
     profile.paymentPolicyAcceptedAt,
@@ -179,6 +181,8 @@ export default async function DashboardScheduleAvailabilityPage({
                   )
                   .map((other) => other.student.name ?? other.student.email ?? "Student")
               : undefined,
+            // The same record the schedule calendar opens a taught lesson with.
+            ...(completedIds.has(b.id) ? { record: lessonRecordOf(b) } : {}),
           }))}
         />
       ) : (

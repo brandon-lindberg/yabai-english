@@ -1,4 +1,5 @@
 import type { BookingStatus } from "@/generated/prisma/client";
+import type { LessonRecord } from "@/components/booking/booking-detail-modal";
 import {
   resolveBookingDisplayStatus,
   type BookingDisplayStatus,
@@ -30,6 +31,8 @@ export type DashboardScheduleItem = {
   groupSeats: { capacity: number; taken: number } | null;
   /** Who else is in that class. Teacher-side only — see `classmates` below. */
   classmates?: string[];
+  /** Notes, transcript and invoice — set only on a past lesson. */
+  record?: LessonRecord;
 };
 
 export type ScheduleSourceBooking = {
@@ -47,7 +50,21 @@ export type ScheduleSourceBooking = {
    * cannot advertise a seat that a lapsed hold already gave back.
    */
   groupLessonSession?: { capacity: number; _count: { bookings: number } } | null;
+  completionNotesMd?: string | null;
+  externalTranscriptUrl?: string | null;
+  googleEventId?: string | null;
+  invoice?: { id: string } | null;
 };
+
+/** What the completed history shows for a lesson, for the dialog to show too. */
+export function lessonRecordOf(b: ScheduleSourceBooking): LessonRecord {
+  return {
+    notesMd: b.completionNotesMd ?? null,
+    transcriptUrl: b.externalTranscriptUrl ?? null,
+    invoiceId: b.invoice?.id ?? null,
+    canFetchNotesLink: Boolean(b.googleEventId),
+  };
+}
 
 export function buildScheduleItems<T extends ScheduleSourceBooking>(
   bookings: readonly T[],
@@ -89,5 +106,6 @@ export function buildScheduleItems<T extends ScheduleSourceBooking>(
         }
       : null,
     classmates: classmates?.(b),
+    ...(past ? { record: lessonRecordOf(b) } : {}),
   }));
 }

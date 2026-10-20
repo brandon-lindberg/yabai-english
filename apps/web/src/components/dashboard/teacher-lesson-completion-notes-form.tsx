@@ -19,6 +19,8 @@ type Props = {
    * offering an action that can only fail.
    */
   canFetchNotesLink?: boolean;
+  /** Called once a save lands, for a caller holding a copy of what was saved. */
+  onSaved?: () => void;
 };
 
 /** Outcomes of a notes-link lookup that the teacher needs told apart. */
@@ -30,6 +32,7 @@ export function TeacherLessonCompletionNotesForm({
   initialExternalTranscriptUrl,
   variant = "default",
   canFetchNotesLink = false,
+  onSaved,
 }: Props) {
   const t = useTranslations("dashboard.schedulePage");
   const [notesMd, setNotesMd] = useState(initialCompletionNotesMd ?? "");
@@ -104,6 +107,7 @@ export function TeacherLessonCompletionNotesForm({
     }
     setStatus("saved");
     setFetchState("idle");
+    onSaved?.();
     setTimeout(() => setStatus("idle"), 2000);
   }
 

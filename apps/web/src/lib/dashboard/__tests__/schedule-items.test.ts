@@ -100,4 +100,33 @@ describe("buildScheduleItems", () => {
 
     expect(item.isPast).toBe(true);
   });
+
+  test("a past lesson carries its record, so the dialog can show it in place", () => {
+    const [item] = buildScheduleItems(
+      [
+        booking({
+          completionNotesMd: "Covered the past tense.",
+          externalTranscriptUrl: "https://docs.example/notes",
+          googleEventId: "evt-1",
+          invoice: { id: "inv-1" },
+        }),
+      ],
+      { past: true, counterpartName: () => "Kana" },
+    );
+
+    expect(item.record).toEqual({
+      notesMd: "Covered the past tense.",
+      transcriptUrl: "https://docs.example/notes",
+      invoiceId: "inv-1",
+      canFetchNotesLink: true,
+    });
+  });
+
+  test("a lesson still ahead has no record yet", () => {
+    const [item] = buildScheduleItems([booking({ invoice: { id: "inv-1" } })], {
+      counterpartName: () => "Kana",
+    });
+
+    expect(item.record).toBeUndefined();
+  });
 });

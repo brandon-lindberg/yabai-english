@@ -10,8 +10,7 @@ vi.mock("@/hooks/use-is-mobile", () => ({
   useIsMobile: () => false,
 }));
 
-// Only the router: `Link` stays real, because a past lesson's href — locale
-// prefix and all — is one of the things under test here.
+// Only the router; the rest of the navigation module stays real.
 vi.mock("@/i18n/navigation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/i18n/navigation")>()),
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
@@ -40,6 +39,12 @@ const pastLesson = {
   title: "発音 / Pronunciation",
   isPast: true,
   status: "COMPLETED" as const,
+  record: {
+    notesMd: "Practised **past tense**.",
+    transcriptUrl: "https://docs.example/notes",
+    invoiceId: "inv-0",
+    canFetchNotesLink: false,
+  },
 };
 
 const groupLesson = {
@@ -112,19 +117,27 @@ describe("DashboardScheduleCalendar", () => {
     expect(screen.queryByText("07:30 PM")).toBeNull();
   });
 
-  test("sends a past lesson to the completed history, not a dead hash", () => {
-    // A finished lesson's record — notes, invoice — lives on the history page,
-    // so it stays a link. Only a lesson still ahead opens the reservation.
+  test("opens a past lesson in place, with what the history page shows for it", () => {
+    // Someone glancing back at last week should not be sent to another tab to
+    // see what was covered — the record comes to them.
     renderCalendar([upcomingLesson, pastLesson]);
     openMonth();
 
     const past = screen
-      .getAllByRole("link")
-      .find((a) => a.getAttribute("href")?.includes("booking-0"));
+      .getAllByTestId("schedule-chip")
+      .find((el) => el.getAttribute("data-booking-id") === "booking-0")!;
+    fireEvent.click(past);
 
-    // Locale-prefixed, so the hash survives next-intl's routing rather than
-    // dropping the visitor on the default locale's history page.
-    expect(past?.getAttribute("href")).toBe("/en/dashboard/schedule/completed#booking-booking-0");
+    expect(screen.getByText(en.booking.bookingDetailTitleCompleted)).toBeInTheDocument();
+    expect(screen.getByText("past tense")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: en.dashboard.schedulePage.transcriptLinkStudentCta }),
+    ).toHaveAttribute("href", "https://docs.example/notes");
+    expect(
+      screen.getByRole("link", { name: en.dashboard.downloadInvoiceEn }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: en.dashboard.cancelBooking })).toBeNull();
+    expect(screen.queryByRole("link", { name: en.dashboard.meetLink })).toBeNull();
   });
 
   test("marks a past lesson as spent rather than committed", () => {
@@ -132,8 +145,8 @@ describe("DashboardScheduleCalendar", () => {
     openMonth();
 
     const past = screen
-      .getAllByRole("link")
-      .find((a) => a.getAttribute("href")?.includes("booking-0"));
+      .getAllByTestId("schedule-chip")
+      .find((el) => el.getAttribute("data-booking-id") === "booking-0");
     const upcoming = screen
       .getAllByTestId("schedule-chip")
       .find((el) => el.getAttribute("data-booking-id") === "booking-1");

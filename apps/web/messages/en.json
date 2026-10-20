@@ -1166,7 +1166,9 @@
     "bookingDetailWho": "Student",
     "bookingDetailWithTeacher": "Teacher",
     "bookingDetailClassmates": "In this class",
-    "bookingDetailStatus": "Status"
+    "bookingDetailStatus": "Status",
+    "bookingDetailTitleCompleted": "Completed lesson",
+    "bookingDetailInvoice": "Invoice"
   },
   "paymentMethods": {
     "card": "Card",

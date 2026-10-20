@@ -38,7 +38,10 @@ import { offeringCanBackAvailabilitySlot } from "@/lib/availability-offering-mat
 import type { CalendarViewMode } from "@/lib/calendar-view";
 import { SLOT_BOOKED, SLOT_BOOKED_HOVER, SLOT_FIGURE, slotClasses } from "@/components/ui/slot-state";
 import type { BookingDisplayStatus } from "@/lib/booking-status";
-import { BookingDetailModal } from "@/components/booking/booking-detail-modal";
+import {
+  BookingDetailModal,
+  type LessonRecord,
+} from "@/components/booking/booking-detail-modal";
 import { bookingChipWho } from "@/lib/booking-chip-label";
 import {
   availabilityWindowEndDayKey,
@@ -98,6 +101,8 @@ export type TeacherCalendarBooking = {
   groupSeats?: { capacity: number; taken: number } | null;
   /** Everyone holding a seat in that class. */
   classmates?: string[];
+  /** Notes, transcript and invoice — set only on a lesson already taught. */
+  record?: LessonRecord;
 };
 
 type Props = {
@@ -988,6 +993,7 @@ export function TeacherAvailabilityCalendar({
                 meetUrl: openedBooking.meetUrl,
                 groupSeats: openedBooking.groupSeats ?? null,
                 classmates: openedBooking.classmates,
+                record: openedBooking.record,
               }
             : null
         }

@@ -75,6 +75,18 @@ describe("DashboardSubNav", () => {
     );
   });
 
+  test("puts Schedule right after Overview, ahead of the set-up tabs", () => {
+    // Once a teacher has set up their profile and rates, the schedule is where
+    // they spend their time; the set-up tabs are visited far less often.
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <DashboardSubNav isTeacher />
+      </NextIntlClientProvider>,
+    );
+    const names = screen.getAllByRole("link").map((link) => link.textContent);
+    expect(names.slice(0, 2)).toEqual([en.dashboard.nav.overview, en.dashboard.nav.schedule]);
+  });
+
   test("does not render on Settings because settings has its own tabs", () => {
     usePathnameMock.mockReturnValue("/en/dashboard/settings");
     render(

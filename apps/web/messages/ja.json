@@ -1166,7 +1166,9 @@
     "bookingDetailWho": "受講生",
     "bookingDetailWithTeacher": "講師",
     "bookingDetailClassmates": "このクラスの受講生",
-    "bookingDetailStatus": "ステータス"
+    "bookingDetailStatus": "ステータス",
+    "bookingDetailTitleCompleted": "受講済みのレッスン",
+    "bookingDetailInvoice": "請求書"
   },
   "paymentMethods": {
     "card": "カード",
