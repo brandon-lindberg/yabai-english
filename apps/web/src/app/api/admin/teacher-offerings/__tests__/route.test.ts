@@ -91,6 +91,11 @@ describe("POST /api/admin/teacher-offerings", () => {
     });
   });
 
+  test.each(["ENGLISH", "JAPANESE"])("a granted %s class preserves its explicit subject", async (learningLanguage) => {
+    expect((await POST(request({ ...validBody, learningLanguage }))).status).toBe(200);
+    expect(createMock).toHaveBeenCalledWith({ data: expect.objectContaining({ learningLanguage }) });
+  });
+
   test.each([
     ["TEACHER", 403],
     ["STUDENT", 403],

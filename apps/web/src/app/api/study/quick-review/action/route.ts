@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { englishLearningAccessError } from "@/lib/english-learning-access";
 import { prisma } from "@/lib/prisma";
 import { applyQuickReviewOutcome } from "@/lib/study/quick-review";
 import { z } from "zod";
@@ -15,6 +16,8 @@ export async function POST(req: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const languageError = englishLearningAccessError(session.user.learningLanguage);
+  if (languageError) return languageError;
 
   const json = await req.json().catch(() => null);
   const parsed = bodySchema.safeParse(json);

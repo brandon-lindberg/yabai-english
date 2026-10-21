@@ -69,6 +69,17 @@ beforeEach(() => {
 });
 
 describe("PATCH /api/teacher/lesson-offerings/[offeringId]", () => {
+  test("subject cannot be changed underneath published times or booked lessons", async () => {
+    prismaMock.teacherLessonOffering.findFirst.mockResolvedValue({ id: "offer-1", learningLanguage: "JAPANESE", isFreeTrial: false, adminRateOverrideByUserId: null });
+    expect((await patch({ ...body, learningLanguage: "ENGLISH" })).status).toBe(409);
+    expect(prismaMock.teacherLessonOffering.update).not.toHaveBeenCalled();
+  });
+
+  test("an older rate editor cannot reset a Japanese offering to English", async () => {
+    prismaMock.teacherLessonOffering.findFirst.mockResolvedValue({ id: "offer-1", learningLanguage: "JAPANESE", isFreeTrial: false, adminRateOverrideByUserId: null });
+    expect((await patch()).status).toBe(200);
+    expect(prismaMock.teacherLessonOffering.update.mock.calls[0][0].data).not.toHaveProperty("learningLanguage");
+  });
   // The whole reason this endpoint exists. Saving used to delete and recreate
   // every offering, and because the slot FK is SetNull, published availability
   // silently lost its class on every save.

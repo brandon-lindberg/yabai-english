@@ -39,7 +39,7 @@ async function resolveEditableOffering(userId: string, offeringId: string) {
 
   const offering = await prisma.teacherLessonOffering.findFirst({
     where: { id: offeringId, teacherId: profile.id },
-    select: { id: true, isFreeTrial: true, adminRateOverrideByUserId: true },
+    select: { id: true, learningLanguage: true, isFreeTrial: true, adminRateOverrideByUserId: true },
   });
   if (!offering) return { error: "Not found", status: 404 as const };
 
@@ -49,7 +49,7 @@ async function resolveEditableOffering(userId: string, offeringId: string) {
     return { error: "This class is not yours to change.", status: 403 as const };
   }
 
-  return { profileId: profile.id, offeringId: offering.id };
+  return { profileId: profile.id, offeringId: offering.id, learningLanguage: offering.learningLanguage };
 }
 
 export async function PATCH(req: Request, { params }: Props) {
@@ -73,6 +73,9 @@ export async function PATCH(req: Request, { params }: Props) {
   }
 
   const offering = normalizeLessonOfferingInput(parsed.data);
+  if (offering.learningLanguage && offering.learningLanguage !== resolved.learningLanguage) {
+    return NextResponse.json({ error: "Create a new class to teach a different language." }, { status: 409 });
+  }
 
   const rateError = lessonOfferingRateError(offering);
   if (rateError) {
@@ -117,7 +120,7 @@ export async function PATCH(req: Request, { params }: Props) {
 
   const updated = await prisma.$transaction(async (tx) => {
     // `teacherId` is not the caller's to move, so it is dropped from the patch.
-    const { teacherId: _teacherId, ...data } = lessonOfferingCreateData(
+    const { teacherId: _teacherId, learningLanguage: _learningLanguage, ...data } = lessonOfferingCreateData(
       offering,
       resolved.profileId,
     );
@@ -126,6 +129,7 @@ export async function PATCH(req: Request, { params }: Props) {
       data,
       select: {
         id: true,
+        learningLanguage: true,
         durationMin: true,
         rateYen: true,
         groupTotalRateYen: true,

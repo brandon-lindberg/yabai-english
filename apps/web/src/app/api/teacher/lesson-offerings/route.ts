@@ -104,6 +104,7 @@ export async function POST(req: Request) {
       data: lessonOfferingCreateData(offering, profile.id),
       select: {
         id: true,
+        learningLanguage: true,
         durationMin: true,
         rateYen: true,
         groupTotalRateYen: true,

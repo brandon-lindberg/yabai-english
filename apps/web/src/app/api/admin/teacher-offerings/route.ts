@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSuperAdmin } from "@/lib/require-super-admin";
 import { prisma } from "@/lib/prisma";
 import { MIN_PUBLIC_LESSON_RATE_YEN } from "@/lib/lesson-rate-policy";
+import { learningLanguageSchema } from "@/lib/learning-language";
 
 /**
  * Grants a teacher a class priced below the public minimum.
@@ -15,6 +16,7 @@ import { MIN_PUBLIC_LESSON_RATE_YEN } from "@/lib/lesson-rate-policy";
  * class themselves, and should, so it stays theirs to edit.
  */
 const grantSchema = z.object({
+  learningLanguage: learningLanguageSchema.optional(),
   teacherId: z.string().min(1),
   durationMin: z.number().int().min(15).max(180),
   rateYen: z.number().int().min(1).max(9_999_999),
@@ -67,6 +69,7 @@ export async function GET(req: Request) {
       orderBy: [{ durationMin: "asc" }],
       select: {
         id: true,
+        learningLanguage: true,
         durationMin: true,
         rateYen: true,
         isGroup: true,
@@ -132,6 +135,7 @@ export async function POST(req: Request) {
   const offering = await prisma.teacherLessonOffering.create({
     data: {
       teacherId: teacher.id,
+      learningLanguage: data.learningLanguage ?? "ENGLISH",
       durationMin: data.durationMin,
       rateYen: data.rateYen,
       isGroup: data.isGroup ?? false,

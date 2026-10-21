@@ -6,6 +6,8 @@ import {
   filterLessonProductsForTeacher,
 } from "@/lib/lesson-products";
 import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import { auth } from "@/auth";
+import { learningLanguageOfferingWhere, learningLanguageTeacherWhere, resolveLearningLanguage } from "@/lib/learning-language";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -19,14 +21,16 @@ export async function GET(req: Request) {
   if (!teacherProfileId) {
     return NextResponse.json(products);
   }
+  const session = await auth();
+  const learningLanguage = resolveLearningLanguage(session?.user?.learningLanguage);
 
   const teacher = await prisma.teacherProfile.findUnique({
-    where: { id: teacherProfileId },
+    where: { id: teacherProfileId, AND: [learningLanguageTeacherWhere(learningLanguage)] },
     select: {
       offersFreeTrial: true,
       paymentPolicyAcceptedAt: true,
       lessonOfferings: {
-        where: { active: true },
+        where: learningLanguageOfferingWhere(learningLanguage),
         orderBy: [{ durationMin: "asc" }, { id: "asc" }],
         select: {
           id: true,
@@ -59,7 +63,7 @@ export async function GET(req: Request) {
     },
   });
   if (!teacher) {
-    return NextResponse.json(products.filter((p) => p.tier !== LessonTier.FREE_TRIAL));
+    return NextResponse.json([]);
   }
 
   const trialFiltered = filterLessonProductsForTeacher(products, teacher.offersFreeTrial);

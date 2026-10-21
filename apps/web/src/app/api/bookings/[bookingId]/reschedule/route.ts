@@ -16,6 +16,7 @@ import { bookingOwnsItsCalendarEvent } from "@/lib/booking-calendar-ownership";
 import { GroupClassFullError, reserveGroupSeat } from "@/lib/group-lesson-session";
 import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
 import { visibleAvailabilitySlots } from "@/lib/assigned-availability";
+import { resolveLearningLanguage, slotsForLearningLanguage } from "@/lib/learning-language";
 
 type Props = { params: Promise<{ bookingId: string }> };
 
@@ -83,7 +84,7 @@ export async function POST(req: Request, { params }: Props) {
               assignedStudentId: true,
               teacherLessonOfferingId: true,
               teacherLessonOffering: {
-                select: { id: true, isGroup: true, groupSize: true },
+                select: { id: true, isGroup: true, groupSize: true, learningLanguage: true, active: true },
               },
             },
           },
@@ -131,7 +132,7 @@ export async function POST(req: Request, { params }: Props) {
     // Same rule as booking: a time reserved for someone else is not somewhere
     // this student may move their lesson to.
     availabilitySlots: visibleAvailabilitySlots(
-      booking.teacher.availabilitySlots,
+      slotsForLearningLanguage(booking.teacher.availabilitySlots, resolveLearningLanguage(booking.learningLanguage)),
       booking.studentId,
     ).map((slot) => ({
       id: slot.id,

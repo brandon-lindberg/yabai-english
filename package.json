@@ -10,6 +10,8 @@
     "test": "yarn --cwd apps/web test",
     "test:unit": "yarn --cwd apps/web test:unit",
     "test:japanese-content": "yarn --cwd apps/web test:japanese-content",
+    "test:mirror": "yarn --cwd apps/web test:mirror",
+    "test:mirror:migration": "yarn --cwd apps/web test:mirror:migration",
     "japanese-content:audit": "yarn --cwd apps/web japanese-content:audit",
     "test:integration": "yarn --cwd apps/web test:integration",
     "test:e2e": "yarn --cwd apps/web test:e2e",

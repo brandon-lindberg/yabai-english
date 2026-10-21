@@ -28,6 +28,7 @@ import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 import { PendingReservationNotice } from "@/components/booking/pending-reservation-notice";
 import { BookingStatus } from "@/generated/prisma/client";
 import { visibleAvailabilityWhere } from "@/lib/assigned-availability";
+import { learningLanguageAvailabilityWhere, learningLanguageOfferingWhere, learningLanguageTeacherWhere, resolveLearningLanguage } from "@/lib/learning-language";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -54,6 +55,7 @@ export default async function TeacherProfileBookingPage({
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
   const session = await auth();
+  const learningLanguage = resolveLearningLanguage(session?.user?.learningLanguage);
   const viewerStudentIdForSlots =
     session?.user?.role === "STUDENT" ? session.user.id : null;
 
@@ -83,7 +85,7 @@ export default async function TeacherProfileBookingPage({
     the teacher's email and account status into the page's data as well.
   */
   const teacher = await prisma.teacherProfile.findUnique({
-    where: { id: teacherId },
+    where: { id: teacherId, AND: [learningLanguageTeacherWhere(learningLanguage)] },
     select: {
       id: true,
       userId: true,
@@ -109,7 +111,7 @@ export default async function TeacherProfileBookingPage({
       availabilitySlots: {
         // Another student's reserved time is absent here, not marked taken:
         // these lessons are private and its existence is not theirs to see.
-        where: { active: true, ...visibleAvailabilityWhere(viewerStudentIdForSlots) },
+        where: { active: true, AND: [visibleAvailabilityWhere(viewerStudentIdForSlots), learningLanguageAvailabilityWhere(learningLanguage)] },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
         select: {
           id: true,
@@ -134,7 +136,7 @@ export default async function TeacherProfileBookingPage({
       },
       offersFreeTrial: true,
       lessonOfferings: {
-        where: { active: true },
+        where: learningLanguageOfferingWhere(learningLanguage),
         select: { active: true, rateYen: true, isGroup: true },
       },
     },

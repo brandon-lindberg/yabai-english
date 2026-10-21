@@ -7,6 +7,12 @@ datasource db {
   provider = "postgresql"
 }
 
+/// Lesson subject, independent of UI locale and teacher instruction languages.
+enum LearningLanguage {
+  ENGLISH
+  JAPANESE
+}
+
 enum Role {
   STUDENT
   TEACHER
@@ -215,6 +221,8 @@ model User {
   role          Role          @default(STUDENT)
   accountStatus AccountStatus @default(ACTIVE)
   locale        String        @default("ja")
+  /// Current intent; switching subjects never rewrites existing lessons or assessments.
+  learningLanguage LearningLanguage @default(ENGLISH)
 
   accounts                  Account[]
   sessions                  Session[]
@@ -605,6 +613,8 @@ model TeacherLessonOffering {
   id          String         @id @default(cuid())
   teacherId   String
   teacher     TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  /// Immutable subject of this class. Teachers can offer either or both subjects.
+  learningLanguage LearningLanguage @default(ENGLISH)
   durationMin Int
   /// What ONE student pays, tax-included. Same meaning for a group class as for
   /// a private one, which is why no pricing, invoice, payment or refund path
@@ -648,6 +658,7 @@ model TeacherLessonOffering {
   updatedAt DateTime @updatedAt
 
   @@index([teacherId, isGroup, active])
+  @@index([teacherId, learningLanguage, active])
   @@index([classLevelId])
   @@index([classTypeId])
 }
@@ -810,6 +821,8 @@ model Booking {
   teacher         TeacherProfile @relation("TeacherBookings", fields: [teacherId], references: [id], onDelete: Cascade)
   lessonProductId String
   lessonProduct   LessonProduct  @relation(fields: [lessonProductId], references: [id])
+  /// Snapshot at booking time, independent of the learner's later selection.
+  learningLanguage LearningLanguage @default(ENGLISH)
 
   /// The group class this booking is a seat in. Null for a private lesson.
   groupLessonSessionId  String?

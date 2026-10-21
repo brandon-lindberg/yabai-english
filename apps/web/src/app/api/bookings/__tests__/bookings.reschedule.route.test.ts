@@ -133,6 +133,20 @@ describe("POST /api/bookings/[bookingId]/reschedule", () => {
     expect(Object.keys(call.data)).not.toContain("status");
   });
 
+  test("a Japanese booking cannot be moved to legacy English availability", async () => {
+    findUniqueMock.mockResolvedValue(booking({ learningLanguage: "JAPANESE" }));
+    const res = await POST(request({ startsAt: NEW_START.toISOString() }), params);
+    expect(res.status).toBe(409);
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  test("switching the student's current subject does not relabel an English booking", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT", learningLanguage: "JAPANESE" } });
+    findUniqueMock.mockResolvedValue(booking({ learningLanguage: "ENGLISH" }));
+    expect((await POST(request({ startsAt: NEW_START.toISOString() }), params)).status).toBe(200);
+    expect(updateMock.mock.calls[0][0].data).not.toHaveProperty("learningLanguage");
+  });
+
   test("counts the move so the cap can be enforced next time", async () => {
     await POST(request({ startsAt: NEW_START.toISOString() }), params);
 

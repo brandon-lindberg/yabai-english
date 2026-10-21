@@ -25,6 +25,7 @@ import { TeacherBrowseList, type TeacherPreview } from "@/components/teacher-bro
 import { timeRangesOverlap } from "@/lib/teacher-availability-display";
 import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { learningLanguageAvailabilityWhere, resolveLearningLanguage } from "@/lib/learning-language";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -49,6 +50,7 @@ export default async function BookPage({ searchParams }: Props) {
   const tCommon = await getTranslations("common");
   const params = await searchParams;
   const session = await auth();
+  const learningLanguage = resolveLearningLanguage(session?.user?.learningLanguage);
   const locale = await getLocale();
   if (session?.user?.role && session.user.role !== "STUDENT") {
     redirect({ href: "/dashboard", locale });
@@ -87,7 +89,7 @@ export default async function BookPage({ searchParams }: Props) {
     token and the page was the mapping below remembering not to spread.
   */
   const teacherProfiles = await prisma.teacherProfile.findMany({
-    where: marketplaceTeacherWhere(viewerStudentId),
+    where: marketplaceTeacherWhere(viewerStudentId, learningLanguage),
     select: {
       id: true,
       displayName: true,
@@ -100,7 +102,7 @@ export default async function BookPage({ searchParams }: Props) {
       availabilitySlots: {
         // Reserved slots count only for the student they belong to, so a
         // teacher with nothing else open does not surface as available.
-        where: { active: true, ...visibleAvailabilityWhere(viewerStudentId) },
+        where: { active: true, AND: [visibleAvailabilityWhere(viewerStudentId), learningLanguageAvailabilityWhere(learningLanguage)] },
         select: {
           id: true,
           teacherLessonOffering: { select: { isFreeTrial: true } },

@@ -1,0 +1,58 @@
+import { z } from "zod";
+import { LearningLanguage } from "@/generated/prisma/enums";
+import type { Prisma } from "@/generated/prisma/client";
+
+export const learningLanguageSchema = z.nativeEnum(LearningLanguage);
+
+/** Missing historical intent defaults to English. Locale codes are never inferred. */
+export function resolveLearningLanguage(value: unknown): LearningLanguage {
+  const parsed = learningLanguageSchema.safeParse(value);
+  return parsed.success ? parsed.data : LearningLanguage.ENGLISH;
+}
+
+export function learningLanguageOfferingWhere(learningLanguage: LearningLanguage) {
+  return { active: true, learningLanguage };
+}
+
+/** Offerings are the teaching-subject authority; no second list on the profile. */
+export function learningLanguageTeacherWhere(
+  learningLanguage: LearningLanguage,
+): Prisma.TeacherProfileWhereInput {
+  const matching = { lessonOfferings: { some: learningLanguageOfferingWhere(learningLanguage) } };
+  // Historical teachers could publish unlinked English trial hours, including
+  // after retiring their priced classes. Those hours retain their subject.
+  return learningLanguage === LearningLanguage.ENGLISH
+    ? { OR: [
+        matching,
+        { lessonOfferings: { none: {} } },
+        { availabilitySlots: { some: { active: true, teacherLessonOfferingId: null } } },
+      ] }
+    : matching;
+}
+
+export function learningLanguageAvailabilityWhere(
+  learningLanguage: LearningLanguage,
+): Prisma.AvailabilitySlotWhereInput {
+  const matching = {
+    teacherLessonOffering: { is: learningLanguageOfferingWhere(learningLanguage) },
+  };
+  return learningLanguage === LearningLanguage.ENGLISH
+    ? { OR: [matching, { teacherLessonOfferingId: null }] }
+    : matching;
+}
+
+type SubjectSlot = {
+  teacherLessonOffering?: { learningLanguage: LearningLanguage; active: boolean } | null;
+};
+
+/** Same boundary for existing bookings: their snapshot governs rescheduling. */
+export function slotsForLearningLanguage<T extends SubjectSlot>(
+  slots: readonly T[],
+  learningLanguage: LearningLanguage,
+): T[] {
+  return slots.filter(({ teacherLessonOffering: offering }) =>
+    offering
+      ? offering.active && offering.learningLanguage === learningLanguage
+      : learningLanguage === LearningLanguage.ENGLISH,
+  );
+}

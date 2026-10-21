@@ -12,6 +12,8 @@ import { claimTeacherRosterInvites } from "@/lib/claim-teacher-roster-invites";
 import { pickOidcProfilePicture, syncUserImageIfChanged } from "@/lib/oauth-profile-picture";
 import { AccountStatus, Role, type OrgRole } from "@/generated/prisma/client";
 import { cookies, headers } from "next/headers";
+import { resolveLearningLanguage } from "@/lib/learning-language";
+import type { LearningLanguage } from "@/generated/prisma/client";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
 
@@ -174,24 +176,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async jwt({ token, user }) {
-      if (useDevCredentialsOnly && user?.id) {
+      const userId = user?.id ?? token.sub;
+      if (useDevCredentialsOnly && userId) {
         const row = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { role: true, locale: true, accountStatus: true },
+          where: { id: userId },
+          select: { role: true, locale: true, accountStatus: true, learningLanguage: true },
         });
         if (row) {
           token.role = row.role;
           token.locale = row.locale;
-          (token as { accountStatus?: AccountStatus }).accountStatus = row.accountStatus;
-        }
-      } else if (useDevCredentialsOnly && token.sub) {
-        const row = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { role: true, locale: true, accountStatus: true },
-        });
-        if (row) {
-          token.role = row.role;
-          token.locale = row.locale;
+          token.learningLanguage = row.learningLanguage;
           (token as { accountStatus?: AccountStatus }).accountStatus = row.accountStatus;
         }
       }
@@ -203,21 +197,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = user.id;
         const full = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { role: true, locale: true, accountStatus: true },
+          select: { role: true, locale: true, accountStatus: true, learningLanguage: true },
         });
         session.user.role = full?.role ?? Role.STUDENT;
         session.user.locale = full?.locale ?? "ja";
+        session.user.learningLanguage = resolveLearningLanguage(full?.learningLanguage);
         session.user.accountStatus = full?.accountStatus ?? AccountStatus.ACTIVE;
       } else if (useDevCredentialsOnly && token?.sub) {
         session.user.id = token.sub;
         session.user.role = (token.role as Role) ?? Role.STUDENT;
         session.user.locale = (token.locale as string) ?? "ja";
+        session.user.learningLanguage = resolveLearningLanguage(token.learningLanguage);
         const t = token as { accountStatus?: AccountStatus };
         session.user.accountStatus = t.accountStatus ?? AccountStatus.ACTIVE;
       }
 
       const userId = session.user.id;
-      if (session.user.role === Role.STUDENT && userId) {
+      if (session.user.role === Role.STUDENT && session.user.learningLanguage === "JAPANESE") {
+        // English cooldown/results do not describe Japanese proficiency.
+        session.user.canStartPlacement = false;
+      } else if (session.user.role === Role.STUDENT && userId) {
         const row = await prisma.studentProfile.findUnique({
           where: { userId },
           select: { placementCompletedAt: true },
@@ -304,6 +303,7 @@ declare module "next-auth" {
       image?: string | null;
       role: Role;
       locale: string;
+      learningLanguage: LearningLanguage;
       accountStatus: AccountStatus;
       /** Students: whether `/placement` and retake CTAs should show (false during post-test cooldown). */
       canStartPlacement: boolean;

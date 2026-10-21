@@ -23,7 +23,7 @@ import { resolveQuotedPriceYen } from "@/lib/booking-price-resolution";
 import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifications";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
-import { BookingStatus, LessonTier } from "@/generated/prisma/client";
+import { BookingStatus, LessonTier, type LearningLanguage, type Prisma } from "@/generated/prisma/client";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
@@ -50,31 +50,39 @@ import {
   reserveGroupSeat,
 } from "@/lib/group-lesson-session";
 import { visibleAvailabilitySlots } from "@/lib/assigned-availability";
+import {
+  learningLanguageAvailabilityWhere,
+  learningLanguageOfferingWhere,
+  learningLanguageTeacherWhere,
+  resolveLearningLanguage,
+} from "@/lib/learning-language";
 
-const teacherAvailabilityInclude = {
-  availabilitySlots: {
-    where: { active: true },
-    select: {
-      id: true,
-      dayOfWeek: true,
-      startMin: true,
-      endMin: true,
-      timezone: true,
-      recurrence: true,
-      startsOn: true,
-      endsOn: true,
-      classLevelId: true,
-      classTypeId: true,
-      teacherLessonOfferingId: true,
-      // Read so the booker's own reservations stay bookable and everybody
-      // else's are dropped before validation.
-      assignedStudentId: true,
+function teacherAvailabilityInclude(learningLanguage: LearningLanguage) {
+  return {
+    availabilitySlots: {
+      where: { active: true, AND: [learningLanguageAvailabilityWhere(learningLanguage)] },
+      select: {
+        id: true,
+        dayOfWeek: true,
+        startMin: true,
+        endMin: true,
+        timezone: true,
+        recurrence: true,
+        startsOn: true,
+        endsOn: true,
+        classLevelId: true,
+        classTypeId: true,
+        teacherLessonOfferingId: true,
+        // Read so the booker's own reservations stay bookable and everybody
+        // else's are dropped before validation.
+        assignedStudentId: true,
+      },
     },
-  },
-  availabilityOccurrenceSkips: {
-    select: { slotId: true, startsAtIso: true },
-  },
-} as const;
+    availabilityOccurrenceSkips: {
+      select: { slotId: true, startsAtIso: true },
+    },
+  } satisfies Prisma.TeacherProfileInclude;
+}
 
 const postSchema = z.object({
   lessonProductId: z.string().min(1),
@@ -149,62 +157,40 @@ export async function POST(req: Request) {
     });
   }
 
-  const teacher =
-    (teacherProfileId
-      ? await prisma.teacherProfile.findFirst({
-          where: { id: teacherProfileId },
-          include: {
-            user: {
-              include: {
-                organizationMemberships: {
-                  where: { status: "ACTIVE" },
-                  select: { id: true },
-                  take: 1,
-                },
-              },
-            },
-            lessonOfferings: { include: { classType: true } },
-            paymentAccounts: {
-              select: {
-                id: true,
-                provider: true,
-                providerAccountId: true,
-                status: true,
-                chargesEnabled: true,
-                payoutsEnabled: true,
-                methods: { select: { method: true, enabled: true } },
-              },
-            },
-            ...teacherAvailabilityInclude,
-          },
-        })
-      : null) ??
-    (await prisma.teacherProfile.findFirst({
-      include: {
-        user: {
-          include: {
-            organizationMemberships: {
-              where: { status: "ACTIVE" },
-              select: { id: true },
-              take: 1,
-            },
+  const learningLanguage = resolveLearningLanguage(session.user.learningLanguage);
+  const teacher = await prisma.teacherProfile.findFirst({
+    where: {
+      ...(teacherProfileId ? { id: teacherProfileId } : {}),
+      AND: [learningLanguageTeacherWhere(learningLanguage)],
+    },
+    include: {
+      user: {
+        include: {
+          organizationMemberships: {
+            where: { status: "ACTIVE" },
+            select: { id: true },
+            take: 1,
           },
         },
-        lessonOfferings: { include: { classType: true } },
-        paymentAccounts: {
-          select: {
-            id: true,
-            provider: true,
-            providerAccountId: true,
-            status: true,
-            chargesEnabled: true,
-            payoutsEnabled: true,
-            methods: { select: { method: true, enabled: true } },
-          },
-        },
-        ...teacherAvailabilityInclude,
       },
-    }));
+      lessonOfferings: {
+        where: learningLanguageOfferingWhere(learningLanguage),
+        include: { classType: true },
+      },
+      paymentAccounts: {
+        select: {
+          id: true,
+          provider: true,
+          providerAccountId: true,
+          status: true,
+          chargesEnabled: true,
+          payoutsEnabled: true,
+          methods: { select: { method: true, enabled: true } },
+        },
+      },
+      ...teacherAvailabilityInclude(learningLanguage),
+    },
+  });
 
   if (!teacher) {
     return NextResponse.json(
@@ -274,6 +260,12 @@ export async function POST(req: Request) {
           o.active,
       )
     : null;
+
+  // An explicit id may name a class in the other subject. Never silently fall
+  // back to an unrelated offering when the scoped query did not return it.
+  if (teacherLessonOfferingId && !selectedOffering) {
+    return NextResponse.json({ error: "This teacher does not offer this lesson type." }, { status: 409 });
+  }
 
   if (selectedOffering && !catalogProductMatchesOffering(product, selectedOffering)) {
     return NextResponse.json(
@@ -515,6 +507,7 @@ export async function POST(req: Request) {
         studentId: session.user.id,
         teacherId: teacher.id,
         lessonProductId: product.id,
+        learningLanguage,
         groupLessonSessionId,
         startsAt: start,
         endsAt,

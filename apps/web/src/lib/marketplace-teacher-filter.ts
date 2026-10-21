@@ -1,4 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
+import { LearningLanguage } from "@/generated/prisma/enums";
+import { learningLanguageTeacherWhere } from "@/lib/learning-language";
 
 /**
  * Where clause for marketplace teacher discovery.
@@ -17,7 +19,9 @@ import type { Prisma } from "@/generated/prisma/client";
  */
 export function marketplaceTeacherWhere(
   viewerStudentId: string | null,
+  learningLanguage: LearningLanguage = LearningLanguage.ENGLISH,
 ): Prisma.TeacherProfileWhereInput {
+  const AND = [learningLanguageTeacherWhere(learningLanguage)];
   const userWhere: Prisma.UserWhereInput = {
     organizationMemberships: { none: { status: "ACTIVE" } },
   };
@@ -32,7 +36,7 @@ export function marketplaceTeacherWhere(
   }
 
   if (!viewerStudentId) {
-    return { marketplaceHidden: false, user: userWhere };
+    return { marketplaceHidden: false, user: userWhere, AND };
   }
 
   return {
@@ -41,5 +45,6 @@ export function marketplaceTeacherWhere(
       { rosterEntries: { some: { studentId: viewerStudentId } } },
     ],
     user: userWhere,
+    AND,
   };
 }

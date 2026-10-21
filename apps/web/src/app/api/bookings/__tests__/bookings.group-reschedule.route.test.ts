@@ -63,7 +63,7 @@ const teacherSlot = {
   classTypeId: "ty-conv",
   assignedStudentId: null,
   teacherLessonOfferingId: "offer-group",
-  teacherLessonOffering: { id: "offer-group", isGroup: true, groupSize: 4 },
+  teacherLessonOffering: { id: "offer-group", isGroup: true, groupSize: 4, active: true, learningLanguage: "ENGLISH" },
 };
 
 function seatBooking(overrides: Record<string, unknown> = {}) {

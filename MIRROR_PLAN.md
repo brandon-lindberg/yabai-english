@@ -41,13 +41,30 @@ Delivered: [reproducible tooling](apps/web/data/japanese-content/README.md), [au
 
 Verification: 35 isolated tests passed after demonstrated red/green cycles; full TypeScript check and focused ESLint passed. Offline audit reproduced all four report files byte-for-byte, and strict mode correctly refused publication. No application database or learner-facing UI was changed.
 
-### 2. Shared learning-language foundation
+### 2. Shared learning-language foundation — complete
 
 Design and test persisted learner intent, teacher teaching-language/offerings scope, authorization boundaries, and compatible migration of the existing English records. Shared account/session behavior must preserve the selected subject independently of UI locale. Establish regressions for the existing English journeys before implementation.
+
+Delivered decisions and behavior:
+
+- Keep one account and shared contact/roster/payment history. `User.learningLanguage` is the current learning preference, not an entitlement or a second account. A strict authenticated student-only endpoint changes only this preference; database sessions and refreshed development JWTs preserve it independently of `locale`. A learner can switch subjects without rewriting old lessons or English progress. Japanese progress will have its own models in sections 4–5.
+- Use `TeacherLessonOffering.learningLanguage` as the teaching-subject authority. A teacher can offer either or both subjects. Do not duplicate that list on the teacher profile or infer it from nationality or `instructionLanguages`. Teacher-authored and admin-granted offerings accept an explicit subject. Editing a class preserves its subject; changing subjects requires a new class.
+- Apply shared subject query rules to discovery, direct teacher pages, lesson prices, booking creation, and availability. Compose subject and privacy clauses with `AND`, so roster access cannot bypass the subject boundary. An invalid teacher id never falls back to another teacher; an explicit invalid or wrong-subject offering id never falls back to another class.
+- Snapshot the selected subject on each new booking. Rescheduling uses that snapshot, even after the learner switches subjects. Historical lessons remain accessible and retain their original payment/calendar behavior. The existing once-per-student-and-teacher trial policy remains shared across subjects.
+- The additive migration defaults all existing accounts, offerings, and bookings to English, including users with an English UI. Historical unlinked availability is English only; legacy English trial hours remain usable when priced classes are retired. Existing organization/school workflows remain English; this mirror work is centered on private marketplace lessons.
+- Japanese intent cannot enter the English placement/study page trees or call their read/write APIs. The assessment algorithms, banks, levels, and English progress remain independent of the future Japanese systems.
+
+Verification: 147 existing booking/product regressions passed before implementation. New behavior was introduced with demonstrated red/green cycles. The resulting mirror suite has 212 passing tests; the separate PostgreSQL test replays all prior migrations in an isolated temporary schema, checks historical data preservation and subject/roster/availability boundaries, then verifies schema and connection cleanup. The 35 corpus tests, full TypeScript check, focused ESLint, and Prisma schema validation also pass. Prisma's generated schema diff matches the additive migration. Three pre-existing booking test placeholders remain TODO; end-to-end journeys remain section 6.
+
+Migration status: prepared and verified in isolation, **not applied to the application database**. Apply the reviewed migration before running this version against that database. No deployment, commit, or push was performed.
+
+Re-run from the repository root with `yarn test:mirror`, `yarn test:mirror:migration`, and `yarn test:japanese-content`. The migration command accepts `MIRROR_TEST_DATABASE_URL`, otherwise reads the local `.env` database URL, refuses non-local hosts, and creates/removes its own random schema. The ordinary mirror suite never loads the database-seeding global setup; the database test is opt-in.
 
 ### 3. Distinct landing and signup journeys
 
 Use impeccable to design the two landing surfaces with visibly clear subjects, distinct URLs and metadata, language-specific calls to action, and an explicit way to switch subject. Share presentation primitives and genuinely common sections; represent subject-specific copy and composition as data/variants. Test browser refreshes, direct links, language switching, OAuth round trips, and wrong-language teacher access. Verify desktop/mobile and both themes in bounded visual passes.
+
+Connect the section 2 foundation to guest intent and OAuth signup; the existing guest path still defaults to English until then. Add explicit subject choices to teacher onboarding/class creation and free-trial scheduling; legacy forms currently default new classes to English. Make onboarding, dashboard proficiency/study summaries, teacher links, booking labels, and navigation use the chosen subject so English progress never appears as Japanese proficiency. These interfaces are not a Japanese launch yet. Apply the migration to the local application database before browser verification.
 
 ### 4. Independent Japanese placement
 

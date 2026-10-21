@@ -29,6 +29,7 @@ const {
   authMock,
   prismaMock,
   createUserNotificationMock,
+  bookingCreateMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
@@ -45,6 +46,7 @@ const {
     $transaction: vi.fn(),
   },
   createUserNotificationMock: vi.fn(),
+  bookingCreateMock: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -70,6 +72,11 @@ describe("POST /api/bookings pricing", () => {
     vi.useFakeTimers();
     vi.setSystemTime(BOOKING_NOW);
     vi.clearAllMocks();
+    bookingCreateMock.mockResolvedValue({
+      id: "booking-1", status: BookingStatus.PENDING_PAYMENT, quotedPriceYen: 5000,
+      lessonProduct: { nameEn: "Standard 60", nameJa: "標準 60" },
+      teacher: { user: { email: "teacher@example.com" } },
+    });
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
     prismaMock.lessonProduct.findFirst.mockResolvedValue({
       id: "lp-60",
@@ -116,13 +123,7 @@ describe("POST /api/bookings pricing", () => {
           findUnique: vi.fn().mockResolvedValue({ userId: "student-1" }),
         },
         booking: {
-          create: vi.fn().mockResolvedValue({
-            id: "booking-1",
-            status: BookingStatus.PENDING_PAYMENT,
-            quotedPriceYen: 5000,
-            lessonProduct: { nameEn: "Standard 60", nameJa: "標準 60" },
-            teacher: { user: { email: "teacher@example.com" } },
-          }),
+          create: bookingCreateMock,
         },
         teacherRosterEntry: {
           upsert: vi.fn().mockResolvedValue({}),
@@ -137,6 +138,50 @@ describe("POST /api/bookings pricing", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  function bookSubject(teacherLessonOfferingId?: string, extra: Record<string, unknown> = {}) {
+    return POST(new Request("http://localhost/api/bookings", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lessonProductId: "lp-60", teacherProfileId: "teacher-profile-1", teacherLessonOfferingId, startsAt: validBookingStartsAtIso(), ...extra }),
+    }));
+  }
+
+  function japaneseTeacher() {
+    const teacher = prismaMock.teacherProfile.findFirst.getMockImplementation()!();
+    // A single fixture, with subject-specific offerings and times.
+    return Promise.resolve(teacher).then((row) => ({
+      ...row,
+      lessonOfferings: [{ ...row.lessonOfferings[0], id: "ja-offer", learningLanguage: "JAPANESE" }],
+      availabilitySlots: [{ ...testAvailabilitySlot, teacherLessonOfferingId: "ja-offer", teacherLessonOffering: { active: true, learningLanguage: "JAPANESE" } }],
+    }));
+  }
+
+  test("scopes direct teacher requests and never falls back to another teacher", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT", learningLanguage: "JAPANESE" } });
+    prismaMock.teacherProfile.findFirst.mockResolvedValue(null);
+    expect((await bookSubject()).status).toBe(409);
+    expect(prismaMock.teacherProfile.findFirst).toHaveBeenCalledTimes(1);
+    expect(prismaMock.teacherProfile.findFirst.mock.calls[0][0].where).toMatchObject({
+      id: "teacher-profile-1", AND: [{ lessonOfferings: { some: { active: true, learningLanguage: "JAPANESE" } } }],
+    });
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  test("refuses an explicit wrong-subject offering instead of silently picking another", async () => {
+    const teacher = await japaneseTeacher();
+    authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT", learningLanguage: "JAPANESE" } });
+    prismaMock.teacherProfile.findFirst.mockResolvedValue(teacher);
+    expect((await bookSubject("english-offer")).status).toBe(409);
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  test("snapshots Japanese on the booking independently of UI locale and request body", async () => {
+    const teacher = await japaneseTeacher();
+    authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT", locale: "ja", learningLanguage: "JAPANESE" } });
+    prismaMock.teacherProfile.findFirst.mockResolvedValue(teacher);
+    expect((await bookSubject("ja-offer", { learningLanguage: "ENGLISH" })).status).toBe(200);
+    expect(bookingCreateMock).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ learningLanguage: "JAPANESE" }) }));
   });
 
   test("uses configured duration rate for pending payment booking", async () => {

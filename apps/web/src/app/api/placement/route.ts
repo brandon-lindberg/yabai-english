@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { auth } from "@/auth";
+import { englishLearningAccessError } from "@/lib/english-learning-access";
 import { prisma } from "@/lib/prisma";
 import { getPlacementBankQuestions } from "@/lib/placement-bank/placement-bank-access";
 import { scorePlacementAnswers } from "@/lib/placement-test";
@@ -38,6 +39,8 @@ export async function GET() {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const languageError = englishLearningAccessError(session.user.learningLanguage);
+  if (languageError) return languageError;
 
   const profile = await prisma.studentProfile.findUnique({
     where: { userId: session.user.id },
@@ -118,6 +121,8 @@ export async function POST(req: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const languageError = englishLearningAccessError(session.user.learningLanguage);
+  if (languageError) return languageError;
 
   const bank = await getPlacementBankQuestions();
   const cookieStore = await cookies();
