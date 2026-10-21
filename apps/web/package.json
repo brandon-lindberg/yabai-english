@@ -12,6 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:unit": "vitest run",
+    "test:japanese-content": "vitest run --config vitest.japanese-content.config.ts",
+    "japanese-content:audit": "tsx scripts/audit-japanese-content.ts",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",

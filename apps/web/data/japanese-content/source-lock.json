@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 1,
+  "description": "Pinned research inputs for the-mirror section 1. Community JLPT levels are estimates. These inputs do not authorize publishing unreviewed study cards.",
+  "openjlptCommit": "0d1d3410bec90bd4098a7c72de820543cb4f707c",
+  "referenceCommit": "b062d4e38c4bdd0950ae1d4ec55f04b176182e03",
+  "dictionaryRelease": "3.6.2+20261019180022",
+  "files": [
+    {
+      "id": "openjlpt-LICENSE",
+      "role": "licence",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/LICENSE",
+      "filename": "openjlpt-LICENSE",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "2d58298e6eda10e7204abb52722efbc840db2390"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-NOTICE.md",
+      "role": "licence",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/NOTICE.md",
+      "filename": "openjlpt-NOTICE.md",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "e0e961d6ca892fe1d6ea5228a7d51d77ba0e2d11"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-kanji-n1.json",
+      "role": "kanji",
+      "level": "N1",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/kanji/n1.json",
+      "filename": "openjlpt-data-json-kanji-n1.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "33dde126c56fe876da89648223e58aeb48581fef"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-kanji-n2.json",
+      "role": "kanji",
+      "level": "N2",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/kanji/n2.json",
+      "filename": "openjlpt-data-json-kanji-n2.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "04724baaddf626f2e9848f678a87afe01d141581"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-kanji-n3.json",
+      "role": "kanji",
+      "level": "N3",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/kanji/n3.json",
+      "filename": "openjlpt-data-json-kanji-n3.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "36de431ced23936573c4c5236606a85af30e7b7a"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-kanji-n4.json",
+      "role": "kanji",
+      "level": "N4",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/kanji/n4.json",
+      "filename": "openjlpt-data-json-kanji-n4.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "3d7e0b9eeafcaeb7cf35bb57a1be614d340c62b0"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-kanji-n5.json",
+      "role": "kanji",
+      "level": "N5",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/kanji/n5.json",
+      "filename": "openjlpt-data-json-kanji-n5.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "a4811cbc9a4a365bdd561fd4c610be4a27a977e0"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-meta.json",
+      "role": "metadata",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/meta.json",
+      "filename": "openjlpt-data-json-meta.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "a1cc6d8a0a27ec8dfde8a26ee122778624c86f30"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-vocab-n1.json",
+      "role": "vocab",
+      "level": "N1",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/vocab/n1.json",
+      "filename": "openjlpt-data-json-vocab-n1.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "faeea0be53e7d5afaddf169566f5f615ed3d4219"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-vocab-n2.json",
+      "role": "vocab",
+      "level": "N2",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/vocab/n2.json",
+      "filename": "openjlpt-data-json-vocab-n2.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "8f76ba242720799e187a1c3391cee86f06f9e1ae"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-vocab-n3.json",
+      "role": "vocab",
+      "level": "N3",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/vocab/n3.json",
+      "filename": "openjlpt-data-json-vocab-n3.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "3a55519824fb7bc272e231c692917c08fb07c3b0"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-vocab-n4.json",
+      "role": "vocab",
+      "level": "N4",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/vocab/n4.json",
+      "filename": "openjlpt-data-json-vocab-n4.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "9873762a7852755b46ab3698cc9bec69596137ef"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "openjlpt-data-json-vocab-n5.json",
+      "role": "vocab",
+      "level": "N5",
+      "url": "https://raw.githubusercontent.com/evanclan/OpenJLPT/0d1d3410bec90bd4098a7c72de820543cb4f707c/data/json/vocab/n5.json",
+      "filename": "openjlpt-data-json-vocab-n5.json",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "21f6716f635a457db42999224c5ed42640a2e7bd"
+      },
+      "source": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "license": "CC-BY-SA-4.0"
+    },
+    {
+      "id": "waller-LICENSE.txt",
+      "role": "licence",
+      "url": "https://raw.githubusercontent.com/stephenmk/yomitan-jlpt-vocab/b062d4e38c4bdd0950ae1d4ec55f04b176182e03/LICENSE.txt",
+      "filename": "waller-LICENSE.txt",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "3b7b82d0da2db857eda1a798dbd908ea136f07b5"
+      },
+      "source": "https://github.com/stephenmk/yomitan-jlpt-vocab/tree/b062d4e38c4bdd0950ae1d4ec55f04b176182e03",
+      "license": "CC-BY-SA-4.0 (derived from Waller CC-BY)"
+    },
+    {
+      "id": "waller-original_data-n1.csv",
+      "role": "reference",
+      "level": "N1",
+      "url": "https://raw.githubusercontent.com/stephenmk/yomitan-jlpt-vocab/b062d4e38c4bdd0950ae1d4ec55f04b176182e03/original_data/n1.csv",
+      "filename": "waller-original_data-n1.csv",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "250131d29c0eb8a3d1e6174d6ecc54cc66a0a618"
+      },
+      "source": "https://github.com/stephenmk/yomitan-jlpt-vocab/tree/b062d4e38c4bdd0950ae1d4ec55f04b176182e03",
+      "license": "CC-BY-SA-4.0 (derived from Waller CC-BY)"
+    },
+    {
+      "id": "waller-original_data-n2.csv",
+      "role": "reference",
+      "level": "N2",
+      "url": "https://raw.githubusercontent.com/stephenmk/yomitan-jlpt-vocab/b062d4e38c4bdd0950ae1d4ec55f04b176182e03/original_data/n2.csv",
+      "filename": "waller-original_data-n2.csv",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "ffd2b0f3a4b9a0ec6d20b334070349a5fd7a8425"
+      },
+      "source": "https://github.com/stephenmk/yomitan-jlpt-vocab/tree/b062d4e38c4bdd0950ae1d4ec55f04b176182e03",
+      "license": "CC-BY-SA-4.0 (derived from Waller CC-BY)"
+    },
+    {
+      "id": "waller-original_data-n3.csv",
+      "role": "reference",
+      "level": "N3",
+      "url": "https://raw.githubusercontent.com/stephenmk/yomitan-jlpt-vocab/b062d4e38c4bdd0950ae1d4ec55f04b176182e03/original_data/n3.csv",
+      "filename": "waller-original_data-n3.csv",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "1408aac7ead32fcd140467cdc117b2feedb1b42e"
+      },
+      "source": "https://github.com/stephenmk/yomitan-jlpt-vocab/tree/b062d4e38c4bdd0950ae1d4ec55f04b176182e03",
+      "license": "CC-BY-SA-4.0 (derived from Waller CC-BY)"
+    },
+    {
+      "id": "waller-original_data-n4.csv",
+      "role": "reference",
+      "level": "N4",
+      "url": "https://raw.githubusercontent.com/stephenmk/yomitan-jlpt-vocab/b062d4e38c4bdd0950ae1d4ec55f04b176182e03/original_data/n4.csv",
+      "filename": "waller-original_data-n4.csv",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "6c50e2f5a025041dece962d3332c653bf055178b"
+      },
+      "source": "https://github.com/stephenmk/yomitan-jlpt-vocab/tree/b062d4e38c4bdd0950ae1d4ec55f04b176182e03",
+      "license": "CC-BY-SA-4.0 (derived from Waller CC-BY)"
+    },
+    {
+      "id": "waller-original_data-n5.csv",
+      "role": "reference",
+      "level": "N5",
+      "url": "https://raw.githubusercontent.com/stephenmk/yomitan-jlpt-vocab/b062d4e38c4bdd0950ae1d4ec55f04b176182e03/original_data/n5.csv",
+      "filename": "waller-original_data-n5.csv",
+      "integrity": {
+        "algorithm": "git-sha1",
+        "digest": "01fa989c3f77a682787705eed7f1764a31a1e1f9"
+      },
+      "source": "https://github.com/stephenmk/yomitan-jlpt-vocab/tree/b062d4e38c4bdd0950ae1d4ec55f04b176182e03",
+      "license": "CC-BY-SA-4.0 (derived from Waller CC-BY)"
+    },
+    {
+      "id": "jmdict",
+      "role": "jmdict",
+      "url": "https://github.com/scriptin/jmdict-simplified/releases/download/3.6.2%2B20261019180022/jmdict-eng-3.6.2%2B20261019180022.json.tgz",
+      "filename": "jmdict-eng-3.6.2+20261019180022.json.tgz",
+      "archiveMember": "jmdict-eng-3.6.2.json",
+      "integrity": {
+        "algorithm": "sha256",
+        "digest": "1dca86908663dcddb8c3bcff9dc5e2bc73037bbdeed9c705c896a3845e7635a5"
+      },
+      "source": "https://github.com/scriptin/jmdict-simplified/releases/tag/3.6.2%2B20261019180022",
+      "license": "CC-BY-SA-4.0; EDRDG attribution"
+    },
+    {
+      "id": "kanjidic",
+      "role": "kanjidic",
+      "url": "https://github.com/scriptin/jmdict-simplified/releases/download/3.6.2%2B20261019180022/kanjidic2-en-3.6.2%2B20261019180022.json.tgz",
+      "filename": "kanjidic2-en-3.6.2+20261019180022.json.tgz",
+      "archiveMember": "kanjidic2-en-3.6.2.json",
+      "integrity": {
+        "algorithm": "sha256",
+        "digest": "1c08255e8eaace2ca2d4689797f76b21c7dba2fd8bd93fe39468c2fbf175e6fd"
+      },
+      "source": "https://github.com/scriptin/jmdict-simplified/releases/tag/3.6.2%2B20261019180022",
+      "license": "CC-BY-SA-4.0; EDRDG attribution"
+    }
+  ]
+}
