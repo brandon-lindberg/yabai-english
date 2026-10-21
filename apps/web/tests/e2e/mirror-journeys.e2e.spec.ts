@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { readFileSync, mkdirSync, existsSync } from "node:fs";
 import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
+import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
 
 const manifestPath = "../../.impeccable/mirror-fixtures.json";
 const fixturesAvailable = existsSync(manifestPath);
@@ -18,10 +19,9 @@ async function signIn(page: Page, email: string, language: "ENGLISH" | "JAPANESE
 test("root offers two clear routes; changing UI locale preserves the Japanese journey", async ({ page }) => {
   await page.goto("/en");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(en.learningJourney.choiceTitle);
-  expect(await page.getByRole("group", { name: en.common.locale, exact: true }).getByRole("button").evaluateAll((buttons) => buttons.every((button) => button.scrollWidth <= button.clientWidth))).toBe(true);
   await page.getByRole("link", { name: /^Learn Japanese/ }).click();
   await expect(page).toHaveURL(/\/en\/learn-japanese$/);
-  await page.getByRole("group", { name: en.common.locale, exact: true }).getByRole("button", { name: "日本語", exact: true }).click();
+  await chooseInterfaceLocale(page, en.common, "ja");
   await expect(page).toHaveURL(/\/learn-japanese$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "ja");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("日本語");
@@ -81,7 +81,7 @@ test("a first sign-in saves Japanese before onboarding and restores its draft ac
   await page.getByRole("button", { name: en.onboarding.wizardNext, exact: true }).click();
   await expect(page.getByRole("group", { name: en.onboarding.goalsLabel })).toBeVisible();
   await page.getByText(en.common.accountMenu, { exact: true }).click();
-  await page.getByRole("button", { name: "日本語", exact: true }).click();
+  await chooseInterfaceLocale(page, en.common, "ja");
   await expect(page).toHaveURL(/\/onboarding$/);
   await expect(page.getByRole("group", { name: ja.onboarding.goalsLabel })).toBeVisible();
   const session = await (await page.request.get("/api/auth/session")).json();
@@ -141,7 +141,7 @@ test("capture the two established-world landing variants in a bounded viewport/t
           await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
           await expect(page.getByRole("link", { name: locale === "en" ? en.common.signIn : "ログイン", exact: true })).toBeVisible();
           const messages = locale === "en" ? en : ja;
-          await page.getByRole("group", { name: messages.common.themeToggle }).getByRole("button", { name: theme === "dark" ? messages.common.themeDark : messages.common.themeLight, exact: true }).click();
+          await setHeaderTheme(page, messages.common, theme);
           await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
           await page.evaluate(() => document.fonts.ready);
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -158,7 +158,7 @@ test("capture the two established-world landing variants in a bounded viewport/t
         for (const [name, path] of [["choice", "/en"], ["japanese-signin", "/en/auth/signin?learningLanguage=JAPANESE"]]) {
           await page.goto(path);
           await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-          await page.getByRole("group", { name: en.common.themeToggle }).getByRole("button", { name: theme === "dark" ? en.common.themeDark : en.common.themeLight, exact: true }).click();
+          await setHeaderTheme(page, en.common, theme);
           await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
           await page.evaluate(() => document.fonts.ready);
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

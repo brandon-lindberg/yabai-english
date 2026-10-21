@@ -18,6 +18,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 ## Verification and system compatibility
 
+The later [compact header refinement](header-preferences.md), requested after screenshot feedback, supersedes the preference layout in the original header captures below.
+
 Compared the landing, root-choice, sign-in and header implementation with this direction contract, the incumbent `DESIGN.md`, `PRODUCT.md`, `MIRROR_PLAN.md` section 3, the global tokens and shared button/field primitives, and the Impeccable craft floor. The implementation retains Alphabet Storm, Archivo/M PLUS 1, the existing light/dark ink-and-paper tokens, ruled sequences, open page structure and shared controls. No new identity, palette, font, token or shipping raster was introduced; `DESIGN.md` remains unchanged for this ordinary extension.
 
 The finish-review record is `.impeccable/review/mirror-finish-review.md`. Its full review assessed the 18 supplied landing, root-choice, Japanese sign-in and header captures. The final fix verdict is **ship at the scored-fix scope**, with remaining items clear: the locale-aware headline grouping retains both `講師` and `英語` at 390px, 524px and 1440px. Representative final captures were also checked for this documentation pass: the 524px English landing in light, the 390px Japanese landing and sign-in in dark, and the 1440px root choice in light. This does not extend the visual verdict to onboarding, dashboards or teacher screens, which have functional evidence only, or to live motion.

@@ -21,6 +21,8 @@ export default defineConfig({
       "src/components/dashboard/__tests__/teacher-lesson-add-modal.test.tsx",
       "src/components/__tests__/onboarding-form.test.tsx",
       "src/components/__tests__/locale-switcher.test.tsx",
+      "src/components/__tests__/theme-toggle.test.tsx",
+      "src/components/shell/__tests__/site-header*.test.tsx",
       "src/components/__tests__/providers.test.tsx",
       "src/lib/__tests__/free-trial-offering*.test.ts",
       "src/lib/__tests__/schedule-offering-sync.test.ts",

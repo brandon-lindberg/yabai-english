@@ -9,8 +9,9 @@ import { SiteHeaderPrimaryNav, SiteHeaderMobileNav } from "@/components/shell/si
 import { SiteHeaderUserMenu } from "@/components/shell/site-header-user-menu";
 import { getHeaderPrimaryNavLinks } from "@/lib/shell/header-nav-links";
 import { buttonClasses } from "@/components/ui/button";
-import { LocaleSwitcher } from "@/components/locale-switcher";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { SiteHeaderPreferences } from "@/components/shell/site-header-preferences";
+import { DisclosureMenu } from "@/components/ui/disclosure-menu";
+import { InterfaceIcon } from "@/components/ui/interface-icon";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import type { LearningLanguage } from "@/generated/prisma/enums";
 import { LEARNING_JOURNEYS, journeyPath, journeySignInHref, learningLanguageFromPath } from "@/lib/learning-journey";
@@ -56,12 +57,20 @@ export function SiteHeader({ guestLearningLanguage = null }: { guestLearningLang
             the page gutter, in line with every heading below it. Only from
             `md`, where the nav appears at all.
           */}
+          <div className="shrink-0">
           <Link
             href="/"
-            className="shrink-0 font-semibold tracking-tight text-foreground md:mr-10"
+            className="inline-flex text-sm font-semibold tracking-tight text-foreground sm:text-base md:mr-10"
           >
             {t("appName")}
           </Link>
+          {learningLanguage && (!session?.user || session.user.role === "STUDENT") ? (
+            <div className="flex items-center gap-2 text-[11px] text-muted">
+              <span>{j(`${LEARNING_JOURNEYS[learningLanguage].key}.current`)}</span>
+              <Link href={journeyPath(other)} aria-label={j(`${LEARNING_JOURNEYS[other].key}.switch`)} title={j(`${LEARNING_JOURNEYS[other].key}.switch`)} className={`${actionLinkClass} inline-flex min-h-6 items-center`}>{t("change")}</Link>
+            </div>
+          ) : null}
+          </div>
 
           {session?.user ? (
             <>
@@ -76,29 +85,25 @@ export function SiteHeader({ guestLearningLanguage = null }: { guestLearningLang
           ) : (
             <>
               <SiteHeaderPrimaryNav links={navLinks} bookAction={bookAction} />
+              <div className="ml-auto flex shrink-0 items-center gap-1">
+                <div className="hidden md:block"><SiteHeaderPreferences /></div>
               <Link
                 href={learningLanguage ? journeySignInHref(learningLanguage) : "/auth/signin"}
-                className={buttonClasses({ size: "sm", className: "ml-auto shrink-0" })}
+                className={buttonClasses({ size: "sm", className: "min-h-10 shrink-0" })}
               >
                 {t("signIn")}
               </Link>
+                <DisclosureMenu key={pathname} label={t("menu")} trigger={<InterfaceIcon name="menu" />} className="md:hidden" panelClassName="w-[min(17rem,calc(100vw-2rem))]">
+                  <SiteHeaderMobileNav links={navLinks} bookAction={bookAction} layout="menu" />
+                  <div className="mt-2 border-t border-border pt-2"><SiteHeaderPreferences labelled /></div>
+                </DisclosureMenu>
+              </div>
             </>
           )}
         </div>
-        {navLinks.length > 0 && (
+        {session?.user && navLinks.length > 0 && (
           <SiteHeaderMobileNav links={navLinks} bookAction={bookAction} />
         )}
-        {(!session?.user || session.user.role === "STUDENT") ? (
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border py-2 text-sm">
-            {learningLanguage ? <><span className="font-semibold">{j(`${LEARNING_JOURNEYS[learningLanguage].key}.current`)}</span><Link href={journeyPath(other)} className={actionLinkClass}>{j(`${LEARNING_JOURNEYS[other].key}.switch`)}</Link></> : null}
-            {!session?.user ? (
-              <div className="ml-auto flex shrink-0 items-center gap-3">
-                <div className="w-36 shrink-0"><LocaleSwitcher /></div>
-                <div className="w-40 shrink-0"><ThemeToggle /></div>
-              </div>
-            ) : null}
-          </div>
-        ) : null}
       </div>
     </header>
   );

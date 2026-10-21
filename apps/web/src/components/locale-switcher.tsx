@@ -3,6 +3,8 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { DisclosureMenu } from "@/components/ui/disclosure-menu";
+import { InterfaceIcon } from "@/components/ui/interface-icon";
 
 export function LocaleSwitcher() {
   const t = useTranslations("common");
@@ -25,35 +27,15 @@ export function LocaleSwitcher() {
   }
 
   return (
-    <div
-      className="grid w-full grid-cols-2 items-center rounded-full border border-border bg-surface p-0.5"
-      role="group"
-      aria-label={t("locale")}
-    >
-      <button
-        type="button"
-        onClick={() => setLocale("ja")}
-        aria-pressed={locale === "ja"}
-        className={`rounded-full px-3 py-1 text-center text-xs font-semibold transition ${
-          locale === "ja"
-            ? "bg-primary text-primary-foreground"
-            : "text-muted hover:text-foreground"
-        }`}
-      >
-        日本語
-      </button>
-      <button
-        type="button"
-        onClick={() => setLocale("en")}
-        aria-pressed={locale === "en"}
-        className={`rounded-full px-3 py-1 text-center text-xs font-semibold transition ${
-          locale === "en"
-            ? "bg-primary text-primary-foreground"
-            : "text-muted hover:text-foreground"
-        }`}
-      >
-        English
-      </button>
-    </div>
+    <DisclosureMenu label={t("locale")} trigger={<InterfaceIcon name="language" />}>
+      <div role="group" aria-label={t("locale")}>
+        {([["ja", "日本語"], ["en", "English"]] as const).map(([value, label]) => (
+          <button key={value} type="button" lang={value} data-menu-close onClick={() => setLocale(value)} aria-pressed={locale === value}
+            className="flex min-h-11 w-full items-center justify-between gap-4 rounded-lg px-3 text-sm text-foreground hover:bg-[var(--app-hover)]">
+            {label}{locale === value ? <InterfaceIcon name="check" /> : null}
+          </button>
+        ))}
+      </div>
+    </DisclosureMenu>
   );
 }

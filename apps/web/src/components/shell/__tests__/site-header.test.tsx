@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
@@ -32,6 +32,9 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
+vi.mock("@/lib/learning-journey-actions", () => ({ selectLearningJourney: vi.fn() }));
+vi.mock("@/components/notification-bell", () => ({ NotificationBell: () => null }));
+vi.mock("@/components/theme-toggle", () => ({ ThemeToggle: () => <button aria-label="Switch to dark theme" /> }));
 vi.mock("next-auth/react", () => ({ signOut: vi.fn(), useSession: () => ({ data: null }) }));
 
 /*
@@ -102,5 +105,15 @@ describe("SiteHeader", () => {
     );
 
     expect(screen.queryByRole("link", { name: en.common.becomeTeacher })).toBeNull();
+  });
+
+  test("places visitor navigation and preferences inside the mobile menu", () => {
+    sessionMock.mockReturnValue({ status: "unauthenticated", data: null } as never);
+    render(<NextIntlClientProvider locale="en" messages={en}><SiteHeader /></NextIntlClientProvider>);
+    const trigger = screen.getByRole("button", { name: "Menu" });
+    fireEvent.click(trigger);
+    const menu = trigger.closest("details")!;
+    expect(within(menu).getByRole("link", { name: en.common.becomeTeacher })).toBeInTheDocument();
+    expect(within(menu).getByRole("button", { name: en.common.locale })).toBeInTheDocument();
   });
 });

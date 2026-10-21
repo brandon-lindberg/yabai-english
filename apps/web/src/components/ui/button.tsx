@@ -14,7 +14,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
  */
 
 type Variant = "primary" | "secondary" | "ghost" | "destructive";
-type Size = "sm" | "md" | "lg";
+type Size = "sm" | "md" | "lg" | "icon";
 
 /**
  * How a button answers the pointer.
@@ -57,6 +57,7 @@ const variantClass: Record<Variant, string> = {
  * the availability grid. Do not reach for it to make a page look tidier.
  */
 const sizeClass: Record<Size, string> = {
+  icon: "min-h-11 w-11 p-0 md:min-h-9 md:w-9",
   sm: "min-h-9 gap-1.5 px-3 py-1.5 text-xs",
   md: "min-h-11 gap-2 px-4 py-2 text-sm",
   lg: "min-h-12 gap-2 px-5 py-2.5 text-base",

@@ -4,14 +4,14 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { HeaderNavLink } from "@/lib/shell/header-nav-links";
 
-type Props = { links: HeaderNavLink[]; bookAction?: () => Promise<void> };
+type Props = { links: HeaderNavLink[]; bookAction?: () => Promise<void>; layout?: "rail" | "menu" };
 
-function NavItems({ links, bookAction, mobile = false }: Props & { mobile?: boolean }) {
+function NavItems({ links, bookAction, mobile = false, layout = "rail" }: Props & { mobile?: boolean }) {
   const pathname = usePathname();
   const t = useTranslations("common");
   return links.map((item) => {
     const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname === item.href || pathname.startsWith(`${item.href}/`);
-    const className = `inline-flex min-h-9 shrink-0 items-center whitespace-nowrap transition-colors ${mobile ? "text-xs" : "text-sm"} ${active ? "font-bold text-foreground" : "font-medium text-muted hover:text-foreground"}`;
+    const className = `${layout === "menu" ? "flex min-h-11 w-full rounded-lg px-3 hover:bg-[var(--app-hover)]" : "inline-flex min-h-9 shrink-0 whitespace-nowrap"} items-center transition-colors ${mobile && layout !== "menu" ? "text-xs" : "text-sm"} ${active ? "font-bold text-foreground" : "font-medium text-muted hover:text-foreground"}`;
     if (item.id === "book" && bookAction) {
       return <form key={item.id} action={bookAction}><button type="submit" className={className}>{t(item.labelKey)}</button></form>;
     }
@@ -28,5 +28,5 @@ export function SiteHeaderPrimaryNav(props: Props) {
 export function SiteHeaderMobileNav(props: Props) {
   const t = useTranslations("common");
   if (props.links.length === 0) return null;
-  return <nav className="flex items-center gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden" aria-label={t("primaryNavAria")}><NavItems {...props} mobile /></nav>;
+  return <nav className={props.layout === "menu" ? "flex flex-col items-stretch gap-1" : "flex items-center gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"} aria-label={t("primaryNavAria")}><NavItems {...props} mobile /></nav>;
 }
