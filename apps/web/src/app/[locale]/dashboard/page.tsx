@@ -36,6 +36,7 @@ export default async function DashboardPage({
   return (
     <StudentDashboard
       userId={session.user.id}
+      learningLanguage={session.user.learningLanguage}
       onboardingHref={onboardingHref}
       onboardingStep={onboardingStep ?? null}
     />

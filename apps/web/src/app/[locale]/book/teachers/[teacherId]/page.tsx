@@ -28,7 +28,8 @@ import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 import { PendingReservationNotice } from "@/components/booking/pending-reservation-notice";
 import { BookingStatus } from "@/generated/prisma/client";
 import { visibleAvailabilityWhere } from "@/lib/assigned-availability";
-import { learningLanguageAvailabilityWhere, learningLanguageOfferingWhere, learningLanguageTeacherWhere, resolveLearningLanguage } from "@/lib/learning-language";
+import { learningLanguageAvailabilityWhere, learningLanguageOfferingWhere, learningLanguageTeacherWhere } from "@/lib/learning-language";
+import { getRequestLearningLanguage } from "@/lib/learning-language-request";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -55,7 +56,7 @@ export default async function TeacherProfileBookingPage({
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
   const session = await auth();
-  const learningLanguage = resolveLearningLanguage(session?.user?.learningLanguage);
+  const learningLanguage = await getRequestLearningLanguage(session);
   const viewerStudentIdForSlots =
     session?.user?.role === "STUDENT" ? session.user.id : null;
 

@@ -31,6 +31,8 @@ type Props = {
   staggerMs?: number;
   /** Skip the animation entirely, e.g. when the value did not actually change. */
   animate?: boolean;
+  /** Opt into language-aware word boundaries for a headline. */
+  locale?: string;
 };
 
 export function SettleText({
@@ -38,6 +40,7 @@ export function SettleText({
   className = "",
   staggerMs = 26,
   animate = true,
+  locale,
 }: Props) {
   // Split on whitespace but KEEP it, so words stay whole. Animating characters
   // needs inline-block, and inline-block on every character would let the line
@@ -45,7 +48,17 @@ export function SettleText({
   // Each word therefore becomes its own nowrap box, and only the spaces between
   // words are legal break points. Japanese has no spaces and legitimately wraps
   // per character, which this leaves intact.
-  const words = useMemo(() => children.split(/(\s+)/).filter(Boolean), [children]);
+  const keepWords = Boolean(locale && typeof Intl.Segmenter === "function");
+  const words = useMemo(() => {
+    if (!keepWords) return children.split(/(\s+)/).filter(Boolean);
+    const words: string[] = [];
+    for (const { segment, isWordLike } of new Intl.Segmenter(locale, { granularity: "word" }).segment(children)) {
+      // Keep closing punctuation attached to the preceding word.
+      if (!isWordLike && !/^\s+$/.test(segment) && words.length && !/^\s+$/.test(words.at(-1)!)) words[words.length - 1] += segment;
+      else words.push(segment);
+    }
+    return words;
+  }, [children, locale, keepWords]);
 
   if (!animate) {
     return <span className={className}>{children}</span>;
@@ -84,7 +97,7 @@ export function SettleText({
           // Holding it nowrap would push the headline straight off the page —
           // CJK legitimately breaks between characters, so it is left to wrap.
           // Latin words keep their nowrap box so they never break mid-word.
-          return CJK.test(word) ? (
+          return CJK.test(word) && !keepWords ? (
             <span key={`w-${w}`}>{chars}</span>
           ) : (
             <span key={`w-${w}`} className="inline-block whitespace-nowrap">

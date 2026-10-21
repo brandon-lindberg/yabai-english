@@ -1,9 +1,9 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { InlineAlert } from "@/components/ui/inline-alert";
@@ -11,6 +11,11 @@ import { Section } from "@/components/ui/section";
 import { Status } from "@/components/ui/status";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import type { AuthErrorKind } from "@/lib/auth-error-kind";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { LEARNING_JOURNEYS, journeyPath } from "@/lib/learning-journey";
+import { prepareLearningSignIn } from "@/lib/learning-journey-actions";
+import { learningLanguageSchema } from "@/lib/learning-language";
+import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 
 type Props = {
   hasGoogleOAuth: boolean;
@@ -19,24 +24,55 @@ type Props = {
   safePostLoginPath: string;
   /** Set when Auth.js bounced a failed sign-in back to this page. */
   authError?: AuthErrorKind | null;
+  learningLanguage?: LearningLanguage;
 };
 
 /** Marks that this tab has already spent its one automatic retry. */
 const AUTH_RETRY_KEY = "auth:retried-expired-signin";
+const SIGNIN_CHOICE_KEY = "learning-signin-choice";
+type SignInChoice = { learningLanguage: LearningLanguage; callbackUrl: string };
+
+function storedSignInChoice(): SignInChoice | null {
+  try {
+    const value = JSON.parse(sessionStorage.getItem(SIGNIN_CHOICE_KEY) ?? "null");
+    const language = learningLanguageSchema.safeParse(value?.learningLanguage);
+    return language.success ? { learningLanguage: language.data, callbackUrl: resolveSafeCallbackUrl(value.callbackUrl, "/book") } : null;
+  } catch { return null; }
+}
 
 export function SignInForm({
   hasGoogleOAuth,
   devEmailSignIn,
   safePostLoginPath,
   authError = null,
+  learningLanguage = "ENGLISH",
 }: Props) {
   const t = useTranslations("auth");
+  const j = useTranslations("learningJourney");
+  const locale = useLocale();
+  const [recoveredChoice, setRecoveredChoice] = useState<SignInChoice | null>(null);
+  const selectedLanguage = recoveredChoice?.learningLanguage ?? learningLanguage;
+  const journey = LEARNING_JOURNEYS[selectedLanguage];
+  const other = selectedLanguage === "ENGLISH" ? "JAPANESE" : "ENGLISH";
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const retryFired = useRef(false);
+  const beginGoogleSignIn = useCallback(async (choice?: SignInChoice) => {
+    setGoogleLoading(true);
+    try {
+      const chosen = choice ?? { learningLanguage: selectedLanguage, callbackUrl: recoveredChoice?.callbackUrl ?? safePostLoginPath };
+      try { sessionStorage.setItem(SIGNIN_CHOICE_KEY, JSON.stringify(chosen)); } catch { /* Sign-in works without draft storage. */ }
+      const redirectTo = await prepareLearningSignIn({ ...chosen, locale });
+      await signIn("google", { redirectTo });
+    } catch {
+      setError(t("devSignInError"));
+      setGoogleLoading(false);
+      setRetrying(false);
+    }
+  }, [selectedLanguage, recoveredChoice, locale, safePostLoginPath, t]);
 
   /*
     One expired sign-in should not cost the user a second one.
@@ -62,29 +98,34 @@ export function SignInForm({
     if (authError !== "retry") return;
     if (retryFired.current) return;
     retryFired.current = true;
+    const choice = storedSignInChoice();
+    if (choice) setRecoveredChoice(choice);
     if (sessionStorage.getItem(AUTH_RETRY_KEY)) return;
     sessionStorage.setItem(AUTH_RETRY_KEY, "1");
     setRetrying(true);
-    void signIn("google", { redirectTo: safePostLoginPath });
-  }, [authError, hasGoogleOAuth, safePostLoginPath]);
+    void beginGoogleSignIn(choice ?? undefined);
+  }, [authError, hasGoogleOAuth, beginGoogleSignIn]);
 
   async function onDevSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
+      const redirectTo = await prepareLearningSignIn({ learningLanguage, locale, callbackUrl: safePostLoginPath });
       const res = await signIn("credentials", {
         email: email.trim(),
         redirect: false,
-        redirectTo: safePostLoginPath,
+        redirectTo,
       });
       if (res?.error) {
         setError(t("devSignInError"));
         return;
       }
       if (res?.ok) {
-        window.location.assign(safePostLoginPath);
+        window.location.assign(redirectTo);
       }
+    } catch {
+      setError(t("devSignInError"));
     } finally {
       setLoading(false);
     }
@@ -94,9 +135,10 @@ export function SignInForm({
     <div className="space-y-6">
       <div>
         <h1 className="text-[clamp(2rem,5vw,3rem)] font-black leading-[0.95] tracking-[-0.04em] text-foreground">
-          {t("signInTitle")}
+          {j(`${journey.key}.signin`)}
         </h1>
-        <p className="mt-3 text-muted">{t("signInSubtitle")}</p>
+        <p className="mt-3 text-muted">{j("signinIntro")}</p>
+        <p className="mt-3"><Link href={journeyPath(other)} className={actionLinkClass}>{j(`${LEARNING_JOURNEYS[other].key}.switch`)}</Link></p>
         {hasGoogleOAuth ? (
           <p className="mt-3 text-sm leading-relaxed text-muted">{t("googleIntro")}</p>
         ) : null}
@@ -108,9 +150,10 @@ export function SignInForm({
         </InlineAlert>
       ) : authError ? (
         <InlineAlert variant="warning" role="alert">
-          {t(authError === "denied" ? "signInDenied" : "signInRetry")}
+          {authError === "journey-expired" ? j("expired") : t(authError === "denied" ? "signInDenied" : "signInRetry")}
         </InlineAlert>
       ) : null}
+      {error && !devEmailSignIn ? <InlineAlert variant="warning" role="alert">{error}</InlineAlert> : null}
 
       {devEmailSignIn && (
         <InlineAlert variant="warning" role="status">
@@ -122,8 +165,7 @@ export function SignInForm({
         <button
           type="button"
           onClick={() => {
-            setGoogleLoading(true);
-            void signIn("google", { redirectTo: safePostLoginPath });
+            void beginGoogleSignIn();
           }}
           disabled={googleLoading || retrying}
           aria-busy={googleLoading || retrying}
@@ -208,7 +250,7 @@ export function SignInForm({
       )}
 
       <p className="text-center">
-        <Link href="/" className={`${actionLinkClass} text-sm`}>
+        <Link href={journeyPath(selectedLanguage)} className={`${actionLinkClass} text-sm`}>
           {t("backToHome")}
         </Link>
       </p>

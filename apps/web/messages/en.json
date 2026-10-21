@@ -1310,8 +1310,8 @@
     "goalBusiness": "Business",
     "goalExam": "Exam prep",
     "goalTravel": "Travel",
-      "goalOtherLabel": "Other learning goals",
-      "goalOtherPlaceholder": "e.g. Reach TOEIC 800 by March",
+    "goalOtherLabel": "Other learning goals",
+    "goalOtherPlaceholder": "e.g. Reach TOEIC 800 by March",
     "goalKids": "Kids lessons",
     "notificationsLabel": "Notification defaults",
     "notifyLessons": "Lesson reminders",
@@ -1842,5 +1842,58 @@
       "INVITED": "Invited",
       "PENDING_APPROVAL": "Awaiting approval"
     }
+  },
+  "learningJourney": {
+    "choiceTitle": "Which language will you learn?",
+    "choiceIntro": "Private online lessons, a teacher you know, and a schedule that works for you. Choose your learning language to get started.",
+    "languageTaught": "Language taught",
+    "chooseSubject": "Choose a language",
+    "subjectFixed": "To teach another language, create a new class.",
+    "signinIntro": "Your account will open with this learning language. You can choose another language before continuing.",
+    "expired": "Your sign-in choice expired. Choose your language and continue again.",
+    "english": {
+      "name": "English",
+      "choose": "Learn English",
+      "intro": "English lessons for Japanese learners, with teachers you can keep learning with.",
+      "start": "Start learning English",
+      "browse": "Find English teachers",
+      "signin": "Sign in to learn English",
+      "onboarding": "Your English learning starts here",
+      "dashboard": "Your English lessons",
+      "switch": "Switch to learning English",
+      "current": "Learning English"
+    },
+    "japanese": {
+      "name": "Japanese",
+      "choose": "Learn Japanese",
+      "intro": "Japanese lessons with Japanese teachers, built around what you want to say.",
+      "start": "Start learning Japanese",
+      "browse": "Find Japanese teachers",
+      "signin": "Sign in to learn Japanese",
+      "onboarding": "Your Japanese learning starts here",
+      "dashboard": "Your Japanese lessons",
+      "switch": "Switch to learning Japanese",
+      "current": "Learning Japanese"
+    }
+  },
+  "landingJapanese": {
+    "metaTitle": "Learn Japanese with Japanese teachers — English Studio Japan",
+    "metaDescription": "Find a Japanese teacher for private online Japanese lessons. Choose a lesson time and build a continuing learning relationship.",
+    "heroTitle": "Learn Japanese with Japanese teachers",
+    "heroSubtitle": "One-on-one lessons for the conversations you want to have. Find a Japanese teacher, choose your time, and keep learning together.",
+    "howHeading": "Start with a conversation",
+    "step1Title": "Find your Japanese teacher",
+    "step1Body": "Read teacher profiles, lesson focuses, instruction languages, and prices before choosing.",
+    "step2Title": "Choose a lesson time",
+    "step2Body": "Find a time that fits your day and review the lesson details before booking.",
+    "step3Title": "Meet and build on it",
+    "step3Body": "Join your teacher on Google Meet. Keep your lesson history and plan your next conversation together.",
+    "pillarsHeading": "A teacher who gets to know your Japanese",
+    "pillarScheduleTitle": "Learning that fits your life",
+    "pillarScheduleBody": "Book private online lessons and keep track of your next lesson in one place.",
+    "pillarTeacherTitle": "Keep your teacher, keep your progress",
+    "pillarTeacherBody": "Build a relationship with the same teacher instead of starting over at every lesson.",
+    "pillarPracticeTitle": "Work on what you want to say",
+    "pillarPracticeBody": "Talk with your teacher about everyday conversation, travel, work, or your study goals."
   }
 }

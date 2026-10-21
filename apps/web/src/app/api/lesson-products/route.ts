@@ -7,7 +7,9 @@ import {
 } from "@/lib/lesson-products";
 import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
 import { auth } from "@/auth";
-import { learningLanguageOfferingWhere, learningLanguageTeacherWhere, resolveLearningLanguage } from "@/lib/learning-language";
+import { learningLanguageOfferingWhere, learningLanguageTeacherWhere } from "@/lib/learning-language";
+import { getRequestLearningLanguage } from "@/lib/learning-language-request";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -22,7 +24,7 @@ export async function GET(req: Request) {
     return NextResponse.json(products);
   }
   const session = await auth();
-  const learningLanguage = resolveLearningLanguage(session?.user?.learningLanguage);
+  const learningLanguage = await getRequestLearningLanguage(session);
 
   const teacher = await prisma.teacherProfile.findUnique({
     where: { id: teacherProfileId, AND: [learningLanguageTeacherWhere(learningLanguage)] },
@@ -67,7 +69,7 @@ export async function GET(req: Request) {
   }
 
   const trialFiltered = filterLessonProductsForTeacher(products, teacher.offersFreeTrial);
-  const freeTrial = trialFiltered.filter((p) => p.tier === LessonTier.FREE_TRIAL);
+  const freeTrial = trialFiltered.filter((p) => p.tier === LessonTier.FREE_TRIAL).map((p) => ({ ...p, ...lessonProductNames(p, learningLanguage) }));
   const hasPaymentAccountsProp = Array.isArray(
     (teacher as { paymentAccounts?: unknown }).paymentAccounts,
   );
@@ -98,6 +100,7 @@ export async function GET(req: Request) {
       .filter((p) => catalogProductMatchesOffering(p, offering))
       .map((p) => ({
         ...p,
+        ...lessonProductNames(p, learningLanguage),
         teacherLessonOfferingId: offering.id,
         teacherClassTypeId: offering.classTypeId ?? null,
         teacherClassTypeCode: offering.classType?.code ?? null,

@@ -35,3 +35,7 @@ GROUP_LESSONS_PLAN.html
 
 # Re-downloadable, checksum-verified Japanese source archives; keep locks/reports tracked.
 apps/web/.cache/japanese-content/
+
+# Browser test output; source tests and review instructions stay tracked.
+apps/web/test-results/
+apps/web/playwright-report/

@@ -10,6 +10,7 @@ import { IdleLogoutGuard } from "@/components/idle-logout-guard";
 import { SiteHeader } from "@/components/shell/site-header";
 import { SiteFooter } from "@/components/shell/site-footer";
 import { ChatPanel } from "@/components/chat-panel";
+import { getGuestLearningLanguage } from "@/lib/learning-language-request";
 
 type Props = {
   children: ReactNode;
@@ -29,6 +30,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   setRequestLocale(locale);
   const messages = await getMessages();
   const session = await auth();
+  const guestLearningLanguage = session?.user ? null : await getGuestLearningLanguage();
 
   return (
     <NextIntlClientProvider messages={messages}>
@@ -36,7 +38,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <div className="flex min-h-0 flex-1 flex-col overflow-x-clip">
           <HiddenAccountGuard />
           <IdleLogoutGuard />
-          <SiteHeader />
+          <SiteHeader guestLearningLanguage={guestLearningLanguage} />
           {/*
             `[&>main]:w-full` is load-bearing. Pages centre themselves with
             `mx-auto max-w-*`, and auto margins on a flex item's cross axis

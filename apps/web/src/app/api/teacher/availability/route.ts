@@ -26,6 +26,7 @@ import {
   isWithinAvailabilityWindow,
 } from "@/lib/availability-window";
 import { canTeacherPublishAvailability, resolveTeacherPublishAvailabilityOptions } from "@/lib/payment-methods";
+import { teachingLanguagesFromOfferings } from "@/lib/learning-language";
 
 export async function GET() {
   const session = await auth();
@@ -149,6 +150,7 @@ export async function PATCH(req: Request) {
       },
       lessonOfferings: {
         select: {
+          learningLanguage: true,
           classTypeId: true,
           classLevelId: true,
           id: true,
@@ -287,11 +289,16 @@ export async function PATCH(req: Request) {
       select: { id: true },
     }),
   ]);
-  const trialOffering = deriveFreeTrialOffering({
+  const subjects = teachingLanguagesFromOfferings(profileSnapshot.lessonOfferings);
+  const trialOfferings = (subjects.length ? subjects : ["ENGLISH" as const]).flatMap((learningLanguage) => {
+    const offering = deriveFreeTrialOffering({
     existing: profileSnapshot.lessonOfferings,
     offersFreeTrial: profileSnapshot.offersFreeTrial,
     classLevelId: trialLevel?.id ?? null,
     classTypeId: trialType?.id ?? null,
+    learningLanguage,
+    });
+    return offering ? [offering] : [];
   });
 
   const newOfferings = deriveMissingOfferingsFromSchedule({
@@ -363,10 +370,11 @@ export async function PATCH(req: Request) {
         })),
       });
     }
-    if (trialOffering) {
+    for (const trialOffering of trialOfferings) {
       await tx.teacherLessonOffering.create({
         data: {
           teacherId: profileSnapshot.id,
+          learningLanguage: trialOffering.learningLanguage,
           durationMin: trialOffering.durationMin,
           rateYen: trialOffering.rateYen,
           isGroup: trialOffering.isGroup,

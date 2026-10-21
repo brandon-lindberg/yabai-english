@@ -22,10 +22,11 @@ import { useCallback, useState } from "react";
 export function useSessionDraft<T>(
   key: string,
   initial: T,
+  legacyKey?: string,
 ): [T, (next: T) => void, () => void] {
   const [draft, setDraftState] = useState<T>(() => {
     try {
-      const stored = window.sessionStorage.getItem(key);
+      const stored = window.sessionStorage.getItem(key) ?? (legacyKey ? window.sessionStorage.getItem(legacyKey) : null);
       if (!stored) return initial;
       // A shape written by an older version of the form parses fine and then
       // reads as nonsense, so callers get the defaults merged underneath.
@@ -50,10 +51,11 @@ export function useSessionDraft<T>(
   const clear = useCallback(() => {
     try {
       window.sessionStorage.removeItem(key);
+      if (legacyKey) window.sessionStorage.removeItem(legacyKey);
     } catch {
       // As above.
     }
-  }, [key]);
+  }, [key, legacyKey]);
 
   return [draft, setDraft, clear];
 }

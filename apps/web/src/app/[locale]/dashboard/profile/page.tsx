@@ -116,7 +116,7 @@ export default async function DashboardProfilePage({
         initialShortBio={user?.studentProfile?.shortBio ?? null}
         initialLearningGoals={user?.studentProfile?.learningGoals ?? []}
         initialLearningGoalsNote={user?.studentProfile?.learningGoalsNote ?? null}
-        placedLevel={user?.studentProfile?.placedLevel ?? null}
+        placedLevel={session.user.learningLanguage === "JAPANESE" ? null : user?.studentProfile?.placedLevel ?? null}
         avatarUrl={user?.image ?? null}
         postSaveRedirect={onboardingNextParam ?? null}
       />

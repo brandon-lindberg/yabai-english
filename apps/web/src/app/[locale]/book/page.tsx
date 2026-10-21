@@ -25,7 +25,9 @@ import { TeacherBrowseList, type TeacherPreview } from "@/components/teacher-bro
 import { timeRangesOverlap } from "@/lib/teacher-availability-display";
 import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
-import { learningLanguageAvailabilityWhere, resolveLearningLanguage } from "@/lib/learning-language";
+import { learningLanguageAvailabilityWhere } from "@/lib/learning-language";
+import { getRequestLearningLanguage } from "@/lib/learning-language-request";
+import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -50,7 +52,8 @@ export default async function BookPage({ searchParams }: Props) {
   const tCommon = await getTranslations("common");
   const params = await searchParams;
   const session = await auth();
-  const learningLanguage = resolveLearningLanguage(session?.user?.learningLanguage);
+  const learningLanguage = await getRequestLearningLanguage(session);
+  const j = await getTranslations("learningJourney");
   const locale = await getLocale();
   if (session?.user?.role && session.user.role !== "STUDENT") {
     redirect({ href: "/dashboard", locale });
@@ -257,7 +260,7 @@ export default async function BookPage({ searchParams }: Props) {
   return (
     <main className="mx-auto max-w-5xl flex-1 px-4 py-10 sm:px-6">
       <OnboardingResumeBanner href={onboardingHref} step={params.onboardingStep ?? null} />
-      <PageHeader title={t("title")} description={t("teacherBrowseSubtitle")} />
+      <PageHeader title={j(`${LEARNING_JOURNEYS[learningLanguage].key}.browse`)} description={t("teacherBrowseSubtitle")} />
       {/* A ruled list, not a card grid: teachers are compared against each
           other, and a column of rates only lines up if the rows share an edge. */}
       {filtered.length === 0 ? (

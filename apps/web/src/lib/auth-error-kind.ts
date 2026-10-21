@@ -10,7 +10,7 @@
  * account (see `isLoginAllowedForAccountStatus`), so telling the user to try again
  * would loop them.
  */
-export type AuthErrorKind = "retry" | "denied";
+export type AuthErrorKind = "retry" | "denied" | "journey-expired";
 
 /**
  * Maps a `?error=` query value to the message the sign-in page should show.
@@ -19,6 +19,8 @@ export type AuthErrorKind = "retry" | "denied";
 export function resolveAuthErrorKind(raw: string | undefined | null): AuthErrorKind | null {
   if (!raw) return null;
   switch (raw) {
+    case "JourneyExpired":
+      return "journey-expired";
     case "AccessDenied":
       return "denied";
     case "Configuration":

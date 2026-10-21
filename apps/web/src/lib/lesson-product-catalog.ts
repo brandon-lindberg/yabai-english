@@ -12,7 +12,7 @@
  * we skip it — this function only ADDs, never edits or removes.
  */
 
-import { LessonTier } from "@/generated/prisma/client";
+import { LessonTier, type LearningLanguage } from "@/generated/prisma/enums";
 
 type OfferingLike = {
   classType: { code: string } | null;
@@ -60,9 +60,11 @@ export function inferLessonTierForOffering(offering: {
 function nameForTier(
   tier: LessonTier,
   durationMin: number,
+  learningLanguage: LearningLanguage = "ENGLISH",
 ): { nameJa: string; nameEn: string } {
   switch (tier) {
     case LessonTier.EIKAWA:
+      if (learningLanguage === "JAPANESE") return { nameJa: `日本語会話（${durationMin}分）`, nameEn: `Japanese conversation — ${durationMin} min` };
       return {
         nameJa: `英会話（${durationMin}分）`,
         nameEn: `Conversation (Eikawa) — ${durationMin} min`,
@@ -99,6 +101,13 @@ function nameForTier(
         nameEn: `Standard (${durationMin} min)`,
       };
   }
+}
+
+/** Commercial products stay shared; Japanese lessons never inherit English subject copy. */
+export function lessonProductNames(product: { tier?: LessonTier; durationMin: number; nameJa: string; nameEn: string }, learningLanguage: LearningLanguage = "ENGLISH") {
+  return learningLanguage === "JAPANESE" && product.tier
+    ? nameForTier(product.tier, product.durationMin, learningLanguage)
+    : { nameJa: product.nameJa, nameEn: product.nameEn };
 }
 
 export function buildCatalogProductForOffering(offering: {

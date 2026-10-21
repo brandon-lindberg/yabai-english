@@ -30,6 +30,7 @@ export type HeaderNavInput = {
   role: string | null | undefined;
   canStartPlacement?: boolean | null;
   activeOrgId?: string | null;
+  learningLanguage?: "ENGLISH" | "JAPANESE";
 };
 
 /**
@@ -57,10 +58,10 @@ export function getHeaderPrimaryNavLinks(input: HeaderNavInput): HeaderNavLink[]
     const links: HeaderNavLink[] = [
       { id: "dashboard", href: "/dashboard", labelKey: "dashboard" },
       { id: "book", href: "/book", labelKey: "book" },
-      { id: "learn", href: "/learn/study", labelKey: "learn" },
+      ...(input.learningLanguage === "JAPANESE" ? [] : [{ id: "learn" as const, href: "/learn/study", labelKey: "learn" as const }]),
       { id: "schedule", href: "/dashboard/schedule", labelKey: "schedule" },
     ];
-    if (input.canStartPlacement) {
+    if (input.canStartPlacement && input.learningLanguage !== "JAPANESE") {
       links.push({
         id: "placement",
         href: "/placement",

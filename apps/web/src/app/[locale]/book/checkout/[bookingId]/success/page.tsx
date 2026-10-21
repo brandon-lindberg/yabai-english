@@ -65,6 +65,9 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
       <PageHeader title={t("checkoutSuccessTitle")} description={t("checkoutSuccessBody")} />
 
       <BookingSummary
+        learningLanguage={booking.learningLanguage}
+        lessonTier={booking.lessonProduct.tier}
+        durationMin={booking.lessonProduct.durationMin}
         lessonNameJa={booking.lessonProduct.nameJa}
         lessonNameEn={booking.lessonProduct.nameEn}
         startsAtIso={booking.startsAt.toISOString()}

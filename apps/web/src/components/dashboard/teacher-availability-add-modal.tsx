@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
+import { resolveLearningLanguage } from "@/lib/learning-language";
 import { luxonWeekdayMod7FromDayKey } from "@/lib/availability-editor";
 import { weekdayLabel } from "@/lib/weekdays";
 import { buttonClasses } from "@/components/ui/button";
@@ -39,6 +41,7 @@ export type TeacherAvailabilityAddModalDraft = {
 export type AssignableStudentOption = { id: string; label: string };
 
 export type TeacherLessonOfferingOption = {
+  learningLanguage?: "ENGLISH" | "JAPANESE";
   id: string;
   durationMin: number;
   rateYen: number;
@@ -126,6 +129,7 @@ function TeacherAvailabilityAddModalInner({
   lessonOfferings,
 }: InnerProps) {
   const tModal = useTranslations("dashboard.teacherAvailability");
+  const j = useTranslations("learningJourney");
   const defaultOffering = lessonOfferings[0];
   const [weeklyOnCalendarDay, setWeeklyOnCalendarDay] = useState(
     initialDraft?.recurrence === "WEEKLY",
@@ -161,10 +165,11 @@ function TeacherAvailabilityAddModalInner({
   const dateHint = belowLeadTime ? tModal("belowLeadTimeHint") : windowHint;
   const offerById = new Map(lessonOfferings.map((offer) => [offer.id, offer]));
   const formatOfferingLabel = (offer: TeacherLessonOfferingOption) => {
+    const language = j(`${LEARNING_JOURNEYS[resolveLearningLanguage(offer.learningLanguage)].key}.name`);
     // A trial is its own kind of slot, not a class at a price of zero — naming
     // the level and type here would read as a discounted conversation lesson.
     if (offer.isFreeTrial) {
-      return `${tModal("freeTrialOffering")} (${offer.durationMin} min)`;
+      return `${language} · ${tModal("freeTrialOffering")} (${offer.durationMin} min)`;
     }
     const level = offer.classLevel ? pickLabel(offer.classLevel, locale) : "";
     const type = offer.classType ? pickLabel(offer.classType, locale) : "";
@@ -176,7 +181,7 @@ function TeacherAvailabilityAddModalInner({
       offer.isGroup && offer.groupSize
         ? `${rate}/student, max ${offer.groupSize}`
         : rate;
-    return `${level} / ${type} (${offer.durationMin} min, ${price})`;
+    return `${language} · ${level} / ${type} (${offer.durationMin} min, ${price})`;
   };
 
   return (

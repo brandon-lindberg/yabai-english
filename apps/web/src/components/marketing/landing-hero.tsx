@@ -1,12 +1,17 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { buttonClasses } from "@/components/ui/button";
 import { SettleText } from "@/components/ui/settle-text";
 import { StormField } from "@/components/marketing/storm-field";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { LEARNING_JOURNEYS, journeySignInHref } from "@/lib/learning-journey";
+import { selectLearningJourney } from "@/lib/learning-journey-actions";
 
-export async function LandingHero() {
-  const t = await getTranslations("landing");
-  const h = await getTranslations("home");
+export async function LandingHero({ learningLanguage = "ENGLISH" }: { learningLanguage?: LearningLanguage } = {}) {
+  const journey = LEARNING_JOURNEYS[learningLanguage];
+  const t = await getTranslations(journey.landingNamespace);
+  const j = await getTranslations("learningJourney");
+  const locale = await getLocale();
 
   return (
     <section className="relative isolate -mx-4 overflow-hidden px-4 pt-10 pb-16 sm:-mx-6 sm:px-6 sm:pt-16 sm:pb-24">
@@ -18,8 +23,8 @@ export async function LandingHero() {
         around it — the page itself is the paper.
       */}
       <div className="relative">
-        <h1 className="max-w-[16ch] text-[clamp(2.75rem,8vw,6rem)] font-black leading-[0.92] tracking-[-0.04em] text-foreground">
-          <SettleText>{t("heroTitle")}</SettleText>
+        <h1 className="max-w-[16ch] text-balance text-[clamp(2.75rem,8vw,6rem)] font-black leading-[0.92] tracking-[-0.04em] text-foreground">
+          <SettleText locale={locale}>{t("heroTitle")}</SettleText>
         </h1>
 
         <p className="mt-7 max-w-[62ch] text-lg leading-relaxed text-muted sm:text-xl">
@@ -27,12 +32,14 @@ export async function LandingHero() {
         </p>
 
         <div className="mt-10 flex flex-wrap items-center gap-3">
-          <Link href="/auth/signin" className={buttonClasses({ size: "lg" })}>
-            {h("ctaSignIn")}
+          <Link href={journeySignInHref(learningLanguage)} className={buttonClasses({ size: "lg" })}>
+            {j(`${journey.key}.start`)}
           </Link>
-          <Link href="/book" className={buttonClasses({ variant: "secondary", size: "lg" })}>
-            {h("ctaBrowseTeachers")}
-          </Link>
+          <form action={selectLearningJourney.bind(null, learningLanguage, locale)}>
+            <button type="submit" className={buttonClasses({ variant: "secondary", size: "lg" })}>
+              {j(`${journey.key}.browse`)}
+            </button>
+          </form>
         </div>
       </div>
     </section>

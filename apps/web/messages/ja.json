@@ -1310,8 +1310,8 @@
     "goalBusiness": "ビジネス英語",
     "goalExam": "試験対策",
     "goalTravel": "旅行英語",
-      "goalOtherLabel": "その他の学習目標",
-      "goalOtherPlaceholder": "例：3月までにTOEIC 800点をとる",
+    "goalOtherLabel": "その他の学習目標",
+    "goalOtherPlaceholder": "例：3月までにTOEIC 800点をとる",
     "goalKids": "子ども向け",
     "notificationsLabel": "通知設定（初期値）",
     "notifyLessons": "レッスンのリマインダー",
@@ -1842,5 +1842,58 @@
       "INVITED": "招待済み",
       "PENDING_APPROVAL": "承認待ち"
     }
+  },
+  "learningJourney": {
+    "choiceTitle": "どの言語を学びますか？",
+    "choiceIntro": "信頼できる先生と、生活に合ったスケジュールで学ぶオンライン個人レッスン。学びたい言語を選んでください。",
+    "languageTaught": "レッスンで教える言語",
+    "chooseSubject": "言語を選択",
+    "subjectFixed": "別の言語を教える場合は、新しいクラスを作成してください。",
+    "signinIntro": "選択した学習言語でアカウントを開きます。続ける前に別の言語を選ぶこともできます。",
+    "expired": "ログイン時の言語選択の有効期限が切れました。学習言語を確認して、もう一度お進みください。",
+    "english": {
+      "name": "英語",
+      "choose": "英語を学ぶ",
+      "intro": "日本語を話す学習者のための英語レッスン。同じ先生と継続して学べます。",
+      "start": "英語の学習を始める",
+      "browse": "英語の先生を探す",
+      "signin": "英語を学ぶためにログイン",
+      "onboarding": "英語学習の準備をしましょう",
+      "dashboard": "あなたの英語レッスン",
+      "switch": "英語の学習に切り替える",
+      "current": "学習言語：英語"
+    },
+    "japanese": {
+      "name": "日本語",
+      "choose": "日本語を学ぶ · Learn Japanese",
+      "intro": "日本人の先生と、伝えたいことを日本語にする個人レッスン。",
+      "start": "日本語の学習を始める",
+      "browse": "日本語の先生を探す",
+      "signin": "日本語を学ぶためにログイン",
+      "onboarding": "日本語学習の準備をしましょう",
+      "dashboard": "あなたの日本語レッスン",
+      "switch": "日本語の学習に切り替える",
+      "current": "学習言語：日本語"
+    }
+  },
+  "landingJapanese": {
+    "metaTitle": "日本人の先生と日本語を学ぶ — English Studio Japan",
+    "metaDescription": "日本人の先生によるオンライン日本語個人レッスン。先生と日時を選び、継続して学びましょう。",
+    "heroTitle": "日本人の先生と、日本語を学ぶ",
+    "heroSubtitle": "話したいことを、自分の日本語で。日本人の先生と、あなたの目標や生活に合った個人レッスンを続けましょう。",
+    "howHeading": "会話から始めましょう",
+    "step1Title": "日本語の先生を選ぶ",
+    "step1Body": "プロフィール、レッスンの内容、説明に使える言語、料金を確認して先生を選びます。",
+    "step2Title": "レッスン日時を決める",
+    "step2Body": "生活に合った時間を選び、レッスンの詳細を確認して予約します。",
+    "step3Title": "会って、次につなげる",
+    "step3Body": "Google Meetでレッスンに参加。履歴を振り返りながら、先生と次の学習につなげます。",
+    "pillarsHeading": "あなたの日本語を知っている先生と",
+    "pillarScheduleTitle": "生活に合った学び方",
+    "pillarScheduleBody": "オンラインの個人レッスンを予約し、次の予定をいつでも確認できます。",
+    "pillarTeacherTitle": "同じ先生と、少しずつ前へ",
+    "pillarTeacherBody": "毎回初めから説明し直さず、同じ先生との関係を育てながら学べます。",
+    "pillarPracticeTitle": "伝えたいことを学ぶ",
+    "pillarPracticeBody": "日常会話、旅行、仕事、学習目標について先生に相談しましょう。"
   }
 }

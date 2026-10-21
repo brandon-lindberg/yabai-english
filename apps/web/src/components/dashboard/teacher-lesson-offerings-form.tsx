@@ -12,6 +12,8 @@ import {
   type AddedOffering,
 } from "@/components/dashboard/teacher-lesson-add-modal";
 import { TeacherLessonSummaryRow } from "@/components/dashboard/teacher-lesson-summary-row";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { resolveLearningLanguage } from "@/lib/learning-language";
 
 export type TaxonomyOption = {
   id: string;
@@ -23,6 +25,7 @@ export type TaxonomyOption = {
 type Props = {
   initialOffersFreeTrial: boolean;
   initialLessonOfferings: Array<{
+    learningLanguage?: LearningLanguage;
     id: string;
     durationMin: number;
     rateYen: number;
@@ -42,6 +45,7 @@ type Props = {
 /** What the dialog needs to prefill, and the row needs to display. */
 function toOffering(o: Props["initialLessonOfferings"][number]): AddedOffering {
   return {
+    learningLanguage: resolveLearningLanguage(o.learningLanguage),
     id: o.id,
     durationMin: o.durationMin,
     rateYen: o.rateYen,

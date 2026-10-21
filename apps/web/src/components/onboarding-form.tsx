@@ -14,6 +14,7 @@ import { Field, Select } from "@/components/ui/field";
 import { inlineLinkClass } from "@/components/ui/inline-link";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Status } from "@/components/ui/status";
+import type { LearningLanguage } from "@/generated/prisma/enums";
 
 const STEP_COUNT = 4;
 
@@ -29,6 +30,7 @@ function WizardStep({ legend, children }: { legend: string; children: ReactNode 
 
 type Props = {
   initialTimezone: string;
+  learningLanguage?: LearningLanguage;
 };
 
 /**
@@ -68,11 +70,12 @@ const EMPTY_DRAFT: WizardDraft = {
   notifyPayments: true,
 };
 
-export function OnboardingForm({ initialTimezone }: Props) {
+export function OnboardingForm({ initialTimezone, learningLanguage = "ENGLISH" }: Props) {
   const t = useTranslations("onboarding");
   const [draft, setDraft, clearDraft] = useSessionDraft<WizardDraft>(
-    "onboarding-wizard",
+    `onboarding-wizard:${learningLanguage}`,
     EMPTY_DRAFT,
+    learningLanguage === "ENGLISH" ? "onboarding-wizard" : undefined,
   );
   const {
     step,

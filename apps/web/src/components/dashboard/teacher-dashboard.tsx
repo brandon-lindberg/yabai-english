@@ -13,6 +13,7 @@ import { InlineAlert } from "@/components/ui/inline-alert";
 import { inlineLinkClass } from "@/components/ui/inline-link";
 import { Section } from "@/components/ui/section";
 import { buttonClasses } from "@/components/ui/button";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 /**
  * A teacher's dashboard: the shared spine, then their own sections.
@@ -116,12 +117,13 @@ export async function TeacherDashboard({
         nextBooking
           ? {
               id: nextBooking.id,
+              learningLanguage: nextBooking.learningLanguage,
               startsAt: nextBooking.startsAt,
               endsAt: nextBooking.endsAt,
               counterpartName:
                 nextBooking.student.name ?? nextBooking.student.email ?? "—",
-              lessonNameJa: nextBooking.lessonProduct.nameJa,
-              lessonNameEn: nextBooking.lessonProduct.nameEn,
+              lessonNameJa: lessonProductNames(nextBooking.lessonProduct, nextBooking.learningLanguage).nameJa,
+              lessonNameEn: lessonProductNames(nextBooking.lessonProduct, nextBooking.learningLanguage).nameEn,
               status: nextBooking.status,
               meetUrl: nextBooking.meetUrl,
             }

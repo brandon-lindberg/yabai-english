@@ -17,6 +17,7 @@ export default async function OnboardingNextPage() {
   const locale = await getLocale();
   const t = await getTranslations("onboarding");
   const user = await requireAuth(locale);
+  const isEnglish = user.learningLanguage === "ENGLISH";
 
   if (user.role === "TEACHER") {
     redirect({ href: "/onboarding/teacher", locale });
@@ -47,10 +48,10 @@ export default async function OnboardingNextPage() {
       }),
       prisma.booking.count({ where: { studentId: user.id } }),
       prisma.chatThread.count({ where: { studentId: user.id } }),
-      prisma.userStudyLevelProgress.findFirst({
+      isEnglish ? prisma.userStudyLevelProgress.findFirst({
         where: { userId: user.id, lastStudiedAt: { not: null } },
         select: { id: true },
-      }),
+      }) : null,
     ]);
 
   if (!profile?.onboardingCompletedAt) {
@@ -59,11 +60,11 @@ export default async function OnboardingNextPage() {
 
   const placedLevel = profile?.placedLevel ?? "UNSET";
 
-  if (placedLevel !== "UNSET") {
+  if (isEnglish && placedLevel !== "UNSET") {
     redirect({ href: getStudentPostOnboardingRoute(placedLevel), locale });
   }
 
-  const canStartPlacement = isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null);
+  const canStartPlacement = isEnglish && isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null);
   const completion = computeStudentOnboardingCompletion(
     {
       profileShortBio: profile?.shortBio ?? null,
@@ -82,6 +83,7 @@ export default async function OnboardingNextPage() {
     locale,
     canStartPlacement,
     completion,
+    learningLanguage: user.learningLanguage,
   });
   const progress = summarizeStudentOnboardingProgress(studentChecklist);
 

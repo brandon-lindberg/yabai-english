@@ -26,6 +26,9 @@ import {
 } from "@/lib/teacher-lesson-rate-basis";
 import { TeacherLessonRateTaxBreakdown } from "@/components/dashboard/teacher-lesson-rate-tax-breakdown";
 import { TeacherLessonRateBasisSwitch } from "@/components/dashboard/teacher-lesson-rate-basis-switch";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
+import { resolveLearningLanguage } from "@/lib/learning-language";
 
 const DURATIONS = [30, 40, 60, 90] as const;
 
@@ -38,6 +41,7 @@ export type TaxonomyOption = {
 
 /** What the endpoint hands back, and what the list needs to show the new row. */
 export type AddedOffering = {
+  learningLanguage?: LearningLanguage;
   id: string;
   durationMin: number;
   rateYen: number;
@@ -87,6 +91,8 @@ export function TeacherLessonAddModal({
   onSaved: (offering: AddedOffering) => void;
 }) {
   const t = useTranslations("dashboard.profilePage");
+  const j = useTranslations("learningJourney");
+  const [learningLanguage, setLearningLanguage] = useState<LearningLanguage | "">(editing ? resolveLearningLanguage(editing.learningLanguage) : "");
   const isGroup = kind === "group";
 
   const startingBasis = ratePriceBasisFromStored(editing?.ratePriceBasis);
@@ -154,6 +160,7 @@ export function TeacherLessonAddModal({
           });
 
   const ready =
+    Boolean(learningLanguage) &&
     hasFigure &&
     Boolean(classLevelId) &&
     Boolean(classTypeId) &&
@@ -181,6 +188,7 @@ export function TeacherLessonAddModal({
         method: editing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          learningLanguage,
           durationMin,
           rateYen: isGroup ? (groupCheck?.ok ? groupCheck.perStudentYen : 0) : taxIncluded,
           groupTotalRateYen: isGroup ? taxIncluded : undefined,
@@ -242,6 +250,12 @@ export function TeacherLessonAddModal({
         <InlineAlert variant="warning">{t("teacherAddClassNoTaxonomy")}</InlineAlert>
       ) : (
         <div className="space-y-4">
+          <Field label={j("languageTaught")} hint={editing ? j("subjectFixed") : undefined}>
+            {(field) => <Select {...field} required disabled={Boolean(editing)} value={learningLanguage} onChange={(e) => setLearningLanguage(e.target.value as LearningLanguage)}>
+              <option value="" disabled>{j("chooseSubject")}</option>
+              {Object.entries(LEARNING_JOURNEYS).map(([language, journey]) => <option key={language} value={language}>{j(`${journey.key}.name`)}</option>)}
+            </Select>}
+          </Field>
           <Field label={t("teacherLessonLevelForRate")}>
             {(field) => (
               <Select

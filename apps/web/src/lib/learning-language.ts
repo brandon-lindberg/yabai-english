@@ -10,6 +10,11 @@ export function resolveLearningLanguage(value: unknown): LearningLanguage {
   return parsed.success ? parsed.data : LearningLanguage.ENGLISH;
 }
 
+/** Subject capabilities come from actual classes, including existing trial-only teachers. */
+export function teachingLanguagesFromOfferings(offerings: ReadonlyArray<{ active?: boolean; learningLanguage?: LearningLanguage }>): LearningLanguage[] {
+  return [...new Set(offerings.filter((offering) => offering.active !== false).map((offering) => resolveLearningLanguage(offering.learningLanguage)))];
+}
+
 export function learningLanguageOfferingWhere(learningLanguage: LearningLanguage) {
   return { active: true, learningLanguage };
 }

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Avatar } from "@/components/ui/avatar";
 import { MarkdownView } from "@/components/ui/markdown-view";
+import type { LearningLanguage } from "@/generated/prisma/enums";
 
 /**
  * Who this student is: photo, name, level, timezone, goals, bio.
@@ -27,9 +28,11 @@ export type StudentProfileSummary = {
 export async function StudentProfilePanel({
   student,
   profile,
+  learningLanguage,
 }: {
-  student: { name: string | null; email: string | null; image: string | null };
+  student: { name: string | null; email: string | null; image: string | null; learningLanguage?: LearningLanguage };
   profile: StudentProfileSummary | null;
+  learningLanguage?: LearningLanguage;
 }) {
   const t = await getTranslations("dashboard.lessonDetail");
   const to = await getTranslations("onboarding");
@@ -62,13 +65,13 @@ export async function StudentProfilePanel({
         {profile ? (
           <div className="space-y-2 border-t border-border pt-3">
             <div className="grid gap-3 sm:grid-cols-2">
-              <div>
+              {(learningLanguage ?? student.learningLanguage ?? "ENGLISH") === "ENGLISH" ? <div>
                 <p className="text-sm font-medium text-muted">{t("level")}</p>
                 <p className="text-sm text-foreground">
                   {levelLabels[profile.placedLevel] ?? profile.placedLevel}
                   {profile.placedSubLevel ? ` (${profile.placedSubLevel})` : ""}
                 </p>
-              </div>
+              </div> : null}
               <div>
                 <p className="text-sm font-medium text-muted">{t("timezone")}</p>
                 <p className="text-sm text-foreground">{profile.timezone}</p>

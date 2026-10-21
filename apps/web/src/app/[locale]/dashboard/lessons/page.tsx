@@ -35,6 +35,7 @@ export default async function DashboardLessonsPage({
         orderBy: [{ isGroup: "asc" }, { durationMin: "asc" }],
         select: {
           id: true,
+          learningLanguage: true,
           durationMin: true,
           rateYen: true,
           // Without this the form rebuilds the total from the share, which is

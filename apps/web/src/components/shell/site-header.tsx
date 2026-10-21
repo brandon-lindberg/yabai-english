@@ -1,17 +1,34 @@
 "use client";
 
 import { useVerifiedSession } from "@/hooks/use-verified-session";
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { NotificationBell } from "@/components/notification-bell";
 import { SiteHeaderPrimaryNav, SiteHeaderMobileNav } from "@/components/shell/site-header-primary-nav";
 import { SiteHeaderUserMenu } from "@/components/shell/site-header-user-menu";
 import { getHeaderPrimaryNavLinks } from "@/lib/shell/header-nav-links";
 import { buttonClasses } from "@/components/ui/button";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { actionLinkClass } from "@/components/ui/inline-link";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { LEARNING_JOURNEYS, journeyPath, journeySignInHref, learningLanguageFromPath } from "@/lib/learning-journey";
+import { learningLanguageSchema } from "@/lib/learning-language";
+import { selectLearningJourney } from "@/lib/learning-journey-actions";
 
-export function SiteHeader() {
+export function SiteHeader({ guestLearningLanguage = null }: { guestLearningLanguage?: LearningLanguage | null }) {
   const t = useTranslations("common");
+  const j = useTranslations("learningJourney");
+  const locale = useLocale();
+  const pathname = usePathname();
+  const query = useSearchParams();
   const { data: session, status } = useVerifiedSession();
+  const requested = pathname === "/auth/signin" ? learningLanguageSchema.safeParse(query.get("learningLanguage")) : null;
+  const learningLanguage = session?.user?.role === "STUDENT" ? session.user.learningLanguage
+    : learningLanguageFromPath(pathname) ?? (requested?.success ? requested.data : guestLearningLanguage);
+  const other = learningLanguage === "JAPANESE" ? "ENGLISH" : "JAPANESE";
+  const bookAction = !session?.user && learningLanguage ? selectLearningJourney.bind(null, learningLanguage, locale) : undefined;
 
   const navLinks =
     session?.user && status === "authenticated"
@@ -20,9 +37,10 @@ export function SiteHeader() {
           role: session.user.role,
           canStartPlacement: session.user.canStartPlacement,
           activeOrgId: session.user.activeOrgId,
+          learningLanguage: session.user.learningLanguage,
         })
       : status === "unauthenticated"
-        ? getHeaderPrimaryNavLinks({ signedIn: false, role: undefined })
+        ? getHeaderPrimaryNavLinks({ signedIn: false, role: undefined }).filter((link) => learningLanguage || link.id !== "book")
         : [];
 
   return (
@@ -57,9 +75,9 @@ export function SiteHeader() {
             <span className="ml-auto text-sm text-muted">…</span>
           ) : (
             <>
-              <SiteHeaderPrimaryNav links={navLinks} />
+              <SiteHeaderPrimaryNav links={navLinks} bookAction={bookAction} />
               <Link
-                href="/auth/signin"
+                href={learningLanguage ? journeySignInHref(learningLanguage) : "/auth/signin"}
                 className={buttonClasses({ size: "sm", className: "ml-auto shrink-0" })}
               >
                 {t("signIn")}
@@ -68,8 +86,19 @@ export function SiteHeader() {
           )}
         </div>
         {navLinks.length > 0 && (
-          <SiteHeaderMobileNav links={navLinks} />
+          <SiteHeaderMobileNav links={navLinks} bookAction={bookAction} />
         )}
+        {(!session?.user || session.user.role === "STUDENT") ? (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border py-2 text-sm">
+            {learningLanguage ? <><span className="font-semibold">{j(`${LEARNING_JOURNEYS[learningLanguage].key}.current`)}</span><Link href={journeyPath(other)} className={actionLinkClass}>{j(`${LEARNING_JOURNEYS[other].key}.switch`)}</Link></> : null}
+            {!session?.user ? (
+              <div className="ml-auto flex shrink-0 items-center gap-3">
+                <div className="w-36 shrink-0"><LocaleSwitcher /></div>
+                <div className="w-40 shrink-0"><ThemeToggle /></div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </header>
   );

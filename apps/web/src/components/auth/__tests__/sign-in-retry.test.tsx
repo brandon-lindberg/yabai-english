@@ -1,12 +1,14 @@
 // @vitest-environment jsdom
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
 import { SignInForm } from "../sign-in-form";
 
 const signIn = vi.fn();
+const { prepareMock } = vi.hoisted(() => ({ prepareMock: vi.fn(async ({ callbackUrl }: { callbackUrl: string }) => callbackUrl) }));
+vi.mock("@/lib/learning-journey-actions", () => ({ prepareLearningSignIn: prepareMock }));
 vi.mock("next-auth/react", () => ({ signIn: (...args: unknown[]) => signIn(...args) }));
 
 /*
@@ -31,13 +33,27 @@ function renderForm(authError: "retry" | "denied" | null) {
 
 beforeEach(() => {
   signIn.mockReset();
+  prepareMock.mockClear();
   sessionStorage.clear();
 });
 afterEach(() => {
+  cleanup();
   sessionStorage.clear();
 });
 
 describe("SignInForm expired sign-in recovery", () => {
+  test("a failed OAuth return retries this tab's subject instead of another tab's visitor cookie", async () => {
+    sessionStorage.setItem("learning-signin-choice", JSON.stringify({ learningLanguage: "JAPANESE", callbackUrl: "/en/book" }));
+    renderForm("retry");
+    await waitFor(() => expect(prepareMock).toHaveBeenCalledWith({ learningLanguage: "JAPANESE", locale: "en", callbackUrl: "/en/book" }));
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Japanese");
+  });
+  test("Japanese signup is explicit and prepares its intent before starting OAuth", async () => {
+    render(<NextIntlClientProvider locale="en" messages={en}><SignInForm hasGoogleOAuth devEmailSignIn={false} safePostLoginPath="/en/book" learningLanguage="JAPANESE" /></NextIntlClientProvider>);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Japanese");
+    fireEvent.click(screen.getByRole("button", { name: "Sign in with Google" }));
+    await waitFor(() => expect(prepareMock).toHaveBeenCalledWith({ learningLanguage: "JAPANESE", locale: "en", callbackUrl: "/en/book" }));
+  });
   test("restarts the flow once so an expired cookie costs no second login", async () => {
     renderForm("retry");
 

@@ -67,6 +67,9 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
       <p className="mt-2 max-w-[56ch] text-base text-muted">{t("checkoutSummary")}</p>
 
       <BookingSummary
+        learningLanguage={booking.learningLanguage}
+        lessonTier={booking.lessonProduct.tier}
+        durationMin={booking.lessonProduct.durationMin}
         lessonNameJa={booking.lessonProduct.nameJa}
         lessonNameEn={booking.lessonProduct.nameEn}
         startsAtIso={booking.startsAt.toISOString()}

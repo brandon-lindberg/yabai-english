@@ -4,17 +4,14 @@ import { redirect } from "@/i18n/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedDefaultRoute } from "@/lib/authenticated-default-route";
-import { LandingHero } from "@/components/marketing/landing-hero";
-import { LandingHowItWorks } from "@/components/marketing/landing-how-it-works";
-import { LandingPillars } from "@/components/marketing/landing-pillars";
-import { LandingTrust } from "@/components/marketing/landing-trust";
+import { LearningChoice } from "@/components/marketing/learning-choice";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "landing" });
+  const t = await getTranslations({ locale, namespace: "learningJourney" });
   return {
-    title: t("metaTitle"),
-    description: t("metaDescription"),
+    title: t("choiceTitle"),
+    description: t("choiceIntro"),
   };
 }
 
@@ -27,14 +24,7 @@ export default async function HomePage() {
     redirect({ href, locale });
   }
 
-  return (
-    <main className="mx-auto flex max-w-5xl flex-1 flex-col px-4 py-12 sm:px-6">
-      <LandingHero />
-      <LandingHowItWorks />
-      <LandingPillars />
-      <LandingTrust />
-    </main>
-  );
+  return <LearningChoice />;
 }
 
 async function getAuthenticatedHomeRedirect(user: { id: string; role: string }) {

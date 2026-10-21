@@ -178,7 +178,7 @@ export default async function LessonDetailPage({
         )}
       </section>
 
-      <StudentProfilePanel student={student} profile={profile} />
+      <StudentProfilePanel student={student} profile={profile} learningLanguage={booking.learningLanguage} />
     </div>
   );
 }

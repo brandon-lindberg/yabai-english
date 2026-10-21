@@ -34,12 +34,13 @@ const STUDENT_CHECKLIST_BASE: Array<{
 export function buildStudentOnboardingChecklist(params: {
   locale: string;
   canStartPlacement: boolean;
+  learningLanguage?: "ENGLISH" | "JAPANESE";
   onboardingReturnHref?: string;
   completion?: StudentOnboardingCompletionFlags;
 }): StudentOnboardingNextItem[] {
   const { locale, canStartPlacement, completion } = params;
   const returnHref = params.onboardingReturnHref ?? "/onboarding/next";
-  return STUDENT_CHECKLIST_BASE.map((item) => {
+  return STUDENT_CHECKLIST_BASE.filter((item) => params.learningLanguage !== "JAPANESE" || !["placement", "materials"].includes(item.key)).map((item) => {
     const localizedBase = `/${locale}${item.basePath}`;
     const qs = new URLSearchParams();
     if (item.extraQuery) {

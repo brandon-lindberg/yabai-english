@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
 
-export async function LandingHowItWorks() {
-  const t = await getTranslations("landing");
+export async function LandingHowItWorks({ learningLanguage = "ENGLISH" }: { learningLanguage?: LearningLanguage } = {}) {
+  const t = await getTranslations(LEARNING_JOURNEYS[learningLanguage].landingNamespace);
 
   const steps = [
     { title: t("step1Title"), body: t("step1Body") },
