@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { StudyLevelCode } from "@/generated/prisma/client";
-import { previousStudyLevel, studyLevelIndex } from "./constants";
+import { previousStudyLevel, studyLevelIndex, STUDY_LEVEL_ORDER } from "./constants";
 import { placementMaxStudyLevelIndex } from "./placement-unlock";
 
 /**
@@ -15,6 +15,11 @@ export async function isStudyLevelUnlocked(
   trackId: string,
   levelCode: StudyLevelCode,
 ): Promise<boolean> {
+  // English entry points must never expose a draft or another subject's data,
+  // including to teachers. Japanese prompt/unlock policy is a separate increment.
+  const track = await prisma.studyTrack.findUnique({ where: { id: trackId } });
+  if (!track || track.learningLanguage !== "ENGLISH" || track.publicationStatus !== "PUBLISHED" || !STUDY_LEVEL_ORDER.includes(levelCode)) return false;
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { role: true },

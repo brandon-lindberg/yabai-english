@@ -5,7 +5,7 @@
   "teacherReview": "pending",
   "attribution": "data/japanese-content/ATTRIBUTION.md",
   "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
-  "catalogSha256": "91419825b7c7bef4416e7749335dc9bfe281024110261f5f18eed1c03163204f",
+  "catalogSha256": "626f94a1c6b2d0c48cffd2103fba4683bd8c5e54fe382056f11eefd26af4219f",
   "counts": {
     "vocabulary": 7924,
     "kanji": 2383,
@@ -66,8 +66,8 @@
     "REFERENCE_DICTIONARY_ID_DIFFERENCE": 29
   },
   "corrections": {
-    "sha256": "180637feb4eaf272a20a41691fd54bb894379b17395d3175dd7e360d5837ede6",
-    "corrected": 33,
+    "sha256": "b80fc986dfea19b5584b27a99dedab92ea5fbb043a1f4548872cec91e4979b0d",
+    "corrected": 35,
     "attested": 4,
     "deferred": 0,
     "deferredIds": []

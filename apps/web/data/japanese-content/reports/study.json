@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "status": "draft",
+  "learningLanguage": "JAPANESE",
+  "sourceCatalogSha256": "626f94a1c6b2d0c48cffd2103fba4683bd8c5e54fe382056f11eefd26af4219f",
+  "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
+  "policySha256": "47a42e0e89a4ccb65e7116d71d6cccaf7f2d1eded415600b559a8f327347465d",
+  "catalogSha256": "65d489aaddd1c7449de1abba1edf298c65fe0dc095b396032f5dde8b88e1c7a0",
+  "counts": {
+    "units": 10291,
+    "sourceRecords": 10307,
+    "referenceRows": 8293,
+    "vocabulary": 7908,
+    "kanji": 2383,
+    "overlapFamilies": 161,
+    "mergedGroups": 16,
+    "mergedRecords": 32,
+    "levelDecisions": 408,
+    "usedLevelReferences": 382,
+    "retainedVariantLevels": 26,
+    "byLevel": {
+      "N5": {
+        "vocabulary": 689,
+        "kanji": 84
+      },
+      "N4": {
+        "vocabulary": 643,
+        "kanji": 169
+      },
+      "N3": {
+        "vocabulary": 1678,
+        "kanji": 387
+      },
+      "N2": {
+        "vocabulary": 1778,
+        "kanji": 398
+      },
+      "N1": {
+        "vocabulary": 3120,
+        "kanji": 1345
+      }
+    }
+  }
+}

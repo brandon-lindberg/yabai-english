@@ -9,7 +9,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 /** Explicit opt-in only. All writes and connections belong to one disposable schema. */
 export async function withIsolatedPostgres(
   migration: string,
-  verify: (context: { client: Client; db: PrismaClient; applyMigration: () => Promise<void>; verifyDatamodel: () => void }) => Promise<void>,
+  verify: (context: { client: Client; db: PrismaClient; applyMigration: () => Promise<void>; verifyDatamodel: () => Promise<void> }) => Promise<void>,
 ) {
   const connectionString = process.env.MIRROR_TEST_DATABASE_URL;
   if (!connectionString || !["localhost", "127.0.0.1", "[::1]"].includes(new URL(connectionString).hostname)) {
@@ -29,7 +29,13 @@ export async function withIsolatedPostgres(
       await client.query(prior.replace('CREATE SCHEMA IF NOT EXISTS "public";', ""));
     }
     db = new PrismaClient({ adapter: new PrismaPg({ connectionString, application_name: schema }, { schema }) });
-    await verify({ client, db, applyMigration: async () => { await client.query(sql); }, verifyDatamodel: () => {
+    await verify({ client, db, applyMigration: async () => { await client.query(sql); }, verifyDatamodel: async () => {
+      // Historical upgrade tests start before their target migration. Comparing
+      // against today's client also requires all subsequent migrations, including
+      // unrelated additive changes (such as the shared study tables).
+      for (const name of (await readdir(migrations)).sort().filter(name => name > migration && name !== "migration_lock.toml")) {
+        await client.query(await readFile(path.join(migrations, name, "migration.sql"), "utf8"));
+      }
       const testUrl = new URL(connectionString);
       testUrl.searchParams.set("schema", schema);
       const diff = spawnSync("./node_modules/.bin/prisma", ["migrate", "diff", "--from-config-datasource", "--to-schema", "prisma/schema.prisma", "--exit-code"], {

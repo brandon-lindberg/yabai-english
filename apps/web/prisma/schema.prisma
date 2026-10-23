@@ -64,7 +64,7 @@ enum ExerciseType {
   ORDERING
 }
 
-/// Leveled flashcard curriculum (Beginner 1–3, Intermediate 1–3, Advanced 1–3).
+/// Independent English curriculum and Japanese community introduction bands.
 enum StudyLevelCode {
   BEGINNER_1
   BEGINNER_2
@@ -75,6 +75,22 @@ enum StudyLevelCode {
   ADVANCED_1
   ADVANCED_2
   ADVANCED_3
+  N5
+  N4
+  N3
+  N2
+  N1
+}
+
+enum StudyPublicationStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum StudyCardKind {
+  ENGLISH_EXERCISE
+  JAPANESE_VOCABULARY
+  JAPANESE_KANJI
 }
 
 enum StudyDeckVisibility {
@@ -252,6 +268,7 @@ model User {
   studyCardStates           UserStudyCardState[]
   studyAssessmentAttempts   UserStudyAssessmentAttempt[]
   studyQuickReviewDays      StudyQuickReviewDay[]
+  studyReviewPrompts        StudyReviewPrompt[]
   japanesePlacementAttempts JapanesePlacementAttempt[]
   googleIntegrationAccount  GoogleIntegrationAccount?
   googleIntegrationSettings GoogleIntegrationSettings?
@@ -1132,8 +1149,27 @@ model StudyTrack {
   titleJa   String
   titleEn   String
   sortOrder Int    @default(0)
+  learningLanguage LearningLanguage @default(ENGLISH)
+  publicationStatus StudyPublicationStatus @default(PUBLISHED)
+  catalogSnapshotId String?
+  catalogSnapshot StudyCatalogSnapshot? @relation(fields: [catalogSnapshotId], references: [id], onDelete: Restrict)
 
   levels StudyLevel[]
+
+  @@index([learningLanguage, publicationStatus])
+}
+
+/// Immutable draft import provenance. Member content is stored once per canonical card.
+model StudyCatalogSnapshot {
+  id String @id
+  studyCatalogSha256 String @unique
+  sourceCatalogSha256 String
+  sourceLockSha256 String
+  policySha256 String
+  provenanceJson Json
+  createdAt DateTime @default(now())
+  tracks StudyTrack[]
+  reviewPrompts StudyReviewPrompt[]
 }
 
 model StudyLevel {
@@ -1171,7 +1207,7 @@ model StudyDeck {
   @@index([levelId, sortOrder])
 }
 
-/// Front = learner-facing prompt (`frontJa` DB column): Japanese-heavy at Beginner 1, trending to English at higher levels (see `prompt-locale-policy.ts`). Back = English answer.
+/// Legacy front/back/exercise fields serve English exercises only. Japanese cards use contentJson.
 model StudyCard {
   id           String    @id @default(cuid())
   deckId       String
@@ -1181,8 +1217,12 @@ model StudyCard {
   /// Optional structured exercise (reorder tokens, multi-step prompts). Null = classic MCQ from `frontJa` + `backEn`.
   exerciseJson Json?
   sortOrder    Int       @default(0)
+  kind         StudyCardKind @default(ENGLISH_EXERCISE)
+  /// Canonical unit plus original member records; never a flattened union of accepted answers.
+  contentJson  Json?
 
   userStates UserStudyCardState[]
+  reviewPrompts StudyReviewPrompt[]
 
   @@index([deckId, sortOrder])
 }
@@ -1229,20 +1269,46 @@ model UserStudyCardState {
   @@index([userId, dueAt])
 }
 
-/// Fixed set of up to 5 review cards chosen once per UTC calendar day per user (dashboard quick review).
+/// Fixed set of up to 5 review cards per subject, user and UTC calendar day.
 model StudyQuickReviewDay {
   id           String   @id @default(cuid())
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   dayKey       String
+  learningLanguage LearningLanguage @default(ENGLISH)
   /// JSON string[] of StudyCard ids
   cardIds      Json
   /// JSON [{ cardId, outcome: "learned" | "not_yet", at: ISO string }]
   interactions Json     @default("[]")
   createdAt    DateTime @default(now())
 
-  @@unique([userId, dayKey])
+  @@unique([userId, learningLanguage, dayKey])
   @@index([userId])
+}
+
+/// Server-owned practice question and immutable, retry-safe result; never returned wholesale.
+model StudyReviewPrompt {
+  id String @id
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId String
+  card StudyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  catalogSnapshotId String
+  catalogSnapshot StudyCatalogSnapshot @relation(fields: [catalogSnapshotId], references: [id], onDelete: Restrict)
+  contentSha256 String
+  baseReps Int
+  studyBand StudyLevelCode
+  questionJson Json
+  answerJson Json
+  activeKey String? @unique
+  issuedAt DateTime @default(now())
+  expiresAt DateTime
+  answeredAt DateTime?
+  choiceId String?
+  resultJson Json?
+
+  @@index([userId, expiresAt])
+  @@index([userId, cardId, issuedAt])
 }
 
 model StudyAssessment {

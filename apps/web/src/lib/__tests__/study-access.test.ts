@@ -5,6 +5,7 @@ import { isStudyLevelUnlocked } from "@/lib/study/access";
 describe("isStudyLevelUnlocked", () => {
   test("allows teachers to access all levels", async () => {
     const prisma = {
+      studyTrack: { findUnique: vi.fn().mockResolvedValue({ learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" }) },
       user: {
         findUnique: vi.fn().mockResolvedValue({ role: "TEACHER" }),
       },
@@ -22,6 +23,7 @@ describe("isStudyLevelUnlocked", () => {
 
   test("keeps student gating logic for higher levels", async () => {
     const prisma = {
+      studyTrack: { findUnique: vi.fn().mockResolvedValue({ learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" }) },
       user: {
         findUnique: vi.fn().mockResolvedValue({ role: "STUDENT" }),
       },

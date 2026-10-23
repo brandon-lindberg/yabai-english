@@ -1,3 +1,4 @@
+import { canonicalJson } from "../canonical-json";
 import "server-only";
 import { requireUnique } from "../unique";
 export { requireUnique } from "../unique";
@@ -103,14 +104,7 @@ export function sentenceOrderSignature(item: JapaneseSentenceItem, tileIds: stri
   return JSON.stringify(tileIds.map((id) => normalized(tiles.get(id)!)));
 }
 
-export function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  if (value !== null && typeof value === "object") {
-    return `{${Object.entries(value).sort(([a], [b]) => a.localeCompare(b, "en"))
-      .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`).join(",")}}`;
-  }
-  return JSON.stringify(value);
-}
+export { canonicalJson } from "../canonical-json";
 
 /** Validates authored data only; validation never constitutes content approval. */
 export function parseJapaneseBank(value: unknown): JapanesePlacementBank {

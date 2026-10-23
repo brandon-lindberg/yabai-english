@@ -2,8 +2,8 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
-import type { QuickReviewCard } from "@/lib/study/quick-review";
-import { formatQuickReviewDayDisplay, QUICK_REVIEW_DAILY_MAX } from "@/lib/study/quick-review";
+import type { QuickReviewCard } from "@/lib/study/quick-review-day";
+import { formatQuickReviewDayDisplay, QUICK_REVIEW_DAILY_MAX } from "@/lib/study/quick-review-day";
 import { resolveQuickReviewBackText, resolveQuickReviewFrontText } from "@/lib/study/quick-review-display";
 import { Button } from "@/components/ui/button";
 

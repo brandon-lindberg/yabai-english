@@ -24,7 +24,7 @@ export const STUDY_LEVEL_CURRICULUM_ORDER: readonly StudyLevelCode[] = [
  * assessment `promptJa` when shown in Japanese). English backs stay English.
  * Higher levels → lower values (more English-led prompts).
  */
-const JAPANESE_PROMPT_WEIGHT_PERCENT: Record<StudyLevelCode, number> = {
+const JAPANESE_PROMPT_WEIGHT_PERCENT: Partial<Record<StudyLevelCode, number>> = {
   [StudyLevelCode.BEGINNER_1]: 88,
   [StudyLevelCode.BEGINNER_2]: 70,
   [StudyLevelCode.BEGINNER_3]: 50,
@@ -37,7 +37,9 @@ const JAPANESE_PROMPT_WEIGHT_PERCENT: Record<StudyLevelCode, number> = {
 };
 
 export function studyJapanesePromptWeightPercent(levelCode: StudyLevelCode): number {
-  return JAPANESE_PROMPT_WEIGHT_PERCENT[levelCode];
+  const weight = JAPANESE_PROMPT_WEIGHT_PERCENT[levelCode];
+  if (weight == null) throw new Error(`Not an English curriculum level: ${levelCode}`);
+  return weight;
 }
 
 /** One-paragraph note for humans / LLM prompts when authoring bank JSON. */
@@ -58,5 +60,7 @@ export function studyPromptAuthoringGuideline(levelCode: StudyLevelCode): string
     case StudyLevelCode.ADVANCED_2:
     case StudyLevelCode.ADVANCED_3:
       return `Level ${levelCode}: English-native prompts (~${p}% Japanese). Avoid Japanese on the front unless a register or nuance note truly needs it; both assessment prompts should read like real test items in English.`;
+    default:
+      throw new Error(`Not an English curriculum level: ${levelCode}`);
   }
 }

@@ -19,7 +19,7 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("preserves English history and 
     `);
     const englishBefore = (await client.query('SELECT * FROM "StudentProfile" WHERE id = $1', ['legacy-profile'])).rows[0];
     await applyMigration();
-    verifyDatamodel();
+    await verifyDatamodel();
     const service = await import("../../src/lib/japanese-placement/service");
     const firstBank = approvedBank();
     await service.publishJapaneseBank(db, firstBank);
@@ -124,7 +124,7 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("upgrades v4 history to the sou
     };
     while (finished.question) finished = await service.submitStoredJapaneseResponse(db, "v4-finished", finished.attemptId, answer(old, finished.question.id));
     const before = await db.japanesePlacementResponse.findMany({ orderBy: { id: "asc" } });
-    await applyMigration(); verifyDatamodel();
+    await applyMigration(); await verifyDatamodel();
     expect(await db.japanesePlacementBankSnapshot.findUnique({ where: { id: snapshot.id } })).toEqual(snapshot);
     expect(await db.japanesePlacementResponse.findMany({ orderBy: { id: "asc" } })).toEqual(before);
     expect((await service.getStoredJapaneseAttempt(db, "v4-finished", finished.attemptId)).result).toEqual(finished.result);
@@ -350,7 +350,7 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("upgrades capacity for the real
     }
     const oldResponses = await db.japanesePlacementResponse.findMany({ orderBy: { id: "asc" } });
     await applyMigration();
-    verifyDatamodel();
+    await verifyDatamodel();
     expect(await service.getStoredJapaneseAttempt(db, "legacy-active", active.attemptId)).toMatchObject({ question: active.question, expiresAt: active.expiresAt, answered: 1 });
     expect(await service.getStoredJapaneseAttempt(db, "legacy-finished", finished.attemptId)).toMatchObject({ result: finished.result });
     expect(await db.japanesePlacementBankSnapshot.findUnique({ where: { id: oldSnapshot.id } })).toEqual(oldSnapshot);

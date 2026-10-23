@@ -1,6 +1,6 @@
-# Japanese flashcard import — sections 5a–5d
+# Japanese flashcard import — sections 5a–5e
 
-The pinned section-1 corpus compiles into a reproducible **draft import catalog**. The correction ledger accounts for all 33 original dictionary failures and attests four complete expressions. Section 5d accounts for all 127 formerly unmatched reference rows with 113 dictionary-backed draft vocabulary additions and 14 links to existing character cards. Distinct senses and original references survive. The learner study interface, persistence, canonical deck grouping and shared scheduling integration remain later section-5 work.
+The pinned section-1 corpus compiles into a reproducible **draft import catalog**. The correction ledger accounts for all 33 original dictionary failures and attests four complete expressions. Section 5d accounts for all 127 formerly unmatched reference rows with 113 dictionary-backed draft vocabulary additions and 14 links to existing character cards. Section 5e adds [explicit canonical study grouping and level provenance](japanese-study-catalog.md), retaining distinct senses and original references. The learner study interface, persistence and shared scheduling integration remain later section-5 work.
 
 ## Reproduce the catalog
 
@@ -18,8 +18,9 @@ The build writes:
 
 - `apps/web/.cache/japanese-content/flashcards-v4.json`: the full current catalog, ignored because it is reproducible. Earlier catalog versions are historical and are no longer written or consumed.
 - [reports/flashcards.json](../apps/web/data/japanese-content/reports/flashcards.json): the tracked counts, exact content/source/correction SHA-256 digests, dictionary-unverified and unsupported identities, reference-coverage counts, and issue totals.
+- `apps/web/.cache/japanese-content/study-v1.json` and [reports/study.json](../apps/web/data/japanese-content/reports/study.json): the canonical study projection and tracked grouping/level counts and digests.
 
-`--check` rebuilds in memory and compares the tracked summary without writing files. It rejects content or source-lock drift. A successful check establishes reproducibility, not content approval. The same records in a different input order produce the same catalog; there are no timestamps or machine-specific paths in it.
+`--check` rebuilds in memory and compares both tracked summaries without writing files. It rejects content, grouping-policy or source-lock drift. Both catalogs are built before outputs are written. A successful check establishes reproducibility, not content approval. The source compiler sorts its records and references; there are no timestamps or machine-specific paths in the artifacts.
 
 ## Import contract
 
@@ -39,7 +40,7 @@ The existing audit supplies verification results and issues. `dictionaryEvidence
 
 ## Source-bound corrections
 
-[vocabulary-corrections.json](../apps/web/data/japanese-content/vocabulary-corrections.json) contains **37 record decisions: 33 dictionary corrections and four phrase attestations; none deferred**. The original 33 failures account for 29 corrections and the four attestations. Four additional corrections distinguish ball/bullet and uncle/familiar-address meanings. Each decision has a reason, a hash of the complete normalized original record, and the source-lock hash. All 37 effective records retain `originalContent`. The compiler rejects stale snapshots, duplicate or unknown identities, protected ID/level/review changes, missing or unused dictionary evidence, and corrections that still fail the shared audit. It changes no downloaded source files.
+[vocabulary-corrections.json](../apps/web/data/japanese-content/vocabulary-corrections.json) contains **39 record decisions: 35 dictionary corrections and four phrase attestations; none deferred**. The original 33 failures account for 29 corrections and the four attestations. Six additional corrections distinguish ball/bullet, kinship/familiar-address and spelling-restricted meanings. Each decision has a reason, a hash of the complete normalized original record, and the source-lock hash. All 39 effective records retain `originalContent`. The compiler rejects stale snapshots, duplicate or unknown identities, protected ID/level/review changes, missing or unused dictionary evidence, and corrections that still fail the shared audit. It changes no downloaded source files.
 
 The correction types are:
 
@@ -47,6 +48,7 @@ The correction types are:
 - Six suru forms and six adverb constructions retain their full source forms with explicit base-word, sense and rule evidence. They are labelled `derived`. The validator requires the dictionary's eligible POS tag and that sense's spelling/reading restrictions; it does not strip suffixes globally. [EDRDG's tag guide](https://www.edrdg.org/wwwjdic/wwwjdicinf.html) defines the suru and `adv-to` tags. The [Japan Foundation's grammar notes](https://marugoto.jpf.go.jp/assets/docs/teacher/resource/elementary2_c/elementary2_competences_teachers_notes.pdf) describe the na-adjective adverb pattern used for the two やたらに forms.
 - Wrong links and spellings are corrected against the pinned dictionary. しいんと uses the silence entry, not 死因; ちゅうっぱら uses 中っ腹, not the mountainside entry 中腹. The fragment よると becomes the complete dictionary expression によると, which already occurs in its retained source examples. Selected gloss/POS corrections are recorded explicitly.
 - 玉 now declares 球 as an alternate for the ball/sphere sense; 弾 remains a separate bullet record. 伯父さん and 叔父さん keep the uncle meaning, with the older/younger relationship documented; 小父さん keeps familiar-address meanings. Dictionary sense checks are shared with construction validation.
+- 叔母さん retains only the aunt meaning in its kinship entry. 保障 no longer includes “warranty”, which the dictionary restricts to 保証. Complete originals survive both corrections.
 
 ### Complete-expression evidence
 
@@ -86,12 +88,14 @@ The catalog retains the **7,811 original vocabulary records and 2,383 original k
 
 All **8,293 reference rows** remain: **8,278 match vocabulary, one has explicit multi-sense coverage and 14 have explicit character coverage**. The structural audit still calls the latter 14 unmatched as vocabulary; `referenceCoverage.unresolvedUnmatchedRows` and `unresolvedAmbiguousRows` are both zero. These counts do not approve canonical grouping, senses, examples or levels. There are 408 level disagreements, 29 reference/dictionary ID differences and 682 vocabulary records without examples, plus reference-source gaps. The extra dictionary-ID difference is the disclosed 館/たち update; the extra missing examples are the 113 additions. The original research audit remains unchanged (33 dictionary failures, 3 ambiguous and 135 unmatched rows).
 
-Next, document level provenance and canonical alias/sense grouping, retaining explicit inclusion/merge/exclusion decisions. Alternative readings, derived forms and related senses may share a learning concept without losing source identities. Review learner-facing senses/examples before publication. Modern JLPT has no exhaustive official word/kanji list; coverage refers to the pinned community corpus. Then connect the validated catalog to subject-scoped persistence and shared scheduling. The current English study model has English level codes, answer assumptions and a daily quick-review cache without track scope; those need generalization before Japanese cards can use it.
+The [canonical study handoff](japanese-study-catalog.md) records all 161 overlap-family decisions and all 408 level-disagreement outcomes. Sixteen explicit variant groups produce 10,291 study units while retaining all 10,307 source records and all references. Answers remain member-specific, and context-sensitive spellings/readings remain distinct. Raw source classifications and diagnostics are retained.
+
+Section 5f has since connected the canonical identities to [subject-scoped draft persistence and the shared scheduler](japanese-study-persistence.md), and section 5g adds [member-bound prompts, grading and the progression policy](japanese-study-prompts.md). The explicit import command loaded the local Japanese draft; the content compiler remains database-free. Next are the authenticated queue and review-saving flow, then the study interface. Review learner-facing senses/examples before publication. Modern JLPT has no exhaustive official word/kanji list; coverage refers to the pinned community corpus.
 
 No interface or style changes are part of this increment. Japanese study surfaces will use Impeccable and the existing design system when implemented.
 
-## Verification
+## Content compiler verification (section 5e)
 
-TDD red/green covers the import contract, correction provenance/drift, permitted changes, dictionary-entry splits, explicit constructions, sense/POS restrictions, unrelated-example removal, phrase attestations, primary-form ranking, multi-sense coverage and the complete unmatched-row decision contract. The content suite has **105 passing tests**, including 11 added in section 5d. The real pinned-cache test verifies all 127 decisions, the resulting counts and sensitive sense distinctions, complete original-vocabulary retention, 37 original correction snapshots and all three phrase-source checksums. It skips when the complete cache is absent. The remaining tests use synthetic fixtures without downloads. The 262 Japanese placement regressions, TypeScript and focused ESLint pass; eight optional database tests are skipped. Browser suites were not run for this data/tooling change. The raw source audit remains unchanged; the corrected catalog builds and passes `--check`, which rejected the stale summary before regeneration.
+TDD red/green covers the import/correction/reference contracts and canonical grouping/level decisions. The content suite has **116 passing tests**, including 11 added in section 5e. Real pinned-cache integration verifies all 127 reference decisions, the canonical mapping of every source/reference identity, preserved kanji levels, key semantic separations, 39 original correction snapshots and all three phrase-source checksums. It skips when the complete cache is absent. The remaining tests use synthetic fixtures without downloads. The 262 Japanese placement regressions, TypeScript and focused ESLint pass; eight optional database tests are skipped. Browser suites were not run for this data/tooling change. The raw source audit remains unchanged; both catalogs build and pass `--check`, which rejected the stale summary before regeneration.
 
-No database, learner accounts, running preview server, or publication state was changed. Brandon retains all commit/push responsibility.
+The content compiler changes through section 5e did not change a database, learner account, running preview server or publication state. Section 5f's later local draft import is documented separately above. Brandon retains all commit/push responsibility.

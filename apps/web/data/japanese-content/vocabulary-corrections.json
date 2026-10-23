@@ -5,13 +5,35 @@
     {
       "sourceRow": "N5:109",
       "beforeSha256": "913f5a940e615d88bb03aa9c71a1f51dc18a2cc6a1d279b6e912fae26a95c47f",
-      "expectedCandidateIds": ["997f2be694", "b6e9e55b54", "ea45ce4bc8"],
+      "expectedCandidateIds": [
+        "997f2be694",
+        "b6e9e55b54",
+        "ea45ce4bc8"
+      ],
       "disposition": "multiple-senses",
       "reason": "The reference combines uncle and familiar address. JMdict 2261490 sense 1 distinguishes 伯父さん (older than a parent) and 叔父さん (younger); sense 2 notes 小父さん or おじさん for familiar address. Preserve all three source records and their primary levels; do not merge kinship and address senses or infer a level approval.",
       "coverage": [
-        { "id": "997f2be694", "entryId": "2261490", "sense": 1, "meaning": "uncle", "referenceGloss": "uncle" },
-        { "id": "ea45ce4bc8", "entryId": "2261490", "sense": 1, "meaning": "uncle", "referenceGloss": "uncle" },
-        { "id": "b6e9e55b54", "entryId": "2261490", "sense": 2, "meaning": "mister", "referenceGloss": "middle aged gentleman" }
+        {
+          "id": "997f2be694",
+          "entryId": "2261490",
+          "sense": 1,
+          "meaning": "uncle",
+          "referenceGloss": "uncle"
+        },
+        {
+          "id": "ea45ce4bc8",
+          "entryId": "2261490",
+          "sense": 1,
+          "meaning": "uncle",
+          "referenceGloss": "uncle"
+        },
+        {
+          "id": "b6e9e55b54",
+          "entryId": "2261490",
+          "sense": 2,
+          "meaning": "mister",
+          "referenceGloss": "middle aged gentleman"
+        }
       ]
     }
   ],
@@ -352,6 +374,26 @@
       }
     },
     {
+      "id": "65fc20eed5",
+      "beforeSha256": "4f3d3c2b7bab9b607cc190b8c4f485fc329cb768f4edcd88f04c7fd50772ba22",
+      "reason": "JMdict 1603500 permits guarantee/security/assurance/pledge for 保障, but its warranty sense is restricted to 保証. Remove warranty from this source record without merging the context-specific spellings; preserve the original definition.",
+      "status": "corrected",
+      "patch": {
+        "meanings": [
+          "guarantee",
+          "security",
+          "assurance",
+          "pledge"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1603500"
+        ],
+        "derivations": []
+      }
+    },
+    {
       "id": "79169045a2",
       "beforeSha256": "44027eeaa9426ec8f7ef5bf8f1741c7f4ab01a6bd8045f7c9d9123bf1868a5c7",
       "reason": "JMdict 1014210 lists アイディア as a separate kana form with its own reading. Retain the declared spelling and add its pronunciation.",
@@ -605,6 +647,23 @@
             "baseReading": "びっくり"
           }
         ]
+      }
+    },
+    {
+      "id": "ab742a2e6a",
+      "beforeSha256": "b0146a7ead04246fe17948980e8e10526fe4f5173a6a416555983f13909453cf",
+      "reason": "JMdict 2261500 is the aunt entry. Its note distinguishes 叔母さん (younger than a parent) from 伯母さん (older). The familiar middle-aged-woman term is not this kinship spelling/entry; remove that unsupported gloss while preserving the complete original.",
+      "status": "corrected",
+      "patch": {
+        "meanings": [
+          "aunt"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "2261500"
+        ],
+        "derivations": []
       }
     },
     {

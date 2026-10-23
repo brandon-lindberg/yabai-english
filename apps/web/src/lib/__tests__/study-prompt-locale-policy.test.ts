@@ -7,8 +7,9 @@ import {
 } from "../study/prompt-locale-policy";
 
 describe("studyPromptAuthoringGuideline", () => {
-  it("covers every StudyLevelCode", () => {
-    const codes = Object.values(StudyLevelCode) as StudyLevelCode[];
+  it("covers every English study level and rejects Japanese bands", () => {
+    const codes = STUDY_LEVEL_CURRICULUM_ORDER;
+    expect(() => studyJapanesePromptWeightPercent(StudyLevelCode.N5)).toThrow(/English/);
     for (const code of codes) {
       expect(studyPromptAuthoringGuideline(code).length).toBeGreaterThan(20);
       expect(studyJapanesePromptWeightPercent(code)).toBeGreaterThanOrEqual(0);

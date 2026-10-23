@@ -1,4 +1,5 @@
 import "server-only";
+import { PrivateApiFailure } from "../private-api-error";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { Prisma, type PrismaClient } from "@/generated/prisma/client";
@@ -11,9 +12,7 @@ import {
   summarizeJapaneseAttempt, startJapaneseAttempt, parseStoredJapaneseResponse,
 } from "./attempt";
 
-export class JapanesePlacementFailure extends Error {
-  constructor(public status: number, public code: string) { super(code); }
-}
+export class JapanesePlacementFailure extends PrivateApiFailure {}
 const startInput = z.object({ requestId: z.string().uuid() }).strict();
 const relations = { bankSnapshot: true, responses: { orderBy: { position: "asc" as const } } } as const;
 type StoredAttempt = Prisma.JapanesePlacementAttemptGetPayload<{ include: typeof relations }>;

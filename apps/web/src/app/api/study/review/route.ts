@@ -8,9 +8,7 @@ import { computeLevelMastery } from "@/lib/study/mastery";
 import { notifyStudyRankUpIfNeeded } from "@/lib/study/rpg-rank-notification";
 import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
 import {
-  clampAnswerTimeMs,
   classifyPracticeBand,
-  nextAverageAnswerMs,
   studyAccuracyPercent,
   type StudyCardPerformanceSlice,
 } from "@/lib/study/study-card-analytics";
@@ -20,7 +18,7 @@ import {
   parseStudyCardExercise,
   type StudyReviewPayload,
 } from "@/lib/study/card-exercise";
-import { nextDueAtAfterQuiz, xpForMcq } from "@/lib/study/quiz";
+import { saveStudyReviewProgress } from "@/lib/study/review-progress";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -65,7 +63,7 @@ export async function POST(req: Request) {
     where: { id: parsed.data.cardId },
     include: { deck: { include: { level: { include: { track: true } } } } },
   });
-  if (!card) {
+  if (!card || card.kind !== "ENGLISH_EXERCISE") {
     return NextResponse.json({ error: "Card not found" }, { status: 404 });
   }
 
@@ -85,7 +83,6 @@ export async function POST(req: Request) {
     exercise,
     payload,
   );
-  const xpGain = xpForMcq(correct);
   const now = new Date();
 
   const previousTotalXp = await getTotalStudyXpForTrack(
@@ -94,68 +91,11 @@ export async function POST(req: Request) {
     level.trackId,
   );
 
-  const existing = await prisma.userStudyCardState.findUnique({
-    where: { userId_cardId: { userId: session.user.id, cardId: card.id } },
-  });
-
-  const correctCount = (existing?.correctCount ?? 0) + (correct ? 1 : 0);
-  const wrongCount = (existing?.wrongCount ?? 0) + (correct ? 0 : 1);
-  const streakCorrect = correct ? (existing?.streakCorrect ?? 0) + 1 : 0;
-  const clampedLatency = clampAnswerTimeMs(parsed.data.answerTimeMs);
-  let averageAnswerMs = existing?.averageAnswerMs ?? null;
-  let latencySampleCount = existing?.latencySampleCount ?? 0;
-  if (clampedLatency != null) {
-    const next = nextAverageAnswerMs(averageAnswerMs, latencySampleCount, clampedLatency);
-    averageAnswerMs = next.averageAnswerMs;
-    latencySampleCount = next.latencySampleCount;
-  }
-
-  const dueAt = nextDueAtAfterQuiz(correct, streakCorrect, now, { answerTimeMs: clampedLatency });
-  const totalAttempts = correctCount + wrongCount;
-
-  const result = await prisma.$transaction(async (tx) => {
-    await tx.userStudyCardState.upsert({
-      where: { userId_cardId: { userId: session.user.id, cardId: card.id } },
-      create: {
-        userId: session.user.id,
-        cardId: card.id,
-        correctCount: correct ? 1 : 0,
-        wrongCount: correct ? 0 : 1,
-        streakCorrect,
-        dueAt,
-        reps: totalAttempts,
-        averageAnswerMs,
-        latencySampleCount,
-      },
-      update: {
-        correctCount,
-        wrongCount,
-        streakCorrect,
-        dueAt,
-        reps: totalAttempts,
-        averageAnswerMs,
-        latencySampleCount,
-      },
-    });
-
-    await tx.userStudyLevelProgress.upsert({
-      where: { userId_levelId: { userId: session.user.id, levelId: level.id } },
-      create: {
-        userId: session.user.id,
-        levelId: level.id,
-        xp: xpGain,
-        lastStudiedAt: now,
-      },
-      update: {
-        xp: { increment: xpGain },
-        lastStudiedAt: now,
-      },
-    });
-
-    return tx.userStudyLevelProgress.findUniqueOrThrow({
-      where: { userId_levelId: { userId: session.user.id, levelId: level.id } },
-    });
-  });
+  const { state, xpGained: xpGain, progress: result } = await prisma.$transaction(tx =>
+    saveStudyReviewProgress(tx, { userId: session.user.id, cardId: card.id, levelId: level.id,
+      correct, now, answerTimeMs: parsed.data.answerTimeMs }),
+  );
+  const { correctCount, wrongCount, streakCorrect, averageAnswerMs, latencySampleCount } = state;
 
   const { masteryScore } = await computeLevelMastery(prisma, session.user.id, level.id);
   await prisma.userStudyLevelProgress.update({

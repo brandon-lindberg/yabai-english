@@ -46,7 +46,11 @@
     "study:build-advanced2-json": "tsx scripts/build-advanced2-json.ts",
     "study:build-advanced3-json": "tsx scripts/build-advanced3-json.ts",
     "chat:repair-scope": "tsx scripts/repair-chat-message-scope.ts",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "test:study": "vitest run --config vitest.study.config.ts",
+    "test:study:db": "node --import tsx scripts/test-mirror-migration.ts --study",
+    "japanese-content:study": "node --import tsx scripts/import-japanese-study.ts",
+    "japanese-content:prompts": "node --conditions=react-server --import tsx scripts/audit-japanese-study-prompts.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
