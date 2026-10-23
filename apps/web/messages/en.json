@@ -1901,6 +1901,7 @@
     "pillarPracticeBody": "Talk with your teacher about everyday conversation, travel, work, or your study goals."
   },
   "japanesePlacement": {
+    "sources": "Sources and licences",
     "title": "Japanese placement",
     "pageIntro": "Find a starting level for your Japanese lessons through reading and sentence building.",
     "welcomeTitle": "Find your starting level",
@@ -1934,9 +1935,11 @@
     "provisional": "Provisional reading and sentence-building level",
     "resultNote": "Use this estimate as a starting point for lessons. It is not an official JLPT result and does not assess speaking or listening.",
     "range": "Estimated range: {lower} to {upper}",
+    "ruleBasis": "This estimate uses JLPT-aligned reading and sentence-building tasks.",
     "belowN5": "Below N5",
     "insufficient": "Not enough evidence to estimate a level",
     "insufficientBody": "Too few answers or skill areas were assessed. You can take a new assessment when you’re ready.",
+    "unconfirmedBody": "Your answers did not establish a consistent reading and sentence-building level. You can take a new assessment when you’re ready.",
     "legacyResult": "This earlier assessment has no level estimate",
     "timeExpired": "Time is up. Your saved answers were used for this result.",
     "breakdown": "Skill breakdown",

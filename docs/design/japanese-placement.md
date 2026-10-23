@@ -2,6 +2,8 @@
 
 Scope: `/japanese-placement`, its student dashboard/navigation entry, and the Japanese result in the teacher's student context. Operate mode. The authorized mirror plan supersedes PRODUCT.md's older English-only/frozen-functionality scope.
 
+Release extension, 2026-10-23: the assessment now retains a small, underlined “Sources and licences” / “出典・ライセンス” link below every assessment state. It uses existing muted/foreground tokens, a 24px minimum target and the global keyboard focus ring; the public versioned notice opens separately so the assessment stays in place. Four isolated current-component renders with production CSS/fonts cover 390/524/1440px, both themes and locales, with no overflow and successful keyboard activation. Desktop English and mobile Japanese captures were visually inspected. This verifies the link refinement; earlier full authenticated browser limitations remain. Impeccable's launcher was unavailable, so existing context and clarify/craft/polish guidance were read directly; no independent reviewer or clean-detector claim is made.
+
 ## Direction contract
 
 THESIS: One readable question at a time, with an unambiguous deadline and an automatic starting-level result.
@@ -86,3 +88,7 @@ Pre-existing drift is reported without repair or canonization:
 - `DESIGN.md` retains its legacy numbered structure and historical audit snapshots rather than the current canonical frontmatter/eight-section format. `.impeccable/design.json` is absent. This ordinary extension does not authorize a system-format migration or sidecar creation.
 - `DESIGN.md` names JetBrains Mono, while the current root font setup and CSS use Geist Mono. The placement surface uses the incumbent sans stack and does not make that unrelated mono discrepancy a new rule.
 - The shell's notification glyph and the existing teacher-page Messages/footer overlap remain outside this assessment extension. The assessment route's chat omission addresses its own reading space; it does not authorize a shell redesign.
+
+## Rubric-v1 result copy — 2026-10-23
+
+The shared renderer now handles `basis: jlpt_aligned_rules` without a statistical range and explains unconfirmed reading/construction evidence separately from too few answers. English and Japanese component tests cover both messages; legacy posterior results retain their range. The incumbent typography, spacing, tokens and ruled breakdown remain unchanged. The [rubric verification record](../japanese-placement-rubric.md#verification-and-browser-limits) distinguishes the passing interaction test, English app captures and isolated Japanese component captures from the broader browser suite's unresolved local dashboard/session and locale redirect failures. Current evidence does not extend the earlier finish-review disposition to real-bank delivery.

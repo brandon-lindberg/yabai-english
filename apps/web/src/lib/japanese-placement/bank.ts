@@ -6,16 +6,18 @@ import { JAPANESE_PLACEMENT_DOMAINS, JAPANESE_REFERENCE_BANDS, japaneseLocalized
 export { JAPANESE_PLACEMENT_DOMAINS, JAPANESE_REFERENCE_BANDS, JAPANESE_STUDY_BANDS, type JapanesePlacementDomain } from "./public";
 export const JAPANESE_POLICY_REVISION = "japanese-posterior-v1";
 export const JAPANESE_GROUPED_POLICY_REVISION = "japanese-posterior-passages-v2";
+export const JAPANESE_RUBRIC_POLICY_REVISION = "japanese-jlpt-rubric-v1";
 export const JAPANESE_BANK_ITEM_LIMIT = 1000;
 export const JAPANESE_MAX_QUESTIONS = 60;
-export function japanesePolicyRevision(schemaVersion: 3 | 4) {
-  return schemaVersion === 3 ? JAPANESE_POLICY_REVISION : JAPANESE_GROUPED_POLICY_REVISION;
+export function japanesePolicyRevision(schemaVersion: 3 | 4 | 5) {
+  return schemaVersion === 3 ? JAPANESE_POLICY_REVISION : schemaVersion === 4 ? JAPANESE_GROUPED_POLICY_REVISION : JAPANESE_RUBRIC_POLICY_REVISION;
 }
 const assessmentSchema = z.object({
-  revision: z.enum([JAPANESE_POLICY_REVISION, JAPANESE_GROUPED_POLICY_REVISION]), timeLimitSec: z.literal(1200),
+  revision: z.enum([JAPANESE_POLICY_REVISION, JAPANESE_GROUPED_POLICY_REVISION, JAPANESE_RUBRIC_POLICY_REVISION]), timeLimitSec: z.literal(1200),
   quotas: z.object(Object.fromEntries(JAPANESE_PLACEMENT_DOMAINS.map((domain) => [domain, z.number().int().min(1).max(10)])) as Record<JapanesePlacementDomain, z.ZodNumber>).strict(),
   supportedBands: z.array(z.enum(JAPANESE_REFERENCE_BANDS)).min(1).max(5),
   minimumAnswers: z.number().int().min(6).max(JAPANESE_MAX_QUESTIONS), minimumDomains: z.number().int().min(1).max(6),
+  referenceSources: z.array(z.string().url()).min(1).max(10).optional(),
 }).strict();
 
 const text = z.string().trim().min(1);
@@ -25,6 +27,12 @@ const localizedText = japaneseLocalizedText;
 const review = z.object({
   reviewerId: text, reviewedAt: z.string().datetime(), bankDigest: digest, evidence: text,
 }).strict().nullable();
+const ownerRelease = z.object({
+  kind: z.literal("owner_authorized_ai_assisted"), authorizedBy: text,
+  authorizedOn: z.string().date(), authorization: text, bankDigest: digest,
+  checks: z.object({ content: text, rights: text, policy: text }).strict(),
+  notices: z.object({ path: z.string().regex(/^\/japanese-placement\/v[1-9][0-9]*\/NOTICE\.txt$/), sha256: digest }).strict(),
+}).strict();
 
 const itemBase = z.object({
   id: identity,
@@ -38,8 +46,10 @@ const itemBase = z.object({
   // Authoring provenance is independent of empirically calibrated difficulty.
   referenceBand: z.enum(JAPANESE_REFERENCE_BANDS).optional(),
   passageId: identity.optional(),
+  placementRole: z.enum(["anchor", "support"]).optional(),
+  placementRationale: text.optional(),
   // Six ordered response probabilities: below N5, N5, N4, N3, N2, N1.
-  // Null is permitted for authoring, never for serving an assessment.
+  // Required for legacy posterior policies; v5 explicitly forbids likelihoods.
   calibration: z.object({ band: z.enum(JAPANESE_REFERENCE_BANDS), probabilities: z.array(z.number().min(0.001).max(0.999)).length(6) }).strict().nullable(),
 }).strict();
 
@@ -63,12 +73,13 @@ export const japaneseBankSourceSchema = z.object({
 }).strict();
 
 const bankSchema = z.object({
-  schemaVersion: z.union([z.literal(3), z.literal(4)]), id: identity, version: z.number().int().positive(),
+  schemaVersion: z.union([z.literal(3), z.literal(4), z.literal(5)]), id: identity, version: z.number().int().positive(),
   assessment: assessmentSchema.nullable(),
   sources: z.array(japaneseBankSourceSchema).min(1),
   items: z.array(itemSchema).min(6).max(JAPANESE_BANK_ITEM_LIMIT),
   sequence: z.array(identity).min(6).max(JAPANESE_BANK_ITEM_LIMIT),
   reviews: z.object({ japaneseTeacher: review, rights: review, placement: review }).strict(),
+  ownerRelease: ownerRelease.optional(),
 }).strict();
 
 export type JapanesePlacementBank = z.infer<typeof bankSchema>;
@@ -94,7 +105,7 @@ export function sentenceOrderSignature(item: JapaneseSentenceItem, tileIds: stri
   return JSON.stringify(tileIds.map((id) => normalized(tiles.get(id)!)));
 }
 
-function canonicalJson(value: unknown): string {
+export function canonicalJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
   if (value !== null && typeof value === "object") {
     return `{${Object.entries(value).sort(([a], [b]) => a.localeCompare(b, "en"))
@@ -106,6 +117,17 @@ function canonicalJson(value: unknown): string {
 /** Validates authored data only; validation never constitutes content approval. */
 export function parseJapaneseBank(value: unknown): JapanesePlacementBank {
   const bank = bankSchema.parse(value);
+  if (bank.ownerRelease && bank.schemaVersion !== 5) throw new Error("Owner-authorized releases require the Japanese rubric policy");
+  if (bank.ownerRelease && bank.ownerRelease.notices.path !== `/japanese-placement/v${bank.version}/NOTICE.txt`) throw new Error("Release notices version mismatch");
+  for (const item of bank.items) {
+    if (bank.schemaVersion === 5) {
+      if (item.calibration !== null) throw new Error("Rubric policy cannot contain fitted or invented likelihoods");
+      if (!item.placementRole) throw new Error(`Rubric placement role required: ${item.id}`);
+      if (item.placementRole === "anchor" && !item.placementRationale) throw new Error(`Rubric anchor rationale required: ${item.id}`);
+      if (item.placementRole === "anchor" && (!["reading", "writing"].includes(item.domain)
+        || (item.responseType === "sentence_assembly" && japaneseUniformGuessingRate(item) > 0.25))) throw new Error(`Invalid or weak rubric anchor: ${item.id}`);
+    } else if (item.placementRole !== undefined || item.placementRationale !== undefined) throw new Error("Legacy Japanese policy cannot contain rubric roles");
+  }
   if (bank.schemaVersion === 3) {
     if (bank.items.length > 120 || bank.items.some((item) => item.referenceBand !== undefined || item.passageId !== undefined)) throw new Error("Legacy Japanese bank contract mismatch");
   } else {
@@ -129,7 +151,11 @@ export function parseJapaneseBank(value: unknown): JapanesePlacementBank {
   if (bank.assessment) {
     if (bank.assessment.revision !== japanesePolicyRevision(bank.schemaVersion)) throw new Error("Japanese bank policy version mismatch");
     requireUnique(bank.assessment.supportedBands, "supported band");
+    if (bank.schemaVersion === 5 && !bank.assessment.referenceSources?.length) throw new Error("Rubric source references required");
+    if (bank.schemaVersion !== 5 && bank.assessment.referenceSources !== undefined) throw new Error("Legacy Japanese policy cannot contain rubric references");
     if (bank.assessment.minimumAnswers > japaneseQuestionLimit(bank)) throw new Error("Minimum evidence exceeds question budget");
+    if (bank.schemaVersion === 5 && (bank.assessment.minimumAnswers < 12 || bank.assessment.minimumDomains < 4
+      || bank.assessment.quotas.reading < 2 || bank.assessment.quotas.writing < 1)) throw new Error("Rubric minimum evidence is too small");
   }
   const itemIds = new Set(bank.items.map((item) => item.id));
   if (bank.sequence.length !== bank.items.length || bank.sequence.some((id) => !itemIds.has(id))) {
@@ -181,8 +207,9 @@ export function parseJapaneseItems(value: unknown, knownSourceIds: string[]): Ja
 
 /** Content reviews attest to text, keys, accepted sentence orders and provenance. */
 export function bankDigest(value: unknown): string {
-  const { reviews: _reviews, ...content } = parseJapaneseBank(value);
+  const { reviews: _reviews, ownerRelease: _release, ...content } = parseJapaneseBank(value);
   void _reviews;
+  void _release;
   return createHash("sha256").update(canonicalJson(content)).digest("hex");
 }
 
@@ -190,18 +217,23 @@ export function inspectBankReadiness(value: unknown): { ready: boolean; issues: 
   const bank = parseJapaneseBank(value);
   const hash = bankDigest(bank);
   const issues: string[] = [];
+  if (bank.ownerRelease && bank.ownerRelease.bankDigest !== hash) issues.push("owner-release-stale");
   for (const [key, label] of [["japaneseTeacher", "japanese-teacher"], ["rights", "rights"], ["placement", "placement"]] as const) {
     const approval = bank.reviews[key];
-    if (!approval) issues.push(`${label}-review-required`);
-    else if (approval.bankDigest !== hash) issues.push(`${label}-review-stale`);
+    if (!approval && !bank.ownerRelease) issues.push(`${label}-review-required`);
+    else if (approval && approval.bankDigest !== hash) issues.push(`${label}-review-stale`);
   }
-  if (!bank.assessment || bank.items.some((item) => !item.calibration)) issues.push("assessment-calibration-required");
+  if (bank.schemaVersion === 5) {
+    if (!bank.assessment) issues.push("assessment-policy-required");
+  } else if (!bank.assessment || bank.items.some((item) => !item.calibration)) issues.push("assessment-calibration-required");
   if (bank.assessment) {
     for (const domain of JAPANESE_PLACEMENT_DOMAINS) {
-      const pool = bank.items.filter((item) => item.domain === domain);
+      const pool = bank.items.filter((item) => item.domain === domain && (bank.schemaVersion !== 5 || !["reading", "writing"].includes(domain) || item.placementRole === "anchor"));
       if (new Set(pool.map(japaneseEvidenceKey)).size < bank.assessment.quotas[domain]) issues.push(`insufficient-pool:${domain}`);
       if (domain !== "kana") for (const band of bank.assessment.supportedBands) {
-        if (!pool.some((item) => item.calibration?.band === band)) issues.push(`missing-anchor:${domain}:${band}`);
+        if (bank.schemaVersion === 5) {
+          if (new Set(pool.filter((item) => item.referenceBand === band).map(japaneseEvidenceKey)).size < bank.assessment.quotas[domain]) issues.push(`insufficient-anchors:${domain}:${band}`);
+        } else if (!pool.some((item) => item.calibration?.band === band)) issues.push(`missing-anchor:${domain}:${band}`);
       }
     }
   }
@@ -216,6 +248,16 @@ export function japaneseQuestionLimit(bank: JapanesePlacementBank): number {
 /** One reading question per passage; other items supply their own independent unit. */
 export function japaneseEvidenceKey(item: JapanesePlacementItem): string {
   return item.passageId ? `passage:${item.passageId}` : `item:${item.id}`;
+}
+
+/** Nominal uniform guessing, not a fitted response probability. Identical visible tiles are interchangeable. */
+export function japaneseUniformGuessingRate(item: JapanesePlacementItem): number {
+  if (item.responseType === "choice") return 1 / item.choices.length;
+  const factorial = (n: number): number => n <= 1 ? 1 : n * factorial(n - 1);
+  const frequencies = new Map<string, number>();
+  for (const tile of item.tiles) { const text = normalized(tile.text); frequencies.set(text, (frequencies.get(text) ?? 0) + 1); }
+  const permutations = factorial(item.tiles.length) / [...frequencies.values()].reduce((product, n) => product * factorial(n), 1);
+  return item.acceptedOrders.length / permutations;
 }
 
 export function loadApprovedJapaneseBank(value: unknown): JapanesePlacementBank {

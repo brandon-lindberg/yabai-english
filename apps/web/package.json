@@ -17,6 +17,8 @@
     "test:japanese-placement:db": "tsx scripts/test-mirror-migration.ts --japanese-placement",
     "japanese-placement:audit": "node --conditions=react-server --import tsx scripts/audit-japanese-placement.ts",
     "japanese-placement:content": "node --conditions=react-server --import tsx scripts/audit-japanese-placement-content.ts",
+    "japanese-placement:pilot": "node --conditions=react-server --import tsx scripts/japanese-placement-pilot.ts",
+    "japanese-placement:publish": "node --conditions=react-server --import tsx scripts/publish-japanese-placement.ts",
     "test:mirror": "vitest run --config vitest.mirror.config.ts",
     "test:mirror:migration": "tsx scripts/test-mirror-migration.ts",
     "japanese-content:audit": "tsx scripts/audit-japanese-content.ts",

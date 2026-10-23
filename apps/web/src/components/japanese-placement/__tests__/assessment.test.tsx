@@ -20,6 +20,15 @@ const show = (locale = "en") => render(<NextIntlClientProvider locale={locale} m
 beforeEach(() => { vi.stubGlobal("fetch", fetchMock); fetchMock.mockReset(); });
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
+test.each(["en", "ja"])("keeps source credits accessible without interrupting an active assessment (%s)", async (locale) => {
+  fetchMock.mockResolvedValueOnce(reply({ attempt: active() }));
+  show(locale);
+  await screen.findByRole("button", { name: "がっこう" });
+  const credits = screen.getByRole("link", { name: locale === "ja" ? "出典・ライセンス" : "Sources and licences" });
+  expect(credits).toHaveAttribute("href", "/japanese-placement/v3/NOTICE.txt");
+  expect(credits).toHaveAttribute("target", "_blank");
+});
+
 test("loads saved progress without starting a new timer, and requires an explicit start", async () => {
   fetchMock.mockResolvedValueOnce(reply({ attempt: null })).mockResolvedValueOnce(reply(active()));
   show();
@@ -174,4 +183,19 @@ test("uses the same level/breakdown presentation for a teacher without learner a
   expect(screen.getByRole("heading", { name: "Skill breakdown" })).toBeVisible();
   expect(screen.queryByRole("button", { name: "Start a new assessment" })).toBeNull();
   expect(screen.getByText(/not an official JLPT/)).toBeVisible();
+});
+
+test.each(["en", "ja"])("explains a rule-based result without a model range in %s", (locale) => {
+  const copy = locale === "ja" ? jaMessages : messages;
+  render(<NextIntlClientProvider locale={locale} messages={copy}><JapanesePlacementResult result={{ ...result, completionReason: "question_limit",
+    levelEstimate: { status: "estimated", scope: "reading_writing", provisional: true, band: "N3", basis: "jlpt_aligned_rules" } }} /></NextIntlClientProvider>);
+  expect(screen.getByText("N3", { exact: true })).toBeVisible();
+  expect(screen.getByText(locale === "en" ? "This estimate uses JLPT-aligned reading and sentence-building tasks." : "JLPTの各レベルを参考にした読解・文の組み立て問題から推定しています。")).toBeVisible();
+  expect(screen.queryByText(/Estimated range:|推定範囲：/)).toBeNull();
+});
+
+test.each(["en", "ja"])("explains unconfirmed skill evidence accurately after a complete assessment in %s", (locale) => {
+  render(<NextIntlClientProvider locale={locale} messages={locale === "ja" ? jaMessages : messages}><JapanesePlacementResult result={{ ...result, completionReason: "question_limit",
+    levelEstimate: { status: "insufficient_evidence", scope: "reading_writing", reason: "unconfirmed_reading_or_construction" } }} /></NextIntlClientProvider>);
+  expect(screen.getByText(locale === "en" ? "Your answers did not establish a consistent reading and sentence-building level. You can take a new assessment when you’re ready." : "今回の解答では、読解と文の組み立てのレベルを十分に確認できませんでした。準備ができたら、新しい診断を受けられます。")).toBeVisible();
 });

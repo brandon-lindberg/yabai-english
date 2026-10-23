@@ -14,6 +14,11 @@ import { useJapaneseAssessment } from "./use-assessment";
 
 export function JapanesePlacementAssessment() {
   const t = useTranslations("japanesePlacement");
+  return <><JapanesePlacementAssessmentContent /><p className="mt-8 text-sm text-muted"><a href="/japanese-placement/v3/NOTICE.txt" target="_blank" rel="noreferrer" className="inline-flex min-h-6 items-center underline underline-offset-4 hover:text-foreground">{t("sources")}</a></p></>;
+}
+
+function JapanesePlacementAssessmentContent() {
+  const t = useTranslations("japanesePlacement");
   const locale = useLocale();
   const state = useJapaneseAssessment();
   const heading = useRef<HTMLHeadingElement>(null);

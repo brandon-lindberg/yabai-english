@@ -14,6 +14,8 @@
     "test:japanese-placement:db": "yarn --cwd apps/web test:japanese-placement:db",
     "japanese-placement:audit": "yarn --cwd apps/web japanese-placement:audit",
     "japanese-placement:content": "yarn --cwd apps/web japanese-placement:content",
+    "japanese-placement:pilot": "yarn --silent --cwd apps/web japanese-placement:pilot",
+    "japanese-placement:publish": "yarn --silent --cwd apps/web japanese-placement:publish",
     "test:mirror": "yarn --cwd apps/web test:mirror",
     "test:mirror:migration": "yarn --cwd apps/web test:mirror:migration",
     "japanese-content:audit": "yarn --cwd apps/web japanese-content:audit",

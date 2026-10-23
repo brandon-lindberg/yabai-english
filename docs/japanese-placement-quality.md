@@ -58,6 +58,12 @@ All calibration, policy and review fields remain null. The publication audit con
 
 ## Calibration handoff
 
+**Subsequent user correction — 2026-10-23:** the [revised scoring direction](japanese-placement-scoring-direction.md) removes the mandatory in-house pilot. Use published JLPT standards and applicable evidence for a transparent provisional placement rubric. The study/fitting workflow below is optional research support, not the next release prerequisite. Content/source alignment checks still apply.
+
+The [rubric-v1 implementation](japanese-placement-rubric.md) now supplies that policy and fifty explicit anchor rationales. The original source catalog and editorial digest remain unchanged; schema-v5 compilation adds roles, references and policy under a new digest, with all likelihoods null. Its readiness checks concern content, rights and rubric alignment rather than empirical calibration.
+
+The [offline pilot workflow](japanese-placement-pilot.md) now implements versioned collection forms, strict response-file validation and descriptive diagnostics. The following study/data requirements remain the handoff for collecting evidence and fitting a model; they are not completed by preparing that tooling.
+
 The next executable increment is an offline pilot-data and calibration workflow. It needs a stable bank/form digest, item IDs/revisions, independent Japanese level evidence, submitted option/tile order or skip, question order and elapsed time. It should exclude recordings, free-text answers and personally identifying data. English-placement results cannot serve as Japanese ability labels.
 
 Use separate pilot forms or a controlled test environment while the production bank remains unpublished. Compare timing, answer patterns, skips, item discrimination and the short-form guessing baselines across levels; fit likelihoods from learner evidence and check them on held-out learners. Sampling/precision targets and reference-level criteria must be specified for that study rather than inferred from source tags or synthetic fixtures. Publish the resulting versioned parameters and policy only after content and placement checks, then exercise real-bank learner/teacher browser journeys.

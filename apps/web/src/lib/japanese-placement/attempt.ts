@@ -1,21 +1,22 @@
 import "server-only";
 import { z } from "zod";
 import {
-  bankDigest, loadApprovedJapaneseBank, JAPANESE_PLACEMENT_DOMAINS, JAPANESE_POLICY_REVISION, JAPANESE_GROUPED_POLICY_REVISION, JAPANESE_MAX_QUESTIONS, japanesePolicyRevision, japaneseQuestionLimit, parseJapaneseBank, sentenceOrderSignature,
+  bankDigest, loadApprovedJapaneseBank, JAPANESE_PLACEMENT_DOMAINS, JAPANESE_POLICY_REVISION, JAPANESE_GROUPED_POLICY_REVISION, JAPANESE_RUBRIC_POLICY_REVISION, JAPANESE_MAX_QUESTIONS, japanesePolicyRevision, japaneseQuestionLimit, parseJapaneseBank,
   type JapanesePlacementItem,
 } from "./bank";
 
 import { answerInput, sentenceInput, skipInput, type JapaneseQuestion, type JapaneseResponseInput } from "./public";
 export { japaneseResponseInputSchema, type JapaneseQuestion, type JapaneseResponseInput } from "./public";
 import { estimateJapaneseLevel, initialJapaneseEvidence, isCorrectJapaneseResponse, selectJapaneseItem, updateJapaneseEvidence } from "./adaptive";
+import { projectJapaneseQuestion, validateJapaneseResponse } from "./question";
 
 const text = z.string().trim().min(1);
 const timestamp = z.string().datetime();
-export const JAPANESE_ATTEMPT_SCHEMA_VERSION = 4;
-export const JAPANESE_SUPPORTED_ATTEMPT_SCHEMAS = [3, JAPANESE_ATTEMPT_SCHEMA_VERSION] as const;
-export const JAPANESE_SCORING_REVISION = "japanese-reading-writing-passages-v2";
-export function japaneseScoringRevision(schemaVersion: 3 | 4) {
-  return schemaVersion === 3 ? "japanese-reading-writing-posterior-v1" : JAPANESE_SCORING_REVISION;
+export const JAPANESE_ATTEMPT_SCHEMA_VERSION = 5;
+export const JAPANESE_SUPPORTED_ATTEMPT_SCHEMAS = [3, 4, JAPANESE_ATTEMPT_SCHEMA_VERSION] as const;
+export const JAPANESE_SCORING_REVISION = "japanese-reading-writing-rubric-v1";
+export function japaneseScoringRevision(schemaVersion: 3 | 4 | 5) {
+  return schemaVersion === 3 ? "japanese-reading-writing-posterior-v1" : schemaVersion === 4 ? "japanese-reading-writing-passages-v2" : JAPANESE_SCORING_REVISION;
 }
 export function supportsJapaneseRuntime(schemaVersion: number, scoringRevision: string): boolean {
   return JAPANESE_SUPPORTED_ATTEMPT_SCHEMAS.some((version) => version === schemaVersion && japaneseScoringRevision(version) === scoringRevision);
@@ -25,12 +26,12 @@ const responseSchema = z.discriminatedUnion("kind", [
   answerInput.extend({ submittedAt: timestamp }), sentenceInput.extend({ submittedAt: timestamp }), skipInput.extend({ submittedAt: timestamp }),
 ]);
 const attemptSchema = startSchema.extend({
-  schemaVersion: z.union([z.literal(3), z.literal(JAPANESE_ATTEMPT_SCHEMA_VERSION)]), bankId: text, bankVersion: z.number().int().positive(),
-  expiresAt: timestamp, policyRevision: z.enum([JAPANESE_POLICY_REVISION, JAPANESE_GROUPED_POLICY_REVISION]),
+  schemaVersion: z.union([z.literal(3), z.literal(4), z.literal(JAPANESE_ATTEMPT_SCHEMA_VERSION)]), bankId: text, bankVersion: z.number().int().positive(),
+  expiresAt: timestamp, policyRevision: z.enum([JAPANESE_POLICY_REVISION, JAPANESE_GROUPED_POLICY_REVISION, JAPANESE_RUBRIC_POLICY_REVISION]),
   bankDigest: z.string().regex(/^[a-f0-9]{64}$/), responses: z.array(responseSchema).max(120),
 }).strict().superRefine((attempt, ctx) => {
   if (attempt.policyRevision !== japanesePolicyRevision(attempt.schemaVersion) ||
-    (attempt.schemaVersion === 4 && attempt.responses.length > JAPANESE_MAX_QUESTIONS)) ctx.addIssue({ code: "custom", message: "Japanese attempt version or response budget mismatch" });
+    (attempt.schemaVersion >= 4 && attempt.responses.length > JAPANESE_MAX_QUESTIONS)) ctx.addIssue({ code: "custom", message: "Japanese attempt version or response budget mismatch" });
 });
 
 export type JapaneseAttempt = z.infer<typeof attemptSchema>;
@@ -41,14 +42,7 @@ export const parseJapaneseAttempt = (value: unknown): JapaneseAttempt => attempt
 
 function validateResponse(item: JapanesePlacementItem, response: JapaneseResponse, earliest: string): void {
   if (Date.parse(response.submittedAt) < Date.parse(earliest)) throw new Error("Invalid response timestamp");
-  if (response.kind === "answer") {
-    if (item.responseType !== "choice") throw new Error("Invalid response type for sentence assembly");
-    if (!item.choices.some((choice) => choice.id === response.choiceId)) throw new Error("Unknown choice for the current Japanese item");
-  }
-  if (response.kind === "sentence_assembly") {
-    if (item.responseType !== "sentence_assembly") throw new Error("Invalid response type for a choice question");
-    sentenceOrderSignature(item, response.tileIds);
-  }
+  validateJapaneseResponse(item, response);
 }
 
 /** Input must come from trusted server persistence, never from a learner's request body. */
@@ -92,13 +86,7 @@ export function nextJapaneseQuestion(bankValue: unknown, attemptValue: unknown, 
   if (now && Date.parse(timestamp.parse(now)) >= Date.parse(attempt.expiresAt)) return null;
   const item = selectJapaneseItem(bank, evidence);
   if (!item) return null;
-  return {
-    id: item.id, domain: item.domain, prompt: { ...item.prompt },
-    stimulus: { ...item.stimulus },
-    response: item.responseType === "choice"
-      ? { kind: "choice", choices: item.choices.map((choice) => ({ ...choice })) }
-      : { kind: "sentence_assembly", tiles: item.tiles.map((tile) => ({ ...tile })) },
-  };
+  return projectJapaneseQuestion(item);
 }
 
 /** A repository transaction must serialize concurrent submissions of this pure transition. */

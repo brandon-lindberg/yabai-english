@@ -6,6 +6,15 @@ const command = (args: string[], script = "audit-japanese-placement.ts") => spaw
 ], { encoding: "utf8", timeout: 10_000 });
 
 describe("database-free Japanese assessment audit command", () => {
+  it("audits a source-aligned rubric without making an empirical pilot a publication requirement", () => {
+    const result = command(["--rubric", "--json"]);
+    expect(result.status, result.stderr).toBe(0);
+    expect(JSON.parse(result.stdout)).toMatchObject({ schemaVersion: 5, bankVersion: 3, items: 470, independentReadingPassages: 100,
+      basis: "jlpt_aligned_rules", anchors: 50, issues: ["japanese-teacher-review-required", "rights-review-required", "placement-review-required"] });
+    const strict = command(["--rubric", "--strict", "--json"]);
+    expect(strict.status).toBe(1);
+    expect(JSON.parse(strict.stdout).issues).not.toContain("assessment-calibration-required");
+  });
   it("reports the text-only review work without publishing or loading credentials", () => {
     const result = command(["--json"]);
     expect(result.status, result.stderr).toBe(0);
@@ -37,6 +46,14 @@ describe("database-free Japanese assessment audit command", () => {
 });
 
 describe("offline Japanese content import command", () => {
+  it("exports the rubric policy and aligned roles from the same catalog without invented likelihoods or approvals", () => {
+    const result = command(["--rubric-bank"], "audit-japanese-placement-content.ts");
+    expect(result.status, result.stderr).toBe(0);
+    const bank = JSON.parse(result.stdout);
+    expect(bank).toMatchObject({ schemaVersion: 5, version: 3, assessment: { revision: "japanese-jlpt-rubric-v1" }, reviews: { japaneseTeacher: null, rights: null, placement: null } });
+    expect(bank.items.every((item: { calibration: unknown }) => item.calibration === null)).toBe(true);
+    expect(command(["--bank", "--rubric-bank"], "audit-japanese-placement-content.ts").status).toBe(1);
+  });
   it("distinguishes six-domain draft coverage from publication readiness", () => {
     const result = command(["--strict", "--json"], "audit-japanese-placement-content.ts");
     expect(result.status, result.stderr).toBe(0);

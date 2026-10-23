@@ -3,6 +3,7 @@ import { withIsolatedPostgres } from "../../test/isolated-postgres";
 import { adaptiveBank, approveBank, approvedBank, groupedAdaptiveBank } from "../../src/lib/japanese-placement/__tests__/fixtures";
 import { loadContentCatalog } from "../../src/lib/japanese-placement/content-files";
 import { buildContentBank } from "../../src/lib/japanese-placement/content-pack";
+import { loadReleasedJapaneseBank } from "../../src/lib/japanese-placement/release";
 
 test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("preserves English history and persists secure Japanese attempts with concurrent retries", async () => {
   await withIsolatedPostgres("20261022010000_japanese_placement_adaptive", async ({ client, db, applyMigration, verifyDatamodel }) => {
@@ -106,6 +107,66 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("preserves English history and 
     expect((await client.query('SELECT * FROM "StudentProfile" WHERE id = $1', ['legacy-profile'])).rows[0]).toEqual(englishBefore);
   });
 }, 30_000);
+
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("upgrades v4 history to the source-aligned rubric and enforces v5 response safeguards", async () => {
+  await withIsolatedPostgres("20261023010000_japanese_placement_rubric", async ({ client, db, applyMigration, verifyDatamodel }) => {
+    const service = await import("../../src/lib/japanese-placement/service");
+    for (const id of ["v4-active", "v4-finished", "v5-student", "v5-guards", "v5-bad-policy"]) await db.user.create({ data: { id, role: "STUDENT", learningLanguage: "JAPANESE" } });
+    const old = approveBank(groupedAdaptiveBank());
+    const snapshot = await service.publishJapaneseBank(db, old);
+    let active = await service.startStoredJapaneseAttempt(db, "v4-active", { requestId: "00000000-0000-4000-8000-000000000071" });
+    active = await service.submitStoredJapaneseResponse(db, "v4-active", active.attemptId, { kind: "answer", itemId: active.question!.id, choiceId: "a" });
+    let finished = await service.startStoredJapaneseAttempt(db, "v4-finished", { requestId: "00000000-0000-4000-8000-000000000072" });
+    const answer = (bank: typeof old, id: string) => {
+      const item = bank.items.find((item) => item.id === id)!;
+      return item.responseType === "sentence_assembly" ? { kind: "sentence_assembly", itemId: item.id, tileIds: item.acceptedOrders[0] }
+        : { kind: "answer", itemId: item.id, choiceId: item.correctChoiceId };
+    };
+    while (finished.question) finished = await service.submitStoredJapaneseResponse(db, "v4-finished", finished.attemptId, answer(old, finished.question.id));
+    const before = await db.japanesePlacementResponse.findMany({ orderBy: { id: "asc" } });
+    await applyMigration(); verifyDatamodel();
+    expect(await db.japanesePlacementBankSnapshot.findUnique({ where: { id: snapshot.id } })).toEqual(snapshot);
+    expect(await db.japanesePlacementResponse.findMany({ orderBy: { id: "asc" } })).toEqual(before);
+    expect((await service.getStoredJapaneseAttempt(db, "v4-finished", finished.attemptId)).result).toEqual(finished.result);
+    expect((await service.getStoredJapaneseAttempt(db, "v4-active", active.attemptId)).question).toEqual(active.question);
+
+    const bank = await loadReleasedJapaneseBank("data/japanese-placement", "public");
+    const published = await service.publishJapaneseBank(db, bank);
+    expect((await service.publishJapaneseBank(db, bank)).id).toBe(published.id);
+    expect(published.content).toMatchObject({ ownerRelease: { kind: "owner_authorized_ai_assisted" }, reviews: { japaneseTeacher: null, rights: null, placement: null } });
+    await expect(service.startStoredJapaneseAttempt(db, "v4-active", { requestId: "00000000-0000-4000-8000-000000000073" })).rejects.toMatchObject({ status: 409 });
+    while (active.question) active = await service.submitStoredJapaneseResponse(db, "v4-active", active.attemptId, answer(old, active.question.id));
+    expect(active.result).toMatchObject({ scoringRevision: "japanese-reading-writing-passages-v2" });
+    let view = await service.startStoredJapaneseAttempt(db, "v5-student", { requestId: "00000000-0000-4000-8000-000000000074" });
+    const row = await db.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: view.attemptId } });
+    expect(row).toMatchObject({ schemaVersion: 5, policyRevision: "japanese-jlpt-rubric-v1", scoringRevision: "japanese-reading-writing-rubric-v1", questionLimit: 24 });
+    const deadline = view.expiresAt;
+    while (view.question) {
+      view = await service.submitStoredJapaneseResponse(db, "v5-student", view.attemptId, answer(bank, view.question.id));
+      expect(view.expiresAt).toBe(deadline);
+    }
+    expect(view).toMatchObject({ status: "COMPLETED", answered: 24, result: { levelEstimate: { band: "N1", basis: "jlpt_aligned_rules" } } });
+    expect(view.result).not.toHaveProperty("levelEstimate.modelRange");
+
+    const guard = await service.startStoredJapaneseAttempt(db, "v5-guards", { requestId: "00000000-0000-4000-8000-000000000075" });
+    const attempt = await db.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: guard.attemptId } });
+    const first = bank.items.find((item) => item.domain === "reading")!;
+    const sibling = bank.items.find((item) => item.id !== first.id && item.passageId === first.passageId)!;
+    const insert = (id: string, itemId: string, position: number, at: Date) => client.query(`INSERT INTO "JapanesePlacementResponse" (id,"attemptId","itemId",position,payload) VALUES ($1,$2,$3,$4,$5::jsonb)`,
+      [id, attempt.id, itemId, position, JSON.stringify({ ...answer(bank, first.id), itemId, submittedAt: at.toISOString() })]);
+    await expect(insert("v5-late", first.id, 0, attempt.expiresAt!)).rejects.toThrow(/deadline/);
+    await expect(insert("v5-budget", first.id, 24, attempt.startedAt)).rejects.toThrow(/budget/);
+    await expect(insert("v5-unknown", "unknown", 0, attempt.startedAt)).rejects.toThrow(/Unknown/);
+    await insert("v5-first", first.id, 0, attempt.startedAt);
+    await expect(insert("v5-sibling", sibling.id, 1, attempt.startedAt)).rejects.toThrow(/passage/);
+    await expect(client.query(`INSERT INTO "JapanesePlacementBankSnapshot" (id,"bankKey",version,digest,"itemCount",content)
+      VALUES ('v5-count','v5-count',1,repeat('d',64),470,'{"schemaVersion":5,"items":[]}')`)).rejects.toThrow();
+    await expect(client.query(`INSERT INTO "JapanesePlacementAttempt" (id,"learnerId","bankSnapshotId","requestId","activeLearnerId","schemaVersion","scoringRevision","policyRevision","questionLimit","expiresAt")
+      VALUES ('v5-bad','v5-bad-policy',$1,'00000000-0000-4000-8000-000000000076','v5-bad-policy',5,'japanese-reading-writing-rubric-v1','japanese-posterior-passages-v2',24,NOW()+INTERVAL '20 minutes')`, [published.id])).rejects.toThrow();
+    await db.japanesePlacementBankSnapshot.update({ where: { id: published.id }, data: { revokedAt: new Date() } });
+    await expect(service.publishJapaneseBank(db, bank)).rejects.toMatchObject({ status: 409, code: "BANK_REVOKED" });
+  });
+}, 60000);
 
 test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("rolls back failed completion, resolves conflicting submissions and replaces a revoked active bank", async () => {
   await withIsolatedPostgres("20261022010000_japanese_placement_adaptive", async ({ client, db, applyMigration }) => {

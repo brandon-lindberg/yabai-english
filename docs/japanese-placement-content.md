@@ -113,8 +113,10 @@ The subsequent editorial increment passes **173 Japanese placement tests, seven 
 
 ## Remaining section 4e work
 
+The subsequent [rubric-v1 increment](japanese-placement-rubric.md) implements the revised source-aligned policy without empirical likelihoods or a mandatory pilot. A digest-bound manifest adds fifty explicit reading/construction anchors and rationales to the same catalog; v5 exports are available through `--rubric-bank`, with audits through `--rubric`. The current serving pool has 220 eligible items. The v4 source catalog, source excerpt locks and optional pilot digest remain unchanged.
+
 1. Complete independent content/rights checks against the revised digest. The initial AI-assisted screen and corrections are documented, including unresolved format/difficulty limits. Source labels and authoring labels do not establish validated placement difficulty. This is reusable bank content work, never individual student review.
-2. Prepare an offline pilot-data/calibration workflow, then validate response likelihoods, timing, evidence minima and level interpretations with Japanese learner evidence. Some construction tasks test a short grammatical phrase inside fixed context; source-band tags alone cannot show that they distinguish N2 from N3 learners. The editorial handoff identifies the required data fields and study decisions.
+2. Complete the bank-level policy/content checks against the delivered [rubric-v1 mapping](japanese-placement-rubric.md), published JLPT references and source evidence. The runtime/readiness change is implemented with explicit evidence minima and null likelihoods. Short constructions and simple detail tasks remain supplementary rather than advanced anchors. An in-house pilot is optional and existing pilot tooling needs no further work now.
 3. Publish the resulting versioned snapshot after those checks, then run the real-bank learner completion and teacher-result journeys already specified in the plan. No per-attempt marking or pre-lesson response review is introduced.
 
 See [the accepted source proposal](japanese-n2-n3-solution.md) for pinned primary sources and [the mirror plan](../MIRROR_PLAN.md) for the wider sequence. Brandon retains commit and push responsibility.

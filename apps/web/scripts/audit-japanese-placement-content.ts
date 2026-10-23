@@ -2,11 +2,16 @@ import { resolve } from "node:path";
 import { loadContentCatalog } from "../src/lib/japanese-placement/content-files";
 import { buildContentBank, inspectContentCoverage } from "../src/lib/japanese-placement/content-pack";
 import { bankDigest, inspectBankReadiness } from "../src/lib/japanese-placement/bank";
+import { loadJapaneseRubricBank } from "../src/lib/japanese-placement/rubric-content";
 
 async function main() {
   const args = process.argv.slice(2);
-  for (const arg of args) if (!["--json", "--items", "--bank", "--strict"].includes(arg)) throw new Error(`Unknown argument: ${arg}`);
-  if (args.includes("--items") && args.includes("--bank")) throw new Error("Choose one export: --items or --bank");
+  for (const arg of args) if (!["--json", "--items", "--bank", "--rubric-bank", "--strict"].includes(arg)) throw new Error(`Unknown argument: ${arg}`);
+  if (args.filter((arg) => ["--items", "--bank", "--rubric-bank"].includes(arg)).length > 1) throw new Error("Choose one export: --items, --bank or --rubric-bank");
+  if (args.includes("--rubric-bank")) {
+    process.stdout.write(`${JSON.stringify(await loadJapaneseRubricBank(resolve("data/japanese-placement")), null, 2)}\n`);
+    return;
+  }
   const { pack, sourceExcerpts, packs, selectionLedgers } = await loadContentCatalog(resolve("data/japanese-placement"));
   const bank = buildContentBank(pack);
   const items = bank.items;

@@ -30,13 +30,16 @@ const count = z.number().int().nonnegative();
 export const japaneseResultSchema = z.object({
   attemptId: text, completedAt: z.string().datetime(), completionReason: z.enum(["time_limit", "question_limit"]).optional(),
   levelEstimate: z.discriminatedUnion("status", [
-    z.object({ status: z.literal("estimated"), scope: z.literal("reading_writing"), band, provisional: z.literal(true), modelRange: z.object({ lower: band, upper: band }) }),
+    z.object({ status: z.literal("estimated"), scope: z.literal("reading_writing"), band, provisional: z.literal(true),
+      basis: z.literal("jlpt_aligned_rules").optional(), modelRange: z.object({ lower: band, upper: band }).optional() }),
     z.object({ status: z.literal("insufficient_evidence"), scope: z.literal("reading_writing"), reason: text }),
     z.object({ status: z.literal("unavailable"), scope: z.literal("reading_writing"), reason: text }),
   ]),
   domains: z.array(z.object({ domain: z.enum(JAPANESE_PLACEMENT_DOMAINS), planned: count, answered: count, correct: count,
     incorrect: count, notSure: count, unanswered: count.optional(), observation: z.enum(["observed", "limited", "not_assessed"]) })).length(6),
-}).refine((result) => new Set(result.domains.map((row) => row.domain)).size === 6, "Duplicate result domain");
+}).refine((result) => new Set(result.domains.map((row) => row.domain)).size === 6, "Duplicate result domain")
+  .refine((result) => result.levelEstimate.status !== "estimated" || (result.levelEstimate.basis === "jlpt_aligned_rules"
+    ? !result.levelEstimate.modelRange : !!result.levelEstimate.modelRange), "Estimate basis/range mismatch");
 export type JapanesePlacementResult = z.infer<typeof japaneseResultSchema>;
 
 export const japaneseAttemptViewSchema = z.object({

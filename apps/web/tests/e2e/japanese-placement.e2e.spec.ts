@@ -19,7 +19,7 @@ function question(item: typeof reading) {
 function result(timeout = false) {
   return { attemptId: "browser-contract-attempt", completedAt: new Date().toISOString(), completionReason: timeout ? "time_limit" : "question_limit",
     levelEstimate: timeout ? { status: "insufficient_evidence", scope: "reading_writing", reason: "too_few_answers_or_domains" }
-      : { status: "estimated", scope: "reading_writing", band: "N3", provisional: true, modelRange: { lower: "N4", upper: "N3" } },
+      : { status: "estimated", scope: "reading_writing", band: "N3", provisional: true, basis: "jlpt_aligned_rules" },
     domains: ["kana", "kanji_reading", "vocabulary", "grammar", "reading", "writing"].map((domain) => ({ domain, planned: 4,
       answered: timeout ? 0 : 4, correct: timeout ? 0 : 3, incorrect: timeout ? 0 : 1, notSure: 0, unanswered: timeout ? 4 : 0, observation: timeout ? "not_assessed" : "observed" })) };
 }
@@ -78,6 +78,8 @@ test("keyboard sentence assembly, resume and automatic timeout follow the public
   }
   await page.getByRole("button", { name: en.japanesePlacement.submitSentence }).click();
   await expect(page.getByText("N3", { exact: true })).toBeVisible();
+  await expect(page.getByText(en.japanesePlacement.ruleBasis, { exact: true })).toBeVisible();
+  await expect(page.getByText(/Estimated range:/)).toHaveCount(0);
   expect(payloads.at(-1)).toEqual({ kind: "sentence_assembly", itemId: writing.id, tileIds: writing.acceptedOrders![0] });
   expect(payloads[0]).toEqual({ requestId: expect.stringMatching(/^[a-f0-9-]{36}$/) });
   mode = "tiles";
@@ -99,13 +101,15 @@ test("bounded screenshot matrix", async ({ page }) => {
     await route.fulfill({ json: { attempt: mode === "intro" ? null : view(mode) } });
   });
   mkdirSync(screenshotDir, { recursive: true });
-  const cases: Array<[Mode, "en" | "ja", number, "light" | "dark"]> = [
+  const allCases: Array<[Mode, "en" | "ja", number, "light" | "dark"]> = [
     ["intro", "en", 1440, "light"], ["intro", "en", 390, "dark"],
     ["choice", "en", 1440, "light"], ["choice", "en", 390, "dark"],
     ["tiles", "en", 1440, "light"], ["tiles", "en", 390, "dark"], ["tiles", "en", 524, "light"], ["tiles", "ja", 390, "light"], ["tiles", "ja", 524, "dark"],
-    ["result", "en", 1440, "light"], ["result", "en", 390, "dark"], ["result", "ja", 524, "light"],
+    ["result", "en", 1440, "light"], ["result", "en", 390, "dark"], ["result", "ja", 524, "light"], ["result", "ja", 390, "dark"],
     ["timeout", "en", 390, "light"], ["unavailable", "en", 1440, "dark"], ["unavailable", "ja", 390, "light"], ["network", "en", 390, "dark"],
   ];
+  const resultsOnly = process.env.JAPANESE_PLACEMENT_CAPTURE_RESULTS_ONLY === "1";
+  const cases = resultsOnly ? allCases.filter(([state]) => state === "result") : allCases;
   for (const [state, locale, width, theme] of cases) {
     mode = state;
     await page.setViewportSize({ width, height: width > 1000 ? 1000 : 844 });
@@ -119,7 +123,10 @@ test("bounded screenshot matrix", async ({ page }) => {
       await page.getByRole("button", { name: copy.addTile.replace("{tile}", tile.text).replace("{position}", "1"), exact: true }).click();
     } else if (state === "timeout") await expect(page.getByText(copy.insufficient, { exact: true })).toBeVisible();
     else if (state === "intro") await expect(page.getByRole("button", { name: copy.start, exact: true })).toBeVisible();
-    else if (state === "result") await expect(page.getByText("N3", { exact: true })).toBeVisible();
+    else if (state === "result") {
+      await expect(page.getByText("N3", { exact: true })).toBeVisible();
+      await expect(page.getByText(copy.ruleBasis, { exact: true })).toBeVisible();
+    }
     else if (state === "unavailable") await expect(page.getByText(copy.unavailableTitle, { exact: true })).toBeVisible();
     else if (state === "network") await expect(page.getByRole("alert")).toBeVisible();
     else await expect(page.getByRole("timer")).toBeVisible();
@@ -129,6 +136,7 @@ test("bounded screenshot matrix", async ({ page }) => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: `${screenshotDir}/${state}-${locale}-${width}-${theme}.png`, fullPage: true, animations: "disabled" });
   }
+  if (resultsOnly) return;
   const teacher = await page.context().browser()!.newContext();
   try {
     const teacherPage = await teacher.newPage();

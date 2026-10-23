@@ -10,15 +10,17 @@ The teacher receives an automatically generated starting-level estimate and a do
 
 Japanese placement owns its items, banks, progression, attempts, scoring and results. It does not import English placement algorithms, level enums, thresholds, question banks or progress models.
 
+**Current scoring direction — user correction, 2026-10-23:** the [rubric-v1 implementation](japanese-placement-rubric.md) supports schema-v5 source-aligned routing/results through the existing engine. An in-house pilot is optional, not a release prerequisite. The [scoring-direction correction](japanese-placement-scoring-direction.md) supersedes earlier mandatory empirical-calibration roadmap language in this brief. The original likelihood model remains for schemas 3/4; v5 uses explicit rules and anchor rationales with null likelihoods. Following the owner's explicit authorization and documented checks, [bank version 3 is published locally](japanese-placement-release.md). Production activation remains separate.
+
 ## Required assessment flow — correction of 2026-10-22
 
-Match the English assessment's format: a timer, one question at a time, difficulty that adapts as answers arrive, and an automatically awarded level at completion. The existing English format has a 20-minute limit and 24 questions; use those as the initial Japanese format target, then validate timing and coverage with Japanese learners. Japanese difficulty anchors, domain routing and level rules must be designed independently. The English CEFR ladder and scoring thresholds are not Japanese assessment rules.
+Match the English assessment's format: a timer, one question at a time, difficulty that adapts as answers arrive, and an automatically awarded level at completion. The existing English format has a 20-minute limit and 24 questions; use those as the initial Japanese format target. Later learner feedback can refine timing and coverage. Japanese difficulty anchors, domain routing and level rules must be designed independently. The English CEFR ladder and scoring thresholds are not Japanese assessment rules.
 
 The server owns the start time and deadline. Resuming, reloading, opening another tab or retrying a request must preserve the original deadline. The learner flow automatically finishes when time expires; the server must enforce expiry as well, finalize once using accepted responses, and prevent late answers from altering the result. Completed results retain their original timing, bank and scoring versions.
 
 Normal completion must award an approximate Japanese reading/writing study level immediately. Partial/expired attempts need an explicit evidence policy and confidence limits; an attempt with no usable answers must not invent a proficiency level. There is no individual teacher review between completion and the result.
 
-**Implementation status:** server-enforced timing, adaptive progression, automatic level assignment and learner/teacher screens are implemented. Section 4e now compiles the 470-item catalog into a private schema-v4 bank with passage grouping; schema-v3 history continues through the same engine. Content validation and calibration are still required before learner publication. Neither the catalog nor the twelve earlier samples is published.
+**Implementation status:** timing, adaptive progression, automatic level assignment and learner/teacher screens are implemented. The 470-item catalog compiles to the stable v4 source bank and schema-v5 rubric bank, sharing passage grouping and immutable history. V5 has fifty explicit reading/construction anchors, a 220-item eligible serving pool and no likelihood requirement. The schema-v5 bank is active in the local database under explicit owner authorization with AI-assisted content/source-term/policy checks; no independent teacher signoff is claimed. The v4 authoring export and twelve earlier samples remain unpublished. Full authenticated browser journeys retain the limitations documented in the rubric/release handoffs.
 
 ## Coverage and question formats
 
@@ -39,7 +41,7 @@ Use kana, kanji and vocabulary appropriate to the task being measured. A written
 
 The intended output is an approximate reading/writing study band, with N5–N1 references where supported by the Japanese bank, plus below-N5 and insufficient-evidence outcomes. It is not an official JLPT result or a claim about speaking/listening. Sentence assembly does not establish unrestricted writing ability.
 
-The Japanese-specific scoring rules and difficulty anchors must be versioned with the bank and checked against actual learner results before release. The [JLPT scoring explanation](https://www.jlpt.jp/e/about/pdf/scaledscore_e.pdf) does not justify converting this app's correct-answer percentage into an official scaled score. No English thresholds will be reused.
+The Japanese-specific scoring rules and difficulty anchors must be versioned with the bank and checked against the published competence/task references and applicable source evidence. Empirical refinement can follow later. The [JLPT scoring explanation](https://www.jlpt.jp/e/about/pdf/scaledscore_e.pdf) does not justify converting this app's correct-answer percentage into an official scaled score. No English thresholds will be reused.
 
 **Current implementation:** completion automatically returns a provisional study band and domain breakdown when the saved answers meet the bank’s evidence requirements. Empty, all-skipped or sparsely covered attempts return `insufficient_evidence`; they do not invent a level. Calibration is now a bank publication requirement, rather than an `unavailable / bank_not_calibrated` result after a learner completes the assessment. No individual student attempt enters a marking queue.
 
@@ -81,6 +83,8 @@ Migration `20261023000000_japanese_placement_grouped_bank` expands pool capacity
 `japanese-placement:content --bank` exports the validated but unapproved bank. The publication audit defaults to this full catalog; `--samples` selects the earlier twelve questions. See [the content handoff](japanese-placement-content.md) for reproducible checks and remaining content/calibration work.
 
 The initial [editorial screen](japanese-placement-quality.md) advances the catalog to revision 2 with eleven corrected authoring records and stable IDs. It checks question/key surfaces, quoted premises and the 110 explicitly accepted construction orders. An edited adapted passage can retain its exact source `original` privately for provenance; only the corrected displayed text is served. The handoff distinguishes this AI-assisted screen from independent approval and learner calibration, and identifies the short-task guessing and source-band difficulty limits that the pilot must investigate. No scoring likelihoods or release approvals are fabricated.
+
+The [offline pilot workflow](japanese-placement-pilot.md) now prepares twenty fixed collection forms covering all 470 items, with one question per passage per participant. Versioned manifests and pseudonymous response files bind exact content, item order, revisions, independent Japanese reference declarations and timing. Descriptive diagnostics keep development/holdout groups and missing-data categories separate. These forms award no level and do not activate production delivery. The workflow shares the existing question projection, response validation and grader; actual learner collection, model fitting and held-out validation remain required.
 
 ## Source research
 
@@ -145,7 +149,7 @@ From `apps/web`, create recorded local fixtures with `./node_modules/.bin/tsx sc
 
 ## Remaining section 4 work
 
-1. **Bank content and level validation:** expand beyond the twelve format samples to support the adaptive difficulty range. Finalize text questions, accepted sentence variants and source rights. Validate Japanese difficulty likelihoods, quotas, evidence minima and level interpretations against learner data before publication. Content/calibration QA occurs once per bank revision, not before each student lesson.
-2. **Validation and release:** check length, coverage, ambiguity, floor/ceiling effects and level estimates using real learner data. After publication, verify real-bank browser start/resume/timeout/completion and the completed-result teacher journey. No teacher action is required to complete or score an individual attempt. Section 6 owns final cross-product release checks.
+1. **Bank content and level alignment:** complete content, accepted-order, source-rights and policy checks against the assembled 470-item bank and explicit fifty-anchor rubric mapping. Use published JLPT task/competence references and applicable source evidence. There is no mandatory in-house pilot or invented likelihood model for v5. Checks concern a reusable bank revision, not an individual student's responses.
+2. **Verification and release:** after those checks, publish the versioned bank and verify real-bank browser start/resume/timeout/completion and the completed-result teacher journey. Learner-data refinement remains optional follow-up work. No teacher action is required to complete or score an individual attempt. Section 6 owns final cross-product release checks.
 
 Section 4 remains in progress. The learner-facing page is implemented, but the assessment is unavailable until an approved bank is published. No draft bank has been published.

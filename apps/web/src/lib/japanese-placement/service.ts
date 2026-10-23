@@ -104,6 +104,7 @@ export async function publishJapaneseBank(db: PrismaClient, value: unknown) {
     create: { bankKey: bank.id, version: bank.version, digest, itemCount: bank.items.length, content: json(bank) },
   });
   if (snapshot.digest !== digest) throw new JapanesePlacementFailure(409, "BANK_VERSION_CONFLICT");
+  if (snapshot.revokedAt) throw new JapanesePlacementFailure(409, "BANK_REVOKED");
   return snapshot;
 }
 
