@@ -24,6 +24,7 @@ export default defineConfig({
       "src/components/__tests__/theme-toggle.test.tsx",
       "src/components/shell/__tests__/site-header*.test.tsx",
       "src/components/__tests__/providers.test.tsx",
+      "src/hooks/__tests__/use-session-draft.test.tsx",
       "src/lib/__tests__/free-trial-offering*.test.ts",
       "src/lib/__tests__/schedule-offering-sync.test.ts",
       "src/app/api/teacher/availability/__tests__/*.test.ts",

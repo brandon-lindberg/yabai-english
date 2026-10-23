@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 4,
+  "status": "draft",
+  "learningLanguage": "JAPANESE",
+  "teacherReview": "pending",
+  "attribution": "data/japanese-content/ATTRIBUTION.md",
+  "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
+  "catalogSha256": "91419825b7c7bef4416e7749335dc9bfe281024110261f5f18eed1c03163204f",
+  "counts": {
+    "vocabulary": 7924,
+    "kanji": 2383,
+    "referenceRows": 8293,
+    "matched": 8278,
+    "ambiguous": 1,
+    "unmatched": 14,
+    "supplementaryKanji": 172,
+    "vocabularyByLevel": {
+      "N5": 677,
+      "N4": 633,
+      "N3": 1693,
+      "N2": 1789,
+      "N1": 3132
+    },
+    "kanjiByLevel": {
+      "N5": 84,
+      "N4": 169,
+      "N3": 387,
+      "N2": 398,
+      "N1": 1345
+    }
+  },
+  "sourceCounts": {
+    "vocabulary": 7811,
+    "kanji": 2383,
+    "referenceRows": 8293
+  },
+  "referenceSupplementVocabulary": 113,
+  "dictionarySupportedVocabulary": 7920,
+  "supportedVocabulary": 7924,
+  "attestedPhraseVocabulary": 4,
+  "directDictionaryVocabulary": 7908,
+  "derivedVocabulary": 12,
+  "dictionaryVerifiedKanji": 2383,
+  "dictionaryUnverifiedVocabularyIds": [
+    "ja-vocabulary:321ba5716a",
+    "ja-vocabulary:3db8531d3b",
+    "ja-vocabulary:91b50bd069",
+    "ja-vocabulary:feb110fb03"
+  ],
+  "unsupportedVocabularyIds": [],
+  "unverifiedKanjiIds": [],
+  "referenceCoverage": {
+    "primaryFormSelections": 7,
+    "coveredAmbiguousRows": 1,
+    "unresolvedAmbiguousRows": 0,
+    "supplementedRows": 113,
+    "characterRows": 14,
+    "unresolvedUnmatchedRows": 0
+  },
+  "issuesByCode": {
+    "LEVEL_DISAGREEMENT": 408,
+    "MISSING_DICTIONARY_LINK": 4,
+    "MISSING_EXAMPLES": 682,
+    "MISSING_REFERENCE_DICTIONARY_LINK": 14,
+    "MISSING_REFERENCE_GLOSS": 48,
+    "REFERENCE_DICTIONARY_ID_DIFFERENCE": 29
+  },
+  "corrections": {
+    "sha256": "180637feb4eaf272a20a41691fd54bb894379b17395d3175dd7e360d5837ede6",
+    "corrected": 33,
+    "attested": 4,
+    "deferred": 0,
+    "deferredIds": []
+  },
+  "referenceDecisions": {
+    "sha256": "83d09e293ad3226376ded3d0b09cf7f1aaf75e2cc21fbba2179dfbb213af4633",
+    "rows": 127,
+    "correctedGlossRows": 32,
+    "missingGlossRows": 3
+  }
+}

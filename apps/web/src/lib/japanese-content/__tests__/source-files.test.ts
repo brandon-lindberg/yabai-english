@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import sourceLock from "../../../../data/japanese-content/source-lock.json";
-import { fetchPinnedSources, parseSourceLock, readPinnedSource, type PinnedSource } from "../source-files";
+import { fetchPinnedSources, parseSourceLock, readPinnedSource, readPinnedSourceBytes, type PinnedSource } from "../source-files";
 
 const directories: string[] = [];
 async function cache() {
@@ -47,6 +47,17 @@ describe("source lock", () => {
 });
 
 describe("verified source cache", () => {
+  it("verifies binary phrase bytes and identifies the command needed for missing phrase sources", async () => {
+    const directory = await cache();
+    const bytes = Buffer.from([0x25, 0x50, 0x44, 0x46, 0xff, 0xfe]);
+    const phrase: PinnedSource = { ...source(), role: "phrase", filename: "phrase.pdf", integrity: { algorithm: "sha256", digest: createHash("sha256").update(bytes).digest("hex") } };
+    await expect(readPinnedSourceBytes(phrase, directory)).rejects.toThrow(/japanese-content:flashcards --fetch/);
+    await writeFile(join(directory, phrase.filename), bytes);
+    expect(await readPinnedSourceBytes(phrase, directory)).toEqual(bytes);
+    await writeFile(join(directory, phrase.filename), Buffer.from("changed"));
+    await expect(readPinnedSourceBytes(phrase, directory)).rejects.toThrow(/integrity/i);
+  });
+
   it("reads a valid cached file without fetching", async () => {
     const directory = await cache();
     await writeFile(join(directory, "test.json"), "source data");

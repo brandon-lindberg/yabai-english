@@ -2,6 +2,15 @@
 
 import { useCallback, useState } from "react";
 
+export function clearSessionDraft(key: string, legacyKey?: string) {
+  try {
+    window.sessionStorage.removeItem(key);
+    if (legacyKey) window.sessionStorage.removeItem(legacyKey);
+  } catch {
+    // Storage may be blocked; the form must still work.
+  }
+}
+
 /**
  * Form state that survives the component being torn down and rebuilt.
  *
@@ -49,12 +58,7 @@ export function useSessionDraft<T>(
   );
 
   const clear = useCallback(() => {
-    try {
-      window.sessionStorage.removeItem(key);
-      if (legacyKey) window.sessionStorage.removeItem(legacyKey);
-    } catch {
-      // As above.
-    }
+    clearSessionDraft(key, legacyKey);
   }, [key, legacyKey]);
 
   return [draft, setDraft, clear];

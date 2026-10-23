@@ -18,6 +18,11 @@
           "this year"
         ],
         "level": "N5",
+        "romaji": "kotoshi",
+        "pos": [
+          "n",
+          "adv"
+        ],
         "jmdict_id": 1579130,
         "other_forms": [],
         "other_readings": [],
@@ -70,6 +75,21 @@
           "ひ",
           "ひとつ",
           "まこと"
+        ],
+        "strokes": 1,
+        "grade": 1,
+        "freq": 2,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "一",
+          "一日",
+          "一緒",
+          "一つ",
+          "一月",
+          "一人",
+          "一昨日",
+          "一昨年"
         ]
       },
       "level": "N5",
@@ -88,6 +108,11 @@
           "soon"
         ],
         "level": "N4",
+        "romaji": "sorosoro",
+        "pos": [
+          "adv",
+          "adv-to"
+        ],
         "jmdict_id": 1345605,
         "other_forms": [],
         "other_readings": [],
@@ -128,7 +153,22 @@
           "ugly",
           "clumsy"
         ],
-        "nanori": []
+        "nanori": [],
+        "strokes": 4,
+        "grade": 4,
+        "freq": 101,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "不便",
+          "不",
+          "不安",
+          "不可",
+          "不幸",
+          "不正",
+          "不足",
+          "不平"
+        ]
       },
       "level": "N4",
       "sourceVerification": "dictionary-form-and-reading",
@@ -145,6 +185,10 @@
           "climate"
         ],
         "level": "N3",
+        "romaji": "kikou",
+        "pos": [
+          "n"
+        ],
         "jmdict_id": 1222170,
         "other_forms": [],
         "other_readings": [],
@@ -196,6 +240,18 @@
         "nanori": [
           "とも",
           "ゆ"
+        ],
+        "strokes": 3,
+        "grade": 8,
+        "freq": 308,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "与える",
+          "給与",
+          "関与",
+          "寄与",
+          "与党"
         ]
       },
       "level": "N3",
@@ -216,6 +272,10 @@
           "beavering away"
         ],
         "level": "N2",
+        "romaji": "sesseto",
+        "pos": [
+          "adv"
+        ],
         "jmdict_id": 2008620,
         "other_forms": [],
         "other_readings": [],
@@ -267,6 +327,21 @@
         ],
         "nanori": [
           "なび"
+        ],
+        "strokes": 8,
+        "grade": 6,
+        "freq": 599,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "並ぶ",
+          "並べる",
+          "並木",
+          "並行",
+          "並み",
+          "並列",
+          "月並み",
+          "並びに"
         ]
       },
       "level": "N2",
@@ -284,6 +359,10 @@
           "at the latest"
         ],
         "level": "N1",
+        "romaji": "osokutomo",
+        "pos": [
+          "adv"
+        ],
         "jmdict_id": 1421990,
         "other_forms": [],
         "other_readings": [],
@@ -330,7 +409,18 @@
           "even number",
           "4th calendar sign"
         ],
-        "nanori": []
+        "nanori": [],
+        "strokes": 2,
+        "grade": 3,
+        "freq": 1312,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "丁寧",
+          "庖丁",
+          "丁目",
+          "丁々"
+        ]
       },
       "level": "N1",
       "sourceVerification": "dictionary-form-and-reading",

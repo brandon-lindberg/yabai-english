@@ -1,4 +1,6 @@
 import "server-only";
+import { requireUnique } from "../unique";
+export { requireUnique } from "../unique";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 
@@ -90,10 +92,6 @@ export function normalizedJapaneseContent(value: string): string {
   return value.normalize("NFC").trim().replace(/\s+/g, " ");
 }
 const normalized = normalizedJapaneseContent;
-
-export function requireUnique(values: string[], label: string): void {
-  if (new Set(values).size !== values.length) throw new Error(`Duplicate ${label}`);
-}
 
 /** Each supplied tile is used once. Identical particles remain interchangeable by text. */
 export function sentenceOrderSignature(item: JapaneseSentenceItem, tileIds: string[]): string {

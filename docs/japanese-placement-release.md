@@ -1,5 +1,7 @@
 # Japanese assessment release — 2026-10-23
 
+**Browser follow-up:** the subsequent [browser verification handoff](japanese-placement-browser.md) resolves the earlier local sign-in/locale limitations and verifies the actual bank through the student and eligible teacher interfaces. It also fixes unfinished sentence drafts across reload/locale switches. The publication snapshot and digest below are unchanged; production deployment remains separate.
+
 The project owner explicitly authorized publication in the current conversation: “this is fine, you can publish this.” This supersedes the earlier requirement to obtain a separate human teacher signoff before releasing this version. It does not authorize commits, pushes or a production deployment. The publication target for this increment is the configured **local application database**.
 
 ## Exact release

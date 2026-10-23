@@ -67,6 +67,8 @@ Mechanics tests exercise all six consistent source-band profiles on both synthet
 
 ## Verification and browser limits
 
+**Subsequent verification:** the [browser follow-up](japanese-placement-browser.md) reproduces and resolves the local origin/setup failures recorded below. The complete local student/teacher path and bilingual capture matrix now pass, with a sentence-draft persistence fix. The paragraphs below remain the history of the earlier rubric implementation increment.
+
 TDD red/green demonstrated failure before v5/schema support, catalog compilation, result projection/copy and the additive migration. **244 Japanese placement unit/API/component tests, eight Japanese PostgreSQL tests, 367 mirror regressions and 35 corpus tests pass (654 total)**. TypeScript, focused ESLint, checksum/coverage strict checks and whitespace checks pass. V5 publication strict mode correctly fails for its three pending bank checks. No production build was rerun in this increment.
 
 The browser contract exercise for keyboard construction, resume, automatic completion/timeout and the new basis copy passes. The broader browser suite does **not** pass: the local dashboard lacks its expected authenticated assessment link, and Japanese-locale navigation enters a redirect loop. Root causes are not established here. Dev-login/OAuth settings were changed only for the task-owned preview process; no authentication or locale product code changed. The actual unavailable-bank/teacher browser journey and complete bilingual matrix remain unverified in this increment.

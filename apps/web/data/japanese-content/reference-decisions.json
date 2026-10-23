@@ -1,0 +1,1373 @@
+{
+  "schemaVersion": 1,
+  "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
+  "records": [
+    {
+      "sourceRow": "N1:1006",
+      "beforeSha256": "493b5bf5a64beb701a3469c94115aad8301bcbdecc5abbf5102c2ec46fec51e6",
+      "reason": "JMdict 1569020 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1569020",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1153",
+      "beforeSha256": "861d99bc1822d12873373993caec647766907b7ebe090fc5df01336673b79d95",
+      "reason": "The pinned full JMdict search has no exact word pair 佐/さ. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:120",
+      "beforeSha256": "b17f8462090586ae868e96e7c316bf7635f0f2fba011537ee549c69263889354",
+      "reason": "The pinned full JMdict search has no exact word pair 依/い. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:121",
+      "beforeSha256": "2cfb6cd697b52b38d92d0fdb5e127c76c8aa9c5d13fc78bca5746b3a04960cad",
+      "reason": "The pinned entry supports Italy as an abbreviation; it does not support the reference gloss that one.",
+      "kind": "dictionary-supplement",
+      "entryId": "2252790",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:1259",
+      "beforeSha256": "c28df4db1a539fd17f3a01e9c2077b9463493f6f29fcf91987081023bdc61e0a",
+      "reason": "JMdict 2542020 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2542020",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:126",
+      "beforeSha256": "ec91930286aec1e6c7c694db22e814dde8d5c6e69f7cee9736b145bc40a8bb7f",
+      "reason": "JMdict 1191990 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1191990",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1269",
+      "beforeSha256": "b75d75c42c337d2d427f2c717778b35e2c63bc471a4c3fd19315648c7c39fd96",
+      "reason": "JMdict 1631970 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1631970",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1363",
+      "beforeSha256": "6eb64e67c2c5e0d847c7c7950fa20d71bb189a38ec8962ae117b217b6b0dde77",
+      "reason": "JMdict 2650010 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2650010",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:14",
+      "beforeSha256": "f4f98e95d8c1de84a57aeb9e61ef70841eb6becc71cb261145044f102cb570f7",
+      "reason": "JMdict 1582390 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1582390",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1406",
+      "beforeSha256": "cf59ad7a384ac8755a451e2597ca744f2dd2171b4a2d59c0d3c3df455d7d25be",
+      "reason": "JMdict 1472860 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1472860",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1409",
+      "beforeSha256": "08591f69fff933e4672e3d47f494ce621a0fc122a088a628829b38617eb87746",
+      "reason": "The pinned full JMdict search has no exact word pair 傷/しょう. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:1415",
+      "beforeSha256": "6cc95ad1deeee930639f3ab5e189348908c1eb027bf64f0d910d1359221a7c4a",
+      "reason": "JMdict 1580310 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1580310",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1434",
+      "beforeSha256": "bb17814c267ac981ff9cc2a4eca39ca85d9b63ba003187c1ebec597cdce78c30",
+      "reason": "JMdict 1598730 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1598730",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1486",
+      "beforeSha256": "4d25e1e18042a00d93fd8980fa527c6c177a6bf9e4c36e48defbfc1fe61400d6",
+      "reason": "JMdict 1360410 attests this exact spelling/reading; select senses 1, 2, 4 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1360410",
+      "senses": [
+        1,
+        2,
+        4
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1558",
+      "beforeSha256": "7ad07469cab434b10200cb3008e9f6963c1a98aa614b0f122e0d583087396bcd",
+      "reason": "JMdict 1580490 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1580490",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1619",
+      "beforeSha256": "ff208becd38d46b4942509d80bdb5b9cac88db7f2c0246036510edf35cc448ce",
+      "reason": "JMdict 1581900 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1581900",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:174",
+      "beforeSha256": "39bb711a477c2113c365db524aba29d220b7c73938f43773afde99df589d18d7",
+      "reason": "JMdict 1575990 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1575990",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:175",
+      "beforeSha256": "198b884ecef23c3d0b33fe97e69aa788e9de12fb6f075d74a5bcf7802c3b395e",
+      "reason": "JMdict 1576260 attests this exact spelling/reading; select senses 1, 3 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1576260",
+      "senses": [
+        1,
+        3
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1773",
+      "beforeSha256": "c2428881cd2f4e1687514de5ac24f4649ab4b735b538c29fe8b0fed40a8ae0fb",
+      "reason": "JMdict 1176240 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1176240",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:179",
+      "beforeSha256": "5ccadd19299f94c5e3b79b90c4ef3431eb0b78e1a5e71a5dcfb6d9919a8e0c1f",
+      "reason": "JMdict 1576150 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1576150",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1848",
+      "beforeSha256": "057e5d382f83e55963a6e07d79f6310efc7dd7986e1e47888416117f9adc29b3",
+      "reason": "The reference ID 1216210 now lists やかた. Entry 2868182 supports 館/たち; select the mansion sense and retain its poetic usage and esp. たち note. The small-castle note is esp. たて and is not selected.",
+      "kind": "dictionary-supplement",
+      "entryId": "2868182",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:1884",
+      "beforeSha256": "bcdda2954ed957db1d90a1ad62a2518993157ef504f4bc0bd1a4df6fe3906eee",
+      "reason": "Select the derogatory nominal suffix sense 6, with its noun/na-adjective usage note. Do not import the unrelated sauce sense or present the reference as a neutral adjective.",
+      "kind": "dictionary-supplement",
+      "entryId": "1370860",
+      "senses": [
+        6
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:19",
+      "beforeSha256": "7de796abf4c5a3886f80f38889b03a371979eada5b2ad02c396b0a96c046427d",
+      "reason": "JMdict 1000225 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1000225",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1910",
+      "beforeSha256": "621e13080e19ba605a698946c01edcc765bcd6887a7314347d11b9110061abaa",
+      "reason": "JMdict 1007340 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1007340",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1938",
+      "beforeSha256": "b7145ba9c7ce5bef11f9d8aa03c427a7d8ffe87d81fe80dce3e8b9ef23cf223a",
+      "reason": "JMdict 1497690 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1497690",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1944",
+      "beforeSha256": "2288803e834cbadf0fdd19a24056ac81fec3a63cdaa6486d3e45aa4bf8d82038",
+      "reason": "著/ちょ denotes written work or authorship in the pinned entry. The reference clothing-counter/arrival gloss belongs to a different written form and is not imported.",
+      "kind": "dictionary-supplement",
+      "entryId": "1956680",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:1955",
+      "beforeSha256": "f6bafc4b7398f74bdf6c8048b96345debd33de5a2413be3303276e778d125b0f",
+      "reason": "JMdict 1581710 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1581710",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:1959",
+      "beforeSha256": "8b1fd9f35d241f4a72801a416db576f0855be5b6b830b4e7a0a8323542fcc355",
+      "reason": "JMdict 1581690 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1581690",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:2039",
+      "beforeSha256": "5ec150878b0d4cab573b43c6c63995397338f7c7a843c532d413dc524728eb3e",
+      "reason": "JMdict 2545840 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2545840",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:219",
+      "beforeSha256": "9da7a972be5f1cf810e776f34df2d2bd0667dd2a9e4dbac3a7ef08c649703043",
+      "reason": "JMdict 1582820 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1582820",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:2243",
+      "beforeSha256": "05fa515d126374b2f86ab3560975097c2a376142dff1696c943617ba5bb7375f",
+      "reason": "The pinned full JMdict search has no exact word pair 働/どう. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:2321",
+      "beforeSha256": "954dc9bb1e60a0a426b7ed2dce736cca2bf8e48cabe5302e45dad990cafa481d",
+      "reason": "JMdict 1579630 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1579630",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:2334",
+      "beforeSha256": "479eb6eee2da1c49a3ba76cb7e5fe79f82cb63e4549b7484f51352da6ca5bd86",
+      "reason": "JMdict 1642720 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1642720",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:2368",
+      "beforeSha256": "fa163f09a67cda165426f4fe7ac0fc3b37b4c50ddaa06b046a12052fe2319446",
+      "reason": "JMdict 1582670 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1582670",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:24",
+      "beforeSha256": "824587f92671775ef303c56f469768d72718fdd5855a0a012f2c69da1c04185d",
+      "reason": "JMdict 1580270 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1580270",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:2506",
+      "beforeSha256": "6bd9331bb0b2a95b643cf5154af5aadc24072bad7c96cb796ed4f4308829f063",
+      "reason": "JMdict 2834093 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2834093",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:2543",
+      "beforeSha256": "00cf9b72a2564825333b6741a183bf1becb2582da009f2f7a58c69c4c6018b8c",
+      "reason": "The pinned full JMdict search has no exact word pair 伐/ばつ. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:2547",
+      "beforeSha256": "dda81bc581f8cd5bfe17ec91ae7a9ecb87d7623661cd2a297355081945dff038",
+      "reason": "JMdict 1478440 attests this exact spelling/reading; select senses 3 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1478440",
+      "senses": [
+        3
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:2548",
+      "beforeSha256": "6904e3f07adfcba72d469a66e9c40ce2375cd07d0eb67c4bf63037f35287620c",
+      "reason": "万/ばん is the adverb completely/absolutely with a negative sentence; preserve that usage note. Do not import the reference many/all gloss or merge with 万/まん.",
+      "kind": "dictionary-supplement",
+      "entryId": "1525750",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:2750",
+      "beforeSha256": "be76474243637fa8f06f1143b78168b8a2c161c3152e7733c764ca33473ff584",
+      "reason": "The pinned full JMdict search has no exact word pair 倣/ほう. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:2785",
+      "beforeSha256": "1a9043ed1f38aecbe1c8dd453552ac8361bfba0713724338e1e01328b92c039c",
+      "reason": "JMdict 1209620 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1209620",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:2797",
+      "beforeSha256": "038d5540eec97c6e0aeec3fd809ce4457e29d74ccb9ff14f4e01b324ced4adb4",
+      "reason": "辺り/ほとり denotes the side, edge, bank or shore, especially of water. Do not import the broader vicinity gloss from 辺り/あたり.",
+      "kind": "dictionary-supplement",
+      "entryId": "2842190",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:2879",
+      "beforeSha256": "cf945085ae4855f26c5ed64493aded407826e5579d61e8126b256474501826f1",
+      "reason": "JMdict 1437270 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1437270",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:29",
+      "beforeSha256": "29991fa611b8f46474e506b17092a623d10c9be34a51fc7b0065c705eac21ec0",
+      "reason": "JMdict 1201960 attests this exact spelling/reading; select senses 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1201960",
+      "senses": [
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:2946",
+      "beforeSha256": "c743bb7b9671e4f582a155d6d4edd6a2aa77b7981a524b404625cab6d9151cd7",
+      "reason": "JMdict 1585310 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1585310",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:3043",
+      "beforeSha256": "1803b0503b19b8fb112f1fad5f23424e3a564687990ba75e27091bd9803266f6",
+      "reason": "哉/かな is an archaic exclamatory particle in the pinned entry, not a question-mark noun. Retain the archaism/kana usage labels.",
+      "kind": "dictionary-supplement",
+      "entryId": "1579220",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:3047",
+      "beforeSha256": "7881f71014d550ffc79a86feea06a2d737aa566be4815f832d1de18b87a3f86a",
+      "reason": "Select night travel/walking around at night only. The night-train sense is restricted to やこう, not the reference reading やぎょう.",
+      "kind": "dictionary-supplement",
+      "entryId": "1584820",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:3061",
+      "beforeSha256": "db0b2336ebbda1ece7425ec5fa555a6c986f86309f5fbce955093c20e500e50f",
+      "reason": "JMdict 1537780 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1537780",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:3138",
+      "beforeSha256": "24a1d585e704572df62cb066d7f35003284dd471e6c957d14fab70da86258a07",
+      "reason": "JMdict 1605980 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1605980",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:323",
+      "beforeSha256": "8aa4216b1f63e850978f8a42f41a4942a9288350a3eb4e208b2ffe5c40437cfb",
+      "reason": "The pinned full JMdict search has no exact word pair 於/お. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:334",
+      "beforeSha256": "f9f0554f1e41d0f5d7b4b2492427b309886237907a8af5f753400cd22ae361ec",
+      "reason": "JMdict 1576760 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1576760",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:427",
+      "beforeSha256": "4ae84026c2c2d4f388f35cf5386525eb7cd1710056b49e99c7128dc0eda605bc",
+      "reason": "Select important post/heavy responsibilities. The company-director sense is restricted to じゅうやく, not おもやく.",
+      "kind": "dictionary-supplement",
+      "entryId": "1336770",
+      "senses": [
+        2
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:446",
+      "beforeSha256": "9eb2ba54504ca126a09f5d5e64e45fd9b13a208211b1128f39b3f439f0422c22",
+      "reason": "The pinned full JMdict search has no exact word pair 仮/か. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:448",
+      "beforeSha256": "0d4275b11c7a1b18b4f41689f14f97bcacdcb05cca6ac3a66b34f2d61a38cc62",
+      "reason": "JMdict 2220320 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2220320",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:513",
+      "beforeSha256": "30a415e006895c9dd56d3ade6ef0471d55e8c4d1f4eecc6dceccfc0f486cac15",
+      "reason": "For 翔る, select the flying/soaring sense and its usual-spelling note. The reference running/galloping gloss conflates 駆ける; do not transfer that source definition.",
+      "kind": "dictionary-supplement",
+      "entryId": "1570710",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:52",
+      "beforeSha256": "b82b115f9f202a5686fcd7d2f797d762f06c75867c9e5e7d3a5dff641931e8e5",
+      "reason": "Select another person/others. The unrelated-person and outsider/stranger senses are restricted to たにん, not あだびと.",
+      "kind": "dictionary-supplement",
+      "entryId": "1581400",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:544",
+      "beforeSha256": "76be0bd7f7816b61d73ad40f941908f5c246ddbd64c2aaa5518758e68db1e0d7",
+      "reason": "JMdict 1578210 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1578210",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:555",
+      "beforeSha256": "4e9e2ed83d79e2477d862b604e9f6f399487074849a8a0815defbc12ef750018",
+      "reason": "The pinned full JMdict search has no exact word pair 割/かつ. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:561",
+      "beforeSha256": "08cc07248064e1797c49f4e60c6e0eb754cb76bcfedd3bb40521889a486a009b",
+      "reason": "Select the metal/iron rod and crowbar sense. The horizontal gymnastics bar gloss is not supported for this reference entry/reading.",
+      "kind": "dictionary-supplement",
+      "entryId": "1682400",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:564",
+      "beforeSha256": "698b934bcfbc2560fb9d53569367068f1d668ca0896dc6ca7d0f1180fd7c527d",
+      "reason": "The entry supports treasure house/treasury and financial supporter for かねぐら. Do not transfer the safe/vault gloss from 金庫/きんこ.",
+      "kind": "dictionary-supplement",
+      "entryId": "1578130",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:600",
+      "beforeSha256": "93391c974c0d78d580e2800c50da3469c45a74d2d5753672056cdcbbe0efb7b3",
+      "reason": "The pinned full JMdict search has no exact word pair 乾/かん. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:602",
+      "beforeSha256": "c268f5b12ce8650b9af91b1d70d574d8ebd15126260d035950310fc6c7c2e1b2",
+      "reason": "The linked vocabulary entry 1577640 permits 幹/みき, not 幹/かん. The reference reading is instead attested as the on-reading カン in KANJIDIC2 and is already represented by the 幹 character card; retain the original reference without creating a word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:603",
+      "beforeSha256": "1ae93d9d0d99ed238dffba5a0ae083c222b03005043f094d34e5a9b6e96de191",
+      "reason": "Select the permitted cap/crown and best/peerless senses. Top radical and naming/sponsorship are restricted to かんむり, not かん.",
+      "kind": "dictionary-supplement",
+      "entryId": "1577620",
+      "senses": [
+        1,
+        2,
+        5
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:644",
+      "beforeSha256": "9255399a8b1e480ce1b79c0a42a0203186b330a428fff987e7dfa641040c4c6a",
+      "reason": "The pinned full JMdict search has no exact word pair 蓋/がい. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:732",
+      "beforeSha256": "5d9bc5e6d55bdf0e1f36198b18dab0e037cf5a2589f0719142070d99f5a88b21",
+      "reason": "Retain indication/sign and market tone. Do not carry forward the unsupported worry gloss.",
+      "kind": "dictionary-supplement",
+      "entryId": "1222510",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:762",
+      "beforeSha256": "2f7d7a81810a844bf48dd3f8bdec9d67bc3f262c574c33bd7525eb1035899efa",
+      "reason": "JMdict 1233550 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1233550",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:784",
+      "beforeSha256": "a6616866c882182256c5f5b88bc9c5cc05504f44ff8d737f78dd2b419e24c1d9",
+      "reason": "JMdict 1579490 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1579490",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:811",
+      "beforeSha256": "f404c94c08c496ebbcbdb741abdbbfeaf84bd07861123ae60c6101ac4425460a",
+      "reason": "JMdict 1534870 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1534870",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:813",
+      "beforeSha256": "3f2e37ea0cd6874e985400b19f9c7a1bba9e16e75abd02987a01b6d39ca29d2e",
+      "reason": "JMdict 1592000 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1592000",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:816",
+      "beforeSha256": "817408ab2deca62f8a93e05f58cf352d2c0c7cc0f0e7d7f54989d8494aa6ee6d",
+      "reason": "Select soon/before long. The nearby/close sense is restricted to ちかぢか, not きんきん.",
+      "kind": "dictionary-supplement",
+      "entryId": "1578110",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:871",
+      "beforeSha256": "e4eb1c3179426c512b4ac3e565a2264785c7f285540f38c45b649024de0c7a74",
+      "reason": "JMdict 1286320 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1286320",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:894",
+      "beforeSha256": "1b31eea28ca3683885c6e4a584660baba345dc64b8c067617e5b2aee98a7c8da",
+      "reason": "頃/けい denotes the rare Chinese land-area unit qing in the linked entry, not time/about. Retain the rare label, the original time gloss and the unapproved community N1 provenance; do not merge with 頃/ころ.",
+      "kind": "dictionary-supplement",
+      "entryId": "2210780",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:895",
+      "beforeSha256": "a64fc106cc75d7f3104be2c9c90485ddc605e7aca65ecfef9425630cf00f5718",
+      "reason": "The pinned full JMdict search has no exact word pair 傾/けい. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N1:920",
+      "beforeSha256": "7bf866711626b066a40e8050fa71289d8b370c1cba27ec5fadaccce79243e528",
+      "reason": "Use the linked entry for violation/corruption/pollution/staining. Preserve the distinction from the general getting-dirty reading よごれる.",
+      "kind": "dictionary-supplement",
+      "entryId": "1179000",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N1:970",
+      "beforeSha256": "76b2206e7368ca74cc89bd2a986acbce47c0e936ce32b1db6940d37c5c02767a",
+      "reason": "JMdict 1263760 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1263760",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N1:987",
+      "beforeSha256": "71917b907414f3243c050626b617cf16fd88f2a1a58cbb841c74323e68e35082",
+      "reason": "The pinned full JMdict search has no exact word pair 巨/きょ. Its on-reading is present in the verified KANJIDIC2/source character card. Account for this reference as character-reading coverage, retaining its original gloss and N1 provenance without inventing a standalone word.",
+      "kind": "character-reading",
+      "readingType": "ja_on"
+    },
+    {
+      "sourceRow": "N2:1248",
+      "beforeSha256": "15f19797f190b8cfafef53c86fc5df3b2a0e7238910efffbdf80484967ab58e7",
+      "reason": "The reference has no gloss. Use only the explicitly selected English dictionary senses 1 for the exact pair, preserving its community level and the empty original definition.",
+      "kind": "dictionary-supplement",
+      "entryId": "1632290",
+      "senses": [
+        1
+      ],
+      "glossStatus": "missing"
+    },
+    {
+      "sourceRow": "N2:1313",
+      "beforeSha256": "50daf1c8495894698ee1f73443c4f66f01d72d2ece65fea6dd44a1b10313f2f0",
+      "reason": "For のろい select thickheadedness and slowness. The knife-bluntness gloss belongs to a different reading/entry and is not imported.",
+      "kind": "dictionary-supplement",
+      "entryId": "2838553",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N2:1345",
+      "beforeSha256": "8af8445a7353f411fd85a8c57c11af44d9775e281f8d609dcedc6878d05033d4",
+      "reason": "The reference has no gloss. Use only the explicitly selected English dictionary senses 1 for the exact pair, preserving its community level and the empty original definition.",
+      "kind": "dictionary-supplement",
+      "entryId": "2197150",
+      "senses": [
+        1
+      ],
+      "glossStatus": "missing"
+    },
+    {
+      "sourceRow": "N2:1692",
+      "beforeSha256": "cca15c39120cd8c7605ee923f6264866a9cbc286ba221cfdcdfb9fcb597008ec",
+      "reason": "JMdict 2857870 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2857870",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N2:1710",
+      "beforeSha256": "e0d088dcd0cc6049d20c4527eb4d900e1291676728a552e201b9c4cc1a6ba02d",
+      "reason": "JMdict 1537780 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1537780",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N2:178",
+      "beforeSha256": "c593c21e66875bb6b6e6f2eb4e3d980bfcfbec3531ee681b9ece2c443db8c360",
+      "reason": "The reference has no gloss. Use only the explicitly selected English dictionary senses 1 for the exact pair, preserving its community level and the empty original definition.",
+      "kind": "dictionary-supplement",
+      "entryId": "2847540",
+      "senses": [
+        1
+      ],
+      "glossStatus": "missing"
+    },
+    {
+      "sourceRow": "N2:194",
+      "beforeSha256": "094f07fa71deecdbde116d0129079dac10bb2d60b2e02be156620b1f544ff7b9",
+      "reason": "JMdict 1693840 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1693840",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N2:650",
+      "beforeSha256": "261db41e4c39cf684813e3eb03bb3c8c1e25e0a5aac1d96a736b6e070e5055c3",
+      "reason": "JMdict 1631970 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1631970",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N2:678",
+      "beforeSha256": "85dd8072275b46711c3498a98186ba6bfa2e70864d39f8743da17476c33aeb13",
+      "reason": "JMdict 1320410 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1320410",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N2:73",
+      "beforeSha256": "6add278a6290dad2dcfc87102623dd704364086bd554e288c06d641cc9b5b8d0",
+      "reason": "JMdict 1164690 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1164690",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N2:76",
+      "beforeSha256": "92a4ac7e821a1c750e5902813d4962b63aa31c95d36eea87708328f6200270fb",
+      "reason": "JMdict 1576050 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1576050",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1105",
+      "beforeSha256": "ebe32467791a983551b6c83c2b799512100889e063ad72ed19302fcff2dabfb0",
+      "reason": "JMdict 2145240 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2145240",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1156",
+      "beforeSha256": "e93bd9fe94ebb47b20dc9f2a085b5633c39be17fb2307f1b95b4e6ef6020094a",
+      "reason": "JMdict 1445160 attests this exact spelling/reading; select senses 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1445160",
+      "senses": [
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1160",
+      "beforeSha256": "1d06ce6f6493e9767aa2951eeed3229f74c2a967a358d7025c893db2c9a6d8ce",
+      "reason": "Select the derogatory/emphatic prefix sense from the linked entry. The reference child/servant noun gloss is not supported by this pair.",
+      "kind": "dictionary-supplement",
+      "entryId": "2252690",
+      "senses": [
+        2
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:1226",
+      "beforeSha256": "30e82a2bf015ad3ca1f9db14a16da8577b9ca50788e6714aa1102466b51f0db2",
+      "reason": "Select straight and ordinary/common. Do not transfer the unsupported mischief gloss.",
+      "kind": "dictionary-supplement",
+      "entryId": "1430580",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:1265",
+      "beforeSha256": "c3e8e83f70baf0a1af193368a458cf31cd348317e72d6423bd07be859553c871",
+      "reason": "JMdict 1582710 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1582710",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1284",
+      "beforeSha256": "3ca59b513b6bc062b1402dacc78c0c74f63ce5d4ee18ad5dc5c71f862fd2cd2b",
+      "reason": "JMdict 1582870 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1582870",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1313",
+      "beforeSha256": "f234f7c16ad04dff21f219ae114c7c6905db0023a89ab56472a7e2f8e5954cc0",
+      "reason": "JMdict 1582960 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1582960",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:134",
+      "beforeSha256": "9b15394fe0403d505765e09ef438557605bc4bc7ac484a532da2f20ddf0cc9bf",
+      "reason": "JMdict 1578010 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1578010",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1386",
+      "beforeSha256": "bb4181225d102d0ed8bdd971938cb22f8a9f569ff934080fb7e493f42d72413f",
+      "reason": "JMdict 1207510 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1207510",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1413",
+      "beforeSha256": "1359e3371e16a5ea3eda81ab3d07aa540a9a2fee6d1bb90307fa26b66cc30a92",
+      "reason": "JMdict 2648780 attests this exact spelling/reading; select senses 1, 2, 3 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2648780",
+      "senses": [
+        1,
+        2,
+        3
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1418",
+      "beforeSha256": "52f0be25a0c6d56a55094c8452830f1d427c5a6f3f9e9d4b4e6f13dc16f1ba8d",
+      "reason": "JMdict 2423740 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2423740",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1419",
+      "beforeSha256": "7ae2b5467a4efb3d146a25071487b463b7751b2fd7971bd75b3cebfe28b6923a",
+      "reason": "無/ぶ is the negative prefix in this entry, sharing 不/ぶ. Do not transfer the nothing/zero meaning from 無/む.",
+      "kind": "dictionary-supplement",
+      "entryId": "2423740",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:1420",
+      "beforeSha256": "0dd1343d79ae94563b881c468102bb9619acebf4d7beb2404a4ef47df80d55f3",
+      "reason": "分/ぶ has fractional/unit senses. Select sense 1 with its explicit units; do not transfer the generic dividing/part gloss from other readings.",
+      "kind": "dictionary-supplement",
+      "entryId": "1502850",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:1489",
+      "beforeSha256": "7dcec53243429dab80859222c42b9fee8dcab15c6ea72f1399f5ad1503b9847f",
+      "reason": "方々/ほうぼう is here and there/everywhere, not the persons sense of 方々/かたがた.",
+      "kind": "dictionary-supplement",
+      "entryId": "1584105",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:1507",
+      "beforeSha256": "b6e10d3e40e61f3907ec8baff6501b19e776ff884512f621ca7e2dd17600843b",
+      "reason": "JMdict 1584160 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1584160",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1512",
+      "beforeSha256": "353098c8e91ef3dcc4e85da5b0902a2fd22e7c4cbf869bfad8cc07d6a515f11a",
+      "reason": "JMdict 1523060 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1523060",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1606",
+      "beforeSha256": "a9d179a5db7336fcc343010e7478e1514f67d3fa962b8417d5155fb741b00c51",
+      "reason": "JMdict 1505390 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1505390",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1628",
+      "beforeSha256": "3a52200a38ee17bfc0f45140ec121690e5d404da87fffbb9c56c1b23cd5da710",
+      "reason": "訳/やく denotes translation/version. Do not transfer the reason/circumstances sense from 訳/わけ.",
+      "kind": "dictionary-supplement",
+      "entryId": "2057030",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:1655",
+      "beforeSha256": "19aec5739edac1ece5e24f72e118a5e81950b4f0e5734a42b75fe9cfbcfe4aa5",
+      "reason": "JMdict 1536350 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1536350",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:170",
+      "beforeSha256": "5b191a6903b69297092454f231ea625c57f2a54aceed58e421cef9bc548abd35",
+      "reason": "JMdict 1454500 attests this exact spelling/reading; select senses 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1454500",
+      "senses": [
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:1725",
+      "beforeSha256": "76f2edd66ef77935d3457bf3c0d5fe46cfb19b5c98eb5a798c5c3c3d59c2f075",
+      "reason": "JMdict 1533340 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1533340",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:264",
+      "beforeSha256": "6a2a114d89bb29d5650290b2881b9418d63bf29c8b6588bf26ecf6ad4191754f",
+      "reason": "Select drawing/painting/sketching. The figurative depict/describe sense is restricted to えがく, not かく.",
+      "kind": "dictionary-supplement",
+      "entryId": "1583460",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:314",
+      "beforeSha256": "9fc296a87b217d4b14e890428d2e8cc00ae5d0e54dbc0cb02ae069e483ae7a58",
+      "reason": "For 上/かみ select government/imperial court. First volume and superior quality are not selected from the separate 上/じょう entry.",
+      "kind": "dictionary-supplement",
+      "entryId": "1352150",
+      "senses": [
+        6
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:322",
+      "beforeSha256": "10c778a2b0aeef90515dd463e92e55684e6f1516203b9273a5bbdf500fc2c6be",
+      "reason": "柄/がら denotes a pattern/design here, not the hilt/handle sense of 柄/え.",
+      "kind": "dictionary-supplement",
+      "entryId": "1508300",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:427",
+      "beforeSha256": "a4aa680d7c49060dbb4cad3bffd679a684157bea50a48800ec31be6916ca7cf8",
+      "reason": "JMdict 1242600 attests this exact spelling/reading; select senses 1, 11 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1242600",
+      "senses": [
+        1,
+        11
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:480",
+      "beforeSha256": "71277cabdee95ca1cdeb40f00cc2a056c04ee1114e50cdfeaeec1e5faf5da627",
+      "reason": "下/げ denotes lower quality/inferiority or a final volume. Do not import generic spatial under/below from 下/した.",
+      "kind": "dictionary-supplement",
+      "entryId": "2080200",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:511",
+      "beforeSha256": "3adfcaf0dc72ddfd22a477025a477ea9677aae7edb60d35d65bb2f08d7ade74d",
+      "reason": "JMdict 2078590 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2078590",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:530",
+      "beforeSha256": "75c4bffb5965edfb56ecb89fd1d5ef6de4c67939bf1aeca1e1eb614e7418cfd0",
+      "reason": "JMdict 2147630 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2147630",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:62",
+      "beforeSha256": "302744d7e1c0a167788fc7bdf48379414719b3760fc90c3ab6e56efc32da9049",
+      "reason": "JMdict 1578790 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1578790",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:720",
+      "beforeSha256": "f43f8fee99141864b3d20aba341e334ff1ba751456e83584703cec184f3afc03",
+      "reason": "JMdict 2080210 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2080210",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:766",
+      "beforeSha256": "55f842917fe15d1e0fc82ff0ec9322728da3b4c0ba14f5e47f6b72020517cac1",
+      "reason": "For 上/じょう select superior quality and first volume. Do not transfer the government sense from 上/かみ.",
+      "kind": "dictionary-supplement",
+      "entryId": "1352170",
+      "senses": [
+        3,
+        4
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:849",
+      "beforeSha256": "c3cc77070faf72b61f2a06d22a2d4667dc605f9566bc7db7b98c95fff7596293",
+      "reason": "JMdict 1580825 attests this exact spelling/reading; select senses 2, 4 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1580825",
+      "senses": [
+        2,
+        4
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N3:881",
+      "beforeSha256": "6905e347a0a1603447f989482b0c0df41ecb355bf16f91aed91584771d3dfcf0",
+      "reason": "生/せい denotes life/living in the selected sense, not draft beer/rawness from 生/なま. Keep those readings distinct.",
+      "kind": "dictionary-supplement",
+      "entryId": "2088240",
+      "senses": [
+        1
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N3:935",
+      "beforeSha256": "4071e3665caec0d142cff17a6bf0436789455945da36baf40cb4861f694e02bf",
+      "reason": "JMdict 2137720 attests this exact spelling/reading; select senses 1, 2 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2137720",
+      "senses": [
+        1,
+        2
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N4:190",
+      "beforeSha256": "e6b4aba6d7ccf7bfb779a982c297a6d27c9ef5b7836e0536e9a791a01c37f197",
+      "reason": "JMdict 1247260 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1247260",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N4:394",
+      "beforeSha256": "9b98e8126b4693bf78413bec026c624ff53338fda5a5d3d0fff0a67bd1a778b9",
+      "reason": "チェック is the inspection/check noun and suru base in sense 2. Do not label the unsuffixed form as the verb チェックする or select the plaid sense.",
+      "kind": "dictionary-supplement",
+      "entryId": "1077550",
+      "senses": [
+        2
+      ],
+      "glossStatus": "corrected"
+    },
+    {
+      "sourceRow": "N4:602",
+      "beforeSha256": "b6807ee329830cca834c8c326e666be2123b99c5f2dd0bcc1dc48c365726d7c5",
+      "reason": "JMdict 1310680 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1310680",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N5:387",
+      "beforeSha256": "dc379e745b469734d7d46e9e7cb9d7c911a0e0aebf7b6602860da43e379efc66",
+      "reason": "JMdict 2225040 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "2225040",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N5:645",
+      "beforeSha256": "fda3fe1d6670e9ccf3b3c739f84825376ddb42ea90794504feee26e814274373",
+      "reason": "JMdict 1578850 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1578850",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    },
+    {
+      "sourceRow": "N5:680",
+      "beforeSha256": "6f7f206f07df7035b1eb6feab4110fec9fd29c14689e83120fbb4b17b68d5201",
+      "reason": "JMdict 1311110 attests this exact spelling/reading; select senses 1 compatible with the reference. Preserve the community level, reading restrictions and usage notes; do not merge with another source record or import unrelated dictionary senses.",
+      "kind": "dictionary-supplement",
+      "entryId": "1311110",
+      "senses": [
+        1
+      ],
+      "glossStatus": "aligned"
+    }
+  ]
+}

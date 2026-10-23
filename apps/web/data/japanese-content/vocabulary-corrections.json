@@ -1,0 +1,860 @@
+{
+  "schemaVersion": 1,
+  "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
+  "referenceResolutions": [
+    {
+      "sourceRow": "N5:109",
+      "beforeSha256": "913f5a940e615d88bb03aa9c71a1f51dc18a2cc6a1d279b6e912fae26a95c47f",
+      "expectedCandidateIds": ["997f2be694", "b6e9e55b54", "ea45ce4bc8"],
+      "disposition": "multiple-senses",
+      "reason": "The reference combines uncle and familiar address. JMdict 2261490 sense 1 distinguishes 伯父さん (older than a parent) and 叔父さん (younger); sense 2 notes 小父さん or おじさん for familiar address. Preserve all three source records and their primary levels; do not merge kinship and address senses or infer a level approval.",
+      "coverage": [
+        { "id": "997f2be694", "entryId": "2261490", "sense": 1, "meaning": "uncle", "referenceGloss": "uncle" },
+        { "id": "ea45ce4bc8", "entryId": "2261490", "sense": 1, "meaning": "uncle", "referenceGloss": "uncle" },
+        { "id": "b6e9e55b54", "entryId": "2261490", "sense": 2, "meaning": "mister", "referenceGloss": "middle aged gentleman" }
+      ]
+    }
+  ],
+  "phraseSources": [
+    {
+      "id": "phrase-irodori",
+      "role": "phrase",
+      "url": "https://www.irodori-online.jpf.go.jp/a2-1/references/vocabulary/assets/pdf/reference-vocabulary-list-en.pdf",
+      "filename": "phrase-irodori-a2-1-vocabulary.pdf",
+      "integrity": {
+        "algorithm": "sha256",
+        "digest": "2c89bcfca446cea4354eb2ce6a3394f5d5ea690f997e5ac961c5b4b6a3ce2534"
+      },
+      "source": "https://www.irodori-online.jpf.go.jp/a2-1/references/vocabulary/assets/pdf/reference-vocabulary-list-en.pdf",
+      "license": "Copyright retained by source publisher; citation only, no source-page redistribution",
+      "title": "IRODORI online course — Elementary 1 vocabulary list (English)",
+      "publisher": "The Japan Foundation",
+      "retrievedAt": "2026-10-23",
+      "use": "citation-only"
+    },
+    {
+      "id": "phrase-nihongokentei",
+      "role": "phrase",
+      "url": "https://www.nihongokentei.jp/check/level4/keigo-4-1.html",
+      "filename": "phrase-nihongokentei-keigo.html",
+      "integrity": {
+        "algorithm": "sha256",
+        "digest": "4c4353183913bc8e8835c5813ec7bfef5fcf235e25d848e216f3267ad5407a00"
+      },
+      "source": "https://www.nihongokentei.jp/check/level4/keigo-4-1.html",
+      "license": "Copyright retained by source publisher; citation only, no source-page redistribution",
+      "title": "日本語検定 — 敬語 explanation, 2015-04-24",
+      "publisher": "日本語検定委員会",
+      "retrievedAt": "2026-10-23",
+      "use": "citation-only"
+    },
+    {
+      "id": "phrase-daijisen",
+      "role": "phrase",
+      "url": "https://kotobank.jp/word/%E8%A1%8C%E3%81%A4%E3%81%A6%E3%82%89%E3%81%A4%E3%81%97%E3%82%84%E3%81%84-680807",
+      "filename": "phrase-daijisen-greeting.html",
+      "integrity": {
+        "algorithm": "sha256",
+        "digest": "aaaa92b20c4de3624d801ff2838f7b4c77710bcd4dda498f013b7010d344922d"
+      },
+      "source": "https://kotobank.jp/word/%E8%A1%8C%E3%81%A4%E3%81%A6%E3%82%89%E3%81%A4%E3%81%97%E3%82%84%E3%81%84-680807",
+      "license": "Copyright retained by source publisher; citation only, no source-page redistribution",
+      "title": "デジタル大辞泉 — 行ってらっしゃい",
+      "publisher": "小学館, via コトバンク",
+      "retrievedAt": "2026-10-23",
+      "use": "citation-only"
+    }
+  ],
+  "records": [
+    {
+      "id": "0435dab637",
+      "beforeSha256": "aad4ba42e0b6cb21878058dac2e7f392750d48e6e5154a0bbad51c1b48781351",
+      "reason": "JMdict 2853889 lists both けれど and けれども. Declare the alternate pronunciation as well as its spelling.",
+      "status": "corrected",
+      "patch": {
+        "other_readings": [
+          "けれども"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "2853889"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "063c94089d",
+      "beforeSha256": "bf8bad7114b3f0b77509d4c433355bb14881b7dd194839201770a05b36ccca82",
+      "reason": "Retain けんかする as the explicitly authored suru construction of the quarrel/fight sense in JMdict 1257040 (vs).",
+      "status": "corrected",
+      "patch": {},
+      "evidence": {
+        "dictionaryIds": [
+          "1257040"
+        ],
+        "derivations": [
+          {
+            "kind": "suru",
+            "entryId": "1257040",
+            "sense": 1,
+            "baseWritten": "けんか",
+            "baseReading": "けんか"
+          }
+        ]
+      }
+    },
+    {
+      "id": "091c8c0e07",
+      "beforeSha256": "87a4b50ec457fa965ac245514b6e186f9773e4d3b1afd4b07fe6c4be585f4bc1",
+      "reason": "JMdict 1005900 lists じゃ and じゃあ. Keep the source spelling alternative and its matching reading.",
+      "status": "corrected",
+      "patch": {
+        "other_readings": [
+          "じゃあ"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1005900"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "192cd7a066",
+      "beforeSha256": "46283058c5b5e59d30e4418d95b04b8c28a123dff4c1038408bf50d638f47b4b",
+      "reason": "Use the dictionary's kana headword しなやか (JMdict 1566110), whose first sense exactly matches supple/flexible/elastic. The source's 嫋か spelling is not listed in this pinned entry and remains in original-content provenance.",
+      "status": "corrected",
+      "patch": {
+        "word": "しなやか",
+        "pos": [
+          "adj-na"
+        ],
+        "jmdict_id": 1566110
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1566110"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "24113c7b64",
+      "beforeSha256": "24434a23a8befb8d53fd92b999b2cdf0b12d57a0c3e7b621647d7669e29b5be1",
+      "reason": "JMdict 1569020 lists 煌々/こうこう with the bright/brilliant sense and adv-to tag. Link 煌々と explicitly to this construction, not to another こうこう homophone.",
+      "status": "corrected",
+      "patch": {
+        "pos": [
+          "adv"
+        ],
+        "jmdict_id": 1569020
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1569020"
+        ],
+        "derivations": [
+          {
+            "kind": "adverb-to",
+            "entryId": "1569020",
+            "sense": 1,
+            "baseWritten": "煌々",
+            "baseReading": "こうこう"
+          }
+        ]
+      }
+    },
+    {
+      "id": "251266e6d5",
+      "beforeSha256": "38a0f75c5225241d7384a573814729afa96867a95ece3e91461eac4a1e0a9640",
+      "reason": "JMdict 1537780 sense 2 is adj-na (indiscriminate/random/excessive), supporting the に adverb construction やたらに. The result is an adverb, not a direct headword.",
+      "status": "corrected",
+      "patch": {
+        "pos": [
+          "adv"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1537780"
+        ],
+        "derivations": [
+          {
+            "kind": "adverb-ni",
+            "entryId": "1537780",
+            "sense": 2,
+            "baseWritten": "やたら",
+            "baseReading": "やたら"
+          }
+        ]
+      }
+    },
+    {
+      "id": "28ba375980",
+      "beforeSha256": "27b85dc32f6fd50715ae2072ec8b3ca1ccee996f24f1ebd5ecd095ab24cada5c",
+      "reason": "JMdict 1164690 sense 1 (even/still more, further) is tagged adv-to and supports 一段と. Other senses of 一段 are not the evidence for this card.",
+      "status": "corrected",
+      "patch": {
+        "pos": [
+          "adv"
+        ],
+        "jmdict_id": 1164690
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1164690"
+        ],
+        "derivations": [
+          {
+            "kind": "adverb-to",
+            "entryId": "1164690",
+            "sense": 1,
+            "baseWritten": "一段",
+            "baseReading": "いちだん"
+          }
+        ]
+      }
+    },
+    {
+      "id": "321ba5716a",
+      "beforeSha256": "87e90f459ff48986028cf7622ce3bf6051c9ff3cb611e4dab4108d8fdb451b74",
+      "reason": "The Japan Foundation lists 少々お待ちください / Wait a moment please. Retain the complete request お待ちください; only the explicitly documented 少々 modifier is removed from the citation. The shorter phrase means 'please wait', so remove 'a moment' from its gloss. Preserve the source kana spelling and contextual example.",
+      "status": "attested",
+      "patch": {
+        "word": "お待ちください",
+        "pos": [
+          "exp"
+        ],
+        "meanings": [
+          "please wait"
+        ],
+        "other_forms": [
+          "おまちください"
+        ]
+      },
+      "attestation": {
+        "sourceId": "phrase-irodori",
+        "locator": "PDF page 15, lesson 10 vocabulary, row 2 column 3; visually checked with furigana and English gloss",
+        "quotedForm": "少々お待ちください",
+        "attestedWritten": "お待ちください",
+        "reading": "おまちください",
+        "meanings": [
+          "please wait"
+        ],
+        "normalization": "with-shoushou"
+      }
+    },
+    {
+      "id": "36016e0c51",
+      "beforeSha256": "0611bda0d512454f68d03aca46101b6ae6e4b50920c46f994f8614eda4f3570a",
+      "reason": "キロ is the abbreviation (JMdict 1042610). Its explicitly declared kilometre/kilogram expansions are separate entries 1042650 and 1042620, each with its own reading.",
+      "status": "corrected",
+      "patch": {
+        "other_readings": [
+          "キロメートル",
+          "キログラム"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1042610",
+          "1042650",
+          "1042620"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "3db8531d3b",
+      "beforeSha256": "767a9d00915241292dbe335c32144e5eedb7b86f7213e4efc942dd1b9a1b7204",
+      "reason": "小学館デジタル大辞泉 states that 行ってらっしゃい abbreviates 行っていらっしゃい and describes the departure greeting. This attests the full source expression without rewriting it to the contracted source record b95d04294a or claiming a JMdict headword.",
+      "status": "attested",
+      "patch": {
+        "word": "行っていらっしゃい",
+        "pos": [
+          "int"
+        ],
+        "other_forms": [
+          "いっていらっしゃい"
+        ]
+      },
+      "attestation": {
+        "sourceId": "phrase-daijisen",
+        "locator": "小学館デジタル大辞泉, 行ってらっしゃい entry, expansion note; cite only the expanded common expression",
+        "quotedForm": "行っていらっしゃい",
+        "attestedWritten": "行っていらっしゃい",
+        "reading": "いっていらっしゃい",
+        "meanings": [
+          "see you later",
+          "take care (said to someone leaving home)"
+        ],
+        "normalization": "none"
+      }
+    },
+    {
+      "id": "4ec7fe1166",
+      "beforeSha256": "d95df34a6a4ac5ccd78fd5ed6783bcbf3a7798b7bf0be0d23c2d3f3eec59f95f",
+      "reason": "Use the kana headword どれどれ in JMdict 1188630, whose first sense is emphatic 'which'. The source spelling 何々 belongs to なになに in a different entry and cannot be accepted for this reading.",
+      "status": "corrected",
+      "patch": {
+        "word": "どれどれ",
+        "pos": [
+          "pn"
+        ],
+        "jmdict_id": 1188630
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1188630"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "558866ef86",
+      "beforeSha256": "f858c11d674669e55c2353b358795061d3aee013ac1ff204c9a8d0ff279fe70b",
+      "reason": "The pinned dictionary separates 何/なん (JMdict 2846738) and 何/なに (1577100). Correct the primary link and retain the declared alternate reading with its own valid dictionary entry; do not reject either reading.",
+      "status": "corrected",
+      "patch": {
+        "jmdict_id": 2846738
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "2846738",
+          "1577100"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "5ac33a4880",
+      "beforeSha256": "15567baa39c2847400a0b1cd5a6f55c510ad667b51eb30fa6b2f29cc73603fcd",
+      "reason": "JMdict 1240530 sense 1 matches the 球/たま reference row's ball/sphere meaning. Retain 玉 and add its valid 球 spelling. Limit this effective card to that sense; the separate 弾 source record retains the bullet sense. Preserve the original coin gloss for traceability, not as part of this sense.",
+      "status": "corrected",
+      "patch": {
+        "meanings": [
+          "ball",
+          "sphere",
+          "globe",
+          "orb"
+        ],
+        "other_forms": [
+          "球"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1240530"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "79169045a2",
+      "beforeSha256": "44027eeaa9426ec8f7ef5bf8f1741c7f4ab01a6bd8045f7c9d9123bf1868a5c7",
+      "reason": "JMdict 1014210 lists アイディア as a separate kana form with its own reading. Retain the declared spelling and add its pronunciation.",
+      "status": "corrected",
+      "patch": {
+        "other_readings": [
+          "アイディア"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1014210"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "7a0b48d3e5",
+      "beforeSha256": "2594db070d23a74950aac56b8a21058a96007b0ee0b65f5f99bf8cb3be256b2f",
+      "reason": "JMdict separates やはり (2772770) and やっぱり (1012810), whose first senses explicitly cross-reference one another. Preserve both readings and replace the unsupported source gloss 'absolutely' with their shared first-sense glosses.",
+      "status": "corrected",
+      "patch": {
+        "meanings": [
+          "as expected",
+          "sure enough",
+          "just as one thought"
+        ],
+        "other_readings": [
+          "やっぱり"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "2772770",
+          "1012810"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "83a456da88",
+      "beforeSha256": "651034a7cebc6a31e037d02c89a473b01e0c66bdbae9eb07ffc1d194c2cd0a83",
+      "reason": "Use JMdict 1077550 sense 2 (inspection/examination, vs), not sense 1 (plaid/check pattern), to support チェックする. Correct the source POS to the verb use.",
+      "status": "corrected",
+      "patch": {
+        "pos": [
+          "vs",
+          "vt"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1077550"
+        ],
+        "derivations": [
+          {
+            "kind": "suru",
+            "entryId": "1077550",
+            "sense": 2,
+            "baseWritten": "チェック",
+            "baseReading": "チェック"
+          }
+        ]
+      }
+    },
+    {
+      "id": "8814988b80",
+      "beforeSha256": "e83878b0c9d83fc6d0ec4b0e2e91429195a0919a25239f4b2b3de92547d390e1",
+      "reason": "ちゅうっぱら is 中っ腹 (JMdict 1425430), not 中腹/ちゅうふく (mountainside, 1425440). Correct spelling and noun glosses; remove the unrelated hill-side sentence while preserving it in the original snapshot.",
+      "status": "corrected",
+      "patch": {
+        "word": "中っ腹",
+        "pos": [
+          "n"
+        ],
+        "meanings": [
+          "anger (held in check)",
+          "irritation",
+          "rage"
+        ],
+        "jmdict_id": 1425430,
+        "examples": []
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1425430"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "8fb005254a",
+      "beforeSha256": "d8e4dd34b324d33051d6ecc7f515e3354b8827d7da41d01df9c8f8d47e803c7a",
+      "reason": "Retain けがする using the injury/wound sense of JMdict 1200220, which is tagged vs. Do not confuse this with its separate mistake/accident sense.",
+      "status": "corrected",
+      "patch": {},
+      "evidence": {
+        "dictionaryIds": [
+          "1200220"
+        ],
+        "derivations": [
+          {
+            "kind": "suru",
+            "entryId": "1200220",
+            "sense": 1,
+            "baseWritten": "けが",
+            "baseReading": "けが"
+          }
+        ]
+      }
+    },
+    {
+      "id": "918e096f88",
+      "beforeSha256": "e14e2af7f7bda731dfb38dfa90ba21340bb6ad2b2e35d5dec1b3a605be2e34d7",
+      "reason": "JMdict 1053350 lists both コンピュータ and コンピューター. Preserve the long-vowel alternative as a complete word/reading pair.",
+      "status": "corrected",
+      "patch": {
+        "other_readings": [
+          "コンピューター"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1053350"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "91b50bd069",
+      "beforeSha256": "cd780b3363f3cd26a74068d6dca4616a7cc5dc25ddabd893aa66833ceb4b64bf",
+      "reason": "The Japan Foundation lists the complete parting expression お元気で with the gloss Take care. Use its attested kanji spelling while retaining the source kana form. Remove the source example asking おげんきですか / How are you: it is a different greeting, not a parting expression. Retain that example in the original snapshot.",
+      "status": "attested",
+      "patch": {
+        "word": "お元気で",
+        "pos": [
+          "exp"
+        ],
+        "other_forms": [
+          "おげんきで"
+        ],
+        "examples": []
+      },
+      "attestation": {
+        "sourceId": "phrase-irodori",
+        "locator": "PDF page 31, parting expressions, row 6 column 2; visually checked with furigana and Take care gloss",
+        "quotedForm": "お元気で",
+        "attestedWritten": "お元気で",
+        "reading": "おげんきで",
+        "meanings": [
+          "take care",
+          "stay well (said when parting)"
+        ],
+        "normalization": "none"
+      }
+    },
+    {
+      "id": "924572e50c",
+      "beforeSha256": "f62a4f4b396aa285241b4d062875e7944806b3971d78500f7be798ecb8fbb91d",
+      "reason": "ラジカセ (JMdict 1138960) and its declared expansion ラジオカセット (1138900) are separately listed; retain both exact kana pairs.",
+      "status": "corrected",
+      "patch": {
+        "other_readings": [
+          "ラジオカセット"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1138960",
+          "1138900"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "997f2be694",
+      "beforeSha256": "3ff7139df5cd0365cbebfd6e67efad38ec25679081f922599c343ff4044a135d",
+      "reason": "JMdict 2261490 sense 1 is uncle; its note distinguishes 伯父さん as older than one's parent. Remove the unrelated generic-address gloss from this written form. Preserve the original source senses and level in provenance.",
+      "status": "corrected",
+      "patch": {
+        "meanings": [
+          "uncle"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "2261490"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "a3e1ac6ec4",
+      "beforeSha256": "8d1dc0c46694d7d99ac9e58ea1b963fed59960503b6c60b08194b35d046f5049",
+      "reason": "Use the complete expression によると (according to someone), JMdict 1009670, rather than the unsupported fragment よると linked to the general verb 依る. Both retained source examples already contain によると.",
+      "status": "corrected",
+      "patch": {
+        "word": "によると",
+        "reading": "によると",
+        "romaji": "niyoruto",
+        "pos": [
+          "exp"
+        ],
+        "jmdict_id": 1009670
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1009670"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "a58874b751",
+      "beforeSha256": "ec2261c24ae007578e97e84967f33c8aeb09f83bf1083bfc02b65863e5db6f1c",
+      "reason": "The source's かねもち is the reading of 金持ち (JMdict 1242970), not お金持ち (2429350). Retain both valid pairs with separate entry IDs. Use the gender-neutral dictionary glosses.",
+      "status": "corrected",
+      "patch": {
+        "meanings": [
+          "rich person",
+          "wealthy person"
+        ],
+        "other_forms": [
+          "金持ち"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "2429350",
+          "1242970"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "ab4a88a2c0",
+      "beforeSha256": "75bb57161cb3e2f936dce7d7d133d4067785a0b9a0aaa5c4a8c6d9f78018efe9",
+      "reason": "JMdict 1226360 sense 1 is tagged vs and means to be surprised. Retain the source's full びっくりする construction with this explicit base/sense evidence.",
+      "status": "corrected",
+      "patch": {},
+      "evidence": {
+        "dictionaryIds": [
+          "1226360"
+        ],
+        "derivations": [
+          {
+            "kind": "suru",
+            "entryId": "1226360",
+            "sense": 1,
+            "baseWritten": "びっくり",
+            "baseReading": "びっくり"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b2fea90627",
+      "beforeSha256": "23061a0313ea7d210bbb0917b301d72539fbbdd34918ecc1ad77f928a4af7ace",
+      "reason": "Correct the unsupported source spelling 其れ共 to the listed 其れとも/それとも pair in JMdict 1007010. The kana source record already exists separately; do not create a duplicate primary kana pair or silently merge levels.",
+      "status": "corrected",
+      "patch": {
+        "word": "其れとも",
+        "pos": [
+          "conj"
+        ],
+        "jmdict_id": 1007010
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1007010"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "b6e9e55b54",
+      "beforeSha256": "a794e894fc7e5962d32acc0cc6149dae9b8c77bd09a51bc1005846c99e06c003",
+      "reason": "JMdict 2261490 sense 2 is the familiar vocative old man/mister and specifically notes 小父さん or おじさん. Remove the uncle gloss from the 小父さん card; retain it on the two kinship spellings instead.",
+      "status": "corrected",
+      "patch": {
+        "meanings": [
+          "old man",
+          "mister"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "2261490"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "bd3e76856f",
+      "beforeSha256": "a373dc99d41590c9764a4b57379c505dc404ffa197d3075155f9afd1faf09535",
+      "reason": "Link the declared 矢鱈に spelling to JMdict 1537780 sense 2 and its supported に construction. Preserve its distinct source ID, written form and original level for later cross-source reconciliation.",
+      "status": "corrected",
+      "patch": {
+        "pos": [
+          "adv"
+        ],
+        "jmdict_id": 1537780
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1537780"
+        ],
+        "derivations": [
+          {
+            "kind": "adverb-ni",
+            "entryId": "1537780",
+            "sense": 2,
+            "baseWritten": "矢鱈",
+            "baseReading": "やたら"
+          }
+        ]
+      }
+    },
+    {
+      "id": "c3c3ac9f48",
+      "beforeSha256": "0ed13f6a73a8660c8b97686f11df65efc7024e26cdc2c26bee8ba9fe5762f2ba",
+      "reason": "Retain あいさつする as a verb construction supported by the greeting sense of JMdict 1151120 (vs), rather than pretending that the suffixed form is a dictionary headword.",
+      "status": "corrected",
+      "patch": {},
+      "evidence": {
+        "dictionaryIds": [
+          "1151120"
+        ],
+        "derivations": [
+          {
+            "kind": "suru",
+            "entryId": "1151120",
+            "sense": 1,
+            "baseWritten": "あいさつ",
+            "baseReading": "あいさつ"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d374033b31",
+      "beforeSha256": "bc30b6ffb43ff385bcfe2dc55987d57e036a1c43e6b0bfd511f904af50427e81",
+      "reason": "Replace the incorrect 死因/cause-of-death entry 1310740 with the silence entry 1631970 (しいん, adv-to). Remove the two unrelated death/cancer examples from learner content; the complete originals remain in correction provenance.",
+      "status": "corrected",
+      "patch": {
+        "pos": [
+          "adv"
+        ],
+        "jmdict_id": 1631970,
+        "examples": []
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1631970"
+        ],
+        "derivations": [
+          {
+            "kind": "adverb-to",
+            "entryId": "1631970",
+            "sense": 1,
+            "baseWritten": "しいん",
+            "baseReading": "しいん"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d980cb1531",
+      "beforeSha256": "ad86885a7e1ceec6d37963ab4b230a08dc964080ede25ae4ba8ac53c15bef07a",
+      "reason": "JMdict 1013050 sense 1 (slowly/unhurriedly) is tagged adv-to. Retain ゆっくりと as an explicitly evidenced construction.",
+      "status": "corrected",
+      "patch": {},
+      "evidence": {
+        "dictionaryIds": [
+          "1013050"
+        ],
+        "derivations": [
+          {
+            "kind": "adverb-to",
+            "entryId": "1013050",
+            "sense": 1,
+            "baseWritten": "ゆっくり",
+            "baseReading": "ゆっくり"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d9f9f17224",
+      "beforeSha256": "466788312ed08ea0c615838e1473eee24b1e5daeafec80b6862da0a7a12fa687",
+      "reason": "JMdict 1145990 lists レポート and リポート as kana forms. Declare both pronunciations without cross-combining them.",
+      "status": "corrected",
+      "patch": {
+        "other_readings": [
+          "リポート"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1145990"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "e37a087c0f",
+      "beforeSha256": "e54d97e08b795f99a82cf7f0db2377374ade204535e4e1661fa51cfdbdf34ee5",
+      "reason": "The good/excellent senses of いい (JMdict 2820690) and よい (1605820) are cross-referenced but are separate entries. Keep their identities and matching kana pairs.",
+      "status": "corrected",
+      "patch": {
+        "other_readings": [
+          "よい"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "2820690",
+          "1605820"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "e75777d218",
+      "beforeSha256": "1b4f517657c584085660291ae953c431a1fff091836a7c68ae73155179e03e66",
+      "reason": "そうして/然うして (JMdict 1612860) and そして (1006730) are separate conjunction entries. Retain the source alternative with its own pronunciation and dictionary identity.",
+      "status": "corrected",
+      "patch": {
+        "other_readings": [
+          "そして"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "1612860",
+          "1006730"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "ea45ce4bc8",
+      "beforeSha256": "345fdd260bdcf15cee2dba626c9cf2a46df30aceee72f1647f962f342cc67718",
+      "reason": "JMdict 2261490 sense 1 is uncle; its note distinguishes 叔父さん as younger than one's parent. Do not merge the spelling distinction or apply the generic-address sense to this effective card.",
+      "status": "corrected",
+      "patch": {
+        "meanings": [
+          "uncle"
+        ]
+      },
+      "evidence": {
+        "dictionaryIds": [
+          "2261490"
+        ],
+        "derivations": []
+      }
+    },
+    {
+      "id": "f586d7d023",
+      "beforeSha256": "e3d99b64caf8a5fa12c700abdd06a8bea35dc97893ff50d9ee93fcfde8c7f70e",
+      "reason": "Support コピーする using JMdict 1050590 sense 1 (copy/photocopy, vs), excluding the advertising slogan/blurb senses.",
+      "status": "corrected",
+      "patch": {},
+      "evidence": {
+        "dictionaryIds": [
+          "1050590"
+        ],
+        "derivations": [
+          {
+            "kind": "suru",
+            "entryId": "1050590",
+            "sense": 1,
+            "baseWritten": "コピー",
+            "baseReading": "コピー"
+          }
+        ]
+      }
+    },
+    {
+      "id": "feb110fb03",
+      "beforeSha256": "1927271fb4121288d469bd054e52f4502c242adb86ba7b64e1ee6e15d0f2fd01",
+      "reason": "日本語検定 explicitly identifies ご存じです（か） as the respectful expression for asking whether another person knows something. Include the parenthesized question particle as documented; retain the source reading and context. The source's 4級 is not a JLPT band and supplies no level mapping.",
+      "status": "attested",
+      "patch": {
+        "word": "ご存じですか",
+        "pos": [
+          "exp"
+        ],
+        "other_forms": [
+          "ごぞんじですか"
+        ]
+      },
+      "attestation": {
+        "sourceId": "phrase-nihongokentei",
+        "locator": "2015-04-24 敬語, answer explanation for item one; cite only the complete common expression, not the test question/options",
+        "quotedForm": "ご存じです（か）",
+        "attestedWritten": "ご存じですか",
+        "reading": "ごぞんじですか",
+        "meanings": [
+          "do you know? (honorific)"
+        ],
+        "normalization": "optional-question-particle"
+      }
+    }
+  ]
+}

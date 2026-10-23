@@ -1,6 +1,11 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { japaneseAttemptViewSchema, type JapaneseAttemptView, type JapaneseResponseInput } from "@/lib/japanese-placement/public";
+import { clearSessionDraft } from "@/hooks/use-session-draft";
+
+export function japaneseSentenceDraftKey(attemptId: string, itemId: string) {
+  return `japanese-placement:sentence:${attemptId}:${itemId}`;
+}
 
 class ApiFailure extends Error { constructor(public code: string, public status = 0) { super(code); } }
 const root = "/api/japanese-placement/attempts";
@@ -29,6 +34,11 @@ export function useJapaneseAssessment() {
 
   const apply = useCallback((value: unknown) => {
     const next = value == null ? null : japaneseAttemptViewSchema.parse(value);
+    const previous = current.current;
+    if (previous?.question?.response.kind === "sentence_assembly" && (next?.status !== "IN_PROGRESS"
+      || next.attemptId !== previous.attemptId || next.question?.id !== previous.question.id)) {
+      clearSessionDraft(japaneseSentenceDraftKey(previous.attemptId, previous.question.id));
+    }
     current.current = next; setView(next); setLoaded(true); setError(null);
     pendingRef.current = null; setPending(null);
     if (next?.status === "IN_PROGRESS") {

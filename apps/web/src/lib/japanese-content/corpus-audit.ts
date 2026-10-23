@@ -1,5 +1,9 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
+import { japaneseVocabularyPairKey, toHiragana, type DictionaryWord } from "./dictionary";
+import { vocabularyPairEvidence, type VocabularyEvidence } from "./vocabulary-evidence";
+import { type PhraseAttestation } from "./phrase-evidence";
+export { dictionaryAllowsPair, dictionaryWordSchema, japaneseVocabularyPairKey, toHiragana } from "./dictionary";
 
 export const JLPT_LEVELS = ["N5", "N4", "N3", "N2", "N1"] as const;
 const levelSchema = z.enum(JLPT_LEVELS);
@@ -7,25 +11,24 @@ export type JapaneseLevel = z.infer<typeof levelSchema>;
 
 const text = z.string().trim().min(1);
 const strings = z.array(text);
-const vocabularySchema = z.object({
+export const vocabularySchema = z.object({
   id: text, word: text, reading: text, meanings: strings.min(1), level: levelSchema,
+  romaji: text.optional(), pos: strings.optional(),
   jmdict_id: z.number().int().positive().optional(),
   other_forms: strings.default([]), other_readings: strings.default([]),
   examples: z.array(z.object({ ja: text, en: text, tatoeba_id: z.number().int().positive().optional(), furigana: text.optional() })).default([]),
 });
-const kanjiSchema = z.object({
+export const kanjiSchema = z.object({
   character: text.refine((value) => Array.from(value).length === 1, "Expected one character"),
   level: levelSchema, onyomi: strings, kunyomi: strings, meanings: strings.min(1),
   supplementary: z.boolean().optional(), nanori: strings.default([]),
+  strokes: z.number().int().positive().optional(), grade: z.number().int().positive().optional(),
+  freq: z.number().int().positive().nullable().optional(), radical: text.optional(),
+  radical_number: z.number().int().positive().optional(), words: strings.optional(),
 });
 
-type Vocabulary = z.infer<typeof vocabularySchema>;
-type Kanji = z.infer<typeof kanjiSchema>;
-export const dictionaryWordSchema = z.object({
-  id: text, kanji: z.array(z.object({ text })),
-  kana: z.array(z.object({ text, appliesToKanji: strings })).min(1),
-});
-type DictionaryWord = z.infer<typeof dictionaryWordSchema>;
+export type Vocabulary = z.infer<typeof vocabularySchema>;
+export type Kanji = z.infer<typeof kanjiSchema>;
 type DictionaryKanji = {
   literal: string;
   readingMeaning: {
@@ -44,6 +47,8 @@ export type JapaneseCorpusInput = {
   dictionaryWords: DictionaryWord[];
   dictionaryKanji: DictionaryKanji[];
   referenceVocabulary: ReferenceVocabulary[];
+  vocabularyEvidence?: Record<string, VocabularyEvidence>;
+  phraseEvidence?: Record<string, PhraseAttestation>;
 };
 
 export type SourceIntegrity = { algorithm: "git-sha1" | "sha256"; digest: string };
@@ -99,6 +104,8 @@ type Reconciliation = ReferenceVocabulary & {
   status: "matched" | "ambiguous" | "unmatched";
   method: "form-and-reading" | "dictionary-id-and-reading" | "none";
   candidateIds: string[];
+  allCandidateIds?: string[];
+  selection?: "primary-form-and-reading";
 };
 export type JapaneseCorpusReport = {
   counts: {
@@ -116,20 +123,8 @@ export type JapaneseCorpusReport = {
 
 const compare = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
 const unique = (values: string[]) => [...new Set(values)].sort(compare);
-export const toHiragana = (s: string) => s.normalize("NFC").replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
-const pairKey = (word: string, reading: string) => `${word.normalize("NFC")}\0${toHiragana(reading)}`;
 const forms = (word: Vocabulary) => [word.word, ...word.other_forms];
 const readings = (word: Vocabulary) => [word.reading, ...word.other_readings];
-
-/** Keep the dictionary's spelling/reading restrictions; do not synthesize compound readings. */
-export function dictionaryAllowsPair(entry: DictionaryWord, written: string, reading: string): boolean {
-  return entry.kana.some((kana) => {
-    if (toHiragana(kana.text) !== toHiragana(reading)) return false;
-    if (toHiragana(written) === toHiragana(reading)) return true;
-    return entry.kanji.some((k) => k.text === written) &&
-      (kana.appliesToKanji.includes("*") || kana.appliesToKanji.includes(written));
-  });
-}
 
 function indexBy<T>(rows: T[], keys: (row: T) => string[]): Map<string, T[]> {
   const index = new Map<string, T[]>();
@@ -140,7 +135,7 @@ function indexBy<T>(rows: T[], keys: (row: T) => string[]): Map<string, T[]> {
   return index;
 }
 
-export function auditJapaneseCorpus(input: JapaneseCorpusInput): JapaneseCorpusReport {
+export function auditJapaneseCorpus(input: JapaneseCorpusInput, options: { preferPrimaryForms?: boolean } = {}): JapaneseCorpusReport {
   const vocabulary = input.vocabulary.map((row) => vocabularySchema.parse(row));
   const kanji = input.kanji.map((row) => kanjiSchema.parse(row));
   const issues: CorpusIssue[] = [];
@@ -155,7 +150,7 @@ export function auditJapaneseCorpus(input: JapaneseCorpusInput): JapaneseCorpusR
   }
   for (const [code, index] of [
     ["DUPLICATE_VOCABULARY_ID", indexBy(vocabulary, (w) => [w.id])],
-    ["DUPLICATE_VOCABULARY_PAIR", indexBy(vocabulary, (w) => [pairKey(w.word, w.reading)])],
+    ["DUPLICATE_VOCABULARY_PAIR", indexBy(vocabulary, (w) => [japaneseVocabularyPairKey(w.word, w.reading)])],
     ["DUPLICATE_KANJI", indexBy(kanji, (k) => [k.character])],
   ] as const) {
     for (const [key, rows] of index) if (rows.length > 1) issue(key, code, `${rows.length} records share this identity`);
@@ -167,13 +162,15 @@ export function auditJapaneseCorpus(input: JapaneseCorpusInput): JapaneseCorpusR
   for (const word of vocabulary) {
     if (!word.examples.length) issue(word.id, "MISSING_EXAMPLES", "No source example sentence; do not generate a replacement silently");
     const dictionary = word.jmdict_id ? dictionaryWords.get(String(word.jmdict_id)) : undefined;
+    const evidence = input.vocabularyEvidence?.[word.id] ?? { dictionaryIds: word.jmdict_id ? [String(word.jmdict_id)] : [], derivations: [] };
+    const allowsPair = (written: string, reading: string) => vocabularyPairEvidence(written, reading, dictionaryWords, evidence).length > 0;
     if (!word.jmdict_id) issue(word.id, "MISSING_DICTIONARY_LINK", `${word.word} has no JMdict ID`);
     else if (!dictionary) issue(word.id, "MISSING_DICTIONARY_ENTRY", `${word.word}: JMdict ${word.jmdict_id} absent from pinned dictionary`);
-    else if (!dictionaryAllowsPair(dictionary, word.word, word.reading)) {
+    else if (!allowsPair(word.word, word.reading)) {
       issue(word.id, "INVALID_DICTIONARY_PAIR", `${word.word} / ${word.reading} is not an allowed pair in JMdict ${word.jmdict_id}`);
     } else {
-      const invalidForms = word.other_forms.filter((form) => !readings(word).some((reading) => dictionaryAllowsPair(dictionary, form, reading)));
-      const invalidReadings = word.other_readings.filter((reading) => !forms(word).some((form) => dictionaryAllowsPair(dictionary, form, reading)));
+      const invalidForms = word.other_forms.filter((form) => !readings(word).some((reading) => allowsPair(form, reading)));
+      const invalidReadings = word.other_readings.filter((reading) => !forms(word).some((form) => allowsPair(form, reading)));
       if (invalidForms.length || invalidReadings.length) {
         issue(word.id, "INVALID_DICTIONARY_VARIANT", JSON.stringify({ forms: invalidForms, readings: invalidReadings }));
       } else dictionaryVerifiedVocabularyIds.push(word.id);
@@ -192,25 +189,43 @@ export function auditJapaneseCorpus(input: JapaneseCorpusInput): JapaneseCorpusR
     } else dictionaryVerifiedKanji.push(entry.character);
   }
 
-  const byIdReading = indexBy(vocabulary, (word) => word.jmdict_id ? readings(word).map((r) => `${word.jmdict_id}\0${toHiragana(r)}`) : []);
-  const byFormReading = indexBy(vocabulary, (word) => forms(word).flatMap((f) => readings(word).map((r) => pairKey(f, r))));
+  const byIdReading = indexBy(vocabulary, (word) => {
+    const ids = input.vocabularyEvidence?.[word.id]?.dictionaryIds ?? (word.jmdict_id ? [String(word.jmdict_id)] : []);
+    return ids.flatMap((id) => readings(word).filter((reading) => String(word.jmdict_id) === id || forms(word).some((written) =>
+      vocabularyPairEvidence(written, reading, dictionaryWords, { dictionaryIds: [id], derivations: [] }).length > 0,
+    )).map((reading) => `${id}\0${toHiragana(reading)}`));
+  });
+  const byFormReading = indexBy(vocabulary, (word) => forms(word).flatMap((f) => readings(word).map((r) => japaneseVocabularyPairKey(f, r))));
   const reconciliation = input.referenceVocabulary.map((reference): Reconciliation => {
     if (!reference.jmdict_seq) issue(reference.sourceRow, "MISSING_REFERENCE_DICTIONARY_LINK", "Reference row has no JMdict ID; preserve it for review");
     if (!reference.waller_definition.trim()) issue(reference.sourceRow, "MISSING_REFERENCE_GLOSS", "Reference row has no English gloss; preserve it for review");
     const written = reference.kanji || reference.kana;
-    const idMatches = byIdReading.get(`${reference.jmdict_seq}\0${toHiragana(reference.kana)}`) ?? [];
-    const formMatches = byFormReading.get(pairKey(written, reference.kana)) ?? [];
-    const exact = formMatches.filter((w) => String(w.jmdict_id) === reference.jmdict_seq);
-    const candidates = exact.length ? exact : idMatches.length ? idMatches : formMatches;
+    const supportsReference = (word: Vocabulary) => {
+      const evidence = input.vocabularyEvidence?.[word.id];
+      return !evidence || vocabularyPairEvidence(written, reference.kana, dictionaryWords, evidence).length > 0;
+    };
+    const idMatches = (byIdReading.get(`${reference.jmdict_seq}\0${toHiragana(reference.kana)}`) ?? []).filter(supportsReference);
+    const formMatches = (byFormReading.get(japaneseVocabularyPairKey(written, reference.kana)) ?? []).filter(supportsReference);
+    const hasReferenceId = (word: Vocabulary) => {
+      const evidence = input.vocabularyEvidence?.[word.id];
+      return evidence ? evidence.dictionaryIds.includes(reference.jmdict_seq) && vocabularyPairEvidence(written, reference.kana, dictionaryWords, {
+        dictionaryIds: [reference.jmdict_seq], derivations: evidence.derivations,
+      }).length > 0 : String(word.jmdict_id) === reference.jmdict_seq;
+    };
+    const exact = formMatches.filter(hasReferenceId);
+    const allCandidates = exact.length ? exact : idMatches.length ? idMatches : formMatches;
+    const primary = options.preferPrimaryForms ? allCandidates.filter((word) => japaneseVocabularyPairKey(word.word, word.reading) === japaneseVocabularyPairKey(written, reference.kana)) : [];
+    const preferred = primary.length === 1 && allCandidates.length > 1;
+    const candidates = preferred ? primary : allCandidates;
     const candidateIds = unique(candidates.map((w) => w.id));
     const status = candidateIds.length === 1 ? "matched" : candidateIds.length ? "ambiguous" : "unmatched";
     const method = exact.length || (!idMatches.length && formMatches.length) ? "form-and-reading" : idMatches.length ? "dictionary-id-and-reading" : "none";
     if (status === "matched") {
       const match = candidates[0];
       if (match.level !== reference.level) issue(reference.sourceRow, "LEVEL_DISAGREEMENT", `${written}: reference ${reference.level}; candidate ${match.level} (${match.id}). Review earliest-level merges and reclassifications.`);
-      if (reference.jmdict_seq && String(match.jmdict_id) !== reference.jmdict_seq) issue(reference.sourceRow, "REFERENCE_DICTIONARY_ID_DIFFERENCE", `${written}: reference ${reference.jmdict_seq}; candidate ${match.jmdict_id ?? "unlinked"}`);
+      if (reference.jmdict_seq && !hasReferenceId(match)) issue(reference.sourceRow, "REFERENCE_DICTIONARY_ID_DIFFERENCE", `${written}: reference ${reference.jmdict_seq}; candidate ${match.jmdict_id ?? "unlinked"}`);
     }
-    return { ...reference, status, method, candidateIds };
+    return { ...reference, status, method, candidateIds, ...(preferred ? { allCandidateIds: unique(allCandidates.map((word) => word.id)), selection: "primary-form-and-reading" as const } : {}) };
   }).sort((a, b) => compare(a.sourceRow, b.sourceRow));
 
   return {

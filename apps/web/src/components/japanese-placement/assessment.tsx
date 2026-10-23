@@ -10,7 +10,7 @@ import { InlineAlert } from "@/components/ui/inline-alert";
 import { JapanesePlacementResult } from "./result";
 import { SentenceTiles } from "./sentence-tiles";
 import { JapaneseAssessmentSkeleton } from "./loading";
-import { useJapaneseAssessment } from "./use-assessment";
+import { japaneseSentenceDraftKey, useJapaneseAssessment } from "./use-assessment";
 
 export function JapanesePlacementAssessment() {
   const t = useTranslations("japanesePlacement");
@@ -24,6 +24,7 @@ function JapanesePlacementAssessmentContent() {
   const heading = useRef<HTMLHeadingElement>(null);
   const question = state.view?.question;
   const questionId = question?.id;
+  const questionKey = state.view && questionId ? japaneseSentenceDraftKey(state.view.attemptId, questionId) : "";
   useEffect(() => { if (questionId) heading.current?.focus(); }, [questionId]);
   const recovery = <Button onClick={() => void state.retry()} loading={state.busy}>{t("retry")}</Button>;
   const dashboard = <Link href="/dashboard" className={buttonClasses({ variant: "secondary" })}>{t("dashboard")}</Link>;
@@ -59,7 +60,7 @@ function JapanesePlacementAssessmentContent() {
       <h2 id="japanese-question-title" ref={heading} tabIndex={-1} className="scroll-mt-28 text-base font-semibold text-foreground">{locale === "ja" ? question.prompt.ja : question.prompt.en}</h2>
       <p className="mt-4 whitespace-pre-line text-xl font-bold leading-relaxed tracking-tight text-foreground" lang={question.domain === "writing" ? undefined : "ja"}>{question.stimulus.text}</p>
       {question.response.kind === "choice" ? <ChoiceList className="mt-6">{question.response.choices.map((choice) => <Choice key={choice.id} disabled={locked} onSelect={() => void state.submit({ kind: "answer", itemId: question.id, choiceId: choice.id })}><span lang="ja">{choice.text}</span></Choice>)}</ChoiceList>
-        : <SentenceTiles key={question.id} tiles={question.response.tiles} disabled={locked} onSubmit={(tileIds) => void state.submit({ kind: "sentence_assembly", itemId: question.id, tileIds })} />}
+        : <SentenceTiles key={questionKey} draftKey={questionKey} tiles={question.response.tiles} disabled={locked} onSubmit={(tileIds) => void state.submit({ kind: "sentence_assembly", itemId: question.id, tileIds })} />}
       <Button variant="ghost" className="mt-4" disabled={locked} onClick={() => void state.submit({ kind: "skip", itemId: question.id, reason: "not_sure" })}>{t("notSure")}</Button>
     </section> : null}
     {errorPanel}

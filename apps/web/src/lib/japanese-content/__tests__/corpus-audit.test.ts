@@ -103,6 +103,32 @@ describe("reference CSV ingestion", () => {
 });
 
 describe("Japanese corpus reconciliation", () => {
+  it("can prefer an exact primary form for study imports while retaining the complete candidate set and the raw audit", () => {
+    const input = corpus();
+    input.vocabulary[0] = { ...input.vocabulary[0], word: "コンピュータ", reading: "コンピュータ", other_forms: ["コンピューター"], other_readings: ["コンピューター"] };
+    input.vocabulary.push({ ...input.vocabulary[0], id: "long-form", word: "コンピューター", reading: "コンピューター", other_forms: [], other_readings: [] });
+    input.referenceVocabulary[0] = { ...input.referenceVocabulary[0], kanji: "", kana: "コンピューター" };
+    const original = auditJapaneseCorpus(input);
+    expect(original.reconciliation.find((row) => row.sourceRow === "N5:2")?.status).toBe("ambiguous");
+    const imported = auditJapaneseCorpus(input, { preferPrimaryForms: true });
+    expect(imported.reconciliation.find((row) => row.sourceRow === "N5:2")).toMatchObject({ status: "matched", candidateIds: ["long-form"], allCandidateIds: ["long-form", "word-0"], selection: "primary-form-and-reading" });
+    expect(auditJapaneseCorpus(input)).toEqual(original);
+  });
+
+  it("does not turn a corrected alternate entry into an invalid cross-combination or false ID discrepancy", () => {
+    const input = corpus();
+    input.vocabulary[0] = { ...input.vocabulary[0], word: "お金持ち", reading: "おかねもち", other_forms: ["金持ち"], other_readings: ["かねもち"] };
+    input.dictionaryWords[0] = { id: "1000000", kanji: [{ text: "お金持ち" }], kana: [{ text: "おかねもち", appliesToKanji: ["*"] }] };
+    input.dictionaryWords.push({ id: "9", kanji: [{ text: "金持ち" }], kana: [{ text: "かねもち", appliesToKanji: ["*"] }] });
+    input.vocabularyEvidence = { "word-0": { dictionaryIds: ["1000000", "9"], derivations: [] } };
+    input.referenceVocabulary[0] = { ...input.referenceVocabulary[0], jmdict_seq: "9", kanji: "お金持ち", kana: "かねもち" };
+    expect(auditJapaneseCorpus(input).reconciliation.find((row) => row.sourceRow === "N5:2")?.status).toBe("unmatched");
+    input.referenceVocabulary[0].kanji = "金持ち";
+    const report = auditJapaneseCorpus(input);
+    expect(report.reconciliation.find((row) => row.sourceRow === "N5:2")).toMatchObject({ status: "matched", candidateIds: ["word-0"] });
+    expect(report.issues.filter((issue) => issue.id === "N5:2")).toEqual([]);
+  });
+
   it("accounts for every row across all five levels without approving publication", () => {
     const report = auditJapaneseCorpus(corpus());
     expect(report.counts).toMatchObject({ vocabulary: 5, kanji: 5, referenceRows: 5, matched: 5, ambiguous: 0, unmatched: 0 });

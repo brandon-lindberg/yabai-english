@@ -17,7 +17,7 @@ const active = (question: typeof choice | typeof assembly = choice) => ({ attemp
 const result: ResultData = { attemptId: "attempt-one", completedAt: "2026-10-22T01:20:00.000Z", completionReason: "time_limit", levelEstimate: { scope: "reading_writing", status: "insufficient_evidence", reason: "too_few_answers_or_domains" }, domains: JAPANESE_PLACEMENT_DOMAINS.map((domain) => ({ domain, planned: 4, answered: 0, correct: 0, incorrect: 0, notSure: 0, unanswered: 4, observation: "not_assessed" })) };
 const completed = { ...active(), status: "COMPLETED", answered: 0, question: null, result };
 const show = (locale = "en") => render(<NextIntlClientProvider locale={locale} messages={locale === "ja" ? jaMessages : messages}><JapanesePlacementAssessment /></NextIntlClientProvider>);
-beforeEach(() => { vi.stubGlobal("fetch", fetchMock); fetchMock.mockReset(); });
+beforeEach(() => { vi.stubGlobal("fetch", fetchMock); fetchMock.mockReset(); window.sessionStorage.clear(); });
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 test.each(["en", "ja"])("keeps source credits accessible without interrupting an active assessment (%s)", async (locale) => {
@@ -139,6 +139,49 @@ test("refreshes an active attempt after returning to the tab without clearing a 
   await act(async () => { window.dispatchEvent(new Event("focus")); });
   expect(within(screen.getByRole("group", { name: "Your sentence" })).getByRole("button", { name: "Remove 私は, position 1" })).toBeVisible();
   expect(screen.getByRole("timer")).toHaveTextContent("15:00");
+});
+
+test("restores the same attempt's sentence draft after a full remount and clears it only after a saved submission", async () => {
+  fetchMock.mockResolvedValueOnce(reply({ attempt: active(assembly) })).mockResolvedValueOnce(reply({ attempt: active(assembly) })).mockResolvedValueOnce(reply(completed));
+  const first = show();
+  fireEvent.click(await screen.findByRole("button", { name: "Add 私は, tile 2" }));
+  fireEvent.click(screen.getByRole("button", { name: "Add 本を, tile 3" }));
+  first.unmount(); show();
+  expect(await screen.findByRole("button", { name: "Remove 私は, position 1" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "Remove 本を, position 2" })).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Add 読みます。, tile 1" }));
+  fireEvent.click(screen.getByRole("button", { name: "Submit sentence" }));
+  await screen.findByText(messages.japanesePlacement.insufficient);
+  expect(window.sessionStorage.getItem("japanese-placement:sentence:attempt-one:writing-one")).toBeNull();
+});
+
+test("does not restore a sentence draft into another attempt", async () => {
+  fetchMock.mockResolvedValueOnce(reply({ attempt: active(assembly) })).mockResolvedValueOnce(reply({ attempt: { ...active(assembly), attemptId: "another-attempt" } }));
+  const first = show();
+  fireEvent.click(await screen.findByRole("button", { name: "Add 私は, tile 2" }));
+  first.unmount(); show();
+  expect(await screen.findByRole("button", { name: "Add 私は, tile 2" })).toBeVisible();
+  expect(screen.queryByRole("button", { name: "Remove 私は, position 1" })).toBeNull();
+});
+
+test("keeps a draft after an uncertain save and clears it when retry confirms the saved result", async () => {
+  fetchMock.mockResolvedValueOnce(reply({ attempt: active(assembly) })).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce(reply(completed));
+  show();
+  for (const name of ["Add 私は, tile 2", "Add 本を, tile 3", "Add 読みます。, tile 1"]) fireEvent.click(await screen.findByRole("button", { name }));
+  fireEvent.click(screen.getByRole("button", { name: "Submit sentence" }));
+  const retry = await screen.findByRole("button", { name: "Retry saving answer" });
+  expect(JSON.parse(window.sessionStorage.getItem("japanese-placement:sentence:attempt-one:writing-one")!).selected).toEqual(["topic", "object", "verb"]);
+  fireEvent.click(retry);
+  await screen.findByText(messages.japanesePlacement.insufficient);
+  expect(window.sessionStorage.getItem("japanese-placement:sentence:attempt-one:writing-one")).toBeNull();
+});
+
+test.each([{ selected: ["unknown"] }, { selected: ["topic", "topic"] }, { selected: null }, { selected: "wrong shape" }])("discards an invalid stored sentence draft ($selected)", async ({ selected }) => {
+  window.sessionStorage.setItem("japanese-placement:sentence:attempt-one:writing-one", JSON.stringify({ selected }));
+  fetchMock.mockResolvedValueOnce(reply({ attempt: active(assembly) }));
+  show();
+  expect(await screen.findByRole("button", { name: "Add 私は, tile 2" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "Submit sentence" })).toBeDisabled();
 });
 
 test("keeps timeout recovery manual after a failed completion fetch", async () => {
