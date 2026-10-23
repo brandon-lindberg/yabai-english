@@ -1,6 +1,8 @@
 import { expect, test, vi } from "vitest";
 import { withIsolatedPostgres } from "../../test/isolated-postgres";
-import { adaptiveBank, approveBank, approvedBank } from "../../src/lib/japanese-placement/__tests__/fixtures";
+import { adaptiveBank, approveBank, approvedBank, groupedAdaptiveBank } from "../../src/lib/japanese-placement/__tests__/fixtures";
+import { loadContentCatalog } from "../../src/lib/japanese-placement/content-files";
+import { buildContentBank } from "../../src/lib/japanese-placement/content-pack";
 
 test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("preserves English history and persists secure Japanese attempts with concurrent retries", async () => {
   await withIsolatedPostgres("20261022010000_japanese_placement_adaptive", async ({ client, db, applyMigration, verifyDatamodel }) => {
@@ -267,5 +269,95 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("completes a 24-question adapti
       result: { completionReason: "question_limit", levelEstimate: { status: "estimated", band: "N1" } } });
     expect(await db.japanesePlacementResponse.count()).toBe(24);
     expect(bank.items.length).toBeGreaterThan(24);
+  });
+}, 30_000);
+
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("upgrades capacity for the real catalog while preserving active and completed v3 attempts", async () => {
+  await withIsolatedPostgres("20261023000000_japanese_placement_grouped_bank", async ({ db, applyMigration, verifyDatamodel }) => {
+    const service = await import("../../src/lib/japanese-placement/service");
+    for (const id of ["legacy-active", "legacy-finished", "catalog-learner"]) await db.user.create({ data: { id, role: "STUDENT", learningLanguage: "JAPANESE" } });
+    const old = approvedBank();
+    const oldSnapshot = await service.publishJapaneseBank(db, old);
+    let active = await service.startStoredJapaneseAttempt(db, "legacy-active", { requestId: "00000000-0000-4000-8000-000000000051" });
+    active = await service.submitStoredJapaneseResponse(db, "legacy-active", active.attemptId, { kind: "answer", itemId: active.question!.id, choiceId: "a" });
+    let finished = await service.startStoredJapaneseAttempt(db, "legacy-finished", { requestId: "00000000-0000-4000-8000-000000000052" });
+    for (const id of old.sequence) {
+      const item = old.items.find((entry) => entry.id === id)!;
+      finished = await service.submitStoredJapaneseResponse(db, "legacy-finished", finished.attemptId, item.responseType === "sentence_assembly"
+        ? { kind: "sentence_assembly", itemId: id, tileIds: item.acceptedOrders[0] }
+        : { kind: "answer", itemId: id, choiceId: item.correctChoiceId });
+    }
+    const oldResponses = await db.japanesePlacementResponse.findMany({ orderBy: { id: "asc" } });
+    await applyMigration();
+    verifyDatamodel();
+    expect(await service.getStoredJapaneseAttempt(db, "legacy-active", active.attemptId)).toMatchObject({ question: active.question, expiresAt: active.expiresAt, answered: 1 });
+    expect(await service.getStoredJapaneseAttempt(db, "legacy-finished", finished.attemptId)).toMatchObject({ result: finished.result });
+    expect(await db.japanesePlacementBankSnapshot.findUnique({ where: { id: oldSnapshot.id } })).toEqual(oldSnapshot);
+    expect(await db.japanesePlacementResponse.findMany({ orderBy: { id: "asc" } })).toEqual(oldResponses);
+
+    const { pack } = await loadContentCatalog("data/japanese-placement");
+    const bank = buildContentBank(pack);
+    // Existing synthetic mechanics model, confined to this disposable schema.
+    // These likelihoods/approvals are never saved to source content or application tables.
+    const model = groupedAdaptiveBank();
+    bank.assessment = model.assessment;
+    for (const item of bank.items) item.calibration = structuredClone(model.items.find((fixture) => fixture.domain === item.domain && fixture.calibration!.band === item.referenceBand)!.calibration);
+    approveBank(bank);
+    const snapshot = await service.publishJapaneseBank(db, bank);
+    expect(snapshot.itemCount).toBe(470);
+    await expect(service.startStoredJapaneseAttempt(db, "legacy-active", { requestId: "00000000-0000-4000-8000-000000000053" })).rejects.toMatchObject({ status: 409, code: "ACTIVE_ATTEMPT_EXISTS" });
+    expect((await db.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: active.attemptId } })).schemaVersion).toBe(3);
+    while (active.status === "IN_PROGRESS") {
+      const item = old.items.find((entry) => entry.id === active.question!.id)!;
+      active = await service.submitStoredJapaneseResponse(db, "legacy-active", active.attemptId, item.responseType === "sentence_assembly"
+        ? { kind: "sentence_assembly", itemId: item.id, tileIds: item.acceptedOrders[0] }
+        : { kind: "answer", itemId: item.id, choiceId: item.correctChoiceId });
+    }
+    expect(active.result).toMatchObject({ scoringRevision: "japanese-reading-writing-posterior-v1", answered: 6 });
+
+    let view = await service.startStoredJapaneseAttempt(db, "catalog-learner", { requestId: "00000000-0000-4000-8000-000000000054" });
+    const row = await db.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: view.attemptId } });
+    expect(row).toMatchObject({ schemaVersion: 4, policyRevision: "japanese-posterior-passages-v2", scoringRevision: "japanese-reading-writing-passages-v2", questionLimit: 24 });
+    const passages: string[] = [];
+    const expiresAt = view.expiresAt;
+    for (let index = 0; index < 24; index++) {
+      const question = view.question!;
+      expect(JSON.stringify(question)).not.toMatch(/passageId|referenceBand|calibration|correctChoiceId|acceptedOrders/);
+      const item = bank.items.find((entry) => entry.id === question.id)!;
+      if (item.domain === "reading") passages.push(item.passageId!);
+      view = await service.submitStoredJapaneseResponse(db, "catalog-learner", view.attemptId, item.responseType === "sentence_assembly"
+        ? { kind: "sentence_assembly", itemId: item.id, tileIds: item.acceptedOrders[0] }
+        : { kind: "answer", itemId: item.id, choiceId: item.correctChoiceId });
+      expect(view.expiresAt).toBe(expiresAt);
+    }
+    expect(passages).toHaveLength(4);
+    expect(new Set(passages).size).toBe(4);
+    expect(view).toMatchObject({ status: "COMPLETED", answered: 24, total: 24, question: null,
+      result: { scoringRevision: "japanese-reading-writing-passages-v2", completionReason: "question_limit", levelEstimate: { status: "estimated" } } });
+    expect(await db.japanesePlacementResponse.count({ where: { attemptId: view.attemptId } })).toBe(24);
+    expect((await service.getStoredJapaneseAttempt(db, "legacy-finished", finished.attemptId)).result).toEqual(finished.result);
+  });
+}, 60_000);
+
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("enforces v4 pool capacity, response timing, budgets and one response per passage in PostgreSQL", async () => {
+  await withIsolatedPostgres("20261023000000_japanese_placement_grouped_bank", async ({ client, db, applyMigration }) => {
+    await applyMigration();
+    const service = await import("../../src/lib/japanese-placement/service");
+    const bank = approveBank(groupedAdaptiveBank());
+    await service.publishJapaneseBank(db, bank);
+    await db.user.create({ data: { id: "constraints-learner", role: "STUDENT", learningLanguage: "JAPANESE" } });
+    const view = await service.startStoredJapaneseAttempt(db, "constraints-learner", { requestId: "00000000-0000-4000-8000-000000000061" });
+    const attempt = await db.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: view.attemptId } });
+    const readings = bank.items.filter((item) => item.domain === "reading");
+    const insert = (id: string, itemId: string, position: number, submittedAt: Date) => client.query(`INSERT INTO "JapanesePlacementResponse" (id, "attemptId", "itemId", position, payload) VALUES ($1, $2, $3, $4, $5::jsonb)`,
+      [id, attempt.id, itemId, position, JSON.stringify({ kind: "answer", itemId, choiceId: "a", submittedAt: submittedAt.toISOString() })]);
+    await expect(insert("late", readings[0].id, 0, attempt.expiresAt!)).rejects.toThrow(/deadline/);
+    await expect(insert("over-budget", readings[0].id, 24, attempt.startedAt)).rejects.toThrow(/budget/);
+    await insert("first-passage", readings[0].id, 0, attempt.startedAt);
+    await expect(insert("sibling-passage", readings[1].id, 1, attempt.startedAt)).rejects.toThrow(/passage/);
+    await expect(client.query(`INSERT INTO "JapanesePlacementBankSnapshot" (id,"bankKey",version,digest,"itemCount",content)
+      VALUES ('too-large','too-large',1,repeat('b',64),1001,$1::jsonb)`, [JSON.stringify({ schemaVersion: 4, items: Array(1001).fill({}) })])).rejects.toThrow();
+    await expect(client.query(`INSERT INTO "JapanesePlacementBankSnapshot" (id,"bankKey",version,digest,"itemCount",content)
+      VALUES ('bad-count','bad-count',1,repeat('c',64),470,'{"schemaVersion":4,"items":[]}')`)).rejects.toThrow();
   });
 }, 30_000);

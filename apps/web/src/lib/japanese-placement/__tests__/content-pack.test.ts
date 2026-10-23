@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildContentItems, inspectContentCoverage, mergeContentPacks, parseContentPack } from "../content-pack";
+import { buildContentItems, inspectContentCoverage, mergeContentPacks, parseContentPack, verifyContentProvenance } from "../content-pack";
 
 const source = { id: "original", origin: "original", title: "Original drafts", location: "local authoring", revision: "1", license: "CC-BY-SA-4.0", attribution: "English Platform contributors", permissionEvidence: "Original assessment content" };
 function draft() {
@@ -11,6 +11,23 @@ function draft() {
 }
 
 describe("Japanese draft content import", () => {
+  it("retains exact source text when an adapted passage is edited and checks quotations against the displayed text", () => {
+    const value = draft();
+    const original = value.passages[0].text;
+    const passage = { ...value.passages[0], original, text: original + "受付は三階です。" };
+    const input = { ...value, assemblies: [], sources: [{ ...source, origin: "adapted" }], passages: [passage] };
+    const snapshot = { schemaVersion: 1, retrievedAt: "2026-10-23", files: [{ url: "https://example.org/source.json", sha256: "a".repeat(64) }], records: [{ sourceId: source.id, id: passage.sourceRecord, band: passage.band, title: passage.title, text: original, fileUrl: "https://example.org/source.json" }] };
+    const pack = parseContentPack(input);
+    expect(() => verifyContentProvenance(pack, snapshot)).not.toThrow();
+    expect(buildContentItems(pack)[0].stimulus.text).toContain("受付は三階です。");
+    expect(buildContentItems(pack)[0]).not.toHaveProperty("original");
+    const changed = structuredClone(pack); changed.passages[0].original += "変更。";
+    expect(() => verifyContentProvenance(changed, snapshot)).toThrow(/evidence/i);
+    expect(() => parseContentPack({ ...input, sources: [source] })).toThrow(/adapted/i);
+    expect(() => parseContentPack({ ...input, passages: [{ ...passage, text: original }] })).toThrow(/unchanged/i);
+    expect(() => parseContentPack({ ...input, passages: [{ ...passage, text: "受付は三階です。" }] })).toThrow(/evidence/i);
+    expect(() => parseContentPack({ ...input, passages: [{ ...passage, questions: [{ ...passage.questions[0], evidenceQuote: "本文にない文" }] }] })).toThrow(/evidence/i);
+  });
   it.each(["N5", "N4", "N1"])("accepts %s content through the same importer", (band) => {
     const value = draft();
     value.passages[0].band = band; value.assemblies[0].band = band;

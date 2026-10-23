@@ -1,5 +1,5 @@
 import "server-only";
-import { JAPANESE_PLACEMENT_DOMAINS, JAPANESE_STUDY_BANDS, japaneseQuestionLimit, sentenceOrderSignature,
+import { JAPANESE_PLACEMENT_DOMAINS, JAPANESE_STUDY_BANDS, japaneseEvidenceKey, japaneseQuestionLimit, sentenceOrderSignature,
   type JapanesePlacementBank, type JapanesePlacementItem } from "./bank";
 import type { JapaneseResponse } from "./attempt";
 
@@ -14,7 +14,7 @@ export function isCorrectJapaneseResponse(item: JapanesePlacementItem, response:
 
 export function initialJapaneseEvidence() {
   return { posterior: JAPANESE_STUDY_BANDS.map(() => 1 / JAPANESE_STUDY_BANDS.length),
-    used: new Set<string>(), counts: Object.fromEntries(JAPANESE_PLACEMENT_DOMAINS.map((domain) => [domain, 0])) as Record<typeof JAPANESE_PLACEMENT_DOMAINS[number], number> };
+    used: new Set<string>(), usedGroups: new Set<string>(), counts: Object.fromEntries(JAPANESE_PLACEMENT_DOMAINS.map((domain) => [domain, 0])) as Record<typeof JAPANESE_PLACEMENT_DOMAINS[number], number> };
 }
 type Evidence = ReturnType<typeof initialJapaneseEvidence>;
 const normalize = (values: number[]) => { const sum = values.reduce((a, b) => a + b, 0); return values.map((value) => value / sum); };
@@ -23,10 +23,12 @@ const entropy = (values: number[]) => -values.reduce((sum, value) => sum + (valu
 /** The bank supplies reviewed response likelihoods; no English thresholds or guessed JLPT score conversion. */
 export function updateJapaneseEvidence(evidence: Evidence, item: JapanesePlacementItem, response: JapaneseResponse): void {
   if (!item.calibration) throw new Error("Japanese calibration required");
+  if (evidence.usedGroups.has(japaneseEvidenceKey(item))) throw new Error("Repeated Japanese evidence item or passage");
   const correct = isCorrectJapaneseResponse(item, response);
   evidence.posterior = normalize(evidence.posterior.map((weight, index) => weight * (correct
     ? item.calibration!.probabilities[index] : 1 - item.calibration!.probabilities[index])));
   evidence.used.add(item.id);
+  evidence.usedGroups.add(japaneseEvidenceKey(item));
   evidence.counts[item.domain]++;
 }
 
@@ -41,14 +43,12 @@ export function selectJapaneseItem(bank: JapanesePlacementBank, evidence: Eviden
   let cumulative = 0;
   const median = evidence.posterior.findIndex((weight) => { cumulative += weight; return cumulative >= 0.5; });
   const verifyBand = (domain === "reading" || domain === "writing") && evidence.counts[domain] === quotas[domain] - 1;
-  const candidates = bank.sequence.map((id) => byId.get(id)!).filter((item) => item.domain === domain && !evidence.used.has(item.id));
+  const candidates = bank.sequence.map((id) => byId.get(id)!).filter((item) => item.domain === domain && !evidence.usedGroups.has(japaneseEvidenceKey(item)));
   const distance = (item: JapanesePlacementItem) => Math.abs(JAPANESE_STUDY_BANDS.indexOf(item.calibration!.band) - Math.max(1, median));
   const nearest = verifyBand ? Math.min(...candidates.map(distance)) : 0;
   let best: JapanesePlacementItem | null = null;
   let bestGain = -Infinity;
-  for (const id of bank.sequence) {
-    const item = byId.get(id)!;
-    if (item.domain !== domain || evidence.used.has(id)) continue;
+  for (const item of candidates) {
     if (!item.calibration) throw new Error("Japanese calibration required");
     // Reserve the final reading/construction slots for direct verification of the candidate band.
     if (verifyBand && distance(item) !== nearest) continue;

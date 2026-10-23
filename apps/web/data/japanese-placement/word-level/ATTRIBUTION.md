@@ -24,3 +24,5 @@ The new 394-row selection ledger covers these 100 selected lexical records, fort
 English Platform contributors, 2026. Original AI-assisted hiragana/katakana recognition choices, including voiced marks, small kana, gemination and long-vowel notation. N5 literacy floor only. There is no advanced kana anchor or recording task.
 
 New content and CC BY-SA adaptations are shared under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), with upstream credits and full MIT notices preserved. The generic English interface instructions reveal no Japanese answer; Japanese context and assessed content remain Japanese. The keyed data stay outside `public/`.
+
+Editorial revision 2, 2026-10-23: the N1 missed-meal example now blanks the complete compound and uses an explicit missed-opportunity context with grammatical past-tense alternatives. A valid casual alternative and malformed distractors were removed; the original keyed source sentence and upstream excerpt remain unchanged. See the [editorial handoff](../../../../../docs/japanese-placement-quality.md). No human approval or empirical difficulty claim was added.

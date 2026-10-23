@@ -1,5 +1,5 @@
 import type { JapanesePlacementBank } from "../bank";
-import { bankDigest } from "../bank";
+import { bankDigest, parseJapaneseBank } from "../bank";
 
 // Synthetic exercise mechanics only; these are not Japanese teaching material.
 export function draftBank(): JapanesePlacementBank {
@@ -80,5 +80,14 @@ export function adaptiveBank(): JapanesePlacementBank {
   };
   bank.sequence = bank.items.map((item) => item.id);
   return approveBank(bank);
+}
+
+export function groupedAdaptiveBank(): JapanesePlacementBank {
+  const legacy = adaptiveBank();
+  const items = legacy.items.flatMap((item) => {
+    const grouped = { ...item, referenceBand: item.calibration!.band, ...(item.domain === "reading" ? { passageId: `passage.${item.id}` } : {}) };
+    return item.domain === "reading" ? [grouped, { ...grouped, id: `${item.id}.second`, prompt: { en: "A different question about this passage.", ja: "この本文の別の問題です。" } }] : [grouped];
+  });
+  return parseJapaneseBank({ ...legacy, schemaVersion: 4, assessment: { ...legacy.assessment!, revision: "japanese-posterior-passages-v2" }, items, sequence: items.map((item) => item.id) });
 }
 

@@ -18,7 +18,7 @@ The server owns the start time and deadline. Resuming, reloading, opening anothe
 
 Normal completion must award an approximate Japanese reading/writing study level immediately. Partial/expired attempts need an explicit evidence policy and confidence limits; an attempt with no usable answers must not invent a proficiency level. There is no individual teacher review between completion and the result.
 
-**Implementation status:** section 4c now supplies server-enforced timing, adaptive progression and automatic level assignment. The earlier fixed survey has been replaced, rather than retained as a second engine. The learner/teacher screens remain section 4d. A calibrated, approved Japanese bank is still required before learners can start; the twelve draft samples are not published.
+**Implementation status:** server-enforced timing, adaptive progression, automatic level assignment and learner/teacher screens are implemented. Section 4e now compiles the 470-item catalog into a private schema-v4 bank with passage grouping; schema-v3 history continues through the same engine. Content validation and calibration are still required before learner publication. Neither the catalog nor the twelve earlier samples is published.
 
 ## Coverage and question formats
 
@@ -45,7 +45,7 @@ The Japanese-specific scoring rules and difficulty anchors must be versioned wit
 
 ## Delivered core
 
-- Schema version 3 covers the six text-based domains, multiple-choice items and sentence assemblies. Answer keys, accepted tile orders, source references and explanations remain server-side.
+- Schema versions 3 and 4 cover the six text-based domains, multiple-choice items and sentence assemblies. Version 4 adds private authoring bands and reading-passage identities; all question keys, accepted orders, provenance and explanations remain server-side.
 - Exact exercise duplication checks include choices or tiles. Tile ids must be unique, but repeated words/particles are permitted. Accepted orders must each use the complete tile set once; equivalent duplicate answer orders are rejected.
 - Full bank hashes bind content, accepted answers, provenance, difficulty/calibration, assessment policy and tie-breaking order to the same snapshot. Content and rights checks concern the reusable question bank, never an individual student's answers.
 - Immutable, serializable attempt transitions bind each attempt to its original bank. Invalid types, out-of-order responses and changed bank snapshots are rejected. Identical retries are idempotent; changed submissions cannot overwrite a recorded answer.
@@ -68,9 +68,23 @@ The earlier audio machinery and free-text draft have been removed. No English as
 
 Verification: demonstrated red/green cycles; 85 isolated Japanese unit/API tests and five real PostgreSQL tests pass, including all six synthetic band cases, mixed skill evidence, deadline boundaries, concurrent expiry, teacher-triggered completion after disconnect, 24-question completion from a larger pool, history preservation and additive migration of v2 rows. The mirror/corpus suites, TypeScript, focused ESLint, Prisma validation/schema diff and production build also pass. The new migration is applied locally; no bank or learner test data was published. Production deployment remains release work.
 
+## Full-bank integration — section 4e
+
+The checked content catalog compiles into a schema-v4 private bank without duplicated question files. V4 accepts up to 1,000 items, independently of the twenty-minute timer and initial 24-question target (maximum sixty through quotas). Every item retains its provisional source/authoring `referenceBand`; empirical `calibration.band` can be revised after learner validation without losing that provenance.
+
+The 200 reading questions share 100 explicit passages. The engine serves at most one question from a passage per attempt, including skips, and refuses repeated passage evidence before updating the posterior. Readiness counts distinct passages when checking a reading quota. Shared passage IDs must agree on normalized text, source IDs and reference band; the same text cannot be relabelled as separate passages. Alternative questions remain available to different attempts. Private grouping fields are not sent with learner questions.
+
+V4 uses `japanese-posterior-passages-v2` and `japanese-reading-writing-passages-v2`. V3 retains its 120-item cap, exact snapshot digests and original policy/scoring revisions. Active v3 attempts resume and finish against their original bank even when a v4 bank is later published; finished v2/v3 results are never regraded. Both formats use the same adaptive implementation and explicit runtime checks.
+
+Migration `20261023000000_japanese_placement_grouped_bank` expands pool capacity and timing constraints, and extends the existing locked response trigger to reject a second response for one passage. It is additive, tested in disposable schemas and applied locally. The application database still contains no Japanese bank, attempt or response. The full 470-item service completion is tested with a synthetic fixture model confined to disposable schemas; it supplies no production calibration or release approvals.
+
+`japanese-placement:content --bank` exports the validated but unapproved bank. The publication audit defaults to this full catalog; `--samples` selects the earlier twelve questions. See [the content handoff](japanese-placement-content.md) for reproducible checks and remaining content/calibration work.
+
+The initial [editorial screen](japanese-placement-quality.md) advances the catalog to revision 2 with eleven corrected authoring records and stable IDs. It checks question/key surfaces, quoted premises and the 110 explicitly accepted construction orders. An edited adapted passage can retain its exact source `original` privately for provenance; only the corrected displayed text is served. The handoff distinguishes this AI-assisted screen from independent approval and learner calibration, and identifies the short-task guessing and source-band difficulty limits that the pilot must investigate. No scoring likelihoods or release approvals are fabricated.
+
 ## Source research
 
-The expanded [2026-10-22 repository research](japanese-assessment-research.md) supersedes the initial shortlist below. It records inspected content paths, source terms, counts and pinned candidate revisions. The accepted [N2/N3 solution](japanese-n2-n3-solution.md) supplies 120 private draft items; later increments add 180 N5/N4/N1 reading/construction items and 170 kana/word-level choices. The catalog now contains 470 draft items: twenty passages with forty reading keys, twenty sentence assemblies and ten each kanji-reading, vocabulary and grammar choices per level, plus twenty N5 kana checks. [The content handoff](japanese-placement-content.md) documents sources, adaptations, dictionary evidence, selection ledgers and shared import checks. Full-bank integration, linguistic validation and learner calibration remain section 4e work. There are no published questions or invented calibrations.
+The expanded [2026-10-22 repository research](japanese-assessment-research.md) supersedes the initial shortlist below. It records inspected content paths, source terms, counts and pinned candidate revisions. The accepted [N2/N3 solution](japanese-n2-n3-solution.md) supplies 120 private draft items; later increments add 180 N5/N4/N1 reading/construction items and 170 kana/word-level choices. The catalog now contains 470 draft items: twenty passages with forty reading keys, twenty sentence assemblies and ten each kanji-reading, vocabulary and grammar choices per level, plus twenty N5 kana checks. [The content handoff](japanese-placement-content.md) documents sources, adaptations, dictionary evidence, selection ledgers and shared import checks. Linguistic validation and learner calibration remain section 4e work. There are no published questions or invented calibrations.
 
 No third-party questions, passages or repository code have been imported. The checked sources did not establish a complete, suitably licensed assessment bank; this is a bounded search result, not a claim that none exists.
 
@@ -87,7 +101,7 @@ The section 1 dictionary/corpus audit can support later authoring once its unres
 
 ## Storage and access layer — section 4b
 
-The storage migration `20261022000000_japanese_placement_storage` and its section 4c timing upgrade are verified in isolated PostgreSQL schemas and applied to the local application database. It creates Japanese-only bank snapshots, attempts and response rows. No question bank or learner fixture was published to the application database. Production migration/deployment remains release work.
+The storage migration `20261022000000_japanese_placement_storage`, section 4c timing upgrade and section 4e grouped-bank upgrade are verified in isolated PostgreSQL schemas and applied to the local application database. They maintain Japanese-only bank snapshots, attempts and response rows. No question bank or learner fixture was published to the application database. Production migration/deployment remains release work.
 
 Bank snapshots retain content, digest, version, item count and publication/revocation times. Attempts retain the bank reference, schema/scoring/policy versions, start/deadline, question budget and a materialized completion result. Responses are stored once in order; an attempt's in-memory state is reconstructed from them rather than copied into another JSON column. Database constraints protect identities, one active attempt per learner, unique response positions/items and valid completion state. Triggers reject edited snapshots, responses and finished results. Account deletion can still cascade through a learner's assessment rows.
 

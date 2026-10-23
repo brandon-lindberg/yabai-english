@@ -1,6 +1,6 @@
 import "server-only";
 import { z } from "zod";
-import { japaneseBankSourceSchema, normalizedJapaneseContent as normalize, parseJapaneseItems, requireUnique as unique, type JapanesePlacementItem } from "./bank";
+import { japaneseBankSourceSchema, normalizedJapaneseContent as normalize, parseJapaneseBank, parseJapaneseItems, requireUnique as unique, type JapanesePlacementItem } from "./bank";
 import { JAPANESE_REFERENCE_BANDS, japaneseOption, japaneseLocalizedText } from "./public";
 import { dictionaryAllowsPair, dictionaryWordSchema, toHiragana } from "../japanese-content/corpus-audit";
 
@@ -21,7 +21,7 @@ function readingExplanation(q: z.infer<typeof question>) {
 const schema = z.object({
   schemaVersion: z.literal(1), id: identity, revision: z.number().int().positive(), status: z.literal("draft"),
   sources: z.array(japaneseBankSourceSchema).min(1),
-  passages: z.array(z.object({ ...provenance, genre: z.enum(["narrative", "notice", "email", "opinion", "interview", "guide", "paired_texts"]), title: text, text, questions: z.array(question).min(1).max(4) }).strict()),
+  passages: z.array(z.object({ ...provenance, genre: z.enum(["narrative", "notice", "email", "opinion", "interview", "guide", "paired_texts"]), title: text, text, original: text.optional(), questions: z.array(question).min(1).max(4) }).strict()),
   assemblies: z.array(z.object({ ...provenance, focus: text, original: text, stimulus: text,
     tiles: z.array(japaneseOption).min(2).max(30), acceptedOrders: z.array(z.array(identity)).min(1).max(24), rationale: text,
   }).strict()),
@@ -66,7 +66,7 @@ export function verifyContentProvenance(pack: JapaneseContentPack, value: unknow
     if (sources.get(entry.sourceId)?.origin !== "adapted") continue;
     const key = `${entry.sourceId}:${entry.sourceRecord}`;
     const original = records.get(key);
-    if (!original || original.band !== entry.band || original.text !== ("text" in entry ? entry.text : entry.original)) {
+    if (!original || original.band !== entry.band || original.text !== ("text" in entry ? entry.original ?? entry.text : entry.original)) {
       throw new Error(`Source evidence mismatch: ${key}`);
     }
     used.add(key);
@@ -95,11 +95,12 @@ export function verifyContentProvenance(pack: JapaneseContentPack, value: unknow
 
 function projectItems(pack: JapaneseContentPack): JapanesePlacementItem[] {
   const base = (entry: JapaneseContentPack["passages"][number] | JapaneseContentPack["assemblies"][number] | JapaneseContentPack["wordItems"][number]) => ({
-    id: `${entry.band.toLowerCase()}.${entry.id}`, revision: pack.revision, sourceIds: [entry.sourceId], calibration: null,
+    id: `${entry.band.toLowerCase()}.${entry.id}`, revision: pack.revision, sourceIds: [entry.sourceId], referenceBand: entry.band, calibration: null,
   });
   return [
     ...pack.passages.flatMap((passage) => passage.questions.map((q) => ({
       ...base(passage), id: `${passage.band.toLowerCase()}.${passage.id}.${q.id}`, domain: "reading" as const,
+      passageId: `${passage.band.toLowerCase()}.${passage.id}`,
       focus: `${passage.band} ${passage.genre}: ${q.skill}`,
       // Locale changes must not translate the comprehension question into the learner's L1.
       prompt: { en: q.prompt, ja: q.prompt }, stimulus: { kind: "text" as const, text: `${passage.title}\n\n${passage.text}` },
@@ -132,6 +133,10 @@ export function parseContentPack(value: unknown): JapaneseContentPack {
   const used = new Set(entries.map((entry) => entry.sourceId));
   if (pack.sources.some((source) => !used.has(source.id))) throw new Error("Unaccounted source");
   for (const passage of pack.passages) {
+    if (passage.original !== undefined) {
+      if (pack.sources.find((source) => source.id === passage.sourceId)?.origin !== "adapted") throw new Error(`Original text is only retained for adapted passages: ${passage.id}`);
+      if (passage.original === passage.text) throw new Error(`Unchanged passage does not need an original override: ${passage.id}`);
+    }
     for (const q of passage.questions) {
       for (const quote of evidenceQuotes(q)) {
         if (!normalize(passage.text).includes(normalize(quote))) throw new Error(`Missing evidence: ${passage.id}/${q.id}`);
@@ -165,6 +170,15 @@ export function parseContentPack(value: unknown): JapaneseContentPack {
 export function buildContentItems(pack: JapaneseContentPack): JapanesePlacementItem[] {
   const checked = parseContentPack(pack);
   return projectItems(checked);
+}
+
+/** Compile the verified authoring catalog into a private bank; release inputs remain absent. */
+export function buildContentBank(pack: JapaneseContentPack) {
+  const checked = parseContentPack(pack);
+  const items = projectItems(checked);
+  return parseJapaneseBank({ schemaVersion: 4, id: checked.id, version: checked.revision,
+    assessment: null, sources: checked.sources, items, sequence: items.map((item) => item.id),
+    reviews: { japaneseTeacher: null, rights: null, placement: null } });
 }
 
 /** Combine authoring packs without silently overwriting identities or source terms. */

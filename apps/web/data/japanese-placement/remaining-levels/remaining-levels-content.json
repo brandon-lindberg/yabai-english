@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "japanese-n5-n4-n1-content",
-  "revision": 1,
+  "revision": 2,
   "status": "draft",
   "sources": [
     {
@@ -11,7 +11,7 @@
       "location": "https://github.com/gauravhq/JLPTSuccess/tree/708a995691dcd0983e2ede47db423281b1cd343a/N5/data",
       "revision": "708a995691dcd0983e2ede47db423281b1cd343a",
       "license": "CC-BY-SA-4.0",
-      "attribution": "JLPTSuccess contributors, 2026. Selected original N5 readings and construction questions, adapted as recorded; CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/. Notices: licences/jlptsuccess-LICENSE.txt and licences/jlptsuccess-CONTENT.md. The upstream native-review labels describe an AI persona, not a human teacher.",
+      "attribution": "JLPTSuccess contributors, 2026. Selected original N5 readings, construction tasks and grammar choices, adapted as recorded; CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/. Notices: licences/jlptsuccess-LICENSE.txt and licences/jlptsuccess-CONTENT.md. The upstream native-review labels describe an AI persona, not a human teacher.",
       "permissionEvidence": "Pinned root LICENSE expressly separates CC BY-SA 4.0 educational content from MIT software; N5/CONTENT-LICENSE.md claims original questions and discloses AI review."
     },
     {
@@ -19,9 +19,9 @@
       "origin": "adapted",
       "title": "Japaneseness N4 reading worksheets",
       "location": "https://japaneseness.com/reading-n4/",
-      "revision": "2026-10-22; per-page SHA-256 in source-excerpts.json",
+      "revision": "2026-10-22–23; per-page SHA-256 in source-excerpts.json",
       "license": "CC-BY-SA-4.0",
-      "attribution": "Japaneseness — N4 reading worksheets; https://japaneseness.com/reading-n4/; https://creativecommons.org/licenses/by-sa/4.0/. Passage text retained; selected questions, plain-text presentation and choice order adapted as recorded. Derivatives remain CC BY-SA 4.0.",
+      "attribution": "Japaneseness — N4 reading worksheets; https://japaneseness.com/reading-n4/; https://creativecommons.org/licenses/by-sa/4.0/. Nineteen displayed passage texts retained; sale-notice wording edited with its exact original retained privately. Selected questions, plain-text presentation and choice order adapted as recorded. Derivatives remain CC BY-SA 4.0.",
       "permissionEvidence": "https://japaneseness.com/about/ grants commercial adaptation and redistribution of site content under CC BY-SA 4.0."
     },
     {
@@ -41,7 +41,7 @@
       "location": "https://github.com/stndaru/nihongo-mono/tree/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar",
       "revision": "ec0ba4a0ce1611c568b0e4f8a223eb8029249a25",
       "license": "MIT",
-      "attribution": "Copyright (c) 2026 Stefanus Ndaru Wedhatama. Original grammar examples, adapted into keyed tiles. Full notices in licences/nihongo-mono-MIT.txt and licences/nihongo-mono-DATA.md.",
+      "attribution": "Copyright (c) 2026 Stefanus Ndaru Wedhatama. Original grammar examples, adapted into sentence assemblies and choice questions as recorded. Full notices in licences/nihongo-mono-MIT.txt and licences/nihongo-mono-DATA.md.",
       "permissionEvidence": "https://github.com/stndaru/nihongo-mono/blob/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/LICENSE-DATA.md explicitly assigns MIT to original grammar examples, distinct from dictionary data."
     }
   ],
@@ -1044,7 +1044,7 @@
       "genre": "guide",
       "sourceId": "jlptsuccess",
       "sourceRecord": "n5.read.017",
-      "changes": "Passage and first two Japanese MCQs retained. Audio, translations, review-persona labels, hints and teaching metadata omitted. Exact evidence quotes added; source timing estimates are not imported. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it.",
+      "changes": "Passage and first two Japanese MCQs retained. Audio, translations, review-persona labels, hints and teaching metadata omitted. Exact evidence quotes added; source timing estimates are not imported. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it. Editorial correction 2026-10-23: Retain both prices needed for addition and beverage-price comparison.",
       "title": "カフェの メニュー",
       "text": "メニュー\nコーヒー：300円\nおちゃ：250円\nケーキ：500円\nサンドイッチ：600円\nセット (コーヒー＋ケーキ)：700円",
       "questions": [
@@ -1514,13 +1514,13 @@
       "genre": "notice",
       "sourceId": "japaneseness-n4",
       "sourceRecord": "a-notice",
-      "changes": "Retained passage as plain text without furigana, vocabulary glosses, English, copy tasks or free response. Selected source MCQs 1, 3. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it.",
+      "changes": "Retained passage as plain text without furigana, vocabulary glosses, English, copy tasks or free response. Selected source MCQs 1, 3. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it. Editorial correction 2026-10-23: State the weather assumption because the notice postpones the work if it rains.",
       "title": "お知らせ",
       "text": "お住まいの みなさまへ\n水道工事の お知らせ\nらいしゅうの かようび、六月十日に、この 建物の 水道工事を 行います。ごぜん 九時から ごご 三時まで、水が 使えなく なります。トイレも 使えませんので、ご注意ください。工事の 前に、飲み水を 用意して おいてください。工事が 終わった 後、少しの 間 水が 白く なることが ありますが、問題は ありません。雨の ばあいは つぎの 日に 行います。ご質問は かんり人の 大木まで お電話ください。ごめいわくを おかけしますが、よろしく おねがいします。",
       "questions": [
         {
           "id": "q1",
-          "prompt": "工事は いつですか。",
+          "prompt": "雨がふらない場合、工事はいつ行う予定ですか。",
           "choices": [
             {
               "id": "a",
@@ -1946,13 +1946,13 @@
       "genre": "narrative",
       "sourceId": "japaneseness-n4",
       "sourceRecord": "the-town-festival",
-      "changes": "Retained passage as plain text without furigana, vocabulary glosses, English, copy tasks or free response. Selected source MCQs 1, 3. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it.",
+      "changes": "Retained passage as plain text without furigana, vocabulary glosses, English, copy tasks or free response. Selected source MCQs 1, 3. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it. Editorial correction 2026-10-23: Narrow q1 to the multilingual assignment; tent setup was also explicitly performed in the passage.",
       "title": "町のおまつり",
       "text": "わたしの 町では 毎年 八月の 終わりに なつまつりが あります。今年は はじめて じっこういいんとして てつだうことに なりました。\nじゅんびは 二か月前から 始まります。かいぎは まいしゅう すいようびの 夜、こうみんかんで 行われます。わたしの 仕事は 外国人の じゅうみんへの あんないを 作ることでした。英語と 中国語と ベトナム語の 三つの 言語で、まつりの 日時、ばしょ、そして 注意することを 書きました。\nとうじつは 朝から テントを 立てたり、いすを 運んだり しました。ゆうがたに なると、やたいが 開き、やきそばや かきごおりの においが 町じゅうに 広がりました。七時から ぼんおどりが 始まり、知らない 人も いっしょに わに なって おどりました。わたしが 作った あんないを 読んで 来たと 言う 家族にも 会えました。\nかたづけが 終わったのは 夜 十一時でした。つかれましたが、来年も てつだいたいと 思っています。",
       "questions": [
         {
           "id": "q1",
-          "prompt": "この 人の 仕事は 何でしたか。",
+          "prompt": "この人が三つの言語で行った仕事は何でしたか。",
           "choices": [
             {
               "id": "a",
@@ -2054,9 +2054,9 @@
       "genre": "notice",
       "sourceId": "japaneseness-n4",
       "sourceRecord": "a-sale-advert",
-      "changes": "Retained passage as plain text without furigana, vocabulary glosses, English, copy tasks or free response. Selected source MCQs 1, 3. Gift question explicitly assumes remaining stock, matching the notice. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it.",
+      "changes": "Retained passage as plain text without furigana, vocabulary glosses, English, copy tasks or free response. Selected source MCQs 1, 3. Gift question explicitly assumes remaining stock, matching the notice. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it. Editorial correction 2026-10-23: Display an edited opening that scopes the general discount to sale items and marks the following rates as exceptions. The exact contradictory source text is retained in original and the unchanged pinned excerpt; no price/stacking question added.",
       "title": "セールの おしらせ",
-      "text": "はるの だいかんしゃセール\n三月二十日（金）〜 三月二十二日（日）\n三日間だけ、てんないの 品物が すべて 二十パーセントびき！\nはる物の 服は 三十パーセントびき。くつと かばんは 二つ かうと、安い ほうが はんがくに なります。\n会員カードを お持ちの おきゃくさまには、さらに 五パーセントびき。カードは とうじつ てんないで 作ることも できます（むりょう）。\n五千円以上 おかい上げの 方に、特別な エコバッグを プレゼント。数に かぎりが ありますので、お早めに。\nえいぎょう時間：ごぜん 十時〜ごご 八時（にちようびは ごご 七時まで）\nちゅうしゃじょうは 二時間まで むりょうです。\n※ 食品と 本は セールの たいしょう外です。",
+      "text": "はるの だいかんしゃセール\n三月二十日（金）〜 三月二十二日（日）\n三日間だけ、セールの たいしょうの 品物は 二十パーセントびき！\nただし、つぎの 品物は べつの わりびきに なります。\nはる物の 服は 三十パーセントびき。くつと かばんは 二つ かうと、安い ほうが はんがくに なります。\n会員カードを お持ちの おきゃくさまには、さらに 五パーセントびき。カードは とうじつ てんないで 作ることも できます（むりょう）。\n五千円以上 おかい上げの 方に、特別な エコバッグを プレゼント。数に かぎりが ありますので、お早めに。\nえいぎょう時間：ごぜん 十時〜ごご 八時（にちようびは ごご 七時まで）\nちゅうしゃじょうは 二時間まで むりょうです。\n※ 食品と 本は セールの たいしょう外です。",
       "questions": [
         {
           "id": "q1",
@@ -2100,7 +2100,8 @@
           "evidenceQuote": "五千円以上 おかい上げの 方に、特別な エコバッグを プレゼント",
           "skill": "information_retrieval"
         }
-      ]
+      ],
+      "original": "はるの だいかんしゃセール\n三月二十日（金）〜 三月二十二日（日）\n三日間だけ、てんないの 品物が すべて 二十パーセントびき！\nはる物の 服は 三十パーセントびき。くつと かばんは 二つ かうと、安い ほうが はんがくに なります。\n会員カードを お持ちの おきゃくさまには、さらに 五パーセントびき。カードは とうじつ てんないで 作ることも できます（むりょう）。\n五千円以上 おかい上げの 方に、特別な エコバッグを プレゼント。数に かぎりが ありますので、お早めに。\nえいぎょう時間：ごぜん 十時〜ごご 八時（にちようびは ごご 七時まで）\nちゅうしゃじょうは 二時間まで むりょうです。\n※ 食品と 本は セールの たいしょう外です。"
     },
     {
       "id": "japaneseness-planning-a-trip",
@@ -2108,7 +2109,7 @@
       "genre": "narrative",
       "sourceId": "japaneseness-n4",
       "sourceRecord": "planning-a-trip",
-      "changes": "Retained passage as plain text without furigana, vocabulary glosses, English, copy tasks or free response. Selected source MCQs 1, 3. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it.",
+      "changes": "Retained passage as plain text without furigana, vocabulary glosses, English, copy tasks or free response. Selected source MCQs 1, 3. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it. Editorial correction 2026-10-23: Ask about the planning rule, since the flexible day could include returning to either side of Kyoto.",
       "title": "りょこうの計画",
       "text": "ふゆ休みに 友だちと きょうとへ 行く 計画を 立てています。にはく三日で、よさんは 一人 四万円です。\nまず こうつうですが、しんかんせんだと 東京から 二時間ちょっとで 着きます。ただ、おうふくで 二万七千円も かかって しまいます。夜行バスなら おうふく 一万円ぐらいですが、八時間 かかるし、せきが せまいので ねむれないかもしれません。友だちは「時間を お金で かおう」と 言って、しんかんせんに きめました。\nホテルは えきの 近くの 安い ホテルを よやくしました。いっぱく 六千円で、朝ごはんが ついています。\n行きたい ところは たくさん ありますが、三日では ぜんぶ まわれません。そこで、一日目は 東の 方、二日目は 西の 方と きめて、近い ところを 歩いて まわることに しました。三日目は よていを 入れないで、行けなかった ところや、もう 一度 見たい ところに 行く 日に します。\n楽しみですが、いちばん しんぱいなのは 天気です。ふゆの きょうとは 寒いと 聞いたので、あたたかい 服を 持って 行こうと 思います。",
       "questions": [
@@ -2135,7 +2136,7 @@
         },
         {
           "id": "q2",
-          "prompt": "三日目は 何を しますか。",
+          "prompt": "三日目の予定をどう決めていますか。",
           "choices": [
             {
               "id": "a",
@@ -3202,7 +3203,7 @@
       "genre": "paired_texts",
       "sourceId": "yomitaku",
       "sourceRecord": "sim-togo4",
-      "changes": "Two source texts joined with explicit Japanese A/B labels; both retained. Narrowed q2 to B’s explicit emphasis; the original broad contrast allowed overlapping descriptions. Japanese questions only; Chinese labels/explanations, study timings and hints omitted. Exact supporting quotes added. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it.",
+      "changes": "Two source texts joined with explicit Japanese A/B labels; both retained. Narrowed q2 to B’s explicit emphasis; the original broad contrast allowed overlapping descriptions. Japanese questions only; Chinese labels/explanations, study timings and hints omitted. Exact supporting quotes added. Choice positions rebalanced; keyed text preserved unless the question adaptation above explicitly replaces it. Editorial correction 2026-10-23: Remove the broad q2 distractor that encompassed the keyed physical-sharing claim; narrow the prompt to the parent-child relationship.",
       "title": "絵本のかたち",
       "text": "【文Ａ】\n電子絵本の利点は、読む機会そのものを増やすことだ。出張の多い親も、移動の電車の中で子どもと同じ画面を見られる。読み聞かせの音声が付いた作品は、読み手に恵まれない家庭の子どもの夜に、物語の時間を届ける。ページをめくる動作は画面でも再現でき、絵が動き出す仕掛けは、子どもの興味を確実に引く。絵本の本質は紙の質感ではなく、物語と絵と一緒に過ごす時間のはずだ。時間を届けやすくする技術を、拒む理由はない。\n\n【文Ｂ】\n紙の絵本には、画面では再現されない配置がある。子どもが膝の上、親が後ろ、本が二人の間。ページをめくる主導権を子どもが握り、読み返したい頁で長く止まる。この物理的な共有の中で、物語は二人だけのものになる。画面を二人で覗き込む姿勢は、肩を寄せるあの姿とは違う。電子絵本にも意義はある。だが、就学前の子どもと親の間にしか成立しない、あの身体の距離を、代替技術はまだ持っていない。",
       "questions": [
@@ -3236,7 +3237,7 @@
         },
         {
           "id": "q2",
-          "prompt": "文Ｂの筆者が、紙の絵本について特に重視している点はどれか。",
+          "prompt": "文Ｂの筆者が、紙の絵本ならではの親子の関わりとして重視していることはどれか。",
           "choices": [
             {
               "id": "a",
@@ -3252,7 +3253,7 @@
             },
             {
               "id": "d",
-              "text": "絵本の本質は何かという捉え方"
+              "text": "読み聞かせの速さを親が一方的に決められること"
             }
           ],
           "correctChoiceId": "b",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "japanese-n2-n3-content",
-  "revision": 1,
+  "revision": 2,
   "status": "draft",
   "sources": [
     {
@@ -31,7 +31,7 @@
       "location": "https://github.com/stndaru/nihongo-mono/tree/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar",
       "revision": "ec0ba4a0ce1611c568b0e4f8a223eb8029249a25",
       "license": "MIT",
-      "attribution": "Copyright (c) 2026 Stefanus Ndaru Wedhatama. Original grammar examples, adapted into keyed tiles. Full notices in licences/nihongo-mono-MIT.txt and licences/nihongo-mono-DATA.md.",
+      "attribution": "Copyright (c) 2026 Stefanus Ndaru Wedhatama. Original grammar examples, adapted into sentence assemblies and choice questions as recorded. Full notices in licences/nihongo-mono-MIT.txt and licences/nihongo-mono-DATA.md.",
       "permissionEvidence": "https://github.com/stndaru/nihongo-mono/blob/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/LICENSE-DATA.md explicitly assigns MIT to original grammar examples, distinct from dictionary data."
     },
     {
@@ -106,13 +106,13 @@
       "genre": "narrative",
       "sourceId": "japaneseness",
       "sourceRecord": "morning-habit",
-      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved. Editorial correction 2026-10-23: Ask about last-minute waking rather than inability to wake; retain the phone-exclusion premise as additional evidence.",
       "title": "朝のしゅうかん",
       "text": "去年まで、わたしは朝が苦手でした。夜おそくまでスマホを見ているせいで、朝はいつもぎりぎりに起きて、朝ごはんも食べずに家を出ていました。\nある日、友だちに「三十分早く寝てみたら」と言われました。早く起きろではなく、早く寝ろというのがおもしろいと思って、その日からスマホをふとんに持っていかないことにしました。\nにしゅうかんほど続けると、目覚まし時計が鳴る前に目がさめるようになりました。朝に時間があると、パンをやいて、窓を開けて、その日にすることを紙に書くことができます。一日のはじめが静かだと、ひるのいそがしさにも慣れていくような気がします。\n早く起きられるようになったのは、いしが強くなったからではありません。ただ、寝る時間を先に決めただけです。",
       "questions": [
         {
           "id": "q1",
-          "prompt": "去年まで、朝起きられなかったのはなぜですか。",
+          "prompt": "去年まで、朝いつもぎりぎりに起きていたのはなぜですか。",
           "choices": [
             {
               "id": "a",
@@ -150,7 +150,10 @@
           ],
           "correctChoiceId": "c",
           "evidenceQuote": "ただ、寝る時間を先に決めただけです。",
-          "skill": "main_idea"
+          "skill": "main_idea",
+          "supportingQuotes": [
+            "スマホをふとんに持っていかないことにしました。"
+          ]
         }
       ]
     },
@@ -538,7 +541,7 @@
       "genre": "notice",
       "sourceId": "japaneseness",
       "sourceRecord": "volunteer-japanese-class",
-      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved. Editorial correction 2026-10-23: Retain both experience and listening-attitude premises alongside the monthly participation condition.",
       "title": "日本語きょうしつのぼしゅう",
       "text": "さくら町こうみんかんでは、外国から来た方のための日本語きょうしつを開いています。現在、十カ国、五十名ほどの方が学んでいますが、教える人が足りません。そこで、いっしょに活動してくださる方をぼしゅうします。\n資格はいりません。日本語を教えた経験がなくてもかまいません。必要なのは、相手の話をゆっくり聞く気持ちだけです。活動はまいしゅうどようびのごご二時から四時まで、月に一回からでもけっこうです。\n内容は、会話の相手になること、役所の書類の書き方を手伝うこと、子どもの宿題を見ることなどです。教えるというより、一緒に考えるという形に近いかもしれません。\n説明会は今月二十日のごご七時から、こうみんかんのわしつで行います。申しこみはいりませんので、ちょくせつお越しください。",
       "questions": [
@@ -582,7 +585,11 @@
           ],
           "correctChoiceId": "a",
           "evidenceQuote": "月に一回からでもけっこうです。",
-          "skill": "inference"
+          "skill": "inference",
+          "supportingQuotes": [
+            "日本語を教えた経験がなくてもかまいません。",
+            "必要なのは、相手の話をゆっくり聞く気持ちだけです。"
+          ]
         }
       ]
     },
@@ -1938,7 +1945,7 @@
       "genre": "paired_texts",
       "sourceId": "original-n2",
       "sourceRecord": "garden-views",
-      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved. Editorial correction 2026-10-23: Shared-claim evidence now includes the distinct statements of both A and B.",
       "title": "共同菜園についての二つの意見",
       "text": "【意見Ａ】\n共同菜園では、参加できる日に作業する方式を続けたい。仕事などで毎週は来られない人にも、関わる機会があるからだ。ただ、いつも同じ人が水やりをしているという不満は理解できる。来られない人も、道具の修理や会計など、別の役割を選べるようにしてはどうか。\n【意見Ｂ】\n自由に参加する仕組みには賛成だが、今は誰が何を担っているか見えにくい。作物を受け取るだけの人がいるように感じて、不満が出るのだと思う。全員に同じ回数の作業を求めるより、担当した仕事を記録し、互いに分かるようにすることから始めたい。水やり以外の仕事も記録に含めるべきだ。",
       "questions": [
@@ -1964,8 +1971,11 @@
             }
           ],
           "correctChoiceId": "a",
-          "evidenceQuote": "水やり以外の仕事も記録に含めるべきだ。",
-          "skill": "inference"
+          "evidenceQuote": "来られない人も、道具の修理や会計など、別の役割を選べるようにしてはどうか。",
+          "skill": "inference",
+          "supportingQuotes": [
+            "水やり以外の仕事も記録に含めるべきだ。"
+          ]
         },
         {
           "id": "q2",
@@ -2124,7 +2134,7 @@
       "genre": "paired_texts",
       "sourceId": "original-n2",
       "sourceRecord": "translation-views",
-      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved. Editorial correction 2026-10-23: Shared-claim evidence now includes both A and B rather than B alone.",
       "title": "町のお知らせを分かりやすくするには",
       "text": "【担当者Ａ】\n町のお知らせを外国語に訳すとき、まず日本語の原稿を見直したい。担当部署の中だけで通じる略語や、一文の長さが、翻訳を難しくしている。何をいつまでにすればよいかが分かる原稿なら、外国語にしても要点が伝わりやすいはずだ。\n【担当者Ｂ】\n原稿の見直しは必要だと思う。ただ、分かりやすくするために、申込みの条件まで省いては困る。読みやすい短い案内で要点を示し、詳しい条件を確認できる資料も用意したい。外国語版を作った後には、想定する読者に読んでもらい、実際に手続きが分かるか確かめることも必要だ。",
       "questions": [
@@ -2150,8 +2160,11 @@
             }
           ],
           "correctChoiceId": "d",
-          "evidenceQuote": "原稿の見直しは必要だと思う。ただ、分かりやすくするために、申込みの条件まで省いては困る。",
-          "skill": "inference"
+          "evidenceQuote": "町のお知らせを外国語に訳すとき、まず日本語の原稿を見直したい。",
+          "skill": "inference",
+          "supportingQuotes": [
+            "原稿の見直しは必要だと思う。ただ、分かりやすくするために、申込みの条件まで省いては困る。"
+          ]
         },
         {
           "id": "q2",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "japanese-word-content",
-  "revision": 1,
+  "revision": 2,
   "status": "draft",
   "sources": [
     {
@@ -31,7 +31,7 @@
       "location": "https://github.com/gauravhq/JLPTSuccess/tree/708a995691dcd0983e2ede47db423281b1cd343a/N5/data",
       "revision": "708a995691dcd0983e2ede47db423281b1cd343a",
       "license": "CC-BY-SA-4.0",
-      "attribution": "JLPTSuccess contributors, 2026. Selected original N5 readings and construction questions, adapted as recorded; CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/. Notices: licences/jlptsuccess-LICENSE.txt and licences/jlptsuccess-CONTENT.md. The upstream native-review labels describe an AI persona, not a human teacher.",
+      "attribution": "JLPTSuccess contributors, 2026. Selected original N5 readings, construction tasks and grammar choices, adapted as recorded; CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/. Notices: licences/jlptsuccess-LICENSE.txt and licences/jlptsuccess-CONTENT.md. The upstream native-review labels describe an AI persona, not a human teacher.",
       "permissionEvidence": "Pinned root LICENSE expressly separates CC BY-SA 4.0 educational content from MIT software; N5/CONTENT-LICENSE.md claims original questions and discloses AI review."
     },
     {
@@ -41,7 +41,7 @@
       "location": "https://github.com/stndaru/nihongo-mono/tree/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar",
       "revision": "ec0ba4a0ce1611c568b0e4f8a223eb8029249a25",
       "license": "MIT",
-      "attribution": "Copyright (c) 2026 Stefanus Ndaru Wedhatama. Original grammar examples, adapted into keyed tiles. Full notices in licences/nihongo-mono-MIT.txt and licences/nihongo-mono-DATA.md.",
+      "attribution": "Copyright (c) 2026 Stefanus Ndaru Wedhatama. Original grammar examples, adapted into sentence assemblies and choice questions as recorded. Full notices in licences/nihongo-mono-MIT.txt and licences/nihongo-mono-DATA.md.",
       "permissionEvidence": "https://github.com/stndaru/nihongo-mono/blob/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/LICENSE-DATA.md explicitly assigns MIT to original grammar examples, distinct from dictionary data."
     }
   ],
@@ -5706,34 +5706,34 @@
       "id": "grammar-sobireru",
       "sourceId": "nihongo-mono",
       "sourceRecord": "n1/sobireru/examples/1",
-      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Editorial correction 2026-10-23: Remove the grammatical casual alternative 食べそびれてたの and malformed inflections. Test whole-compound meaning with three grammatical past-tense alternatives and explicit missed-opportunity context; exact keyed source completion retained.",
       "focus": "〜そびれる",
       "original": "会議が長引いて、昼食を食べそびれた。",
       "prompt": {
-        "en": "Choose the expression that best completes the sentence.",
-        "ja": "空欄に入る最も適切な表現を選んでください。"
+        "en": "昼食をとるつもりでしたが、会議が午後まで続き、食べる機会を逃しました。\nChoose the expression that best completes the sentence.",
+        "ja": "昼食をとるつもりでしたが、会議が午後まで続き、食べる機会を逃しました。\n空欄に入る最も適切な表現を選んでください。"
       },
-      "stimulus": "会議が長引いて、昼食を食べ＿＿。",
+      "stimulus": "会議が長引いて、昼食を＿＿。",
       "completion": "会議が長引いて、昼食を食べそびれた。",
-      "rationale": "食べそびれた：食べる機会を逃した。",
+      "rationale": "食べそびれた：食べるつもりだったが機会を逃した。食べきった（全部食べた）、食べ始めた（食べる動作を始めた）、食べ直した（もう一度食べた）は、この文脈とは異なる。",
       "band": "N1",
       "domain": "grammar",
       "choices": [
         {
           "id": "c1",
-          "text": "そびる"
+          "text": "食べきった"
         },
         {
           "id": "c2",
-          "text": "そびれた"
+          "text": "食べそびれた"
         },
         {
           "id": "c3",
-          "text": "そびるた"
+          "text": "食べ始めた"
         },
         {
           "id": "c4",
-          "text": "そびれてたの"
+          "text": "食べ直した"
         }
       ],
       "correctChoiceId": "c2"

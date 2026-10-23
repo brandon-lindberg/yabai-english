@@ -10,7 +10,7 @@ describe("database-free Japanese assessment audit command", () => {
     const result = command(["--json"]);
     expect(result.status, result.stderr).toBe(0);
     const report = JSON.parse(result.stdout);
-    expect(report).toMatchObject({ bankId: "japanese-review-samples", items: 12, ready: false, domains: { writing: 2 } });
+    expect(report).toMatchObject({ bankId: "japanese-content-catalog", schemaVersion: 4, items: 470, independentReadingPassages: 100, ready: false, domains: { reading: 200, writing: 100 } });
     expect(report).not.toHaveProperty("assetsVerified");
     expect(report.domains).not.toHaveProperty("listening");
     expect(report.issues).toEqual(["japanese-teacher-review-required", "rights-review-required", "placement-review-required", "assessment-calibration-required"]);
@@ -21,6 +21,12 @@ describe("database-free Japanese assessment audit command", () => {
     const result = command(["--strict", "--json"]);
     expect(result.status).toBe(1);
     expect(JSON.parse(result.stdout).ready).toBe(false);
+  });
+
+  it("can still audit the original twelve format samples explicitly", () => {
+    const result = command(["--samples", "--json"]);
+    expect(result.status, result.stderr).toBe(0);
+    expect(JSON.parse(result.stdout)).toMatchObject({ bankId: "japanese-review-samples", schemaVersion: 3, items: 12, ready: false });
   });
 
   it("refuses unknown arguments rather than ignoring a misspelled strict flag", () => {
@@ -46,5 +52,18 @@ describe("offline Japanese content import command", () => {
     expect(exported).not.toHaveProperty("reviews");
     expect(exported).not.toHaveProperty("assessment");
     expect(exported.items.every((item: { calibration: unknown }) => item.calibration === null)).toBe(true);
+  });
+
+  it("exports the full unapproved bank and reports its grouping without assigning release inputs", () => {
+    const result = command(["--bank"], "audit-japanese-placement-content.ts");
+    expect(result.status, result.stderr).toBe(0);
+    const bank = JSON.parse(result.stdout);
+    expect(bank).toMatchObject({ schemaVersion: 4, assessment: null, reviews: { japaneseTeacher: null, rights: null, placement: null } });
+    expect(bank.items).toHaveLength(470);
+    expect(bank.sequence).toHaveLength(470);
+    expect(bank.items.every((item: { calibration: unknown }) => item.calibration === null)).toBe(true);
+    const incompatible = command(["--items", "--bank"], "audit-japanese-placement-content.ts");
+    expect(incompatible.status).toBe(1);
+    expect(incompatible.stderr).toMatch(/one export/i);
   });
 });

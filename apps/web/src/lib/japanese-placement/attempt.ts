@@ -1,7 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import {
-  bankDigest, loadApprovedJapaneseBank, JAPANESE_PLACEMENT_DOMAINS, JAPANESE_POLICY_REVISION, japaneseQuestionLimit, parseJapaneseBank, sentenceOrderSignature,
+  bankDigest, loadApprovedJapaneseBank, JAPANESE_PLACEMENT_DOMAINS, JAPANESE_POLICY_REVISION, JAPANESE_GROUPED_POLICY_REVISION, JAPANESE_MAX_QUESTIONS, japanesePolicyRevision, japaneseQuestionLimit, parseJapaneseBank, sentenceOrderSignature,
   type JapanesePlacementItem,
 } from "./bank";
 
@@ -11,17 +11,27 @@ import { estimateJapaneseLevel, initialJapaneseEvidence, isCorrectJapaneseRespon
 
 const text = z.string().trim().min(1);
 const timestamp = z.string().datetime();
-export const JAPANESE_ATTEMPT_SCHEMA_VERSION = 3;
-export const JAPANESE_SCORING_REVISION = "japanese-reading-writing-posterior-v1";
+export const JAPANESE_ATTEMPT_SCHEMA_VERSION = 4;
+export const JAPANESE_SUPPORTED_ATTEMPT_SCHEMAS = [3, JAPANESE_ATTEMPT_SCHEMA_VERSION] as const;
+export const JAPANESE_SCORING_REVISION = "japanese-reading-writing-passages-v2";
+export function japaneseScoringRevision(schemaVersion: 3 | 4) {
+  return schemaVersion === 3 ? "japanese-reading-writing-posterior-v1" : JAPANESE_SCORING_REVISION;
+}
+export function supportsJapaneseRuntime(schemaVersion: number, scoringRevision: string): boolean {
+  return JAPANESE_SUPPORTED_ATTEMPT_SCHEMAS.some((version) => version === schemaVersion && japaneseScoringRevision(version) === scoringRevision);
+}
 const startSchema = z.object({ id: text, learnerId: text, startedAt: timestamp }).strict();
 const responseSchema = z.discriminatedUnion("kind", [
   answerInput.extend({ submittedAt: timestamp }), sentenceInput.extend({ submittedAt: timestamp }), skipInput.extend({ submittedAt: timestamp }),
 ]);
 const attemptSchema = startSchema.extend({
-  schemaVersion: z.literal(JAPANESE_ATTEMPT_SCHEMA_VERSION), bankId: text, bankVersion: z.number().int().positive(),
-  expiresAt: timestamp, policyRevision: z.literal(JAPANESE_POLICY_REVISION),
+  schemaVersion: z.union([z.literal(3), z.literal(JAPANESE_ATTEMPT_SCHEMA_VERSION)]), bankId: text, bankVersion: z.number().int().positive(),
+  expiresAt: timestamp, policyRevision: z.enum([JAPANESE_POLICY_REVISION, JAPANESE_GROUPED_POLICY_REVISION]),
   bankDigest: z.string().regex(/^[a-f0-9]{64}$/), responses: z.array(responseSchema).max(120),
-}).strict();
+}).strict().superRefine((attempt, ctx) => {
+  if (attempt.policyRevision !== japanesePolicyRevision(attempt.schemaVersion) ||
+    (attempt.schemaVersion === 4 && attempt.responses.length > JAPANESE_MAX_QUESTIONS)) ctx.addIssue({ code: "custom", message: "Japanese attempt version or response budget mismatch" });
+});
 
 export type JapaneseAttempt = z.infer<typeof attemptSchema>;
 export type JapaneseResponse = z.infer<typeof responseSchema>;
@@ -45,7 +55,7 @@ function validateResponse(item: JapanesePlacementItem, response: JapaneseRespons
 function context(bankValue: unknown, attemptValue: unknown) {
   const bank = parseJapaneseBank(bankValue);
   const attempt = parseJapaneseAttempt(attemptValue);
-  if (attempt.bankId !== bank.id || attempt.bankVersion !== bank.version || attempt.bankDigest !== bankDigest(bank)) {
+  if (attempt.schemaVersion !== bank.schemaVersion || attempt.bankId !== bank.id || attempt.bankVersion !== bank.version || attempt.bankDigest !== bankDigest(bank)) {
     throw new Error("Japanese attempt bank snapshot mismatch");
   }
   if (!bank.assessment || attempt.policyRevision !== bank.assessment.revision) throw new Error("Japanese policy mismatch");
@@ -68,11 +78,11 @@ function context(bankValue: unknown, attemptValue: unknown) {
 export function startJapaneseAttempt(bankValue: unknown, input: unknown): JapaneseAttempt {
   const bank = loadApprovedJapaneseBank(bankValue);
   const start = startSchema.parse(input);
-  return {
+  return parseJapaneseAttempt({
     ...start, expiresAt: new Date(Date.parse(start.startedAt) + bank.assessment!.timeLimitSec * 1000).toISOString(),
-    policyRevision: bank.assessment!.revision, schemaVersion: JAPANESE_ATTEMPT_SCHEMA_VERSION,
+    policyRevision: bank.assessment!.revision, schemaVersion: bank.schemaVersion,
     bankId: bank.id, bankVersion: bank.version, bankDigest: bankDigest(bank), responses: [],
-  };
+  });
 }
 
 /** Explicit projection: keys, accepted orders, explanations and content reviews stay on the server. */
@@ -136,7 +146,7 @@ export function summarizeJapaneseAttempt(bankValue: unknown, attemptValue: unkno
   });
   return {
     attemptId: attempt.id, bankId: bank.id, bankVersion: bank.version, bankDigest: attempt.bankDigest,
-    scoringRevision: JAPANESE_SCORING_REVISION,
+    scoringRevision: japaneseScoringRevision(bank.schemaVersion),
     policyRevision: attempt.policyRevision, expiresAt: attempt.expiresAt,
     startedAt: attempt.startedAt, completedAt: complete ? earliest : attempt.expiresAt,
     completionReason: complete ? "question_limit" as const : "time_limit" as const,
