@@ -6,6 +6,7 @@ import { Link, redirect } from "@/i18n/navigation";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { BookingStatus } from "@/generated/prisma/client";
 import { PageHeader } from "@/components/ui/page-header";
+import { TeacherJapanesePlacement } from "@/components/japanese-placement/teacher-result";
 import { StudentProfilePanel } from "@/components/dashboard/student-profile-panel";
 
 type Props = {
@@ -92,6 +93,7 @@ export default async function TeacherViewStudentProfilePage({ params }: Props) {
       <PageHeader title={t("title")} description={t("intro")} />
 
       <StudentProfilePanel student={student} profile={profile} />
+      <TeacherJapanesePlacement teacherUserId={viewerUserId!} studentId={studentId} />
     </div>
   );
 }

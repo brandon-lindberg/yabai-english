@@ -11,20 +11,21 @@ const connectionString = env.DATABASE_URL!;
 if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(connectionString).hostname)) throw new Error("Mirror QA fixtures require a local database.");
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString, application_name: "mirror-journey-fixtures" }) });
 const file = "../../.impeccable/mirror-fixtures.json";
-type Fixtures = { runId: string; users: { id: string; email: string }[]; englishTeacherId: string; japaneseTeacherId: string };
+type Fixtures = { runId: string; users: { id: string; email: string }[]; englishTeacherId: string; japaneseTeacherId: string; placementProductId?: string };
 async function main() {
 try {
   if (process.argv[2] === "create") {
     if (existsSync(file)) throw new Error("Clean up the recorded fixture set before creating another.");
+    const placement = process.argv.includes("--japanese-placement");
     const runId = `mirror-qa-${randomUUID()}`;
     const users = ["student", "new-student", "english-teacher", "japanese-teacher"].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
-    const fixtures: Fixtures = { runId, users, englishTeacherId: `${runId}-english-profile`, japaneseTeacherId: `${runId}-japanese-profile` };
+    const fixtures: Fixtures = { runId, users, englishTeacherId: `${runId}-english-profile`, japaneseTeacherId: `${runId}-japanese-profile`, ...(placement ? { placementProductId: `${runId}-placement-product` } : {}) };
     mkdirSync("../../.impeccable", { recursive: true });
     // Record ownership before the transaction; cleanup is safe after failures.
     writeFileSync(file, JSON.stringify(fixtures, null, 2));
     await prisma.$transaction(async (tx) => {
       for (const [index, user] of users.entries()) {
-        await tx.user.create({ data: { ...user, name: index < 2 ? "Mirror QA Student" : index === 2 ? "Mirror QA English Teacher" : "Mirror QA Japanese Teacher", role: index < 2 ? "STUDENT" : "TEACHER", locale: "en" } });
+        await tx.user.create({ data: { ...user, name: index < 2 ? "Mirror QA Student" : index === 2 ? "Mirror QA English Teacher" : "Mirror QA Japanese Teacher", role: index < 2 ? "STUDENT" : "TEACHER", locale: "en", learningLanguage: placement && index === 0 ? "JAPANESE" : "ENGLISH" } });
       }
       await tx.studentProfile.create({ data: { userId: users[0].id, onboardingCompletedAt: new Date(), placedLevel: "ADVANCED", placedSubLevel: 3 } });
       for (const [id, userId, learningLanguage] of [[fixtures.englishTeacherId, users[2].id, "ENGLISH"], [fixtures.japaneseTeacherId, users[3].id, "JAPANESE"]] as const) {
@@ -35,6 +36,11 @@ try {
         await tx.teacherLessonOffering.create({ data: { id: offerId, teacherId: id, learningLanguage, durationMin: 60, rateYen: 5000, classLevelId: level.id, classTypeId: type.id } });
         await tx.availabilitySlot.create({ data: { teacherId: id, teacherLessonOfferingId: offerId, classLevelId: level.id, classTypeId: type.id, dayOfWeek: 1, startMin: 600, endMin: 660 } });
       }
+      if (fixtures.placementProductId) {
+        await tx.lessonProduct.create({ data: { id: fixtures.placementProductId, tier: "STANDARD", durationMin: 60, nameEn: "Local QA lesson", nameJa: "ローカル検証レッスン" } });
+        await tx.booking.create({ data: { id: `${runId}-placement-booking`, teacherId: fixtures.japaneseTeacherId, studentId: users[0].id,
+          lessonProductId: fixtures.placementProductId, learningLanguage: "JAPANESE", status: "CONFIRMED", startsAt: new Date(Date.now() + 604_800_000), endsAt: new Date(Date.now() + 608_400_000) } });
+      }
     });
     console.log(JSON.stringify(fixtures));
   } else if (process.argv[2] === "cleanup") {
@@ -42,6 +48,10 @@ try {
     if (!fixtures.runId.startsWith("mirror-qa-") || fixtures.users.some((u) => !u.id.startsWith(`${fixtures.runId}-`))) throw new Error("Unrecognized fixture ownership.");
     await prisma.user.deleteMany({ where: { id: { in: fixtures.users.map((u) => u.id) } } });
     if (await prisma.user.count({ where: { id: { in: fixtures.users.map((u) => u.id) } } })) throw new Error("Fixture cleanup incomplete.");
+    if (fixtures.placementProductId) {
+      if (fixtures.placementProductId !== `${fixtures.runId}-placement-product`) throw new Error("Unrecognized product ownership");
+      await prisma.lessonProduct.deleteMany({ where: { id: fixtures.placementProductId } });
+    }
     unlinkSync(file);
     console.log("Owned mirror QA accounts and related rows removed.");
   } else throw new Error("Use create or cleanup.");

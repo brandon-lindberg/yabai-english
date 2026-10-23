@@ -82,3 +82,10 @@ describe("becoming a teacher", () => {
   });
 });
 
+
+
+it("links Japanese students to their independent assessment regardless of the English cooldown flag", () => {
+  const links = getHeaderPrimaryNavLinks({ signedIn: true, role: "STUDENT", learningLanguage: "JAPANESE", canStartPlacement: false });
+  expect(links).toContainEqual({ id: "japanese-placement", href: "/japanese-placement", labelKey: "placement" });
+  expect(links.some((link) => link.href === "/placement")).toBe(false);
+});

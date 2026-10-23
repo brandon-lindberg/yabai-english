@@ -1,0 +1,1350 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-10-22",
+  "files": [
+    {
+      "url": "https://raw.githubusercontent.com/AdvaySanketi/Kotonoha/e93b20b3e9b8fd31da5e79c24cd7eb94daec82e5/src/data/content.js",
+      "sha256": "70ee0048011340982853ebd0c50c58527f01d083680b57e94199ba597f4b7ae7"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json",
+      "sha256": "1608290c5f984b98bbbde8908ee10c7ff6042815b0a0c89d833005b09a45cff5"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json",
+      "sha256": "47204ec9710c8a7f8ce27b688c08ecd40a3e5470471479a257bcb15ab43c1331"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/late-train/",
+      "sha256": "7b50e79776f4ec94664e4d2dfbbc87ba9e3d664f0c209d320c7c6a792fc87428"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/morning-habit/",
+      "sha256": "5fbd14b0317c9bc896a69a8f10eefbe84515228e3c779ad9f1402377c3f4678e"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/bicycle-repair/",
+      "sha256": "dad87c016dc97b231385698e42f7b44f9cffe993273560da65e3cd9507d444ef"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/cooking-class/",
+      "sha256": "594e9ae016625264b30b6f24c8ffec855dde19b7e71ba1ce4595679195a67b5b"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/choosing-a-present/",
+      "sha256": "524c9f3b28ebc928cca068611eee19c34815236fcc41bc7c7e23c6dd71611c6b"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/water-notice/",
+      "sha256": "291c7779958f28b246f41084d06088c661f4d5bffe21971277579c1971942adf"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/meeting-email/",
+      "sha256": "83ecb9e24afdb432b3ac798ad53c6332156ce0312a3a16e725488e7f2f990015"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/city-marathon/",
+      "sha256": "a26530e2f21dc1d85430f88a494c9fca64f2f2524afb0ff3488ef4dd1fa3d0f6"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/greetings-essay/",
+      "sha256": "9609f887b8bc6674615a3eb6d3c112bfee82a2ddbf2f46c586c904fb45debf3f"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/volunteer-japanese-class/",
+      "sha256": "3211dedc4e68b0fa7ab1176bbd819a727e4ffc764cc36f652486b6a733ba42d3"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/summer-at-grandmothers/",
+      "sha256": "a047e5a720fc021d4a464299a69e46a8640c5e55320b0ee57b75fd3cded82e5b"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/working-from-home/",
+      "sha256": "2378443af5de671ab945682252e183806c2c871a229f0b9adb78675f35b94301"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/lost-abroad/",
+      "sha256": "3bd4a7bb162a21d19efc66d47996a5f0484de0f615727d7b0a4496afbf3e28e2"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/recycling-in-town/",
+      "sha256": "996cd79aab2afdb8d4f48ee3af1f7a99a37b4dc976177e2bbc378d18e193cf44"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/changing-jobs/",
+      "sha256": "bbe92d16468b117baed8be485be793074f60cc8386c40cdbe61cf1e2d5750268"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/baker-interview/",
+      "sha256": "0c473a68d6520de61b75958af1f92a28f0684fce7ec2336aa76b7bbcf537362f"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/earthquake-guide/",
+      "sha256": "2713bee49a5daa297fa48f1eff138ab4dd94c3a3bf71aa551fd13714115fec9a"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/ageing-town/",
+      "sha256": "87768402cd2fe69d9419d8af5f04103b0b6945218d8db08802eeef4a85a86486"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/inn-review/",
+      "sha256": "a8c2c7b81d8c58e2430ac995b478304cac3236bbf2abd6875166c725d997c9cb"
+    },
+    {
+      "url": "https://japaneseness.com/worksheets/reading_n3/time-to-read/",
+      "sha256": "7fdd91e5dc286d2a4a7aff42df512ce75a981a5f728891b42eb89bd8af806387"
+    }
+  ],
+  "records": [
+    {
+      "sourceId": "japaneseness",
+      "id": "late-train",
+      "band": "N3",
+      "text": "昨日の朝、いつもの電車がじこで止まってしまいました。ホームには人があふれていて、次の電車を待っても乗れそうにありません。会議は十時からです。わたしはしばらく考えてから、バスで行くことにしました。\nバスていまで歩いていると、同じ会社の田中さんに会いました。田中さんも困っていたので、一緒にバスに乗りました。バスは道がこんでいてなかなか進みませんでしたが、窓から見える景色はいつもと違っていて、少しおもしろかったです。\n会社に着いたのは十時五分前でした。ぶちょうは「れんらくをくれたおかげで、予定を変えずにすんだよ」と言ってくれました。電車が止まったら、まずれんらくをする。それだけで相手は安心するのだと気がつきました。",
+      "title": "おくれた朝",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "なぜ いつもの 電車に 乗れませんでしたか。",
+          "options": [
+            "じこで 止まっていたから",
+            "時間に おくれたから",
+            "きっぷを なくしたから"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "バスの 中は どうでしたか。",
+          "options": [
+            "すいていて 早く 着いた",
+            "こんでいて なかなか 進まなかった",
+            "静かで ねむく なった"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q3",
+          "prompt": "ぶちょうは なぜ 予定を 変えずに すみましたか。",
+          "options": [
+            "会議が 中止に なったから",
+            "わたしが れんらくを したから",
+            "田中さんが 早く 来たから"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/late-train/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "morning-habit",
+      "band": "N3",
+      "text": "去年まで、わたしは朝が苦手でした。夜おそくまでスマホを見ているせいで、朝はいつもぎりぎりに起きて、朝ごはんも食べずに家を出ていました。\nある日、友だちに「三十分早く寝てみたら」と言われました。早く起きろではなく、早く寝ろというのがおもしろいと思って、その日からスマホをふとんに持っていかないことにしました。\nにしゅうかんほど続けると、目覚まし時計が鳴る前に目がさめるようになりました。朝に時間があると、パンをやいて、窓を開けて、その日にすることを紙に書くことができます。一日のはじめが静かだと、ひるのいそがしさにも慣れていくような気がします。\n早く起きられるようになったのは、いしが強くなったからではありません。ただ、寝る時間を先に決めただけです。",
+      "title": "朝のしゅうかん",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "去年まで、朝 起きられなかったのは なぜですか。",
+          "options": [
+            "仕事が いそがしかったから",
+            "夜 おそくまで スマホを 見ていたから",
+            "家が 遠かったから"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q2",
+          "prompt": "友だちは 何と 言いましたか。",
+          "options": [
+            "早く 寝て みたら",
+            "早く 起きろ",
+            "朝ごはんを 食べろ"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "朝に 時間が あると、何を しますか。",
+          "options": [
+            "しずかに テレビを 見る",
+            "パンを やいて、する ことを 紙に 書く",
+            "もう 一度 寝る"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/morning-habit/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "bicycle-repair",
+      "band": "N3",
+      "text": "えきまでの道で自転車のタイヤがパンクしました。近くの自転車やに持っていくと、店主のおじいさんが「十五分まってね」と言って、すぐに直してくれました。\n待っているあいだ、店の中を見ていました。古い道具がかべにきれいにならべてあって、どれも使いこまれています。「五十年使っている道具もあるよ」とおじいさんは笑いました。「新しいものをかうより、手入れをしたほうがながく使えるからね」\n料金は千五百円でした。高いか安いかは分かりませんが、新しい自転車をかえば何万円もかかります。それに、直してもらった自転車は、前よりも大切に思えました。ものをながく使うというのは、こういうことなのかもしれません。",
+      "title": "自転車のしゅうり",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "自転車は どこで こわれましたか。",
+          "options": [
+            "えきまでの 道で",
+            "会社の 前で",
+            "家の 中で"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "おじいさんは 道具に ついて 何と 言いましたか。",
+          "options": [
+            "新しいものが いちばん いい",
+            "五十年 使っている ものも ある",
+            "高い ものは 使わない"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q3",
+          "prompt": "直した あと、自転車を どう 思いましたか。",
+          "options": [
+            "前より 大切に 思えた",
+            "前より おそく 走ると 思った",
+            "早く 売りたいと 思った"
+          ],
+          "answer": 0
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/bicycle-repair/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "cooking-class",
+      "band": "N3",
+      "text": "月に一度、こうみんかんの料理きょうしつに通っています。参加するのは十人ほどで、年も仕事もばらばらです。先生は近くのそばやの方で、いつも「味付けは最後に決めればいい」とおっしゃいます。\n先月は魚をやきました。わたしは強火でやいてしまい、外側だけこげて中まで火が通りませんでした。先生は怒らずに、「もう一度、弱火でやってごらん」と言ってくださいました。二度目はうまくできて、となりの方にもほめられました。\n料理そのものより、知らない人と台所に立つことが楽しいのだと思います。手を動かしながら話していると、初めて会った人とも自然に話せるからです。",
+      "title": "料理きょうしつ",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "料理きょうしつには どのくらい 通っていますか。",
+          "options": [
+            "しゅうに 一度",
+            "月に 一度",
+            "年に 一度"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q2",
+          "prompt": "魚を やいた とき、どんな しっぱいを しましたか。",
+          "options": [
+            "しおを 入れすぎた",
+            "強火で 外側だけ こげた",
+            "魚を 落とした"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q3",
+          "prompt": "先生は しっぱいの あと、何と 言いましたか。",
+          "options": [
+            "弱火で もう 一度 やって ごらん",
+            "今日は もう いい",
+            "家で れんしゅうして きなさい"
+          ],
+          "answer": 0
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/cooking-class/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "choosing-a-present",
+      "band": "N3",
+      "text": "らいしゅう、いもうとのたんじょうびです。何をあげようかといっしゅうかんほどなやんでいました。いもうとは去年から一人でくらしはじめ、仕事もいそがしそうです。\nはじめは服にしようと思いましたが、好みが分からないのでやめました。次におかしを考えましたが、あまいものは苦手だと言っていた気がします。母に相談すると、「自分ではかわないけれど、あるとうれしいものがいいんじゃない」と言われました。\nそれで、少し高いタオルをにまい選びました。毎日使うのに、自分のためには安いものですませてしまうものだからです。店員さんにつつんでもらい、みじかい手紙をつけました。気に入ってくれるかどうかは分かりませんが、いもうとのことをいっしゅうかん考えていたということは伝わるはずです。",
+      "title": "プレゼントを選ぶ",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "なぜ 服を あげるのを やめましたか。",
+          "options": [
+            "高すぎたから",
+            "好みが 分からないから",
+            "もう 持っているから"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q2",
+          "prompt": "母は どんな ものが いいと 言いましたか。",
+          "options": [
+            "自分では かわないが あると うれしい もの",
+            "安くて かるい もの",
+            "いもうとが ほしいと 言った もの"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "何を えらびましたか。",
+          "options": [
+            "おかし",
+            "少し 高い タオル",
+            "服"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/choosing-a-present/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "water-notice",
+      "band": "N3",
+      "text": "ひまわりマンションにお住まいのみなさまへ\nいつもかんりにごきょうりょくいただき、ありがとうございます。水道のくだの工事のため、下記のとおり水が出なくなりますので、お知らせいたします。\n日時 十月十四日（火） ごぜん九時〜ごご三時\n場所 全てのへや（いっかいの店をふくむ）\nご注意\n・工事のあいだ、トイレも使えません。朝のうちに水をためておいてください。\n・洗たくきやしょっきあらいきは、前日までにお使いください。\n・工事が早く終わった場合は、放送でお知らせします。\n・天気がわるい場合は、よくしゅうの同じようびにのばします。\nご不便をおかけしますが、ご理解をお願いいたします。\nひまわりマンションかんり事務所",
+      "title": "だんすいのお知らせ",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "水が 出ない 時間は いつですか。",
+          "options": [
+            "十四日の ごぜん 九時から ごご 三時まで",
+            "十四日の 一日中",
+            "十五日の ごぜん中"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "工事の あいだ、トイレは どうなりますか。",
+          "options": [
+            "使える",
+            "使えない",
+            "いっかいだけ 使える"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q3",
+          "prompt": "工事が 早く 終わった ときは どうしますか。",
+          "options": [
+            "手紙を 出す",
+            "放送で 知らせる",
+            "何も しない"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/water-notice/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "meeting-email",
+      "band": "N3",
+      "text": "えいぎょう部 山田様\nいつもお世話になっております。開発部の中村です。\n明日の打ち合わせについて、ごれんらくいたします。予定しておりましただい一会議しつが使えなくなりましたので、場所をさんがいの小さい方のへやに変えさせていただきます。時間は変わりません。\nそれから、資料についてお願いがあります。せんしゅういただいた数字のうち、九月分がまだ入っていないようです。当日の朝までにお送りいただけますと助かります。もし間に合わないようでしたら、会議の中で口頭でご説明いただくかたちでもかまいません。\nなお、今回から他の部の方も二名参加されます。資料は十部ご用意ください。\nお忙しいところ申しわけありませんが、よろしくお願いいたします。\n中村",
+      "title": "会議のへんこうのメール",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "何が 変わりましたか。",
+          "options": [
+            "会議の 場所",
+            "会議の 時間",
+            "会議の 日"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "資料の 何が たりませんか。",
+          "options": [
+            "九月分の 数字",
+            "去年の 数字",
+            "名前の リスト"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "資料が 間に 合わない ときは どうしますか。",
+          "options": [
+            "会議を 中止する",
+            "会議の 中で 口頭で 説明する",
+            "次の しゅうに する"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/meeting-email/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "city-marathon",
+      "band": "N3",
+      "text": "だい二十回 みどり市しみんマラソン 参加される方へ\n日時は十一月三日、雨でも行います。かぜが強い場合のみ中止とし、その時はごぜん六時までにホームページでお知らせします。\n種目は十キロ、五キロ、親子二キロの三つです。十キロに申しこめるのは十六歳以上の方に限ります。親子の部は小学生とその家族がたいしょうです。\n参加費は十キロが三千円、五キロが二千円、親子の部は一組千円です。申しこみは九月三十日までにインターネットからお願いします。お金をお支払いいただいた後の取り消しはできませんので、ご注意ください。\n当日は受付がこみますので、スタートの一時間前までにお越しください。にもつはたいいくかんでおあずかりします。",
+      "title": "しみんマラソンのごあんない",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "どんな とき 中止に なりますか。",
+          "options": [
+            "雨の とき",
+            "かぜが 強い とき",
+            "寒い とき"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q2",
+          "prompt": "十キロに 出られるのは どんな 人ですか。",
+          "options": [
+            "十六歳 以上の 人",
+            "小学生と その 家族",
+            "市に 住んでいる 人だけ"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "お金を 払った 後で、やめる ことが できますか。",
+          "options": [
+            "できる",
+            "できない",
+            "半分 返して もらえる"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/city-marathon/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "greetings-essay",
+      "band": "N3",
+      "text": "引っ越してきたばかりのころ、わたしはとなりのへやの方の顔も知りませんでした。同じ建物に住んでいるのに、エレベーターで一緒になっても目を合わせない。それが都会というものだと思っていました。\nある朝、ごみを出しに行くと、年を取った男の方が「おはようございます」と声をかけてくださいました。わたしはおどろきながらも、同じように返しました。それだけのことですが、その日は一日気分がよかったのを覚えています。\n次の日から、わたしのほうから声をかけるようにしました。はじめは返事をしてくれない人もいましたが、半年もすると、建物の中のふんいきが少し変わったように感じました。たいふうの夜には、上のかいの方が「窓はだいじょうぶですか」と聞きに来てくださいました。\nあいさつは相手を変えるためのものではないと思います。ただ、「あなたがそこにいるのを知っています」と伝えるだけです。それでも、困ったときに助け合えるかどうかは、そこから始まるのではないでしょうか。",
+      "title": "あいさつの力",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "引っ越して きた ころ、この 人は どう 思っていましたか。",
+          "options": [
+            "都会では 目を 合わせないのが ふつうだ",
+            "となりの 人と 友だちに なりたい",
+            "建物が 古くて こわい"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "だれが 先に あいさつを しましたか。",
+          "options": [
+            "この 人",
+            "年を 取った 男の 方",
+            "上の かいの 方"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q3",
+          "prompt": "半年 たって、何が 変わりましたか。",
+          "options": [
+            "建物の ふんいきが 変わった",
+            "引っ越す 人が ふえた",
+            "ごみの 出し方が 変わった"
+          ],
+          "answer": 0
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/greetings-essay/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "volunteer-japanese-class",
+      "band": "N3",
+      "text": "さくら町こうみんかんでは、外国から来た方のための日本語きょうしつを開いています。現在、十カ国、五十名ほどの方が学んでいますが、教える人が足りません。そこで、いっしょに活動してくださる方をぼしゅうします。\n資格はいりません。日本語を教えた経験がなくてもかまいません。必要なのは、相手の話をゆっくり聞く気持ちだけです。活動はまいしゅうどようびのごご二時から四時まで、月に一回からでもけっこうです。\n内容は、会話の相手になること、役所の書類の書き方を手伝うこと、子どもの宿題を見ることなどです。教えるというより、一緒に考えるという形に近いかもしれません。\n説明会は今月二十日のごご七時から、こうみんかんのわしつで行います。申しこみはいりませんので、ちょくせつお越しください。",
+      "title": "日本語きょうしつのぼしゅう",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "この きょうしつで 今 こまっている ことは 何ですか。",
+          "options": [
+            "教える 人が 足りない",
+            "へやが せまい",
+            "お金が ない"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "手伝うのに 何が 必要ですか。",
+          "options": [
+            "日本語を 教えた 経験",
+            "資格",
+            "相手の 話を ゆっくり 聞く 気持ち"
+          ],
+          "answer": 2
+        },
+        {
+          "id": "q3",
+          "prompt": "活動は どのくらい しますか。",
+          "options": [
+            "まいしゅう かならず",
+            "月に 一回からでも いい",
+            "一年に 一回"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/volunteer-japanese-class/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "summer-at-grandmothers",
+      "band": "N3",
+      "text": "子どものころ、なつやすみになると必ずそぼの家にとまりに行きました。電車を二回のりかえて、さいごはバスで山の方へ三十分。バスをおりると、空気のにおいが町とはまるで違いました。\nそぼの家にはクーラーがなく、ひるは暑くてたまりませんでした。それでも、朝早く起きて庭の草を取り、いどのつめたい水でトマトを冷やしておく。ゆうがたになるとかぜが入ってきて、そぼが「ほら、一日のごほうびだよ」と言う。その言葉を、わたしはいまでも覚えています。\nそぼは昔のことをあまり話しませんでした。戦争のことも、祖父のことも、聞けばひとことふたこと答えるだけで、すぐに「おなかすいたでしょう」と台所へ立ってしまう。あのころは子どもだったので、それをふしぎだとも思いませんでした。\nそぼが亡くなって十年になります。家はもうありませんが、つめたい水にトマトが浮かんでいるのを見ると、あのなつのゆうがたのかぜを思い出します。人は言葉よりも、こういうものでだれかを覚えているのかもしれません。",
+      "title": "そぼの家のなつ",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "そぼの 家へは どうやって 行きましたか。",
+          "options": [
+            "電車を 二回 のりかえて、バスで 三十分",
+            "車で 三時間",
+            "歩いて 山を 登った"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "そぼは ゆうがたの かぜを 何だと 言いましたか。",
+          "options": [
+            "一日の ごほうび",
+            "山からの 手紙",
+            "なつの 終わり"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "そぼは 昔の ことを どう していましたか。",
+          "options": [
+            "毎晩 くわしく 話した",
+            "あまり 話さなかった",
+            "手紙に 書いて 残した"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/summer-at-grandmothers/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "working-from-home",
+      "band": "N3",
+      "text": "会社に行かずに家で働く人が増えました。わたしの会社でも、しゅうの半分は家で仕事をしてもよいことになっています。朝の電車に乗らなくてよくなっただけで、一日が一時間ながくなったように感じます。\nよい点はほかにもあります。ひるに洗たくができ、ゆうがたには家族と食事ができる。集中したい仕事は、だれにも話しかけられない家のほうが早く進みます。じっさい、報告書を書く時間は半分ほどになりました。\nしかし、困ることもあります。一番大きいのは、相談のしにくさです。会社なら「ちょっといいですか」の一言ですむことが、家では電話をかけるかメールを書くかになり、それだけで気が重くなります。新しく入った人が仕事を覚えにくいという声も聞きます。仕事は教わるものだけでなく、となりの席の会話から自然にみにつくものも多いからです。\n家で働くのがよいかわるいかという問い方は、あまり意味がないのかもしれません。大切なのは、どの仕事を一人でやり、どの仕事をみんなでやるかを決めることではないでしょうか。",
+      "title": "家で働くということ",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "この 人の 会社では、家で 働けるのは どのくらいですか。",
+          "options": [
+            "毎日",
+            "しゅうの 半分",
+            "月に 一日"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q2",
+          "prompt": "家で 早く 進む 仕事は どんな 仕事ですか。",
+          "options": [
+            "集中したい 仕事",
+            "人と 相談する 仕事",
+            "外へ 出る 仕事"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "いちばん 困る ことは 何ですか。",
+          "options": [
+            "部やが せまい こと",
+            "相談が しにくい こと",
+            "電気代が 高い こと"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/working-from-home/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "lost-abroad",
+      "band": "N3",
+      "text": "二年前、はじめて一人で外国へりょこうに行きました。ちずのアプリがあればだいじょうぶだと思っていたのですが、三日目の夜、スマホのでんちが切れてしまいました。\nえきの名前も、とまっているホテルの通りの名前も覚えていません。ちずは紙で持っていませんでした。暗い道を歩きながら、これはまずいと思いました。言葉もほとんど通じません。\nけっきょく、まだ開いていたパンやに入り、店の方にホテルの名前だけを見せました。その方は首をふりましたが、店のおくから息子さんらしい若い人を呼んでくれました。若い人は英語が少し話せて、自分のスマホでホテルを探し、紙に道をかいてくれたのです。しかも、店の外まで出て、最初のかどまで一緒に歩いてくれました。\nホテルに着いたのは夜の十一時すぎでした。おれいを言うこともできないまま別れてしまい、いまでも心に残っています。それからりょこうのときは、紙のちずをいちまい、かばんに入れるようにしています。あの夜に助けてもらった分を、いつかどこかで返したいと思っています。",
+      "title": "道に まよった 話",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "なぜ 道が 分からなく なりましたか。",
+          "options": [
+            "ちずを なくしたから",
+            "スマホの でんちが 切れたから",
+            "雨が ふったから"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q2",
+          "prompt": "パンやの 店の 方は 何を しましたか。",
+          "options": [
+            "ホテルまで 車で 送った",
+            "英語が 話せる 若い 人を 呼んだ",
+            "何も しなかった"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q3",
+          "prompt": "若い 人は どこまで 一緒に 行きましたか。",
+          "options": [
+            "ホテルの 前まで",
+            "最初の かどまで",
+            "えきまで"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/lost-abroad/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "recycling-in-town",
+      "band": "N3",
+      "text": "みどり市では、五年前からごみのぶんべつのしかたが変わりました。以前は「もえるごみ」と「もえないごみ」の二つだけでしたが、今はプラスチック、紙、びん、かん、ペットボトルなど、全部で八つに分けなければなりません。\n始まったころは、住民から「めんどうだ」という声が多く出ました。朝のごみ置き場では、出し方をめぐって言い争いになることもあったそうです。市はかくちくで説明会を開き、絵の入った表を全せたいにくばりました。外国語の表も五か国語用意されました。\nけっかとして、もえるごみのりょうは五年で三割へりました。へった分、ごみをもやす費用も安くなり、その分が公園のせいびに使われているといいます。一方で、こうれいの方にとっては、重いびんを遠くの置き場まで運ぶのがふたんになっているという問題も残っています。\n市のたんとうの方は「正しく分けてもらうことよりも、まず続けてもらうことが大切です」と話しています。来年からは、きぼうする家を回って集めるサービスも始まる予定です。",
+      "title": "町の リサイクル",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "今、ごみは いくつに 分けますか。",
+          "options": [
+            "二つ",
+            "五つ",
+            "八つ"
+          ],
+          "answer": 2
+        },
+        {
+          "id": "q2",
+          "prompt": "市は 住民の ために 何を しましたか。",
+          "options": [
+            "説明会を 開き、絵の 入った 表を くばった",
+            "ごみ 置き場を なくした",
+            "お金を くばった"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "もえる ごみは どうなりましたか。",
+          "options": [
+            "五年で 三割 へった",
+            "少し 増えた",
+            "変わらなかった"
+          ],
+          "answer": 0
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/recycling-in-town/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "changing-jobs",
+      "band": "N3",
+      "text": "大学を出て入った会社に、わたしは八年勤めました。給料はわるくなく、どうりょうにもめぐまれていました。それでも、三十歳をすぎたころから、このままでいいのだろうかと考えるようになりました。\nきっかけは、後はいの一言でした。「せんぱいはどうして今の仕事を選んだんですか」と聞かれ、わたしはうまく答えられなかったのです。入れる会社に入り、与えられた仕事をしてきただけだと気がつきました。\n転職を決めるまでには一年かかりました。家族には反対されましたし、今より給料が下がることも分かっていました。それでも、夜に求人のページを見ている自分が、会議に出ているときよりも生き生きしていることに気がついてしまったのです。\n新しい職場は小さく、覚えることばかりで毎日くたくたです。以前のように、何も考えずにできる仕事はひとつもありません。それでも、自分で選んだという一点が、つらい日のささえになっています。正しい選び方だったかどうかは、まだ分かりません。十年後に答えを出せばよいと思っています。",
+      "title": "仕事を 変えた 日",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "前の 会社に 何年 いましたか。",
+          "options": [
+            "三年",
+            "八年",
+            "十年"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q2",
+          "prompt": "考えはじめた きっかけは 何ですか。",
+          "options": [
+            "後はいに 聞かれた こと",
+            "給料が 下がった こと",
+            "会社が 遠く なった こと"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "家族は どう 言いましたか。",
+          "options": [
+            "さんせいした",
+            "反対した",
+            "何も 言わなかった"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/changing-jobs/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "baker-interview",
+      "band": "N3",
+      "text": "——お店を始めて何年になりますか。\n二十二年です。もともとは別の仕事をしていました。三十を前にして会社を辞め、一年だけと決めてパンやで働かせてもらったんです。それが、いつのまにか今まで続いてしまいました。\n——苦労されたことは。\n最初の五年は、正直に言って毎日やめたいと思っていました。朝二時起きの生活にからだが慣れませんし、作っても売れずにすててしまう日が続きます。近くに大きなスーパーができたときは、本当に店を閉じることまで考えました。\n——それでも続けられたのは。\nお客さんに助けられたからです。ある朝、年を取ったお客さんが「ここのパンでないと、夫が食べないのよ」とおっしゃった。それを聞いて、自分のパンを待っている人が確かにいるのだと分かりました。売り上げの数字よりも、その一言のほうがずっと力になりましたね。\n——これからのもくひょうは。\n大きくするつもりはありません。今の広さで、顔の分かるお客さんに売る。ただ、若い人に教えることは増やしたいです。ぎじゅつは自分のものではなく、あずかっているものだと思っていますから。",
+      "title": "パンやの店主に聞く",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "この 人は パンやを 始める 前、何を していましたか。",
+          "options": [
+            "別の 会社で 働いていた",
+            "学生だった",
+            "外国に 住んでいた"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "いちばん つらかったのは いつですか。",
+          "options": [
+            "最初の 五年",
+            "二十年目",
+            "店を 開ける 前"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "続けられた 理由は 何ですか。",
+          "options": [
+            "売り上げが 増えたから",
+            "お客さんの 一言が あったから",
+            "スーパーが なくなったから"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/baker-interview/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "earthquake-guide",
+      "band": "N3",
+      "text": "日本にくらす以上、地しんから完全にのがれることはできません。ここでは、ゆれを感じたときにどう行動すればよいかをまとめます。\nまず、ゆれているあいだは動かないことです。あわてて外に飛び出すと、落ちてくるものに当たる危険があります。つくえの下に入り、頭を守ってください。つくえがない場合は、かばんや本で頭をおおうだけでも違います。\nゆれがおさまったら、火を確認します。台所のガスは、今の多くのききが自動で止まりますが、念のため自分の目で見ておきましょう。次に、げんかんのとびらを開けて出口をつくります。建物がゆがむと、あとで開かなくなることがあるからです。\n外へ出るときは、必ずくつをはいてください。ゆかにガラスが落ちていることが多いためです。ひなん場所は近くの学校や公園に決められています。家族とは、その場で会う約束を前もってしておくとよいでしょう。電話は地しんの直後にはつながりにくくなります。\n水と食べ物は、三日分を目安に用意しておきます。特別なものをかう必要はありません。ふだん食べているものを少し多めに置き、古いものから使っていけば、それが一番続く方法です。",
+      "title": "地しんの ときは",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "ゆれている あいだは どう しますか。",
+          "options": [
+            "すぐ 外に 出る",
+            "動かずに つくえの 下で 頭を 守る",
+            "電話を かける"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q2",
+          "prompt": "なぜ げんかんの とびらを 開けますか。",
+          "options": [
+            "空気を 入れる ため",
+            "あとで 開かなく なる ことが ある ため",
+            "音を 聞く ため"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q3",
+          "prompt": "外へ 出る とき、何に 気を つけますか。",
+          "options": [
+            "くつを はく",
+            "かさを 持つ",
+            "電気を 消す"
+          ],
+          "answer": 0
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/earthquake-guide/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "ageing-town",
+      "band": "N3",
+      "text": "かえで町では、住民の三人に一人が六十五歳以上です。子どもがへり、店が閉まり、バスの本数も少なくなりました。車を運転できなくなったこうれいの方にとって、かい物や病院へ行くことが大きな問題になっています。\nそこで三年前、町の人たちが「助け合いの車」というしくみを作りました。運転ができる住民がとうろくし、必要な人を病院やスーパーまで送るというものです。お金のやり取りはありません。かわりに、送ってもらった人は「ありがとうカード」をいちまいわたします。カードを集めた人は、町のまつりでやさいとこうかんすることができます。\n始めた方の一人は、こう話します。「お金にすると、頼むほうも頼まれるほうも気が重くなるんです。カードなら、助けてもらうことがわるいことに感じられない。それが一番大事でした」\n現在、とうろくしている運転者は四十二名、利用する方は百名をこえます。もちろん、問題がないわけではありません。じこが起きたときの責任をどうするか、運転する人じしんも年を取っていくという心配もあります。それでも、町の方は口をそろえて言います。だれかに頼ることを恥ずかしいと思わなくなったのが、一番の変化だと。",
+      "title": "助け合いの しくみ",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "かえで町の 住民の うち、六十五歳 以上は どのくらいですか。",
+          "options": [
+            "三人に 一人",
+            "十人に 一人",
+            "半分"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "送って もらった 人は 何を わたしますか。",
+          "options": [
+            "お金",
+            "ありがとうカード",
+            "やさい"
+          ],
+          "answer": 1
+        },
+        {
+          "id": "q3",
+          "prompt": "なぜ お金では なく カードに しましたか。",
+          "options": [
+            "お金だと 気が 重く なるから",
+            "カードの ほうが 高いから",
+            "町が 決めたから"
+          ],
+          "answer": 0
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/ageing-town/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "inn-review",
+      "band": "N3",
+      "text": "家族四人で、山の中の古い宿にいっぱくしてきました。予約のときから気になっていたのは、「食事はへやではなくしょくどうで」「夜十時にはおふろを閉めます」など、ホームページに書かれた注意の多さでした。正直に言うと、きびしい宿なのだろうかと少し心配していました。\nところが、着いてみるとまったくいんしょうが違いました。年を取ったご夫婦と息子さんの三人だけでやっている宿で、できることが限られているから先に正直に書いているのだと分かったのです。へやは新しくありませんが、よくそうじされていて、窓からたにが見えました。\nゆうしょくは山のやさいと川の魚が中心で、りょうはけっして多くありません。子どもには足りないかと思いましたが、ごはんをおかわりさせてもらい、けっきょくよく食べていました。おふろは小さいものが二つ、男女が時間で交代する方式です。十時に閉まるのは、朝のそうじを一人でされているからだそうです。\n値段は一人一万円ほど。ごうかな宿をお求めの方にはすすめません。ただ、朝、たににきりがかかるのを窓からだまって見ていた十分間は、値段ではくらべられないものでした。注意書きの多い宿が、かならずしもきびしい宿だとは限らないようです。",
+      "title": "おんせんの 宿で 一ぱく",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "予約の とき、何が 気に なりましたか。",
+          "options": [
+            "ホームページの 注意が 多い こと",
+            "値段が 高い こと",
+            "場所が 遠い こと"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "宿は 何人で やっていますか。",
+          "options": [
+            "三人",
+            "十人",
+            "一人"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "おふろが 十時に 閉まるのは なぜですか。",
+          "options": [
+            "おゆが 少ないから",
+            "朝の そうじを 一人で しているから",
+            "客が 少ないから"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/inn-review/"
+    },
+    {
+      "sourceId": "japaneseness",
+      "id": "time-to-read",
+      "band": "N3",
+      "text": "「最近、本を読まなくなった」と言う人が増えています。あるちょうさでは、一か月に一さつも読まない大人が半分近くにのぼるといいます。理由として一番多くあげられるのは「時間がない」ことです。\nしかし、本当に時間がないのでしょうか。同じちょうさによれば、スマホを見ている時間は一日へいきんで三時間以上でした。つまり、時間がないのではなく、時間の使い方が変わったと言うほうが正しいのかもしれません。\nわたしじしんも、数年前まではほとんど読めていませんでした。そこで、寝る前の十五分だけと決め、スマホを別のへやに置くようにしました。すると、一か月に二さつほどは読めるようになったのです。一日十五分は一年で九十時間になります。時間は作るものだという言い方を、以前はきれいごとだと思っていましたが、そうでもないようです。\nもちろん、本を読めば必ず何かが分かるわけではありません。読んだ内容の多くは、一か月もすれば忘れてしまいます。それでも、他人の考えを最後まで聞くという経験は、みじかいぶんしょうをいくつも読むのとは別のものです。意見の違う相手の話を最後まで聞ける人がへっていると言われる今、本を読む時間には、知識を得る以外の意味もあるように思います。",
+      "title": "本を 読む 時間",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "一か月に 一さつも 読まない 大人は どのくらい いますか。",
+          "options": [
+            "半分 近く",
+            "十人に 一人",
+            "ほとんど いない"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q2",
+          "prompt": "読まない 理由として いちばん 多いのは 何ですか。",
+          "options": [
+            "時間が ない",
+            "本が 高い",
+            "目が つかれる"
+          ],
+          "answer": 0
+        },
+        {
+          "id": "q3",
+          "prompt": "この 人は 何を しましたか。",
+          "options": [
+            "毎朝 一時間 読む ことに した",
+            "寝る 前の 十五分だけ 読む ことに した",
+            "としょかんに 通う ことに した"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://japaneseness.com/worksheets/reading_n3/time-to-read/"
+    },
+    {
+      "sourceId": "kotonoha",
+      "id": "r4",
+      "band": "N2",
+      "text": "科学技術の急速な発展は、現代社会に多大な恩恵をもたらす一方で、新たな課題も生み出しています。人工知能の普及により、これまで人間が行っていた多くの作業が自動化されつつあります。これは生産性の向上に寄与する反面、雇用問題という深刻な社会的課題を引き起こす可能性があります。また、インターネットの発達に伴い、情報へのアクセスが容易になった反面、偽情報や個人情報の流出といった問題も浮上しています。こうした課題に対処するためには、技術の恩恵を最大限に活かしつつも、倫理的な観点から適切な規制や教育を推進することが不可欠です。",
+      "title": "科学技術の発展と社会",
+      "questions": [
+        {
+          "q": "人工知能の普及による問題として挙げられているのは何ですか。",
+          "options": [
+            "環境破壊",
+            "雇用問題",
+            "交通渋滞",
+            "食料不足"
+          ],
+          "answer": 1
+        },
+        {
+          "q": "筆者が不可欠だと述べているのは何ですか。",
+          "options": [
+            "技術の禁止",
+            "規制と教育の推進",
+            "人工知能の廃止",
+            "インターネットの制限"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://raw.githubusercontent.com/AdvaySanketi/Kotonoha/e93b20b3e9b8fd31da5e79c24cd7eb94daec82e5/src/data/content.js"
+    },
+    {
+      "sourceId": "kotonoha",
+      "id": "r11",
+      "band": "N2",
+      "text": "ソーシャルメディアの普及により、人々のコミュニケーションのあり方は大きく変化した。かつては直接会って話すことが中心であったが、現在では画面を通じたやり取りが日常の一部となっている。この変化は、遠く離れた人と気軽に連絡が取れるようになったという利点をもたらす一方で、表情や声のトーンといった非言語情報が伝わりにくいという弊害も指摘されている。さらに、他人の投稿と自分を比較してしまうことで、精神的な負担を感じる人も少なくない。便利さの裏にあるこうした側面にも目を向ける必要があるだろう。",
+      "title": "SNSと人間関係の変化",
+      "questions": [
+        {
+          "q": "SNSの普及によってもたらされた利点は何か。",
+          "options": [
+            "表情が伝わりやすくなった",
+            "遠くの人と気軽に連絡が取れる",
+            "精神的負担が減った",
+            "直接会う機会が増えた"
+          ],
+          "answer": 1
+        },
+        {
+          "q": "SNSの弊害として挙げられているのは何か。",
+          "options": [
+            "通信費が高くなること",
+            "非言語情報が伝わりにくいこと",
+            "インターネットが遅くなること",
+            "個人情報が多すぎること"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://raw.githubusercontent.com/AdvaySanketi/Kotonoha/e93b20b3e9b8fd31da5e79c24cd7eb94daec82e5/src/data/content.js"
+    },
+    {
+      "sourceId": "kotonoha",
+      "id": "r12",
+      "band": "N2",
+      "text": "近年、日本では「働き方改革」という言葉がよく聞かれるようになった。長時間労働が当たり前とされてきた従来の働き方を見直し、労働者一人ひとりがより柔軟に、そして健康的に働ける環境を整えようという動きである。具体的には、残業時間の上限規制や有給休暇取得の義務化、テレワークの導入などが進められている。こうした取り組みの背景には、少子高齢化による労働力不足や、仕事と家庭生活の両立を望む人が増えていることがある。制度が整えられつつある一方、企業文化や意識の変化にはまだ時間がかかると言われている。",
+      "title": "働き方改革と日本社会",
+      "questions": [
+        {
+          "q": "働き方改革の具体的な取り組みに含まれないものはどれか。",
+          "options": [
+            "残業時間の上限規制",
+            "有給休暇取得の義務化",
+            "テレワークの導入",
+            "定年退職年齢の引き下げ"
+          ],
+          "answer": 3
+        },
+        {
+          "q": "働き方改革が進められている背景として挙げられているのは何か。",
+          "options": [
+            "企業の利益拡大",
+            "少子高齢化による労働力不足",
+            "海外からの圧力",
+            "物価の上昇"
+          ],
+          "answer": 1
+        }
+      ],
+      "fileUrl": "https://raw.githubusercontent.com/AdvaySanketi/Kotonoha/e93b20b3e9b8fd31da5e79c24cd7eb94daec82e5/src/data/content.js"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/ue-de/examples/0",
+      "band": "N3",
+      "text": "家族とよく相談した上で、お返事します。",
+      "title": "上で",
+      "translation": "I'll give you my answer after discussing it thoroughly with my family.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/ue-ni/examples/0",
+      "band": "N3",
+      "text": "この部屋は駅から近い上に、家賃も安いです。",
+      "title": "上に",
+      "translation": "This room is close to the station, and on top of that the rent is cheap.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/uchi-ni/examples/0",
+      "band": "N3",
+      "text": "熱いうちに、どうぞ召し上がってください。",
+      "title": "うちに",
+      "translation": "Please eat it while it's still hot.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/okage-de/examples/0",
+      "band": "N3",
+      "text": "先生のおかげで、試験に合格できました。",
+      "title": "おかげで",
+      "translation": "Thanks to my teacher, I was able to pass the exam.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/kanarazushimo/examples/0",
+      "band": "N3",
+      "text": "高いものが、必ずしもいいとは限らない。",
+      "title": "必ずしも",
+      "translation": "Expensive things aren't necessarily good.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/kara-ni-kakete/examples/0",
+      "band": "N3",
+      "text": "この地方では、夏から秋にかけて雨が多い。",
+      "title": "から〜にかけて",
+      "translation": "In this region there is a lot of rain from summer through autumn.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/kara-koso/examples/0",
+      "band": "N3",
+      "text": "家族がいるからこそ、毎日がんばれる。",
+      "title": "からこそ",
+      "translation": "It's precisely because I have a family that I can give it my all every day.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/kiri/examples/0",
+      "band": "N3",
+      "text": "彼とは一度会ったきり、その後会っていない。",
+      "title": "きり",
+      "translation": "I met him just once, and I haven't seen him since.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/kirenai/examples/0",
+      "band": "N3",
+      "text": "料理が多すぎて、とても食べ切れない。",
+      "title": "切れない",
+      "translation": "There's too much food; there's no way I can finish it all.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/kekka/examples/0",
+      "band": "N3",
+      "text": "よく考えた結果、留学することに決めた。",
+      "title": "結果",
+      "translation": "After thinking it over carefully, I decided to study abroad.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/koto-kara/examples/0",
+      "band": "N3",
+      "text": "窓が割れていたことから、どろぼうが入ったことが分かった。",
+      "title": "ことから",
+      "translation": "From the fact that the window was broken, we knew a burglar had gotten in.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/koto-ni-natteiru/examples/0",
+      "band": "N3",
+      "text": "この学校では、教室で物を食べてはいけないことになっている。",
+      "title": "ことになっている",
+      "translation": "At this school, the rule is that you may not eat in the classroom.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/koto-wa-ga/examples/0",
+      "band": "N3",
+      "text": "日本語が話せることは話せるが、まだ上手ではない。",
+      "title": "ことは〜が",
+      "translation": "It's true I can speak Japanese, but I'm still not good at it.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/sae-ba/examples/0",
+      "band": "N3",
+      "text": "お金さえあれば、何でも買えるというわけではない。",
+      "title": "さえ〜ば",
+      "translation": "It's not as if you can buy anything just as long as you have money.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/shikanai-no-choice/examples/0",
+      "band": "N3",
+      "text": "終電がもうないから、歩いて帰るしかない。",
+      "title": "しかない",
+      "translation": "The last train's already gone, so I have no choice but to walk home.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/shidai/examples/0",
+      "band": "N3",
+      "text": "準備ができ次第、出発します。",
+      "title": "次第",
+      "translation": "We'll set off as soon as the preparations are ready.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/zuni/examples/0",
+      "band": "N3",
+      "text": "傘を持たずに家を出て、雨に降られてしまった。",
+      "title": "ずに",
+      "translation": "I left home without taking an umbrella and got caught in the rain.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/sei-de/examples/0",
+      "band": "N3",
+      "text": "昨日夜ふかしをしたせいで、今朝は頭が痛い。",
+      "title": "せいで",
+      "translation": "Because I stayed up late last night, my head hurts this morning.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/sou-mo-nai/examples/0",
+      "band": "N3",
+      "text": "仕事が多くて、今日じゅうに終わりそうにない。",
+      "title": "そうもない・そうにない",
+      "translation": "There's so much work that it doesn't look like it'll get finished today.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n3/dake-de-nakute-mo/examples/0",
+      "band": "N3",
+      "text": "彼は英語だけでなく、中国語も話せる。",
+      "title": "だけでなく(て)〜も",
+      "translation": "He can speak not only English but also Chinese.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/ijou-wa/examples/0",
+      "band": "N2",
+      "text": "一度引き受けた以上は、最後まで責任を持ってやります。",
+      "title": "以上は",
+      "translation": "Now that I've taken it on, I'll see it through to the end with full responsibility.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/ue-wa/examples/0",
+      "band": "N2",
+      "text": "会社を辞めると決めた上は、迷わず前に進むだけだ。",
+      "title": "上は",
+      "translation": "Now that I've decided to leave the company, all that's left is to move forward without hesitation.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/osore-ga-aru/examples/0",
+      "band": "N2",
+      "text": "台風の影響で、明日は電車が止まる恐れがあります。",
+      "title": "恐れがある",
+      "translation": "Because of the typhoon, there is a risk the trains will stop tomorrow.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/ka-nai-ka-no-uchi-ni/examples/0",
+      "band": "N2",
+      "text": "ベルが鳴るか鳴らないかのうちに、生徒たちは教室を飛び出した。",
+      "title": "か〜ないかのうちに",
+      "translation": "The bell had barely rung when the students dashed out of the classroom.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/kai-ga-aru/examples/0",
+      "band": "N2",
+      "text": "毎日練習した甲斐があって、大会で優勝できた。",
+      "title": "甲斐がある",
+      "translation": "Practicing every day paid off, and I was able to win the tournament.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/kagiri/examples/0",
+      "band": "N2",
+      "text": "私が知る限り、彼はそんなことをする人ではない。",
+      "title": "限り",
+      "translation": "As far as I know, he is not the kind of person who would do such a thing.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/kanenai/examples/0",
+      "band": "N2",
+      "text": "そんな無理な計画では、失敗しかねない。",
+      "title": "かねない",
+      "translation": "With such an unreasonable plan, it could well end in failure.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/kaneru/examples/0",
+      "band": "N2",
+      "text": "申し訳ありませんが、その件についてはお答えしかねます。",
+      "title": "かねる",
+      "translation": "I'm very sorry, but I am unable to answer regarding that matter.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/ka-no-you-ni/examples/0",
+      "band": "N2",
+      "text": "彼は何も知らなかったかのように、平然としていた。",
+      "title": "かのように・かのようだ",
+      "translation": "He stayed perfectly calm, as if he had known nothing at all.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/kara-to-itte/examples/0",
+      "band": "N2",
+      "text": "都会に住んでいるからといって、みんなが生活に満足しているわけではない。",
+      "title": "からといって",
+      "translation": "Just because someone lives in the city doesn't mean everyone is satisfied with their life.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/kara-niwa/examples/0",
+      "band": "N2",
+      "text": "引き受けたからには、最後まで責任を持ってやり遂げます。",
+      "title": "からには",
+      "translation": "Now that I've taken it on, I will see it through to the end and take full responsibility.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/koto-naku/examples/0",
+      "band": "N2",
+      "text": "彼は最後まで諦めることなく、走り続けた。",
+      "title": "ことなく",
+      "translation": "He kept running to the very end without ever giving up.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/koto-niwa-naranai/examples/0",
+      "band": "N2",
+      "text": "謝ったからといって、すべてが許されることにはならない。",
+      "title": "ことにはならない",
+      "translation": "Just because you apologized doesn't mean everything is forgiven.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/zaru-o-enai/examples/0",
+      "band": "N2",
+      "text": "台風で、旅行を中止せざるを得なかった。",
+      "title": "ざるを得ない",
+      "translation": "Because of the typhoon, we had no choice but to cancel the trip.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/shidai-de/examples/0",
+      "band": "N2",
+      "text": "明日出かけるかどうかは、天気次第だ。",
+      "title": "次第だ・次第で",
+      "translation": "Whether we go out tomorrow depends on the weather.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/zu-ni-sumu/examples/0",
+      "band": "N2",
+      "text": "友達がお金を貸してくれたので、親に頼まずに済んだ。",
+      "title": "ずに済む",
+      "translation": "A friend lent me money, so I got by without having to ask my parents.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/dake-atte/examples/0",
+      "band": "N2",
+      "text": "さすが有名なホテルだけあって、サービスがすばらしい。",
+      "title": "だけあって",
+      "translation": "As you'd expect of a famous hotel, the service is wonderful.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/sue-ni/examples/0",
+      "band": "N2",
+      "text": "さんざん迷った末に、留学することを決めた。",
+      "title": "た末に・の末に",
+      "translation": "After endless hesitation, I finally decided to study abroad.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/tsutsu/examples/0",
+      "band": "N2",
+      "text": "資料を確認しつつ、会議の準備を進めた。",
+      "title": "〜つつ・〜つつも",
+      "translation": "I moved ahead with preparing for the meeting while checking the materials.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    },
+    {
+      "sourceId": "nihongo-mono",
+      "id": "n2/tsutsu-aru/examples/0",
+      "band": "N2",
+      "text": "この町の人口は、年々減りつつある。",
+      "title": "つつある",
+      "translation": "The population of this town is steadily declining year by year.",
+      "fileUrl": "https://raw.githubusercontent.com/stndaru/nihongo-mono/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json"
+    }
+  ]
+}

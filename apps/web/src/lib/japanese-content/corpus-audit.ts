@@ -21,11 +21,11 @@ const kanjiSchema = z.object({
 
 type Vocabulary = z.infer<typeof vocabularySchema>;
 type Kanji = z.infer<typeof kanjiSchema>;
-type DictionaryWord = {
-  id: string;
-  kanji: Array<{ text: string }>;
-  kana: Array<{ text: string; appliesToKanji: string[] }>;
-};
+export const dictionaryWordSchema = z.object({
+  id: text, kanji: z.array(z.object({ text })),
+  kana: z.array(z.object({ text, appliesToKanji: strings })).min(1),
+});
+type DictionaryWord = z.infer<typeof dictionaryWordSchema>;
 type DictionaryKanji = {
   literal: string;
   readingMeaning: {
@@ -116,13 +116,13 @@ export type JapaneseCorpusReport = {
 
 const compare = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
 const unique = (values: string[]) => [...new Set(values)].sort(compare);
-const toHiragana = (s: string) => s.normalize("NFC").replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
+export const toHiragana = (s: string) => s.normalize("NFC").replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
 const pairKey = (word: string, reading: string) => `${word.normalize("NFC")}\0${toHiragana(reading)}`;
 const forms = (word: Vocabulary) => [word.word, ...word.other_forms];
 const readings = (word: Vocabulary) => [word.reading, ...word.other_readings];
 
 /** Keep the dictionary's spelling/reading restrictions; do not synthesize compound readings. */
-function dictionaryAllowsPair(entry: DictionaryWord, written: string, reading: string): boolean {
+export function dictionaryAllowsPair(entry: DictionaryWord, written: string, reading: string): boolean {
   return entry.kana.some((kana) => {
     if (toHiragana(kana.text) !== toHiragana(reading)) return false;
     if (toHiragana(written) === toHiragana(reading)) return true;

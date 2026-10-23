@@ -39,6 +39,7 @@ export async function StudentDashboard({
   onboardingStep: string | null;
   learningLanguage?: LearningLanguage;
 }) {
+  const jp = await getTranslations("japanesePlacement");
   const isEnglish = learningLanguage === "ENGLISH";
   const j = await getTranslations("learningJourney");
   const t = await getTranslations("dashboard");
@@ -208,6 +209,12 @@ export async function StudentDashboard({
           </div>
         </div>
       ) : null}
+
+      {!isEnglish ? <section className="border-y border-border py-6">
+        <h2 className="text-base font-semibold text-foreground">{jp("title")}</h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted">{jp("entry")}</p>
+        <Link href="/japanese-placement" className={buttonClasses({ variant: "secondary", className: "mt-4" })}>{jp("open")}</Link>
+      </section> : null}
 
       {overview ? <DashboardStudyHighlight overview={overview} resume={resume} /> : null}
       {overview ? <DashboardFlashcardStats trackPractice={overview.trackPractice} /> : null}

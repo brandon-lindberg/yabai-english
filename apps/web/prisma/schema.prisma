@@ -24,6 +24,12 @@ enum AccountStatus {
   HIDDEN
 }
 
+enum JapanesePlacementAttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
 enum BookingStatus {
   PENDING_PAYMENT
   CONFIRMED
@@ -246,6 +252,7 @@ model User {
   studyCardStates           UserStudyCardState[]
   studyAssessmentAttempts   UserStudyAssessmentAttempt[]
   studyQuickReviewDays      StudyQuickReviewDay[]
+  japanesePlacementAttempts JapanesePlacementAttempt[]
   googleIntegrationAccount  GoogleIntegrationAccount?
   googleIntegrationSettings GoogleIntegrationSettings?
   organizationMemberships   OrganizationMembership[]
@@ -254,6 +261,59 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// Published Japanese content snapshots are immutable; revocation stops future delivery.
+model JapanesePlacementBankSnapshot {
+  id          String   @id @default(cuid())
+  bankKey     String
+  version     Int
+  digest      String   @unique
+  itemCount   Int
+  content     Json
+  publishedAt DateTime @default(now())
+  revokedAt   DateTime?
+  attempts    JapanesePlacementAttempt[]
+
+  @@unique([bankKey, version])
+  @@index([revokedAt, publishedAt])
+}
+
+model JapanesePlacementAttempt {
+  id              String @id @default(cuid())
+  learnerId       String
+  learner         User @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  bankSnapshotId  String
+  bankSnapshot    JapanesePlacementBankSnapshot @relation(fields: [bankSnapshotId], references: [id], onDelete: Restrict)
+  requestId       String @db.Uuid
+  /// Set only while active; the unique constraint permits one active attempt per learner.
+  activeLearnerId String? @unique
+  schemaVersion   Int
+  scoringRevision String
+  status          JapanesePlacementAttemptStatus @default(IN_PROGRESS)
+  startedAt       DateTime @default(now())
+  expiresAt       DateTime?
+  policyRevision  String?
+  questionLimit   Int?
+  finishedAt      DateTime?
+  result          Json?
+  responses       JapanesePlacementResponse[]
+
+  @@unique([learnerId, requestId])
+  @@index([learnerId, startedAt])
+}
+
+model JapanesePlacementResponse {
+  id        String @id @default(cuid())
+  attemptId String
+  attempt   JapanesePlacementAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  itemId    String
+  position  Int
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@unique([attemptId, itemId])
+  @@unique([attemptId, position])
 }
 
 enum GoogleIntegrationFeature {

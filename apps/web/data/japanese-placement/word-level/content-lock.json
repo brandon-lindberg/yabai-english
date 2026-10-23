@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 2,
+  "files": [
+    {
+      "role": "content",
+      "filename": "word-content.json",
+      "sha256": "64001599d8b21cead7632a3e69ae2ac4d427e39050c2f4d80200354dea78f1e2"
+    },
+    {
+      "role": "excerpts",
+      "filename": "source-excerpts.json",
+      "sha256": "5604787ec21c0762486cef615b1019f4d28b4f1271bf10f6ae17ea75e4954eb7"
+    }
+  ]
+}

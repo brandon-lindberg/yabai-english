@@ -93,7 +93,7 @@ test("an existing English learner can deliberately select Japanese without reusi
   await signIn(page, fixture.users[0].email, "JAPANESE");
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(en.learningJourney.japanese.dashboard);
-  await expect(page.getByRole("link", { name: en.common.placement, exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: en.common.placement, exact: true })).toHaveAttribute("href", "/en/japanese-placement");
   await expect(page.getByText("Advanced 3", { exact: false })).toHaveCount(0);
   expect((await page.request.get("/api/placement")).status()).toBe(403);
   expect((await page.request.get("/api/study/overview")).status()).toBe(403);

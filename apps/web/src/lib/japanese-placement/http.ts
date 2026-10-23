@@ -1,0 +1,57 @@
+import "server-only";
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { JapanesePlacementFailure } from "./service";
+
+const reply = (body: unknown, status = 200) => NextResponse.json(body, {
+  status, headers: { "Cache-Control": "private, no-store" },
+});
+
+export async function japanesePlacementHttp(req: Request, run: (actorId: string) => Promise<unknown>) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return reply({ error: "UNAUTHORIZED" }, 401);
+    if (req.method === "POST") {
+      const origin = req.headers.get("Origin");
+      if (req.headers.get("Sec-Fetch-Site") === "cross-site" || (origin && origin !== new URL(req.url).origin)) {
+        return reply({ error: "CROSS_SITE_REQUEST" }, 403);
+      }
+      if (req.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
+        return reply({ error: "JSON_REQUIRED" }, 415);
+      }
+    }
+    // The service rereads the account. Session role/subject fields never authorize data access.
+    return reply(await run(session.user.id));
+  } catch (error) {
+    if (error instanceof JapanesePlacementFailure) return reply({ error: error.code }, error.status);
+    console.error("Japanese placement request failed", error);
+    return reply({ error: "INTERNAL_ERROR" }, 500);
+  }
+}
+
+/** Shared bounded reader for both mutation routes; no identity/time/state fields are accepted later. */
+export async function japanesePlacementJson(req: Request): Promise<unknown> {
+  if (!req.body) throw new JapanesePlacementFailure(400, "INVALID_JSON");
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      length += value.length;
+      if (length > 16_384) {
+        await reader.cancel();
+        throw new JapanesePlacementFailure(413, "BODY_TOO_LARGE");
+      }
+      chunks.push(value);
+    }
+    const bytes = new Uint8Array(length);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+    return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+  } catch (error) {
+    if (error instanceof JapanesePlacementFailure) throw error;
+    throw new JapanesePlacementFailure(400, "INVALID_JSON");
+  } finally { reader.releaseLock(); }
+}

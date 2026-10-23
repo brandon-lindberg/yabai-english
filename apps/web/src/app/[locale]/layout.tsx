@@ -9,7 +9,7 @@ import { HiddenAccountGuard } from "@/components/hidden-account-guard";
 import { IdleLogoutGuard } from "@/components/idle-logout-guard";
 import { SiteHeader } from "@/components/shell/site-header";
 import { SiteFooter } from "@/components/shell/site-footer";
-import { ChatPanel } from "@/components/chat-panel";
+import { AppChatPanel } from "@/components/app-chat-panel";
 import { getGuestLearningLanguage } from "@/lib/learning-language-request";
 
 type Props = {
@@ -52,7 +52,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             {children}
           </div>
           <SiteFooter />
-          <ChatPanel />
+          <AppChatPanel />
         </div>
       </AppProviders>
     </NextIntlClientProvider>

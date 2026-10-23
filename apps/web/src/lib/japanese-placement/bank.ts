@@ -1,0 +1,193 @@
+import "server-only";
+import { createHash } from "node:crypto";
+import { z } from "zod";
+
+import { JAPANESE_PLACEMENT_DOMAINS, JAPANESE_REFERENCE_BANDS, japaneseLocalizedText, japaneseTextStimulus, japaneseOption, type JapanesePlacementDomain } from "./public";
+export { JAPANESE_PLACEMENT_DOMAINS, JAPANESE_REFERENCE_BANDS, JAPANESE_STUDY_BANDS, type JapanesePlacementDomain } from "./public";
+export const JAPANESE_POLICY_REVISION = "japanese-posterior-v1";
+const assessmentSchema = z.object({
+  revision: z.literal(JAPANESE_POLICY_REVISION), timeLimitSec: z.literal(1200),
+  quotas: z.object(Object.fromEntries(JAPANESE_PLACEMENT_DOMAINS.map((domain) => [domain, z.number().int().min(1).max(10)])) as Record<JapanesePlacementDomain, z.ZodNumber>).strict(),
+  supportedBands: z.array(z.enum(JAPANESE_REFERENCE_BANDS)).min(1).max(5),
+  minimumAnswers: z.number().int().min(6).max(60), minimumDomains: z.number().int().min(1).max(6),
+}).strict();
+
+const text = z.string().trim().min(1);
+const identity = text.regex(/^[a-z][a-z0-9._-]*$/i);
+const digest = z.string().regex(/^[a-f0-9]{64}$/);
+const localizedText = japaneseLocalizedText;
+const review = z.object({
+  reviewerId: text, reviewedAt: z.string().datetime(), bankDigest: digest, evidence: text,
+}).strict().nullable();
+
+const itemBase = z.object({
+  id: identity,
+  revision: z.number().int().positive(),
+  domain: z.enum(JAPANESE_PLACEMENT_DOMAINS),
+  focus: text,
+  prompt: localizedText,
+  stimulus: japaneseTextStimulus,
+  explanation: localizedText,
+  sourceIds: z.array(identity).min(1),
+  // Six ordered response probabilities: below N5, N5, N4, N3, N2, N1.
+  // Null is permitted for authoring, never for serving an assessment.
+  calibration: z.object({ band: z.enum(JAPANESE_REFERENCE_BANDS), probabilities: z.array(z.number().min(0.001).max(0.999)).length(6) }).strict().nullable(),
+}).strict();
+
+const itemSchema = z.discriminatedUnion("responseType", [
+  itemBase.extend({
+    responseType: z.literal("choice"),
+    choices: z.array(japaneseOption).min(2).max(6),
+    correctChoiceId: identity,
+  }).strict(),
+  itemBase.extend({
+    responseType: z.literal("sentence_assembly"),
+    tiles: z.array(japaneseOption).min(2).max(30),
+    acceptedOrders: z.array(z.array(identity).min(2).max(30)).min(1).max(24),
+  }).strict(),
+]);
+
+export const japaneseBankSourceSchema = z.object({
+  id: identity, origin: z.enum(["original", "adapted"]), title: text,
+  location: text, revision: text, license: text, attribution: text,
+  permissionEvidence: text,
+}).strict();
+
+const bankSchema = z.object({
+  schemaVersion: z.literal(3), id: identity, version: z.number().int().positive(),
+  assessment: assessmentSchema.nullable(),
+  sources: z.array(japaneseBankSourceSchema).min(1),
+  items: z.array(itemSchema).min(6).max(120),
+  sequence: z.array(identity).min(6).max(120),
+  reviews: z.object({ japaneseTeacher: review, rights: review, placement: review }).strict(),
+}).strict();
+
+export type JapanesePlacementBank = z.infer<typeof bankSchema>;
+export type JapanesePlacementItem = z.infer<typeof itemSchema>;
+export type JapaneseSentenceItem = Extract<JapanesePlacementItem, { responseType: "sentence_assembly" }>;
+
+export function normalizedJapaneseContent(value: string): string {
+  return value.normalize("NFC").trim().replace(/\s+/g, " ");
+}
+const normalized = normalizedJapaneseContent;
+
+export function requireUnique(values: string[], label: string): void {
+  if (new Set(values).size !== values.length) throw new Error(`Duplicate ${label}`);
+}
+
+/** Each supplied tile is used once. Identical particles remain interchangeable by text. */
+export function sentenceOrderSignature(item: JapaneseSentenceItem, tileIds: string[]): string {
+  requireUnique(tileIds, "sentence tile");
+  const tiles = new Map(item.tiles.map((tile) => [tile.id, tile.text]));
+  if (tileIds.length !== item.tiles.length || tileIds.some((id) => !tiles.has(id))) {
+    throw new Error(`Invalid sentence tile set: ${item.id}`);
+  }
+  return JSON.stringify(tileIds.map((id) => normalized(tiles.get(id)!)));
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value !== null && typeof value === "object") {
+    return `{${Object.entries(value).sort(([a], [b]) => a.localeCompare(b, "en"))
+      .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/** Validates authored data only; validation never constitutes content approval. */
+export function parseJapaneseBank(value: unknown): JapanesePlacementBank {
+  const bank = bankSchema.parse(value);
+  requireUnique(bank.items.map((item) => item.id), "item identity");
+  requireUnique(bank.sources.map((source) => source.id), "source identity");
+  requireUnique(bank.sequence, "sequence item");
+  if (bank.assessment) {
+    requireUnique(bank.assessment.supportedBands, "supported band");
+    if (bank.assessment.minimumAnswers > japaneseQuestionLimit(bank)) throw new Error("Minimum evidence exceeds question budget");
+  }
+  const itemIds = new Set(bank.items.map((item) => item.id));
+  if (bank.sequence.length !== bank.items.length || bank.sequence.some((id) => !itemIds.has(id))) {
+    throw new Error("Sequence must account for every bank item exactly once");
+  }
+  for (const domain of JAPANESE_PLACEMENT_DOMAINS) {
+    if (!bank.items.some((item) => item.domain === domain)) throw new Error(`Missing domain: ${domain}`);
+  }
+  parseJapaneseItems(bank.items, bank.sources.map((source) => source.id));
+  return bank;
+}
+
+/** Shared item validation for partial authoring packs and complete assessment banks. */
+export function parseJapaneseItems(value: unknown, knownSourceIds: string[]): JapanesePlacementItem[] {
+  const items = z.array(itemSchema).min(1).parse(value);
+  requireUnique(items.map((item) => item.id), "item identity");
+  const sourceIds = new Set(knownSourceIds);
+  for (const item of items) {
+    if (item.calibration) {
+      const probabilities = item.calibration.probabilities;
+      if (probabilities.some((value, index) => index > 0 && value < probabilities[index - 1]) || probabilities[0] >= probabilities[5]) {
+        throw new Error(`Invalid ordered Japanese calibration: ${item.id}`);
+      }
+      if (item.domain === "kana" && (item.calibration.band !== "N5" || probabilities.slice(1).some((value) => value !== probabilities[1]))) {
+        throw new Error("Kana evidence must not distinguish advanced Japanese bands");
+      }
+    }
+    requireUnique(item.sourceIds, "item source");
+    if (item.sourceIds.some((id) => !sourceIds.has(id))) throw new Error(`Unknown text source: ${item.id}`);
+    if ((item.domain === "writing") !== (item.responseType === "sentence_assembly")) throw new Error(`Invalid response type for ${item.domain}`);
+    if (item.responseType === "choice") {
+      requireUnique(item.choices.map((choice) => choice.id), "choice identity");
+      requireUnique(item.choices.map((choice) => normalized(choice.text)), "normalized choice");
+      if (!item.choices.some((choice) => choice.id === item.correctChoiceId)) throw new Error(`Missing answer key: ${item.id}`);
+    } else {
+      requireUnique(item.tiles.map((tile) => tile.id), "tile identity");
+      requireUnique(item.acceptedOrders.map((order) => sentenceOrderSignature(item, order)), "accepted sentence");
+    }
+  }
+  // Compare exercise content, not ids or purported difficulty, to catch relabelled copies.
+  requireUnique(items.map((item) => canonicalJson({
+    prompt: { en: normalized(item.prompt.en), ja: normalized(item.prompt.ja) },
+    stimulus: normalized(item.stimulus.text),
+    options: (item.responseType === "choice" ? item.choices : item.tiles).map((option) => normalized(option.text)).sort(),
+  })), "exercise");
+  return items;
+}
+
+/** Content reviews attest to text, keys, accepted sentence orders and provenance. */
+export function bankDigest(value: unknown): string {
+  const { reviews: _reviews, ...content } = parseJapaneseBank(value);
+  void _reviews;
+  return createHash("sha256").update(canonicalJson(content)).digest("hex");
+}
+
+export function inspectBankReadiness(value: unknown): { ready: boolean; issues: string[] } {
+  const bank = parseJapaneseBank(value);
+  const hash = bankDigest(bank);
+  const issues: string[] = [];
+  for (const [key, label] of [["japaneseTeacher", "japanese-teacher"], ["rights", "rights"], ["placement", "placement"]] as const) {
+    const approval = bank.reviews[key];
+    if (!approval) issues.push(`${label}-review-required`);
+    else if (approval.bankDigest !== hash) issues.push(`${label}-review-stale`);
+  }
+  if (!bank.assessment || bank.items.some((item) => !item.calibration)) issues.push("assessment-calibration-required");
+  if (bank.assessment) {
+    for (const domain of JAPANESE_PLACEMENT_DOMAINS) {
+      const pool = bank.items.filter((item) => item.domain === domain);
+      if (pool.length < bank.assessment.quotas[domain]) issues.push(`insufficient-pool:${domain}`);
+      if (domain !== "kana") for (const band of bank.assessment.supportedBands) {
+        if (!pool.some((item) => item.calibration?.band === band)) issues.push(`missing-anchor:${domain}:${band}`);
+      }
+    }
+  }
+  return { ready: issues.length === 0, issues };
+}
+
+export function japaneseQuestionLimit(bank: JapanesePlacementBank): number {
+  if (!bank.assessment) throw new Error("Japanese assessment policy required");
+  return Object.values(bank.assessment.quotas).reduce((sum, count) => sum + count, 0);
+}
+
+export function loadApprovedJapaneseBank(value: unknown): JapanesePlacementBank {
+  const bank = parseJapaneseBank(value);
+  const readiness = inspectBankReadiness(bank);
+  if (!readiness.ready) throw new Error(`Japanese bank is not ready: ${readiness.issues.join(", ")}`);
+  return bank;
+}
