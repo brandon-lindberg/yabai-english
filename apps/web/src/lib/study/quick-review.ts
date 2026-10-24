@@ -10,14 +10,9 @@ import {
   type QuickReviewOutcome,
 } from "./quick-review-actions";
 
-import { isQuickReviewCardFrontEligible, utcCalendarDayKey, QUICK_REVIEW_DAILY_MAX, type QuickReviewCard, type QuickReviewPanelData } from "./quick-review-day";
+import { isQuickReviewCardFrontEligible, utcCalendarDayKey, QUICK_REVIEW_DAILY_MAX, parseQuickReviewCardIds, type QuickReviewCard, type QuickReviewPanelData } from "./quick-review-day";
 export { isQuickReviewCardFrontEligible, utcCalendarDayKey, formatQuickReviewDayDisplay, QUICK_REVIEW_DAILY_MAX, type QuickReviewCard, type QuickReviewPanelData } from "./quick-review-day";
 import { weightedSampleWithoutReplacement } from "./quiz";
-
-function parseCardIdList(raw: unknown): string[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter((x): x is string => typeof x === "string" && x.length > 0);
-}
 
 function quickReviewCardScope(learningLanguage: LearningLanguage) {
   return { kind: "ENGLISH_EXERCISE" as const, deck: { level: { track: { learningLanguage, publicationStatus: "PUBLISHED" as const } } } };
@@ -51,7 +46,7 @@ export async function getOrCreateQuickReviewCards(
     where: { userId_learningLanguage_dayKey: { userId, learningLanguage, dayKey } },
   });
   if (existing) {
-    const list = parseCardIdList(existing.cardIds);
+    const list = parseQuickReviewCardIds(existing.cardIds);
     const interactions = parseQuickReviewInteractions(existing.interactions);
     const stats = countQuickReviewOutcomeStats(interactions);
     if (list.length === 0) {
@@ -77,7 +72,7 @@ export async function getOrCreateQuickReviewCards(
     create: { userId, learningLanguage, dayKey, cardIds: ids as unknown as Prisma.InputJsonValue },
     update: {},
   });
-  const savedIds = parseCardIdList(day.cardIds);
+  const savedIds = parseQuickReviewCardIds(day.cardIds);
 
   const cards = await prisma.studyCard.findMany({
     where: { id: { in: savedIds }, ...quickReviewCardScope(learningLanguage) },
@@ -115,11 +110,11 @@ export async function applyQuickReviewOutcome(
   }
 
   const slotCards = await prisma.studyCard.findMany({
-    where: { id: { in: parseCardIdList(row.cardIds) }, ...quickReviewCardScope(learningLanguage) },
+    where: { id: { in: parseQuickReviewCardIds(row.cardIds) }, ...quickReviewCardScope(learningLanguage) },
     select: { id: true, frontJa: true },
   });
   const allowedIds = new Set(slotCards.filter(c => isQuickReviewCardFrontEligible(c.frontJa)).map(c => c.id));
-  const slotIds = parseCardIdList(row.cardIds).filter(id => allowedIds.has(id));
+  const slotIds = parseQuickReviewCardIds(row.cardIds).filter(id => allowedIds.has(id));
   if (!slotIds.includes(input.cardId)) {
     return { ok: false, error: "card_not_in_review" };
   }

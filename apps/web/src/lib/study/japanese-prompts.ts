@@ -9,6 +9,7 @@ import { requireUnique, sameStringMembers } from "../unique";
 import { canonicalJson } from "../canonical-json";
 import { studyLevelIndex } from "./constants";
 import { shuffleTokensForQueue } from "./card-exercise";
+import { japaneseVocabularyUsage } from "./japanese-usage";
 import { japaneseStudyInstructions, japaneseStudyQuestionSchema, japaneseStudyResponseSchema, type JapaneseStudyQuestion, type JapaneseStudyTask, type JapaneseStudyFeedback } from "./japanese-public";
 
 const text = z.string().min(1);
@@ -71,10 +72,7 @@ function entryForms(content: JapaneseStudyContent, record: Record, references: R
   const entry = { unitId: content.unit.id, memberId: record.id, record, introduction: content.unit.level.code, formLevel: record.content.level,
     written: record.kind === "vocabulary" ? record.content.word : record.content.character,
     reading: record.kind === "vocabulary" ? record.content.reading : undefined, meanings: record.content.meanings,
-    usage: record.kind === "vocabulary" ? [...new Set([
-      ...(record.content.pos ?? []), ...(record.referenceSupplement?.written?.tags ?? []), ...(record.referenceSupplement?.reading.tags ?? []),
-      ...(record.referenceSupplement?.senses.flatMap(sense => [...(sense.misc ?? []), ...(sense.info ?? []), ...(sense.field ?? []), ...(sense.dialect ?? [])]) ?? []),
-    ])] : [],
+    usage: record.kind === "vocabulary" ? japaneseVocabularyUsage(record) : [],
   };
   if (record.kind !== "vocabulary") {
     if (record.content.level !== content.unit.level.code) throw new Error("Kanji introduction/source level drift");

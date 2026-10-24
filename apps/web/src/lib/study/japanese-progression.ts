@@ -61,6 +61,7 @@ export async function getJapaneseStudyProgressionForTrack(db: JapaneseStudyDb, l
   });
   return { available: true, track: { id: track.id, slug: track.slug }, placementBand, ...progression,
     levels: track.levels.map(row => ({ id: row.id, code: row.levelCode, unlocked: progression.unlocked.includes(row.levelCode as JapaneseLevel),
+      lastStudiedAt: progress.find(p => p.levelId === row.id)?.lastStudiedAt ?? null,
       mastery: mastery[row.levelCode]!, practice: practice.get(row.id)!, xp: progress.find(p => p.levelId === row.id)?.xp ?? 0,
     })),
   } as const;

@@ -1,9 +1,8 @@
 import { StudyAssessmentForm } from "@/components/study/study-assessment-form";
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isStudyLevelUnlocked } from "@/lib/study/access";
 import { Link, redirect } from "@/i18n/navigation";
-import { StudyLevelCode } from "@/generated/prisma/client";
+import { requireStudyPageActor, studyPageLevel } from "@/lib/study/page-access";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { actionLinkClass } from "@/components/ui/inline-link";
@@ -12,20 +11,13 @@ type Props = { params: Promise<{ levelCode: string }> };
 
 const TRACK_SLUG = "english-flashcards";
 
-function parseLevelCode(raw: string): StudyLevelCode | null {
-  return Object.values(StudyLevelCode).includes(raw as StudyLevelCode)
-    ? (raw as StudyLevelCode)
-    : null;
-}
-
 export default async function StudyAssessmentPage({ params }: Props) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    notFound();
-  }
+  const actor = await requireStudyPageActor();
+  const locale = await getLocale();
+  if (actor.learningLanguage === "JAPANESE") redirect({ href: "/learn/study", locale });
 
   const { levelCode: raw } = await params;
-  const levelCode = parseLevelCode(raw);
+  const levelCode = studyPageLevel(raw, "ENGLISH");
   if (!levelCode) {
     notFound();
   }
@@ -51,8 +43,7 @@ export default async function StudyAssessmentPage({ params }: Props) {
     notFound();
   }
 
-  const locale = await getLocale();
-  const canAccess = await isStudyLevelUnlocked(prisma, session.user.id, track.id, levelCode);
+  const canAccess = await isStudyLevelUnlocked(prisma, actor.id, track.id, levelCode);
   if (!canAccess) {
     redirect({ href: "/learn/study", locale });
   }

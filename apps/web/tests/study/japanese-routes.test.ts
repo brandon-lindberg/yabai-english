@@ -1,13 +1,14 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import { JapaneseStudyFailure } from "@/lib/study/japanese-service";
 
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), db: {}, queue: vi.fn(), review: vi.fn(), overview: vi.fn() }));
+const mocks = vi.hoisted(() => ({ auth: vi.fn(), db: {}, queue: vi.fn(), review: vi.fn(), overview: vi.fn(), quick: vi.fn() }));
 vi.mock("@/auth", () => ({ auth: mocks.auth }));
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.db }));
 vi.mock("@/lib/study/japanese-service", async original => ({
   ...await original<typeof import("@/lib/study/japanese-service")>(),
-  createJapaneseStudyQueue: mocks.queue, submitJapaneseStudyReview: mocks.review, getJapaneseStudyOverview: mocks.overview,
+  createJapaneseStudyQueue: mocks.queue, submitJapaneseStudyReview: mocks.review, getJapaneseStudyOverview: mocks.overview, createJapaneseQuickReviewQueue: mocks.quick,
 }));
+import { POST as quick } from "@/app/api/japanese-study/quick-review/route";
 import { GET as overview } from "@/app/api/japanese-study/route";
 import { POST as queue } from "@/app/api/japanese-study/queue/route";
 import { POST as review } from "@/app/api/japanese-study/reviews/route";
@@ -52,4 +53,11 @@ it("returns safe errors and private no-store headers", async () => {
   mocks.review.mockRejectedValue(new Error("private internals"));
   expect(await (await review(request({}))).json()).toEqual({ error: "INTERNAL_ERROR" });
   log.mockRestore();
+});
+
+it("daily quick review shares authenticated bounded JSON handling", async () => {
+  mocks.quick.mockResolvedValue({ cards: [], total: 0 });
+  expect((await quick(request({}))).status).toBe(200);
+  expect(mocks.quick).toHaveBeenCalledWith(mocks.db, "signed-in-actor", {});
+  expect((await quick(request({}, { Origin: "https://another.example" }))).status).toBe(403);
 });

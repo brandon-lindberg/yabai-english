@@ -1,35 +1,10 @@
 import { expect, test, vi } from "vitest";
-import type { PrismaClient, Prisma } from "@/generated/prisma/client";
 import { withIsolatedPostgres } from "../../test/isolated-postgres";
-import { japanesePracticeFixture } from "../../test/japanese-prompt-fixture";
+import { seedJapaneseStudy as seed, japaneseStudyAnswer as answer } from "../../test/japanese-study-db-fixture";
 import { createJapaneseStudyQueue, submitJapaneseStudyReview, getJapaneseStudyOverview } from "@/lib/study/japanese-service";
 
 const migration = "20261023030000_study_review_prompts";
 const enabled = !!process.env.MIRROR_TEST_DATABASE_URL;
-const json = (value: unknown) => JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
-
-async function seed(db: PrismaClient) {
-  const fixture = japanesePracticeFixture();
-  await db.user.createMany({ data: [
-    { id: "learner", role: "STUDENT", learningLanguage: "JAPANESE" },
-    { id: "other", role: "STUDENT", learningLanguage: "JAPANESE" },
-    { id: "english-user", role: "STUDENT", learningLanguage: "ENGLISH" },
-    { id: "teacher", role: "TEACHER", learningLanguage: "JAPANESE" },
-    { id: "hidden", role: "STUDENT", learningLanguage: "JAPANESE", accountStatus: "HIDDEN" },
-  ] });
-  await db.studyCatalogSnapshot.create({ data: { id: "snapshot", studyCatalogSha256: "a".repeat(64), sourceCatalogSha256: "b".repeat(64), sourceLockSha256: "c".repeat(64), policySha256: "d".repeat(64), provenanceJson: { source: { reconciliation: [] } } } });
-  await db.studyTrack.create({ data: { id: "track", slug: "japanese-flashcards", titleJa: "合成テスト", titleEn: "Synthetic test", learningLanguage: "JAPANESE", publicationStatus: "PUBLISHED", catalogSnapshotId: "snapshot" } });
-  for (const [sortOrder, levelCode] of (["N5", "N4", "N3", "N2", "N1"] as const).entries()) {
-    await db.studyLevel.create({ data: { id: `level-${levelCode}`, trackId: "track", levelCode, titleJa: levelCode, titleEn: levelCode, sortOrder } });
-    await db.studyDeck.create({ data: { id: `deck-${levelCode}`, levelId: `level-${levelCode}`, titleJa: "合成テスト", titleEn: "Synthetic test" } });
-  }
-  await db.studyCard.createMany({ data: fixture.all.map((content, sortOrder) => ({ id: content.unit.id, kind: content.unit.kind === "kanji" ? "JAPANESE_KANJI" : "JAPANESE_VOCABULARY", deckId: `deck-${content.unit.level.code}`, frontJa: "", backEn: "", contentJson: json(content), sortOrder })) });
-}
-
-const answer = async (db: PrismaClient, promptId: string) => {
-  const stored = await db.studyReviewPrompt.findUniqueOrThrow({ where: { id: promptId } });
-  return { promptId, choiceId: (stored.answerJson as { correctChoiceId: string }).correctChoiceId };
-};
 
 test.runIf(enabled)("issues private unique queues, rotates tasks and saves concurrent identical retries once", async () => {
   await withIsolatedPostgres(migration, async ({ db, applyMigration, verifyDatamodel }) => {

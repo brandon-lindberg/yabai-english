@@ -48,3 +48,9 @@ export function isQuickReviewCardFrontEligible(frontJa: string): boolean {
   return !frontJa.includes("___");
 }
 
+
+/** Persisted slot identifiers, shared without sharing language-specific content. */
+export function parseQuickReviewCardIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((value): value is string => typeof value === "string" && value.length > 0);
+}

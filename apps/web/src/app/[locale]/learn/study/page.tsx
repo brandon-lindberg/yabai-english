@@ -1,6 +1,9 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { StudyRpgXpBar } from "@/components/study/study-rpg-xp-bar";
+import { StudyRankProgress } from "@/components/study/study-practice-parts";
+import { StudyLevelList, type StudyLevelView } from "@/components/study/study-level-list";
+import { JapaneseStudyUnavailable } from "@/components/study/japanese-study-unavailable";
+import { requireStudyPageActor, japaneseStudyOverviewForPage } from "@/lib/study/page-access";
+import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
 import { getStudyTrackOverview } from "@/lib/study/get-overview";
 import { Link } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -17,18 +20,39 @@ export default async function StudyHubPage({
 }: {
   searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
 }) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    notFound();
-  }
-
-  const overview = await getStudyTrackOverview(prisma, session.user.id, TRACK_SLUG);
-  if (!overview) {
-    notFound();
+  const actor = await requireStudyPageActor();
+  const isJapanese = actor.learningLanguage === "JAPANESE";
+  const locale = await getLocale();
+  let levels: StudyLevelView[] = [];
+  let rpg = studyRpgProgressFromTotalXp(0);
+  let unavailable = false;
+  if (isJapanese) {
+    const overview = await japaneseStudyOverviewForPage(actor.id);
+    unavailable = !overview;
+    if (overview) {
+      rpg = studyRpgProgressFromTotalXp(overview.levels.reduce((sum, level) => sum + level.xp, 0));
+      levels = overview.levels.map(level => ({
+        id: level.id, code: level.code, title: level.code, locked: !level.unlocked,
+        completed: overview.completed.includes(level.code as "N5" | "N4" | "N3" | "N2" | "N1"),
+        masteryScore: level.mastery.total ? Math.round(level.mastery.mastered / level.mastery.total * 100) : 0,
+        xp: level.xp, cardsTotal: level.mastery.total, cardsTouched: level.mastery.total - level.practice.newCount,
+        weakCount: level.practice.weakCount, masteredCount: level.practice.masteredCount,
+      }));
+    }
+  } else {
+    const overview = await getStudyTrackOverview(prisma, actor.id, TRACK_SLUG);
+    if (!overview) notFound();
+    rpg = overview.rpg;
+    levels = overview.levels.map(level => ({
+      id: level.id, code: level.levelCode, title: locale === "ja" ? level.titleJa : level.titleEn,
+      locked: level.locked, completed: !!level.assessmentPassedAt, masteryScore: level.masteryScore, xp: level.xp,
+      cardsTotal: level.cardsTotal, cardsTouched: level.cardsTouched, weakCount: level.practice.weakCount,
+      masteredCount: level.practice.masteredCount, exitAssessmentId: level.exitAssessmentId,
+    }));
   }
 
   const t = await getTranslations("study");
-  const locale = await getLocale();
+  const jp = await getTranslations("japaneseStudy");
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
 
@@ -41,106 +65,13 @@ export default async function StudyHubPage({
         </Link>
       </p>
       <div className="mt-4">
-        <PageHeader title={t("title")} description={t("subtitle")} />
+        <PageHeader title={isJapanese ? jp("title") : t("title")} description={isJapanese ? jp(unavailable ? "unavailableIntro" : "subtitle") : t("subtitle")} />
       </div>
 
-      <div className="mt-6">
-        <StudyRpgXpBar
-          title={t("rpgRankTitle", { rank: overview.rpg.rank })}
-          fractionLabel={t("rpgXpLine", {
-            into: overview.rpg.xpIntoRank,
-            total: overview.rpg.xpForNextRank,
-          })}
-          nextHint={t("rpgNextHint", {
-            remaining: Math.max(0, overview.rpg.xpForNextRank - overview.rpg.xpIntoRank),
-            nextRank: overview.rpg.rank + 1,
-          })}
-          progressPercent={overview.rpg.progressPercent}
-        />
-      </div>
-
-      <section className="mt-8 border-t border-border">
-        {overview.levels.map((level) => {
-          const title = locale === "ja" ? level.titleJa : level.titleEn;
-          return (
-            <article key={level.id} className="border-b border-border py-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {level.assessmentPassedAt ? (
-                    <span className="rounded-full bg-[var(--app-hover)] px-2 py-0.5 text-xs font-medium text-foreground">
-                      {t("passed")}
-                    </span>
-                  ) : null}
-                  {level.locked ? (
-                    <span className="rounded-full bg-muted/30 px-2 py-0.5 text-xs font-medium text-muted">
-                      {t("locked")}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm sm:gap-3">
-                <div className="rounded-xl bg-foreground/5 px-1.5 py-2 sm:px-2">
-                  <p className="text-[11px] text-muted sm:text-xs">{t("mastery")}</p>
-                  <p className="font-semibold text-foreground">{level.masteryScore}%</p>
-                </div>
-                <div className="rounded-xl bg-foreground/5 px-1.5 py-2 sm:px-2">
-                  <p className="text-[11px] text-muted sm:text-xs">{t("xp")}</p>
-                  <p className="font-semibold text-foreground">{level.xp}</p>
-                </div>
-                <div className="rounded-xl bg-foreground/5 px-1.5 py-2 sm:px-2">
-                  <p className="text-[11px] text-muted sm:text-xs">{t("cards")}</p>
-                  <p className="font-semibold text-foreground">
-                    {level.cardsTouched}/{level.cardsTotal}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-2 sm:gap-3">
-                {level.locked ? (
-                  <span className="text-sm text-muted">{t("locked")}</span>
-                ) : (
-                  <>
-                    <Link
-                      href={`/learn/study/${level.levelCode}/practice`}
-                      className="rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background"
-                    >
-                      {t("practice")}
-                    </Link>
-                    {level.practice.weakCount > 0 ? (
-                      <Link
-                        href={`/learn/study/${level.levelCode}/practice?focus=weak`}
-                        className="rounded-xl border border-border bg-[var(--app-hover)] px-4 py-2 text-sm font-medium text-foreground"
-                      >
-                        {t("practiceWeak")} ({level.practice.weakCount})
-                      </Link>
-                    ) : null}
-                    {level.practice.masteredCount > 0 ? (
-                      <Link
-                        href={`/learn/study/${level.levelCode}/practice?focus=mastered`}
-                        className="rounded-xl border border-border bg-[var(--app-hover)] px-4 py-2 text-sm font-medium text-foreground"
-                      >
-                        {t("practiceMastered")} ({level.practice.masteredCount})
-                      </Link>
-                    ) : null}
-                    {level.exitAssessmentId ? (
-                      <Link
-                        href={`/learn/study/${level.levelCode}/assessment`}
-                        className="rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground"
-                      >
-                        {t("levelTest")}
-                      </Link>
-                    ) : null}
-                  </>
-                )}
-              </div>
-            </article>
-          );
-        })}
-      </section>
+      {unavailable ? <div data-state="unavailable"><JapaneseStudyUnavailable /></div> : <>
+        <div className="mt-6"><StudyRankProgress rpg={rpg} /></div>
+        <StudyLevelList language={actor.learningLanguage} levels={levels} />
+      </>}
 
       <p className="mt-10">
         <Link href="/dashboard" className={`${actionLinkClass} text-sm`}>

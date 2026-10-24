@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
 import { getOrCreateQuickReviewCards } from "@/lib/study/quick-review";
 import { getStudyTrackOverview } from "@/lib/study/get-overview";
+import { DashboardJapaneseQuickReview } from "./dashboard-japanese-quick-review";
+import { getJapaneseDashboardStudy } from "@/lib/dashboard/japanese-study";
+import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 import { getStudyResumeInfo } from "@/lib/dashboard/study-resume";
 import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
 import {
@@ -32,14 +35,21 @@ export async function StudentDashboard({
   userId,
   onboardingHref,
   onboardingStep,
-  learningLanguage = "ENGLISH",
 }: {
   userId: string;
   onboardingHref: string | null;
   onboardingStep: string | null;
   learningLanguage?: LearningLanguage;
 }) {
+  // Current persisted intent is authoritative even if a session refresh lags.
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: {
+    name: true, email: true, image: true, learningLanguage: true, role: true, accountStatus: true,
+    studentProfile: { select: { shortBio: true } },
+  } });
+  if (!user || user.role !== "STUDENT" || !isLoginAllowedForAccountStatus(user.accountStatus)) return null;
+  const learningLanguage = user.learningLanguage;
   const jp = await getTranslations("japanesePlacement");
+  const studyJapanese = await getTranslations("japaneseStudy");
   const isEnglish = learningLanguage === "ENGLISH";
   const j = await getTranslations("learningJourney");
   const t = await getTranslations("dashboard");
@@ -49,7 +59,6 @@ export async function StudentDashboard({
 
   const [
     profile,
-    user,
     bookings,
     quick,
     overview,
@@ -58,6 +67,7 @@ export async function StudentDashboard({
     bookingCount,
     threadCount,
     studiedLevel,
+    japanese,
   ] = await Promise.all([
     // `select`, not a bare `findUnique`: this returned every column of the
     // student profile to render four of them.
@@ -71,15 +81,6 @@ export async function StudentDashboard({
         skippedOnboardingSteps: true,
       },
     }),
-    prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        name: true,
-        email: true,
-        image: true,
-        studentProfile: { select: { shortBio: true } },
-      },
-    }),
     getStudentBookingsForDashboard(prisma, userId),
     isEnglish ? getOrCreateQuickReviewCards(prisma, userId) : null,
     isEnglish ? getStudyTrackOverview(prisma, userId, "english-flashcards") : null,
@@ -91,10 +92,16 @@ export async function StudentDashboard({
     prisma.booking.count({ where: { studentId: userId } }),
     prisma.chatThread.count({ where: { studentId: userId } }),
     isEnglish ? prisma.userStudyLevelProgress.findFirst({
-      where: { userId, lastStudiedAt: { not: null } },
+      where: { userId, lastStudiedAt: { not: null }, level: { track: { learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" } } },
       select: { id: true },
     }) : null,
+    !isEnglish ? getJapaneseDashboardStudy(prisma, userId) : null,
   ]);
+
+  const japaneseStudy = japanese?.available ? japanese : null;
+  const studyOverview = isEnglish ? overview : japaneseStudy?.overview;
+  const studyResume = isEnglish ? resume : japaneseStudy?.resume;
+  const trackPractice = isEnglish ? overview?.trackPractice : japaneseStudy?.trackPractice;
 
   const canStartPlacement = isEnglish && isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null);
 
@@ -108,7 +115,7 @@ export async function StudentDashboard({
       hasAnyBooking: bookingCount > 0,
       hasAnyChatThread: threadCount > 0,
       placementCompletedAt: profile?.placementCompletedAt ?? null,
-      hasStudiedAny: Boolean(studiedLevel),
+      hasStudiedAny: isEnglish ? Boolean(studiedLevel) : (japaneseStudy?.trackPractice.totalAttempts ?? 0) > 0,
     },
     { skippedSteps: profile?.skippedOnboardingSteps ?? [] },
   );
@@ -167,9 +174,9 @@ export async function StudentDashboard({
       stats={[
         { label: th("statUpcoming"), value: bookings.upcoming.length },
         { label: th("statCompleted"), value: bookings.completed.length },
-        ...(isEnglish ? [{
+        ...(isEnglish || japaneseStudy ? [{
           label: th("statRank"),
-          value: overview?.rpg ? overview.rpg.rank : "—",
+          value: studyOverview?.rpg ? studyOverview.rpg.rank : "—",
         }] : []),
       ]}
     >
@@ -213,11 +220,16 @@ export async function StudentDashboard({
       {!isEnglish ? <section className="border-y border-border py-6">
         <h2 className="text-base font-semibold text-foreground">{jp("title")}</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">{jp("entry")}</p>
-        <Link href="/japanese-placement" className={buttonClasses({ variant: "secondary", className: "mt-4" })}>{jp("open")}</Link>
+        {!japaneseStudy ? <p className="mt-3 text-sm text-muted">{studyJapanese("unavailableTitle")}</p> : null}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link href="/japanese-placement" className={buttonClasses({ variant: "secondary" })}>{jp("open")}</Link>
+          <Link href="/learn/study" className={buttonClasses({ variant: "secondary" })}>{studyJapanese("title")}</Link>
+        </div>
       </section> : null}
 
-      {overview ? <DashboardStudyHighlight overview={overview} resume={resume} /> : null}
-      {overview ? <DashboardFlashcardStats trackPractice={overview.trackPractice} /> : null}
+      {studyOverview ? <DashboardStudyHighlight overview={studyOverview} resume={studyResume ?? null} learningLanguage={learningLanguage} /> : null}
+      {trackPractice ? <DashboardFlashcardStats trackPractice={trackPractice} /> : null}
+      {japaneseStudy ? <DashboardJapaneseQuickReview key={`${userId}:JAPANESE`} initialStatus={japaneseStudy.quickReview} initialRpg={japaneseStudy.overview.rpg} /> : null}
 
       {/* No wrapping <section>: this brings its own, and renders nothing when
           there is nothing to review — an empty wrapper would still take a gap

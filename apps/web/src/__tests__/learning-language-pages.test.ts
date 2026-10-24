@@ -58,9 +58,9 @@ test("Japanese intent cannot enter the English placement page", async () => {
   expect(prismaMock.studentProfile.findUnique).not.toHaveBeenCalled();
 });
 
-test("Japanese intent cannot enter the English study pages", async () => {
+test("the shared study layout allows Japanese intent; individual pages enforce subject access", async () => {
   const { default: StudyLayout } = await import("@/app/[locale]/learn/study/layout");
-  await expect(StudyLayout({ children: "English cards" })).rejects.toThrow("REDIRECT:/book");
+  expect(await StudyLayout({ children: "Subject-scoped study" })).toBe("Subject-scoped study");
 });
 
 test("English learners retain the English placement and study pages", async () => {

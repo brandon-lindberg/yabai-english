@@ -7,16 +7,19 @@ import type { getStudyTrackOverview } from "@/lib/study/get-overview";
 import { StudyLastHint } from "@/components/dashboard/study-last-hint";
 import { actionLinkClass } from "@/components/ui/inline-link";
 
-type Overview = NonNullable<Awaited<ReturnType<typeof getStudyTrackOverview>>>;
+type EnglishOverview = NonNullable<Awaited<ReturnType<typeof getStudyTrackOverview>>>;
+type Overview = { rpg: EnglishOverview["rpg"]; levels: Pick<EnglishOverview["levels"][number], "levelCode" | "titleJa" | "titleEn" | "locked" | "cardsTouched" | "cardsTotal">[] };
 
 export async function DashboardStudyHighlight({
   overview,
   resume,
+  learningLanguage = "ENGLISH",
 }: {
   overview: Overview;
-  resume: StudyResumeInfo | null;
+  resume: StudyResumeInfo | null; learningLanguage?: "ENGLISH" | "JAPANESE";
 }) {
   const t = await getTranslations("dashboard.highlights");
+  const jp = await getTranslations("japaneseStudy");
   const locale = await getLocale();
 
   const focus = resume
@@ -26,7 +29,7 @@ export async function DashboardStudyHighlight({
   return (
     <div className="border-t border-border pt-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="text-lg font-semibold text-foreground">{t("studyTitle")}</h2>
+        <h2 className="text-lg font-semibold text-foreground">{learningLanguage === "JAPANESE" ? jp("title") : t("studyTitle")}</h2>
         <Link href="/learn/study" className={`${actionLinkClass} text-sm`}>
           {t("studyBrowse")}
         </Link>
@@ -56,7 +59,7 @@ export async function DashboardStudyHighlight({
           ) : (
             <Link
               href={`/learn/study/${focus.levelCode}/practice`}
-              className={`mt-3 ${buttonClasses({ size: "sm" })}`}
+              className={`mt-3 ${buttonClasses()}`}
             >
               {t("studyOpen")}
             </Link>

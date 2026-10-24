@@ -4,13 +4,14 @@ Section 5h of `MIRROR_PLAN.md`, 2026-10-23. Branch: `the-mirror`. Brandon owns c
 
 ## HTTP contract
 
-All three endpoints use the signed-in identity, reread the account's active student role and Japanese learning preference, and require the published Japanese track with its catalog snapshot. They return `Cache-Control: private, no-store`. The current local Japanese catalog remains **DRAFT**, so these endpoints currently return `503 STUDY_UNAVAILABLE` for eligible learners.
+All endpoints use the signed-in identity, reread the account's active student role and Japanese learning preference, and require the published Japanese track with its catalog snapshot. They return `Cache-Control: private, no-store`. The current local Japanese catalog remains **DRAFT**, so these endpoints currently return `503 STUDY_UNAVAILABLE` for eligible learners.
 
 | Endpoint | Request | Response |
 | --- | --- | --- |
 | `GET /api/japanese-study` | No learner identifier | Read-only Japanese placement/access, level mastery, practice rollups and XP |
 | `POST /api/japanese-study/queue` | `levelCode: N5…N1`; optional `limit: 1…50` (24), `focus: mixed/weak/mastered` (mixed), `kind: mixed/vocabulary/kanji` (mixed) | `{ levelCode, cards: [{ question, expiresAt }] }` |
-| `POST /api/japanese-study/reviews` | `promptId`, an offered `choiceId`, optional `answerTimeMs: 0…300000` | Automatic correctness/feedback, counters, accuracy, practice band, XP, mastery score and unlocked/completed bands |
+| `POST /api/japanese-study/reviews` | `promptId`, an offered `choiceId`, optional `answerTimeMs: 0…300000`; daily review also supplies `dailyDayKey` | Automatic correctness/feedback, counters, accuracy, practice band, XP, mastery score and unlocked/completed bands |
+| `POST /api/japanese-study/quick-review` | `{}` | Current UTC daily status and unfinished questions; see [daily review contract](japanese-dashboard-study.md) |
 
 Mutation bodies must be JSON, at most 16 KiB, with only the documented fields. Cross-origin requests and malformed input fail before persistence. Clients cannot supply the student, card, correctness, answer key, catalog or study band. Errors expose stable codes rather than server internals. Shared private HTTP handling also serves Japanese assessment routes; assessment grading/content remain independent.
 
@@ -42,3 +43,5 @@ The study database runner now includes both study persistence files. Full verifi
 The new migration is applied locally. English remains PUBLISHED with 3,284 cards; Japanese remains DRAFT with 10,291 units. The active Japanese assessment is still version 3, digest `43832badc0f39b039b2d0ffda31481f99774bd6f9035b5b42e65195bb8b9d203`. Local Japanese progress, card-state and question-ledger counts remain zero. Disposable schemas and connections are cleaned up; no preview server is needed for this backend increment. Nothing is staged, committed or pushed.
 
 Next: connect the shared learner study interface to these endpoints, using Impeccable for every UI/design decision. Include vocabulary/kanji context, save retry/recovery states, retained access and an honest unpublished-catalog state. Dashboard quick review, learner-facing usage translations, sense/example review and corpus publication remain separate work.
+
+Section 5i connects the [shared learner study interface](japanese-study-interface.md); section 5j adds [dashboard quick review and summaries](japanese-dashboard-study.md). The catalog remains DRAFT. Daily receipts join the existing atomic save, and daily context is checked before progress writes. The standard practice flow and Japanese assessment remain separate.

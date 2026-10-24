@@ -50,7 +50,8 @@
     "test:study": "vitest run --config vitest.study.config.ts",
     "test:study:db": "node --import tsx scripts/test-mirror-migration.ts --study",
     "japanese-content:study": "node --import tsx scripts/import-japanese-study.ts",
-    "japanese-content:prompts": "node --conditions=react-server --import tsx scripts/audit-japanese-study-prompts.ts"
+    "japanese-content:prompts": "node --conditions=react-server --import tsx scripts/audit-japanese-study-prompts.ts",
+    "japanese-content:review": "node --import tsx scripts/review-japanese-study-content.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

@@ -43,3 +43,12 @@ The same command also builds the canonical `study-v1.json` projection and [repor
 `yarn japanese-content:audit --strict` exits unsuccessfully while publication is blocked. That is intentional: resolving structural issues alone never asserts teacher approval. The default command generates an honest research report even when review queues are nonempty.
 
 **Reading verification is not meaning or curriculum approval.** Each learner-facing word sense, example, level, and exercise still requires Japanese-teacher review. Modern JLPT has no exhaustive published official word/kanji list. Related repositories frequently share the same Waller sources, so their agreement is not independent validation.
+
+Section 5k adds the offline source-bound content review:
+
+```sh
+yarn japanese-content:review
+yarn japanese-content:review --check
+```
+
+[reports/content-review.json](./reports/content-review.json) binds the exact catalog/source/label and row-stream digests. The complete ignored `.cache/japanese-content/content-review-v1.jsonl` accounts for all 10,307 source members and provides vocabulary meanings, eligible dictionary sense context, original examples and usage notes for review. All 82 current usage values have en/ja display labels shared by full and daily practice. Normalized exact-gloss differences and nonliteral example targets are review signals, not automatic errors or edits. The command uses existing pinned loaders/validators and cannot publish, fetch, migrate or modify the catalog. `--check` writes nothing. See the [content review handoff](../../../../docs/japanese-study-content-review.md) for findings and limits.

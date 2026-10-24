@@ -1,24 +1,68 @@
-import { expect, test, vi } from "vitest";
-const { quick, overview, resume } = vi.hoisted(() => ({ quick: vi.fn(async () => ({ cards: [], dayKey: "today", learnedToday: 0, notYetToday: 0 })), overview: vi.fn(async () => null), resume: vi.fn(async () => null) }));
+import { beforeEach, expect, test, vi } from "vitest";
+const mocks = vi.hoisted(() => ({ quick: vi.fn(), overview: vi.fn(), resume: vi.fn(), japanese: vi.fn(), user: vi.fn(), profile: vi.fn(), studied: vi.fn() }));
 vi.mock("@/lib/prisma", () => ({ prisma: {
-  studentProfile: { findUnique: async () => ({ placedLevel: "ADVANCED", placedSubLevel: 3, skippedOnboardingSteps: [] }) },
-  user: { findUnique: async () => ({ name: "Student" }) },
+  studentProfile: { findUnique: mocks.profile }, user: { findUnique: mocks.user },
   googleIntegrationSettings: { findUnique: async () => null },
   booking: { count: async () => 0 }, chatThread: { count: async () => 0 },
-  userStudyLevelProgress: { findFirst: async () => null },
+  userStudyLevelProgress: { findFirst: mocks.studied },
 } }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key }));
 vi.mock("@/lib/dashboard/student-bookings", () => ({ getStudentBookingsForDashboard: async () => ({ upcoming: [], completed: [] }) }));
-vi.mock("@/lib/study/quick-review", () => ({ getOrCreateQuickReviewCards: quick }));
-vi.mock("@/lib/study/get-overview", () => ({ getStudyTrackOverview: overview }));
-vi.mock("@/lib/dashboard/study-resume", () => ({ getStudyResumeInfo: resume }));
+vi.mock("@/lib/study/quick-review", () => ({ getOrCreateQuickReviewCards: mocks.quick }));
+vi.mock("@/lib/study/get-overview", () => ({ getStudyTrackOverview: mocks.overview }));
+vi.mock("@/lib/dashboard/study-resume", () => ({ getStudyResumeInfo: mocks.resume }));
+vi.mock("@/lib/dashboard/japanese-study", () => ({ getJapaneseDashboardStudy: mocks.japanese }));
 import { StudentDashboard } from "../student-dashboard";
+const props = { userId: "student", learningLanguage: "JAPANESE" as const, onboardingHref: null, onboardingStep: null };
+beforeEach(() => {
+  vi.clearAllMocks();
+  mocks.user.mockResolvedValue({ name: "Student", learningLanguage: "JAPANESE", role: "STUDENT", accountStatus: "ACTIVE" });
+  mocks.profile.mockResolvedValue({ placedLevel: "ADVANCED", placedSubLevel: 3, skippedOnboardingSteps: [] });
+  mocks.quick.mockResolvedValue({ cards: [], dayKey: "today", learnedToday: 0, notYetToday: 0 });
+  mocks.overview.mockResolvedValue(null); mocks.resume.mockResolvedValue(null); mocks.studied.mockResolvedValue(null);
+  mocks.japanese.mockResolvedValue({ available: false });
+});
 
-test("Japanese dashboard does not read or create English practice or show its proficiency", async () => {
-  const page = await StudentDashboard({ userId: "student", learningLanguage: "JAPANESE", onboardingHref: null, onboardingStep: null });
-  expect(quick).not.toHaveBeenCalled();
-  expect(overview).not.toHaveBeenCalled();
-  expect(resume).not.toHaveBeenCalled();
-  expect(page.props.title).toBe("japanese.dashboard");
-  expect(JSON.stringify(page.props)).not.toContain("ADVANCED");
+test("Japanese draft dashboard uses current persisted intent and shows no English proficiency or invented study progress", async () => {
+  const page = await StudentDashboard({ ...props, learningLanguage: "ENGLISH" });
+  expect(mocks.quick).not.toHaveBeenCalled(); expect(mocks.overview).not.toHaveBeenCalled(); expect(mocks.resume).not.toHaveBeenCalled(); expect(mocks.studied).not.toHaveBeenCalled();
+  expect(mocks.japanese).toHaveBeenCalledWith(expect.anything(), "student");
+  expect(page?.props.title).toBe("japanese.dashboard");
+  expect(JSON.stringify(page?.props)).not.toContain("ADVANCED");
+  expect(JSON.stringify(page?.props)).toContain('"/learn/study"');
+  expect(JSON.stringify(page?.props)).toContain("unavailableTitle");
+  expect(page?.props.stats).toHaveLength(2);
+});
+
+test("Japanese published dashboard renders its own summary, rank, analytics and daily review", async () => {
+  mocks.japanese.mockResolvedValue({ available: true,
+    overview: { rpg: { rank: 2 }, levels: [{ levelCode: "N5", titleEn: "N5", titleJa: "N5", cardsTouched: 1, cardsTotal: 9, locked: false }] },
+    resume: { levelCode: "N5", lastStudiedAt: new Date() }, trackPractice: { totalAttempts: 7 },
+    quickReview: { dayKey: "2026-10-24", total: 5, answered: 1, correct: 1, wrong: 0, xp: 12 },
+  });
+  const page = await StudentDashboard(props);
+  expect(page?.props.stats).toContainEqual({ label: "statRank", value: 2 });
+  const serialized = JSON.stringify(page?.props);
+  expect(serialized).toContain('"levelCode":"N5"');
+  expect(serialized).toContain('"initialStatus"');
+  expect(serialized).not.toContain("ADVANCED");
+  expect(mocks.quick).not.toHaveBeenCalled();
+});
+
+test("persisted English intent retains English helpers and scopes onboarding study history", async () => {
+  mocks.user.mockResolvedValue({ name: "Student", learningLanguage: "ENGLISH", role: "STUDENT", accountStatus: "ACTIVE" });
+  const page = await StudentDashboard(props);
+  expect(page?.props.title).toBe("english.dashboard");
+  expect(mocks.japanese).not.toHaveBeenCalled();
+  expect(mocks.quick).toHaveBeenCalledWith(expect.anything(), "student");
+  expect(mocks.overview).toHaveBeenCalledWith(expect.anything(), "student", "english-flashcards");
+  expect(mocks.studied.mock.calls[0][0].where.level.track).toEqual({ learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" });
+});
+
+test("inactive or removed accounts do not fetch either study system", async () => {
+  for (const user of [null, { role: "STUDENT", accountStatus: "HIDDEN", learningLanguage: "JAPANESE" }]) {
+    mocks.user.mockResolvedValue(user);
+    expect(await StudentDashboard(props)).toBeNull();
+  }
+  expect(mocks.japanese).not.toHaveBeenCalled(); expect(mocks.quick).not.toHaveBeenCalled();
 });
