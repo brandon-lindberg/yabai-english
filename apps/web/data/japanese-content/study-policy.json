@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "japanese-study-groups-v1",
   "levelPolicy": "earliest-matching-community-evidence-v1",
-  "sourceCatalogSha256": "626f94a1c6b2d0c48cffd2103fba4683bd8c5e54fe382056f11eefd26af4219f",
+  "sourceCatalogSha256": "0fccd5db1811170df6afdfd142e6c9b035f5101f606dca456b383e1d0f4d5983",
   "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
   "overlaps": [
     {

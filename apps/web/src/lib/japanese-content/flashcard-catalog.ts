@@ -17,6 +17,7 @@ export type JapaneseVocabularyCard = CardBase & {
   kind: "vocabulary";
   content: Vocabulary;
   originalContent?: Vocabulary;
+  meaningReviewBefore?: Vocabulary;
   phraseEvidence?: PhraseAttestation;
   referenceSupplement?: ReferenceSupplement;
   dictionaryEvidence: DictionaryEvidence & {
@@ -42,7 +43,7 @@ export type JapaneseFlashcardCatalog = {
   cards: Array<JapaneseVocabularyCard | JapaneseKanjiCard>;
   reconciliation: Array<JapaneseCorpusReport["reconciliation"][number] & { sourceFileId: string; candidateCardIds: string[]; coverage?: ReferenceCoverage; resolution?: ReferenceDecision & { cardIds: string[] } }>;
   issues: JapaneseCorpusReport["issues"];
-  corrections?: { sha256: string; records: VocabularyCorrections["records"]; phraseSources: VocabularyCorrections["phraseSources"]; referenceResolutions: VocabularyCorrections["referenceResolutions"] };
+  corrections?: { sha256: string; records: VocabularyCorrections["records"]; phraseSources: VocabularyCorrections["phraseSources"]; referenceResolutions: VocabularyCorrections["referenceResolutions"]; meaningReviews?: VocabularyCorrections["meaningReviews"] };
   referenceDecisions?: ReferenceDecisions & { sha256: string };
 };
 
@@ -95,6 +96,7 @@ export function buildJapaneseFlashcardCatalog(rawInput: JapaneseCorpusInput, sou
     return {
       id: vocabularyId(content.id), kind: "vocabulary", sourceFileId: fileId(references?.supplements[content.id] ? "reference" : "vocab", content.level), content,
       ...(changes?.originals[content.id] ? { originalContent: changes.originals[content.id] } : {}),
+      ...(changes?.meaningReviewBefore[content.id] ? { meaningReviewBefore: changes.meaningReviewBefore[content.id] } : {}),
       ...(input.phraseEvidence?.[content.id] ? { phraseEvidence: input.phraseEvidence[content.id] } : {}),
       ...(references?.supplements[content.id] ? { referenceSupplement: references.supplements[content.id] } : {}),
       referenceRows: referencesByWord.get(content.id) ?? [],
@@ -133,7 +135,7 @@ export function buildJapaneseFlashcardCatalog(rawInput: JapaneseCorpusInput, sou
       };
     }),
     issues: report.issues,
-    ...(changes ? { corrections: { sha256: sha256(JSON.stringify(changes.ledger)), records: changes.ledger.records, phraseSources: changes.ledger.phraseSources, referenceResolutions: changes.ledger.referenceResolutions } } : {}),
+    ...(changes ? { corrections: { sha256: sha256(JSON.stringify(changes.ledger)), records: changes.ledger.records, phraseSources: changes.ledger.phraseSources, referenceResolutions: changes.ledger.referenceResolutions, ...(changes.ledger.meaningReviews ? { meaningReviews: changes.ledger.meaningReviews } : {}) } } : {}),
     ...(references ? { referenceDecisions: { ...references.ledger, sha256: sha256(JSON.stringify(references.ledger)) } } : {}),
   };
 }
@@ -180,6 +182,12 @@ export function summarizeJapaneseFlashcards(catalog: JapaneseFlashcardCatalog) {
       attested: catalog.corrections.records.filter((record) => record.status === "attested").length,
       deferred: catalog.corrections.records.filter((record) => record.status === "deferred").length,
       deferredIds: catalog.corrections.records.filter((record) => record.status === "deferred").map((record) => vocabularyId(record.id)),
+      ...(catalog.corrections.meaningReviews ? { meaningReviews: {
+        corrected: catalog.corrections.meaningReviews.filter(review => review.action === "correct").length,
+        retained: catalog.corrections.meaningReviews.filter(review => review.action === "retain").length,
+        selectedExamples: catalog.corrections.meaningReviews.reduce((sum, review) => sum + (review.examples?.keep.length ?? 0), 0),
+        omittedExamples: catalog.corrections.meaningReviews.reduce((sum, review) => sum + (review.examples?.omit.length ?? 0), 0),
+      } } : {}),
     } : null,
     referenceDecisions: catalog.referenceDecisions ? {
       sha256: catalog.referenceDecisions.sha256,

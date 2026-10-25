@@ -5,7 +5,7 @@
   "teacherReview": "pending",
   "attribution": "data/japanese-content/ATTRIBUTION.md",
   "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
-  "catalogSha256": "626f94a1c6b2d0c48cffd2103fba4683bd8c5e54fe382056f11eefd26af4219f",
+  "catalogSha256": "0fccd5db1811170df6afdfd142e6c9b035f5101f606dca456b383e1d0f4d5983",
   "counts": {
     "vocabulary": 7924,
     "kanji": 2383,
@@ -60,17 +60,23 @@
   "issuesByCode": {
     "LEVEL_DISAGREEMENT": 408,
     "MISSING_DICTIONARY_LINK": 4,
-    "MISSING_EXAMPLES": 682,
+    "MISSING_EXAMPLES": 718,
     "MISSING_REFERENCE_DICTIONARY_LINK": 14,
     "MISSING_REFERENCE_GLOSS": 48,
-    "REFERENCE_DICTIONARY_ID_DIFFERENCE": 29
+    "REFERENCE_DICTIONARY_ID_DIFFERENCE": 26
   },
   "corrections": {
-    "sha256": "b80fc986dfea19b5584b27a99dedab92ea5fbb043a1f4548872cec91e4979b0d",
-    "corrected": 35,
+    "sha256": "e153443b272ee9f0288242854b98216f571fe6e49abe4046520e31bbb3aeb81f",
+    "corrected": 76,
     "attested": 4,
     "deferred": 0,
-    "deferredIds": []
+    "deferredIds": [],
+    "meaningReviews": {
+      "corrected": 1146,
+      "retained": 1928,
+      "selectedExamples": 731,
+      "omittedExamples": 107
+    }
   },
   "referenceDecisions": {
     "sha256": "83d09e293ad3226376ded3d0b09cf7f1aaf75e2cc21fbba2179dfbb213af4633",

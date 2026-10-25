@@ -20,6 +20,12 @@ const cache = resolve(".cache/japanese-content");
 const cached = [...lock.files, ...ledger.phraseSources].every((file) => existsSync(resolve(cache, file.filename)));
 
 describe("curated vocabulary correction ledger", () => {
+  it("records reading/spelling sense corrections separately from retained wording and accounts for selected examples", () => {
+    expect(ledger.meaningReviews?.filter(review => review.action === "correct")).toHaveLength(1146);
+    expect(ledger.meaningReviews?.filter(review => review.action === "retain")).toHaveLength(1928);
+    expect(ledger.meaningReviews?.find(review => review.id === "434fc61861")?.meanings.map(meaning => meaning.text)).toEqual(["moisture", "dampness"]);
+    expect(ledger.meaningReviews?.find(review => review.id === "f9a20b5203")?.examples).toMatchObject({ keep: [], omit: [{ index: 0 }, { index: 1 }] });
+  });
   it("records every dictionary-overlap family with a complete grouping decision", () => {
     expect(studyPolicy.overlaps).toHaveLength(161);
     expect(studyPolicy.overlaps.flatMap(overlap=>overlap.groups).filter(group=>group.memberIds.length>1)).toHaveLength(16);
@@ -38,8 +44,8 @@ describe("curated vocabulary correction ledger", () => {
   it("accounts for all 33 raw dictionary failures without authorizing publication or dropping phrases", () => {
     const failures = [...new Set(sourceAudit.issues.filter((issue) => ["MISSING_DICTIONARY_LINK", "INVALID_DICTIONARY_PAIR", "INVALID_DICTIONARY_VARIANT"].includes(issue.code)).map((issue) => issue.id))].sort();
     expect(ledger.sourceLockSha256).toBe(sourceLockDigest(lock));
-    expect(ledger.records.map((record) => record.id).sort()).toEqual([...failures, "997f2be694", "b6e9e55b54", "ea45ce4bc8", "5ac33a4880", "ab742a2e6a", "65fc20eed5"].sort());
-    expect(ledger.records.filter((record) => record.status === "corrected")).toHaveLength(35);
+    expect(ledger.records.map((record) => record.id).sort()).toEqual([...failures, "997f2be694", "b6e9e55b54", "ea45ce4bc8", "5ac33a4880", "ab742a2e6a", "65fc20eed5", "c552e79d34", "0294bdc5ab", "23556d634a", "242a0bb0ea", "2a04aa688d", "38dd5eb4a0", "42d999cbab", "5d154c188d", "62682a6308", "771ae04338", "9c3ddb98b7", "c139bcdcb4", "cb012edb7f", "cd42c9314f", "e11ef6d7e3", "f5b7534060", "4418a98992", "5f2087a06a", "ba569eb176", "eedac601c6", "f1135a84c1", "0101791a03", "02e6ac02bf", "1b60cfb2ae", "2352843605", "24aad19c86", "290e4e8db6", "299fd7ae70", "3089867b81", "47e4de1f65", "4f4b90bb7c", "64eb41fae7", "67f7a8d49f", "6325479166", "74638a00a2", "77aabada2a", "bfef822f66", "d0cc8bf9a9", "ed2719ab9d", "ef321ac2d3", "f6ece0aafc"].sort());
+    expect(ledger.records.filter((record) => record.status === "corrected")).toHaveLength(76);
     expect(ledger.records.filter((record) => record.status === "attested").map((record) => record.id)).toEqual(["321ba5716a", "3db8531d3b", "91b50bd069", "feb110fb03"]);
     expect(ledger.records.filter((record) => record.status === "deferred")).toEqual([]);
   });
@@ -58,7 +64,7 @@ describe("curated vocabulary correction ledger", () => {
     expect(summary).toMatchObject({
       counts: { vocabulary: 7811, kanji: 2383, referenceRows: 8293, matched: 8165, ambiguous: 1, unmatched: 127 },
       dictionarySupportedVocabulary: 7807, directDictionaryVocabulary: 7795, derivedVocabulary: 12,
-      dictionaryVerifiedKanji: 2383, supportedVocabulary: 7811, attestedPhraseVocabulary: 4, unsupportedVocabularyIds: [], corrections: { corrected: 35, attested: 4, deferred: 0 },
+      dictionaryVerifiedKanji: 2383, supportedVocabulary: 7811, attestedPhraseVocabulary: 4, unsupportedVocabularyIds: [], corrections: { corrected: 76, attested: 4, deferred: 0 },
       referenceCoverage: { primaryFormSelections: 7, coveredAmbiguousRows: 1, unresolvedAmbiguousRows: 0 },
     });
     expect(summary).not.toHaveProperty("dictionaryVerifiedVocabulary");
@@ -71,7 +77,9 @@ describe("curated vocabulary correction ledger", () => {
     const preferred = catalog.reconciliation.find((row) => row.sourceRow === "N4:138");
     expect(preferred).toMatchObject({ candidateIds: ["06381dbe4c"], allCandidateIds: ["06381dbe4c", "a58874b751"] });
     expect(catalog.cards.find((card) => card.id === "ja-vocabulary:a58874b751")?.referenceRows).toContain("N4:138");
-    expect(catalog.cards.filter((card) => card.kind === "vocabulary" && card.originalContent)).toHaveLength(39);
+    expect(catalog.cards.filter((card) => card.kind === "vocabulary" && card.originalContent)).toHaveLength(1210);
+    const reviewed = catalog.cards.find(card => card.id === "ja-vocabulary:434fc61861");
+    expect(reviewed).toMatchObject({ content: { meanings: ["moisture", "dampness"] }, originalContent: { meanings: ["moisture", "dampness", "vapor", "dropsy", "edema"] } });
     for (const id of ["d374033b31", "8814988b80", "91b50bd069"]) {
       const card = catalog.cards.find((card) => card.id === `ja-vocabulary:${id}`);
       expect(card).toMatchObject({ content: { examples: [] } });

@@ -2,20 +2,20 @@ import { canonicalJson } from "../canonical-json";
 import { requireUnique } from "../unique";
 import { prepareJapaneseStudyImport } from "../study/japanese-import";
 import { describeJapaneseUsage, japaneseUsageLabels, japaneseVocabularyUsage } from "../study/japanese-usage";
-import { dictionarySenseAllowsPair, japaneseVocabularyPairKey, type DictionaryWord } from "./dictionary";
+import { dictionarySenseAllowsPair, japaneseVocabularyPairKey, normalizeDictionaryText as normalize, type DictionaryWord } from "./dictionary";
 import { sha256 } from "./digest";
 import type { JapaneseFlashcardCatalog, JapaneseVocabularyCard } from "./flashcard-catalog";
 import type { JapaneseStudyCatalog } from "./study-catalog";
 import path from "node:path";
 import { loadJapaneseStudyArtifacts } from "./study-artifacts";
 import { loadJapaneseCorpus, parseSourceLock } from "./source-files";
+import { verifyVocabularyMeaningReview, type VocabularyMeaningReview } from "./vocabulary-corrections";
 
-const normalize = (text: string) => text.normalize("NFC").trim().replace(/\s+/g, " ").toLowerCase();
 export const serializeJapaneseContentReviewRows = (rows: readonly unknown[]) => rows.map(row => JSON.stringify(row)).join("\n") + "\n";
 type SenseEvidence = { entryId: string; sense: number; gloss: string };
-type MeaningReview = { text: string; status: "exact" | "needs-review" | "construction" | "phrase-attested"; evidence: SenseEvidence[] };
+type MeaningReview = { text: string; status: "exact" | "reviewed-equivalent" | "needs-review" | "construction" | "phrase-attested"; evidence: SenseEvidence[] };
 
-function reviewMeanings(card: JapaneseVocabularyCard, dictionary: ReadonlyMap<string, DictionaryWord>) {
+function reviewMeanings(card: JapaneseVocabularyCard, dictionary: ReadonlyMap<string, DictionaryWord>, review?: VocabularyMeaningReview) {
   const pair = card.dictionaryEvidence.acceptedPairs.find(pair => japaneseVocabularyPairKey(pair.written, pair.reading) === japaneseVocabularyPairKey(card.content.word, card.content.reading));
   const derivations = pair?.evidence.filter(evidence => evidence.kind !== "direct") ?? [];
   const dictionarySenses = card.dictionaryEvidence.entryIds.flatMap(entryId => {
@@ -26,6 +26,8 @@ function reviewMeanings(card: JapaneseVocabularyCard, dictionary: ReadonlyMap<st
   const senses = dictionarySenses.filter(sense => sense.pairAllowed).flatMap(sense => sense.gloss.filter(gloss => gloss.lang === "eng").map(gloss => ({ entryId: sense.entryId, sense: sense.number, gloss: gloss.text })));
   const meanings: MeaningReview[] = card.content.meanings.map(text => {
     const evidence = senses.filter(sense => normalize(sense.gloss) === normalize(text));
+    const retained = review?.meanings.find(item => item.text === text && item.relation !== "exact");
+    if (!evidence.length && retained) return { text, status: "reviewed-equivalent", evidence: [{ entryId: retained.entryId, sense: retained.sense, gloss: retained.gloss }] };
     // Construction and phrase evidence supports the form, not an exact meaning equivalence.
     return { text, evidence, status: evidence.length ? "exact" : card.phraseEvidence ? "phrase-attested" : derivations.length ? "construction" : "needs-review" };
   });
@@ -37,6 +39,21 @@ export function reviewJapaneseStudyContent(source: JapaneseFlashcardCatalog, stu
   const plan = prepareJapaneseStudyImport(source, study);
   requireUnique(dictionaryWords.map(entry => entry.id), "review dictionary identity");
   const dictionary = new Map(dictionaryWords.map(entry => [entry.id, entry]));
+  const decisions = source.corrections?.meaningReviews ?? [];
+  requireUnique(decisions.map(review => review.id), "content meaning review");
+  const vocabularyCards = source.cards.filter(card => card.kind === "vocabulary");
+  requireUnique(vocabularyCards.map(card => card.content.id), "content vocabulary identity");
+  const reviews = new Map<string, VocabularyMeaningReview>();
+  for (const review of decisions) {
+    const card = vocabularyCards.find(card => card.content.id === review.id);
+    if (!card?.meaningReviewBefore) throw new Error(`Missing meaning review source snapshot: ${review.id}`);
+    const expected = verifyVocabularyMeaningReview(card.meaningReviewBefore, dictionary, review, {
+      dictionaryIds: card.dictionaryEvidence.entryIds,
+      derivations: card.dictionaryEvidence.acceptedPairs.flatMap(pair => pair.evidence.filter(item => item.kind !== "direct")),
+    });
+    if (canonicalJson(expected) !== canonicalJson(card.content)) throw new Error(`Meaning review effective content drift: ${card.id}`);
+    reviews.set(card.id, review);
+  }
   const units = new Map(study.units.map(unit => [unit.id, unit]));
   const sourceIds = new Map<number, Set<string>>();
   for (const card of source.cards) if (card.kind === "vocabulary") for (const example of card.content.examples) if (example.tatoeba_id) {
@@ -59,7 +76,10 @@ export function reviewJapaneseStudyContent(source: JapaneseFlashcardCatalog, stu
       const literalTarget = [card.content.word, card.content.reading, ...card.dictionaryEvidence.acceptedPairs.map(pair => pair.written)].some(form => example.ja.normalize("NFC").includes(form.normalize("NFC")));
       return { index, source: example, duplicate, literalTarget, sourceIdHasVariants: !!example.tatoeba_id && (sourceIds.get(example.tatoeba_id)?.size ?? 0) > 1 };
     });
-    return { ...base, written: card.content.word, reading: card.content.reading, ...reviewMeanings(card, dictionary), examples, usage: labels };
+    const review = reviews.get(card.id);
+    return { ...base, written: card.content.word, reading: card.content.reading, ...reviewMeanings(card, dictionary, review), examples, usage: labels,
+      ...(review ? { meaningReview: review, meaningReviewBefore: card.meaningReviewBefore } : {}),
+    };
   });
   const vocabulary = records.filter(row => row.kind === "vocabulary");
   const meanings = vocabulary.flatMap(row => row.meanings);
@@ -73,7 +93,12 @@ export function reviewJapaneseStudyContent(source: JapaneseFlashcardCatalog, stu
     counts: {
       units: study.units.length, sourceRecords: records.length, vocabulary: vocabulary.length, kanji: records.length - vocabulary.length,
       meanings: meanings.length, meaningsWithExactEvidence: meanings.filter(item => item.status === "exact").length,
-      meaningsToReview: meanings.filter(item => item.status !== "exact").length,
+      reviewedEquivalentMeanings: meanings.filter(item => item.status === "reviewed-equivalent").length,
+      meaningsToReview: meanings.filter(item => !["exact", "reviewed-equivalent"].includes(item.status)).length,
+      correctedMeaningRecords: decisions.filter(review => review.action === "correct").length,
+      retainedMeaningRecords: decisions.filter(review => review.action === "retain").length,
+      selectedReviewExamples: decisions.reduce((sum, review) => sum + (review.examples?.keep.length ?? 0), 0),
+      omittedReviewExamples: decisions.reduce((sum, review) => sum + (review.examples?.omit.length ?? 0), 0),
       constructionMeanings: meanings.filter(item => item.status === "construction").length,
       phraseAttestedMeanings: meanings.filter(item => item.status === "phrase-attested").length,
       sourceExamples: examples.length, recordsWithoutExamples: vocabulary.filter(row => !row.examples.length).length,

@@ -1,7 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { kanjiSchema, vocabularySchema, type JapaneseLevel } from "../japanese-content/corpus-audit";
-import { dictionaryWordSchema, japaneseVocabularyPairKey, toHiragana } from "../japanese-content/dictionary";
+import { dictionaryWordSchema, japaneseVocabularyPairKey, toHiragana, normalizeDictionaryText as normMeaning } from "../japanese-content/dictionary";
 import { phraseAttestationSchema } from "../japanese-content/phrase-evidence";
 import { sha256 } from "../japanese-content/digest";
 import type { JapaneseFlashcardCatalog } from "../japanese-content/flashcard-catalog";
@@ -64,7 +64,6 @@ type Candidate = { entry: Entry; text: string };
 export type { JapaneseStudyFeedback } from "./japanese-public";
 /** Server-only answer context. Only `question` is a learner-facing projection. */
 export type CompiledJapaneseStudyPrompt = { question: JapaneseStudyQuestion; correctChoiceId: string; feedback: JapaneseStudyFeedback };
-const normMeaning = (value: string) => value.normalize("NFC").trim().replace(/\s+/g, " ").toLowerCase();
 const normReading = (value: string) => toHiragana(value.trim());
 const rank = (code: JapaneseLevel) => studyLevelIndex(code, "JAPANESE");
 

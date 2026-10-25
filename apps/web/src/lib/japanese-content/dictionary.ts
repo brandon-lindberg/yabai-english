@@ -12,6 +12,8 @@ export const dictionaryWordSchema = z.object({
   })).optional(),
 });
 export type DictionaryWord = z.infer<typeof dictionaryWordSchema>;
+/** Shared conservative comparison for source glosses and review text; never rewrites stored content. */
+export const normalizeDictionaryText = (value: string) => value.normalize("NFC").trim().replace(/\s+/g, " ").toLowerCase();
 export const toHiragana = (s: string) => s.normalize("NFC").replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
 export const japaneseVocabularyPairKey = (word: string, reading: string) => `${word.normalize("NFC")}\0${toHiragana(reading)}`;
 
