@@ -10,7 +10,9 @@ import {
   JAPANESE_SUPPORTED_ATTEMPT_SCHEMAS, japaneseScoringRevision, supportsJapaneseRuntime, japaneseResponseInputSchema,
   nextJapaneseQuestion, parseJapaneseAttempt, recordJapaneseResponse, sameJapaneseResponse,
   summarizeJapaneseAttempt, startJapaneseAttempt, parseStoredJapaneseResponse,
+  japaneseAttemptPolicyMatchesBank,
 } from "./attempt";
+import { JAPANESE_STAIRCASE_POLICY_REVISION } from "./staircase-policy";
 
 export class JapanesePlacementFailure extends PrivateApiFailure {}
 const startInput = z.object({ requestId: z.string().uuid() }).strict();
@@ -57,13 +59,13 @@ function state(row: StoredAttempt) {
 
 function runnableBank(row: StoredAttempt, forCompletion = false) {
   if (!forCompletion && row.bankSnapshot.revokedAt) throw new JapanesePlacementFailure(503, "BANK_UNAVAILABLE");
-  if (!supportsJapaneseRuntime(row.schemaVersion, row.scoringRevision)) {
+  if (!supportsJapaneseRuntime(row.schemaVersion, row.scoringRevision, row.policyRevision)) {
     throw new JapanesePlacementFailure(409, "ATTEMPT_VERSION_UNSUPPORTED");
   }
   const bank = parseJapaneseBank(row.bankSnapshot.content);
   if (bankDigest(bank) !== row.bankSnapshot.digest || bank.id !== row.bankSnapshot.bankKey
-    || bank.version !== row.bankSnapshot.version || bank.items.length !== row.bankSnapshot.itemCount || bank.schemaVersion !== row.schemaVersion
-    || bank.assessment?.revision !== row.policyRevision) {
+    || bank.version !== row.bankSnapshot.version || bank.items.length !== row.bankSnapshot.itemCount
+    || !japaneseAttemptPolicyMatchesBank(bank, row.schemaVersion, row.policyRevision)) {
     throw new JapanesePlacementFailure(500, "STORED_BANK_INVALID");
   }
   const ready = loadApprovedJapaneseBank(bank);
@@ -115,7 +117,7 @@ export async function startStoredJapaneseAttempt(db: PrismaClient, learnerId: st
     let active = await tx.japanesePlacementAttempt.findUnique({ where: { activeLearnerId: learnerId }, include: relations });
     if (active) active = await settleExpired(tx, active, now);
     if (active?.status !== "IN_PROGRESS") active = null;
-    if (active && !active.bankSnapshot.revokedAt && supportsJapaneseRuntime(active.schemaVersion, active.scoringRevision)) throw new JapanesePlacementFailure(409, "ACTIVE_ATTEMPT_EXISTS");
+    if (active && !active.bankSnapshot.revokedAt && supportsJapaneseRuntime(active.schemaVersion, active.scoringRevision, active.policyRevision)) throw new JapanesePlacementFailure(409, "ACTIVE_ATTEMPT_EXISTS");
     const snapshot = await tx.japanesePlacementBankSnapshot.findFirst({
       where: { revokedAt: null, OR: JAPANESE_SUPPORTED_ATTEMPT_SCHEMAS.map((version) => ({ content: { path: ["schemaVersion"], equals: version } })) }, orderBy: [{ publishedAt: "desc" }, { version: "desc" }, { id: "desc" }],
     });
@@ -123,11 +125,13 @@ export async function startStoredJapaneseAttempt(db: PrismaClient, learnerId: st
     if (active) await tx.japanesePlacementAttempt.update({
       where: { id: active.id }, data: { status: "ABANDONED", activeLearnerId: null, finishedAt: new Date(now) },
     });
-    const started = startJapaneseAttempt(snapshot.content, { id: randomUUID(), learnerId, startedAt: new Date(now).toISOString() });
+    const bank = loadApprovedJapaneseBank(snapshot.content);
+    const started = startJapaneseAttempt(bank, { id: randomUUID(), learnerId, startedAt: new Date(now).toISOString() },
+      bank.schemaVersion === 5 ? JAPANESE_STAIRCASE_POLICY_REVISION : undefined);
     const row = await tx.japanesePlacementAttempt.create({
       data: { id: started.id, startedAt: new Date(started.startedAt), expiresAt: new Date(started.expiresAt), policyRevision: started.policyRevision,
-        questionLimit: japaneseQuestionLimit(loadApprovedJapaneseBank(snapshot.content)), learnerId, requestId, activeLearnerId: learnerId, bankSnapshotId: snapshot.id,
-        schemaVersion: started.schemaVersion, scoringRevision: japaneseScoringRevision(started.schemaVersion) },
+        questionLimit: japaneseQuestionLimit(bank), learnerId, requestId, activeLearnerId: learnerId, bankSnapshotId: snapshot.id,
+        schemaVersion: started.schemaVersion, scoringRevision: japaneseScoringRevision(started.schemaVersion, started.policyRevision) },
       include: relations,
     });
     return view(row, now);

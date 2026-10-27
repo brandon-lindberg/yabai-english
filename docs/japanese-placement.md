@@ -2,13 +2,17 @@
 
 Section 4 of [the mirror plan](../MIRROR_PLAN.md). Scope corrected 2026-10-22.
 
+**Current runtime, 2026-10-27:** [staircase-v2](placement-staircase.md) starts new Japanese attempts at N5, uses the owner's confirmation/demotion rules and applies an independent bounded timeout adjustment. It retains Japanese's 12-answer/domain minimum and reading/construction evidence. The published bank version 3/schema 5 and its digest/content remain unchanged; stored runtime policy/scoring revisions select the new behavior. Active legacy attempts and saved results retain their original rules. The local additive constraint migration is applied without rewriting bank or learner rows. Earlier policy/delivery sections below remain implementation history.
+
+The [both-language audit](placement-scaling-audit.md), [English deadline guards](english-placement-guards.md) and [English scoring v2](english-placement-scoring.md) record the preceding corrections. The guarded reviewed flashcard DRAFT refresh and section 6 cross-product verification remain next.
+
 ## Product target
 
 Give teachers an approximate Japanese reading/writing level before their first conversation with a student. The student completes a text-only, automatically scored assessment. “Writing” means arranging supplied word or phrase tiles into a sentence, in the style of Duolingo sentence-building exercises. Every response is scored by the server. There is no free-text submission, individual response review, recording, listening task or oral-confirmation step.
 
 The teacher receives an automatically generated starting-level estimate and a domain breakdown. The estimate is provisional guidance for planning a lesson. Completing an attempt never waits for a teacher to mark it. Checking question-bank content before release is a separate quality process, not a per-student workflow.
 
-Japanese placement owns its items, banks, progression, attempts, scoring and results. It does not import English placement algorithms, level enums, thresholds, question banks or progress models.
+Japanese placement owns its items, banks, domain progression, attempts, scoring and results. Both assessments now share only a small rank/streak routing primitive; Japanese does not import English graders, level enums, thresholds, question banks or progress models.
 
 **Current scoring direction — user correction, 2026-10-23:** the [rubric-v1 implementation](japanese-placement-rubric.md) supports schema-v5 source-aligned routing/results through the existing engine. An in-house pilot is optional, not a release prerequisite. The [scoring-direction correction](japanese-placement-scoring-direction.md) supersedes earlier mandatory empirical-calibration roadmap language in this brief. The original likelihood model remains for schemas 3/4; v5 uses explicit rules and anchor rationales with null likelihoods. Following the owner's explicit authorization and documented checks, [bank version 3 is published locally](japanese-placement-release.md). Production activation remains separate.
 

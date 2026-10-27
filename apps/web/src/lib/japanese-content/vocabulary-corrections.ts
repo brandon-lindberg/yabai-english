@@ -14,6 +14,10 @@ const base = { id: text, beforeSha256: digest, reason: text };
 const patch = vocabularySchema.pick({ word: true, reading: true, romaji: true, pos: true, meanings: true, jmdict_id: true, other_forms: true, other_readings: true, examples: true }).partial().strict();
 const sense = { entryId: text, sense: z.number().int().positive() };
 const exampleIndex = { index: z.number().int().nonnegative(), reason: text };
+const exampleSelectionSchema = z.object({ keep: z.array(z.object(exampleIndex).strict()), omit: z.array(z.object(exampleIndex).strict()) }).strict();
+const attestedCorrectionSchema = z.object({ ...base, status: z.literal("attested"), patch, attestation: phraseAttestationSchema,
+  exampleReview: exampleSelectionSchema.optional(),
+}).strict();
 const meaningReviewSchema = z.object({ ...base, action: z.enum(["retain", "correct"]),
   meanings: z.array(z.object({ ...sense, text, gloss: text, relation: z.enum(["exact", "equivalent", "construction"]), reason: text }).strict()).min(1),
   examples: z.object({ keep: z.array(z.object({ ...exampleIndex, ...sense }).strict()), omit: z.array(z.object(exampleIndex).strict()) }).strict().optional(),
@@ -26,13 +30,34 @@ const schema = z.object({
   records: z.array(z.discriminatedUnion("status", [
     z.object({ ...base, status: z.literal("corrected"), patch, evidence: vocabularyEvidenceSchema }).strict(),
     z.object({ ...base, status: z.literal("deferred") }).strict(),
-    z.object({ ...base, status: z.literal("attested"), patch, attestation: phraseAttestationSchema }).strict(),
+    attestedCorrectionSchema,
   ])),
 }).strict();
 export type VocabularyCorrections = z.infer<typeof schema>;
 export const parseVocabularyCorrections = (value: unknown) => schema.parse(value);
 export const vocabularyRecordDigest = (record: unknown) => sha256(JSON.stringify(vocabularySchema.parse(record)));
 export type VocabularyMeaningReview = z.infer<typeof meaningReviewSchema>;
+
+function selectReviewedExamples(before: Vocabulary, selection: z.infer<typeof exampleSelectionSchema>) {
+  const indices = [...selection.keep, ...selection.omit].map(item => item.index);
+  requireUnique(indices.map(String), "review example index");
+  if (indices.length !== before.examples.length || indices.some(index => index >= before.examples.length)) throw new Error(`Incomplete review example accounting: ${before.id}`);
+  const keep = new Set(selection.keep.map(item => item.index));
+  return before.examples.filter((_, index) => keep.has(index));
+}
+
+/** Phrase decisions cite the verified full expression; they cannot invent dictionary senses. */
+export function verifyAttestedVocabularyCorrection(raw: Vocabulary, value: unknown, sourceIds: ReadonlySet<string>): Vocabulary {
+  const change = attestedCorrectionSchema.parse(value);
+  const before = vocabularySchema.parse(raw);
+  if (before.id !== change.id || vocabularyRecordDigest(before) !== change.beforeSha256) throw new Error(`Correction record drift: ${change.id}`);
+  if (change.exampleReview && change.patch.examples !== undefined) throw new Error(`Phrase example review cannot replace its source examples: ${change.id}`);
+  const corrected = vocabularySchema.parse({ ...before, ...change.patch });
+  if (corrected.jmdict_id) throw new Error(`Phrase attestation cannot assert a dictionary headword: ${change.id}`);
+  verifyPhraseAttestation(corrected, change.attestation, sourceIds);
+  if (change.exampleReview) corrected.examples = selectReviewedExamples(before, change.exampleReview);
+  return corrected;
+}
 
 /** Dictionary support is machine-checked; equivalence/example reasons are explicit authored decisions. */
 export function verifyVocabularyMeaningReview(raw: Vocabulary, dictionary: ReadonlyMap<string, DictionaryWord>, value: unknown, evidence?: VocabularyEvidence): Vocabulary {
@@ -57,13 +82,9 @@ export function verifyVocabularyMeaningReview(raw: Vocabulary, dictionary: Reado
   if (review.action === "retain" && JSON.stringify(meanings) !== JSON.stringify(before.meanings)) throw new Error(`Retain review cannot rewrite meanings: ${review.id}`);
   let examples = before.examples;
   if (review.examples) {
-    const indices = [...review.examples.keep, ...review.examples.omit].map(item => item.index);
-    requireUnique(indices.map(String), "review example index");
-    if (indices.length !== examples.length || indices.some(index => index >= examples.length)) throw new Error(`Incomplete review example accounting: ${review.id}`);
+    examples = selectReviewedExamples(before, review.examples);
     const selected = new Set(review.meanings.map(item => `${item.entryId}:${item.sense}`));
     for (const example of review.examples.keep) if (!selected.has(`${example.entryId}:${example.sense}`)) throw new Error(`Example requires a selected meaning sense: ${review.id}`);
-    const keep = new Set(review.examples.keep.map(item => item.index));
-    examples = examples.filter((_, index) => keep.has(index));
   }
   return { ...before, meanings, examples };
 }
@@ -89,12 +110,12 @@ export function applyVocabularyCorrections(input: JapaneseCorpusInput, lock: Sou
     if (!raw) throw new Error(`Unknown correction identity: ${change.id}`);
     if (vocabularyRecordDigest(raw) !== change.beforeSha256) throw new Error(`Correction record drift: ${change.id}`);
     if (change.status === "deferred") continue;
-    const corrected = vocabularySchema.parse({ ...raw, ...change.patch });
+    const corrected = change.status === "attested"
+      ? verifyAttestedVocabularyCorrection(vocabularySchema.parse(raw), change, phraseSourceIds)
+      : vocabularySchema.parse({ ...raw, ...change.patch });
     originals[change.id] = vocabularySchema.parse(raw);
     records.set(change.id, corrected);
     if (change.status === "attested") {
-      if (corrected.jmdict_id) throw new Error(`Phrase attestation cannot assert a dictionary headword: ${change.id}`);
-      verifyPhraseAttestation(corrected, change.attestation, phraseSourceIds);
       phraseEvidence[change.id] = change.attestation;
       delete vocabularyEvidence[change.id];
       continue;

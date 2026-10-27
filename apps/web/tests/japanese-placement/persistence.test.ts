@@ -4,6 +4,72 @@ import { adaptiveBank, approveBank, approvedBank, groupedAdaptiveBank } from "..
 import { loadContentCatalog } from "../../src/lib/japanese-placement/content-files";
 import { buildContentBank } from "../../src/lib/japanese-placement/content-pack";
 import { loadReleasedJapaneseBank } from "../../src/lib/japanese-placement/release";
+import { startJapaneseAttempt, japaneseScoringRevision } from "../../src/lib/japanese-placement/attempt";
+
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("adds the staircase runtime over the unchanged approved bank and preserves rubric history", async () => {
+  await withIsolatedPostgres("20261027000000_japanese_placement_staircase", async ({ client, db, applyMigration, verifyDatamodel }) => {
+    const service = await import("../../src/lib/japanese-placement/service");
+    for (const id of ["old-active", "old-finished", "new-student", "timeout-student", "bad-pair"]) {
+      await db.user.create({ data: { id, role: "STUDENT", learningLanguage: "JAPANESE" } });
+    }
+    const bank = await loadReleasedJapaneseBank("data/japanese-placement", "public");
+    const snapshot = await service.publishJapaneseBank(db, bank);
+    const answer = (id: string) => {
+      const item = bank.items.find(item => item.id === id)!;
+      return item.responseType === "choice" ? { kind: "answer", itemId: id, choiceId: item.correctChoiceId }
+        : { kind: "sentence_assembly", itemId: id, tileIds: item.acceptedOrders[0] };
+    };
+    // Reconstruct old server-issued rows without changing their policy or bank snapshot.
+    for (const [index, learnerId] of ["old-active", "old-finished"].entries()) {
+      const old = startJapaneseAttempt(bank, { id: learnerId, learnerId, startedAt: new Date().toISOString() });
+      await db.japanesePlacementAttempt.create({ data: {
+        id: old.id, learnerId, activeLearnerId: learnerId, requestId: `00000000-0000-4000-8000-00000000009${index}`,
+        bankSnapshotId: snapshot.id, schemaVersion: old.schemaVersion,
+        policyRevision: old.policyRevision, scoringRevision: japaneseScoringRevision(old.schemaVersion, old.policyRevision),
+        questionLimit: 24, startedAt: new Date(old.startedAt), expiresAt: new Date(old.expiresAt),
+      } });
+    }
+    const oldActive = await service.getStoredJapaneseAttempt(db, "old-active", "old-active");
+    let oldFinished = await service.getStoredJapaneseAttempt(db, "old-finished", "old-finished");
+    while (oldFinished.question) oldFinished = await service.submitStoredJapaneseResponse(db, "old-finished", oldFinished.attemptId, answer(oldFinished.question.id));
+    const oldRows = await db.japanesePlacementAttempt.findMany({ where: { learnerId: { in: ["old-active", "old-finished"] } }, orderBy: { id: "asc" } });
+    const oldResponses = await db.japanesePlacementResponse.findMany({ orderBy: { id: "asc" } });
+    await applyMigration(); await verifyDatamodel();
+    expect(await db.japanesePlacementBankSnapshot.findUnique({ where: { id: snapshot.id } })).toEqual(snapshot);
+    expect(await db.japanesePlacementAttempt.findMany({ where: { learnerId: { in: ["old-active", "old-finished"] } }, orderBy: { id: "asc" } })).toEqual(oldRows);
+    expect(await db.japanesePlacementResponse.findMany({ orderBy: { id: "asc" } })).toEqual(oldResponses);
+    const resumed = await service.getStoredJapaneseAttempt(db, "old-active", "old-active");
+    expect(resumed).toEqual({ ...oldActive, serverNow: resumed.serverNow });
+    expect((await service.getStoredJapaneseAttempt(db, "old-finished", "old-finished")).result).toEqual(oldFinished.result);
+
+    const requestId = "00000000-0000-4000-8000-000000000092";
+    const starts = await Promise.all([service.startStoredJapaneseAttempt(db, "new-student", { requestId }), service.startStoredJapaneseAttempt(db, "new-student", { requestId })]);
+    expect(starts[0]).toEqual({ ...starts[1], serverNow: starts[0].serverNow });
+    let view = starts[0];
+    const row = await db.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: view.attemptId } });
+    expect(row).toMatchObject({ policyRevision: "japanese-jlpt-staircase-v2", scoringRevision: "japanese-reading-writing-staircase-v2", bankSnapshotId: snapshot.id, schemaVersion: 5 });
+    expect(view.question?.domain).toBe("grammar");
+    expect(bank.items.find(item => item.id === view.question?.id)?.referenceBand).toBe("N5");
+    const first = answer(view.question!.id);
+    const retries = await Promise.all([service.submitStoredJapaneseResponse(db, "new-student", view.attemptId, first), service.submitStoredJapaneseResponse(db, "new-student", view.attemptId, first)]);
+    expect(retries[0]).toEqual({ ...retries[1], serverNow: retries[0].serverNow });
+    view = retries[0];
+    while (view.question) view = await service.submitStoredJapaneseResponse(db, "new-student", view.attemptId, answer(view.question.id));
+    expect(view.result).toMatchObject({ policyRevision: "japanese-jlpt-staircase-v2", levelEstimate: { band: "N1" } });
+
+    let timed = await service.startStoredJapaneseAttempt(db, "timeout-student", { requestId: "00000000-0000-4000-8000-000000000093" });
+    for (let i = 0; i < 20; i++) timed = await service.submitStoredJapaneseResponse(db, "timeout-student", timed.attemptId, answer(timed.question!.id));
+    vi.spyOn(Date, "now").mockReturnValue(Date.parse(timed.expiresAt!) + 1);
+    try {
+      const completed = await service.getStoredJapaneseAttempt(db, "timeout-student", timed.attemptId);
+      expect(completed.result).toMatchObject({ completionReason: "time_limit", levelEstimate: { band: "N2" }, timeoutAdjustment: { unadjustedBand: "N1", unanswered: 4, bandReduction: 1 } });
+      expect((await service.getStoredJapaneseAttempt(db, "timeout-student", timed.attemptId)).result).toEqual(completed.result);
+      expect(await db.japanesePlacementResponse.count({ where: { attemptId: timed.attemptId } })).toBe(20);
+    } finally { vi.restoreAllMocks(); }
+    await expect(client.query(`INSERT INTO "JapanesePlacementAttempt" (id,"learnerId","bankSnapshotId","requestId","activeLearnerId","schemaVersion","scoringRevision","policyRevision","questionLimit","expiresAt")
+      VALUES ('bad-pair','bad-pair',$1,'00000000-0000-4000-8000-000000000094','bad-pair',5,'japanese-reading-writing-rubric-v1','japanese-jlpt-staircase-v2',24,NOW()+INTERVAL '20 minutes')`, [snapshot.id])).rejects.toThrow();
+  });
+}, 60000);
 
 test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("preserves English history and persists secure Japanese attempts with concurrent retries", async () => {
   await withIsolatedPostgres("20261022010000_japanese_placement_adaptive", async ({ client, db, applyMigration, verifyDatamodel }) => {
@@ -139,7 +205,7 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("upgrades v4 history to the sou
     expect(active.result).toMatchObject({ scoringRevision: "japanese-reading-writing-passages-v2" });
     let view = await service.startStoredJapaneseAttempt(db, "v5-student", { requestId: "00000000-0000-4000-8000-000000000074" });
     const row = await db.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: view.attemptId } });
-    expect(row).toMatchObject({ schemaVersion: 5, policyRevision: "japanese-jlpt-rubric-v1", scoringRevision: "japanese-reading-writing-rubric-v1", questionLimit: 24 });
+    expect(row).toMatchObject({ schemaVersion: 5, policyRevision: "japanese-jlpt-staircase-v2", scoringRevision: "japanese-reading-writing-staircase-v2", questionLimit: 24 });
     const deadline = view.expiresAt;
     while (view.question) {
       view = await service.submitStoredJapaneseResponse(db, "v5-student", view.attemptId, answer(bank, view.question.id));

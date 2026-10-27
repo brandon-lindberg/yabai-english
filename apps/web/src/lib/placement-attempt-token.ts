@@ -1,23 +1,23 @@
-import { createHmac } from "crypto";
+import { createHash, createHmac } from "crypto";
+import type { LoadedPlacementQuestion } from "@/lib/placement-bank/load-placement-bank";
+import type { PlacementAdaptiveState, ENGLISH_STAIRCASE_ROUTING_REVISION } from "./placement-adaptive";
 
 export type PlacementAttemptPayload = {
   userId: string;
   issuedAt: number;
   expiresAt: number;
   mode: "adaptive";
+  scoringVersion?: 2;
+  bankDigest?: string;
+  routingRevision?: typeof ENGLISH_STAIRCASE_ROUTING_REVISION;
   currentQuestionId: string | null;
   asked: Array<{ id: string; answer: number }>;
-  adaptiveState: {
-    sectionState: Record<
-      "grammar" | "vocabulary" | "reading" | "functional",
-      { asked: number; correct: number; targetBand: 1 | 2 | 3 | 4 | 5 }
-    >;
-    askedQuestionIds: string[];
-    askedStemIds: string[];
-    maxQuestions: number;
-    perSectionMax: number;
-  };
+  adaptiveState: PlacementAdaptiveState;
 };
+
+export function placementBankDigest(questions: LoadedPlacementQuestion[]) {
+  return createHash("sha256").update(JSON.stringify([...questions].sort((a, b) => a.id.localeCompare(b.id)))).digest("hex");
+}
 
 function getSecret() {
   return process.env.NEXTAUTH_SECRET ?? "dev-secret";

@@ -41,6 +41,7 @@ function JapanesePlacementAssessmentContent() {
     <p className="mt-3 max-w-prose text-base leading-relaxed text-muted">{t("welcomeBody")}</p>
     <ul className="my-6 space-y-3 text-sm font-medium text-foreground">{["duration", "adaptive", "scope"].map((key) => <li key={key} className="border-b border-border pb-3">{t(key)}</li>)}</ul>
     <p className="mb-6 max-w-prose text-sm leading-relaxed text-muted">{t("startNotice")}</p>
+    <p className="mb-6 max-w-prose text-sm leading-relaxed text-muted">{t("staircaseNotice")}</p>
     {errorPanel}
     {state.error ? null : <Button size="lg" loading={state.busy} onClick={() => void state.start()}>{t("start")}</Button>}
   </div>;

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "draft",
   "learningLanguage": "JAPANESE",
-  "sourceCatalogSha256": "0fccd5db1811170df6afdfd142e6c9b035f5101f606dca456b383e1d0f4d5983",
+  "sourceCatalogSha256": "39fe0ff9f5355a3559055797779b4f99aabb9a57f7ff75d816c8d73e1e1a295a",
   "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
-  "policySha256": "9de361f449bf680044109f64a82ff7f679900841fce243c2e65316579bafdabc",
-  "catalogSha256": "595a64155ead259426b1b4eac0347cc9ace32843ddc86f37857214e7fee66310",
+  "policySha256": "5161e953ad1c829c66b2cc797a531f509540b5236951c475bdbc4a282af2db68",
+  "catalogSha256": "d9a72223da0534a2bbec995f8e26a508f1dd678c3c39f9d958607484207457b2",
   "counts": {
     "units": 10291,
     "sourceRecords": 10307,

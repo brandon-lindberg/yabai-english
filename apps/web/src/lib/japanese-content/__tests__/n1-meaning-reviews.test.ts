@@ -2,7 +2,7 @@ import { access } from "node:fs/promises";
 import { expect, test } from "vitest";
 import { loadJapaneseStudyArtifacts } from "../study-artifacts";
 import { loadJapaneseStudyContentReview } from "../study-content-review";
-import { expectReviewedCard } from "./reviewed-card-assertions";
+import { expectReviewedCard, hasMeaningCohortReview } from "./reviewed-card-assertions";
 
 const cached = await access(".cache/japanese-content/study-v1.json").then(() => true, () => false);
 
@@ -51,8 +51,8 @@ test.runIf(cached)("finishes N5–N1 dictionary and construction meaning flags w
   const vocabulary = records.filter(row => row.kind === "vocabulary");
   expect(vocabulary.flatMap(row => row.meanings.filter(meaning => ["needs-review", "construction"].includes(meaning.status))).length).toBe(0);
   const n1 = vocabulary.filter(row => row.introductionLevel === "N1");
-  expect(n1.filter(row => "meaningReview" in row && row.meaningReview)).toHaveLength(1325);
-  expect(n1.filter(row => row.id > "ja-vocabulary:ea13ce8188" && "meaningReview" in row && row.meaningReview)).toHaveLength(116);
+  expect(n1.filter(row => hasMeaningCohortReview(row))).toHaveLength(1325);
+  expect(n1.filter(row => row.id > "ja-vocabulary:ea13ce8188" && hasMeaningCohortReview(row))).toHaveLength(116);
   const construction = vocabulary.find(row => row.id === "ja-vocabulary:24113c7b64");
   expect(construction).toMatchObject({
     meanings: [
@@ -127,7 +127,7 @@ test.runIf(cached)("resolves the eighth 150 N1 records while independently prese
   const cohort = records.filter(row => row.kind === "vocabulary" && row.introductionLevel === "N1" && row.id > "ja-vocabulary:cd7c2b10e4" && row.id <= "ja-vocabulary:ea13ce8188");
   expect(cohort.flatMap(row => row.meanings.filter(meaning => meaning.status === "needs-review")).length).toBe(0);
   // 落ち葉 and 乳 were already corrected in the initial reading/sense review.
-  expect(cohort.filter(row => !["ja-vocabulary:db320989e5", "ja-vocabulary:df0cb2db26"].includes(row.id) && "meaningReview" in row && row.meaningReview)).toHaveLength(150);
+  expect(cohort.filter(row => !["ja-vocabulary:db320989e5", "ja-vocabulary:df0cb2db26"].includes(row.id) && hasMeaningCohortReview(row))).toHaveLength(150);
   const { source, study } = await loadJapaneseStudyArtifacts(process.cwd());
   const lamp = source.cards.find(card => card.id === "ja-vocabulary:d0cc8bf9a9");
   if (lamp?.kind !== "vocabulary") throw new Error("Missing lamp/ramp record");
@@ -183,7 +183,7 @@ test.runIf(cached)("resolves the seventh 150 N1 records and independently preser
   const { records, summary } = await loadJapaneseStudyContentReview(process.cwd());
   const cohort = records.filter(row => row.kind === "vocabulary" && row.introductionLevel === "N1" && row.id > "ja-vocabulary:aec7b25baf" && row.id <= "ja-vocabulary:cd7c2b10e4");
   expect(cohort.flatMap(row => row.meanings.filter(meaning => meaning.status === "needs-review")).length).toBe(0);
-  expect(cohort.filter(row => "meaningReview" in row && row.meaningReview)).toHaveLength(150);
+  expect(cohort.filter(row => hasMeaningCohortReview(row))).toHaveLength(150);
   const { source, study } = await loadJapaneseStudyArtifacts(process.cwd());
   const lever = source.cards.find(card => card.id === "ja-vocabulary:bfef822f66");
   if (lever?.kind !== "vocabulary") throw new Error("Missing lever/liver record");
@@ -231,7 +231,7 @@ test.runIf(cached)("resolves the sixth 150 N1 records while preserving independe
   const cohort = records.filter(row => row.kind === "vocabulary" && row.introductionLevel === "N1" && row.id > "ja-vocabulary:91a314706a" && row.id <= "ja-vocabulary:aec7b25baf");
   expect(cohort.flatMap(row => row.meanings.filter(meaning => meaning.status === "needs-review")).length).toBe(0);
   // 有様 was already corrected in the initial reading/sense review.
-  expect(cohort.filter(row => row.id !== "ja-vocabulary:92893bbd77" && "meaningReview" in row && row.meaningReview)).toHaveLength(150);
+  expect(cohort.filter(row => row.id !== "ja-vocabulary:92893bbd77" && hasMeaningCohortReview(row))).toHaveLength(150);
   const { source, study } = await loadJapaneseStudyArtifacts(process.cwd());
   const birth = source.cards.find(card => card.id === "ja-vocabulary:a41e86909d");
   if (birth?.kind !== "vocabulary") throw new Error("Missing birth/production record");
@@ -276,7 +276,7 @@ test.runIf(cached)("resolves the fifth 150 N1 records while preserving independe
   const { records, summary } = await loadJapaneseStudyContentReview(process.cwd());
   const cohort = records.filter(row => row.kind === "vocabulary" && row.introductionLevel === "N1" && row.id > "ja-vocabulary:74638a00a2" && row.id <= "ja-vocabulary:91a314706a");
   expect(cohort.flatMap(row => row.meanings.filter(meaning => meaning.status === "needs-review").map(meaning => [row.id, meaning.text]))).toEqual([]);
-  expect(cohort.filter(row => "meaningReview" in row && row.meaningReview)).toHaveLength(150);
+  expect(cohort.filter(row => hasMeaningCohortReview(row))).toHaveLength(150);
   const { source, study } = await loadJapaneseStudyArtifacts(process.cwd());
   const lace = source.cards.find(card => card.id === "ja-vocabulary:77aabada2a");
   if (lace?.kind !== "vocabulary") throw new Error("Missing race/lace record");
@@ -324,7 +324,7 @@ test.runIf(cached)("resolves the fourth 150 N1 records while independently retai
   const cohort = records.filter(row => row.kind === "vocabulary" && row.introductionLevel === "N1" && row.id > "ja-vocabulary:5aa2622835" && row.id <= "ja-vocabulary:74638a00a2");
   expect(cohort.flatMap(row => row.meanings.filter(meaning => meaning.status === "needs-review").map(meaning => [row.id, meaning.text]))).toEqual([]);
   // 収まる was already reviewed in the initial sense-restriction batch.
-  expect(cohort.filter(row => row.id !== "ja-vocabulary:6ebf36ca63" && "meaningReview" in row && row.meaningReview)).toHaveLength(150);
+  expect(cohort.filter(row => row.id !== "ja-vocabulary:6ebf36ca63" && hasMeaningCohortReview(row))).toHaveLength(150);
   const { source, study } = await loadJapaneseStudyArtifacts(process.cwd());
   expect(study.recordToUnit["ja-vocabulary:67f7a8d49f"]).not.toBe(study.recordToUnit["ja-vocabulary:84e465b526"]);
   for (const [id, entry, meaning] of [["64eb41fae7", "1000525", "saw-edged perch (Niphon spinosus)"], ["67f7a8d49f", "2869020", "south"], ["6325479166", "2511770", "understanding"], ["74638a00a2", "2846405", "crab"]]) {
@@ -375,7 +375,7 @@ test.runIf(cached)("resolves the third 150 N1 records with independently evidenc
   const cohort = records.filter(row => row.kind === "vocabulary" && row.introductionLevel === "N1" && row.id > "ja-vocabulary:3c74d17c1d" && row.id <= "ja-vocabulary:5aa2622835");
   expect(cohort.flatMap(row => row.meanings.filter(meaning => meaning.status === "needs-review").map(meaning => [row.id, meaning.text]))).toEqual([]);
   // 水気 and 上手 were already reviewed in the initial sense-restriction batch.
-  expect(cohort.filter(row => !["ja-vocabulary:434fc61861", "ja-vocabulary:4436cfdbab"].includes(row.id) && "meaningReview" in row && row.meaningReview)).toHaveLength(150);
+  expect(cohort.filter(row => !["ja-vocabulary:434fc61861", "ja-vocabulary:4436cfdbab"].includes(row.id) && hasMeaningCohortReview(row))).toHaveLength(150);
   const { source } = await loadJapaneseStudyArtifacts(process.cwd());
   for (const [id, entry, meaning] of [["47e4de1f65", "2849141", "European pear"], ["4f4b90bb7c", "2856634", "vest"]]) {
     const card = source.cards.find(card => card.id === `ja-vocabulary:${id}`);
@@ -424,7 +424,7 @@ test.runIf(cached)("resolves the next 150 N1 records with independently evidence
   const cohort = records.filter(row => row.kind === "vocabulary" && row.introductionLevel === "N1" && row.id > "ja-vocabulary:1e2592203e" && row.id <= "ja-vocabulary:3c74d17c1d");
   expect(cohort.flatMap(row => row.meanings.filter(meaning => meaning.status === "needs-review").map(meaning => [row.id, meaning.text]))).toEqual([]);
   // 手数 was reviewed in 5l; the final 煌々と construction review is separate from these 150 direct records.
-  expect(cohort.filter(row => !["ja-vocabulary:37cffd52d1", "ja-vocabulary:24113c7b64"].includes(row.id) && "meaningReview" in row && row.meaningReview)).toHaveLength(150);
+  expect(cohort.filter(row => !["ja-vocabulary:37cffd52d1", "ja-vocabulary:24113c7b64"].includes(row.id) && hasMeaningCohortReview(row))).toHaveLength(150);
   const { source } = await loadJapaneseStudyArtifacts(process.cwd());
   for (const [id, entry, meaning] of [["2352843605", "2841290", "hole"], ["24aad19c86", "2846311", "punk (music, fashion)"], ["290e4e8db6", "2872968", "promoted pawn"], ["299fd7ae70", "2843921", "yes"], ["3089867b81", "2843630", "shallow tray (usu. steel or plastic)"]]) {
     const card = source.cards.find(card => card.id === `ja-vocabulary:${id}`);
@@ -467,7 +467,7 @@ test.runIf(cached)("resolves the first 150 N1 records with independent foam, han
   const cohort = records.filter(row => row.kind === "vocabulary" && row.introductionLevel === "N1" && row.id <= "ja-vocabulary:1e2592203e");
   expect(cohort.flatMap(row => row.meanings.filter(meaning => meaning.status === "needs-review").map(meaning => [row.id, meaning.text]))).toEqual([]);
   // 奨励 was already corrected in the initial cross-level sense-restriction batch.
-  expect(cohort.filter(row => row.id !== "ja-vocabulary:002ee4fb5a" && "meaningReview" in row && row.meaningReview)).toHaveLength(150);
+  expect(cohort.filter(row => row.id !== "ja-vocabulary:002ee4fb5a" && hasMeaningCohortReview(row))).toHaveLength(150);
   const { source } = await loadJapaneseStudyArtifacts(process.cwd());
   for (const [id, entry, meaning] of [["0101791a03", "2855933", "foam"], ["02e6ac02bf", "2861509", "hangar"], ["02e6ac02bf", "2861510", "hunger"], ["1b60cfb2ae", "2851348", "sheet"]]) {
     const card = source.cards.find(card => card.id === `ja-vocabulary:${id}`);

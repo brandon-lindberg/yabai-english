@@ -22,7 +22,7 @@ const cached = [...lock.files, ...ledger.phraseSources].every((file) => existsSy
 describe("curated vocabulary correction ledger", () => {
   it("records reading/spelling sense corrections separately from retained wording and accounts for selected examples", () => {
     expect(ledger.meaningReviews?.filter(review => review.action === "correct")).toHaveLength(1146);
-    expect(ledger.meaningReviews?.filter(review => review.action === "retain")).toHaveLength(1928);
+    expect(ledger.meaningReviews?.filter(review => review.action === "retain")).toHaveLength(6336);
     expect(ledger.meaningReviews?.find(review => review.id === "434fc61861")?.meanings.map(meaning => meaning.text)).toEqual(["moisture", "dampness"]);
     expect(ledger.meaningReviews?.find(review => review.id === "f9a20b5203")?.examples).toMatchObject({ keep: [], omit: [{ index: 0 }, { index: 1 }] });
   });
@@ -77,7 +77,7 @@ describe("curated vocabulary correction ledger", () => {
     const preferred = catalog.reconciliation.find((row) => row.sourceRow === "N4:138");
     expect(preferred).toMatchObject({ candidateIds: ["06381dbe4c"], allCandidateIds: ["06381dbe4c", "a58874b751"] });
     expect(catalog.cards.find((card) => card.id === "ja-vocabulary:a58874b751")?.referenceRows).toContain("N4:138");
-    expect(catalog.cards.filter((card) => card.kind === "vocabulary" && card.originalContent)).toHaveLength(1210);
+    expect(catalog.cards.filter((card) => card.kind === "vocabulary" && card.originalContent)).toHaveLength(3295);
     const reviewed = catalog.cards.find(card => card.id === "ja-vocabulary:434fc61861");
     expect(reviewed).toMatchObject({ content: { meanings: ["moisture", "dampness"] }, originalContent: { meanings: ["moisture", "dampness", "vapor", "dropsy", "edema"] } });
     for (const id of ["d374033b31", "8814988b80", "91b50bd069"]) {

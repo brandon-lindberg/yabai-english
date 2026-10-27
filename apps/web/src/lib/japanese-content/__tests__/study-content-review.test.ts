@@ -86,10 +86,38 @@ test("recognizes explicit retained wording only after revalidating its source sn
   expect(() => reviewJapaneseStudyContent(fixture.source, fixture.build(), fixture.dictionary)).toThrow(/gloss/i);
 });
 
+test.each([
+  { relation: "exact", gloss: "contents", status: "exact" },
+  { relation: "equivalent", gloss: "material", status: "reviewed-equivalent" },
+  { relation: "equivalent", gloss: "contents", status: "exact" },
+] as const)("preserves the verified $relation selection of $gloss with $status evidence", ({ relation, gloss, status }) => {
+  const fixture = japaneseStudyFixture();
+  const card = fixture.source.cards[0];
+  if (card.kind !== "vocabulary") throw new Error("fixture");
+  fixture.dictionary[0].sense!.push({ ...structuredClone(fixture.dictionary[0].sense![0]), gloss: [{ lang: "eng", text: gloss }] });
+  card.meaningReviewBefore = structuredClone(card.content);
+  const review = { id: card.content.id, beforeSha256: vocabularyRecordDigest(card.content), action: "retain" as const,
+    reason: "Choose the eligible second sense explicitly without rewriting the source wording.",
+    meanings: [{ text: "contents", entryId: "1", sense: 2, gloss, relation, reason: "The reviewed context selects this sense, independently of another automatic exact match." }],
+  };
+  fixture.source.corrections = { sha256: "a".repeat(64), records: [], phraseSources: [], referenceResolutions: [], meaningReviews: [review] };
+  fixture.bind();
+  const before = JSON.stringify(fixture.source);
+  const result = reviewJapaneseStudyContent(fixture.source, fixture.build(), fixture.dictionary);
+  expect(result.records.find(row => row.id === card.id)!.meanings).toEqual([
+    { text: "contents", status, evidence: [{ entryId: "1", sense: 2, gloss }] },
+  ]);
+  expect(result.records.find(row => row.id === card.id)!.dictionarySenses).toHaveLength(2);
+  expect(result.records.find(row => row.id === "word-1")!.meanings[0].status).toBe("exact");
+  expect(JSON.stringify(fixture.source)).toBe(before);
+  review.meanings[0].sense = 3; fixture.bind();
+  expect(() => reviewJapaneseStudyContent(fixture.source, fixture.build(), fixture.dictionary)).toThrow(/sense/i);
+});
+
 const cached = await access(".cache/japanese-content/study-v1.json").then(() => true, () => false);
 test.runIf(cached)("reviews every pinned source member and translates every current usage value", async () => {
   const { summary, records } = await loadJapaneseStudyContentReview(process.cwd());
-  expect(summary.counts).toMatchObject({ units: 10291, sourceRecords: 10307, vocabulary: 7924, kanji: 2383, sourceExamples: 13607, usageValues: 82, translatedUsageValues: 82, correctedMeaningRecords: 1146, retainedMeaningRecords: 1928, reviewedEquivalentMeanings: 2518, selectedReviewExamples: 731, omittedReviewExamples: 107 });
+  expect(summary.counts).toMatchObject({ units: 10291, sourceRecords: 10307, vocabulary: 7924, kanji: 2383, sourceExamples: 10833, usageValues: 82, translatedUsageValues: 82, correctedMeaningRecords: 1146, retainedMeaningRecords: 6336, reviewedEquivalentMeanings: 2526, selectedReviewExamples: 10832, omittedReviewExamples: 2880, reviewedPhraseExampleRecords: 2, selectedPhraseExamples: 1, omittedPhraseExamples: 1 });
   expect(new Set(records.map(row => row.id)).size).toBe(10307);
   expect(summary.counts.meaningsWithExactEvidence + summary.counts.reviewedEquivalentMeanings + summary.counts.meaningsToReview).toBe(summary.counts.meanings);
   for (const row of records) if ("meaningReview" in row && row.meaningReview?.action === "correct") expect(row.meanings.every(meaning => meaning.status === "exact" || (meaning.status === "reviewed-equivalent" && row.meaningReview?.meanings.find(item => item.text === meaning.text)?.relation === "construction"))).toBe(true);

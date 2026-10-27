@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { JAPANESE_STAIRCASE_POLICY } from "./staircase-policy";
 
 export const JAPANESE_PLACEMENT_DOMAINS = ["kana", "kanji_reading", "vocabulary", "grammar", "reading", "writing"] as const;
 export type JapanesePlacementDomain = typeof JAPANESE_PLACEMENT_DOMAINS[number];
@@ -37,9 +38,20 @@ export const japaneseResultSchema = z.object({
   ]),
   domains: z.array(z.object({ domain: z.enum(JAPANESE_PLACEMENT_DOMAINS), planned: count, answered: count, correct: count,
     incorrect: count, notSure: count, unanswered: count.optional(), observation: z.enum(["observed", "limited", "not_assessed"]) })).length(6),
+  timeoutAdjustment: z.object({ unadjustedBand: band, unanswered: count.min(1),
+    penaltyBandFraction: z.number().positive().max(JAPANESE_STAIRCASE_POLICY.maximumTimeoutBandFraction),
+    bandReduction: z.number().int().min(0).max(1) }).strict().optional(),
 }).refine((result) => new Set(result.domains.map((row) => row.domain)).size === 6, "Duplicate result domain")
   .refine((result) => result.levelEstimate.status !== "estimated" || (result.levelEstimate.basis === "jlpt_aligned_rules"
-    ? !result.levelEstimate.modelRange : !!result.levelEstimate.modelRange), "Estimate basis/range mismatch");
+    ? !result.levelEstimate.modelRange : !!result.levelEstimate.modelRange), "Estimate basis/range mismatch")
+  .refine((result) => {
+    const adjustment = result.timeoutAdjustment;
+    if (!adjustment) return true;
+    const estimate = result.levelEstimate;
+    return result.completionReason === "time_limit" && estimate.status === "estimated" && estimate.basis === "jlpt_aligned_rules"
+      && JAPANESE_STUDY_BANDS.indexOf(adjustment.unadjustedBand) - JAPANESE_STUDY_BANDS.indexOf(estimate.band) === adjustment.bandReduction
+      && (estimate.band !== "BELOW_N5" || adjustment.unadjustedBand === "BELOW_N5");
+  }, "Invalid Japanese timeout adjustment");
 export type JapanesePlacementResult = z.infer<typeof japaneseResultSchema>;
 
 export const japaneseAttemptViewSchema = z.object({

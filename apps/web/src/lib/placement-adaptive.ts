@@ -1,5 +1,9 @@
 import { randomInt } from "crypto";
 import type { PlacementQuestion } from "@/lib/placement-test";
+import { ENGLISH_PLACEMENT_POLICY_V2 } from "@/lib/placement-policy";
+import { advanceStaircase, initialStaircase, type StaircaseState } from "./adaptive-staircase";
+
+export const ENGLISH_STAIRCASE_ROUTING_REVISION = "english-staircase-v1";
 
 /** Legacy: tags were never learner-facing; strip if present in old rows. */
 const ITEM_TAG_EN = /\s+—\s+(A1|A2|B1|B2|C1)-(grammar|vocabulary|reading|functional)-\d{3}$/i;
@@ -49,6 +53,7 @@ export type AdaptiveSectionState = {
 };
 
 export type PlacementAdaptiveState = {
+  staircase?: StaircaseState;
   sectionState: Record<SectionKey, AdaptiveSectionState>;
   askedQuestionIds: string[];
   askedStemIds: string[];
@@ -76,18 +81,20 @@ export function computeNextTargetBand(prev: BandScore, isCorrect: boolean): Band
   return clampBand(prev + (isCorrect ? 1 : -1));
 }
 
-export function buildInitialAdaptiveState(): PlacementAdaptiveState {
+export function buildInitialAdaptiveState(routing: "staircase" | "legacy" = "staircase"): PlacementAdaptiveState {
+  const targetBand = routing === "staircase" ? 1 : 2;
   return {
+    ...(routing === "staircase" ? { staircase: initialStaircase() } : {}),
     sectionState: {
-      grammar: { asked: 0, correct: 0, targetBand: 2 },
-      vocabulary: { asked: 0, correct: 0, targetBand: 2 },
-      reading: { asked: 0, correct: 0, targetBand: 2 },
-      functional: { asked: 0, correct: 0, targetBand: 2 },
+      grammar: { asked: 0, correct: 0, targetBand },
+      vocabulary: { asked: 0, correct: 0, targetBand },
+      reading: { asked: 0, correct: 0, targetBand },
+      functional: { asked: 0, correct: 0, targetBand },
     },
     askedQuestionIds: [],
     askedStemIds: [],
-    maxQuestions: 24,
-    perSectionMax: 6,
+    maxQuestions: ENGLISH_PLACEMENT_POLICY_V2.maxQuestions,
+    perSectionMax: ENGLISH_PLACEMENT_POLICY_V2.perSectionMax,
   };
 }
 
@@ -120,14 +127,19 @@ function askedChoicesDedupeKeys(state: PlacementAdaptiveState, pool: PlacementQu
   return keys;
 }
 
-function chooseSection(state: PlacementAdaptiveState): SectionKey | null {
+function chooseSection(state: PlacementAdaptiveState, pool: PlacementQuestion[]): SectionKey | null {
   const candidates = SECTION_ORDER.filter(
     (section) => state.sectionState[section].asked < state.perSectionMax,
   );
   if (candidates.length === 0) return null;
+  const atTarget = Object.fromEntries(SECTION_ORDER.map(section => [section, 0])) as Record<SectionKey, number>;
+  if (state.staircase) {
+    const asked = new Set(state.askedQuestionIds);
+    for (const question of pool) if (asked.has(question.id) && BAND_ORDER[question.cefrBand] === state.staircase.target) atTarget[question.section]++;
+  }
   candidates.sort(
     (a, b) =>
-      state.sectionState[a].asked - state.sectionState[b].asked ||
+      state.sectionState[a].asked - state.sectionState[b].asked || atTarget[a] - atTarget[b] ||
       SECTION_ORDER.indexOf(a) - SECTION_ORDER.indexOf(b),
   );
   return candidates[0] ?? null;
@@ -139,7 +151,7 @@ export function chooseNextAdaptiveQuestion(
   avoidIds: string[] = [],
 ): PlacementQuestion | null {
   if (state.askedQuestionIds.length >= state.maxQuestions) return null;
-  const section = chooseSection(state);
+  const section = chooseSection(state, pool);
   if (!section) return null;
 
   const asked = new Set(state.askedQuestionIds);
@@ -167,8 +179,9 @@ export function chooseNextAdaptiveQuestion(
   const source = available.length > 0 ? available : fallback;
   if (source.length === 0) return null;
 
-  const target = state.sectionState[section].targetBand;
+  const target = state.staircase?.target ?? state.sectionState[section].targetBand;
   const exact = source.filter((q) => BAND_ORDER[q.cefrBand] === target);
+  if (state.staircase && state.askedQuestionIds.length === 0 && exact.length === 0) return null;
   const candidatePool = exact.length > 0 ? exact : source;
   const ranked = [...candidatePool].sort(
     (a, b) => Math.abs(BAND_ORDER[a.cefrBand] - target) - Math.abs(BAND_ORDER[b.cefrBand] - target),
@@ -185,9 +198,11 @@ export function applyAdaptiveAnswer(
 ): PlacementAdaptiveState {
   const section = question.section;
   const prev = state.sectionState[section];
-  const nextBand = computeNextTargetBand(prev.targetBand, isCorrect);
+  const staircase = state.staircase ? advanceStaircase(state.staircase, BAND_ORDER[question.cefrBand], isCorrect) : undefined;
+  const nextBand = staircase?.target ?? computeNextTargetBand(prev.targetBand, isCorrect);
   return {
     ...state,
+    ...(staircase ? { staircase } : {}),
     askedQuestionIds: [...state.askedQuestionIds, question.id],
     askedStemIds: [...state.askedStemIds, placementQuestionStemKey(question)],
     sectionState: {

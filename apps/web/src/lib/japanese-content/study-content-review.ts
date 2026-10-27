@@ -9,7 +9,7 @@ import type { JapaneseStudyCatalog } from "./study-catalog";
 import path from "node:path";
 import { loadJapaneseStudyArtifacts } from "./study-artifacts";
 import { loadJapaneseCorpus, parseSourceLock } from "./source-files";
-import { verifyVocabularyMeaningReview, type VocabularyMeaningReview } from "./vocabulary-corrections";
+import { verifyAttestedVocabularyCorrection, verifyVocabularyMeaningReview, type VocabularyMeaningReview } from "./vocabulary-corrections";
 
 export const serializeJapaneseContentReviewRows = (rows: readonly unknown[]) => rows.map(row => JSON.stringify(row)).join("\n") + "\n";
 type SenseEvidence = { entryId: string; sense: number; gloss: string };
@@ -26,8 +26,12 @@ function reviewMeanings(card: JapaneseVocabularyCard, dictionary: ReadonlyMap<st
   const senses = dictionarySenses.filter(sense => sense.pairAllowed).flatMap(sense => sense.gloss.filter(gloss => gloss.lang === "eng").map(gloss => ({ entryId: sense.entryId, sense: sense.number, gloss: gloss.text })));
   const meanings: MeaningReview[] = card.content.meanings.map(text => {
     const evidence = senses.filter(sense => normalize(sense.gloss) === normalize(text));
-    const retained = review?.meanings.find(item => item.text === text && item.relation !== "exact");
-    if (!evidence.length && retained) return { text, status: "reviewed-equivalent", evidence: [{ entryId: retained.entryId, sense: retained.sense, gloss: retained.gloss }] };
+    // Decisions were verified against the snapshot; keep their selected sense authoritative.
+    const selected = review?.meanings.find(item => item.text === text);
+    if (selected) {
+      const exact = evidence.some(sense => sense.entryId === selected.entryId && sense.sense === selected.sense && sense.gloss === selected.gloss);
+      return { text, status: exact ? "exact" : "reviewed-equivalent", evidence: [{ entryId: selected.entryId, sense: selected.sense, gloss: selected.gloss }] };
+    }
     // Construction and phrase evidence supports the form, not an exact meaning equivalence.
     return { text, evidence, status: evidence.length ? "exact" : card.phraseEvidence ? "phrase-attested" : derivations.length ? "construction" : "needs-review" };
   });
@@ -44,6 +48,16 @@ export function reviewJapaneseStudyContent(source: JapaneseFlashcardCatalog, stu
   const vocabularyCards = source.cards.filter(card => card.kind === "vocabulary");
   requireUnique(vocabularyCards.map(card => card.content.id), "content vocabulary identity");
   const reviews = new Map<string, VocabularyMeaningReview>();
+  const phraseSourceIds = new Set(source.corrections?.phraseSources.map(item => item.id));
+  const phraseReviews = new Map<string, { sourceId: string; locator: string; keep: Array<{ index: number; reason: string }>; omit: Array<{ index: number; reason: string }> }>();
+  for (const change of source.corrections?.records ?? []) if (change.status === "attested" && change.exampleReview) {
+    const card = vocabularyCards.find(card => card.content.id === change.id);
+    if (!card?.originalContent) throw new Error(`Missing phrase example source snapshot: ${change.id}`);
+    const expected = verifyAttestedVocabularyCorrection(card.originalContent, change, phraseSourceIds);
+    if (canonicalJson(expected) !== canonicalJson(card.content) || canonicalJson(change.attestation) !== canonicalJson(card.phraseEvidence)) throw new Error(`Phrase example effective content drift: ${change.id}`);
+    if (phraseReviews.has(card.id)) throw new Error(`Duplicate phrase example review: ${change.id}`);
+    phraseReviews.set(card.id, { sourceId: change.attestation.sourceId, locator: change.attestation.locator, ...change.exampleReview });
+  }
   for (const review of decisions) {
     const card = vocabularyCards.find(card => card.content.id === review.id);
     if (!card?.meaningReviewBefore) throw new Error(`Missing meaning review source snapshot: ${review.id}`);
@@ -79,6 +93,7 @@ export function reviewJapaneseStudyContent(source: JapaneseFlashcardCatalog, stu
     const review = reviews.get(card.id);
     return { ...base, written: card.content.word, reading: card.content.reading, ...reviewMeanings(card, dictionary, review), examples, usage: labels,
       ...(review ? { meaningReview: review, meaningReviewBefore: card.meaningReviewBefore } : {}),
+      ...(phraseReviews.has(card.id) ? { phraseExampleReview: phraseReviews.get(card.id) } : {}),
     };
   });
   const vocabulary = records.filter(row => row.kind === "vocabulary");
@@ -99,6 +114,9 @@ export function reviewJapaneseStudyContent(source: JapaneseFlashcardCatalog, stu
       retainedMeaningRecords: decisions.filter(review => review.action === "retain").length,
       selectedReviewExamples: decisions.reduce((sum, review) => sum + (review.examples?.keep.length ?? 0), 0),
       omittedReviewExamples: decisions.reduce((sum, review) => sum + (review.examples?.omit.length ?? 0), 0),
+      reviewedPhraseExampleRecords: phraseReviews.size,
+      selectedPhraseExamples: [...phraseReviews.values()].reduce((sum, review) => sum + review.keep.length, 0),
+      omittedPhraseExamples: [...phraseReviews.values()].reduce((sum, review) => sum + review.omit.length, 0),
       constructionMeanings: meanings.filter(item => item.status === "construction").length,
       phraseAttestedMeanings: meanings.filter(item => item.status === "phrase-attested").length,
       sourceExamples: examples.length, recordsWithoutExamples: vocabulary.filter(row => !row.examples.length).length,

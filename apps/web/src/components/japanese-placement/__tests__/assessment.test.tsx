@@ -20,6 +20,18 @@ const show = (locale = "en") => render(<NextIntlClientProvider locale={locale} m
 beforeEach(() => { vi.stubGlobal("fetch", fetchMock); fetchMock.mockReset(); window.sessionStorage.clear(); });
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
+test.each(["en", "ja"])("explains the versioned timeout adjustment to students and teachers (%s)", locale => {
+  const adjusted = { ...result, levelEstimate: { status: "estimated" as const, scope: "reading_writing" as const,
+    basis: "jlpt_aligned_rules" as const, provisional: true as const, band: "N2" as const },
+    timeoutAdjustment: { unadjustedBand: "N1" as const, unanswered: 4, penaltyBandFraction: 1 / 6, bandReduction: 1 } };
+  render(<NextIntlClientProvider locale={locale} messages={locale === "ja" ? jaMessages : messages}>
+    <JapanesePlacementResult result={adjusted} teacher />
+  </NextIntlClientProvider>);
+  expect(screen.getByText(locale === "ja"
+    ? "時間切れで4問が未回答でした。回答ペースを考慮し、開始レベルをN1からN2に調整しています。"
+    : "Time ended with 4 unanswered questions. Timing adjusted the starting level from N1 to N2.")).toBeVisible();
+});
+
 test.each(["en", "ja"])("keeps source credits accessible without interrupting an active assessment (%s)", async (locale) => {
   fetchMock.mockResolvedValueOnce(reply({ attempt: active() }));
   show(locale);

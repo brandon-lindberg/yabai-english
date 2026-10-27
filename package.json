@@ -9,6 +9,7 @@
     "typecheck": "yarn --cwd apps/web typecheck",
     "test": "yarn --cwd apps/web test",
     "test:unit": "yarn --cwd apps/web test:unit",
+    "test:english-placement": "yarn --cwd apps/web test:english-placement",
     "test:japanese-content": "yarn --cwd apps/web test:japanese-content",
     "test:japanese-placement": "yarn --cwd apps/web test:japanese-placement",
     "test:japanese-placement:db": "yarn --cwd apps/web test:japanese-placement:db",

@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:english-placement": "vitest run --config vitest.english-placement.config.ts",
     "test:unit": "vitest run",
     "test:japanese-content": "vitest run --config vitest.japanese-content.config.ts",
     "test:japanese-placement": "vitest run --config vitest.japanese-placement.config.ts",

@@ -16,7 +16,12 @@ export function JapanesePlacementResult({ result, teacher = false, actions }: { 
     <Outcome title={estimated ? teacher ? t("teacherResultTitle") : t("resultTitle") : estimate.status === "unavailable" ? t("legacyResult") : t("insufficient")}
       figure={estimated ? bandLabel(estimate.band) : null} figureLabel={estimated ? t("provisional") : null}
       description={estimated ? t("resultNote") : estimate.status === "insufficient_evidence" ? insufficientBody : t("resultNote")} actions={actions}>
-      {result.completionReason === "time_limit" ? <p className="mb-5 text-sm text-muted">{t("timeExpired")}</p> : null}
+      {result.timeoutAdjustment && estimated ? <p className="mb-5 text-sm leading-relaxed text-muted">
+        {t(result.timeoutAdjustment.bandReduction > 0 ? "timeoutAdjusted" : "timeoutFloor", {
+          unanswered: result.timeoutAdjustment.unanswered,
+          before: bandLabel(result.timeoutAdjustment.unadjustedBand), after: bandLabel(estimate.band),
+        })}
+      </p> : result.completionReason === "time_limit" ? <p className="mb-5 text-sm text-muted">{t("timeExpired")}</p> : null}
       {estimate.status === "estimated" && estimate.basis === "jlpt_aligned_rules" ? <p className="mb-5 text-sm text-muted">{t("ruleBasis")}</p> : null}
       {estimate.status === "estimated" && estimate.modelRange && estimate.modelRange.lower !== estimate.modelRange.upper ? <p className="mb-5 text-sm text-muted">{t("range", { lower: bandLabel(estimate.modelRange.lower), upper: bandLabel(estimate.modelRange.upper) })}</p> : null}
       <h2 className="text-base font-semibold text-foreground">{t("breakdown")}</h2>

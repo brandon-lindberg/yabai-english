@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import {
   applyAdaptiveAnswer,
-  buildInitialAdaptiveState,
+  buildInitialAdaptiveState as buildInitialAdaptiveStateForVersion,
   chooseNextAdaptiveQuestion,
   computeNextTargetBand,
   placementQuestionChoicesDedupeKey,
@@ -12,6 +12,8 @@ import { loadPlacementQuestionBankForTests } from "@/lib/placement-bank/placemen
 import type { PlacementQuestion } from "@/lib/placement-test";
 
 let PLACEMENT_QUESTIONS: PlacementQuestion[] = [];
+// Preserve the original per-skill policy's regressions; the current staircase has its own suite.
+const buildInitialAdaptiveState = () => buildInitialAdaptiveStateForVersion("legacy");
 
 beforeAll(async () => {
   PLACEMENT_QUESTIONS = await loadPlacementQuestionBankForTests();

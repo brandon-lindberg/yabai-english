@@ -1,11 +1,12 @@
 "use client";
 
 import { placementTextToReact } from "@/lib/placement-question-display";
-import type { PlacementQuestionPublic } from "@/lib/placement-test";
+import type { PlacementQuestionPublic, scorePlacementAnswers } from "@/lib/placement-test";
+import { ENGLISH_PLACEMENT_POLICY_V2 } from "@/lib/placement-policy";
 import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Choice, ChoiceList } from "@/components/ui/choice";
@@ -22,20 +23,9 @@ function formatPlacementEligibleDate(iso: string, locale: string): string {
   return new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" }).format(d);
 }
 
-type PlacementResult = {
-  level: string;
-  subLevel: 1 | 2 | 3;
-  earned: number;
-  max: number;
-  sectionScores: Record<
-    "grammar" | "vocabulary" | "reading" | "functional",
-    { earned: number; max: number; ratio: number }
-  >;
-  strengths: string[];
-  improvements: string[];
-  needsManualReview: boolean;
-  manualReviewReasons: string[];
-};
+type PlacementResult = ReturnType<typeof scorePlacementAnswers>;
+
+type InconclusiveReason = "insufficient_evidence" | "question_pool_exhausted" | "attempt_unavailable";
 
 export function PlacementQuiz() {
   const t = useTranslations("placement");
@@ -45,64 +35,86 @@ export function PlacementQuiz() {
   const [question, setQuestion] = useState<PlacementQuestionPublic | null>(null);
   const [objectiveComplete, setObjectiveComplete] = useState(false);
   const [progressCurrent, setProgressCurrent] = useState(1);
-  const [progressTotal, setProgressTotal] = useState(24);
+  const [progressTotal, setProgressTotal] = useState<number>(ENGLISH_PLACEMENT_POLICY_V2.maxQuestions);
+  const [minimumAnswers, setMinimumAnswers] = useState<number>(ENGLISH_PLACEMENT_POLICY_V2.minimumAnswers);
   const [attemptToken, setAttemptToken] = useState("");
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const [remainingSec, setRemainingSec] = useState<number | null>(null);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
+  const [clockOffsetMs, setClockOffsetMs] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PlacementResult | null>(null);
+  const [inconclusive, setInconclusive] = useState<{ reason: InconclusiveReason; required: number } | null>(null);
   const [cooldownEligibleAt, setCooldownEligibleAt] = useState<string | null>(null);
 
-  useEffect(() => {
-    void fetch(`/api/placement?ts=${Date.now()}`, { cache: "no-store" })
-      .then(async (r) => {
-        const data = (await r.json()) as {
-          error?: string;
-          eligibleAt?: string;
-          question?: PlacementQuestionPublic | null;
-          attemptToken?: string;
-          expiresAt?: number;
-          progress?: { current: number; total: number };
-        };
-        if (!r.ok) {
-          if (data.error === "cooldown" && typeof data.eligibleAt === "string") {
-            setCooldownEligibleAt(data.eligibleAt);
-            return;
-          }
-          setError(data.error ?? t("loadError"));
+  const loadAttempt = useCallback(async () => {
+    setLoading(true);
+    setResult(null);
+    setInconclusive(null);
+    setError(null);
+    setCooldownEligibleAt(null);
+    setExpiresAt(null);
+    setRemainingSec(null);
+    setAutoSubmitted(false);
+    setClockOffsetMs(0);
+    setQuestion(null);
+    setObjectiveComplete(false);
+    setAttemptToken("");
+    try {
+      const r = await fetch(`/api/placement?ts=${Date.now()}`, { cache: "no-store" });
+      const data = (await r.json()) as {
+        error?: string;
+        eligibleAt?: string;
+        question?: PlacementQuestionPublic | null;
+        attemptToken?: string;
+        expiresAt?: number;
+        minimumAnswers?: number;
+        progress?: { current: number; total: number };
+      };
+      if (!r.ok) {
+        if (data.error === "cooldown" && typeof data.eligibleAt === "string") {
+          setCooldownEligibleAt(data.eligibleAt);
           return;
         }
-        setQuestion(data.question ?? null);
-        setObjectiveComplete(false);
-        setProgressCurrent(data.progress?.current ?? 1);
-        setProgressTotal(data.progress?.total ?? 24);
-        setAttemptToken(data.attemptToken ?? "");
-        setAutoSubmitted(false);
-        setExpiresAt(data.expiresAt ?? null);
-        if (typeof data.expiresAt === "number") {
-          setRemainingSec(Math.max(0, Math.floor((data.expiresAt - Date.now()) / 1000)));
-        }
-      })
-      .finally(() => setLoading(false));
+        setError(t("loadError"));
+        return;
+      }
+      setQuestion(data.question ?? null);
+      setProgressCurrent(data.progress?.current ?? 1);
+      setProgressTotal(data.progress?.total ?? ENGLISH_PLACEMENT_POLICY_V2.maxQuestions);
+      setMinimumAnswers(data.minimumAnswers ?? ENGLISH_PLACEMENT_POLICY_V2.minimumAnswers);
+      setAttemptToken(data.attemptToken ?? "");
+      setExpiresAt(data.expiresAt ?? null);
+      if (typeof data.expiresAt === "number") {
+        setRemainingSec(Math.max(0, Math.ceil((data.expiresAt - Date.now()) / 1000)));
+      }
+    } catch {
+      setError(t("loadError"));
+    } finally {
+      setLoading(false);
+    }
   }, [t]);
 
   useEffect(() => {
-    if (!expiresAt) return;
-    const tick = () => setRemainingSec(Math.max(0, Math.floor((expiresAt - Date.now()) / 1000)));
+    void loadAttempt();
+  }, [loadAttempt]);
+
+  useEffect(() => {
+    if (!expiresAt || result || inconclusive || autoSubmitted) return;
+    const tick = () => setRemainingSec(Math.max(0, Math.ceil((expiresAt - Date.now() - clockOffsetMs) / 1000)));
     tick();
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, [expiresAt]);
+  }, [expiresAt, clockOffsetMs, result, inconclusive, autoSubmitted]);
 
   useEffect(() => {
     if (remainingSec !== 0) return;
-    if (autoSubmitted || submitting || result) return;
+    if (autoSubmitted || submitting || result || inconclusive || loading || !attemptToken) return;
     setAutoSubmitted(true);
     void onFinish(true);
-  }, [remainingSec, autoSubmitted, submitting, result]); // eslint-disable-line react-hooks/exhaustive-deps -- onFinish would loop
+  }, [remainingSec, autoSubmitted, submitting, result, inconclusive, loading, attemptToken]); // eslint-disable-line react-hooks/exhaustive-deps -- onFinish would loop
 
   const q = question;
   const isJa = locale === "ja";
@@ -119,25 +131,47 @@ export function PlacementQuiz() {
           attemptToken,
         }),
       });
-      const data = (await res.json()) as PlacementResult & { error?: string };
+      const data = (await res.json()) as PlacementResult & {
+        error?: string; status?: string; reason?: InconclusiveReason; required?: number;
+        expiresAt?: number; serverNow?: number;
+      };
       if (!res.ok) {
-        setError(data.error ?? t("submitError"));
+        if (data.error === "attempt_unavailable") {
+          setInconclusive({ reason: "attempt_unavailable", required: minimumAnswers });
+          return;
+        }
+        if (data.error === "attempt_incomplete") {
+          if (typeof data.serverNow === "number" && typeof data.expiresAt === "number") {
+            setClockOffsetMs(data.serverNow - Date.now());
+            setExpiresAt(data.expiresAt);
+            setRemainingSec(Math.max(0, Math.ceil((data.expiresAt - data.serverNow) / 1000)));
+          }
+          if (fromTimeout) setAutoSubmitted(false);
+          setError(t("finishIncomplete"));
+          return;
+        }
+        setError(t("finishError"));
         return;
       }
-      if (fromTimeout) {
-        setError(t("timeExpired"));
+      if (data.status === "inconclusive") {
+        setInconclusive({ reason: data.reason ?? "insufficient_evidence", required: data.required ?? minimumAnswers });
+        return;
       }
       if (data.level) {
         setResult(data);
         void updateSession();
+      } else {
+        setError(t("finishError"));
       }
+    } catch {
+      setError(t("finishError"));
     } finally {
       setSubmitting(false);
     }
   }
 
   async function selectOption(idx: number) {
-    if (!q || submitting) return;
+    if (!q || submitting || autoSubmitted || remainingSec === 0) return;
     setSubmitting(true);
     setError(null);
     try {
@@ -159,7 +193,17 @@ export function PlacementQuiz() {
         expiresAt?: number;
       };
       if (!res.ok) {
-        setError(data.error ?? t("submitError"));
+        if (data.error === "attempt_unavailable") {
+          setInconclusive({ reason: "attempt_unavailable", required: minimumAnswers });
+          return;
+        }
+        if (data.error === "attempt_expired") {
+          setAutoSubmitted(true);
+          setRemainingSec(0);
+          await onFinish(true);
+          return;
+        }
+        setError(t("submitError"));
         return;
       }
       setAttemptToken(data.attemptToken ?? attemptToken);
@@ -170,6 +214,8 @@ export function PlacementQuiz() {
       if (typeof data.expiresAt === "number") {
         setExpiresAt(data.expiresAt);
       }
+    } catch {
+      setError(t("submitError"));
     } finally {
       setSubmitting(false);
     }
@@ -224,11 +270,31 @@ export function PlacementQuiz() {
     );
   }
 
+  if (inconclusive) {
+    const bodyKey = inconclusive.reason === "question_pool_exhausted" ? "poolExhaustedBody"
+      : inconclusive.reason === "attempt_unavailable" ? "attemptUnavailableBody" : "inconclusiveBody";
+    return (
+      <div role="status">
+        <Outcome
+          title={t("inconclusiveTitle")}
+          description={t(bodyKey, { count: inconclusive.required })}
+          actions={<>
+            <Button size="lg" onClick={() => void loadAttempt()}>{t("startAgain")}</Button>
+            <Link href="/dashboard" className={buttonClasses({ variant: "secondary", size: "lg" })}>
+              {t("backToDashboard")}
+            </Link>
+          </>}
+        />
+      </div>
+    );
+  }
+
   if (!question && !objectiveComplete) {
     return (
-      <p role="alert">
-        <Status tone="error">{t("loadError")}</Status>
-      </p>
+      <Outcome
+        title={t("loadError")}
+        actions={<Button size="lg" onClick={() => void loadAttempt()}>{t("startAgain")}</Button>}
+      />
     );
   }
 
@@ -255,6 +321,11 @@ export function PlacementQuiz() {
           </Button>
         }
       >
+        {result.assessment?.completionReason === "timeout" && (
+          <p className="mb-6 text-sm leading-relaxed text-muted" role="status">
+            {t("timeoutResult", { answered: result.assessment.answered, total: result.assessment.total })}
+          </p>
+        )}
         <dl className="border-t border-border">
           {sectionOrder.map((sectionKey) => {
             const section = result.sectionScores[sectionKey];
@@ -334,6 +405,10 @@ export function PlacementQuiz() {
         size="sm"
       />
 
+      {!objectiveComplete && progressCurrent === 1 && (
+        <p className="text-sm leading-relaxed text-muted">{t("minimumAnswersNotice", { count: minimumAnswers })}</p>
+      )}
+
       {!objectiveComplete && q ? (
         <div className="border-t border-border pt-6">
           <p className="text-sm text-muted">
@@ -347,7 +422,7 @@ export function PlacementQuiz() {
             {q.optionsEn.map((opt, idx) => (
               <Choice
                 key={`${q.id}-${idx}`}
-                disabled={submitting || remainingSec === 0}
+                disabled={submitting || autoSubmitted || remainingSec === 0}
                 onSelect={() => void selectOption(idx)}
               >
                 {placementTextToReact(opt)}
@@ -375,6 +450,11 @@ export function PlacementQuiz() {
         <p role="alert">
           <Status tone="error">{error}</Status>
         </p>
+      )}
+      {autoSubmitted && error && (
+        <Button size="lg" loading={submitting} onClick={() => void onFinish(true)}>
+          {t("retrySave")}
+        </Button>
       )}
       {submitting && !objectiveComplete && (
         <p role="status">
