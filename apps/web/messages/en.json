@@ -1202,7 +1202,7 @@
     }
   },
   "placement": {
-    "pageIntro": "About 15–25 minutes. Your answers help us suggest a starting level and lesson plan.",
+    "pageIntro": "You have {minutes} minutes. Your answers help us suggest a starting level and lesson plan.",
     "title": "Level placement",
     "loading": "Loading questions…",
     "loadError": "Could not load the placement activity.",
@@ -1371,7 +1371,7 @@
     "goalExam": "Exam prep",
     "goalTravel": "Travel",
     "goalOtherLabel": "Other learning goals",
-    "goalOtherPlaceholder": "e.g. Reach TOEIC 800 by March",
+    "goalOtherPlaceholder": "e.g. Talk about my work for 10 minutes",
     "goalKids": "Kids lessons",
     "notificationsLabel": "Notification defaults",
     "notifyLessons": "Lesson reminders",

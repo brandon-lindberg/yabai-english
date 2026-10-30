@@ -61,7 +61,18 @@ jobs:
       - name: Subject-scoped study tests
         run: yarn test:study
 
+      - name: Mirror regressions
+        run: yarn test:mirror
+
       - name: Study migration and persistence
         run: yarn test:study:db
+        env:
+          MIRROR_TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
+
+      - name: Install Chromium
+        run: yarn playwright install --with-deps chromium
+
+      - name: Isolated English and Japanese lesson journeys
+        run: yarn test:mirror:e2e
         env:
           MIRROR_TEST_DATABASE_URL: ${{ env.DATABASE_URL }}

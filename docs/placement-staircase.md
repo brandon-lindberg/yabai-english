@@ -90,4 +90,4 @@ Nine inspected current-component browser captures cover 320/390/1440px, both loc
 
 Task-owned tests, builds, fixture generation, preview/browser processes and children have exited; port 3188 is released. No automation loop remains. Nothing is staged, committed or pushed. English persistent attempt rows, once-only transactional finalization and cross-tab/reload recovery remain separate known work; signed-token finish retries retain their existing persistence limits.
 
-Next is the guarded reviewed Japanese flashcard **DRAFT** refresh in section 5cb, followed by section 6 cross-product journeys. Flashcard publication remains separate from the assessment authorization.
+The subsequent [guarded reviewed Japanese flashcard DRAFT refresh](japanese-study-draft-refresh.md) in section 5cb is complete locally. Next is section 6 cross-product verification and release preparation. Flashcard publication remains separate from the assessment authorization.

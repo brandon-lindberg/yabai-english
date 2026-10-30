@@ -29,6 +29,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated clients and local review bundles are not authored application code.
+    "src/generated/**",
+    ".impeccable/**",
+    ".cache/**",
   ]),
 ]);
 

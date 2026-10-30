@@ -77,6 +77,6 @@ Impeccable's previously unavailable context launcher was not repeated. Existing 
 
 ## Next section
 
-The versioned N5/A1-first staircase and independent Japanese timeout penalty are delivered in [section 4j](placement-staircase.md). Japanese retains its own evidence/anchor rules; the English 15-answer minimum and nine app sub-level indices are not copied into it. The guarded reviewed Japanese flashcard DRAFT refresh is next, then section 6 cross-product verification.
+The versioned N5/A1-first staircase and independent Japanese timeout penalty are delivered in [section 4j](placement-staircase.md). Japanese retains its own evidence/anchor rules; the English 15-answer minimum and nine app sub-level indices are not copied into it. The subsequent [guarded reviewed Japanese flashcard DRAFT refresh](japanese-study-draft-refresh.md) is complete locally. Section 6 cross-product verification is next.
 
 No application database write, seed, migration, import, publication, commit or push was performed during this increment. Runtime persistence was exercised through mocks. All recorded task-owned processes and preview children have exited; port 3188 is released. No task automation loop or database fixture remains. Whitespace checks pass and nothing is staged.

@@ -20,6 +20,7 @@
     "japanese-placement:publish": "yarn --silent --cwd apps/web japanese-placement:publish",
     "test:mirror": "yarn --cwd apps/web test:mirror",
     "test:mirror:migration": "yarn --cwd apps/web test:mirror:migration",
+    "test:mirror:e2e": "yarn --cwd apps/web test:mirror:e2e",
     "japanese-content:audit": "yarn --cwd apps/web japanese-content:audit",
     "japanese-content:flashcards": "yarn --cwd apps/web japanese-content:flashcards",
     "test:integration": "yarn --cwd apps/web test:integration",

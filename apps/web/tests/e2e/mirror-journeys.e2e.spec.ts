@@ -1,8 +1,9 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { readFileSync, mkdirSync, existsSync } from "node:fs";
 import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
 import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
+import { signInMirrorUser as signIn } from "./helpers/mirror-fixtures";
 
 const manifestPath = "../../.impeccable/mirror-fixtures.json";
 const fixturesAvailable = existsSync(manifestPath);
@@ -10,12 +11,6 @@ test.skip(!fixturesAvailable, "Create the disposable local mirror fixtures befor
 const fixture = JSON.parse(fixturesAvailable ? readFileSync(manifestPath, "utf8") : '{"users":[]}') as {
   users: Array<{ id: string; email: string }>; englishTeacherId: string; japaneseTeacherId: string;
 };
-async function signIn(page: Page, email: string, language: "ENGLISH" | "JAPANESE") {
-  await page.goto(`/en/auth/signin?learningLanguage=${language}&callbackUrl=%2Fen%2Fdashboard`);
-  await page.getByLabel(en.auth.email, { exact: true }).fill(email);
-  await page.getByRole("button", { name: en.auth.signInWithEmail, exact: true }).click();
-}
-
 test("root offers two clear routes; changing UI locale preserves the Japanese journey", async ({ page }) => {
   await page.goto("/en");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(en.learningJourney.choiceTitle);

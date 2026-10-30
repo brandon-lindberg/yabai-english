@@ -23,6 +23,7 @@
     "japanese-placement:publish": "node --conditions=react-server --import tsx scripts/publish-japanese-placement.ts",
     "test:mirror": "vitest run --config vitest.mirror.config.ts",
     "test:mirror:migration": "tsx scripts/test-mirror-migration.ts",
+    "test:mirror:e2e": "node --conditions=react-server --import tsx scripts/test-mirror-e2e.ts",
     "japanese-content:audit": "tsx scripts/audit-japanese-content.ts",
     "japanese-content:flashcards": "tsx scripts/build-japanese-flashcards.ts",
     "test:integration": "vitest run tests/integration",

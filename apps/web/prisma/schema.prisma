@@ -1159,7 +1159,7 @@ model StudyTrack {
   @@index([learningLanguage, publicationStatus])
 }
 
-/// Immutable draft import provenance. Member content is stored once per canonical card.
+/// Immutable import provenance and the preceding revision, when a draft is refreshed.
 model StudyCatalogSnapshot {
   id String @id
   studyCatalogSha256 String @unique
@@ -1168,8 +1168,22 @@ model StudyCatalogSnapshot {
   policySha256 String
   provenanceJson Json
   createdAt DateTime @default(now())
+  previousSnapshotId String?
+  previousSnapshot StudyCatalogSnapshot? @relation("StudyCatalogHistory", fields: [previousSnapshotId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  nextSnapshots StudyCatalogSnapshot[] @relation("StudyCatalogHistory")
+  cards StudyCatalogCardSnapshot[]
   tracks StudyTrack[]
   reviewPrompts StudyReviewPrompt[]
+}
+
+/// Complete immutable card revisions, independent of active cards and learner state.
+model StudyCatalogCardSnapshot {
+  snapshotId String
+  snapshot StudyCatalogSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  cardId String
+  cardJson Json
+
+  @@id([snapshotId, cardId])
 }
 
 model StudyLevel {

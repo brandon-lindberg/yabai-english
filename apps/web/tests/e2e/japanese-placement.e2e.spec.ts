@@ -6,6 +6,8 @@ import type { JapaneseAttemptView } from "../../src/lib/japanese-placement/publi
 import draft from "../../data/japanese-placement/review-bank.json";
 import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
+import { fixtureCommand, signInMirrorUser } from "./helpers/mirror-fixtures";
+import { chooseJapaneseAnswer } from "./helpers/placement-answers";
 
 const manifest = "../../.impeccable/mirror-fixtures.json";
 const available = existsSync(manifest);
@@ -34,10 +36,8 @@ function view(mode: Mode, attemptId = "browser-contract-attempt") {
 }
 async function signIn(page: Page, userIndex = 0) {
   const language = [1, 2].includes(userIndex) ? "ENGLISH" : "JAPANESE";
-  await page.goto(`/en/auth/signin?learningLanguage=${language}&callbackUrl=%2Fen%2Fdashboard`);
+  await signInMirrorUser(page, fixtures.users[userIndex].email, language);
   const origin = new URL(page.url()).origin;
-  await page.getByLabel(en.auth.email, { exact: true }).fill(fixtures.users[userIndex].email);
-  await page.getByRole("button", { name: en.auth.signInWithEmail, exact: true }).click();
   await expect(page).toHaveURL(`${origin}/en/${userIndex === 1 ? "onboarding" : "dashboard"}`);
 }
 
@@ -47,10 +47,6 @@ async function switchLocale(page: Page, from: "en" | "ja", to: "en" | "ja") {
   await page.getByRole("button", { name: copy.locale, exact: true }).click();
   await page.getByRole("button", { name: to === "ja" ? "日本語" : "English", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", to);
-}
-
-function fixtureCommand(operation: string) {
-  return JSON.parse(execFileSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "scripts/mirror-journey-fixtures.ts", operation], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
 }
 
 test("published bank completes through the student UI, resumes and shares only the automatic result with its eligible teacher", async ({ page }) => {
@@ -77,28 +73,19 @@ test("published bank completes through the student UI, resumes and shares only t
     if (item.domain !== "kana") bands.add(item.referenceBand!);
     if (item.passageId) { expect(passages.has(item.passageId)).toBe(false); passages.add(item.passageId); }
     const response = page.waitForResponse((res) => res.request().method() === "POST" && res.url().endsWith(`/api/japanese-placement/attempts/${current.attemptId}/responses`));
-    if (item.responseType === "choice") {
-      await page.getByRole("button", { name: item.choices.find((choice) => choice.id === item.correctChoiceId)!.text, exact: true }).click();
-    } else {
-      const tiles = current.question.response.kind === "sentence_assembly" ? current.question.response.tiles : [];
-      for (const [position, id] of item.acceptedOrders[0].entries()) {
-        const index = tiles.findIndex((tile) => tile.id === id);
-        const tileName = en.japanesePlacement.addTile.replace("{tile}", tiles[index].text).replace("{position}", String(index + 1));
-        await page.getByRole("button", { name: tileName, exact: true }).press("Enter");
-        if (!resumedTiles && position === 1) {
-          await page.reload();
-          await expect(page.getByRole("group", { name: en.japanesePlacement.sentence, exact: true }).getByRole("button")).toHaveCount(2);
-          await switchLocale(page, "en", "ja");
-          await expect(page.getByRole("group", { name: ja.japanesePlacement.sentence, exact: true }).getByRole("button")).toHaveCount(2);
-          await expect(page).toHaveURL(/\/japanese-placement$/);
-          await switchLocale(page, "ja", "en");
-          await expect(page.getByRole("group", { name: en.japanesePlacement.sentence, exact: true }).getByRole("button")).toHaveCount(2);
-          expect((await (await page.request.get(`/api/japanese-placement/attempts/${current.attemptId}`)).json()).expiresAt).toBe(deadline);
-          resumedTiles = true;
-        }
+    await chooseJapaneseAnswer(page, current.question, item, true, async position => {
+      if (!resumedTiles && position === 1) {
+        await page.reload();
+        await expect(page.getByRole("group", { name: en.japanesePlacement.sentence, exact: true }).getByRole("button")).toHaveCount(2);
+        await switchLocale(page, "en", "ja");
+        await expect(page.getByRole("group", { name: ja.japanesePlacement.sentence, exact: true }).getByRole("button")).toHaveCount(2);
+        await expect(page).toHaveURL(/\/japanese-placement$/);
+        await switchLocale(page, "ja", "en");
+        await expect(page.getByRole("group", { name: en.japanesePlacement.sentence, exact: true }).getByRole("button")).toHaveCount(2);
+        expect((await (await page.request.get(`/api/japanese-placement/attempts/${current.attemptId}`)).json()).expiresAt).toBe(deadline);
+        resumedTiles = true;
       }
-      await page.getByRole("button", { name: en.japanesePlacement.submitSentence, exact: true }).click();
-    }
+    });
     const reply = await response;
     expect(reply.ok()).toBe(true);
     current = await reply.json();

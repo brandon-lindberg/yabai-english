@@ -1202,7 +1202,7 @@
     }
   },
   "placement": {
-    "pageIntro": "所要時間の目安は15〜25分です。回答は開始レベルとレッスン計画の提案に使われます。",
+    "pageIntro": "制限時間は{minutes}分です。回答は開始レベルとレッスン計画の提案に使われます。",
     "title": "レベル診断",
     "loading": "読み込み中…",
     "loadError": "診断を読み込めませんでした。",
@@ -1367,11 +1367,11 @@
     "timezoneHelp": "ブラウザの設定から自動判定します。必要ならここで変更できます。",
     "goalsLabel": "学習目的",
     "goalConversation": "日常会話",
-    "goalBusiness": "ビジネス英語",
+    "goalBusiness": "仕事・ビジネス",
     "goalExam": "試験対策",
-    "goalTravel": "旅行英語",
+    "goalTravel": "旅行",
     "goalOtherLabel": "その他の学習目標",
-    "goalOtherPlaceholder": "例：3月までにTOEIC 800点をとる",
+    "goalOtherPlaceholder": "例：仕事について10分間会話できるようになる",
     "goalKids": "子ども向け",
     "notificationsLabel": "通知設定（初期値）",
     "notifyLessons": "レッスンのリマインダー",

@@ -14,7 +14,7 @@ if (!connectionString || !["localhost", "127.0.0.1", "[::1]"].includes(new URL(c
 }
 const result = spawnSync("./node_modules/.bin/vitest", ["run", "--config",
   study ? "vitest.study.config.ts" : japanese ? "vitest.japanese-placement.config.ts" : "vitest.mirror.config.ts",
-  ...(study ? ["tests/study/persistence.test.ts", "tests/study/japanese-service-persistence.test.ts", "tests/study/japanese-dashboard-persistence.test.ts"] : [japanese ? "tests/japanese-placement/persistence.test.ts" : "tests/mirror/learning-language-migration.test.ts"]),
+  ...(study ? ["tests/study/persistence.test.ts", "tests/study/draft-refresh-persistence.test.ts", "tests/study/japanese-service-persistence.test.ts", "tests/study/japanese-dashboard-persistence.test.ts"] : [japanese ? "tests/japanese-placement/persistence.test.ts" : "tests/mirror/learning-language-migration.test.ts"]),
 ], {
   stdio: "inherit", env: { ...process.env, MIRROR_TEST_DATABASE_URL: connectionString },
 });

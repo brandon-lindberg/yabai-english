@@ -2,6 +2,8 @@
 
 The shared study tables now support independent English and Japanese tracks. The additive migration is applied locally, with **10,291 Japanese canonical cards persisted as an unpublished draft**. English retains its existing 3,284 cards and published track. The published Japanese placement bank is unchanged.
 
+**Current draft, 2026-10-28:** [section 5cb](japanese-study-draft-refresh.md) refreshes the reviewed content under stable identities and preserves both complete card revisions in immutable database history. The current draft digest is `d9a72223da0534a2bbec995f8e26a508f1dd678c3c39f9d958607484207457b2`; the older digest and verification totals below record the initial section-5f delivery. The local additive history migration and guarded refresh are complete; the track remains unpublished.
+
 ## Data and compatibility
 
 - `StudyTrack.learningLanguage` identifies the subject independently of UI locale or the learner's current preference. Historical tracks default to `ENGLISH` and `PUBLISHED`; the Japanese importer explicitly creates `JAPANESE` and `DRAFT`.
@@ -31,13 +33,15 @@ yarn test:study
 yarn test:study:db
 yarn japanese-content:study
 yarn japanese-content:study --import-draft
+yarn japanese-content:study --inspect-draft
+yarn japanese-content:study --refresh-draft-from EXPECTED_SNAPSHOT_ID --expected-cards-sha256 INSPECTED_CARD_DIGEST
 ```
 
 The first command uses no credentials or database. The opt-in database command uses `MIRROR_TEST_DATABASE_URL` or the local `.env` URL, creates a disposable schema, replays migrations and removes its schema/connections in `finally`. Without downloaded corpus artifacts it uses the shared synthetic fixture; with them it verifies/imports the entire real catalog.
 
-`japanese-content:study` verifies both cached artifacts against the tracked source/study summary digests and compiles the persistence plan without database access. Build missing artifacts with the existing `japanese-content:flashcards` workflow. The exact current canonical digest is `65d489aaddd1c7449de1abba1edf298c65fe0dc095b396032f5dde8b88e1c7a0`.
+`japanese-content:study` verifies both cached artifacts against the tracked source/study summary digests and compiles the persistence plan without database access. Build missing artifacts with the existing `japanese-content:flashcards` workflow. The current canonical digest is `d9a72223da0534a2bbec995f8e26a508f1dd678c3c39f9d958607484207457b2`.
 
-Only `--import-draft` opens a database, restricted to loopback hosts. `JAPANESE_STUDY_DATABASE_URL` can override the local `.env` URL. Apply migrations before using that mode. It atomically inserts the snapshot, draft track, levels, decks and cards in one transaction. A repeated identical import verifies persisted content and leaves progress unchanged. It refuses an existing different/published catalog, persisted content drift and legacy ID collisions. Failed imports roll back completely. There is no delete, replacement, publication or learner-progress operation in this command.
+Only explicit operator modes open a database, restricted to loopback hosts. `JAPANESE_STUDY_DATABASE_URL` can override the local `.env` URL. Apply migrations first. `--import-draft` atomically inserts a new snapshot, draft track, levels, decks, cards and immutable card history, or verifies an identical existing draft. It still refuses replacement, publication, content drift and legacy ID collisions. `--inspect-draft` is read-only. The separate pinned refresh mode updates an unused existing draft, preserving complete history and stable identities as documented in [the refresh contract](japanese-study-draft-refresh.md). Failed writes roll back; no mode publishes content or writes learner progress.
 
 ## Verification and next work
 

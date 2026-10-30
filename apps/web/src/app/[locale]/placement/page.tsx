@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { AppCard } from "@/components/ui/app-card";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
+import { ENGLISH_PLACEMENT_POLICY_V2 } from "@/lib/placement-policy";
 
 type Props = {
   searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
@@ -17,7 +18,7 @@ export default async function PlacementPage({ searchParams }: Props) {
   return (
     <main className="mx-auto max-w-2xl flex-1 px-4 py-10 sm:px-6">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
-      <PageHeader title={t("title")} description={t("pageIntro")} />
+      <PageHeader title={t("title")} description={t("pageIntro", { minutes: ENGLISH_PLACEMENT_POLICY_V2.timeLimitSec / 60 })} />
       <AppCard className="mt-8">
         <PlacementQuiz />
       </AppCard>
