@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
+import { conversationProduct, lessonSubjectCases } from "../../../../../../../test/lesson-subject-fixture";
 
 const { authMock, prismaMock, createCheckoutMock, calculateFeeMock } = vi.hoisted(
   () => ({
@@ -83,6 +84,13 @@ function baseBooking(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 describe("POST /api/bookings/[bookingId]/pay", () => {
+  test.each(lessonSubjectCases)("checkout labels its $learningLanguage booking using the stored subject after the student switches", async ({ learningLanguage, otherLanguage, nameEn }) => {
+    authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT", learningLanguage: otherLanguage } });
+    prismaMock.booking.findUnique.mockResolvedValue(baseBooking({ learningLanguage, lessonProduct: conversationProduct }));
+    const res = await POST(new Request("http://localhost/api/bookings/booking-1/pay", { method: "POST", body: JSON.stringify({ acceptedMarketplaceTerms: true }) }), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(res.status).toBe(200);
+    expect(createCheckoutMock).toHaveBeenCalledWith(expect.objectContaining({ productName: nameEn, connectedAccountId: "acct_123", amountYen: 3500, bookingId: "booking-1" }));
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });

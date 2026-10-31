@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
 import { ensureGroupSessionMeetEvent } from "@/lib/group-lesson-calendar";
@@ -624,6 +625,7 @@ export async function POST(req: Request) {
 
   // A group class meets once, so a seat joins the class's event rather than
   // opening a second room for the same lesson.
+  const calendarSummary = `Lesson — ${lessonProductNames(product, learningLanguage).nameEn}`;
   const meet = confirmedBooking.groupLessonSessionId
     ? await ensureGroupSessionMeetEvent(prisma, {
         sessionId: confirmedBooking.groupLessonSessionId,
@@ -632,7 +634,7 @@ export async function POST(req: Request) {
           googleCalendarRefreshToken: teacher.googleCalendarRefreshToken,
           calendarId: teacher.calendarId,
         },
-        summary: `Lesson — ${product.nameEn}`,
+        summary: calendarSummary,
         startsAt: start,
         endsAt,
         studentEmail: student.email,
@@ -642,7 +644,7 @@ export async function POST(req: Request) {
         organizerUserId: teacher.userId,
         refreshTokenEncrypted: teacher.googleCalendarRefreshToken,
         calendarId: teacher.calendarId,
-        summary: `Lesson — ${product.nameEn}`,
+        summary: calendarSummary,
         start,
         end: endsAt,
         attendeeEmails,
@@ -676,7 +678,7 @@ export async function POST(req: Request) {
     organizerUserId: session.user.id,
     refreshTokenEncrypted: null,
     calendarId: "primary",
-    summary: `Lesson — ${product.nameEn}`,
+    summary: calendarSummary,
     start,
     end: endsAt,
     attendeeEmails,

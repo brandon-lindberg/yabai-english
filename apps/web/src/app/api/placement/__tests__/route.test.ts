@@ -1,25 +1,18 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { loadPlacementBankSync } from "@/lib/placement-bank/load-placement-bank";
 import { scorePlacementAnswers, type PlacementQuestion } from "@/lib/placement-test";
-import { createPlacementAttemptToken, verifyPlacementAttemptToken } from "@/lib/placement-attempt-token";
-import { buildInitialAdaptiveState, chooseNextAdaptiveQuestion } from "@/lib/placement-adaptive";
+import { englishPlacementFixture } from "../../../../../test/english-placement-fixture";
+import type { EnglishPlacementState } from "@/lib/english-placement/service";
+import { buildInitialAdaptiveState } from "@/lib/placement-adaptive";
 
 const mocks = vi.hoisted(() => ({
-  update: vi.fn(),
+  db: {},
   setCookie: vi.fn(),
   bank: vi.fn(),
   auth: vi.fn(),
 }));
 vi.mock("@/auth", () => ({ auth: mocks.auth }));
-vi.mock("@/lib/prisma", () => ({
-  prisma: {
-    studentProfile: {
-      findUnique: vi.fn(async () => ({ placementCompletedAt: null })),
-      update: mocks.update,
-    },
-    user: { findUnique: vi.fn(async () => ({ role: "STUDENT" })) },
-  },
-}));
+vi.mock("@/lib/prisma", () => ({ prisma: mocks.db }));
 vi.mock("next/headers", () => ({
   cookies: vi.fn(async () => ({ get: () => undefined, set: mocks.setCookie })),
 }));
@@ -30,7 +23,13 @@ vi.mock("@/lib/placement-bank/placement-bank-access", () => ({
 import { GET, POST } from "../route";
 
 const bank = loadPlacementBankSync();
-type Attempt = { attemptToken: string; expiresAt: number; question: PlacementQuestion | null };
+let fixture: ReturnType<typeof englishPlacementFixture>;
+type Attempt = { attemptToken: string; expiresAt: number; serverNow: number; question: PlacementQuestion | null; progress: { current: number; total: number } };
+function inspect(attempt: Attempt) {
+  const row = fixture.attempts.get(attempt.attemptToken.split(":")[0])!;
+  return { ...row.state as EnglishPlacementState, scoringVersion: row.scoringVersion, routingRevision: row.routingRevision,
+    bankSnapshotId: String(row.bankSnapshotId), issuedAt: row.startedAt.getTime(), expiresAt: row.expiresAt.getTime(), bankDigest: fixture.banks.get(row.bankSnapshotId)!.digest };
+}
 const post = (body: unknown) => POST(new Request("http://test.local/api/placement", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -38,10 +37,10 @@ const post = (body: unknown) => POST(new Request("http://test.local/api/placemen
 }));
 const finish = (attempt: Attempt) => post({ action: "finish", attemptToken: attempt.attemptToken });
 
-async function answerCorrectly(attempt: Attempt): Promise<Attempt> {
+async function answerCorrectly(attempt: Attempt, choice?: number): Promise<Attempt> {
   const question = bank.find((q) => q.id === attempt.question?.id)!;
   const response = await post({
-    action: "answer", attemptToken: attempt.attemptToken, answer: question.correctIndex,
+    action: "answer", attemptToken: attempt.attemptToken, answer: choice ?? question.correctIndex,
   });
   expect(response.status).toBe(200);
   return response.json();
@@ -54,64 +53,60 @@ async function startAndAnswer(count: number): Promise<Attempt> {
 }
 
 function expectNoResultSaved() {
-  expect(mocks.update).not.toHaveBeenCalled();
+  expect(fixture.mocks.studentProfile.update).not.toHaveBeenCalled();
   expect(mocks.setCookie).not.toHaveBeenCalled();
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
+  fixture = englishPlacementFixture(); Object.assign(mocks.db, fixture.db);
   vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-10-27T00:00:00Z"));
   mocks.auth.mockResolvedValue({ user: { id: "english-student", learningLanguage: "ENGLISH" } });
   mocks.bank.mockResolvedValue(bank);
-  mocks.update.mockResolvedValue({});
 });
 afterEach(() => vi.restoreAllMocks());
 
 describe("English placement deadline and completion guards", () => {
   test("new attempts pin the scoring version and exact bank snapshot", async () => {
     const response = await (await GET()).json();
-    const payload = verifyPlacementAttemptToken(response.attemptToken)!;
+    const payload = inspect(response);
     expect(response.minimumAnswers).toBe(15);
     expect(response.question.cefrBand).toBe("A1");
     expect(payload).toMatchObject({ scoringVersion: 2, bankDigest: expect.stringMatching(/^[a-f0-9]{64}$/) });
     expect(payload.routingRevision).toBe("english-staircase-v1");
   });
 
-  test("an already issued v2 per-skill token continues under its original routing", async () => {
+  test("old unpersisted state tokens must restart without changing existing placement", async () => {
     const attempt = await startAndAnswer(0);
-    const payload = verifyPlacementAttemptToken(attempt.attemptToken)!;
-    const adaptiveState = buildInitialAdaptiveState("legacy");
-    const first = chooseNextAdaptiveQuestion(adaptiveState, bank)!;
-    expect(first.cefrBand).toBe("A2");
-    attempt.question = first;
-    attempt.attemptToken = createPlacementAttemptToken({ ...payload, adaptiveState, routingRevision: undefined, currentQuestionId: first.id });
-    const next = await answerCorrectly(attempt);
-    expect(next.question?.cefrBand).toBe("A2");
-    expect(verifyPlacementAttemptToken(next.attemptToken)?.adaptiveState.staircase).toBeUndefined();
-  });
-
-  test("a signed routing revision cannot be paired with a different state format", async () => {
-    const attempt = await startAndAnswer(0);
-    const payload = verifyPlacementAttemptToken(attempt.attemptToken)!;
-    attempt.attemptToken = createPlacementAttemptToken({ ...payload, adaptiveState: buildInitialAdaptiveState("legacy") });
+    attempt.attemptToken = Buffer.from(JSON.stringify({ userId: "english-student", asked: [] })).toString("base64url") + ".legacy-signature";
     expect((await finish(attempt)).status).toBe(409);
     expectNoResultSaved();
   });
 
-  test("an unversioned active token must restart instead of acquiring new scoring rules", async () => {
-    const attempt = await startAndAnswer(24);
-    const payload = verifyPlacementAttemptToken(attempt.attemptToken)!;
-    attempt.attemptToken = createPlacementAttemptToken({ ...payload, scoringVersion: undefined, bankDigest: undefined });
-    expect((await finish(attempt)).status).toBe(409);
+  test("a stored routing revision cannot be paired with a different state format", async () => {
+    const attempt = await startAndAnswer(0);
+    fixture.attempts.get(attempt.attemptToken.split(":")[0])!.state.adaptiveState = buildInitialAdaptiveState("legacy");
+    expect((await finish(attempt)).status).toBe(500);
     expectNoResultSaved();
   });
 
-  test("a changed answer key under the same bank ID cannot reinterpret accepted evidence", async () => {
-    const attempt = await startAndAnswer(24);
-    const first = verifyPlacementAttemptToken(attempt.attemptToken)!.asked[0]!.id;
-    mocks.bank.mockResolvedValue(bank.map((q) => q.id === first ? { ...q, correctIndex: (q.correctIndex + 1) % 3 } : q));
+  test("an unsupported active version is closed without acquiring new scoring rules", async () => {
+    const attempt = await startAndAnswer(0);
+    fixture.attempts.get(attempt.attemptToken.split(":")[0])!.schemaVersion = 99;
     const response = await finish(attempt);
-    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ status: "inconclusive", reason: "attempt_unavailable" });
+    expectNoResultSaved();
+    expect((await (await GET()).json()).question.cefrBand).toBe("A1");
+  });
+
+  test("a corrupt frozen answer key cannot reinterpret accepted evidence", async () => {
+    const attempt = await startAndAnswer(24);
+    const payload = inspect(attempt);
+    const first = payload.asked[0].id;
+    const snapshot = fixture.banks.get(payload.bankSnapshotId)!;
+    snapshot.content = snapshot.content.map((q: PlacementQuestion) => q.id === first ? { ...q, correctIndex: (q.correctIndex + 1) % 3 } : q);
+    const response = await finish(attempt);
+    expect(response.status).toBe(500);
     expect(await response.json()).toMatchObject({ error: "attempt_unavailable" });
     expectNoResultSaved();
   });
@@ -122,7 +117,7 @@ describe("English placement deadline and completion guards", () => {
     expect(await response.json()).toMatchObject({ error: "attempt_incomplete", expiresAt: attempt.expiresAt });
     expectNoResultSaved();
     const continued = await answerCorrectly(attempt);
-    expect(verifyPlacementAttemptToken(continued.attemptToken)?.asked).toHaveLength(count + 1);
+    expect(inspect(continued).asked).toHaveLength(count + 1);
   });
 
   test.each([0, 1])("rejects answers at the deadline plus %i ms without counting the late response", async (offset) => {
@@ -144,7 +139,7 @@ describe("English placement deadline and completion guards", () => {
     const attempt = await startAndAnswer(0);
     vi.mocked(Date.now).mockReturnValue(attempt.expiresAt - 1);
     const continued = await answerCorrectly(attempt);
-    const payload = verifyPlacementAttemptToken(continued.attemptToken)!;
+    const payload = inspect(continued);
     expect(continued.expiresAt).toBe(attempt.expiresAt);
     expect(payload.expiresAt).toBe(attempt.expiresAt);
     expect(payload.issuedAt).toBe(attempt.expiresAt - 20 * 60 * 1000);
@@ -166,15 +161,15 @@ describe("English placement deadline and completion guards", () => {
   test.each([false, true])("a full attempt still saves its accepted evidence (finish after expiry: %s)", async (expired) => {
     const attempt = await startAndAnswer(24);
     expect(attempt.question).toBeNull();
-    const payload = verifyPlacementAttemptToken(attempt.attemptToken)!;
+    const payload = inspect(attempt);
     const selected = payload.asked.map(({ id }) => bank.find((q) => q.id === id)!);
     const expected = scorePlacementAnswers(payload.asked.map(({ answer }) => answer), selected, { version: 2, completionReason: "completed" });
     if (expired) vi.mocked(Date.now).mockReturnValue(attempt.expiresAt + 1);
     const response = await finish(attempt);
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual(expected);
-    expect(mocks.update).toHaveBeenCalledTimes(1);
-    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+    expect(fixture.mocks.studentProfile.update).toHaveBeenCalledTimes(1);
+    expect(fixture.mocks.studentProfile.update).toHaveBeenCalledWith(expect.objectContaining({
       where: { userId: "english-student" },
       data: expect.objectContaining({ placedLevel: expected.level, placedSubLevel: expected.subLevel }),
     }));
@@ -191,7 +186,7 @@ describe("English placement deadline and completion guards", () => {
     expect(body.level).toBeTruthy();
     expect(body.assessment.timeoutPenaltyPoints).toBeGreaterThan(0);
     expect(body.assessment.adjustedScore).toBeLessThan(body.assessment.unadjustedScore);
-    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({
+    expect(fixture.mocks.studentProfile.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({
       placedLevel: body.level, placedSubLevel: body.subLevel,
       placementReport: expect.objectContaining({ assessment: body.assessment }),
     }) }));
@@ -225,10 +220,12 @@ describe("English placement deadline and completion guards", () => {
 
   test("a missing bank item cannot shift answer alignment or produce a saved result", async () => {
     const attempt = await startAndAnswer(24);
-    const missing = verifyPlacementAttemptToken(attempt.attemptToken)!.asked[1]!.id;
-    mocks.bank.mockResolvedValue(bank.filter((q) => q.id !== missing));
+    const payload = inspect(attempt);
+    const missing = payload.asked[1]!.id;
+    const snapshot = fixture.banks.get(payload.bankSnapshotId)!;
+    snapshot.content = snapshot.content.filter((q: PlacementQuestion) => q.id !== missing);
     const response = await finish(attempt);
-    expect(response.status).toBe(409);
+    expect(response.status).toBe(500);
     expect(await response.json()).toMatchObject({ error: "attempt_unavailable" });
     expectNoResultSaved();
   });
@@ -238,5 +235,121 @@ describe("English placement deadline and completion guards", () => {
     mocks.auth.mockResolvedValue({ user: { id: "english-student", learningLanguage: "JAPANESE" } });
     expect((await finish(attempt)).status).toBe(403);
     expectNoResultSaved();
+  });
+});
+
+describe("durable English attempt lifecycle", () => {
+  test("reload resumes accepted answers, the same question and the original deadline", async () => {
+    const current = await startAndAnswer(3);
+    vi.mocked(Date.now).mockReturnValue(Date.now() + 100_000);
+    const resumed = await (await GET()).json();
+    expect(resumed).toMatchObject({ ...current, serverNow: Date.now() });
+    expect(fixture.attempts.size).toBe(1);
+    expect(resumed.attemptToken).toMatch(/^[0-9a-f-]{36}:3$/);
+    expect(resumed.attemptToken).not.toContain(".");
+    expect(JSON.stringify(resumed)).not.toMatch(/correctIndex|adaptiveState|askedStemIds/);
+  });
+
+  test("competing starts share one attempt and do not extend the deadline", async () => {
+    const [first, second] = await Promise.all([GET(), GET()]);
+    const a = await first.json(), b = await second.json();
+    expect(a).toEqual(b);
+    expect(fixture.attempts.size).toBe(1);
+  });
+
+  test("an exact answer retry resynchronizes without consuming another question", async () => {
+    const first = await startAndAnswer(0);
+    const accepted = await answerCorrectly(first);
+    const retried = await answerCorrectly(first);
+    expect(retried).toEqual(accepted);
+    expect(fixture.mocks.englishPlacementAttempt.update).toHaveBeenCalledTimes(1);
+    expect(retried.progress.current).toBe(2);
+  });
+
+  test("a different stale answer is rejected without overwriting accepted evidence", async () => {
+    const first = await startAndAnswer(0);
+    await answerCorrectly(first);
+    const wrong = (bank.find(q => q.id === first.question!.id)!.correctIndex + 1) % 3;
+    const response = await post({ action: "answer", attemptToken: first.attemptToken, answer: wrong });
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ error: "attempt_conflict" });
+    expect(fixture.mocks.englishPlacementAttempt.update).toHaveBeenCalledTimes(1);
+  });
+
+  test("a lost response followed by a later exact retry returns current progress", async () => {
+    const first = await startAndAnswer(0);
+    const second = await answerCorrectly(first);
+    const third = await answerCorrectly(second);
+    expect(await answerCorrectly(first)).toEqual(third);
+  });
+
+  test("concurrent finish retries write the profile exactly once", async () => {
+    const current = await startAndAnswer(24);
+    const [a, b] = await Promise.all([finish(current), finish(current)]);
+    const result = await a.json();
+    expect(result).toEqual(await b.json());
+    expect(result).toMatchObject({ level: "ADVANCED", subLevel: 3 });
+    expect(fixture.mocks.studentProfile.update).toHaveBeenCalledTimes(1);
+    vi.mocked(Date.now).mockReturnValue(Date.now() + 60_000);
+    expect(await (await finish(current)).json()).toEqual(result);
+    expect(fixture.mocks.studentProfile.update).toHaveBeenCalledTimes(1);
+  });
+
+  test("an expired read saves a qualifying timeout even if its finish response was lost", async () => {
+    const current = await startAndAnswer(15);
+    vi.mocked(Date.now).mockReturnValue(current.expiresAt);
+    const timed = await (await GET()).json();
+    expect(timed).toMatchObject({ assessment: { completionReason: "timeout", answered: 15, minimumAnswers: 15, timeoutPenaltyPoints: 10 } });
+    expect(await (await finish(current)).json()).toEqual(timed);
+    expect(fixture.mocks.studentProfile.update).toHaveBeenCalledTimes(1);
+    expect((await GET()).status).toBe(403);
+  });
+
+  test("an expired below-minimum read is durable but permits a new attempt", async () => {
+    const current = await startAndAnswer(14);
+    vi.mocked(Date.now).mockReturnValue(current.expiresAt);
+    const timed = await (await GET()).json();
+    expect(timed).toMatchObject({ status: "inconclusive", answered: 14, required: 15 });
+    expect(await (await finish(current)).json()).toEqual(timed);
+    const next = await (await GET()).json();
+    expect(next.question.cefrBand).toBe("A1");
+    expect(next.attemptToken).not.toBe(current.attemptToken);
+    expect(fixture.mocks.studentProfile.update).not.toHaveBeenCalled();
+  });
+
+  test("an old finish cannot overwrite a later result or restart its cooldown", async () => {
+    const current = await startAndAnswer(24);
+    const original = await (await finish(current)).json();
+    Object.assign(fixture.profile, { placedLevel: "BEGINNER", placedSubLevel: 1, placementCompletedAt: new Date(Date.now() + 1000) });
+    expect(await (await finish(current)).json()).toEqual(original);
+    expect(fixture.profile.placedLevel).toBe("BEGINNER");
+    expect(fixture.mocks.studentProfile.update).toHaveBeenCalledTimes(1);
+  });
+
+  test("bank edits cannot reinterpret an active attempt or its final receipt", async () => {
+    const current = await startAndAnswer(24);
+    mocks.bank.mockResolvedValue(bank.map(q => ({ ...q, correctIndex: (q.correctIndex + 1) % 3 })));
+    const result = await (await finish(current)).json();
+    expect(result).toMatchObject({ level: "ADVANCED", subLevel: 3 });
+    mocks.bank.mockRejectedValue(new Error("bank temporarily unavailable"));
+    expect(await (await finish(current)).json()).toEqual(result);
+  });
+
+  test.each(["JAPANESE", "TEACHER", "HIDDEN"])("fresh account authorization rejects %s even with a stale English session", async boundary => {
+    const current = await startAndAnswer(1);
+    if (boundary === "JAPANESE") fixture.actor.learningLanguage = "JAPANESE";
+    if (boundary === "TEACHER") fixture.actor.role = "TEACHER";
+    if (boundary === "HIDDEN") fixture.actor.accountStatus = "HIDDEN";
+    expect((await finish(current)).status).toBe(403);
+    expect((await GET()).status).toBe(403);
+    expect(fixture.mocks.studentProfile.update).not.toHaveBeenCalled();
+  });
+
+  test("another user cannot read or finish an owned attempt", async () => {
+    const current = await startAndAnswer(1);
+    mocks.auth.mockResolvedValue({ user: { id: "other-student", learningLanguage: "ENGLISH" } });
+    fixture.actor.id = "other-student";
+    expect((await finish(current)).status).toBe(404);
+    expect(fixture.mocks.studentProfile.update).not.toHaveBeenCalled();
   });
 });

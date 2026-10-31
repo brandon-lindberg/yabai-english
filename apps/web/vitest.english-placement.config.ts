@@ -16,6 +16,7 @@ export default defineConfig({
       "src/lib/__tests__/placement-evidence.test.ts",
       "src/lib/__tests__/placement-staircase.test.ts",
       "src/lib/__tests__/adaptive-staircase.test.ts",
+      "tests/english-placement/*.test.ts",
     ],
   },
 });

@@ -9,6 +9,7 @@ import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifica
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { initializeTeacherTierStateFromHistory } from "@/lib/teacher-tiers";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 type MirrorLessonEventParams = {
   studentUserId: string;
@@ -118,7 +119,7 @@ export async function confirmPaidBookingFromPayment(
   const attendeeEmails = [updated.student.email, updated.teacher.user.email].filter(
     Boolean,
   ) as string[];
-  const summary = `Lesson — ${updated.lessonProduct.nameEn}`;
+  const summary = `Lesson — ${lessonProductNames(updated.lessonProduct, updated.learningLanguage).nameEn}`;
   // A group class meets once. Seats after the first join the event that exists
   // instead of opening a second room for the same lesson.
   const meet = updated.groupLessonSessionId

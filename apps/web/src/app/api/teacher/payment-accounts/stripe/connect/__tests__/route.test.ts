@@ -21,6 +21,14 @@ vi.mock("@/lib/stripe/stripe-connect", () => ({
 import { POST } from "@/app/api/teacher/payment-accounts/stripe/connect/route";
 
 describe("POST /api/teacher/payment-accounts/stripe/connect", () => {
+  test.each(["ENGLISH", "JAPANESE"])("%s reuses the teacher's existing connected account", async learningLanguage => {
+    authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER", learningLanguage } });
+    prismaMock.teacherProfile.findUnique.mockResolvedValue({ id: "teacher-profile-1", paymentAccounts: [{ providerAccountId: "acct_existing" }] });
+    expect((await POST()).status).toBe(200);
+    expect(createConnectAccountMock).not.toHaveBeenCalled();
+    expect(createAccountLinkMock).toHaveBeenCalledWith(expect.objectContaining({ accountId: "acct_existing" }));
+    expect(prismaMock.teacherPaymentAccount.upsert.mock.calls[0][0].where).toEqual({ teacherId_provider: { teacherId: "teacher-profile-1", provider: "STRIPE" } });
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";

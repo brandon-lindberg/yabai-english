@@ -1,5 +1,3 @@
-const stateSeparator = ":";
-
 export const GOOGLE_SCOPES = {
   identityOpenId: "openid",
   identityEmail: "email",
@@ -59,28 +57,6 @@ export function deriveConnectionFlags(scopes: string[]) {
 export function hasAllGoogleScopes(scopes: string[]): boolean {
   const granted = new Set(scopes);
   return ALL_GOOGLE_SCOPES.every((scope) => granted.has(scope));
-}
-
-export function buildGoogleConnectState(params: { userId: string; returnTo: string }) {
-  return Buffer.from(
-    `${params.userId}${stateSeparator}${params.returnTo}`,
-    "utf8",
-  ).toString("base64url");
-}
-
-export function parseGoogleConnectState(state: string): {
-  userId: string;
-  returnTo: string;
-} | null {
-  try {
-    const raw = Buffer.from(state, "base64url").toString("utf8");
-    const [userId, ...returnToParts] = raw.split(stateSeparator);
-    const returnTo = returnToParts.join(stateSeparator);
-    if (!userId || !returnTo) return null;
-    return { userId, returnTo };
-  } catch {
-    return null;
-  }
 }
 
 export function buildPostCallbackReturnUrl(

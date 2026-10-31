@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { conversationProduct, lessonSubjectCases } from "../../../../../../../test/lesson-subject-fixture";
 
 const { authMock, prismaMock, buildInvoicePdfMock, ensureCreditNoteNumberMock, ensureInvoiceMock } = vi.hoisted(() => ({
   ensureCreditNoteNumberMock: vi.fn(),
@@ -26,6 +27,14 @@ const request = (lang = "en") =>
   new Request(`http://localhost/api/refunds/refund-1/credit-note?lang=${lang}`);
 
 describe("GET /api/refunds/[refundId]/credit-note", () => {
+  test.each(lessonSubjectCases)("a $learningLanguage return keeps the refunded booking subject in both document languages", async ({ learningLanguage, nameJa, nameEn }) => {
+    const refund = await prismaMock.refund.findUnique();
+    prismaMock.refund.findUnique.mockResolvedValue({ ...refund, booking: { ...refund.booking, learningLanguage, lessonProduct: conversationProduct } });
+    for (const lang of ["en", "ja"]) {
+      expect((await GET(request(lang), params)).status).toBe(200);
+      expect(buildInvoicePdfMock).toHaveBeenLastCalledWith(expect.objectContaining({ language: lang, className: lang === "ja" ? nameJa : nameEn, amountYen: 3300, creditNote: expect.objectContaining({ creditNoteNo: "CRN-1" }) }));
+    }
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "student-1" } });

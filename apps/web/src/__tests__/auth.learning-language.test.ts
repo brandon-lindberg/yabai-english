@@ -58,3 +58,25 @@ describe("auth preserves the selected lesson subject", () => {
     expect(session.user.learningLanguage).toBe("JAPANESE");
   });
 });
+
+describe("the existing Google provider serves both learning paths", () => {
+  beforeAll(async () => {
+    vi.resetModules();
+    vi.stubEnv("DEV_AUTH_BYPASS", "true");
+    vi.stubEnv("AUTH_GOOGLE_ID", "test-shared-google-client");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "test-shared-google-secret");
+    await import("@/auth");
+  });
+  afterAll(() => vi.unstubAllEnvs());
+  test.each(["ENGLISH", "JAPANESE"] as const)("%s uses the same Google provider and authoritative database session", async learningLanguage => {
+    vi.clearAllMocks();
+    prismaMock.organizationMembership.findMany.mockResolvedValue([]);
+    prismaMock.studentProfile.findUnique.mockResolvedValue({ placementCompletedAt: null });
+    prismaMock.user.findUnique.mockResolvedValue({ role: "STUDENT", locale: "en", learningLanguage, accountStatus: "ACTIVE" });
+    expect(captured.config!.providers).toHaveLength(1);
+    expect(captured.config!.providers[0]).toMatchObject({ id: "google" });
+    expect(captured.config!.session?.strategy).toBe("database");
+    const result = await captured.config!.callbacks!.session!({ session: { user: {} }, user: { id: "same-account" }, token: {} } as SessionArgs) as Session;
+    expect(result.user).toMatchObject({ id: "same-account", learningLanguage, locale: "en" });
+  });
+});

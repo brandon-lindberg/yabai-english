@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildInvoiceCsv } from "@/lib/invoice-csv";
 import { calculateTaxIncludedInvoiceTotals } from "@/lib/invoice-totals";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 type Props = {
   params: Promise<{ invoiceId: string }>;
@@ -49,7 +50,7 @@ export async function GET(_req: Request, { params }: Props) {
   const csv = buildInvoiceCsv({
     invoiceNo: invoice.invoiceNo,
     studentName,
-    className: invoice.booking.lessonProduct.nameEn,
+    className: lessonProductNames(invoice.booking.lessonProduct, invoice.booking.learningLanguage).nameEn,
     durationMin: invoice.booking.lessonProduct.durationMin,
     priceYen: totals.totalYen,
     subtotalYen: totals.subtotalYen,

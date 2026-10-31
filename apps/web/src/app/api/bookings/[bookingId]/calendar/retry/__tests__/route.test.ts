@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
+import { conversationProduct, lessonSubjectCases } from "../../../../../../../../test/lesson-subject-fixture";
 
 const { authMock, prismaMock, createMeetMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
@@ -39,6 +40,12 @@ const baseBooking = {
 };
 
 describe("POST /api/bookings/[bookingId]/calendar/retry", () => {
+  test.each(lessonSubjectCases)("calendar retry retains the $learningLanguage booking label with the existing teacher connection", async ({ learningLanguage, otherLanguage, nameEn }) => {
+    authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER", learningLanguage: otherLanguage } });
+    prismaMock.booking.findUnique.mockResolvedValue({ ...baseBooking, learningLanguage, lessonProduct: conversationProduct });
+    expect((await POST(new Request("http://localhost/api/bookings/booking-1/calendar/retry", { method: "POST" }), { params: Promise.resolve({ bookingId: "booking-1" }) })).status).toBe(200);
+    expect(createMeetMock).toHaveBeenCalledWith(expect.objectContaining({ organizerUserId: "teacher-user-1", summary: `Lesson — ${nameEn}`, refreshTokenEncrypted: "enc-token" }));
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });

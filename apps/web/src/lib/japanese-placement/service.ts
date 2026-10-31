@@ -1,5 +1,6 @@
 import "server-only";
 import { PrivateApiFailure } from "../private-api-error";
+import { lockLearnerTransaction } from "../learner-transaction-lock";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { Prisma, type PrismaClient } from "@/generated/prisma/client";
@@ -35,7 +36,7 @@ async function actor(tx: Tx, userId: string) {
 }
 
 async function lockJapaneseLearner(tx: Tx, learnerId: string) {
-  await tx.$queryRaw(Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${`japanese-placement:${learnerId}`}, 0))::text`);
+  await lockLearnerTransaction(tx, "japanese-placement", learnerId);
 }
 
 /** Serializes starts, reads and submissions for one learner; no application table is touched by the lock. */

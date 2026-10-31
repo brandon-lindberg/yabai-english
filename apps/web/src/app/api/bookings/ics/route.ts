@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildIcs } from "@/lib/calendar";
 import { lessonCalendarLocation, lessonCalendarUid } from "@/lib/brand";
+import { withBookingLessonProductNames } from "@/lib/lesson-product-catalog";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
     orderBy: { startsAt: "asc" },
   });
 
-  const events = bookings.map((booking) => ({
+  const events = bookings.map(withBookingLessonProductNames).map((booking) => ({
     uid: lessonCalendarUid(booking.id),
     title: `${booking.lessonProduct.nameEn} (${booking.lessonProduct.nameJa})`,
     description: `Teacher: ${booking.teacher.user.name ?? booking.teacher.user.email}`,

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
+import { conversationProduct, lessonSubjectCases } from "../../../../../../test/lesson-subject-fixture";
 
 const {
   authMock,
@@ -80,6 +81,16 @@ function baseBooking(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 describe("PATCH /api/bookings/[bookingId]", () => {
+  test.each(lessonSubjectCases)("rescheduling a $learningLanguage booking retains its label and moves the same calendar events", async ({ learningLanguage, otherLanguage, nameEn, nameJa }) => {
+    authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER", learningLanguage: otherLanguage } });
+    const booking = baseBooking({ learningLanguage, lessonProduct: conversationProduct });
+    findUniqueMock.mockResolvedValue(booking); findFirstMock.mockResolvedValue(null);
+    updateMock.mockResolvedValue({ ...booking, startsAt: new Date("2026-05-24T01:30:00Z"), endsAt: new Date("2026-05-24T02:30:00Z") });
+    expect((await PATCH(new Request("http://localhost/api/bookings/booking-1", { method: "PATCH", body: JSON.stringify({ startsAt: "2026-05-24T01:30:00Z" }) }), { params: Promise.resolve({ bookingId: "booking-1" }) })).status).toBe(200);
+    expect(createUserNotificationMock).toHaveBeenCalledWith(expect.objectContaining({ bodyEn: expect.stringContaining(nameEn), bodyJa: expect.stringContaining(nameJa) }));
+    expect(patchMeetLessonEventMock).toHaveBeenCalledTimes(2);
+    expect(updateMock.mock.calls[0][0].data).not.toHaveProperty("learningLanguage");
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();

@@ -2,10 +2,11 @@ import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
 import { nextStudyReviewState } from "./scheduler";
 import { xpForMcq } from "./quiz";
+import { lockLearnerTransaction } from "../learner-transaction-lock";
 
 /** Serialize practice mutations for one learner, including queue issuance. */
 export async function lockStudyLearner(tx: Prisma.TransactionClient, userId: string) {
-  await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${'study:' + userId}, 0))::text`;
+  await lockLearnerTransaction(tx, "study", userId);
 }
 
 /** Shared persistence only; each language owns its prompt and grading rules. */

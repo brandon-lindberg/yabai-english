@@ -3,6 +3,7 @@
 import { placementTextToReact } from "@/lib/placement-question-display";
 import type { PlacementQuestionPublic, scorePlacementAnswers } from "@/lib/placement-test";
 import { ENGLISH_PLACEMENT_POLICY_V2 } from "@/lib/placement-policy";
+import type { EnglishPlacementActive } from "@/lib/english-placement/public";
 import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -14,6 +15,7 @@ import { Outcome } from "@/components/ui/outcome";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Section } from "@/components/ui/section";
 import { Status } from "@/components/ui/status";
+import { useLatestRef } from "@/hooks/use-latest-ref";
 
 function formatPlacementEligibleDate(iso: string, locale: string): string {
   const d = new Date(iso);
@@ -26,18 +28,23 @@ function formatPlacementEligibleDate(iso: string, locale: string): string {
 type PlacementResult = ReturnType<typeof scorePlacementAnswers>;
 
 type InconclusiveReason = "insufficient_evidence" | "question_pool_exhausted" | "attempt_unavailable";
+type ApiReply = Partial<EnglishPlacementActive> & Partial<PlacementResult> & {
+  error?: string; status?: string; reason?: InconclusiveReason; required?: number; eligibleAt?: string;
+};
 
 export function PlacementQuiz() {
   const t = useTranslations("placement");
   const locale = useLocale();
   const router = useRouter();
   const { update: updateSession } = useSession();
+  const updateSessionRef = useLatestRef(updateSession);
   const [question, setQuestion] = useState<PlacementQuestionPublic | null>(null);
   const [objectiveComplete, setObjectiveComplete] = useState(false);
   const [progressCurrent, setProgressCurrent] = useState(1);
   const [progressTotal, setProgressTotal] = useState<number>(ENGLISH_PLACEMENT_POLICY_V2.maxQuestions);
   const [minimumAnswers, setMinimumAnswers] = useState<number>(ENGLISH_PLACEMENT_POLICY_V2.minimumAnswers);
   const [attemptToken, setAttemptToken] = useState("");
+  const [pendingAnswer, setPendingAnswer] = useState<{ attemptToken: string; answer: number } | null>(null);
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const [remainingSec, setRemainingSec] = useState<number | null>(null);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
@@ -48,6 +55,33 @@ export function PlacementQuiz() {
   const [result, setResult] = useState<PlacementResult | null>(null);
   const [inconclusive, setInconclusive] = useState<{ reason: InconclusiveReason; required: number } | null>(null);
   const [cooldownEligibleAt, setCooldownEligibleAt] = useState<string | null>(null);
+
+  const applyReply = useCallback((data: ApiReply) => {
+    if (data.level) {
+      setResult(data as PlacementResult);
+      setQuestion(null);
+      setObjectiveComplete(true);
+      setPendingAnswer(null);
+      void updateSessionRef.current();
+      return;
+    }
+    if (data.status === "inconclusive") {
+      setInconclusive({ reason: data.reason ?? "insufficient_evidence", required: data.required ?? ENGLISH_PLACEMENT_POLICY_V2.minimumAnswers });
+      setPendingAnswer(null);
+      return;
+    }
+    setQuestion(data.question ?? null);
+    setObjectiveComplete(Boolean(data.objectiveComplete));
+    if (data.attemptToken) setAttemptToken(data.attemptToken);
+    if (data.progress) { setProgressCurrent(data.progress.current); setProgressTotal(data.progress.total); }
+    if (data.minimumAnswers) setMinimumAnswers(data.minimumAnswers);
+    if (typeof data.expiresAt === "number") {
+      const now = data.serverNow ?? Date.now();
+      setClockOffsetMs(now - Date.now());
+      setExpiresAt(data.expiresAt);
+      setRemainingSec(Math.max(0, Math.ceil((data.expiresAt - now) / 1000)));
+    }
+  }, [updateSessionRef]);
 
   const loadAttempt = useCallback(async () => {
     setLoading(true);
@@ -62,17 +96,10 @@ export function PlacementQuiz() {
     setQuestion(null);
     setObjectiveComplete(false);
     setAttemptToken("");
+    setPendingAnswer(null);
     try {
       const r = await fetch(`/api/placement?ts=${Date.now()}`, { cache: "no-store" });
-      const data = (await r.json()) as {
-        error?: string;
-        eligibleAt?: string;
-        question?: PlacementQuestionPublic | null;
-        attemptToken?: string;
-        expiresAt?: number;
-        minimumAnswers?: number;
-        progress?: { current: number; total: number };
-      };
+      const data = (await r.json()) as ApiReply;
       if (!r.ok) {
         if (data.error === "cooldown" && typeof data.eligibleAt === "string") {
           setCooldownEligibleAt(data.eligibleAt);
@@ -81,25 +108,28 @@ export function PlacementQuiz() {
         setError(t("loadError"));
         return;
       }
-      setQuestion(data.question ?? null);
-      setProgressCurrent(data.progress?.current ?? 1);
-      setProgressTotal(data.progress?.total ?? ENGLISH_PLACEMENT_POLICY_V2.maxQuestions);
-      setMinimumAnswers(data.minimumAnswers ?? ENGLISH_PLACEMENT_POLICY_V2.minimumAnswers);
-      setAttemptToken(data.attemptToken ?? "");
-      setExpiresAt(data.expiresAt ?? null);
-      if (typeof data.expiresAt === "number") {
-        setRemainingSec(Math.max(0, Math.ceil((data.expiresAt - Date.now()) / 1000)));
-      }
+      applyReply(data);
     } catch {
       setError(t("loadError"));
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, applyReply]);
 
   useEffect(() => {
     void loadAttempt();
   }, [loadAttempt]);
+
+  useEffect(() => {
+    if (loading || submitting || pendingAnswer || result || inconclusive || autoSubmitted || !attemptToken) return;
+    const recover = () => { if (document.visibilityState === "visible") void loadAttempt(); };
+    window.addEventListener("focus", recover);
+    document.addEventListener("visibilitychange", recover);
+    return () => {
+      window.removeEventListener("focus", recover);
+      document.removeEventListener("visibilitychange", recover);
+    };
+  }, [loading, submitting, pendingAnswer, result, inconclusive, autoSubmitted, attemptToken, loadAttempt]);
 
   useEffect(() => {
     if (!expiresAt || result || inconclusive || autoSubmitted) return;
@@ -131,10 +161,7 @@ export function PlacementQuiz() {
           attemptToken,
         }),
       });
-      const data = (await res.json()) as PlacementResult & {
-        error?: string; status?: string; reason?: InconclusiveReason; required?: number;
-        expiresAt?: number; serverNow?: number;
-      };
+      const data = (await res.json()) as ApiReply;
       if (!res.ok) {
         if (data.error === "attempt_unavailable") {
           setInconclusive({ reason: "attempt_unavailable", required: minimumAnswers });
@@ -153,13 +180,8 @@ export function PlacementQuiz() {
         setError(t("finishError"));
         return;
       }
-      if (data.status === "inconclusive") {
-        setInconclusive({ reason: data.reason ?? "insufficient_evidence", required: data.required ?? minimumAnswers });
-        return;
-      }
-      if (data.level) {
-        setResult(data);
-        void updateSession();
+      if (data.level || data.status === "inconclusive") {
+        applyReply(data);
       } else {
         setError(t("finishError"));
       }
@@ -171,7 +193,13 @@ export function PlacementQuiz() {
   }
 
   async function selectOption(idx: number) {
-    if (!q || submitting || autoSubmitted || remainingSec === 0) return;
+    if (!q || submitting || pendingAnswer || autoSubmitted || remainingSec === 0) return;
+    const input = { attemptToken, answer: idx };
+    setPendingAnswer(input);
+    await saveAnswer(input);
+  }
+
+  async function saveAnswer(input: { attemptToken: string; answer: number }) {
     setSubmitting(true);
     setError(null);
     try {
@@ -180,42 +208,36 @@ export function PlacementQuiz() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "answer",
-          answer: idx,
-          attemptToken,
+          ...input,
         }),
       });
-      const data = (await res.json()) as {
-        error?: string;
-        attemptToken?: string;
-        question?: PlacementQuestionPublic | null;
-        objectiveComplete?: boolean;
-        progress?: { current: number; total: number };
-        expiresAt?: number;
-      };
+      const data = (await res.json()) as ApiReply;
       if (!res.ok) {
         if (data.error === "attempt_unavailable") {
+          setPendingAnswer(null);
           setInconclusive({ reason: "attempt_unavailable", required: minimumAnswers });
           return;
         }
+        if (data.error === "attempt_conflict") {
+          await loadAttempt();
+          setError(t("answerConflict"));
+          return;
+        }
         if (data.error === "attempt_expired") {
+          setPendingAnswer(null);
           setAutoSubmitted(true);
           setRemainingSec(0);
           await onFinish(true);
           return;
         }
-        setError(t("submitError"));
+        if (res.status < 500) setPendingAnswer(null);
+        setError(t("answerSaveUncertain"));
         return;
       }
-      setAttemptToken(data.attemptToken ?? attemptToken);
-      setQuestion(data.question ?? null);
-      setObjectiveComplete(Boolean(data.objectiveComplete));
-      setProgressCurrent(data.progress?.current ?? progressCurrent);
-      setProgressTotal(data.progress?.total ?? progressTotal);
-      if (typeof data.expiresAt === "number") {
-        setExpiresAt(data.expiresAt);
-      }
+      setPendingAnswer(null);
+      applyReply(data);
     } catch {
-      setError(t("submitError"));
+      setError(t("answerSaveUncertain"));
     } finally {
       setSubmitting(false);
     }
@@ -289,7 +311,7 @@ export function PlacementQuiz() {
     );
   }
 
-  if (!question && !objectiveComplete) {
+  if (!result && !question && !objectiveComplete) {
     return (
       <Outcome
         title={t("loadError")}
@@ -422,7 +444,7 @@ export function PlacementQuiz() {
             {q.optionsEn.map((opt, idx) => (
               <Choice
                 key={`${q.id}-${idx}`}
-                disabled={submitting || autoSubmitted || remainingSec === 0}
+                disabled={submitting || Boolean(pendingAnswer) || autoSubmitted || remainingSec === 0}
                 onSelect={() => void selectOption(idx)}
               >
                 {placementTextToReact(opt)}
@@ -454,6 +476,11 @@ export function PlacementQuiz() {
       {autoSubmitted && error && (
         <Button size="lg" loading={submitting} onClick={() => void onFinish(true)}>
           {t("retrySave")}
+        </Button>
+      )}
+      {pendingAnswer && error && !autoSubmitted && remainingSec !== 0 && (
+        <Button size="lg" loading={submitting} onClick={() => void saveAnswer(pendingAnswer)}>
+          {t("retryAnswer")}
         </Button>
       )}
       {submitting && !objectiveComplete && (

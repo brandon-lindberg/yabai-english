@@ -7,7 +7,8 @@ import { z } from "zod";
 import { loadApprovedJapaneseBank, japaneseQuestionLimit } from "../src/lib/japanese-placement/bank";
 import { startJapaneseAttempt, japaneseScoringRevision, nextJapaneseQuestion, recordJapaneseResponse } from "../src/lib/japanese-placement/attempt";
 import { JAPANESE_STAIRCASE_POLICY_REVISION } from "../src/lib/japanese-placement/staircase-policy";
-import { createPlacementAttemptToken, verifyPlacementAttemptToken } from "../src/lib/placement-attempt-token";
+import { parseEnglishAttemptHandle } from "../src/lib/english-placement/service";
+import { lockLearnerTransaction } from "../src/lib/learner-transaction-lock";
 import { ENGLISH_PLACEMENT_POLICY_V2 } from "../src/lib/placement-policy";
 import { japaneseStudyAnswer } from "../test/japanese-study-db-fixture";
 
@@ -37,7 +38,7 @@ try {
     if (release && !/^mirror_test_[a-f0-9]{32}$/.test(schema)) throw new Error("Release journeys require an isolated test schema");
     const placement = release || process.argv.includes("--japanese-placement");
     const runId = `mirror-qa-${randomUUID()}`;
-    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student"] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
+    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student", "resume-english"] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
     const fixtures: Fixtures = { runId, schema, users, englishTeacherId: `${runId}-english-profile`, japaneseTeacherId: `${runId}-japanese-profile`, ...(placement ? { placementProductId: `${runId}-placement-product` } : {}), ...(release ? { trialProductId: `${runId}-trial-product`, pastBookings: { ENGLISH: `${runId}-past-en`, JAPANESE: `${runId}-past-ja` } } : {}) };
     mkdirSync("../../.impeccable", { recursive: true });
     // Record ownership before the transaction; cleanup is safe after failures.
@@ -104,11 +105,23 @@ try {
     if (learner.role !== "STUDENT") throw new Error("Student fixture required");
     if (operation === "release-english-deadline") {
       const { attemptToken } = z.object({ learnerId: z.string(), attemptToken: z.string() }).strict().parse(input);
-      const payload = verifyPlacementAttemptToken(attemptToken);
-      if (learner.learningLanguage !== "ENGLISH" || !payload || payload.userId !== learnerId || payload.scoringVersion !== ENGLISH_PLACEMENT_POLICY_V2.version
-        || ![ENGLISH_PLACEMENT_POLICY_V2.minimumAnswers - 1, ENGLISH_PLACEMENT_POLICY_V2.minimumAnswers].includes(payload.asked.length)) throw new Error("Expected a current English boundary attempt");
-      const expiresAt = Date.now() + 7_000;
-      console.log(JSON.stringify({ attemptToken: createPlacementAttemptToken({ ...payload, issuedAt: expiresAt - ENGLISH_PLACEMENT_POLICY_V2.timeLimitSec * 1000, expiresAt }), expiresAt })); return;
+      const handle = parseEnglishAttemptHandle(attemptToken);
+      if (learner.learningLanguage !== "ENGLISH" || !handle) throw new Error("Expected an owned English attempt handle");
+      const staged = await prisma.$transaction(async tx => {
+        await lockLearnerTransaction(tx, "english-placement", learnerId);
+        const row = await tx.englishPlacementAttempt.findUniqueOrThrow({ where: { id: handle.id } });
+        if (row.learnerId !== learnerId || row.activeLearnerId !== learnerId || row.revision !== handle.revision || row.scoringVersion !== ENGLISH_PLACEMENT_POLICY_V2.version
+          || ![ENGLISH_PLACEMENT_POLICY_V2.minimumAnswers - 1, ENGLISH_PLACEMENT_POLICY_V2.minimumAnswers].includes(row.revision)) throw new Error("Expected a current English boundary attempt");
+        const expiresAt = Date.now() + 7_000;
+        await tx.englishPlacementAttempt.update({ where: { id: row.id }, data: { status: "ABANDONED", activeLearnerId: null, finishedAt: new Date(), result: { status: "inconclusive", reason: "attempt_unavailable", answered: row.revision, required: 15 } } });
+        const clone = await tx.englishPlacementAttempt.create({ data: {
+          id: randomUUID(), learnerId, activeLearnerId: learnerId, bankSnapshotId: row.bankSnapshotId, schemaVersion: row.schemaVersion,
+          scoringVersion: row.scoringVersion, routingRevision: row.routingRevision, revision: row.revision,
+          state: JSON.parse(JSON.stringify(row.state)), startedAt: new Date(expiresAt - ENGLISH_PLACEMENT_POLICY_V2.timeLimitSec * 1000), expiresAt: new Date(expiresAt),
+        } });
+        return { attemptToken: `${clone.id}:${clone.revision}`, expiresAt };
+      });
+      console.log(JSON.stringify(staged)); return;
     }
     if (operation === "release-study-answer") {
       const { promptId } = z.object({ learnerId: z.string(), promptId: z.string() }).strict().parse(input);

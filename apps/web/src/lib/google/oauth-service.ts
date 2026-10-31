@@ -3,12 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { encryptIntegrationToken } from "@/lib/calendar-token";
 import {
   ALL_GOOGLE_SCOPES,
-  buildGoogleConnectState,
   buildPostCallbackReturnUrl,
   deriveConnectionFlags,
-  parseGoogleConnectState,
 } from "@/lib/google/integration";
-import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
 
 function resolveBaseUrl(req: Request): string {
   return (
@@ -28,8 +25,7 @@ function requireGoogleClient() {
 }
 
 export function buildGoogleConnectUrl(req: Request, params: {
-  userId: string;
-  returnTo?: string;
+  state: string;
 }) {
   const creds = requireGoogleClient();
   if (!creds) return null;
@@ -37,10 +33,6 @@ export function buildGoogleConnectUrl(req: Request, params: {
   const redirectUri = `${baseUrl}/api/integrations/google/callback`;
   // Every scope, one consent screen, one round trip.
   const scope = ALL_GOOGLE_SCOPES.join(" ");
-  const state = buildGoogleConnectState({
-    userId: params.userId,
-    returnTo: params.returnTo ?? DASHBOARD_GOOGLE_SETTINGS_PATH,
-  });
   return (
     "https://accounts.google.com/o/oauth2/v2/auth" +
     `?client_id=${encodeURIComponent(creds.clientId)}` +
@@ -50,20 +42,16 @@ export function buildGoogleConnectUrl(req: Request, params: {
     "&access_type=offline" +
     "&include_granted_scopes=true" +
     "&prompt=consent" +
-    `&state=${encodeURIComponent(state)}`
+    `&state=${encodeURIComponent(params.state)}`
   );
 }
 
-export async function handleGoogleCallback(req: Request, code: string, state: string) {
-  const parsed = parseGoogleConnectState(state);
-  if (!parsed) {
-    return { ok: false as const, redirectTo: `${DASHBOARD_GOOGLE_SETTINGS_PATH}?google=invalid_state` };
-  }
+export async function handleGoogleCallback(req: Request, code: string, owner: { userId: string; returnTo: string }) {
   const creds = requireGoogleClient();
   if (!creds) {
     return {
       ok: false as const,
-      redirectTo: buildPostCallbackReturnUrl(parsed.returnTo, { google: "misconfigured" }),
+      redirectTo: buildPostCallbackReturnUrl(owner.returnTo, { google: "misconfigured" }),
     };
   }
   const baseUrl = resolveBaseUrl(req);
@@ -84,15 +72,15 @@ export async function handleGoogleCallback(req: Request, code: string, state: st
     : null;
 
   const existing = await prisma.googleIntegrationAccount.findUnique({
-    where: { userId: parsed.userId },
+    where: { userId: owner.userId },
   });
 
   await prisma.googleIntegrationAccount.upsert({
-    where: { userId: parsed.userId },
+    where: { userId: owner.userId },
     create: {
-      userId: parsed.userId,
+      userId: owner.userId,
       provider: "google",
-      providerAccountId: existing?.providerAccountId ?? parsed.userId,
+      providerAccountId: existing?.providerAccountId ?? owner.userId,
       accessToken: accessToken ?? existing?.accessToken ?? null,
       refreshToken: refreshToken ?? existing?.refreshToken ?? null,
       expiresAt: tokenRes.tokens.expiry_date
@@ -131,9 +119,9 @@ export async function handleGoogleCallback(req: Request, code: string, state: st
     fails at runtime.
   */
   await prisma.googleIntegrationSettings.upsert({
-    where: { userId: parsed.userId },
+    where: { userId: owner.userId },
     create: {
-      userId: parsed.userId,
+      userId: owner.userId,
       calendarConnected: flags.calendarConnected,
       driveConnected: flags.driveConnected,
       meetConnected: flags.meetConnected,
@@ -151,6 +139,6 @@ export async function handleGoogleCallback(req: Request, code: string, state: st
 
   return {
     ok: true as const,
-    redirectTo: buildPostCallbackReturnUrl(parsed.returnTo, { google: "connected" }),
+    redirectTo: buildPostCallbackReturnUrl(owner.returnTo, { google: "connected" }),
   };
 }

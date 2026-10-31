@@ -1,5 +1,7 @@
 # English placement evidence and timeout policy v2
 
+**Persistence follow-up:** [Section 6d](english-placement-persistence.md) replaces the browser-carried signed state with durable, revisioned attempts, frozen bank snapshots and once-only finalization. Scoring policy v2 remains unchanged. Signed-token storage descriptions below record the earlier implementation.
+
 Implemented on `the-mirror`, 2026-10-27, following the owner's 15-answer minimum and unanswered-question penalty requirements. This replaces the full-24 award gate from the [initial deadline guards](english-placement-guards.md). Brandon retains staging, commits and pushes.
 
 **Subsequent routing increment:** [A1/N5-first staircase routing](placement-staircase.md) is delivered, including target-band skill balancing and legacy-token compatibility. The English scoring/minimum/penalty rules below remain in force. Verification and database-write statements below describe this scoring increment; the staircase handoff records its later local Japanese migration and expanded checks.

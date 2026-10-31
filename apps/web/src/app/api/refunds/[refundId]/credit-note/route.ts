@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ensureCreditNoteNumber } from "@/lib/credit-notes";
 import { ensureInvoiceForPaidBooking } from "@/lib/ensure-invoice";
 import { buildInvoicePdf, type InvoicePdfLanguage } from "@/lib/invoice-pdf";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 type Props = {
   params: Promise<{ refundId: string }>;
@@ -69,6 +70,7 @@ export async function GET(req: Request, { params }: Props) {
     select: { method: true },
   });
 
+  const names = lessonProductNames(booking.lessonProduct, booking.learningLanguage);
   const pdfBytes = await buildInvoicePdf({
     // The invoice this return reverses; the credit note carries its own number
     // separately.
@@ -77,7 +79,7 @@ export async function GET(req: Request, { params }: Props) {
     paidAt: formatInvoiceDisplayDate(invoice.paidAt ?? refund.createdAt, dateLocale),
     studentName: booking.student.name ?? booking.student.email ?? "Student",
     className:
-      language === "ja" ? booking.lessonProduct.nameJa : booking.lessonProduct.nameEn,
+      language === "ja" ? names.nameJa : names.nameEn,
     durationMin: booking.lessonProduct.durationMin,
     lessonDate: formatInvoiceDisplayDate(booking.startsAt, dateLocale),
     language,

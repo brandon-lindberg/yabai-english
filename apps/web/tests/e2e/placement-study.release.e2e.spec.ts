@@ -10,6 +10,7 @@ import { fixtureCommand, readMirrorFixtures, releaseStudent, signInMirrorUser } 
 import { chooseEnglishAnswer, chooseJapaneseAnswer } from "./helpers/placement-answers";
 import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
 import { captureRelease } from "./helpers/release-verification";
+import { stripHtmlTags } from "../../src/lib/placement-question-display";
 
 const englishBank = loadPlacementBankSync();
 const initialCorrect = [true, false, false, true, true, true, true];
@@ -54,6 +55,14 @@ test("English placement follows the requested staircase, saves its award and enf
     if (index < 8) path.push(current.question.cefrBand);
     if (index === 0) await captureRelease(page, "ENGLISH-placement-opening");
     current = await answerEnglish(page, current, initialCorrect[index] ?? true);
+    if (index === 4) {
+      const read = page.waitForResponse(response => response.url().includes("/api/placement?") && response.request().method() === "GET");
+      await page.reload();
+      const restored = await (await read).json() as EnglishView;
+      expect(restored).toMatchObject({ ...current, serverNow: expect.any(Number) });
+      current = restored;
+      await captureRelease(page, "ENGLISH-placement-resumed");
+    }
   }
   expect(path).toEqual(["A1", "A2", "A2", "A1", "A2", "A2", "A2", "B1"]);
   expect(ids.size).toBe(24);
@@ -64,7 +73,12 @@ test("English placement follows the requested staircase, saves its award and enf
   expect(result.assessment).toMatchObject({ policyVersion: 2, answered: 24, completionReason: "completed", timeoutPenaltyPoints: 0 });
   await expect(page.getByText(en.placement.resultTitle, { exact: true })).toBeVisible();
   await captureRelease(page, "ENGLISH-placement-result");
-  expect(profile(releaseStudent("placement-english").id)).toMatchObject({ placedLevel: result.level, placedSubLevel: result.subLevel, placementReport: { assessment: result.assessment } });
+  const savedProfile = profile(releaseStudent("placement-english").id);
+  expect(savedProfile).toMatchObject({ placedLevel: result.level, placedSubLevel: result.subLevel, placementReport: { assessment: result.assessment } });
+  const receipt = await page.request.post("/api/placement", { data: { action: "finish", attemptToken: current.attemptToken } });
+  expect(receipt.status()).toBe(200);
+  expect(await receipt.json()).toEqual(result);
+  expect(profile(releaseStudent("placement-english").id)).toEqual(savedProfile);
   expect(profile(fixture.users[0].id)).toEqual(japaneseBefore);
   expect(fixtureCommand("release-learning-state").attempts).toEqual(attemptsBefore);
   await page.reload();
@@ -129,11 +143,14 @@ for (const answered of [14, 15]) test(`English ${answered}-answer timeout ${answ
   if (answered === 14) await captureRelease(page, "ENGLISH-placement-opening-ja");
   for (let index = 0; index < answered; index++) current = await answerEnglish(page, current);
   const before = profile(releaseStudent(name).id);
-  // Serve the accepted real API state with a signed, near-deadline test token.
-  // Every answer and finish still uses the actual application handler and server clock.
-  const staged = fixtureCommand("release-english-deadline", { learnerId: releaseStudent(name).id, attemptToken: current.attemptToken });
-  await page.route("**/api/placement?*", route => route.fulfill({ json: { ...current, ...staged } }), { times: 1 });
-  const finish = placementReply(page, "finish");
+  // Clone only this disposable fixture's accepted history at a near deadline.
+  // Reload/recovery and expiry now use real persisted state; no API response is fabricated.
+  fixtureCommand("release-english-deadline", { learnerId: releaseStudent(name).id, attemptToken: current.attemptToken });
+  const finish = page.waitForResponse(async response => {
+    if (!response.url().includes("/api/placement") || response.status() !== 200) return false;
+    const body = await response.json();
+    return Boolean(body.level || body.status === "inconclusive");
+  });
   await page.reload();
   const response = await finish; expect(response.status()).toBe(200);
   const result = await response.json();
@@ -156,6 +173,45 @@ for (const answered of [14, 15]) test(`English ${answered}-answer timeout ${answ
     const response = await retry; expect(response.status()).toBe(200);
     expect(await response.json()).toMatchObject({ question: { cefrBand: "A1" }, progress: { current: 1, total: 24 } });
   }
+});
+
+test("English answer retries, reload and stale-view recovery preserve accepted progress", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 950 });
+  let current = await openEnglish(page, "resume-english");
+  await setHeaderTheme(page, en.common, "dark");
+  const item = englishBank.find(q => q.id === current.question!.id)!;
+  let accepted: EnglishView | undefined;
+  await page.route("**/api/placement", async route => {
+    if (route.request().method() !== "POST" || route.request().postDataJSON().action !== "answer") return route.continue();
+    const response = await route.fetch();
+    expect(response.status()).toBe(200); accepted = await response.json();
+    await route.abort("failed");
+  }, { times: 1 });
+  await chooseEnglishAnswer(page, item.correctIndex, true);
+  await expect(page.getByRole("button", { name: "Retry saving this answer", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: item.optionsEn[1], exact: true })).toBeDisabled();
+  await captureRelease(page, "ENGLISH-placement-answer-recovery");
+  const retried = placementReply(page, "answer");
+  await page.getByRole("button", { name: "Retry saving this answer", exact: true }).focus();
+  await page.keyboard.press("Enter");
+  current = await (await retried).json();
+  expect(current).toMatchObject({ ...accepted!, serverNow: expect.any(Number) });
+  expect(current.progress.current).toBe(2);
+  const read = page.waitForResponse(response => response.url().includes("/api/placement?") && response.request().method() === "GET");
+  await page.reload();
+  expect(await (await read).json()).toMatchObject({ ...current, serverNow: expect.any(Number) });
+
+  // A second client advances the same attempt while this view is still showing question two.
+  const second = englishBank.find(q => q.id === current.question!.id)!;
+  const advanced = await page.request.post("/api/placement", { data: { action: "answer", attemptToken: current.attemptToken, answer: second.correctIndex } });
+  expect(advanced.status()).toBe(200);
+  const saved = await advanced.json() as EnglishView;
+  const conflicting = placementReply(page, "answer");
+  await chooseEnglishAnswer(page, second.correctIndex, false);
+  expect((await conflicting).status()).toBe(409);
+  await expect(page.getByRole("alert").filter({ hasText: en.placement.answerConflict })).toContainText(en.placement.answerConflict);
+  await expect(page.getByText(stripHtmlTags(saved.question!.questionEn), { exact: true })).toBeVisible();
+  await captureRelease(page, "ENGLISH-placement-conflict-recovery");
 });
 
 for (const answered of [11, 18]) test(`Japanese ${answered}-answer timeout ${answered === 18 ? "awards its independently penalized level" : "preserves insufficient evidence"}`, async ({ page }) => {

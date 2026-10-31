@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { evaluateBookingRescheduleTimes } from "@/lib/booking-reschedule-policy";
@@ -221,10 +222,8 @@ export async function PATCH(req: Request, { params }: Props) {
       : Promise.resolve(true),
   ]);
 
-  const notify = marketplaceBookingRescheduledNotification({
-    lessonNameJa: booking.lessonProduct.nameJa,
-    lessonNameEn: booking.lessonProduct.nameEn,
-  });
+  const names = lessonProductNames(booking.lessonProduct, booking.learningLanguage);
+  const notify = marketplaceBookingRescheduledNotification({ lessonNameJa: names.nameJa, lessonNameEn: names.nameEn });
   await createUserNotification({
     userId: booking.studentId,
     ...notify,

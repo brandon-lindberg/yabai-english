@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { calculateMonthlyPlatformFeeForTeacher } from "@/lib/platform-fees";
 import { isLocalStripeProviderAccount } from "@/lib/payment-methods";
 import { isHoldExpired, newHoldExpiry } from "@/lib/pending-booking-hold";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 import {
   createStripeCheckoutSessionDirectCharge,
   stripeConnectConfigured,
@@ -144,7 +145,7 @@ export async function POST(req: Request, { params }: Props) {
     bookingId: booking.id,
     amountYen: payment.amountYen,
     applicationFeeAmountYen: fee.applicationFeeAmountYen,
-    productName: booking.lessonProduct.nameEn,
+    productName: lessonProductNames(booking.lessonProduct, booking.learningLanguage).nameEn,
     customerEmail: booking.student.email,
     successUrl: `${baseUrl}/book/checkout/${booking.id}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${baseUrl}/book/checkout/${booking.id}?stripe=cancelled`,

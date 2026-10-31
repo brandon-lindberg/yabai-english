@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { buildGoogleConnectUrl } from "@/lib/google/oauth-service";
-import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
+import { GET as connectGoogle } from "@/app/api/integrations/google/connect/route";
 
 export async function GET(req: Request) {
   const session = await auth();
@@ -9,14 +8,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Kept as an entry point for teacher-facing "connect your calendar" prompts,
-  // but there is only one Google connection now, so it grants everything.
-  const url = buildGoogleConnectUrl(req, {
-    userId: session.user.id,
-    returnTo: DASHBOARD_GOOGLE_SETTINGS_PATH,
-  });
-  if (!url) {
-    return NextResponse.redirect(new URL("/dashboard?calendar=misconfigured", req.url));
-  }
-  return NextResponse.redirect(url);
+  // Legacy entry points share the canonical connection and its state checks.
+  return connectGoogle(req);
 }

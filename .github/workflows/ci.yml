@@ -64,6 +64,11 @@ jobs:
       - name: Mirror regressions
         run: yarn test:mirror
 
+      - name: English placement persistence
+        run: yarn test:english-placement:db
+        env:
+          MIRROR_TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
+
       - name: Study migration and persistence
         run: yarn test:study:db
         env:

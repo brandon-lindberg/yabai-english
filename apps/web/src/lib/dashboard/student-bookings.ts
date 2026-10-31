@@ -3,9 +3,10 @@ import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
 import { sortStudentCompletedBookings } from "@/lib/dashboard/sort-completed-bookings";
 import { buildScheduleItems } from "@/lib/dashboard/schedule-items";
 import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { withBookingLessonProductNames } from "@/lib/lesson-product-catalog";
 
 export async function getStudentBookingsForDashboard(prisma: PrismaClient, studentId: string) {
-  const bookings = await prisma.booking.findMany({
+  const storedBookings = await prisma.booking.findMany({
     where: { studentId },
     orderBy: { startsAt: "asc" },
     include: {
@@ -41,6 +42,7 @@ export async function getStudentBookingsForDashboard(prisma: PrismaClient, stude
     },
   });
 
+  const bookings = storedBookings.map(withBookingLessonProductNames);
   const now = new Date();
   const { upcoming, completed, refunded } = groupBookingsForDashboard(bookings, now);
   // By teacher, then newest first — the order the grouped history relies on.

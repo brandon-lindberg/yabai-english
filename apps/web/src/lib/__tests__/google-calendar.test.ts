@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { lessonSubjectCases } from "../../../test/lesson-subject-fixture";
 
 const { prismaMock } = vi.hoisted(() => ({
   prismaMock: {
@@ -28,6 +29,17 @@ vi.mock("googleapis", () => ({
 const originalKey = process.env.CALENDAR_TOKEN_ENCRYPTION_KEY;
 
 describe("createMeetLessonEvent", () => {
+  test.each(lessonSubjectCases)("the existing Google client creates the $learningLanguage lesson event", async ({ nameEn }) => {
+    const { encryptRefreshToken } = await import("@/lib/calendar-token");
+    const { google } = await import("googleapis");
+    const { createMeetLessonEvent } = await import("@/lib/google-calendar");
+    prismaMock.googleIntegrationAccount.findUnique.mockResolvedValue({ refreshToken: encryptRefreshToken("test-token"), revoked: false });
+    const insert = vi.fn().mockResolvedValue({ data: { id: "existing-google-event", hangoutLink: "https://meet.google.com/test-room" } });
+    vi.mocked(google.calendar).mockReturnValue({ events: { insert } } as never);
+    const start = new Date("2026-11-01T00:00:00Z"), end = new Date("2026-11-01T01:00:00Z");
+    expect(await createMeetLessonEvent({ organizerUserId: "same-teacher", refreshTokenEncrypted: null, summary: nameEn, start, end, attendeeEmails: ["student@example.invalid"] })).toMatchObject({ meetUrl: "https://meet.google.com/test-room", googleEventId: "existing-google-event" });
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({ calendarId: "primary", requestBody: expect.objectContaining({ summary: nameEn, start: { dateTime: start.toISOString() }, attendees: [{ email: "student@example.invalid" }] }) }));
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.AUTH_GOOGLE_ID = "google-client-id";

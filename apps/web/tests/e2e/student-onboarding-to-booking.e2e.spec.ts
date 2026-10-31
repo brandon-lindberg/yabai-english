@@ -86,6 +86,9 @@ for (const scenario of releaseCases()) test(`${scenario.language}: landing, onbo
   expect(held).toMatchObject({ learningLanguage: scenario.language, status: "PENDING_PAYMENT", quotedPriceYen: 5000 });
   expect(held.payments).toHaveLength(1);
   expect(held.payments[0]).toMatchObject({ status: "CREATED", amountYen: 5000 });
+  const calendar = await page.request.get(`/api/bookings/ics?bookingId=${payment.bookingId}`);
+  expect(calendar.status()).toBe(200);
+  expect(await calendar.text()).toContain(scenario.language === "JAPANESE" ? "Japanese conversation — 60 min (日本語会話（60分）)" : "Local QA lesson (ローカル検証レッスン)");
   expect(status.draft.publicationStatus).toBe("DRAFT");
   const wrongSubject = await page.request.get(scenario.language === "JAPANESE" ? "/api/placement" : "/api/japanese-placement/attempts");
   expect(wrongSubject.status()).toBe(403);

@@ -1,5 +1,7 @@
 # English placement deadline and completion guards
 
+**Persistence follow-up:** [Section 6d](english-placement-persistence.md) now saves and resumes English attempts and finalizes each result once. The signed-token limitations below describe the earlier guard increment; the active scoring rules remain [policy v2](english-placement-scoring.md).
+
 Delivered on `the-mirror`, 2026-10-27, as the first corrective increment from the [placement scaling audit](placement-scaling-audit.md) and mirror plan section 4g. Brandon retains staging, commits and pushes.
 
 **Superseded implementation:** [English evidence/timeout policy v2](english-placement-scoring.md) is now implemented: 15 accepted answers plus skill coverage can earn a timed-out placement, with a bounded penalty. The full-24 gate and verification details below record the earlier guard increment; they are implementation history, not the active award policy.

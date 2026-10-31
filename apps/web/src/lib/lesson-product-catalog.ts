@@ -110,6 +110,11 @@ export function lessonProductNames(product: { tier?: LessonTier; durationMin: nu
     : { nameJa: product.nameJa, nameEn: product.nameEn };
 }
 
+/** Read projection only: a shared product can name two subjects without mutating catalog/history. */
+export function withBookingLessonProductNames<T extends { learningLanguage?: LearningLanguage; lessonProduct: Parameters<typeof lessonProductNames>[0] }>(booking: T) {
+  return { ...booking, lessonProduct: { ...booking.lessonProduct, ...lessonProductNames(booking.lessonProduct, booking.learningLanguage) } };
+}
+
 export function buildCatalogProductForOffering(offering: {
   classType: { code: string } | null;
   durationMin: number;

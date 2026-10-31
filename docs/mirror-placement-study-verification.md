@@ -2,6 +2,10 @@
 
 Section **6b**, delivered locally on `the-mirror`, 2026-10-30. This extends [section 6a's onboarding, booking and teacher-note journeys](mirror-release-verification.md). It verifies the existing independent assessment policies and shared study persistence through the application; it introduces no replacement scoring engine or scheduler. Brandon retains staging, commits and pushes.
 
+**Shared-services clarification:** [Section 6c](mirror-shared-services-verification.md) verifies reuse of the configured Google/Stripe/Calendar/Meet flows and corrects booking-subject labels. It does not require new integrations or provider setup.
+
+**Persistence follow-up:** [Section 6d](english-placement-persistence.md) subsequently delivers durable English attempt recovery and once-only finalization. The English persistence limits below describe the state at section 6b, before that authorized follow-up.
+
 ## Placement journeys
 
 Seven additional browser scenarios bring `yarn test:mirror:e2e` to eleven scenarios.
@@ -67,4 +71,4 @@ Final cleanup removes recorded users/products, the fixture manifest, temporary s
 
 ## Next
 
-**6c: external-service and release preparation.** Verify environment-backed OAuth, successful Stripe checkout/webhooks and Google Calendar/Meet creation/join behavior, then prepare the release handoff. Existing English attempt persistence/finalization limitations remain documented; section 6b does not silently strengthen them. Flashcard publication remains a separate decision.
+**6c: shared-service regression verification and release handoff.** Reuse the existing configured OAuth, payment and Calendar/Meet services; check their language assumptions and correct concrete defects. See the [6c handoff](mirror-shared-services-verification.md). Existing English attempt persistence/finalization limitations remain documented; section 6b does not silently strengthen them. Flashcard publication remains a separate decision.

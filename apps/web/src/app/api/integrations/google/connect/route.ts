@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { buildGoogleConnectUrl } from "@/lib/google/oauth-service";
 import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
+import { createGoogleConnectState, googleConnectRedirect } from "@/lib/google/connect-state";
 
 /*
   Connecting Google is one action.
@@ -28,13 +29,14 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Invalid query" }, { status: 400 });
   }
 
-  const url = buildGoogleConnectUrl(req, {
+  const pending = await createGoogleConnectState({
     userId: session.user.id,
-    returnTo: parsed.data.returnTo,
+    returnTo: parsed.data.returnTo ?? DASHBOARD_GOOGLE_SETTINGS_PATH,
   });
+  const url = pending ? buildGoogleConnectUrl(req, { state: pending.state }) : null;
   if (!url) {
-    return NextResponse.redirect(new URL(`${DASHBOARD_GOOGLE_SETTINGS_PATH}?google=misconfigured`, req.url));
+    return googleConnectRedirect(req, new URL(`${DASHBOARD_GOOGLE_SETTINGS_PATH}?google=misconfigured`, req.url));
   }
 
-  return NextResponse.redirect(url);
+  return googleConnectRedirect(req, new URL(url), pending!);
 }

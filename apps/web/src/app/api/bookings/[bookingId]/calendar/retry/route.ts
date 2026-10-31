@@ -3,6 +3,7 @@ import { BookingStatus } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -63,7 +64,7 @@ export async function POST(_req: Request, { params }: Props) {
     organizerUserId: booking.teacher.userId,
     refreshTokenEncrypted: booking.teacher.googleCalendarRefreshToken,
     calendarId: booking.teacher.calendarId,
-    summary: `Lesson — ${booking.lessonProduct.nameEn}`,
+    summary: `Lesson — ${lessonProductNames(booking.lessonProduct, booking.learningLanguage).nameEn}`,
     start: booking.startsAt,
     end: booking.endsAt,
     attendeeEmails,

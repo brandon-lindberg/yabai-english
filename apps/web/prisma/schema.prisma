@@ -30,6 +30,12 @@ enum JapanesePlacementAttemptStatus {
   ABANDONED
 }
 
+enum EnglishPlacementAttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
 enum BookingStatus {
   PENDING_PAYMENT
   CONFIRMED
@@ -270,6 +276,7 @@ model User {
   studyQuickReviewDays      StudyQuickReviewDay[]
   studyReviewPrompts        StudyReviewPrompt[]
   japanesePlacementAttempts JapanesePlacementAttempt[]
+  englishPlacementAttempts  EnglishPlacementAttempt[]
   googleIntegrationAccount  GoogleIntegrationAccount?
   googleIntegrationSettings GoogleIntegrationSettings?
   organizationMemberships   OrganizationMembership[]
@@ -278,6 +285,37 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// Content-addressed English evidence, retained independently of later bank edits.
+model EnglishPlacementBankSnapshot {
+  id        String @id @default(cuid())
+  digest    String @unique
+  content   Json
+  createdAt DateTime @default(now())
+  attempts  EnglishPlacementAttempt[]
+}
+
+model EnglishPlacementAttempt {
+  id              String @id @default(uuid())
+  learnerId       String
+  learner         User @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  activeLearnerId String? @unique
+  bankSnapshotId  String
+  bankSnapshot    EnglishPlacementBankSnapshot @relation(fields: [bankSnapshotId], references: [id], onDelete: Restrict)
+  schemaVersion   Int
+  scoringVersion  Int
+  routingRevision String
+  status          EnglishPlacementAttemptStatus @default(IN_PROGRESS)
+  revision        Int @default(0)
+  /// Accepted answers are append-only; adaptive state and next question are server-owned.
+  state           Json
+  startedAt       DateTime @default(now())
+  expiresAt       DateTime
+  finishedAt      DateTime?
+  result          Json?
+
+  @@index([learnerId, startedAt])
 }
 
 /// Published Japanese content snapshots are immutable; revocation stops future delivery.

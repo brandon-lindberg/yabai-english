@@ -1,5 +1,6 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { withBookingLessonProductNames } from "@/lib/lesson-product-catalog";
 import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
 import { sortTeacherCompletedBookings } from "@/lib/dashboard/sort-completed-bookings";
 import { excludeArchivedStudents } from "@/lib/dashboard/exclude-archived-students";
@@ -56,7 +57,7 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
     return { bookings: [], upcoming: [], completed: [], refunded: [], scheduleItems: [] };
   }
 
-  const bookings = await prisma.booking.findMany({
+  const storedBookings = await prisma.booking.findMany({
     where: {
       teacherId: teacherProfileId,
       student: {
@@ -109,6 +110,7 @@ export async function getTeacherBookingsForDashboard(prisma: PrismaClient, teach
     },
   });
 
+  const bookings = storedBookings.map(withBookingLessonProductNames);
   // Archived students are filtered out of the history only. Deliberately not
   // part of the query above: that would also strip their upcoming lessons from
   // the schedule and the calendar, and a lesson you have agreed to teach must

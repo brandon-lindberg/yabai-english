@@ -42,4 +42,7 @@ for (const scenario of releaseCases()) test(`${scenario.language}: its teacher s
   } finally { await otherTeacher.close(); }
   const persisted = fixtureCommand("release-status").bookings.find((row: { id: string }) => row.id === bookingId);
   expect(persisted).toMatchObject({ learningLanguage: scenario.language, completionNotesMd: notes, externalTranscriptUrl: null });
+  await page.goto(`/en/dashboard/schedule/lessons/${bookingId}`);
+  await expect(page.getByRole("heading", { level: 1, name: scenario.language === "JAPANESE" ? "無料トライアル（30分） / Free trial (30 min)" : "ローカル検証体験レッスン / Local QA free trial", exact: true })).toBeVisible();
+  await captureRelease(page, `${scenario.language}-teacher-lesson-detail`);
 });

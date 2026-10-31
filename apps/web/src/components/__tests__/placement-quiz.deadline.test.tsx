@@ -7,8 +7,8 @@ import en from "../../../messages/en.json";
 import ja from "../../../messages/ja.json";
 import { PlacementQuiz } from "../placement-quiz";
 
-const mocks = vi.hoisted(() => ({ fetch: vi.fn(), updateSession: vi.fn() }));
-vi.mock("next-auth/react", () => ({ useSession: () => ({ update: mocks.updateSession }) }));
+const mocks = vi.hoisted(() => ({ fetch: vi.fn(), updateSession: vi.fn(), refreshedUpdate: vi.fn(), refreshed: false }));
+vi.mock("next-auth/react", () => ({ useSession: () => ({ update: mocks.refreshed ? mocks.refreshedUpdate : mocks.updateSession }) }));
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
   Link: ({ children, href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) =>
@@ -19,6 +19,9 @@ const question = {
   id: "test-question", instructionEn: "Pick one", instructionJa: "選んでください",
   questionEn: "Choose a response.", optionsEn: ["Yes", "No", "Maybe"],
 };
+const savedResult = { level: "INTERMEDIATE", subLevel: 2, earned: 30, max: 50,
+  sectionScores: Object.fromEntries(["grammar", "vocabulary", "reading", "functional"].map(s => [s, { earned: 1, max: 2, ratio: 0.5 }])),
+  strengths: [], improvements: [], needsManualReview: false, manualReviewReasons: [] };
 const response = (body: unknown, status = 200) => ({ ok: status < 400, status, json: async () => body });
 const requests = (action: string) => mocks.fetch.mock.calls.filter(([, init]) =>
   init?.body && JSON.parse(init.body).action === action,
@@ -29,6 +32,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date("2026-10-27T00:00:00Z"));
   vi.clearAllMocks();
+  mocks.refreshed = false;
   vi.stubGlobal("fetch", mocks.fetch);
   firstDeadline = Date.now() + 900;
   let starts = 0;
@@ -229,4 +233,100 @@ test("a version or bank mismatch during an answer offers restart immediately", a
   expect(screen.getByRole("button", { name: "Start again" })).toBeEnabled();
   expect(screen.queryByRole("button", { name: "Yes" })).not.toBeInTheDocument();
   expect(mocks.updateSession).not.toHaveBeenCalled();
+});
+
+test("a resumed attempt restores its progress and corrects a fast client clock", async () => {
+  mocks.fetch.mockResolvedValue(response({ question, attemptToken: "saved-token", expiresAt: Date.now() + 480_000,
+    serverNow: Date.now() - 120_000, progress: { current: 8, total: 24 } }));
+  await mount();
+  expect(screen.getByText(/10:00/)).toBeInTheDocument();
+  expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "33");
+  expect(screen.getByRole("button", { name: "Yes" })).toBeEnabled();
+});
+
+test("reload after the last accepted answer restores the finish action", async () => {
+  mocks.fetch.mockResolvedValue(response({ question: null, objectiveComplete: true, attemptToken: "saved-token", expiresAt: Date.now() + 60_000, progress: { current: 24, total: 24 } }));
+  await mount();
+  expect(screen.getByRole("button", { name: en.placement.submitPlacement })).toBeEnabled();
+  expect(screen.queryByText(en.placement.loadError)).not.toBeInTheDocument();
+});
+
+test.each(["en", "ja"] as const)("an expired read renders its saved result in %s", async locale => {
+  mocks.fetch.mockResolvedValue(response(savedResult));
+  await mount(locale);
+  expect(screen.getByText(locale === "ja" ? ja.placement.level.INTERMEDIATE : en.placement.level.INTERMEDIATE)).toBeInTheDocument();
+  expect(mocks.updateSession).toHaveBeenCalledTimes(1);
+  expect(vi.getTimerCount()).toBe(0);
+});
+
+test("an insufficient expired read offers the existing retry state", async () => {
+  mocks.fetch.mockResolvedValue(response({ status: "inconclusive", reason: "insufficient_evidence", answered: 14, required: 15 }));
+  await mount();
+  expect(screen.getByText(en.placement.inconclusiveTitle)).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: en.placement.startAgain })).toBeEnabled();
+});
+
+test.each(["en", "ja"] as const)("an uncertain answer freezes other choices and retries the exact submission in %s", async locale => {
+  firstDeadline = Date.now() + 60_000;
+  const original = mocks.fetch.getMockImplementation()!;
+  let answers = 0;
+  mocks.fetch.mockImplementation(async (url, init) => {
+    if (init?.body && JSON.parse(init.body).action === "answer") {
+      if (++answers === 1) throw new Error("response lost");
+      return response({ question: { ...question, id: "next-question", questionEn: "Next question." }, attemptToken: "saved-token", progress: { current: 2, total: 24 } });
+    }
+    return original(url, init);
+  });
+  await mount(locale);
+  await act(async () => fireEvent.click(screen.getByRole("button", { name: "Yes" })));
+  expect(screen.getByRole("button", { name: "No" })).toBeDisabled();
+  await act(async () => fireEvent.click(screen.getByRole("button", { name: locale === "ja" ? "同じ回答の保存を再試行" : "Retry saving this answer" })));
+  expect(requests("answer")).toHaveLength(2);
+  expect(requests("answer")[0][1].body).toBe(requests("answer")[1][1].body);
+  expect(screen.getByText("Next question.")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "No" })).toBeEnabled();
+});
+
+test("a conflicting answer reloads authoritative progress and does not submit it to the next question", async () => {
+  firstDeadline = Date.now() + 60_000;
+  const original = mocks.fetch.getMockImplementation()!;
+  let reads = 0;
+  mocks.fetch.mockImplementation(async (url, init) => {
+    if (init?.body) return response({ error: "attempt_conflict" }, 409);
+    if (++reads > 1) return response({ question: { ...question, id: "other-tab-question", questionEn: "Saved in another tab." }, attemptToken: "other-tab-token", expiresAt: firstDeadline, progress: { current: 5, total: 24 } });
+    return original(url, init);
+  });
+  await mount();
+  await act(async () => fireEvent.click(screen.getByRole("button", { name: "Yes" })));
+  expect(screen.getByText("Saved in another tab.")).toBeInTheDocument();
+  expect(screen.getByRole("alert")).toHaveTextContent("Your saved progress changed in another tab. Continue from this question.");
+  expect(requests("answer")).toHaveLength(1);
+});
+
+test("returning to the tab refreshes the saved attempt without polling", async () => {
+  firstDeadline = Date.now() + 60_000;
+  await mount();
+  await act(async () => window.dispatchEvent(new Event("focus")));
+  expect(mocks.fetch.mock.calls.filter(([, init]) => !init?.body)).toHaveLength(2);
+  await act(() => vi.advanceTimersByTimeAsync(5000));
+  expect(mocks.fetch.mock.calls.filter(([, init]) => !init?.body)).toHaveLength(2);
+});
+
+test.each(["finish", "expired read"])("a session refresh cannot replace the %s result with the cooldown screen", async source => {
+  firstDeadline = Date.now() + 60_000;
+  let reads = 0;
+  mocks.updateSession.mockImplementationOnce(async () => { mocks.refreshed = true; });
+  mocks.fetch.mockImplementation(async (_url, init) => {
+    if (!init?.body) {
+      if (++reads > 1) return response({ error: "cooldown", eligibleAt: "2026-11-30T00:00:00Z" }, 403);
+      return response(source === "expired read" ? savedResult : { question: null, objectiveComplete: true, attemptToken: "saved-token", expiresAt: firstDeadline });
+    }
+    return response(savedResult);
+  });
+  await mount();
+  if (source === "finish") await act(async () => fireEvent.click(screen.getByRole("button", { name: en.placement.submitPlacement })));
+  expect(screen.getByText(en.placement.level.INTERMEDIATE)).toBeInTheDocument();
+  expect(reads).toBe(1);
+  expect(mocks.updateSession).toHaveBeenCalledTimes(1);
+  expect(mocks.refreshedUpdate).not.toHaveBeenCalled();
 });
