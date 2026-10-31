@@ -1,17 +1,12 @@
-const STEP_ORDER = [
-  "profile",
-  "payments",
-  "integrations",
-  "availability",
-  "students",
-  "chat",
-  "notes",
-  "materials",
-] as const;
+import { TEACHER_ONBOARDING_STEPS, type TeacherOnboardingStep } from "./teacher-onboarding-steps";
+export type { TeacherOnboardingStep } from "./teacher-onboarding-steps";
 
-export type TeacherOnboardingStep = (typeof STEP_ORDER)[number];
+const STEP_SET = new Set<string>(TEACHER_ONBOARDING_STEPS);
 
-const STEP_SET = new Set<string>(STEP_ORDER);
+/** A dashboard checklist step is a visit, never a claim that onboarding is finished. */
+export function isTeacherOnboardingVisit(href: string | null, step: string | null | undefined): boolean {
+  return Boolean(step && STEP_SET.has(step) && href && /^\/onboarding\/teacher(?:\?|$)/.test(href));
+}
 
 export function parseCompletedTeacherOnboardingSteps(
   raw: string | null | undefined,

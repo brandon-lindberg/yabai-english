@@ -6,6 +6,19 @@ import {
 } from "@/lib/student-onboarding-next-links";
 
 describe("buildStudentOnboardingChecklist", () => {
+  test.each(["en", "ja"])("Japanese checklist keeps all shared steps and opens Japanese placement in %s", (locale) => {
+    const items = buildStudentOnboardingChecklist({ locale, learningLanguage: "JAPANESE", canStartPlacement: true });
+    expect(items.map(item => item.key)).toEqual(["profile", "integrations", "bookLesson", "chat", "placement", "materials"]);
+    expect(items.find(item => item.key === "placement")?.href).toBe(`/${locale}/japanese-placement?onboardingNext=%2Fonboarding%2Fnext&onboardingStep=placement`);
+    expect(items.find(item => item.key === "materials")?.href).toContain(`/${locale}/learn/study?`);
+  });
+
+  test("unpublished materials stay visible without an actionable study link", () => {
+    const items = buildStudentOnboardingChecklist({ locale: "en", learningLanguage: "JAPANESE", canStartPlacement: true, materialsAvailable: false });
+    expect(items.find(item => item.key === "materials")).toMatchObject({ disabled: true, completed: false });
+    expect(items.find(item => item.key === "placement")?.disabled).toBe(false);
+  });
+
   test("profile href is locale-prefixed and includes onboardingNext", () => {
     const items = buildStudentOnboardingChecklist({
       locale: "en",

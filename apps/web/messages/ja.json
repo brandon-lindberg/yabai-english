@@ -1391,6 +1391,8 @@
     "wizardNext": "次へ",
     "saveError": "オンボーディングの保存に失敗しました。もう一度お試しください。",
     "nextTitle": "次のステップを選択してください",
+    "materialsUnavailable": "日本語のフラッシュカードはまだ利用できません。他のステップを進めて、後からここに戻れます。",
+    "teacherMaterialsUnavailable": "この講師アカウントでは、受講生用のフラッシュカード教材はまだ利用できません。このステップはスキップできます。",
     "nextSubtitle": "今すぐレベル診断を受けるか、先に講師を選ぶことができます。",
     "completedLabel": "完了済み",
     "skipForNow": "後で設定する",

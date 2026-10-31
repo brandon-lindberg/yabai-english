@@ -48,8 +48,8 @@ export function useJapaneseAssessment() {
     } else { clock.current = null; setRemaining(null); }
   }, []);
 
-  const read = useCallback(async (signal: AbortSignal) => {
-    const url = current.current ? `${root}/${encodeURIComponent(current.current.attemptId)}` : root;
+  const read = useCallback(async (signal: AbortSignal, latest = false) => {
+    const url = current.current && !latest ? `${root}/${encodeURIComponent(current.current.attemptId)}` : root;
     const value = await request(url, signal);
     return url === root ? value.attempt : value;
   }, []);
@@ -64,8 +64,8 @@ export function useJapaneseAssessment() {
     } catch (failure) {
       if (owned.signal.aborted) return;
       const code = failure instanceof ApiFailure ? failure.code : "NETWORK";
-      if (failure instanceof ApiFailure && failure.status === 409 && ["ACTIVE_ATTEMPT_EXISTS", "RESPONSE_CONFLICT", "ATTEMPT_COMPLETED"].includes(code)) {
-        try { const value = await read(owned.signal); if (!owned.signal.aborted) { apply(value); setNotice(true); } }
+      if (failure instanceof ApiFailure && ((failure.status === 409 && ["ACTIVE_ATTEMPT_EXISTS", "RESPONSE_CONFLICT", "ATTEMPT_COMPLETED"].includes(code)) || code === "PLACEMENT_COOLDOWN")) {
+        try { const value = await read(owned.signal, code === "PLACEMENT_COOLDOWN"); if (!owned.signal.aborted) { apply(value); setNotice(code !== "PLACEMENT_COOLDOWN"); } }
         catch { if (!owned.signal.aborted) { setError("NETWORK"); setLoaded(true); } }
       } else { setError(code); setLoaded(true); }
     } finally {

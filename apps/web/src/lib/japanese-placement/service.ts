@@ -14,6 +14,7 @@ import {
   japaneseAttemptPolicyMatchesBank,
 } from "./attempt";
 import { JAPANESE_STAIRCASE_POLICY_REVISION } from "./staircase-policy";
+import { readJapanesePlacementRetake } from "./retake";
 
 export class JapanesePlacementFailure extends PrivateApiFailure {}
 const startInput = z.object({ requestId: z.string().uuid() }).strict();
@@ -74,8 +75,11 @@ function runnableBank(row: StoredAttempt, forCompletion = false) {
   return ready;
 }
 
-function view(row: StoredAttempt, now: number) {
+async function view(tx: Tx, row: StoredAttempt, now: number) {
+  const eligibility = await readJapanesePlacementRetake(tx, row.learnerId, now);
   return {
+    canStartNewAttempt: row.status !== "IN_PROGRESS" && eligibility.canStartNewAttempt,
+    retakeEligibleAt: eligibility.retakeEligibleAt,
     attemptId: row.id, status: row.status, answered: row.responses.length, total: row.questionLimit ?? row.bankSnapshot.itemCount,
     expiresAt: row.expiresAt?.toISOString() ?? null,
     timeLimitSec: row.expiresAt ? (row.expiresAt.getTime() - row.startedAt.getTime()) / 1000 : null,
@@ -112,11 +116,14 @@ export async function publishJapaneseBank(db: PrismaClient, value: unknown) {
 
 export async function startStoredJapaneseAttempt(db: PrismaClient, learnerId: string, value: unknown) {
   const { requestId } = input(startInput, value);
-  return studentTransaction(db, learnerId, async (tx, now) => {
+  const outcome = await studentTransaction(db, learnerId, async (tx, now) => {
     const retry = await tx.japanesePlacementAttempt.findUnique({ where: { learnerId_requestId: { learnerId, requestId } }, include: relations });
-    if (retry) return view(await settleExpired(tx, retry, now), now);
+    if (retry) return view(tx, await settleExpired(tx, retry, now), now);
     let active = await tx.japanesePlacementAttempt.findUnique({ where: { activeLearnerId: learnerId }, include: relations });
     if (active) active = await settleExpired(tx, active, now);
+    const eligibility = await readJapanesePlacementRetake(tx, learnerId, now);
+    // Commit any expired result before reporting refusal outside the transaction.
+    if (!eligibility.canStartNewAttempt) return { cooldown: true } as const;
     if (active?.status !== "IN_PROGRESS") active = null;
     if (active && !active.bankSnapshot.revokedAt && supportsJapaneseRuntime(active.schemaVersion, active.scoringRevision, active.policyRevision)) throw new JapanesePlacementFailure(409, "ACTIVE_ATTEMPT_EXISTS");
     const snapshot = await tx.japanesePlacementBankSnapshot.findFirst({
@@ -135,14 +142,16 @@ export async function startStoredJapaneseAttempt(db: PrismaClient, learnerId: st
         schemaVersion: started.schemaVersion, scoringRevision: japaneseScoringRevision(started.schemaVersion, started.policyRevision) },
       include: relations,
     });
-    return view(row, now);
+    return view(tx, row, now);
   });
+  if ("cooldown" in outcome) throw new JapanesePlacementFailure(403, "PLACEMENT_COOLDOWN");
+  return outcome;
 }
 
 export async function getCurrentJapaneseAttempt(db: PrismaClient, learnerId: string) {
   return studentTransaction(db, learnerId, async (tx, now) => {
     const row = await tx.japanesePlacementAttempt.findFirst({ where: { learnerId }, orderBy: [{ startedAt: "desc" }, { id: "desc" }], include: relations });
-    return row ? view(await settleExpired(tx, row, now), now) : null;
+    return row ? view(tx, await settleExpired(tx, row, now), now) : null;
   });
 }
 
@@ -150,7 +159,7 @@ export async function getStoredJapaneseAttempt(db: PrismaClient, learnerId: stri
   return studentTransaction(db, learnerId, async (tx, now) => {
     const row = await tx.japanesePlacementAttempt.findFirst({ where: { id: attemptId, learnerId }, include: relations });
     if (!row) throw new JapanesePlacementFailure(404, "ATTEMPT_NOT_FOUND");
-    return view(await settleExpired(tx, row, now), now);
+    return view(tx, await settleExpired(tx, row, now), now);
   });
 }
 
@@ -162,10 +171,10 @@ export async function submitStoredJapaneseResponse(db: PrismaClient, learnerId: 
     const settled = await settleExpired(tx, row, now);
     if (settled.status === "COMPLETED") {
       // An expired result is the outcome of any late submission, with no answer appended.
-      if (settled.result && typeof settled.result === "object" && !Array.isArray(settled.result) && settled.result.completionReason === "time_limit") return view(settled, now);
+      if (settled.result && typeof settled.result === "object" && !Array.isArray(settled.result) && settled.result.completionReason === "time_limit") return view(tx, settled, now);
       const priorRow = settled.responses.find((entry) => entry.itemId === response.itemId);
       const prior = priorRow ? parseStoredJapaneseResponse(priorRow.payload) : null;
-      if (prior && sameJapaneseResponse(prior, response)) return view(settled, now);
+      if (prior && sameJapaneseResponse(prior, response)) return view(tx, settled, now);
       throw new JapanesePlacementFailure(409, "ATTEMPT_COMPLETED");
     }
     if (row.status !== "IN_PROGRESS") throw new JapanesePlacementFailure(409, "ATTEMPT_CLOSED");
@@ -179,12 +188,12 @@ export async function submitStoredJapaneseResponse(db: PrismaClient, learnerId: 
       const conflict = error instanceof Error && /already recorded|Expected the current/.test(error.message);
       throw new JapanesePlacementFailure(conflict ? 409 : 400, conflict ? "RESPONSE_CONFLICT" : "INVALID_RESPONSE");
     }
-    if (next.responses.length === attempt.responses.length) return view(row, now);
+    if (next.responses.length === attempt.responses.length) return view(tx, row, now);
     await tx.japanesePlacementResponse.create({ data: {
       attemptId, itemId: response.itemId, position: attempt.responses.length, payload: json(next.responses.at(-1)),
     } });
     if (next.responses.length === japaneseQuestionLimit(bank)) await completeAttempt(tx, row, summarizeJapaneseAttempt(bank, next));
-    return view(await tx.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: attemptId }, include: relations }), now);
+    return view(tx, await tx.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: attemptId }, include: relations }), now);
   });
 }
 

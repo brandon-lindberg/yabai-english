@@ -27,7 +27,7 @@ export type OnboardingChecklistItem = {
   key: string;
   title: string;
   body: string;
-  /** `null` when the step cannot be opened yet — the placement retake cooldown. */
+  /** `null` while a step is unavailable; its explanation stays readable. */
   href: string | null;
   completed: boolean;
   /** Sits below the body. The teacher's payments step carries the policy notice. */
@@ -207,7 +207,7 @@ export function OnboardingChecklist({
                 aria-label={
                   item.completed ? `${item.title} (${completedLabel})` : item.title
                 }
-                className="border-b border-border py-5 opacity-60"
+                className="border-b border-border py-5"
               >
                 {content}
               </li>

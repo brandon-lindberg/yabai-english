@@ -5,6 +5,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // An isolated browser run must not take the active developer server's lock.
+  distDir: process.env.MIRROR_QA_DIST_DIR ?? ".next",
+  typescript: { tsconfigPath: process.env.MIRROR_QA_DIST_DIR ? "tsconfig.mirror.json" : "tsconfig.json" },
   /**
    * Without this, Turbopack can treat `apps/` (parent of this package) as the workspace
    * root. PostCSS then resolves `@import "tailwindcss"` from `apps/node_modules`, which

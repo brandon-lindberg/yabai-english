@@ -5,6 +5,7 @@ vi.mock("@/lib/prisma", () => ({ prisma: {
   googleIntegrationSettings: { findUnique: async () => null },
   booking: { count: async () => 0 }, chatThread: { count: async () => 0 },
   userStudyLevelProgress: { findFirst: mocks.studied },
+  studyTrack: { findUnique: async () => null }, japanesePlacementAttempt: { findFirst: async () => null },
 } }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key }));
 vi.mock("@/lib/dashboard/student-bookings", () => ({ getStudentBookingsForDashboard: async () => ({ upcoming: [], completed: [] }) }));
@@ -25,7 +26,8 @@ beforeEach(() => {
 
 test("Japanese draft dashboard uses current persisted intent and shows no English proficiency or invented study progress", async () => {
   const page = await StudentDashboard({ ...props, learningLanguage: "ENGLISH" });
-  expect(mocks.quick).not.toHaveBeenCalled(); expect(mocks.overview).not.toHaveBeenCalled(); expect(mocks.resume).not.toHaveBeenCalled(); expect(mocks.studied).not.toHaveBeenCalled();
+  expect(mocks.quick).not.toHaveBeenCalled(); expect(mocks.overview).not.toHaveBeenCalled(); expect(mocks.resume).not.toHaveBeenCalled();
+  expect(mocks.studied.mock.calls[0][0].where.level.track).toEqual({ learningLanguage: "JAPANESE", publicationStatus: "PUBLISHED" });
   expect(mocks.japanese).toHaveBeenCalledWith(expect.anything(), "student");
   expect(page?.props.title).toBe("japanese.dashboard");
   expect(JSON.stringify(page?.props)).not.toContain("ADVANCED");

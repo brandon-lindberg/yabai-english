@@ -8,9 +8,8 @@ import { DashboardJapaneseQuickReview } from "./dashboard-japanese-quick-review"
 import { getJapaneseDashboardStudy } from "@/lib/dashboard/japanese-study";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 import { getStudyResumeInfo } from "@/lib/dashboard/study-resume";
-import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
+import { readStudentOnboardingState } from "@/lib/student-onboarding-state";
 import {
-  computeStudentOnboardingCompletion,
   buildStudentOnboardingChecklist,
   summarizeStudentOnboardingProgress,
 } from "@/lib/student-onboarding-next-links";
@@ -43,8 +42,7 @@ export async function StudentDashboard({
 }) {
   // Current persisted intent is authoritative even if a session refresh lags.
   const user = await prisma.user.findUnique({ where: { id: userId }, select: {
-    name: true, email: true, image: true, learningLanguage: true, role: true, accountStatus: true,
-    studentProfile: { select: { shortBio: true } },
+    learningLanguage: true, role: true, accountStatus: true,
   } });
   if (!user || user.role !== "STUDENT" || !isLoginAllowedForAccountStatus(user.accountStatus)) return null;
   const learningLanguage = user.learningLanguage;
@@ -58,43 +56,18 @@ export async function StudentDashboard({
   const tOnboarding = await getTranslations("onboarding");
 
   const [
-    profile,
+    onboarding,
     bookings,
     quick,
     overview,
     resume,
-    googleSettings,
-    bookingCount,
-    threadCount,
-    studiedLevel,
     japanese,
   ] = await Promise.all([
-    // `select`, not a bare `findUnique`: this returned every column of the
-    // student profile to render four of them.
-    prisma.studentProfile.findUnique({
-      where: { userId },
-      select: {
-        placedLevel: true,
-        placedSubLevel: true,
-        placementCompletedAt: true,
-        shortBio: true,
-        skippedOnboardingSteps: true,
-      },
-    }),
+    readStudentOnboardingState(prisma, userId, learningLanguage),
     getStudentBookingsForDashboard(prisma, userId),
     isEnglish ? getOrCreateQuickReviewCards(prisma, userId) : null,
     isEnglish ? getStudyTrackOverview(prisma, userId, "english-flashcards") : null,
     isEnglish ? getStudyResumeInfo(prisma, userId) : null,
-    prisma.googleIntegrationSettings.findUnique({
-      where: { userId },
-      select: { calendarConnected: true, driveConnected: true },
-    }),
-    prisma.booking.count({ where: { studentId: userId } }),
-    prisma.chatThread.count({ where: { studentId: userId } }),
-    isEnglish ? prisma.userStudyLevelProgress.findFirst({
-      where: { userId, lastStudiedAt: { not: null }, level: { track: { learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" } } },
-      select: { id: true },
-    }) : null,
     !isEnglish ? getJapaneseDashboardStudy(prisma, userId) : null,
   ]);
 
@@ -103,24 +76,9 @@ export async function StudentDashboard({
   const studyResume = isEnglish ? resume : japaneseStudy?.resume;
   const trackPractice = isEnglish ? overview?.trackPractice : japaneseStudy?.trackPractice;
 
-  const canStartPlacement = isEnglish && isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null);
-
-  const completion = computeStudentOnboardingCompletion(
-    {
-      profileShortBio: profile?.shortBio ?? null,
-      userName: user?.name ?? null,
-      userImage: user?.image ?? null,
-      googleCalendarConnected: googleSettings?.calendarConnected ?? false,
-      googleDriveConnected: googleSettings?.driveConnected ?? false,
-      hasAnyBooking: bookingCount > 0,
-      hasAnyChatThread: threadCount > 0,
-      placementCompletedAt: profile?.placementCompletedAt ?? null,
-      hasStudiedAny: isEnglish ? Boolean(studiedLevel) : (japaneseStudy?.trackPractice.totalAttempts ?? 0) > 0,
-    },
-    { skippedSteps: profile?.skippedOnboardingSteps ?? [] },
-  );
+  const { profile, canStartPlacement, completion, materialsAvailable } = onboarding;
   const progress = summarizeStudentOnboardingProgress(
-    buildStudentOnboardingChecklist({ locale: "en", canStartPlacement, completion, learningLanguage }),
+    buildStudentOnboardingChecklist({ locale: "en", canStartPlacement, completion, learningLanguage, materialsAvailable }),
   );
   const showResumeOnboarding =
     !onboardingHref && (!isEnglish || profile?.placedLevel === "UNSET") && progress.percent < 100;

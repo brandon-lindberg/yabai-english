@@ -38,22 +38,25 @@ try {
     if (release && !/^mirror_test_[a-f0-9]{32}$/.test(schema)) throw new Error("Release journeys require an isolated test schema");
     const placement = release || process.argv.includes("--japanese-placement");
     const runId = `mirror-qa-${randomUUID()}`;
-    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student", "resume-english"] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
+    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student", "resume-english", "new-english-teacher", "new-japanese-teacher"] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
     const fixtures: Fixtures = { runId, schema, users, englishTeacherId: `${runId}-english-profile`, japaneseTeacherId: `${runId}-japanese-profile`, ...(placement ? { placementProductId: `${runId}-placement-product` } : {}), ...(release ? { trialProductId: `${runId}-trial-product`, pastBookings: { ENGLISH: `${runId}-past-en`, JAPANESE: `${runId}-past-ja` } } : {}) };
     mkdirSync("../../.impeccable", { recursive: true });
     // Record ownership before the transaction; cleanup is safe after failures.
     writeFileSync(file, JSON.stringify(fixtures, null, 2));
     await prisma.$transaction(async (tx) => {
       for (const [index, user] of users.entries()) {
-        const teacher = index === 2 || index === 3;
-        await tx.user.create({ data: { ...user, name: teacher ? index === 2 ? "Mirror QA English Teacher" : "Mirror QA Japanese Teacher" : `Mirror QA Student ${index}`, role: teacher ? "TEACHER" : "STUDENT", locale: "en", learningLanguage: placement && ([0, 4, 5].includes(index) || user.id.endsWith("-japanese")) ? "JAPANESE" : "ENGLISH" } });
-        if (release && index >= 6) await tx.studentProfile.create({ data: { userId: user.id, onboardingCompletedAt: new Date() } });
+        const teacher = user.id.endsWith("-teacher");
+        await tx.user.create({ data: { ...user, name: teacher ? user.id.includes("japanese-teacher") ? "Mirror QA Japanese Teacher" : "Mirror QA English Teacher" : `Mirror QA Student ${index}`, role: teacher ? "TEACHER" : "STUDENT", locale: "en", learningLanguage: placement && ([0, 4, 5].includes(index) || user.id.endsWith("-japanese")) ? "JAPANESE" : "ENGLISH" } });
+        if (release && index >= 6 && !teacher) await tx.studentProfile.create({ data: { userId: user.id, onboardingCompletedAt: new Date() } });
       }
       await tx.studentProfile.create({ data: { userId: users[0].id, onboardingCompletedAt: new Date(), placedLevel: "ADVANCED", placedSubLevel: 3 } });
       if (placement) await tx.studentProfile.create({ data: { userId: users[4].id, onboardingCompletedAt: new Date() } });
-      for (const [id, userId, learningLanguage] of [[fixtures.englishTeacherId, users[2].id, "ENGLISH"], [fixtures.japaneseTeacherId, users[3].id, "JAPANESE"]] as const) {
+      const teachers = [[fixtures.englishTeacherId, users[2].id, "ENGLISH"], [fixtures.japaneseTeacherId, users[3].id, "JAPANESE"],
+        ...(release ? [[`${runId}-new-english-profile`, users[13].id, "ENGLISH"], [`${runId}-new-japanese-profile`, users[14].id, "JAPANESE"]] as const : [])] as const;
+      for (const [id, userId, learningLanguage] of teachers) {
         const offerId = `${id}-offer`;
-        await tx.teacherProfile.create({ data: { id, userId, offersFreeTrial: release, ...(release ? { paymentPolicyAcceptedAt: new Date() } : {}), onboardingCompletedAt: new Date(), displayName: learningLanguage === "JAPANESE" ? "Mirror QA Japanese Teacher" : "Mirror QA English Teacher", instructionLanguages: ["EN", "JA"], countryOfOrigin: "JP", bio: "Synthetic local verification account." } });
+        const fresh = userId.includes("-new-");
+        await tx.teacherProfile.create({ data: { id, userId, marketplaceHidden: fresh, offersFreeTrial: release, ...(release ? { paymentPolicyAcceptedAt: new Date() } : {}), onboardingCompletedAt: fresh ? null : new Date(), displayName: learningLanguage === "JAPANESE" ? "Mirror QA Japanese Teacher" : "Mirror QA English Teacher", instructionLanguages: ["EN", "JA"], countryOfOrigin: "JP", bio: "Synthetic local verification account." } });
         const level = await tx.teacherClassLevel.create({ data: { teacherId: id, code: "beginner", labelEn: "Beginner", labelJa: "初級" } });
         const type = await tx.teacherClassType.create({ data: { teacherId: id, code: "conversation", labelEn: "Conversation", labelJa: "会話" } });
         await tx.teacherLessonOffering.create({ data: { id: offerId, teacherId: id, learningLanguage, durationMin: 60, rateYen: 5000, classLevelId: level.id, classTypeId: type.id } });
@@ -152,9 +155,8 @@ try {
     const fixtures = readOwnedFixtures();
     if (process.argv[2].startsWith("release-")) {
       if (!fixtures.trialProductId || !/^mirror_test_[a-f0-9]{32}$/.test(schema)) throw new Error("Release operations require isolated fixtures");
-      const students = [fixtures.users[1].id, fixtures.users[5].id];
       console.log(JSON.stringify({
-        users: await prisma.user.findMany({ where: { id: { in: students } }, select: { id: true, learningLanguage: true, studentProfile: true } }),
+        users: await prisma.user.findMany({ where: { id: { in: fixtures.users.map(user => user.id) } }, select: { id: true, learningLanguage: true, studentProfile: true, teacherProfile: { select: { onboardingCompletedAt: true, skippedOnboardingSteps: true } } } }),
         bookings: await prisma.booking.findMany({ where: { studentId: { in: fixtures.users.map(user => user.id) } }, include: { payments: true, invoice: true } }),
         draft: await prisma.studyTrack.findUnique({ where: { slug: "japanese-flashcards" }, select: { publicationStatus: true, catalogSnapshotId: true } }),
       }));

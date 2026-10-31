@@ -1,10 +1,12 @@
-import { expect, test, vi } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { withIsolatedPostgres } from "../../test/isolated-postgres";
 import { adaptiveBank, approveBank, approvedBank, groupedAdaptiveBank } from "../../src/lib/japanese-placement/__tests__/fixtures";
 import { loadContentCatalog } from "../../src/lib/japanese-placement/content-files";
 import { buildContentBank } from "../../src/lib/japanese-placement/content-pack";
 import { loadReleasedJapaneseBank } from "../../src/lib/japanese-placement/release";
 import { startJapaneseAttempt, japaneseScoringRevision } from "../../src/lib/japanese-placement/attempt";
+
+afterEach(() => vi.restoreAllMocks());
 
 test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("adds the staircase runtime over the unchanged approved bank and preserves rubric history", async () => {
   await withIsolatedPostgres("20261027000000_japanese_placement_staircase", async ({ client, db, applyMigration, verifyDatamodel }) => {
@@ -56,11 +58,33 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("adds the staircase runtime ove
     view = retries[0];
     while (view.question) view = await service.submitStoredJapaneseResponse(db, "new-student", view.attemptId, answer(view.question.id));
     expect(view.result).toMatchObject({ policyRevision: "japanese-jlpt-staircase-v2", levelEstimate: { band: "N1" } });
+    expect(view).toMatchObject({ canStartNewAttempt: false, retakeEligibleAt: expect.any(String) });
+    const newRequest = "00000000-0000-4000-8000-000000000095";
+    const refused = await Promise.allSettled([
+      service.startStoredJapaneseAttempt(db, "new-student", { requestId: newRequest }),
+      service.startStoredJapaneseAttempt(db, "new-student", { requestId: "00000000-0000-4000-8000-000000000096" }),
+    ]);
+    for (const outcome of refused) expect(outcome).toMatchObject({ status: "rejected", reason: { status: 403, code: "PLACEMENT_COOLDOWN" } });
+    expect(await db.japanesePlacementAttempt.count({ where: { learnerId: "new-student" } })).toBe(1);
+    expect(await service.startStoredJapaneseAttempt(db, "new-student", { requestId })).toEqual(view);
+    expect(await service.getCurrentJapaneseAttempt(db, "new-student")).toEqual(view);
+    const boundary = Date.parse(view.retakeEligibleAt!);
+    const monthClock = vi.spyOn(Date, "now").mockReturnValue(boundary - 1);
+    try {
+      await expect(service.startStoredJapaneseAttempt(db, "new-student", { requestId: newRequest })).rejects.toMatchObject({ code: "PLACEMENT_COOLDOWN" });
+      monthClock.mockReturnValue(boundary);
+      const next = await service.startStoredJapaneseAttempt(db, "new-student", { requestId: newRequest });
+      expect(next).toMatchObject({ status: "IN_PROGRESS", answered: 0 });
+      expect(next.attemptId).not.toBe(view.attemptId);
+    } finally { vi.restoreAllMocks(); }
 
     let timed = await service.startStoredJapaneseAttempt(db, "timeout-student", { requestId: "00000000-0000-4000-8000-000000000093" });
     for (let i = 0; i < 20; i++) timed = await service.submitStoredJapaneseResponse(db, "timeout-student", timed.attemptId, answer(timed.question!.id));
     vi.spyOn(Date, "now").mockReturnValue(Date.parse(timed.expiresAt!) + 1);
     try {
+      await expect(service.startStoredJapaneseAttempt(db, "timeout-student", { requestId: "00000000-0000-4000-8000-000000000097" })).rejects.toMatchObject({ code: "PLACEMENT_COOLDOWN" });
+      // Refusing the start must not roll back the expired attempt's final result.
+      expect(await db.japanesePlacementAttempt.findUnique({ where: { id: timed.attemptId } })).toMatchObject({ status: "COMPLETED", activeLearnerId: null });
       const completed = await service.getStoredJapaneseAttempt(db, "timeout-student", timed.attemptId);
       expect(completed.result).toMatchObject({ completionReason: "time_limit", levelEstimate: { band: "N2" }, timeoutAdjustment: { unadjustedBand: "N1", unanswered: 4, bandReduction: 1 } });
       expect((await service.getStoredJapaneseAttempt(db, "timeout-student", timed.attemptId)).result).toEqual(completed.result);
@@ -163,6 +187,8 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("preserves English history and 
     await expect(db.japanesePlacementResponse.update({ where: { id: response.id }, data: { payload: {} } })).rejects.toThrow();
     await db.japanesePlacementBankSnapshot.update({ where: { id: snapshot.id }, data: { revokedAt: new Date() } });
     expect(await service.getStoredJapaneseAttempt(db, "learner", attemptId)).toEqual(finals[0]);
+    await expect(service.startStoredJapaneseAttempt(db, "learner", { requestId: "00000000-0000-4000-8000-000000000003" })).rejects.toMatchObject({ code: "PLACEMENT_COOLDOWN" });
+    vi.spyOn(Date, "now").mockReturnValue(Date.parse(finals[0].retakeEligibleAt!));
     const fresh = await service.startStoredJapaneseAttempt(db, "learner", { requestId: "00000000-0000-4000-8000-000000000003" });
     const saved = await db.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: fresh.attemptId }, include: { bankSnapshot: true } });
     expect(saved.bankSnapshot.version).toBe(2);
@@ -273,10 +299,12 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("rolls back failed completion, 
     await client.query('DROP TRIGGER "test_completion_failure" ON "JapanesePlacementAttempt"; DROP FUNCTION "rejectTestCompletion"();');
     const done = await service.submitStoredJapaneseResponse(db, "learner", attempt.attemptId, last);
     expect(done.status).toBe("COMPLETED");
+    await expect(service.startStoredJapaneseAttempt(db, "learner", { requestId: "00000000-0000-4000-8000-000000000012" })).rejects.toMatchObject({ code: "PLACEMENT_COOLDOWN" });
+    vi.spyOn(Date, "now").mockReturnValue(Date.parse(done.retakeEligibleAt!));
     const active = await service.startStoredJapaneseAttempt(db, "learner", { requestId: "00000000-0000-4000-8000-000000000012" });
     await db.japanesePlacementBankSnapshot.update({ where: { id: published.id }, data: { revokedAt: new Date() } });
     // Cached completion retries stay safe after content withdrawal.
-    expect(await service.submitStoredJapaneseResponse(db, "learner", attempt.attemptId, last)).toEqual(done);
+    expect(await service.submitStoredJapaneseResponse(db, "learner", attempt.attemptId, last)).toEqual({ ...done, canStartNewAttempt: true });
     await expect(service.submitStoredJapaneseResponse(db, "learner", active.attemptId, { kind: "skip", itemId: "kana-one", reason: "not_sure" })).rejects.toMatchObject({ status: 503 });
     const replacementBank = approvedBank();
     replacementBank.version = 2;

@@ -22,12 +22,13 @@ test("a locale prefix and arbitrary lookalike paths never select a subject", () 
   }
 });
 
-test("Japanese navigation and onboarding cannot reuse English placement or study", () => {
+test("Japanese navigation and onboarding keep their own placement and shared subject-aware study route", () => {
   const links = getHeaderPrimaryNavLinks({ signedIn: true, role: "STUDENT", canStartPlacement: true, learningLanguage: "JAPANESE" });
   expect(links.map((link) => link.href)).not.toContain("/placement");
   expect(links.map((link) => link.href)).not.toContain("/learn/study");
   expect(links.map((link) => link.href)).toContain("/book");
-  expect(buildStudentOnboardingChecklist({ locale: "en", canStartPlacement: true, learningLanguage: "JAPANESE" }).map((item) => item.key))
-    .toEqual(["profile", "integrations", "bookLesson", "chat"]);
+  const checklist = buildStudentOnboardingChecklist({ locale: "en", canStartPlacement: true, learningLanguage: "JAPANESE" });
+  expect(checklist.find(item => item.key === "placement")?.href).toContain("/japanese-placement?");
+  expect(checklist.find(item => item.key === "materials")?.href).toContain("/learn/study?");
   expect(getStudentPostOnboardingRoute("ADVANCED", "JAPANESE")).toBe("/onboarding/next");
 });

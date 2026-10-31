@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
-import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
+import { normalizeOnboardingNextHref, isTeacherOnboardingVisit } from "@/lib/teacher-onboarding-progress";
+import { requireRoleOnboardingComplete } from "@/lib/onboarding-gate";
+import { getLocale } from "next-intl/server";
 import { TeacherDashboard } from "@/components/dashboard/teacher-dashboard";
 import { StudentDashboard } from "@/components/dashboard/student-dashboard";
 
@@ -21,6 +23,10 @@ export default async function DashboardPage({
 
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
+
+  if (session.user.role === "TEACHER" && !isTeacherOnboardingVisit(onboardingHref, onboardingStep)) {
+    await requireRoleOnboardingComplete(await getLocale(), session.user);
+  }
 
   if (session.user.role !== "STUDENT") {
     return (

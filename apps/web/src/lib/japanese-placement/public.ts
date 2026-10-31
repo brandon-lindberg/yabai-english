@@ -55,6 +55,7 @@ export const japaneseResultSchema = z.object({
 export type JapanesePlacementResult = z.infer<typeof japaneseResultSchema>;
 
 export const japaneseAttemptViewSchema = z.object({
+  canStartNewAttempt: z.boolean(), retakeEligibleAt: z.string().datetime().nullable(),
   attemptId: text, status: z.enum(["IN_PROGRESS", "COMPLETED", "ABANDONED"]), answered: count, total: count.positive(),
   expiresAt: z.string().datetime().nullable(), timeLimitSec: z.number().positive().nullable(), serverNow: z.string().datetime().optional(),
   question: japaneseQuestionSchema.nullable(), result: japaneseResultSchema.nullable(),

@@ -1392,6 +1392,8 @@
     "saveError": "Could not save onboarding details. Try again.",
     "nextTitle": "Choose your next step",
     "nextSubtitle": "You can take the placement test now, or skip for now and choose a teacher first.",
+    "materialsUnavailable": "Japanese flashcards are not available yet. You can continue with the other steps and return here later.",
+    "teacherMaterialsUnavailable": "Student flashcard materials are not available in this teacher account yet. You can skip this step.",
     "completedLabel": "Completed",
     "skipForNow": "Skip for now",
     "skipForNowHint": "You can come back and finish these later from your dashboard.",

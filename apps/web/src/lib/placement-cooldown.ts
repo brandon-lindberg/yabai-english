@@ -6,7 +6,7 @@ export function placementRetakeEligibleAt(completedAt: Date): Date {
 }
 
 /** `true` when the user may start placement (first attempt, or cooldown has passed). */
-export function isPlacementRetakeAllowed(completedAt: Date | null | undefined): boolean {
+export function isPlacementRetakeAllowed(completedAt: Date | null | undefined, now = Date.now()): boolean {
   if (!completedAt) return true;
-  return Date.now() >= placementRetakeEligibleAt(completedAt).getTime();
+  return now >= placementRetakeEligibleAt(completedAt).getTime();
 }

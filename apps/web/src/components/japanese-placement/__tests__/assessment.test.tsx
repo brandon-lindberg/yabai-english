@@ -13,12 +13,54 @@ const fetchMock = vi.fn();
 const reply = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status });
 const choice = { id: "kana-one", domain: "kana", prompt: { en: "Choose the reading.", ja: "読み方を選んでください。" }, stimulus: { kind: "text", text: "学校" }, response: { kind: "choice", choices: [{ id: "a", text: "がっこう" }, { id: "b", text: "がこう" }] } };
 const assembly = { id: "writing-one", domain: "writing", prompt: { en: "Build a sentence.", ja: "文を作ってください。" }, stimulus: { kind: "text", text: "I read a book." }, response: { kind: "sentence_assembly", tiles: [{ id: "verb", text: "読みます。" }, { id: "topic", text: "私は" }, { id: "object", text: "本を" }] } };
-const active = (question: typeof choice | typeof assembly = choice) => ({ attemptId: "attempt-one", status: "IN_PROGRESS", answered: 0, total: 24, expiresAt: "2026-10-22T01:20:00.000Z", timeLimitSec: 1200, serverNow: "2026-10-22T01:00:00.000Z", question, result: null });
+const active = (question: typeof choice | typeof assembly = choice) => ({ canStartNewAttempt: false, retakeEligibleAt: null, attemptId: "attempt-one", status: "IN_PROGRESS", answered: 0, total: 24, expiresAt: "2026-10-22T01:20:00.000Z", timeLimitSec: 1200, serverNow: "2026-10-22T01:00:00.000Z", question, result: null });
 const result: ResultData = { attemptId: "attempt-one", completedAt: "2026-10-22T01:20:00.000Z", completionReason: "time_limit", levelEstimate: { scope: "reading_writing", status: "insufficient_evidence", reason: "too_few_answers_or_domains" }, domains: JAPANESE_PLACEMENT_DOMAINS.map((domain) => ({ domain, planned: 4, answered: 0, correct: 0, incorrect: 0, notSure: 0, unanswered: 4, observation: "not_assessed" })) };
-const completed = { ...active(), status: "COMPLETED", answered: 0, question: null, result };
-const show = (locale = "en") => render(<NextIntlClientProvider locale={locale} messages={locale === "ja" ? jaMessages : messages}><JapanesePlacementAssessment /></NextIntlClientProvider>);
+const completed = { ...active(), status: "COMPLETED", answered: 0, question: null, result, canStartNewAttempt: true };
+const show = (locale = "en") => render(<NextIntlClientProvider locale={locale} timeZone="Asia/Tokyo" messages={locale === "ja" ? jaMessages : messages}><JapanesePlacementAssessment /></NextIntlClientProvider>);
 beforeEach(() => { vi.stubGlobal("fetch", fetchMock); fetchMock.mockReset(); window.sessionStorage.clear(); });
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+
+test.each(["en", "ja"])("an awarded result shows the server's next retake date and offers no new start (%s)", async locale => {
+  vi.spyOn(Date, "now").mockReturnValue(Date.parse("2099-01-01T00:00:00.000Z"));
+  const copy = locale === "ja" ? jaMessages : messages;
+  fetchMock.mockResolvedValueOnce(reply({ attempt: { ...completed, answered: 24,
+    canStartNewAttempt: false, retakeEligibleAt: "2026-11-22T01:20:00.000Z",
+    result: { ...result, levelEstimate: { status: "estimated", scope: "reading_writing", band: "N3", provisional: true, basis: "jlpt_aligned_rules" } },
+  } }));
+  show(locale);
+  expect(await screen.findByText("N3", { exact: true })).toBeVisible();
+  expect(screen.queryByRole("button", { name: copy.japanesePlacement.newStart })).toBeNull();
+  expect(screen.getByRole("status")).toHaveTextContent("2026");
+  expect(screen.getByRole("link", { name: copy.japanesePlacement.book })).toBeVisible();
+});
+
+test("an active eligible retake still resumes when its earlier award has a past retake date", async () => {
+  fetchMock.mockResolvedValueOnce(reply({ attempt: { ...active(), retakeEligibleAt: "2026-10-01T01:20:00.000Z" } }));
+  show();
+  expect(await screen.findByRole("button", { name: "がっこう" })).toBeEnabled();
+  expect(screen.getByRole("timer")).toHaveTextContent("20:00");
+});
+
+test("server eligibility enables a retake even when the browser clock disagrees", async () => {
+  vi.spyOn(Date, "now").mockReturnValue(0);
+  fetchMock.mockResolvedValueOnce(reply({ attempt: { ...completed, canStartNewAttempt: true, retakeEligibleAt: "2026-11-22T01:20:00.000Z",
+    result: { ...result, levelEstimate: { status: "estimated", scope: "reading_writing", band: "N3", provisional: true, basis: "jlpt_aligned_rules" } },
+  } }));
+  show();
+  expect(await screen.findByRole("button", { name: messages.japanesePlacement.newStart })).toBeEnabled();
+});
+
+test("a stale start refused by cooldown reloads the latest result instead of offering network retries", async () => {
+  const latest = { ...completed, attemptId: "latest", canStartNewAttempt: false, retakeEligibleAt: "2026-11-22T01:20:00.000Z",
+    result: { ...result, attemptId: "latest", levelEstimate: { status: "estimated", scope: "reading_writing", band: "N2", provisional: true, basis: "jlpt_aligned_rules" } },
+  };
+  fetchMock.mockResolvedValueOnce(reply({ attempt: null })).mockResolvedValueOnce(reply({ error: "PLACEMENT_COOLDOWN" }, 403)).mockResolvedValueOnce(reply({ attempt: latest }));
+  show(); fireEvent.click(await screen.findByRole("button", { name: messages.japanesePlacement.start }));
+  expect(await screen.findByText("N2", { exact: true })).toBeVisible();
+  expect(fetchMock.mock.calls[2][0]).toBe("/api/japanese-placement/attempts");
+  expect(screen.queryByText(messages.japanesePlacement.network)).toBeNull();
+  expect(screen.queryByRole("button", { name: messages.japanesePlacement.newStart })).toBeNull();
+});
 
 test.each(["en", "ja"])("explains the versioned timeout adjustment to students and teachers (%s)", locale => {
   const adjusted = { ...result, levelEstimate: { status: "estimated" as const, scope: "reading_writing" as const,
