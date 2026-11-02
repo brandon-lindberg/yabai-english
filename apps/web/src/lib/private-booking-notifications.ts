@@ -12,7 +12,7 @@ type Input = {
   refund?: { id: string; status: string; amountYen: number };
 };
 
-/** Both participants receive the same event, expressed in their own timezone. */
+/** Localized lifecycle notices; replacement-request closure is teacher-only. */
 export async function notifyPrivateBookingEvent(input: Input) {
   const booking = await prisma.booking.findUnique({ where: { id: input.bookingId }, select: {
     id: true, studentId: true, learningLanguage: true, startsAt: true, groupLessonSessionId: true,
@@ -28,10 +28,10 @@ export async function notifyPrivateBookingEvent(input: Input) {
   const eventKey = ["booking", booking.id, input.event, input.previousStartsAt?.toISOString() ?? "",
     at.toISOString(), refund?.id ?? "", refund?.status ?? "", input.transitionId ?? ""].join(":");
   const recipients = [
-    { userId: booking.studentId, timezone: booking.student?.studentProfile?.timezone ?? "Asia/Tokyo" },
-    { userId: booking.teacher.userId, timezone: booking.teacher.availabilitySlots[0]?.timezone ?? "Asia/Tokyo" },
-  ];
-  await Promise.all(recipients.map(async ({ userId, timezone }) => {
+    { userId: booking.studentId, isStudent: true, timezone: booking.student?.studentProfile?.timezone ?? "Asia/Tokyo" },
+    { userId: booking.teacher.userId, isStudent: false, timezone: booking.teacher.availabilitySlots[0]?.timezone ?? "Asia/Tokyo" },
+  ].filter(recipient => input.event !== "reschedule_closed" || !recipient.isStudent);
+  await Promise.all(recipients.map(async ({ userId, isStudent, timezone }) => {
     const date = (value: Date, locale: "en" | "ja") => {
       const local = DateTime.fromJSDate(value, { zone: "utc" }).setZone(timezone).setLocale(locale);
       return `${local.toFormat(locale === "ja" ? "yyyy/LL/dd HH:mm" : "LLL d, yyyy HH:mm")} (${local.offsetNameShort ?? timezone})`;
@@ -42,10 +42,17 @@ export async function notifyPrivateBookingEvent(input: Input) {
       const succeeded = refund.status === "SUCCEEDED";
       titleEn = succeeded ? "Lesson refunded" : "Lesson refund pending";
       titleJa = succeeded ? "レッスンの返金が完了しました" : "レッスンの返金は未完了です";
-      bodyEn = succeeded ? `${amount} has been refunded for your ${names.nameEn} lesson. It will appear through ${userId === booking.studentId ? "your" : "the student's"} original payment method.`
-        : `The ${amount} refund for your ${names.nameEn} lesson has not completed yet. Your cancellation is saved.`;
-      bodyJa = succeeded ? `${names.nameJa} の ${amount} の返金が完了しました。${userId === booking.studentId ? "元のお支払い方法" : "受講生の元のお支払い方法"}に反映されます。`
-        : `${names.nameJa} の ${amount} の返金はまだ完了していません。キャンセルは保存されています。`;
+      if (isStudent) {
+        bodyEn = succeeded ? `Your ${names.nameEn} lesson has been refunded. Please check your account.`
+          : `The refund for your ${names.nameEn} lesson has not completed yet. Your cancellation is saved.`;
+        bodyJa = succeeded ? `${names.nameJa} の返金が完了しました。お支払い元の口座やカードの明細をご確認ください。`
+          : `${names.nameJa} の返金はまだ完了していません。キャンセルは保存されています。`;
+      } else {
+        bodyEn = succeeded ? `${amount} has been refunded for your ${names.nameEn} lesson. It will appear through the student's original payment method.`
+          : `The ${amount} refund for your ${names.nameEn} lesson has not completed yet. Your cancellation is saved.`;
+        bodyJa = succeeded ? `${names.nameJa} の ${amount} の返金が完了しました。受講生の元のお支払い方法に反映されます。`
+          : `${names.nameJa} の ${amount} の返金はまだ完了していません。キャンセルは保存されています。`;
+      }
     } else if (input.event === "cancelled") {
       titleEn = "Lesson cancelled"; titleJa = "レッスンがキャンセルされました";
       bodyEn = `Your ${names.nameEn} lesson on ${date(at, "en")} was cancelled.`;

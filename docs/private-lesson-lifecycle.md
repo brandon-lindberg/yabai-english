@@ -1,6 +1,6 @@
 # Private lesson cancellation and rescheduling
 
-Implemented on `the-mirror`, 2026-11-02, following MIRROR_PLAN.md sections 6g–6i. Section 6i records the owner's final clarification and supersedes the earlier restriction that kept a late-cancelled lesson confirmed.
+Implemented on `the-mirror`, 2026-11-02, following MIRROR_PLAN.md sections 6g–6j. Section 6i records the owner's final cancellation-policy clarification and supersedes the earlier restriction that kept a late-cancelled lesson confirmed. Section 6j simplifies student notifications without changing teacher resolution or financial processing.
 
 ## Student flow
 
@@ -18,7 +18,7 @@ The owning teacher can use the existing lesson-time form to arrange a new time, 
 
 Refund and permanent closure require explicit confirmation. A refund decision claims the booking before contacting the existing refund service, preventing a competing replacement or closure. Stored refunds are returned on retry, and full-refund provider calls use a stable payment-based idempotency key. Provider errors retain the refund decision and allow retry; a short claim window protects in-progress attempts. Pending/recovery refunds keep their existing administrative recovery path. Admin resolutions retain their admin actor in the refund audit.
 
-Only an actual teacher-initiated refund produces student refund notifications/status. Pending and completed refunds remain distinct. The student gains no entitlement or refund request action from the teacher's discretionary option.
+Only an actual teacher-initiated refund produces student refund notifications/status. Pending and completed refunds remain distinct. Student notices omit amounts; completion asks the student to check their account. Teacher notices retain financial details. The student gains no entitlement or refund request action from the teacher's discretionary option.
 
 ## Stored state and shared services
 
@@ -30,7 +30,7 @@ The shared cancellation control serves dashboard rows and lesson dialogs. The ex
 
 Calendar/Meet uses the existing connections and services. Late cancellation removes the old events. Restoring a request recreates the meeting through the shared calendar-recovery helper, also used by the existing manual retry endpoint, and restores an opted-in student mirror. Stale recovery cannot overwrite a changed booking. A saved move is distinguished from a partial Calendar update.
 
-Immediate moves send one completed notice per participant. A request notice is now reserved for a real saved late-cancellation request; it describes a replacement needing arrangement, rather than claiming teacher approval is required. Closure has its own notice. The existing bell refresh/realtime transport and stored-event deduplication are reused.
+Immediate moves send one completed notice per participant. A request notice is now reserved for a real saved late-cancellation request; it describes a replacement needing arrangement, rather than claiming teacher approval is required. Closure has a teacher-only notice; the student can see the resolved request without receiving an extra closure notification. The existing bell refresh/realtime transport and stored-event deduplication are reused. The Rescheduling tab appears after a saved late-cancellation request and retains its resolved records.
 
 ## Verification
 
@@ -48,5 +48,7 @@ All five browser runs confirm the 27 application-table fingerprints are unchange
 ## Existing boundaries
 
 Same-booking edits and request resolutions use optimistic conditions. This does not establish a global serializable exclusion across every independent marketplace and school booking writer. Notification deduplication uses existing notification rows; a very late retry can recreate a notice after that row has been dismissed. Permanent event receipts and a background outbox remain separate infrastructure work.
+
+The section-6j [Stripe wiring audit](stripe-payment-audit.md) records the shared collection/refund paths, new cross-layer regression checks and existing failure-recovery/reconciliation limits. This is code-level verification with mocked/synthetic providers, not a live Stripe signoff.
 
 No historic cancellation is converted into a replacement request, no content is published, and Brandon retains staging, commits and pushes.

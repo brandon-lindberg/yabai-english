@@ -9,7 +9,7 @@ import { DateTime } from "luxon";
 
 async function alerts(page: Page) {
   const response = await page.request.get("/api/notifications"); expect(response.status()).toBe(200);
-  return (await response.json()).items as { titleEn: string; bodyEn: string }[];
+  return (await response.json()).items as { titleEn: string; bodyEn: string; bodyJa: string }[];
 }
 
 async function openLearner(page: Page, email: string, scenario: ReturnType<typeof releaseCases>[number]) {
@@ -94,7 +94,15 @@ for (const scenario of releaseCases()) test(`${scenario.language}: private lesso
     // Explicit synthetic settlement: no provider is contacted. Webhook wiring has separate unit coverage.
     fixtureCommand("release-notification-settle", { learnerId: learner.id });
     fixtureCommand("release-notification-settle", { learnerId: learner.id });
-    for (const participant of [page, teacher]) expect((await alerts(participant)).filter(item => item.titleEn === "Lesson refunded")).toHaveLength(1);
+    for (const participant of [page, teacher]) {
+      const notices = (await alerts(participant)).filter(item => item.titleEn === "Lesson refunded");
+      expect(notices).toHaveLength(1);
+      if (participant === page) {
+        expect(notices[0].bodyEn).toContain("Please check your account.");
+        expect(notices[0].bodyEn).not.toMatch(/5,000|5000|¥|￥/);
+        expect(notices[0].bodyJa).not.toMatch(/5,000|5000|¥|￥/);
+      } else expect(notices[0].bodyEn).toContain("5,000");
+    }
     await page.getByRole("button", { name: new RegExp(copy.common.notifications) }).click();
     await expect(page.getByTestId("notification-panel").getByText(scenario.locale === "ja" ? "レッスンの返金が完了しました" : "Lesson refunded", { exact: true })).toBeVisible();
     await captureRelease(page, `${scenario.language}-student-lifecycle-notifications`);
@@ -224,9 +232,21 @@ for (const scenario of releaseCases()) for (const action of ["reschedule", "clos
     await expect(studentRow.getByRole("button", { name: copy.dashboard.privateReschedule.refundAction, exact: true })).toHaveCount(0);
     await expect(studentRow.getByRole("button", { name: copy.dashboard.privateReschedule.closeAction, exact: true })).toHaveCount(0);
     for (const participant of [page, teacher]) {
-      const titles = (await alerts(participant)).map(item => item.titleEn);
+      const notices = await alerts(participant);
+      const titles = notices.map(item => item.titleEn);
       expect(titles).toContain("Lesson reschedule requested");
-      expect(titles).toContain(action === "reschedule" ? "Lesson rescheduled" : action === "refund" ? "Lesson refund pending" : "Reschedule request closed");
+      if (action === "close" && participant === page) expect(titles).not.toContain("Reschedule request closed");
+      else expect(titles).toContain(action === "reschedule" ? "Lesson rescheduled" : action === "refund" ? "Lesson refund pending" : "Reschedule request closed");
+      if (action === "refund" && participant === page) {
+        const pending = notices.find(item => item.titleEn === "Lesson refund pending")!;
+        expect(pending.bodyEn).not.toMatch(/5,000|5000|¥|￥/);
+        expect(pending.bodyJa).not.toMatch(/5,000|5000|¥|￥/);
+      }
+    }
+    if (action === "close") {
+      await page.getByRole("button", { name: new RegExp(copy.common.notifications) }).click();
+      await expect(page.getByTestId("notification-panel").getByText(scenario.locale === "ja" ? "再予約リクエストが終了しました" : "Reschedule request closed", { exact: true })).toHaveCount(0);
+      await captureRelease(page, `${scenario.language}-student-closure-notifications-simplified`);
     }
     expect(errors).toEqual([]);
   } finally { await teacherContext.close(); }

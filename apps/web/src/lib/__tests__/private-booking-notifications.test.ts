@@ -30,10 +30,26 @@ test.each(["SUCCEEDED", "PENDING", "PENDING_RECOVERY"] as const)("refund status 
   expect(mocks.notify).toHaveBeenCalledTimes(2);
   for (const [arg] of mocks.notify.mock.calls) {
     expect(arg.titleEn).toBe(status === "SUCCEEDED" ? "Lesson refunded" : "Lesson refund pending");
-    expect(arg.bodyEn).toContain("5,000");
+    if (arg.userId === "teacher") expect(arg.bodyEn).toContain("5,000");
+    else {
+      expect(arg.bodyEn).not.toMatch(/5,000|5000|¥|￥/);
+      expect(arg.bodyJa).not.toMatch(/5,000|5000|¥|￥/);
+      if (status === "SUCCEEDED") {
+        expect(arg.bodyEn).toContain("Please check your account.");
+        expect(arg.bodyJa).toContain("明細をご確認ください");
+      }
+    }
     expect(arg.href).toBe("/dashboard/schedule/refunded");
     if (status !== "SUCCEEDED") expect(arg.bodyEn).not.toContain("has been refunded");
   }
+});
+
+test("closing a replacement request stays quiet for the student and retains the teacher outcome", async () => {
+  await notifyPrivateBookingEvent({ bookingId: "booking", event: "reschedule_closed" });
+  expect(mocks.notify).toHaveBeenCalledTimes(1);
+  expect(mocks.notify).toHaveBeenCalledWith(expect.objectContaining({
+    userId: "teacher", titleEn: "Reschedule request closed", href: "/dashboard/schedule/reschedule",
+  }));
 });
 
 test("notification keys distinguish moves and refund state transitions", async () => {
