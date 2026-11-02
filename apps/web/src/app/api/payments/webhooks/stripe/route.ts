@@ -6,6 +6,7 @@ import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-bo
 import { mapStripeRefundStatus } from "@/lib/payment-refunds";
 import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
 import { ensureCreditNoteNumber } from "@/lib/credit-notes";
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
 
 type StripeEventLike = {
   id: string;
@@ -123,8 +124,11 @@ async function handleRefundStatusChanged(event: StripeEventLike) {
   await prisma.refund.updateMany({ where, data: { status } });
   if (status === "SUCCEEDED") {
     // The money has gone back, so the return now has a document to name.
-    const settled = await prisma.refund.findFirst({ where, select: { id: true } });
-    if (settled) await ensureCreditNoteNumber(settled.id);
+    const settled = await prisma.refund.findFirst({ where, select: { id: true, bookingId: true, amountYen: true, status: true } });
+    if (settled) {
+      await ensureCreditNoteNumber(settled.id);
+      await notifyPrivateBookingEvent({ bookingId: settled.bookingId, event: "refund", refund: settled });
+    }
   }
   return NextResponse.json({ ok: true, refundStatus: status });
 }
@@ -217,6 +221,9 @@ export async function POST(req: Request) {
     skipDuplicates: true,
   });
   if (claimed.count === 0) {
+    // Delivery can have failed after the event was claimed. Refund handling is
+    // idempotent, including its participant notifications, so a retry repairs it.
+    if (["refund.updated", "charge.refund.updated"].includes(event.type) && event.data.object.status === "succeeded") return handleRefundStatusChanged(event);
     return NextResponse.json({ ok: true, duplicate: true });
   }
 

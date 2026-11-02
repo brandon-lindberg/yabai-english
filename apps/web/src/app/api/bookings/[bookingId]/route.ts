@@ -2,16 +2,14 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { lessonProductNames } from "@/lib/lesson-product-catalog";
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { evaluateBookingRescheduleTimes } from "@/lib/booking-reschedule-policy";
 import { patchMeetLessonEvent } from "@/lib/google-calendar";
-import { createUserNotification } from "@/lib/notifications";
-import { marketplaceBookingRescheduledNotification } from "@/lib/reschedule-notification-copy";
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
-import { dateOnlyInZone } from "@/lib/date-only-in-zone";
-import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
+import { readTeacherSchoolSlots } from "@/lib/booking-reschedule-availability";
+import { teacherBookingOverlapWhere, isStaleBookingMutation, STALE_BOOKING_MESSAGE } from "@/lib/booking-conflict";
 
 const patchBodySchema = z.object({
   startsAt: z.string().datetime(),
@@ -144,34 +142,10 @@ export async function PATCH(req: Request, { params }: Props) {
     );
   }
 
-  const teacherSchoolSlots = await prisma.schoolScheduleSlot.findMany({
-    where: {
-      active: true,
-      assignedTeacher: {
-        userId: booking.teacher.userId,
-        status: "ACTIVE",
-      },
-    },
-    select: {
-      dayOfWeek: true,
-      startMin: true,
-      endMin: true,
-      timezone: true,
-      recurrence: true,
-      daysOfWeek: true,
-      startsOn: true,
-      endsOn: true,
-      skips: { select: { startsAtIso: true } },
-    },
-  });
+  const teacherSchoolSlots = await readTeacherSchoolSlots(prisma, booking.teacher.userId);
   if (teacherSchoolSlots.length > 0) {
-    const slotsForConflict = teacherSchoolSlots.map((s) => ({
-      ...s,
-      startsOn: dateOnlyInZone(s.startsOn, s.timezone),
-      endsOn: dateOnlyInZone(s.endsOn, s.timezone),
-    }));
     const schoolConflict = findOccurrenceConflict(
-      slotsForConflict,
+      teacherSchoolSlots,
       newStart,
       newEnd,
     );
@@ -183,8 +157,12 @@ export async function PATCH(req: Request, { params }: Props) {
     }
   }
 
-  const updated = await prisma.booking.update({
-    where: { id: booking.id },
+  const event = { bookingId: booking.id, previousStartsAt: booking.startsAt, startsAt: newStart, transitionId: booking.updatedAt?.toISOString() };
+  await notifyPrivateBookingEvent({ ...event, event: "reschedule_requested" });
+  let updated;
+  try {
+    updated = await prisma.booking.update({
+    where: { id: booking.id, status: booking.status, startsAt: booking.startsAt },
     data: { startsAt: newStart, endsAt: newEnd },
     select: {
       id: true,
@@ -197,6 +175,11 @@ export async function PATCH(req: Request, { params }: Props) {
       studentId: true,
     },
   });
+  } catch (error) {
+    if (isStaleBookingMutation(error)) return NextResponse.json({ error: STALE_BOOKING_MESSAGE }, { status: 409 });
+    throw error;
+  }
+  await notifyPrivateBookingEvent({ ...event, event: "rescheduled" });
 
   const calId = updated.googleCalendarId ?? booking.teacher.calendarId ?? "primary";
 
@@ -221,13 +204,6 @@ export async function PATCH(req: Request, { params }: Props) {
         })
       : Promise.resolve(true),
   ]);
-
-  const names = lessonProductNames(booking.lessonProduct, booking.learningLanguage);
-  const notify = marketplaceBookingRescheduledNotification({ lessonNameJa: names.nameJa, lessonNameEn: names.nameEn });
-  await createUserNotification({
-    userId: booking.studentId,
-    ...notify,
-  });
 
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`);

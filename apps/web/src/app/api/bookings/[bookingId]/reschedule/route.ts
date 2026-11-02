@@ -14,13 +14,26 @@ import {
 } from "@/lib/google-calendar";
 import { bookingOwnsItsCalendarEvent } from "@/lib/booking-calendar-ownership";
 import { GroupClassFullError, reserveGroupSeat } from "@/lib/group-lesson-session";
-import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
+import { teacherBookingOverlapWhere, isStaleBookingMutation, STALE_BOOKING_MESSAGE } from "@/lib/booking-conflict";
 import { visibleAvailabilitySlots } from "@/lib/assigned-availability";
 import { resolveLearningLanguage, slotsForLearningLanguage } from "@/lib/learning-language";
+import { loadRescheduleBooking, listStudentRescheduleSlots, teacherHasSchoolConflict } from "@/lib/booking-reschedule-availability";
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
 
 type Props = { params: Promise<{ bookingId: string }> };
 
 const bodySchema = z.object({ startsAt: z.string().datetime() });
+
+export async function GET(_req: Request, { params }: Props) {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { bookingId } = await params;
+  const booking = await loadRescheduleBooking(prisma, bookingId);
+  if (!booking || session.user.role !== "STUDENT" || booking.studentId !== session.user.id) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const policy = evaluateBookingReschedulePolicy({ actor: "STUDENT", bookingStatus: booking.status, lessonStartsAt: booking.startsAt, rescheduleCount: booking.rescheduleCount });
+  const slots = policy.allowed && !booking.groupLessonSessionId ? await listStudentRescheduleSlots(prisma, booking) : [];
+  return NextResponse.json({ slots }, { headers: { "Cache-Control": "no-store" } });
+}
 
 function resolveActor(
   role: string,
@@ -55,44 +68,7 @@ export async function POST(req: Request, { params }: Props) {
   }
 
   const { bookingId } = await params;
-  const booking = await prisma.booking.findUnique({
-    where: { id: bookingId },
-    include: {
-      lessonProduct: { select: { durationMin: true } },
-      student: {
-      select: { email: true, studentProfile: { select: { timezone: true } } },
-    },
-      teacher: {
-        select: {
-          id: true,
-          userId: true,
-          calendarId: true,
-          googleCalendarRefreshToken: true,
-          availabilitySlots: {
-            where: { active: true },
-            select: {
-              id: true,
-              dayOfWeek: true,
-              startMin: true,
-              endMin: true,
-              timezone: true,
-              recurrence: true,
-              startsOn: true,
-              endsOn: true,
-              classLevelId: true,
-              classTypeId: true,
-              assignedStudentId: true,
-              teacherLessonOfferingId: true,
-              teacherLessonOffering: {
-                select: { id: true, isGroup: true, groupSize: true, learningLanguage: true, active: true },
-              },
-            },
-          },
-          availabilityOccurrenceSkips: { select: { slotId: true, startsAtIso: true } },
-        },
-      },
-    },
-  });
+  const booking = await loadRescheduleBooking(prisma, bookingId);
 
   if (!booking) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -105,6 +81,11 @@ export async function POST(req: Request, { params }: Props) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const start = new Date(parsed.data.startsAt);
+  if (booking.status === "CONFIRMED" && booking.startsAt.getTime() === start.getTime()) {
+    return NextResponse.json({ ok: true, booking: { id: booking.id, startsAt: booking.startsAt, endsAt: booking.endsAt, rescheduleCount: booking.rescheduleCount, groupLessonSessionId: booking.groupLessonSessionId } });
   }
 
   const policy = evaluateBookingReschedulePolicy({
@@ -120,7 +101,6 @@ export async function POST(req: Request, { params }: Props) {
     );
   }
 
-  const start = new Date(parsed.data.startsAt);
   const durationMin = booking.lessonProduct.durationMin;
   const endsAt = new Date(start.getTime() + durationMin * 60 * 1000);
 
@@ -191,6 +171,11 @@ export async function POST(req: Request, { params }: Props) {
       { status: 409 },
     );
   }
+  if (await teacherHasSchoolConflict(prisma, booking.teacher.userId, start, endsAt)) {
+    return NextResponse.json({ error: "The teacher is teaching a school class during that time." }, { status: 409 });
+  }
+  const event = { bookingId: booking.id, previousStartsAt: booking.startsAt, startsAt: start, transitionId: booking.updatedAt?.toISOString() };
+  await notifyPrivateBookingEvent({ ...event, event: "reschedule_requested" });
 
   // Taking the new seat and moving the booking onto it happen together: a seat
   // claimed for a move that then failed would be held by nobody.
@@ -210,7 +195,7 @@ export async function POST(req: Request, { params }: Props) {
           : null;
 
       return tx.booking.update({
-        where: { id: booking.id },
+        where: { id: booking.id, status: booking.status, startsAt: booking.startsAt, rescheduleCount: booking.rescheduleCount },
         data: {
           startsAt: start,
           endsAt,
@@ -230,8 +215,10 @@ export async function POST(req: Request, { params }: Props) {
     if (e instanceof GroupClassFullError) {
       return NextResponse.json({ error: e.message }, { status: 409 });
     }
+    if (isStaleBookingMutation(e)) return NextResponse.json({ error: STALE_BOOKING_MESSAGE }, { status: 409 });
     throw e;
   }
+  await notifyPrivateBookingEvent({ ...event, event: "rescheduled" });
 
   // Best-effort: a calendar left on the old time is worse than no calendar, but
   // it must not fail the move the student has already been told happened.
@@ -240,9 +227,10 @@ export async function POST(req: Request, { params }: Props) {
     refreshTokenEncrypted: booking.teacher.googleCalendarRefreshToken,
     calendarId: booking.googleCalendarId ?? booking.teacher.calendarId,
   };
+  let calendarUpdated = true;
   if (booking.googleEventId) {
     if (bookingOwnsItsCalendarEvent(booking)) {
-      await patchMeetLessonEvent({
+      calendarUpdated = await patchMeetLessonEvent({
         ...teacherCalendar,
         eventId: booking.googleEventId,
         start,
@@ -252,7 +240,7 @@ export async function POST(req: Request, { params }: Props) {
       // The event belongs to the class this student is leaving. Moving it would
       // drag every classmate to the new time, so they step off the guest list
       // instead; the class they are joining adds them on its own confirmation.
-      await removeMeetLessonEventAttendee({
+      calendarUpdated = await removeMeetLessonEventAttendee({
         ...teacherCalendar,
         eventId: booking.googleEventId,
         attendeeEmail: booking.student.email,
@@ -270,21 +258,21 @@ export async function POST(req: Request, { params }: Props) {
       })
     : null;
   if (joinedSession?.googleEventId && booking.student.email) {
-    await addMeetLessonEventAttendee({
+    calendarUpdated = await addMeetLessonEventAttendee({
       ...teacherCalendar,
       calendarId: joinedSession.googleCalendarId ?? booking.teacher.calendarId,
       eventId: joinedSession.googleEventId,
       attendeeEmail: booking.student.email,
-    });
+    }) && calendarUpdated;
   }
   if (booking.studentGoogleEventId) {
-    await patchMeetLessonEvent({
+    calendarUpdated = await patchMeetLessonEvent({
       organizerUserId: booking.studentId,
       refreshTokenEncrypted: null,
       eventId: booking.studentGoogleEventId,
       start,
       end: endsAt,
-    });
+    }) && calendarUpdated;
   }
 
   for (const locale of routing.locales) {
@@ -292,5 +280,5 @@ export async function POST(req: Request, { params }: Props) {
     revalidatePath(`/${locale}/dashboard/schedule`);
   }
 
-  return NextResponse.json({ ok: true, booking: updated });
+  return NextResponse.json({ ok: true, booking: updated, calendarUpdated });
 }

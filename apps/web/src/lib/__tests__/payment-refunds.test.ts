@@ -1,3 +1,6 @@
+vi.mock("@/lib/credit-notes", () => ({ ensureCreditNoteNumber: vi.fn().mockResolvedValue("CRN-test") }));
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
+vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn() }));
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
 
@@ -49,6 +52,12 @@ const refundEligiblePolicy = {
 };
 
 describe("issueAutomaticRefundForBooking", () => {
+  test("an immediately settled refund reaches both users through the shared notifier", async () => {
+    const db = refundPrisma();
+    db.refund.create.mockResolvedValue({ id: "refund-1", status: "SUCCEEDED", amountYen: 5000 });
+    await issueAutomaticRefundForBooking(db, { booking: stripeBooking(), policy: refundEligiblePolicy, actor: "STUDENT" });
+    expect(notifyPrivateBookingEvent).toHaveBeenCalledWith({ bookingId: "booking-1", event: "refund", refund: { id: "refund-1", status: "SUCCEEDED", amountYen: 5000 } });
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     createStripeRefundMock.mockResolvedValue({ id: "re_123", status: "succeeded" });

@@ -1,3 +1,5 @@
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
+vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn() }));
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const { prismaMock, constructEventMock, confirmFromCheckoutMock, notifyStuckRefundMock } = vi.hoisted(() => ({
@@ -28,6 +30,21 @@ vi.mock("@/lib/refund-notifications", () => ({
 import { POST } from "@/app/api/payments/webhooks/stripe/route";
 
 describe("POST /api/payments/webhooks/stripe", () => {
+  test("a settled refund dispatches the shared participant notification", async () => {
+    constructEventMock.mockReturnValue({ id: "refund-event", type: "refund.updated", data: { object: { id: "re_test", status: "succeeded" } } });
+    prismaMock.refund.findFirst.mockResolvedValue({ id: "refund-1", bookingId: "booking-1", status: "SUCCEEDED", amountYen: 5000 });
+    const response = await POST(new Request("http://localhost", { method: "POST", headers: { "stripe-signature": "signature" }, body: "{}" }));
+    expect(response.status).toBe(200);
+    expect(notifyPrivateBookingEvent).toHaveBeenCalledWith({ bookingId: "booking-1", event: "refund", refund: expect.objectContaining({ id: "refund-1", status: "SUCCEEDED", amountYen: 5000 }) });
+  });
+
+  test("a retried refund webhook repairs delivery without repeating the stored alert", async () => {
+    constructEventMock.mockReturnValue({ id: "refund-retry", type: "refund.updated", data: { object: { id: "re_test", status: "succeeded" } } });
+    prismaMock.paymentWebhookEvent.createMany.mockResolvedValue({ count: 0 });
+    prismaMock.refund.findFirst.mockResolvedValue({ id: "refund-1", bookingId: "booking-1", status: "SUCCEEDED", amountYen: 5000 });
+    await POST(new Request("http://localhost", { method: "POST", headers: { "stripe-signature": "signature" }, body: "{}" }));
+    expect(notifyPrivateBookingEvent).toHaveBeenCalledWith(expect.objectContaining({ bookingId: "booking-1", event: "refund" }));
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     prismaMock.paymentWebhookEvent.createMany.mockResolvedValue({ count: 1 });

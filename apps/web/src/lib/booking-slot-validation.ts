@@ -4,6 +4,7 @@ import {
 } from "@/lib/availability-occurrence-skips";
 import { buildUpcomingSlotOptions } from "@/lib/availability";
 import type { RecurrencePattern } from "@/lib/recurring-slot-occurrences";
+import { BOOKING_MINIMUM_LEAD_HOURS } from "./lead-time-policy";
 
 export type TeacherAvailabilitySlotInput = {
   id: string;
@@ -24,7 +25,7 @@ export function validateBookingAgainstTeacherAvailability({
   availabilitySlots,
   occurrenceSkips = [],
   viewerTimezone,
-  minimumLeadHours = 48,
+  minimumLeadHours = BOOKING_MINIMUM_LEAD_HOURS,
   now = new Date(),
 }: {
   startsAtIso: string;

@@ -4,6 +4,7 @@ import {
   createStripeRefundDirectCharge,
 } from "@/lib/stripe/stripe-connect";
 import { ensureCreditNoteNumber } from "@/lib/credit-notes";
+import { notifyPrivateBookingEvent } from "./private-booking-notifications";
 
 /** What a caller needs to decide whether the refund actually landed. */
 export type IssuedRefund = {
@@ -90,7 +91,7 @@ export async function issueAutomaticRefundForBooking(
   const connectedAccountId = payment.teacherPaymentAccount?.providerAccountId;
 
   if (!connectedAccountId || !payment.providerPaymentId) {
-    return prisma.refund.create({
+    const refund = await prisma.refund.create({
       data: {
         bookingId: input.booking.id,
         paymentId: payment.id,
@@ -104,6 +105,8 @@ export async function issueAutomaticRefundForBooking(
           "Stripe direct-charge refund requires connected account and payment intent IDs.",
       },
     });
+    await notifyPrivateBookingEvent({ bookingId: input.booking.id, event: "refund", refund });
+    return refund;
   }
 
   const stripeRefund = await createStripeRefundDirectCharge({
@@ -166,6 +169,7 @@ export async function issueAutomaticRefundForBooking(
   // the document is issued here too. `ensureCreditNoteNumber` is idempotent, so
   // whichever path arrives first wins and the other is a no-op.
   await ensureCreditNoteNumber(refund.id);
+  await notifyPrivateBookingEvent({ bookingId: input.booking.id, event: "refund", refund });
 
   return refund;
 }

@@ -16,6 +16,24 @@ const copy = {
 };
 
 describe("SlotSelectionCalendar", () => {
+  test("compact month selection opens a date before offering its times", () => {
+    const onViewChange = vi.fn();
+    const onAnchorChange = vi.fn();
+    const onSelect = vi.fn();
+    const { container } = render(<SlotSelectionCalendar
+      locale="en-US" copy={copy} timeZone="Asia/Tokyo" compactMonth
+      slots={[{ startsAtIso: "2026-04-20T01:00:00.000Z", label: "Available" }]}
+      calendarView="month" calendarAnchor="2026-04-20T01:00:00.000Z"
+      onCalendarViewChange={onViewChange} onCalendarAnchorChange={onAnchorChange}
+      selectedStartsAtIso={null} onSelectSlot={onSelect}
+    />);
+    expect(screen.queryByTestId("month-slot-chip")).not.toBeInTheDocument();
+    fireEvent.click(container.querySelector('[data-day-key="2026-04-20"]')!);
+    expect(onViewChange).toHaveBeenCalledWith("day");
+    expect(dayKeyFromIso(onAnchorChange.mock.calls[0][0], "Asia/Tokyo")).toBe("2026-04-20");
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
   test("renders duplicate startsAtIso slots without React key collisions", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const duplicateIso = "2026-04-20T01:00:00.000Z";

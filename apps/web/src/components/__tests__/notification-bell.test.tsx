@@ -58,6 +58,14 @@ describe("NotificationBell", () => {
     vi.unstubAllGlobals();
   });
 
+  test("opening the bell refreshes persisted alerts even without a live event", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ items: [], unreadCount: 0 })).mockResolvedValue(jsonResponse({ items: [{ id: "cancel", titleEn: "Lesson cancelled", titleJa: "中止", bodyEn: null, bodyJa: null, readAt: null, createdAt: new Date().toISOString() }], unreadCount: 1 }));
+    render(<NextIntlClientProvider locale="en" messages={en}><NotificationBell /></NextIntlClientProvider>);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole("button", { name: en.common.notifications }));
+    expect(await screen.findByText("Lesson cancelled")).toBeVisible();
+  });
+
   test("refreshes when a realtime notifications:update event fires", async () => {
     fetchMock.mockImplementation(async () =>
       jsonResponse({ items: [], unreadCount: 0 }),

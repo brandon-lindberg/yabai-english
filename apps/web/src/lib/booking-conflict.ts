@@ -1,6 +1,11 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 
+export const STALE_BOOKING_MESSAGE = "This booking changed. Reload your schedule before trying again.";
+export function isStaleBookingMutation(error: unknown): boolean {
+  return Boolean(error && typeof error === "object" && "code" in error && error.code === "P2025");
+}
+
 /**
  * The bookings that stand in the way of a teacher taking a lesson at a given
  * time.

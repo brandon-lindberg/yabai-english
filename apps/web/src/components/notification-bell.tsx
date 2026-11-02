@@ -45,7 +45,7 @@ export function NotificationBell() {
   async function refresh() {
     let res: Response;
     try {
-      res = await fetch("/api/notifications");
+      res = await fetch("/api/notifications", { cache: "no-store" });
     } catch {
       setHasLoadedOnce(true);
       return;
@@ -120,7 +120,7 @@ export function NotificationBell() {
           unreadCount > 0 ? t("notificationsWithCount", { count: unreadCount }) : t("notifications")
         }
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => { if (!open) void refresh(); setOpen((v) => !v); }}
         /* `min-h-11` clears the 44px comfortable touch target the emoji-sized
            button did not. The count is `aria-hidden` because the button's own
            label already states it — otherwise it is read twice. */

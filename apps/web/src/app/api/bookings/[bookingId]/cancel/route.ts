@@ -1,3 +1,4 @@
+import { isStaleBookingMutation, STALE_BOOKING_MESSAGE } from "@/lib/booking-conflict";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { BookingStatus } from "@/generated/prisma/client";
@@ -12,6 +13,7 @@ import {
 import { bookingOwnsItsCalendarEvent } from "@/lib/booking-calendar-ownership";
 import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
 import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -96,8 +98,10 @@ export async function POST(_req: Request, { params }: Props) {
     );
   }
 
-  const updated = await prisma.booking.update({
-    where: { id: booking.id },
+  let updated;
+  try {
+    updated = await prisma.booking.update({
+    where: { id: booking.id, status: booking.status },
     data: { status: BookingStatus.CANCELLED },
     select: {
       id: true,
@@ -106,6 +110,11 @@ export async function POST(_req: Request, { params }: Props) {
       endsAt: true,
     },
   });
+  } catch (error) {
+    if (isStaleBookingMutation(error)) return NextResponse.json({ error: STALE_BOOKING_MESSAGE }, { status: 409 });
+    throw error;
+  }
+  await notifyPrivateBookingEvent({ bookingId: booking.id, event: "cancelled" });
 
   // A seat's event belongs to the class, so cancelling one seat takes that
   // student off the guest list. Deleting it — which is right for a private

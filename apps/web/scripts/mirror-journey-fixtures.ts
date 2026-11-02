@@ -38,7 +38,7 @@ try {
     if (release && !/^mirror_test_[a-f0-9]{32}$/.test(schema)) throw new Error("Release journeys require an isolated test schema");
     const placement = release || process.argv.includes("--japanese-placement");
     const runId = `mirror-qa-${randomUUID()}`;
-    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student", "resume-english", "new-english-teacher", "new-japanese-teacher"] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
+    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student", "resume-english", "new-english-teacher", "new-japanese-teacher", "events-english", "events-japanese"] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
     const fixtures: Fixtures = { runId, schema, users, englishTeacherId: `${runId}-english-profile`, japaneseTeacherId: `${runId}-japanese-profile`, ...(placement ? { placementProductId: `${runId}-placement-product` } : {}), ...(release ? { trialProductId: `${runId}-trial-product`, pastBookings: { ENGLISH: `${runId}-past-en`, JAPANESE: `${runId}-past-ja` } } : {}) };
     mkdirSync("../../.impeccable", { recursive: true });
     // Record ownership before the transaction; cleanup is safe after failures.
@@ -78,6 +78,20 @@ try {
         lessonProductId: fixtures.trialProductId!, learningLanguage, status: "CONFIRMED", quotedPriceYen: 0,
         startsAt: new Date(Date.now() - 7_200_000), endsAt: new Date(Date.now() - 5_400_000),
       } });
+      if (release) for (const language of ["ENGLISH", "JAPANESE"] as const) {
+        const learner = users.find(user => user.id.endsWith(`-events-${language.toLowerCase()}`))!;
+        const date = new Date();
+        date.setUTCDate(date.getUTCDate() + ((8 - date.getUTCDay()) % 7 || 7));
+        date.setUTCHours(1, 0, 0, 0);
+        const bookingId = `${runId}-events-${language.toLowerCase()}-booking`;
+        await tx.booking.create({ data: { id: bookingId, studentId: learner.id, teacherId: language === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId,
+          lessonProductId: fixtures.placementProductId!, learningLanguage: language, status: "CONFIRMED", quotedPriceYen: 5000,
+          startsAt: date, endsAt: new Date(date.getTime() + 3_600_000) } });
+        // No real provider IDs: cancellation deliberately enters recovery, never Stripe.
+        await tx.payment.create({ data: { id: `${bookingId}-payment`, bookingId, studentId: learner.id,
+          teacherId: language === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId,
+          provider: "STRIPE", method: "CARD", idempotencyKey: `${bookingId}-payment`, amountYen: 5000, status: "SUCCEEDED" } });
+      }
     });
     console.log(JSON.stringify(fixtures));
   } else if (process.argv[2].startsWith("release-") && process.argv[2] !== "release-status") {
@@ -106,6 +120,22 @@ try {
     if (!fixtures.users.some(user => user.id === learnerId)) throw new Error("Unknown release learner");
     const learner = await prisma.user.findUniqueOrThrow({ where: { id: learnerId }, select: { role: true, learningLanguage: true } });
     if (learner.role !== "STUDENT") throw new Error("Student fixture required");
+    if (["release-notification-availability", "release-notification-settle"].includes(operation)) {
+      if (!learnerId.endsWith("-events-english") && !learnerId.endsWith("-events-japanese")) throw new Error("Lifecycle fixture required");
+      const language = learnerId.endsWith("-japanese") ? "JAPANESE" : "ENGLISH";
+      const bookingId = `${fixtures.runId}-events-${language.toLowerCase()}-booking`;
+      if (operation === "release-notification-availability") {
+        const { active } = z.object({ active: z.boolean() }).parse(input);
+        const teacherId = language === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId;
+        console.log(JSON.stringify(await prisma.availabilitySlot.updateMany({ where: { teacherId }, data: { active } }))); return;
+      }
+      const refund = await prisma.refund.findFirstOrThrow({ where: { bookingId, booking: { studentId: learnerId } } });
+      const settled = await prisma.refund.update({ where: { id: refund.id }, data: { status: "SUCCEEDED" } });
+      const { notifyPrivateBookingEvent } = await import("../src/lib/private-booking-notifications");
+      await notifyPrivateBookingEvent({ bookingId, event: "refund", refund: settled });
+      console.log(JSON.stringify({ id: settled.id, status: settled.status })); return;
+    }
+
     if (operation === "release-english-deadline") {
       const { attemptToken } = z.object({ learnerId: z.string(), attemptToken: z.string() }).strict().parse(input);
       const handle = parseEnglishAttemptHandle(attemptToken);

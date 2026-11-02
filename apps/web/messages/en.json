@@ -501,6 +501,8 @@
       "levelIntermediate": "Intermediate",
       "levelAdvanced": "Advanced",
       "rescheduleTitle": "Change lesson time",
+      "studentRescheduleHelp": "Choose an available time with the same teacher. You can move this lesson once before it starts; your payment stays with this booking.",
+      "rescheduleLimitReached": "This lesson has already been rescheduled. Contact your teacher if you need help.",
       "rescheduleHelp": "Updates this booking and sends updated times on Google Calendar to you and the student when calendars are connected.",
       "rescheduleLabel": "New start (your timezone)",
       "rescheduleSubmit": "Save new time",

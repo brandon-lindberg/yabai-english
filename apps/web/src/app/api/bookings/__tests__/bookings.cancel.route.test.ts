@@ -1,3 +1,5 @@
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
+vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn() }));
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
@@ -75,6 +77,14 @@ function baseBooking(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 describe("POST /api/bookings/[bookingId]/cancel", () => {
+  test("cancellation records a notification for both participants before refund processing", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT" } });
+    findUniqueMock.mockResolvedValue(baseBooking());
+    updateMock.mockResolvedValue({ ...baseBooking(), status: "CANCELLED" });
+    const response = await POST(new Request("http://localhost", { method: "POST" }), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(response.status).toBe(200);
+    expect(notifyPrivateBookingEvent).toHaveBeenCalledWith({ bookingId: "booking-1", event: "cancelled" });
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
@@ -175,7 +185,7 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
     });
     expect(updateMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: "booking-1" },
+        where: { id: "booking-1", status: "CONFIRMED" },
         data: { status: BookingStatus.CANCELLED },
       }),
     );

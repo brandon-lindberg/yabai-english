@@ -501,6 +501,8 @@
       "levelIntermediate": "中級",
       "levelAdvanced": "上級",
       "rescheduleTitle": "レッスン時間を変更",
+      "studentRescheduleHelp": "同じ講師の空いている時間を選んでください。開始前に1回だけ変更できます。お支払いはこの予約に引き継がれます。",
+      "rescheduleLimitReached": "このレッスンはすでに時間を変更しています。お困りの場合は講師にご相談ください。",
       "rescheduleHelp": "この予約の開始時刻を更新し、Google カレンダーが連携している場合は講師・受講生双方のカレンダーにも更新が送られます。",
       "rescheduleLabel": "新しい開始（あなたのタイムゾーン）",
       "rescheduleSubmit": "この時間で保存",
