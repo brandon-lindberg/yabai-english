@@ -79,7 +79,7 @@ describe("POST /api/bookings/[bookingId]/calendar/retry", () => {
     );
     expect(prismaMock.booking.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: "booking-1" },
+        where: { id: "booking-1", status: "CONFIRMED", startsAt: baseBooking.startsAt, googleEventId: null },
         data: expect.objectContaining({
           googleEventId: "event-1",
           meetUrl: "https://meet.google.com/abc-defg-hij",

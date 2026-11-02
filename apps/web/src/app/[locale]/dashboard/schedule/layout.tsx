@@ -45,6 +45,10 @@ export default async function DashboardScheduleLayout({ children }: { children: 
   const isTeacher =
     Boolean(session?.user?.role && shouldLoadTeacherBookingsOnSchedule(session.user.role)) &&
     hasTeacherProfile;
+  const hasRescheduleRequests = session?.user?.id ? Boolean(await prisma.booking.findFirst({ where: {
+    ...(isTeacher ? { teacherId: teacherProfile!.id } : { studentId: session.user.id }),
+    groupLessonSessionId: null, privateRescheduleStatus: { not: null },
+  }, select: { id: true } })) : false;
 
   return (
     <div className="space-y-8">
@@ -73,7 +77,7 @@ export default async function DashboardScheduleLayout({ children }: { children: 
         }
       />
 
-      <DashboardScheduleSubNav isTeacher={isTeacher} hasRefunds={hasRefunds} />
+      <DashboardScheduleSubNav isTeacher={isTeacher} hasRefunds={hasRefunds} hasRescheduleRequests={hasRescheduleRequests} />
 
       {children}
     </div>

@@ -20,7 +20,7 @@ export async function captureRelease(page: Page, name: string) {
   const metrics = await page.evaluate(() => ({ width: innerWidth, overflow: document.documentElement.scrollWidth > innerWidth,
     theme: document.documentElement.dataset.theme, locale: document.documentElement.lang, font: getComputedStyle(document.body).fontFamily }));
   expect(metrics.overflow).toBe(false);
-  await page.screenshot({ path: `${dir}/${name}.png`, fullPage: true, animations: "disabled" });
+  await page.screenshot({ path: `${dir}/${name}.png`, fullPage: true, animations: "disabled", caret: "initial" });
   await page.keyboard.press("Tab");
   const dialog = page.getByRole("dialog");
   const control = await dialog.isVisible() ? dialog.getByRole("button").first() : page.getByRole("button").first();

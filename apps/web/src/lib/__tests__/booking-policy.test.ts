@@ -5,6 +5,13 @@ describe("evaluateBookingCancellationPolicy", () => {
   const t0 = new Date("2026-04-10T12:00:00.000Z");
 
   describe("student", () => {
+    it("allows late cancellation without a refund and offers a replacement", () => {
+      expect(evaluateBookingCancellationPolicy({
+        actor: "STUDENT", bookingStatus: "CONFIRMED",
+        lessonStartsAt: new Date("2026-04-11T12:00:00.000Z"), now: t0,
+      })).toEqual({ allowed: true, refundEligible: false, rescheduleOffered: true });
+    });
+
     it("returns refund when cancelling at least 48h before lesson", () => {
       const lessonStartsAt = new Date("2026-04-12T12:00:00.000Z"); // exactly 48h later
       const r = evaluateBookingCancellationPolicy({

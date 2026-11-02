@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { routing } from "@/i18n/routing";
+import { revalidateBookingPaths } from "@/lib/revalidate-booking-paths";
+import { hasPendingPrivateReschedule, privateRescheduleRestoredData } from "@/lib/private-reschedule";
+import { ensureBookingCalendar } from "@/lib/booking-calendar-recovery";
 import { evaluateBookingReschedulePolicy } from "@/lib/booking-reschedule";
 import { validateBookingAgainstTeacherAvailability } from "@/lib/booking-slot-validation";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
@@ -30,7 +31,8 @@ export async function GET(_req: Request, { params }: Props) {
   const { bookingId } = await params;
   const booking = await loadRescheduleBooking(prisma, bookingId);
   if (!booking || session.user.role !== "STUDENT" || booking.studentId !== session.user.id) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  const policy = evaluateBookingReschedulePolicy({ actor: "STUDENT", bookingStatus: booking.status, lessonStartsAt: booking.startsAt, rescheduleCount: booking.rescheduleCount });
+  const policy = evaluateBookingReschedulePolicy({ actor: "STUDENT", bookingStatus: booking.status, lessonStartsAt: booking.startsAt,
+    rescheduleCount: booking.rescheduleCount, pendingPrivateReschedule: hasPendingPrivateReschedule(booking) });
   const slots = policy.allowed && !booking.groupLessonSessionId ? await listStudentRescheduleSlots(prisma, booking) : [];
   return NextResponse.json({ slots }, { headers: { "Cache-Control": "no-store" } });
 }
@@ -83,6 +85,7 @@ export async function POST(req: Request, { params }: Props) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const restoring = hasPendingPrivateReschedule(booking);
   const start = new Date(parsed.data.startsAt);
   if (booking.status === "CONFIRMED" && booking.startsAt.getTime() === start.getTime()) {
     return NextResponse.json({ ok: true, booking: { id: booking.id, startsAt: booking.startsAt, endsAt: booking.endsAt, rescheduleCount: booking.rescheduleCount, groupLessonSessionId: booking.groupLessonSessionId } });
@@ -93,6 +96,7 @@ export async function POST(req: Request, { params }: Props) {
     bookingStatus: booking.status,
     lessonStartsAt: booking.startsAt,
     rescheduleCount: booking.rescheduleCount,
+    pendingPrivateReschedule: restoring,
   });
   if (!policy.allowed) {
     return NextResponse.json(
@@ -114,7 +118,7 @@ export async function POST(req: Request, { params }: Props) {
     availabilitySlots: visibleAvailabilitySlots(
       slotsForLearningLanguage(booking.teacher.availabilitySlots, resolveLearningLanguage(booking.learningLanguage)),
       booking.studentId,
-    ).map((slot) => ({
+    ).filter(slot => !restoring || !slot.teacherLessonOffering?.isGroup).map((slot) => ({
       id: slot.id,
       dayOfWeek: slot.dayOfWeek,
       startMin: slot.startMin,
@@ -175,7 +179,6 @@ export async function POST(req: Request, { params }: Props) {
     return NextResponse.json({ error: "The teacher is teaching a school class during that time." }, { status: 409 });
   }
   const event = { bookingId: booking.id, previousStartsAt: booking.startsAt, startsAt: start, transitionId: booking.updatedAt?.toISOString() };
-  await notifyPrivateBookingEvent({ ...event, event: "reschedule_requested" });
 
   // Taking the new seat and moving the booking onto it happen together: a seat
   // claimed for a move that then failed would be held by nobody.
@@ -195,12 +198,14 @@ export async function POST(req: Request, { params }: Props) {
           : null;
 
       return tx.booking.update({
-        where: { id: booking.id, status: booking.status, startsAt: booking.startsAt, rescheduleCount: booking.rescheduleCount },
+        where: { id: booking.id, status: booking.status, startsAt: booking.startsAt, rescheduleCount: booking.rescheduleCount,
+          privateRescheduleStatus: booking.privateRescheduleStatus ?? null },
         data: {
           startsAt: start,
           endsAt,
           groupLessonSessionId,
           rescheduleCount: booking.rescheduleCount + 1,
+          ...(restoring ? privateRescheduleRestoredData() : {}),
         },
         select: {
           id: true,
@@ -275,10 +280,8 @@ export async function POST(req: Request, { params }: Props) {
     }) && calendarUpdated;
   }
 
-  for (const locale of routing.locales) {
-    revalidatePath(`/${locale}/dashboard`);
-    revalidatePath(`/${locale}/dashboard/schedule`);
-  }
+  if (restoring) calendarUpdated = (await ensureBookingCalendar(booking.id, { restoreStudentMirror: true })).ok;
+  revalidateBookingPaths();
 
   return NextResponse.json({ ok: true, booking: updated, calendarUpdated });
 }

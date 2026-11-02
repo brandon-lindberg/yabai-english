@@ -1,42 +1,52 @@
-# Private lesson notifications and student rescheduling
+# Private lesson cancellation and rescheduling
 
-Implemented on `the-mirror`, 2026-11-02. This follows MIRROR_PLAN.md section 6g and the owner's clarification that private-lesson notifications belong in the in-app bell.
+Implemented on `the-mirror`, 2026-11-02, following MIRROR_PLAN.md sections 6g–6i. Section 6i records the owner's final clarification and supersedes the earlier restriction that kept a late-cancelled lesson confirmed.
 
 ## Student flow
 
-Open a future confirmed private lesson from the schedule calendar. **Change lesson time** appears after the server finds at least one bookable alternative with the same teacher. It stays hidden when availability cannot be confirmed, the lesson has started, or the student's one permitted move is already used.
+**Cancel booking** opens a read-only choice screen. Dismissing it changes neither the lesson nor its payment. At least 48 hours before the start, a student may confirm an eligible cancellation/refund or choose a published available replacement time. A direct move retains the original booking, price and payment, and releases the old time when the replacement is saved.
 
-The availability read uses the booking's saved learning language, the existing availability builder, assignments, occurrence skips, publishing window, 48-hour destination lead time and lesson duration. It removes the current start, held marketplace times, materialized school bookings and recurring school classes. An active availability row alone does not qualify. The read is restricted to the owning student and returns slot data without other learners' identities.
+Inside 48 hours, **Cancel and request reschedule** cancels the original lesson **without a refund**, releases the old slot and records a pending replacement request. Both participants are notified. This succeeds even when the teacher has no published replacement times; the original lesson does not remain booked. The request remains accessible under **Schedule → Rescheduling**.
 
-The picker reuses `SlotSelectionCalendar`. Its initial day view shows actual available times; a compact month view fits the lesson dialog and opens a date's times. The existing POST endpoint rechecks eligibility and availability before moving the original booking. Price and payment stay attached to it. The destination remains teacher-published availability, so the existing immediate rescheduling policy applies. The one-move rule and group/school workflows retain their existing policies.
+The student may select a published replacement time when one exists. It confirms immediately and restores the same paid booking. Availability uses the saved booking subject, assignments, occurrence skips, publishing window, destination lead time, duration, occupied marketplace slots and school teaching conflicts. The student's existing one-move allowance is retained. A pending request survives its original lesson start time; a permanently closed or refund-claimed request cannot restore a booking. An exhausted student allowance leaves arrangement to the teacher.
 
-Unchanged-time retries return the existing booking. Optimistic conditions on student moves, teacher moves and cancellation reject stale edits with a conflict response. The student route also checks school teaching conflicts. Calendar/Meet updates use the existing integration, and a partial Calendar result is reported separately from a saved booking move.
+Student screens show the late-cancellation no-refund policy and replacement options. They contain no discretionary refund controls, suggestions to ask for an exception, or teacher resolution controls. The server rejects student access to the teacher resolution endpoint.
 
-## Notifications
+## Teacher resolution
 
-One shared private-booking notifier delivers English/Japanese messages to the student and teacher for cancellation, reschedule request receipt, successful rescheduling, and refunds. Copy uses the booking's saved subject and each recipient's timezone. Request receipt describes the request reaching the existing move endpoint; it does not introduce a teacher approval step. A successful move sends the separate completion notice.
+The owning teacher can use the existing lesson-time form to arrange a new time, issue a discretionary full refund, or permanently close an unresolved request without refunding. Closing the request acts on an already student-cancelled lesson; it does not invoke the normal teacher-cancellation policy that automatically refunds a confirmed lesson. Normal teacher cancellations and group workflows retain their existing rules.
 
-Cancellation is announced after it is saved. Refund status controls the refund message: only `SUCCEEDED` says the lesson was refunded; pending/recovery states say the refund has not completed. A later successful Stripe refund update sends completion to both participants. Existing refund amounts, eligibility and payment integration are reused.
+Refund and permanent closure require explicit confirmation. A refund decision claims the booking before contacting the existing refund service, preventing a competing replacement or closure. Stored refunds are returned on retry, and full-refund provider calls use a stable payment-based idempotency key. Provider errors retain the refund decision and allow retry; a short claim window protects in-progress attempts. Pending/recovery refunds keep their existing administrative recovery path. Admin resolutions retain their admin actor in the refund audit.
 
-Stable per-recipient notification IDs suppress repeated delivery of the same stored event, including repeated settled-refund webhooks. A later repeat of an earlier move is distinguished by the booking revision. The existing bell receives realtime updates and fetches current persisted notifications when opened, covering a missed socket update.
+Only an actual teacher-initiated refund produces student refund notifications/status. Pending and completed refunds remain distinct. The student gains no entitlement or refund request action from the teacher's discretionary option.
+
+## Stored state and shared services
+
+The additive migration `20261102010000_private_lesson_reschedule_workflow` adds nullable private-request status and request/resolution timestamps to Booking, plus indexes. `PENDING` accompanies a cancelled original slot; `RESCHEDULED` records restoration; `CLOSED` ends replacement eligibility; `REFUND_REQUESTED` prevents replacement while a discretionary refund is handled. Historic records stay null and gain no inferred entitlement. The migration is applied locally and the Prisma client is regenerated.
+
+Cancellation preview and confirmation use the same server policy. Confirmation checks its explicit intent: if an offered refund has crossed the cutoff, nothing is cancelled until the student reviews and confirms the no-refund option separately. Optimistic writes guard booking status, original time and request state so stale moves or resolutions fail safely.
+
+The shared cancellation control serves dashboard rows and lesson dialogs. The existing slot picker and teacher date form are reused. Stateful teacher controls and the notification trigger remain disabled until their client handlers are ready, preventing early input or clicks from being lost during hydration. Layouts use the existing Impeccable design primitives and English/Japanese messages.
+
+Calendar/Meet uses the existing connections and services. Late cancellation removes the old events. Restoring a request recreates the meeting through the shared calendar-recovery helper, also used by the existing manual retry endpoint, and restores an opted-in student mirror. Stale recovery cannot overwrite a changed booking. A saved move is distinguished from a partial Calendar update.
+
+Immediate moves send one completed notice per participant. A request notice is now reserved for a real saved late-cancellation request; it describes a replacement needing arrangement, rather than claiming teacher approval is required. Closure has its own notice. The existing bell refresh/realtime transport and stored-event deduplication are reused.
 
 ## Verification
 
-TDD red/green evidence is recorded in `.impeccable/booking-notifications-red.log`, `reschedule-availability-red.log`, `booking-lifecycle-routes-red.log`, `refund-notifications-red.log`, `refund-retry-red.log` and `reschedule-compact-red.log`.
+TDD red/green evidence is retained in `.impeccable/private-reschedule-red.log`, `private-request-cancel-red.log`, `private-request-resolution-red.log`, `private-request-restore-red.log`, `private-request-ui-red.log`, `private-request-cancel-ui-red.log`, `private-request-refund-intent-red.log`, `private-request-history-red.log`, `private-request-admin-red.log`, `private-request-hydration-red.log` and `private-request-bell-ready-red.log`.
 
-- `yarn test:mirror`: 723 passed, one skipped, three existing TODOs; safe config has no database seeding.
-- TypeScript, full ESLint, whitespace check and isolated production build pass.
-- Full browser runs before and after the layout correction pass all 16 English/Japanese journeys; final layout confirmation is recorded in `.impeccable/booking-lifecycle-browser-final.log`.
-- New paired journeys remove/restore teacher availability, verify the hidden action and server rejection, move through the actual picker, preserve booking/payment identity, enforce the used-move limit, and inspect both users' persisted alerts and notification bells through cancellation, pending refund and refund completion.
+- Safe mirror suite: 762 passed, one skipped and three existing TODOs; no application database seeding.
+- The isolated PostgreSQL migration regression passes, preserving historic values with the three new fields null and verifying the datamodel.
+- All 24 browser journeys pass, recorded in `private-request-browser-full.log`. Ten lifecycle journeys cover both learning subjects and every student/teacher outcome; fourteen existing journeys cover placement, study, onboarding and completed-lesson records.
+- TypeScript, full ESLint and the final production build pass, recorded in `private-request-types.log`, `private-request-lint.log` and `private-request-build.log`.
 
-Browser verification uses a disposable PostgreSQL schema and explicit synthetic payments. The settlement fixture invokes the shared notifier twice to check persisted deduplication; mocked unit tests separately verify the actual Stripe webhook dispatch and retry path. These checks do not exercise a live Stripe charge/refund or live Google Calendar. Visual evidence uses Chromium at 1440px/light/English and 390px/dark/Japanese, rather than physical phones or Safari.
+Browser tests use a disposable PostgreSQL schema and explicit synthetic payments. Teacher refund tests deliberately use missing synthetic provider IDs to exercise recovery without moving real money. Existing settled-refund fixtures invoke the real shared notifier; mocked unit tests separately verify provider/webhook dispatch, retries and idempotency. Live Stripe refunds and live Google Calendar are not exercised. Visual review uses Chromium at 1440px/light/English and 390px/dark/Japanese; physical devices and Safari remain untested.
 
-Both full browser runs preserve all 27 application-table fingerprints. Owned test accounts, fixture manifests, schemas and connections were removed. Recorded browser/fixture processes and final test/build sessions have exited; port 3100 is released. Impeccable review used one desktop/mobile pass and one compact-picker correction/confirmation round.
+All five browser runs confirm the 27 application-table fingerprints are unchanged; owned accounts, disposable schemas and connections are removed. Visual review is bounded to one desktop/mobile pass and one confirmation; screenshot caret mutation is disabled so capture does not alter markup during hydration. Task-owned test, preview and build processes have exited, the fixture manifest is removed and port 3100 is released.
 
-## Audit boundaries
+## Existing boundaries
 
-The optimistic booking conditions protect concurrent edits to the same reservation. The wider pre-existing booking system checks overlaps before writing; this work does not establish serializable exclusion across every independent booking/create/school path. A cross-path concurrency guarantee would require coordinated booking writes.
+Same-booking edits and request resolutions use optimistic conditions. This does not establish a global serializable exclusion across every independent marketplace and school booking writer. Notification deduplication uses existing notification rows; a very late retry can recreate a notice after that row has been dismissed. Permanent event receipts and a background outbox remain separate infrastructure work.
 
-Notification deduplication uses existing notification rows. Dismissing a row removes its deduplication record; an unusually late provider retry could recreate a dismissed notice. This is not a permanent event-receipt ledger or background outbox. Provider failures and asynchronous recovery continue to use the existing payment/calendar infrastructure.
-
-No schema migration or content publication is required. Brandon retains staging, commits and pushes.
+No historic cancellation is converted into a replacement request, no content is published, and Brandon retains staging, commits and pushes.

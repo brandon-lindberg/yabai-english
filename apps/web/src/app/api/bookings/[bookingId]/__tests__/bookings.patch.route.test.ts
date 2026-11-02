@@ -1,5 +1,6 @@
 import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
 vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn() }));
+vi.mock("@/lib/booking-calendar-recovery", () => ({ ensureBookingCalendar: vi.fn().mockResolvedValue({ ok: true }) }));
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 import { conversationProduct, lessonSubjectCases } from "../../../../../../test/lesson-subject-fixture";
@@ -56,13 +57,13 @@ vi.mock("@/lib/notifications", () => ({
 
 import { PATCH } from "@/app/api/bookings/[bookingId]/route";
 
-test("teacher time changes notify both participants at request and completion", async () => {
+test("immediate teacher time changes send only the confirmed outcome", async () => {
   authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
   findUniqueMock.mockResolvedValue(baseBooking()); findFirstMock.mockResolvedValue(null); findManyMock.mockResolvedValue([]);
   updateMock.mockImplementation(async ({ data }: { data: object }) => ({ ...baseBooking(), ...data }));
   const response = await PATCH(new Request("http://localhost", { method: "PATCH", body: JSON.stringify({ startsAt: "2030-01-01T01:00:00.000Z" }) }), { params: Promise.resolve({ bookingId: "booking-1" }) });
   expect(response.status).toBe(200);
-  expect(vi.mocked(notifyPrivateBookingEvent).mock.calls.map(([arg]) => arg.event)).toEqual(["reschedule_requested", "rescheduled"]);
+  expect(vi.mocked(notifyPrivateBookingEvent).mock.calls.map(([arg]) => arg.event)).toEqual(["rescheduled"]);
 });
 
 const now = new Date("2026-05-10T12:00:00.000Z");
@@ -93,6 +94,15 @@ function baseBooking(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 describe("PATCH /api/bookings/[bookingId]", () => {
+  test("the teacher can agree a new time for an unresolved cancelled private lesson", async () => {
+    authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
+    findUniqueMock.mockResolvedValue(baseBooking({ status: "CANCELLED", privateRescheduleStatus: "PENDING", startsAt: new Date("2020-01-01"), rescheduleCount: 0 }));
+    findFirstMock.mockResolvedValue(null);
+    updateMock.mockImplementation(async ({ data }: { data: object }) => ({ ...baseBooking(), ...data }));
+    const response = await PATCH(new Request("http://localhost", { method: "PATCH", body: JSON.stringify({ startsAt: "2030-01-01T01:00:00.000Z" }) }), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(response.status).toBe(200);
+    expect(updateMock.mock.calls[0][0].data).toMatchObject({ status: "CONFIRMED", privateRescheduleStatus: "RESCHEDULED" });
+  });
   test.each(lessonSubjectCases)("rescheduling a $learningLanguage booking retains its label and moves the same calendar events", async ({ learningLanguage, otherLanguage, nameEn, nameJa }) => {
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER", learningLanguage: otherLanguage } });
     const booking = baseBooking({ learningLanguage, lessonProduct: conversationProduct });
@@ -303,7 +313,7 @@ describe("PATCH /api/bookings/[bookingId]", () => {
 
     expect(res.status).toBe(200);
     expect(updateMock).toHaveBeenCalledWith({
-      where: { id: "booking-1", status: "CONFIRMED", startsAt: baseBooking().startsAt },
+      where: { id: "booking-1", status: "CONFIRMED", startsAt: baseBooking().startsAt, privateRescheduleStatus: null },
       data: { startsAt: newStart, endsAt: newEnd },
       select: expect.any(Object),
     });

@@ -43,6 +43,13 @@ enum BookingStatus {
   COMPLETED
 }
 
+enum PrivateRescheduleStatus {
+  PENDING
+  RESCHEDULED
+  CLOSED
+  REFUND_REQUESTED
+}
+
 enum LessonTier {
   FREE_TRIAL
   STANDARD
@@ -950,6 +957,10 @@ model Booking {
   /// How many times this lesson has been moved. Caps student reschedules so a
   /// paid booking cannot be moved indefinitely.
   rescheduleCount       Int           @default(0)
+  /// A late student cancellation releases the old slot and keeps a replacement request.
+  privateRescheduleStatus PrivateRescheduleStatus?
+  rescheduleRequestedAt DateTime?
+  rescheduleResolvedAt  DateTime?
   manualOverrideUsed    Boolean       @default(false)
   manualOverrideReason  String?       @db.Text
   manualOverrideByRole  Role?
@@ -980,6 +991,8 @@ model Booking {
   @@index([teacherId, startsAt])
   @@index([status, holdExpiresAt])
   @@index([groupLessonSessionId])
+  @@index([privateRescheduleStatus, teacherId])
+  @@index([privateRescheduleStatus, studentId])
 }
 
 model Invoice {

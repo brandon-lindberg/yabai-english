@@ -7,6 +7,7 @@ import { subscribeRealtime } from "@/lib/realtime-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import { Link } from "@/i18n/navigation";
+import { useHydrated } from "@/hooks/use-hydrated";
 
 type NotificationItem = {
   id: string;
@@ -20,6 +21,7 @@ type NotificationItem = {
 };
 
 export function NotificationBell() {
+  const ready = useHydrated();
   const t = useTranslations("common");
   const locale = useLocale();
   const { data: session } = useVerifiedSession();
@@ -116,6 +118,7 @@ export function NotificationBell() {
     <div ref={rootRef} className="sm:relative">
       <button
         type="button"
+        disabled={!ready}
         aria-label={
           unreadCount > 0 ? t("notificationsWithCount", { count: unreadCount }) : t("notifications")
         }

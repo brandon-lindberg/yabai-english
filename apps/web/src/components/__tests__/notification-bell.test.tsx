@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
+import { renderToString } from "react-dom/server";
 
 vi.mock("next-auth/react", () => ({
   useSession: () => ({
@@ -46,6 +47,11 @@ function jsonResponse(body: unknown) {
 }
 
 describe("NotificationBell", () => {
+  test("the server-rendered bell waits for its click handler before accepting input", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<NextIntlClientProvider locale="en" messages={en}><NotificationBell /></NextIntlClientProvider>);
+    expect(container.querySelector("button")).toBeDisabled();
+  });
   const fetchMock = vi.fn();
 
   beforeEach(() => {

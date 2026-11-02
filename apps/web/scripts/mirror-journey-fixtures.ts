@@ -20,6 +20,7 @@ if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(connectionString).host
 const schema = new URL(connectionString).searchParams.get("schema") ?? "public";
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString, application_name: "mirror-journey-fixtures" }, { schema }) });
 const file = "../../.impeccable/mirror-fixtures.json";
+const lifecycleKinds = ["events", "cancel-late", "cancel-teacher", "cancel-close", "cancel-refund"] as const;
 export type Fixtures = { runId: string; schema?: string; users: { id: string; email: string }[]; englishTeacherId: string; japaneseTeacherId: string; placementProductId?: string; trialProductId?: string; pastBookings?: { ENGLISH: string; JAPANESE: string } };
 function readOwnedFixtures(): Fixtures {
   const fixtures = JSON.parse(readFileSync(file, "utf8")) as Fixtures;
@@ -38,7 +39,7 @@ try {
     if (release && !/^mirror_test_[a-f0-9]{32}$/.test(schema)) throw new Error("Release journeys require an isolated test schema");
     const placement = release || process.argv.includes("--japanese-placement");
     const runId = `mirror-qa-${randomUUID()}`;
-    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student", "resume-english", "new-english-teacher", "new-japanese-teacher", "events-english", "events-japanese"] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
+    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student", "resume-english", "new-english-teacher", "new-japanese-teacher", ...lifecycleKinds.flatMap(kind => [`${kind}-english`, `${kind}-japanese`])] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
     const fixtures: Fixtures = { runId, schema, users, englishTeacherId: `${runId}-english-profile`, japaneseTeacherId: `${runId}-japanese-profile`, ...(placement ? { placementProductId: `${runId}-placement-product` } : {}), ...(release ? { trialProductId: `${runId}-trial-product`, pastBookings: { ENGLISH: `${runId}-past-en`, JAPANESE: `${runId}-past-ja` } } : {}) };
     mkdirSync("../../.impeccable", { recursive: true });
     // Record ownership before the transaction; cleanup is safe after failures.
@@ -78,12 +79,16 @@ try {
         lessonProductId: fixtures.trialProductId!, learningLanguage, status: "CONFIRMED", quotedPriceYen: 0,
         startsAt: new Date(Date.now() - 7_200_000), endsAt: new Date(Date.now() - 5_400_000),
       } });
-      if (release) for (const language of ["ENGLISH", "JAPANESE"] as const) {
-        const learner = users.find(user => user.id.endsWith(`-events-${language.toLowerCase()}`))!;
+      if (release) for (const kind of lifecycleKinds) for (const language of ["ENGLISH", "JAPANESE"] as const) {
+        const learner = users.find(user => user.id.endsWith(`-${kind}-${language.toLowerCase()}`))!;
         const date = new Date();
-        date.setUTCDate(date.getUTCDate() + ((8 - date.getUTCDay()) % 7 || 7));
-        date.setUTCHours(1, 0, 0, 0);
-        const bookingId = `${runId}-events-${language.toLowerCase()}-booking`;
+        if (kind !== "events") {
+          date.setTime(date.getTime() + 86_400_000 + (lifecycleKinds.indexOf(kind) - 1) * 7_200_000); date.setUTCMinutes(0, 0, 0);
+        } else {
+          date.setUTCDate(date.getUTCDate() + ((8 - date.getUTCDay()) % 7 || 7));
+          date.setUTCHours(1, 0, 0, 0);
+        }
+        const bookingId = `${runId}-${kind}-${language.toLowerCase()}-booking`;
         await tx.booking.create({ data: { id: bookingId, studentId: learner.id, teacherId: language === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId,
           lessonProductId: fixtures.placementProductId!, learningLanguage: language, status: "CONFIRMED", quotedPriceYen: 5000,
           startsAt: date, endsAt: new Date(date.getTime() + 3_600_000) } });
@@ -121,9 +126,10 @@ try {
     const learner = await prisma.user.findUniqueOrThrow({ where: { id: learnerId }, select: { role: true, learningLanguage: true } });
     if (learner.role !== "STUDENT") throw new Error("Student fixture required");
     if (["release-notification-availability", "release-notification-settle"].includes(operation)) {
-      if (!learnerId.endsWith("-events-english") && !learnerId.endsWith("-events-japanese")) throw new Error("Lifecycle fixture required");
+      const kind = lifecycleKinds.find(kind => learnerId.endsWith(`-${kind}-english`) || learnerId.endsWith(`-${kind}-japanese`));
+      if (!kind) throw new Error("Lifecycle fixture required");
       const language = learnerId.endsWith("-japanese") ? "JAPANESE" : "ENGLISH";
-      const bookingId = `${fixtures.runId}-events-${language.toLowerCase()}-booking`;
+      const bookingId = `${fixtures.runId}-${kind}-${language.toLowerCase()}-booking`;
       if (operation === "release-notification-availability") {
         const { active } = z.object({ active: z.boolean() }).parse(input);
         const teacherId = language === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId;
@@ -187,7 +193,7 @@ try {
       if (!fixtures.trialProductId || !/^mirror_test_[a-f0-9]{32}$/.test(schema)) throw new Error("Release operations require isolated fixtures");
       console.log(JSON.stringify({
         users: await prisma.user.findMany({ where: { id: { in: fixtures.users.map(user => user.id) } }, select: { id: true, learningLanguage: true, studentProfile: true, teacherProfile: { select: { onboardingCompletedAt: true, skippedOnboardingSteps: true } } } }),
-        bookings: await prisma.booking.findMany({ where: { studentId: { in: fixtures.users.map(user => user.id) } }, include: { payments: true, invoice: true } }),
+        bookings: await prisma.booking.findMany({ where: { studentId: { in: fixtures.users.map(user => user.id) } }, include: { payments: true, refunds: true, invoice: true } }),
         draft: await prisma.studyTrack.findUnique({ where: { slug: "japanese-flashcards" }, select: { publicationStatus: true, catalogSnapshotId: true } }),
       }));
       return;

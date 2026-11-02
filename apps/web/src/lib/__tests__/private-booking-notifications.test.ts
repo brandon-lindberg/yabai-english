@@ -12,7 +12,7 @@ beforeEach(() => {
   });
 });
 
-test.each(["cancelled", "reschedule_requested", "rescheduled"] as const)("%s reaches both participants with subject, local time and a usable destination", async event => {
+test.each(["cancelled", "rescheduled"] as const)("%s reaches both participants with subject, local time and a usable destination", async event => {
   await notifyPrivateBookingEvent({ bookingId: "booking", event, previousStartsAt: new Date("2026-11-30T02:00:00Z"), startsAt: new Date("2026-12-01T02:00:00Z") });
   expect(mocks.notify.mock.calls.map(([arg]) => arg.userId).sort()).toEqual(["student", "teacher"]);
   for (const [arg] of mocks.notify.mock.calls) {

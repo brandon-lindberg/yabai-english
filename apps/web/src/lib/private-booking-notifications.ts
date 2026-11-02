@@ -5,7 +5,7 @@ import { lessonProductNames } from "./lesson-product-catalog";
 
 type Input = {
   bookingId: string;
-  event: "cancelled" | "reschedule_requested" | "rescheduled" | "refund";
+  event: "cancelled" | "rescheduled" | "reschedule_requested" | "reschedule_closed" | "refund";
   previousStartsAt?: Date;
   startsAt?: Date;
   transitionId?: string;
@@ -51,15 +51,20 @@ export async function notifyPrivateBookingEvent(input: Input) {
       bodyEn = `Your ${names.nameEn} lesson on ${date(at, "en")} was cancelled.`;
       bodyJa = `${date(at, "ja")} の ${names.nameJa} はキャンセルされました。`;
     } else if (input.event === "reschedule_requested") {
-      titleEn = "Lesson reschedule requested"; titleJa = "レッスンの時間変更がリクエストされました";
-      bodyEn = `A request to move your ${names.nameEn} lesson to ${date(at, "en")} was received. The new time is not confirmed by this notice.`;
-      bodyJa = `${names.nameJa} を ${date(at, "ja")} に変更するリクエストを受け付けました。この通知だけでは時間変更は確定しません。`;
+      titleEn = "Lesson reschedule requested"; titleJa = "レッスンの再予約がリクエストされました";
+      bodyEn = `The original ${names.nameEn} lesson on ${date(at, "en")} is cancelled without a refund. A replacement time needs to be arranged${userId === booking.studentId ? " with your teacher" : " with your student"}.`;
+      bodyJa = `${date(at, "ja")} の ${names.nameJa} は返金なしでキャンセルされました。${userId === booking.studentId ? "講師" : "受講生"}と新しい日時を相談してください。`;
+    } else if (input.event === "reschedule_closed") {
+      titleEn = "Reschedule request closed"; titleJa = "再予約リクエストが終了しました";
+      bodyEn = `No replacement time was arranged for your ${names.nameEn} lesson. The lesson remains cancelled.`;
+      bodyJa = `${names.nameJa} の新しい日時が決まらなかったため、再予約リクエストが終了しました。レッスンはキャンセルされたままです。`;
     } else {
       titleEn = "Lesson rescheduled"; titleJa = "レッスンの時間が変更されました";
       bodyEn = `Your ${names.nameEn} lesson was moved${input.previousStartsAt ? ` from ${date(input.previousStartsAt, "en")}` : ""} to ${date(at, "en")}. Your payment stays with this booking.`;
       bodyJa = `${names.nameJa} は${input.previousStartsAt ? ` ${date(input.previousStartsAt, "ja")} から` : ""} ${date(at, "ja")} に変更されました。お支払いはこの予約に引き継がれます。`;
     }
     await createUserNotification({ userId, titleEn, titleJa, bodyEn, bodyJa,
-      href: input.event === "refund" ? "/dashboard/schedule/refunded" : "/dashboard/schedule", deduplicationKey: eventKey });
+      href: input.event === "refund" ? "/dashboard/schedule/refunded"
+        : ["reschedule_requested", "reschedule_closed"].includes(input.event) ? "/dashboard/schedule/reschedule" : "/dashboard/schedule", deduplicationKey: eventKey });
   }));
 }

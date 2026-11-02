@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { routing } from "@/i18n/routing";
+import { revalidateBookingPaths } from "@/lib/revalidate-booking-paths";
+import { hasPendingPrivateReschedule, privateRescheduleRestoredData } from "@/lib/private-reschedule";
+import { ensureBookingCalendar } from "@/lib/booking-calendar-recovery";
 import { evaluateBookingRescheduleTimes } from "@/lib/booking-reschedule-policy";
 import { patchMeetLessonEvent } from "@/lib/google-calendar";
 import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
@@ -103,6 +104,7 @@ export async function PATCH(req: Request, { params }: Props) {
     bookingStatus: booking.status,
     previousStartsAt: booking.startsAt,
     newStartsAt: newStart,
+    pendingPrivateReschedule: hasPendingPrivateReschedule(booking),
   });
   if (!timeCheck.ok) {
     const message =
@@ -158,12 +160,12 @@ export async function PATCH(req: Request, { params }: Props) {
   }
 
   const event = { bookingId: booking.id, previousStartsAt: booking.startsAt, startsAt: newStart, transitionId: booking.updatedAt?.toISOString() };
-  await notifyPrivateBookingEvent({ ...event, event: "reschedule_requested" });
   let updated;
   try {
     updated = await prisma.booking.update({
-    where: { id: booking.id, status: booking.status, startsAt: booking.startsAt },
-    data: { startsAt: newStart, endsAt: newEnd },
+    where: { id: booking.id, status: booking.status, startsAt: booking.startsAt, privateRescheduleStatus: booking.privateRescheduleStatus ?? null },
+    data: { startsAt: newStart, endsAt: newEnd, ...(hasPendingPrivateReschedule(booking)
+      ? { ...privateRescheduleRestoredData(), rescheduleCount: booking.rescheduleCount + 1 } : {}) },
     select: {
       id: true,
       startsAt: true,
@@ -205,16 +207,15 @@ export async function PATCH(req: Request, { params }: Props) {
       : Promise.resolve(true),
   ]);
 
-  for (const locale of routing.locales) {
-    revalidatePath(`/${locale}/dashboard`);
-    revalidatePath(`/${locale}/dashboard/schedule`);
-  }
+  const calendarUpdated = hasPendingPrivateReschedule(booking)
+    ? (await ensureBookingCalendar(booking.id, { restoreStudentMirror: true })).ok : teacherPatchOk && studentPatchOk;
+  revalidateBookingPaths();
 
   return NextResponse.json({
     id: updated.id,
     startsAt: updated.startsAt.toISOString(),
     endsAt: updated.endsAt.toISOString(),
     status: updated.status,
-    calendarUpdated: teacherPatchOk && studentPatchOk,
+    calendarUpdated,
   });
 }

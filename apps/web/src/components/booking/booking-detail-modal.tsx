@@ -15,7 +15,6 @@ import { TeacherLessonCompletionNotesForm } from "@/components/dashboard/teacher
 import { MarkdownClamp } from "@/components/ui/markdown-clamp";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import { useRouter } from "@/i18n/navigation";
-import { StudentReschedule } from "./student-reschedule";
 
 /**
  * What one reservation on a calendar actually is.
@@ -183,8 +182,8 @@ function BookingDetailDialog({
           ) : null}
           {viewer === "student" && awaitingPayment ? (
             <PendingReservationActions bookingId={booking.id} />
-          ) : canCancel ? (
-            <BookingCancelButton bookingId={booking.id} />
+          ) : viewer === "teacher" && canCancel ? (
+            <BookingCancelButton bookingId={booking.id} withinDialog onCompleted={onClose} />
           ) : null}
         </>
       }
@@ -238,8 +237,8 @@ function BookingDetailDialog({
           </DetailRow>
         ) : null}
       </dl>
-      {viewer === "student" && !started && booking.status === "CONFIRMED" && !booking.groupSeats ? (
-        <div className="mt-5"><StudentReschedule bookingId={booking.id} timeZone={timeZone} onSaved={onClose} /></div>
+      {viewer === "student" && canCancel && !awaitingPayment ? (
+        <div className="mt-5"><BookingCancelButton bookingId={booking.id} withinDialog onCompleted={onClose} /></div>
       ) : null}
 
       {/*

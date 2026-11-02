@@ -31,16 +31,18 @@ export function evaluateBookingReschedulePolicy(input: {
   bookingStatus: BookingStatus;
   lessonStartsAt: Date;
   rescheduleCount: number;
+  pendingPrivateReschedule?: boolean;
   now?: Date;
 }): ReschedulePolicyResult {
   // Only a paid lesson has something worth preserving. An unpaid one should be
   // cancelled and rebooked, which costs the student nothing.
-  if (input.bookingStatus !== "CONFIRMED") {
+  const replacement = input.bookingStatus === "CANCELLED" && input.pendingPrivateReschedule;
+  if (input.bookingStatus !== "CONFIRMED" && !replacement) {
     return { allowed: false, reason: "NOT_CONFIRMED" };
   }
 
   const now = input.now ?? new Date();
-  if (input.lessonStartsAt.getTime() <= now.getTime()) {
+  if (!replacement && input.lessonStartsAt.getTime() <= now.getTime()) {
     return { allowed: false, reason: "ALREADY_STARTED" };
   }
 

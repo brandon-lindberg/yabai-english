@@ -1,5 +1,6 @@
 import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
 vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn() }));
+vi.mock("@/lib/booking-calendar-recovery", () => ({ ensureBookingCalendar: vi.fn().mockResolvedValue({ ok: true }) }));
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
@@ -113,17 +114,23 @@ function request(body: Record<string, unknown>) {
 const params = { params: Promise.resolve({ bookingId: "booking-1" }) };
 
 describe("POST /api/bookings/[bookingId]/reschedule", () => {
+  test("a pending late cancellation can restore its paid booking after the original start has passed", async () => {
+    findUniqueMock.mockResolvedValue(booking({ status: "CANCELLED", privateRescheduleStatus: "PENDING", startsAt: new Date("2020-01-01"), googleEventId: null }));
+    const response = await POST(request({ startsAt: NEW_START.toISOString() }), params);
+    expect(response.status).toBe(200);
+    expect(updateMock.mock.calls[0][0].data).toMatchObject({ status: "CONFIRMED", privateRescheduleStatus: "RESCHEDULED", rescheduleCount: 1 });
+  });
   test("a conflicting write returns a recoverable conflict and never confirms a move", async () => {
     updateMock.mockRejectedValueOnce({ code: "P2025" });
     const response = await POST(request({ startsAt: NEW_START.toISOString() }), params);
     expect(response.status).toBe(409);
-    expect(vi.mocked(notifyPrivateBookingEvent).mock.calls.map(([arg]) => arg.event)).toEqual(["reschedule_requested"]);
+    expect(notifyPrivateBookingEvent).not.toHaveBeenCalled();
     expect(patchMeetMock).not.toHaveBeenCalled();
   });
-  test("a valid private move notifies request receipt and completion using the same booking", async () => {
+  test("an immediate private move sends only its confirmed outcome", async () => {
     const response = await POST(request({ startsAt: NEW_START.toISOString() }), params);
     expect(response.status).toBe(200);
-    expect(vi.mocked(notifyPrivateBookingEvent).mock.calls.map(([arg]) => arg.event)).toEqual(["reschedule_requested", "rescheduled"]);
+    expect(vi.mocked(notifyPrivateBookingEvent).mock.calls.map(([arg]) => arg.event)).toEqual(["rescheduled"]);
   });
 
   test("retrying an unchanged time does not consume a move or notify either participant again", async () => {
@@ -149,7 +156,7 @@ describe("POST /api/bookings/[bookingId]/reschedule", () => {
 
     expect(res.status).toBe(200);
     const call = updateMock.mock.calls[0][0];
-    expect(call.where).toEqual({ id: "booking-1", status: "CONFIRMED", startsAt: CURRENT_START, rescheduleCount: 0 });
+    expect(call.where).toEqual({ id: "booking-1", status: "CONFIRMED", startsAt: CURRENT_START, rescheduleCount: 0, privateRescheduleStatus: null });
     expect(call.data.startsAt).toEqual(NEW_START);
     // The whole point: no refund, no re-charge, same booking row.
     expect(Object.keys(call.data)).not.toContain("quotedPriceYen");

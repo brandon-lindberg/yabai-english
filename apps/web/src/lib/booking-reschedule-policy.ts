@@ -12,6 +12,7 @@ export function evaluateBookingRescheduleTimes(input: {
   bookingStatus: BookingStatus;
   previousStartsAt: Date;
   newStartsAt: Date;
+  pendingPrivateReschedule?: boolean;
   now?: Date;
 }):
   | { ok: true; unchanged: boolean }
@@ -19,7 +20,8 @@ export function evaluateBookingRescheduleTimes(input: {
   const now = input.now ?? new Date();
   if (
     input.bookingStatus !== "CONFIRMED" &&
-    input.bookingStatus !== "PENDING_PAYMENT"
+    input.bookingStatus !== "PENDING_PAYMENT" &&
+    !(input.bookingStatus === "CANCELLED" && input.pendingPrivateReschedule)
   ) {
     return { ok: false, reason: "INVALID_STATUS" };
   }

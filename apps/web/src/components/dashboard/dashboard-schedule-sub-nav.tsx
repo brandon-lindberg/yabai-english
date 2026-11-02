@@ -4,12 +4,13 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { SubNav, SubNavLink } from "@/components/ui/sub-nav";
 
-type Section = "availability" | "upcoming" | "completed" | "refunded";
+type Section = "availability" | "upcoming" | "completed" | "refunded" | "reschedule";
 
 function scheduleSection(pathname: string): Section {
   if (pathname.includes("/dashboard/schedule/completed")) return "completed";
   if (pathname.includes("/dashboard/schedule/availability")) return "availability";
   if (pathname.includes("/dashboard/schedule/refunded")) return "refunded";
+  if (pathname.includes("/dashboard/schedule/reschedule")) return "reschedule";
   // `/dashboard/schedule` is a prefix of every path above, so upcoming can only
   // be the fallthrough — never a match tested first.
   return "upcoming";
@@ -18,6 +19,7 @@ function scheduleSection(pathname: string): Section {
 export function DashboardScheduleSubNav({
   isTeacher,
   hasRefunds,
+  hasRescheduleRequests = false,
 }: {
   isTeacher: boolean;
   /**
@@ -26,10 +28,12 @@ export function DashboardScheduleSubNav({
    * and it sat between the two tabs people actually use.
    */
   hasRefunds: boolean;
+  hasRescheduleRequests?: boolean;
 }) {
   const pathname = usePathname();
   const section = scheduleSection(pathname);
   const t = useTranslations("dashboard.schedulePage");
+  const tr = useTranslations("dashboard.privateReschedule");
 
   return (
     <SubNav label={t("ariaScheduleSections")}>
@@ -74,6 +78,8 @@ export function DashboardScheduleSubNav({
           )}
         />
       ) : null}
+      {hasRescheduleRequests || section === "reschedule" ? <SubNavLink active={section === "reschedule"}
+        render={p => <Link href="/dashboard/schedule/reschedule" {...p}>{tr("title")}</Link>} /> : null}
     </SubNav>
   );
 }

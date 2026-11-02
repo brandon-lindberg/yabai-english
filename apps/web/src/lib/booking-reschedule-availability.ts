@@ -10,13 +10,14 @@ import { timeRangesOverlap, type TimeRangeIso } from "./teacher-availability-dis
 import { findOccurrenceConflict } from "./school-scheduling";
 import { slotHoldingBookingWhere } from "./pending-booking-hold";
 import type { TeacherAvailabilitySlotInput } from "./booking-slot-validation";
+import { hasPendingPrivateReschedule } from "./private-reschedule";
 
 type Slot = Omit<TeacherAvailabilitySlotInput, "startsOn" | "endsOn"> & {
   startsOn?: Date | string | null; endsOn?: Date | string | null; assignedStudentId: string | null;
   teacherLessonOffering?: { active: boolean; learningLanguage: LearningLanguage; isGroup?: boolean } | null;
 };
 type Booking = { id: string; studentId: string; status: BookingStatus; startsAt: Date; rescheduleCount: number;
-  learningLanguage: LearningLanguage; groupLessonSessionId?: string | null; lessonProduct: { durationMin: number } };
+  learningLanguage: LearningLanguage; groupLessonSessionId?: string | null; privateRescheduleStatus?: string | null; lessonProduct: { durationMin: number } };
 
 /** Actual bookable alternatives, rather than the presence of an active availability row. */
 export function studentRescheduleSlots(input: {
@@ -25,7 +26,7 @@ export function studentRescheduleSlots(input: {
 }) {
   const { booking, viewerTimezone, blocking, schoolSlots, now = new Date() } = input;
   if (booking.groupLessonSessionId || !evaluateBookingReschedulePolicy({ actor: "STUDENT", bookingStatus: booking.status,
-    lessonStartsAt: booking.startsAt, rescheduleCount: booking.rescheduleCount, now }).allowed) return [];
+    lessonStartsAt: booking.startsAt, rescheduleCount: booking.rescheduleCount, pendingPrivateReschedule: hasPendingPrivateReschedule(booking), now }).allowed) return [];
   const slots = visibleAvailabilitySlots(slotsForLearningLanguage(input.slots, booking.learningLanguage), booking.studentId)
     .filter(slot => !slot.teacherLessonOffering?.isGroup)
     .map(slot => ({ ...slot, startsOn: slot.startsOn instanceof Date ? dateOnlyInZone(slot.startsOn, slot.timezone) : slot.startsOn,

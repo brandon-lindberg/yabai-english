@@ -254,6 +254,6 @@ export async function createStripeRefundDirectCharge({
         bookingId,
       },
     },
-    { stripeAccount: connectedAccountId },
+    { stripeAccount: connectedAccountId, idempotencyKey: `lesson-refund:${paymentId}` },
   );
 }
