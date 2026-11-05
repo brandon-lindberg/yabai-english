@@ -15,7 +15,7 @@
     "settings": "設定",
     "accountMenu": "アカウント",
     "primaryNavAria": "メイン",
-    "learn": "レッスン",
+    "learn": "フラッシュカード",
     "bookLesson": "予約",
     "themeToggle": "明暗を切り替え",
     "themeLight": "ライト",
@@ -1339,6 +1339,8 @@
     "unsupportedExercise": "この形式の問題はまだ利用できません（{type}）。"
   },
   "japaneseStudy": {
+    "beta": "ベータ版",
+    "sources": "出典とライセンス",
     "quickTitle": "日本語のクイック復習",
     "quickIntro": "以前に正解したカードを、1日に最大5枚復習できます。回答結果はその日の進捗として保存されます。",
     "quickStart": "今日の復習を始める",
@@ -2031,6 +2033,8 @@
     "pillarPracticeBody": "日常会話、旅行、仕事、学習目標について先生に相談しましょう。"
   },
   "japanesePlacement": {
+    "savedLevel": "保存済みの日本語レベル",
+    "savedResult": "保存済みの結果を見る",
     "sources": "出典・ライセンス",
     "title": "日本語レベル診断",
     "pageIntro": "読解と文の組み立てを通して、日本語レッスンの出発点を見つけます。",

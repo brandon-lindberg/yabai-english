@@ -4,7 +4,7 @@ Section 5h of `MIRROR_PLAN.md`, 2026-10-23. Branch: `the-mirror`. Brandon owns c
 
 ## HTTP contract
 
-All endpoints use the signed-in identity, reread the account's active student role and Japanese learning preference, and require the published Japanese track with its catalog snapshot. They return `Cache-Control: private, no-store`. The current local Japanese catalog remains **DRAFT**, so these endpoints currently return `503 STUDY_UNAVAILABLE` for eligible learners.
+Study endpoints use the signed-in identity, reread the account's active student role and Japanese learning preference, and require the published Japanese track with its catalog snapshot. They return `Cache-Control: private, no-store`. The [section-6l beta publication](japanese-study-publication.md) makes the reviewed 10,291-card catalog PUBLISHED locally; draft tracks still return `503 STUDY_UNAVAILABLE`. The public read-only `/api/japanese-study/attribution` route serves the canonical source notice without exposing learner state.
 
 | Endpoint | Request | Response |
 | --- | --- | --- |

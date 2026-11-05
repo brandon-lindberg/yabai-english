@@ -2,7 +2,7 @@ import "server-only";
 import type { PrismaClient, StudyLevel, StudyTrack } from "@/generated/prisma/client";
 import type { JapaneseLevel } from "../japanese-content/corpus-audit";
 import { isLoginAllowedForAccountStatus } from "../account-status";
-import { japaneseResultSchema } from "../japanese-placement/public";
+import { readLatestJapanesePlacementAward } from "../japanese-placement/retake";
 import { JAPANESE_STUDY_LEVEL_ORDER, studyLevelIndex } from "./constants";
 import { getFlashcardPracticeRollupsByLevelId } from "./study-flashcard-stats";
 
@@ -43,12 +43,11 @@ export async function readJapaneseStudyContext(db: JapaneseStudyDb, learnerId: s
 export async function getJapaneseStudyProgressionForTrack(db: JapaneseStudyDb, learnerId: string, track: JapaneseTrack) {
   const levelIds = track.levels.map(row => row.id);
   const [attempt, progress, practice] = await Promise.all([
-    db.japanesePlacementAttempt.findFirst({ where: { learnerId, status: "COMPLETED" }, orderBy: [{ finishedAt: "desc" }, { id: "desc" }], select: { id: true, result: true } }),
+    readLatestJapanesePlacementAward(db, learnerId),
     db.userStudyLevelProgress.findMany({ where: { userId: learnerId, level: { trackId: track.id } } }),
     getFlashcardPracticeRollupsByLevelId(db, learnerId, levelIds),
   ]);
-  const parsed = japaneseResultSchema.safeParse(attempt?.result);
-  const result = parsed.success && parsed.data.attemptId === attempt?.id ? parsed.data : null;
+  const result = attempt?.result;
   const placementBand = result?.levelEstimate.status === "estimated" ? result.levelEstimate.band : null;
   const codeById = new Map(track.levels.map(row => [row.id, row.levelCode]));
   const mastery = Object.fromEntries(track.levels.map(row => {

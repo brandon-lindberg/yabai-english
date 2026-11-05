@@ -141,6 +141,25 @@ test("Japanese placement follows N5-first confirmation, resumes sentence tiles a
   await page.setViewportSize({ width: 1440, height: 950 });
   await setHeaderTheme(page, en.common, "light");
   await captureRelease(page, "JAPANESE-placement-cooldown-desktop");
+  fixtureCommand("release-japanese-empty-history", { learnerId: fixture.users[0].id });
+  await page.reload();
+  await expect(page.getByRole("region", { name: en.japanesePlacement.resultTitle, exact: true })).toContainText("N1");
+  await page.goto("/en/dashboard");
+  await expect(page.getByText(en.japanesePlacement.savedLevel, { exact: false })).toContainText("N1");
+  await expect(page.getByRole("link", { name: en.japanesePlacement.savedResult, exact: true })).toBeVisible();
+  const primary = page.getByRole("navigation", { name: en.common.primaryNavAria }).filter({ visible: true });
+  await expect(primary.getByRole("link", { name: en.common.learn, exact: true })).toBeVisible();
+  await captureRelease(page, "JAPANESE-saved-level-desktop");
+  await chooseInterfaceLocale(page, en.common, "ja");
+  await page.setViewportSize({ width: 390, height: 950 });
+  await setHeaderTheme(page, ja.common, "dark");
+  await expect(page.getByText(ja.japanesePlacement.savedLevel, { exact: false })).toContainText("N1");
+  const mobile = page.getByRole("navigation", { name: ja.common.primaryNavAria }).filter({ visible: true });
+  await expect(mobile.getByRole("link", { name: ja.common.learn, exact: true })).toBeVisible();
+  await captureRelease(page, "JAPANESE-saved-level-mobile");
+  await mobile.getByRole("link", { name: ja.common.learn, exact: true }).click();
+  await expect(page.getByRole("heading", { name: ja.japaneseStudy.title, exact: true })).toBeVisible();
+  await expect(page.locator("[data-study-beta]")).toBeVisible();
   expect(profile(fixture.users[0].id)).toEqual(englishBefore);
   expect((await page.request.get("/api/placement")).status()).toBe(403);
 });
@@ -272,6 +291,7 @@ test("study progress persists independently through deliberate subject and inter
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   const queue = page.waitForResponse(response => response.url().includes("/api/study/queue?"));
   await page.goto("/en/learn/study/BEGINNER_1/practice");
+  await expect(page.locator("[data-study-beta]")).toHaveCount(0);
   expect((await queue).status()).toBe(200);
   const englishSaved = page.waitForResponse(response => response.url().endsWith("/api/study/review") && response.request().method() === "POST");
   await page.locator("main ul").filter({ has: page.getByRole("button") }).last().getByRole("button").first().press("Enter");
@@ -293,11 +313,23 @@ test("study progress persists independently through deliberate subject and inter
   expect((await page.request.post("/api/japanese-study/queue", { data: { levelCode: "N5" } })).status()).toBe(503);
   fixtureCommand("release-study-publish");
   try {
+  await page.setViewportSize({ width: 1440, height: 950 });
+  await page.goto("/en/learn/study");
+  await expect(page.getByRole("heading", { name: en.japaneseStudy.title, exact: true })).toBeVisible();
+  await expect(page.locator("[data-study-beta]")).toHaveText(en.japaneseStudy.beta);
+  await expect(page.locator('[data-state="unavailable"]')).toHaveCount(0);
+  const notice = await page.request.get("/api/japanese-study/attribution");
+  expect(notice.status()).toBe(200);
+  expect(await notice.text()).toContain("https://www.edrdg.org/edrdg/licence.html");
+  await expect(page.getByRole("link", { name: en.japaneseStudy.sources, exact: true })).toHaveAttribute("href", "/api/japanese-study/attribution");
+  await captureRelease(page, "JAPANESE-study-beta-hub-desktop");
   expect((await page.request.post("/api/japanese-study/queue", { data: { levelCode: "N1" } })).status()).toBe(403);
+  await page.setViewportSize({ width: 390, height: 950 });
   await chooseInterfaceLocale(page, en.common, "ja");
   await setHeaderTheme(page, ja.common, "dark");
   const japaneseQueue = page.waitForResponse(response => response.url().endsWith("/api/japanese-study/queue") && response.request().method() === "POST");
   await page.goto("/learn/study/N5/practice?kind=kanji");
+  await expect(page.locator("[data-study-beta]")).toHaveText(ja.japaneseStudy.beta);
   const queued = await japaneseQueue; expect(queued.status()).toBe(200);
   const issued = await queued.json() as JapaneseStudyQueue;
   const question = issued.cards[0].question;
@@ -333,6 +365,7 @@ test("study progress persists independently through deliberate subject and inter
   const restored = await (await page.request.get("/api/study/overview")).json();
   expect(restored.levels.find((level: { levelCode: string }) => level.levelCode === "BEGINNER_1").xp).toBe(englishState.progress[0].xp);
   await expect(page.getByRole("heading", { name: ja.study.title, exact: true })).toBeVisible();
+  await expect(page.locator("[data-study-beta]")).toHaveCount(0);
   expect((await page.request.get("/api/japanese-study")).status()).toBe(403);
   expect(fixtureCommand("release-learning-state").profiles).toEqual(after.profiles);
   } finally { fixtureCommand("release-study-hide"); }

@@ -7,6 +7,7 @@ const { authMock, localeMock, prismaMock } = vi.hoisted(() => ({
     teacherRosterEntry: { findMany: vi.fn() },
     studentProfile: { findUnique: vi.fn() },
     booking: { findMany: vi.fn() },
+    user: { findUnique: vi.fn() },
   },
 }));
 vi.mock("@/auth", () => ({ auth: authMock }));
@@ -23,6 +24,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   localeMock.mockResolvedValue("ja");
   authMock.mockResolvedValue({ user: { id: "s1", role: "STUDENT", learningLanguage: "JAPANESE" } });
+  prismaMock.user.findUnique.mockResolvedValue({ id: "s1", role: "STUDENT", learningLanguage: "JAPANESE", accountStatus: "ACTIVE" });
   prismaMock.teacherProfile.findMany.mockResolvedValue([]);
   prismaMock.teacherProfile.findUnique.mockResolvedValue(null);
   prismaMock.teacherRosterEntry.findMany.mockResolvedValue([]);
@@ -60,11 +62,12 @@ test("Japanese intent cannot enter the English placement page", async () => {
 
 test("the shared study layout allows Japanese intent; individual pages enforce subject access", async () => {
   const { default: StudyLayout } = await import("@/app/[locale]/learn/study/layout");
-  expect(await StudyLayout({ children: "Subject-scoped study" })).toBe("Subject-scoped study");
+  expect(JSON.stringify(await StudyLayout({ children: "Subject-scoped study" }))).toContain("Subject-scoped study");
 });
 
 test("English learners retain the English placement and study pages", async () => {
   authMock.mockResolvedValue({ user: { id: "s1", role: "STUDENT", learningLanguage: "ENGLISH" } });
+  prismaMock.user.findUnique.mockResolvedValue({ id: "s1", role: "STUDENT", learningLanguage: "ENGLISH", accountStatus: "ACTIVE" });
   const { default: PlacementLayout } = await import("@/app/[locale]/placement/layout");
   const { default: StudyLayout } = await import("@/app/[locale]/learn/study/layout");
   expect(await PlacementLayout({ children: "English test" })).toBe("English test");

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../../messages/en.json";
@@ -100,7 +100,7 @@ test("resumes an existing question and never posts a new start on mount", async 
   await screen.findByRole("button", { name: "がっこう" });
   expect(fetchMock).toHaveBeenCalledTimes(1);
   expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "0");
-  expect(screen.getByRole("heading", { name: "Choose the reading." })).toHaveFocus();
+  await waitFor(() => expect(screen.getByRole("heading", { name: "Choose the reading." })).toHaveFocus());
 });
 
 test("preserves the start UUID after an uncertain network failure", async () => {

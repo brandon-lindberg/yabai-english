@@ -100,11 +100,29 @@ function assertExactDraft(saved: NonNullable<Awaited<ReturnType<typeof readDraft
 function assertStructure(saved: NonNullable<Awaited<ReturnType<typeof readDraft>>>, plan: ImportPlan) {
   const { catalogSnapshotId: _snapshotId, ...track } = saved.track;
   const { catalogSnapshotId: _nextId, ...nextTrack } = plan.track;
-  if (!isDeepStrictEqual(track, { ...nextTrack, sortOrder: 0 })
+  if (!isDeepStrictEqual(track, { ...nextTrack, publicationStatus: saved.track.publicationStatus, sortOrder: 0 })
     || !isDeepStrictEqual(saved.levels, plan.levels.map(level => ({ ...level, referenceMarkdown: null })))
     || !isDeepStrictEqual([...saved.decks].sort((a, b) => a.id.localeCompare(b.id)), plan.decks.map(deck => ({ ...deck, ownerUserId: null, visibility: "SYSTEM" })).sort((a, b) => a.id.localeCompare(b.id)))) {
     throw new Error("Japanese draft track/level/deck structure drift");
   }
+}
+
+/** Owner-authorized publication changes availability only, never content or learner state. */
+export async function publishJapaneseStudyDraft(db: PrismaClient, source: JapaneseFlashcardCatalog, study: JapaneseStudyCatalog, guard: JapaneseDraftRefreshGuard) {
+  parseJapaneseDraftRefreshGuard(guard);
+  const plan = prepareJapaneseStudyImport(source, study);
+  return db.$transaction(async tx => {
+    const saved = await readDraft(tx);
+    if (!saved || saved.track.catalogSnapshotId !== guard.expectedSnapshotId || guard.expectedSnapshotId !== plan.snapshot.id) throw new Error("Publication snapshot mismatch");
+    assertStructure(saved, plan);
+    assertExactDraft(saved, plan);
+    if (japaneseStudyCardsDigest(saved.cards) !== guard.expectedCardsSha256) throw new Error("Publication content digest mismatch");
+    await retainCardHistory(tx, plan.snapshot.id, saved.cards, false);
+    if (saved.track.publicationStatus === "PUBLISHED") return { published: false, cards: saved.cards.length, snapshotId: plan.snapshot.id };
+    const updated = await tx.studyTrack.updateMany({ where: { id: plan.track.id, learningLanguage: "JAPANESE", publicationStatus: "DRAFT", catalogSnapshotId: guard.expectedSnapshotId }, data: { publicationStatus: "PUBLISHED" } });
+    if (updated.count !== 1) throw new Error("Publication snapshot changed concurrently");
+    return { published: true, cards: saved.cards.length, snapshotId: plan.snapshot.id };
+  }, { isolationLevel: "Serializable", timeout: 60_000 });
 }
 
 async function retainCardHistory(tx: Prisma.TransactionClient, snapshotId: string, cards: StoredCards, allowCreate: boolean, allowMissing = false) {

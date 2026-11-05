@@ -2,6 +2,8 @@
 
 Section 5i of `MIRROR_PLAN.md`, 2026-10-24. Branch: `the-mirror`. Brandon owns commits and pushes.
 
+Update 2026-11-05: [section 6l](japanese-study-publication.md) publishes the reviewed Japanese catalog locally as beta. The shared Japanese study layout now carries an upper-left localized beta ribbon and a source-attribution link; English study has neither. The earlier draft/preparation behavior described below remains the fallback for unpublished catalogs.
+
 ## Entry and access
 
 `/[locale]/learn/study` is the shared flashcard hub. It reads the authenticated account's current persisted learning language, independently of UI locale or stale session subject fields. Missing or inactive accounts cannot render study pages. Japanese overview reads retain the service's active-student and published-catalog checks; English retains its existing study permissions.

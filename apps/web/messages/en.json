@@ -15,7 +15,7 @@
     "settings": "Settings",
     "accountMenu": "Account",
     "primaryNavAria": "Main",
-    "learn": "Learn",
+    "learn": "Flashcards",
     "bookLesson": "Book a lesson",
     "themeToggle": "Toggle color theme",
     "themeLight": "Light",
@@ -1339,6 +1339,8 @@
     "unsupportedExercise": "This exercise type is not available yet ({type})."
   },
   "japaneseStudy": {
+    "beta": "Beta",
+    "sources": "Sources and licences",
     "quickTitle": "Japanese quick review",
     "quickIntro": "Review up to five cards you have answered correctly before. Your results are saved for today.",
     "quickStart": "Start today's review",
@@ -2031,6 +2033,8 @@
     "pillarPracticeBody": "Talk with your teacher about everyday conversation, travel, work, or your study goals."
   },
   "japanesePlacement": {
+    "savedLevel": "Saved Japanese level",
+    "savedResult": "View saved result",
     "sources": "Sources and licences",
     "title": "Japanese placement",
     "pageIntro": "Find a starting level for your Japanese lessons through reading and sentence building.",

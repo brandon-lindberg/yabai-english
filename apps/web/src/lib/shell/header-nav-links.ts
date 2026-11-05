@@ -59,7 +59,7 @@ export function getHeaderPrimaryNavLinks(input: HeaderNavInput): HeaderNavLink[]
     const links: HeaderNavLink[] = [
       { id: "dashboard", href: "/dashboard", labelKey: "dashboard" },
       { id: "book", href: "/book", labelKey: "book" },
-      ...(input.learningLanguage === "JAPANESE" ? [] : [{ id: "learn" as const, href: "/learn/study", labelKey: "learn" as const }]),
+      { id: "learn", href: "/learn/study", labelKey: "learn" },
       { id: "schedule", href: "/dashboard/schedule", labelKey: "schedule" },
     ];
     if (input.learningLanguage === "JAPANESE") links.push({ id: "japanese-placement", href: "/japanese-placement", labelKey: "placement" });

@@ -424,6 +424,21 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("completes a 24-question adapti
       result: { completionReason: "question_limit", levelEstimate: { status: "estimated", band: "N1" } } });
     expect(await db.japanesePlacementResponse.count()).toBe(24);
     expect(bank.items.length).toBeGreaterThan(24);
+    // Reproduce an older bug: an empty later attempt was allowed during cooldown.
+    // Its historical receipt must remain available, without replacing the saved award.
+    const awarded = await db.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: view.attemptId } });
+    const later = new Date(awarded.finishedAt!.getTime() + 60_000);
+    const ended = new Date(later.getTime() + 1_200_000);
+    const emptyResult = { ...view.result as object, attemptId: "later-empty", completedAt: ended.toISOString(), completionReason: "time_limit",
+      levelEstimate: { status: "insufficient_evidence", scope: "reading_writing", reason: "too_few_answers_or_domains" } };
+    await db.japanesePlacementAttempt.create({ data: { ...awarded, id: "later-empty", requestId: "00000000-0000-4000-8000-000000000042",
+      activeLearnerId: null, startedAt: later, expiresAt: ended, finishedAt: ended, result: emptyResult } });
+    expect(await service.getCurrentJapaneseAttempt(db, "adaptive-learner")).toMatchObject({ attemptId: awarded.id, result: view.result });
+    expect(await service.getStoredJapaneseAttempt(db, "adaptive-learner", "later-empty")).toMatchObject({ attemptId: "later-empty", result: emptyResult });
+    await db.studyTrack.create({ data: { id: "study", slug: "japanese-flashcards", learningLanguage: "JAPANESE", titleEn: "Japanese", titleJa: "日本語" } });
+    await db.studyLevel.createMany({ data: (["N5", "N4", "N3", "N2", "N1"] as const).map((levelCode, sortOrder) => ({ id: levelCode, trackId: "study", levelCode, sortOrder, titleEn: levelCode, titleJa: levelCode })) });
+    const { getJapaneseStudyProgression } = await import("../../src/lib/study/japanese-progression");
+    expect(await getJapaneseStudyProgression(db, "adaptive-learner")).toMatchObject({ placementBand: "N1", unlocked: ["N5", "N4", "N3", "N2", "N1"] });
   });
 }, 30_000);
 

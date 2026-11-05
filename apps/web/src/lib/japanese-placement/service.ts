@@ -14,7 +14,7 @@ import {
   japaneseAttemptPolicyMatchesBank,
 } from "./attempt";
 import { JAPANESE_STAIRCASE_POLICY_REVISION } from "./staircase-policy";
-import { readJapanesePlacementRetake } from "./retake";
+import { readJapanesePlacementRetake, readLatestJapanesePlacementAward } from "./retake";
 
 export class JapanesePlacementFailure extends PrivateApiFailure {}
 const startInput = z.object({ requestId: z.string().uuid() }).strict();
@@ -150,8 +150,14 @@ export async function startStoredJapaneseAttempt(db: PrismaClient, learnerId: st
 
 export async function getCurrentJapaneseAttempt(db: PrismaClient, learnerId: string) {
   return studentTransaction(db, learnerId, async (tx, now) => {
-    const row = await tx.japanesePlacementAttempt.findFirst({ where: { learnerId }, orderBy: [{ startedAt: "desc" }, { id: "desc" }], include: relations });
-    return row ? view(tx, await settleExpired(tx, row, now), now) : null;
+    let row = await tx.japanesePlacementAttempt.findFirst({ where: { learnerId }, orderBy: [{ startedAt: "desc" }, { id: "desc" }], include: relations });
+    if (!row) return null;
+    row = await settleExpired(tx, row, now);
+    if (row.status !== "IN_PROGRESS") {
+      const award = await readLatestJapanesePlacementAward(tx, learnerId);
+      if (award && award.id !== row.id) row = await tx.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: award.id, learnerId }, include: relations });
+    }
+    return view(tx, row, now);
   });
 }
 
@@ -211,6 +217,8 @@ export async function getTeacherJapaneseResult(db: PrismaClient, teacherUserId: 
     await lockJapaneseLearner(tx, learnerId);
     const active = await tx.japanesePlacementAttempt.findUnique({ where: { activeLearnerId: learnerId }, include: relations });
     if (active) await settleExpired(tx, active, Date.now());
+    const award = await readLatestJapanesePlacementAward(tx, learnerId);
+    if (award) return { result: award.result };
     const row = await tx.japanesePlacementAttempt.findFirst({
       where: { learnerId, status: "COMPLETED" }, orderBy: [{ finishedAt: "desc" }, { id: "desc" }], select: { result: true },
     });

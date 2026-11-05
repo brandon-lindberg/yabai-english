@@ -26,6 +26,7 @@ export async function readStudentOnboardingState(db: OnboardingDb, userId: strin
   ]);
   return {
     profile,
+    japanesePlacementResult: japaneseRetake?.result ?? null,
     canStartPlacement: isJapanese ? japaneseRetake!.canStartNewAttempt : isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null),
     materialsAvailable: !isJapanese || Boolean(track),
     completion: computeStudentOnboardingCompletion({

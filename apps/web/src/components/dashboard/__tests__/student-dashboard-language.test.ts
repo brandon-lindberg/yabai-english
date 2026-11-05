@@ -1,13 +1,14 @@
 import { beforeEach, expect, test, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ quick: vi.fn(), overview: vi.fn(), resume: vi.fn(), japanese: vi.fn(), user: vi.fn(), profile: vi.fn(), studied: vi.fn() }));
+import { japanesePlacementResultFixture } from "../../../../test/japanese-placement-result-fixture";
+const mocks = vi.hoisted(() => ({ quick: vi.fn(), overview: vi.fn(), resume: vi.fn(), japanese: vi.fn(), user: vi.fn(), profile: vi.fn(), studied: vi.fn(), award: vi.fn() }));
 vi.mock("@/lib/prisma", () => ({ prisma: {
   studentProfile: { findUnique: mocks.profile }, user: { findUnique: mocks.user },
   googleIntegrationSettings: { findUnique: async () => null },
   booking: { count: async () => 0 }, chatThread: { count: async () => 0 },
   userStudyLevelProgress: { findFirst: mocks.studied },
-  studyTrack: { findUnique: async () => null }, japanesePlacementAttempt: { findFirst: async () => null },
+  studyTrack: { findUnique: async () => null }, japanesePlacementAttempt: { findFirst: mocks.award },
 } }));
-vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key }));
+vi.mock("next-intl/server", () => ({ getLocale: async () => "en", getTranslations: async () => (key: string) => key }));
 vi.mock("@/lib/dashboard/student-bookings", () => ({ getStudentBookingsForDashboard: async () => ({ upcoming: [], completed: [] }) }));
 vi.mock("@/lib/study/quick-review", () => ({ getOrCreateQuickReviewCards: mocks.quick }));
 vi.mock("@/lib/study/get-overview", () => ({ getStudyTrackOverview: mocks.overview }));
@@ -22,6 +23,17 @@ beforeEach(() => {
   mocks.quick.mockResolvedValue({ cards: [], dayKey: "today", learnedToday: 0, notYetToday: 0 });
   mocks.overview.mockResolvedValue(null); mocks.resume.mockResolvedValue(null); mocks.studied.mockResolvedValue(null);
   mocks.japanese.mockResolvedValue({ available: false });
+  mocks.award.mockResolvedValue(null);
+});
+
+test("Japanese dashboard shows the saved award and its completion date independently of the English profile", async () => {
+  const result = japanesePlacementResultFixture();
+  mocks.award.mockResolvedValue({ id: result.attemptId, finishedAt: new Date(result.completedAt), result });
+  const serialized = JSON.stringify((await StudentDashboard(props))?.props);
+  expect(serialized).toContain("savedLevel");
+  expect(serialized).toContain("N5");
+  expect(serialized).toContain(result.completedAt);
+  expect(serialized).not.toContain("ADVANCED");
 });
 
 test("Japanese draft dashboard uses current persisted intent and shows no English proficiency or invented study progress", async () => {

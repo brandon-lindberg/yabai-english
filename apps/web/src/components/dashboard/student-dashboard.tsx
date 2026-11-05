@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { getStudentBookingsForDashboard } from "@/lib/dashboard/student-bookings";
@@ -22,6 +22,7 @@ import { resolveBookingDisplayStatus } from "@/lib/booking-status";
 import type { LearningLanguage } from "@/generated/prisma/enums";
 import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
 import { lessonProductNames } from "@/lib/lesson-product-catalog";
+import { LocalDateTime } from "@/components/local-datetime";
 
 /**
  * A student's dashboard: the shared spine, then their own sections.
@@ -46,6 +47,7 @@ export async function StudentDashboard({
   } });
   if (!user || user.role !== "STUDENT" || !isLoginAllowedForAccountStatus(user.accountStatus)) return null;
   const learningLanguage = user.learningLanguage;
+  const locale = await getLocale();
   const jp = await getTranslations("japanesePlacement");
   const studyJapanese = await getTranslations("japaneseStudy");
   const isEnglish = learningLanguage === "ENGLISH";
@@ -76,7 +78,8 @@ export async function StudentDashboard({
   const studyResume = isEnglish ? resume : japaneseStudy?.resume;
   const trackPractice = isEnglish ? overview?.trackPractice : japaneseStudy?.trackPractice;
 
-  const { profile, canStartPlacement, completion, materialsAvailable } = onboarding;
+  const { profile, canStartPlacement, completion, materialsAvailable, japanesePlacementResult } = onboarding;
+  const japaneseEstimate = japanesePlacementResult?.levelEstimate;
   const progress = summarizeStudentOnboardingProgress(
     buildStudentOnboardingChecklist({ locale: "en", canStartPlacement, completion, learningLanguage, materialsAvailable }),
   );
@@ -178,9 +181,14 @@ export async function StudentDashboard({
       {!isEnglish ? <section className="border-y border-border py-6">
         <h2 className="text-base font-semibold text-foreground">{jp("title")}</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">{jp("entry")}</p>
+        {japaneseEstimate?.status === "estimated" && japanesePlacementResult ? <div className="mt-4 space-y-1">
+          <p className="text-sm text-muted">{jp("savedLevel")}: <span className="font-semibold text-foreground">{japaneseEstimate.band === "BELOW_N5" ? jp("belowN5") : japaneseEstimate.band}</span></p>
+          <p className="text-sm text-muted">{jp("provisional")}</p>
+          <p className="text-xs text-muted">{jp("completedAt")}: <LocalDateTime iso={japanesePlacementResult.completedAt} locale={locale} /></p>
+        </div> : null}
         {!japaneseStudy ? <p className="mt-3 text-sm text-muted">{studyJapanese("unavailableTitle")}</p> : null}
         <div className="mt-4 flex flex-wrap gap-2">
-          <Link href="/japanese-placement" className={buttonClasses({ variant: "secondary" })}>{jp("open")}</Link>
+          <Link href="/japanese-placement" className={buttonClasses({ variant: "secondary" })}>{jp(japanesePlacementResult ? "savedResult" : "open")}</Link>
           <Link href="/learn/study" className={buttonClasses({ variant: "secondary" })}>{studyJapanese("title")}</Link>
         </div>
       </section> : null}

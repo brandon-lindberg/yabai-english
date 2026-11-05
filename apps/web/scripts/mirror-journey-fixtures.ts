@@ -5,7 +5,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { z } from "zod";
 import { loadApprovedJapaneseBank, japaneseQuestionLimit } from "../src/lib/japanese-placement/bank";
-import { startJapaneseAttempt, japaneseScoringRevision, nextJapaneseQuestion, recordJapaneseResponse } from "../src/lib/japanese-placement/attempt";
+import { startJapaneseAttempt, japaneseScoringRevision, nextJapaneseQuestion, recordJapaneseResponse, summarizeJapaneseAttempt } from "../src/lib/japanese-placement/attempt";
 import { JAPANESE_STAIRCASE_POLICY_REVISION } from "../src/lib/japanese-placement/staircase-policy";
 import { parseEnglishAttemptHandle } from "../src/lib/english-placement/service";
 import { lockLearnerTransaction } from "../src/lib/learner-transaction-lock";
@@ -186,12 +186,14 @@ try {
       await prisma.studyReviewPrompt.findFirstOrThrow({ where: { id: promptId, userId: learnerId } });
       console.log(JSON.stringify(await japaneseStudyAnswer(prisma, promptId))); return;
     }
-    if (operation !== "release-japanese-deadline") throw new Error("Unknown release operation");
-    const { answered } = z.object({ learnerId: z.string(), answered: z.union([z.literal(11), z.literal(18)]) }).strict().parse(input);
+    const emptyHistory = operation === "release-japanese-empty-history";
+    if (operation !== "release-japanese-deadline" && !emptyHistory) throw new Error("Unknown release operation");
+    const answered = emptyHistory ? 0 : z.object({ learnerId: z.string(), answered: z.union([z.literal(11), z.literal(18)]) }).strict().parse(input).answered;
     if (learner.learningLanguage !== "JAPANESE") throw new Error("Japanese fixture required");
     const snapshot = await prisma.japanesePlacementBankSnapshot.findFirstOrThrow({ where: { revokedAt: null, content: { path: ["schemaVersion"], equals: 5 } }, orderBy: { publishedAt: "desc" } });
     const bank = loadApprovedJapaneseBank(snapshot.content);
-    let state = startJapaneseAttempt(bank, { id: randomUUID(), learnerId, startedAt: new Date(Date.now() - bank.assessment!.timeLimitSec * 1000 + 7_000).toISOString() }, JAPANESE_STAIRCASE_POLICY_REVISION);
+    // Explicit isolated history fixture: a later completed empty attempt, never an app learner write.
+    let state = startJapaneseAttempt(bank, { id: randomUUID(), learnerId, startedAt: new Date(emptyHistory ? Date.now() : Date.now() - bank.assessment!.timeLimitSec * 1000 + 7_000).toISOString() }, JAPANESE_STAIRCASE_POLICY_REVISION);
     for (let index = 0; index < answered; index++) {
       const question = nextJapaneseQuestion(bank, state)!;
       const item = bank.items.find(item => item.id === question.id)!;
@@ -200,9 +202,10 @@ try {
       state = recordJapaneseResponse(bank, state, { ...response, submittedAt: new Date(Date.parse(state.startedAt) + (index + 1) * 1000).toISOString() });
     }
     await prisma.japanesePlacementAttempt.create({ data: {
-      id: state.id, learnerId, activeLearnerId: learnerId, requestId: randomUUID(), bankSnapshotId: snapshot.id,
+      id: state.id, learnerId, activeLearnerId: emptyHistory ? null : learnerId, requestId: randomUUID(), bankSnapshotId: snapshot.id,
       schemaVersion: state.schemaVersion, scoringRevision: japaneseScoringRevision(state.schemaVersion, state.policyRevision), policyRevision: state.policyRevision,
       questionLimit: japaneseQuestionLimit(bank), startedAt: new Date(state.startedAt), expiresAt: new Date(state.expiresAt),
+      ...(emptyHistory ? { status: "COMPLETED", finishedAt: new Date(state.expiresAt), result: summarizeJapaneseAttempt(bank, state, state.expiresAt) } : {}),
       responses: { create: state.responses.map((payload, position) => ({ itemId: payload.itemId, position, payload })) },
     } });
     console.log(JSON.stringify({ attemptId: state.id, expiresAt: state.expiresAt }));
