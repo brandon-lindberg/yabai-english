@@ -1,11 +1,10 @@
-import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
-vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn() }));
+// Handler contracts; durable receipt/concurrency/refund contracts use real PostgreSQL in tests/mirror/payment-recovery.test.ts.
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const { prismaMock, constructEventMock, confirmFromCheckoutMock, notifyStuckRefundMock } = vi.hoisted(() => ({
   prismaMock: {
     paymentWebhookEvent: { createMany: vi.fn() },
-    payment: { update: vi.fn(), updateMany: vi.fn() },
+    payment: { findUnique: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     refund: { updateMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
     teacherPaymentAccount: { findFirst: vi.fn(), findMany: vi.fn(), findUnique: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     teacherPaymentMethod: { upsert: vi.fn(), updateMany: vi.fn() },
@@ -30,23 +29,9 @@ vi.mock("@/lib/refund-notifications", () => ({
 import { POST } from "@/app/api/payments/webhooks/stripe/route";
 
 describe("POST /api/payments/webhooks/stripe", () => {
-  test("a settled refund dispatches the shared participant notification", async () => {
-    constructEventMock.mockReturnValue({ id: "refund-event", type: "refund.updated", data: { object: { id: "re_test", status: "succeeded" } } });
-    prismaMock.refund.findFirst.mockResolvedValue({ id: "refund-1", bookingId: "booking-1", status: "SUCCEEDED", amountYen: 5000 });
-    const response = await POST(new Request("http://localhost", { method: "POST", headers: { "stripe-signature": "signature" }, body: "{}" }));
-    expect(response.status).toBe(200);
-    expect(notifyPrivateBookingEvent).toHaveBeenCalledWith({ bookingId: "booking-1", event: "refund", refund: expect.objectContaining({ id: "refund-1", status: "SUCCEEDED", amountYen: 5000 }) });
-  });
-
-  test("a retried refund webhook repairs delivery without repeating the stored alert", async () => {
-    constructEventMock.mockReturnValue({ id: "refund-retry", type: "refund.updated", data: { object: { id: "re_test", status: "succeeded" } } });
-    prismaMock.paymentWebhookEvent.createMany.mockResolvedValue({ count: 0 });
-    prismaMock.refund.findFirst.mockResolvedValue({ id: "refund-1", bookingId: "booking-1", status: "SUCCEEDED", amountYen: 5000 });
-    await POST(new Request("http://localhost", { method: "POST", headers: { "stripe-signature": "signature" }, body: "{}" }));
-    expect(notifyPrivateBookingEvent).toHaveBeenCalledWith(expect.objectContaining({ bookingId: "booking-1", event: "refund" }));
-  });
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaMock.payment.findUnique.mockImplementation(async () => ({ provider: "STRIPE", metadataJson: { connectedAccountId: "acct_123" }, providerCheckoutId: constructEventMock.mock.results.at(-1)?.value?.data?.object?.id }));
     prismaMock.paymentWebhookEvent.createMany.mockResolvedValue({ count: 1 });
     // Read either side of the account sync to detect a phase change. Identical
     // rows mean no phase change and no notification, so these tests stay about
@@ -123,7 +108,7 @@ describe("POST /api/payments/webhooks/stripe", () => {
           paymentId: "payment-1",
           bookingId: "booking-1",
         },
-      }),
+      }), { connectedAccountId: "acct_123" },
     );
   });
 
@@ -192,7 +177,7 @@ describe("POST /api/payments/webhooks/stripe", () => {
       expect.objectContaining({
         id: "cs_123",
         payment_status: "paid",
-      }),
+      }), { connectedAccountId: "acct_123" },
     );
   });
 
@@ -223,7 +208,7 @@ describe("POST /api/payments/webhooks/stripe", () => {
 
     expect(res.status).toBe(200);
     expect(prismaMock.payment.updateMany).toHaveBeenCalledWith({
-      where: { id: "payment-1", status: { not: "SUCCEEDED" } },
+      where: { id: "payment-1", status: { notIn: ["SUCCEEDED", "REFUNDED"] } },
       data: expect.objectContaining({ status: "FAILED" }),
     });
     expect(confirmFromCheckoutMock).not.toHaveBeenCalled();
@@ -233,7 +218,7 @@ describe("POST /api/payments/webhooks/stripe", () => {
     prismaMock.payment.updateMany.mockResolvedValue({ count: 0 });
     constructEventMock.mockReturnValue({
       id: "evt_expired",
-      type: "checkout.session.expired",
+      type: "checkout.session.expired", account: "acct_123",
       data: {
         object: {
           id: "cs_123",
@@ -252,7 +237,7 @@ describe("POST /api/payments/webhooks/stripe", () => {
 
     expect(res.status).toBe(200);
     expect(prismaMock.payment.updateMany).toHaveBeenCalledWith({
-      where: { id: "payment-1", status: { not: "SUCCEEDED" } },
+      where: { id: "payment-1", status: { notIn: ["SUCCEEDED", "REFUNDED"] } },
       data: expect.objectContaining({ status: "EXPIRED" }),
     });
     expect(prismaMock.payment.update).not.toHaveBeenCalled();
@@ -349,131 +334,12 @@ describe("POST /api/payments/webhooks/stripe", () => {
       }),
     });
   });
-
-  test.each([
-    ["refund.updated", "succeeded", "SUCCEEDED"],
-    ["refund.updated", "pending", "PENDING"],
-    ["charge.refund.updated", "requires_action", "PENDING"],
-  ])("records the settled status from %s (%s)", async (type, stripeStatus, stored) => {
-    constructEventMock.mockReturnValue({
-      id: `evt_${type}_${stripeStatus}`,
-      type,
-      account: "acct_123",
-      data: { object: { id: "re_123", status: stripeStatus } },
-    });
-
-    const res = await POST(
-      new Request("http://localhost/api/payments/webhooks/stripe", {
-        method: "POST",
-        headers: { "stripe-signature": "sig_123" },
-        body: "{}",
-      }),
-    );
-
-    expect(res.status).toBe(200);
-    expect(prismaMock.refund.updateMany).toHaveBeenCalledWith({
-      where: { provider: "STRIPE", providerRefundId: "re_123" },
-      data: { status: stored },
-    });
-  });
-
-  // A refund that did not complete leaves the student out of pocket, so it goes
-  // to the recovery queue rather than resting in a terminal FAILED state.
-  test.each([
-    ["refund.failed", "failed", "insufficient_funds", "insufficient_funds"],
-    ["charge.refund.updated", "canceled", undefined, "canceled"],
-  ])(
-    "sends an uncompleted refund to recovery from %s (%s)",
-    async (type, stripeStatus, failureReason, expectedNote) => {
-      constructEventMock.mockReturnValue({
-        id: `evt_${type}_${stripeStatus}`,
-        type,
-        account: "acct_123",
-        data: {
-          object: {
-            id: "re_456",
-            status: stripeStatus,
-            ...(failureReason ? { failure_reason: failureReason } : {}),
-          },
-        },
-      });
-
-      const res = await POST(
-        new Request("http://localhost/api/payments/webhooks/stripe", {
-          method: "POST",
-          headers: { "stripe-signature": "sig_123" },
-          body: "{}",
-        }),
-      );
-
-      expect(res.status).toBe(200);
-      expect(prismaMock.refund.updateMany).toHaveBeenCalledWith({
-        where: { provider: "STRIPE", providerRefundId: "re_456" },
-        data: {
-          status: "PENDING_RECOVERY",
-          recoveryNote: expect.stringContaining(expectedNote),
-        },
-      });
-    },
-  );
-
-  test("ignores a refund event that carries no refund id", async () => {
-    constructEventMock.mockReturnValue({
-      id: "evt_refund_noid",
-      type: "refund.updated",
-      account: "acct_123",
-      data: { object: { status: "succeeded" } },
-    });
-
-    const res = await POST(
-      new Request("http://localhost/api/payments/webhooks/stripe", {
-        method: "POST",
-        headers: { "stripe-signature": "sig_123" },
-        body: "{}",
-      }),
-    );
-
-    expect(res.status).toBe(200);
-    expect(prismaMock.refund.updateMany).not.toHaveBeenCalled();
-  });
-
-  test("alerts super admins when Stripe reports the refund failed", async () => {
-    constructEventMock.mockReturnValue({
-      id: "evt_refund_failed_notify",
-      type: "refund.failed",
-      account: "acct_123",
-      data: { object: { id: "re_456", status: "failed", failure_reason: "insufficient_funds" } },
-    });
-
-    await POST(
-      new Request("http://localhost/api/payments/webhooks/stripe", {
-        method: "POST",
-        headers: { "stripe-signature": "sig_123" },
-        body: "{}",
-      }),
-    );
-
-    expect(notifyStuckRefundMock).toHaveBeenCalledWith(
-      expect.objectContaining({ amountYen: 5000, studentName: "Aki" }),
-    );
-  });
-
-  test("stays quiet when a refund simply settles", async () => {
-    constructEventMock.mockReturnValue({
-      id: "evt_refund_ok_notify",
-      type: "refund.updated",
-      account: "acct_123",
-      data: { object: { id: "re_123", status: "succeeded" } },
-    });
-
-    await POST(
-      new Request("http://localhost/api/payments/webhooks/stripe", {
-        method: "POST",
-        headers: { "stripe-signature": "sig_123" },
-        body: "{}",
-      }),
-    );
-
-    expect(notifyStuckRefundMock).not.toHaveBeenCalled();
-  });
 });
+
+vi.mock("@/lib/stripe/webhook-work", () => ({ receiveStripeWebhook: async (db: unknown, event: unknown) => {
+  const typed = event as {id:string;type:string};
+  const claim = await prismaMock.paymentWebhookEvent.createMany({ data: [{ provider: "STRIPE", providerEventId: typed.id, eventType: typed.type }], skipDuplicates:true });
+  if (!claim.count) return new Response(JSON.stringify({ ok: true, duplicate: true }));
+  const { dispatchStripeWebhook } = await import("@/lib/stripe/webhook-handler");
+  return dispatchStripeWebhook(db as never, event as never);
+} }));

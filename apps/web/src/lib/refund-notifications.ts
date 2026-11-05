@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { emitNotificationsUpdate } from "@/lib/realtime-server";
+import { createUserNotification } from "./notifications";
 
 /** The queue a stuck refund is waiting in. */
 export const ADMIN_REFUNDS_HREF = "/admin/payments";
@@ -19,6 +20,7 @@ export async function notifySuperAdminsOfStuckRefund(input: {
   amountYen: number;
   studentName?: string | null;
   note?: string | null;
+  recoveryKey?: string;
 }): Promise<void> {
   const admins = await prisma.user.findMany({
     where: { role: "SUPER_ADMIN" },
@@ -29,6 +31,16 @@ export async function notifySuperAdminsOfStuckRefund(input: {
   const amount = formatYenForNotification(input.amountYen);
   const who = input.studentName?.trim() || null;
   const reason = input.note?.trim() ? ` (${input.note.trim()})` : "";
+
+  if (input.recoveryKey) {
+    await Promise.all(admins.map(admin => createUserNotification({ userId: admin.id,
+      titleEn: "A payment recovery needs attention", titleJa: "支払いの復旧対応が必要です",
+      bodyEn: `${amount}${who ? ` for ${who}` : ""} needs reconciliation${reason}.`,
+      bodyJa: `${who ? `${who} さんの ` : ""}${amount} の照合・復旧が必要です${reason}。`,
+      href: ADMIN_REFUNDS_HREF, deduplicationKey: input.recoveryKey,
+    })));
+    return;
+  }
 
   const bodyEn = who
     ? `${amount} for ${who} could not be refunded automatically${reason}.`

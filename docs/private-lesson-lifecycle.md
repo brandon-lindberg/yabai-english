@@ -1,6 +1,6 @@
 # Private lesson cancellation and rescheduling
 
-Implemented on `the-mirror`, 2026-11-02, following MIRROR_PLAN.md sections 6g–6j. Section 6i records the owner's final cancellation-policy clarification and supersedes the earlier restriction that kept a late-cancelled lesson confirmed. Section 6j simplifies student notifications without changing teacher resolution or financial processing.
+Implemented on `the-mirror` through MIRROR_PLAN.md section 6k, 2026-11-03. Section 6i records the owner's final cancellation-policy clarification and supersedes the earlier restriction that kept a late-cancelled lesson confirmed. Section 6j simplifies student notifications. Section 6k repairs financial recovery while retaining that policy and teacher resolution flow.
 
 ## Student flow
 
@@ -16,13 +16,15 @@ Student screens show the late-cancellation no-refund policy and replacement opti
 
 The owning teacher can use the existing lesson-time form to arrange a new time, issue a discretionary full refund, or permanently close an unresolved request without refunding. Closing the request acts on an already student-cancelled lesson; it does not invoke the normal teacher-cancellation policy that automatically refunds a confirmed lesson. Normal teacher cancellations and group workflows retain their existing rules.
 
-Refund and permanent closure require explicit confirmation. A refund decision claims the booking before contacting the existing refund service, preventing a competing replacement or closure. Stored refunds are returned on retry, and full-refund provider calls use a stable payment-based idempotency key. Provider errors retain the refund decision and allow retry; a short claim window protects in-progress attempts. Pending/recovery refunds keep their existing administrative recovery path. Admin resolutions retain their admin actor in the refund audit.
+Refund and permanent closure require explicit confirmation. A refund decision and its durable refund obligation commit together before contacting the existing provider, preventing a competing replacement or closure. Automatic and teacher refunds use the same recoverable processor, saved original account and payment intent. Retries read provider state first, preserving request identity and actual receipts; active leases exclude competing workers. Provider errors retain the decision and owed work. Confirmed failed refunds require explicit admin replacement authorization; uncertain old requests stop for reconciliation. Admin resolutions retain their admin actor in the refund audit. See [payment recovery operations](payment-recovery-operations.md) for automatic execution and maintenance.
 
 Only an actual teacher-initiated refund produces student refund notifications/status. Pending and completed refunds remain distinct. Student notices omit amounts; completion asks the student to check their account. Teacher notices retain financial details. The student gains no entitlement or refund request action from the teacher's discretionary option.
 
 ## Stored state and shared services
 
 The additive migration `20261102010000_private_lesson_reschedule_workflow` adds nullable private-request status and request/resolution timestamps to Booking, plus indexes. `PENDING` accompanies a cancelled original slot; `RESCHEDULED` records restoration; `CLOSED` ends replacement eligibility; `REFUND_REQUESTED` prevents replacement while a discretionary refund is handled. Historic records stay null and gain no inferred entitlement. The migration is applied locally and the Prisma client is regenerated.
+
+The additive `20261102020000_durable_payment_recovery` migration is also applied locally. It adds saved refund work, webhook processing state and checkout fulfillment claims, plus nullable original-cancellation status. Old amounts, invoices, credit notes and provider receipt identities remain. A payment collected after an unpaid cancellation is queued for return; a delayed duplicate for an already-paid late cancellation does not create refund entitlement. Dashboard partial refunds preserve the booking; full settled refunds cancel it and reconcile its existing Calendar event.
 
 Cancellation preview and confirmation use the same server policy. Confirmation checks its explicit intent: if an offered refund has crossed the cutoff, nothing is cancelled until the student reviews and confirms the no-refund option separately. Optimistic writes guard booking status, original time and request state so stale moves or resolutions fail safely.
 
@@ -32,7 +34,7 @@ Calendar/Meet uses the existing connections and services. Late cancellation remo
 
 Immediate moves send one completed notice per participant. A request notice is now reserved for a real saved late-cancellation request; it describes a replacement needing arrangement, rather than claiming teacher approval is required. Closure has a teacher-only notice; the student can see the resolved request without receiving an extra closure notification. The existing bell refresh/realtime transport and stored-event deduplication are reused. The Rescheduling tab appears after a saved late-cancellation request and retains its resolved records.
 
-## Verification
+## Original lifecycle verification (sections 6i–6j)
 
 TDD red/green evidence is retained in `.impeccable/private-reschedule-red.log`, `private-request-cancel-red.log`, `private-request-resolution-red.log`, `private-request-restore-red.log`, `private-request-ui-red.log`, `private-request-cancel-ui-red.log`, `private-request-refund-intent-red.log`, `private-request-history-red.log`, `private-request-admin-red.log`, `private-request-hydration-red.log` and `private-request-bell-ready-red.log`.
 
@@ -45,10 +47,14 @@ Browser tests use a disposable PostgreSQL schema and explicit synthetic payments
 
 All five browser runs confirm the 27 application-table fingerprints are unchanged; owned accounts, disposable schemas and connections are removed. Visual review is bounded to one desktop/mobile pass and one confirmation; screenshot caret mutation is disabled so capture does not alter markup during hydration. Task-owned test, preview and build processes have exited, the fixture manifest is removed and port 3100 is released.
 
+## Recovery verification (section 6k)
+
+The [updated Stripe audit](stripe-payment-audit.md#section-6k-verification) records independent red/green evidence, **39 isolated PostgreSQL cases**, **790 passing unit tests**, the foundation migration check and browser/admin coverage. Financial assertions formerly in mock-only tests now exercise real transactions and fault injection. All existing lifecycle journeys remain in the browser release suite, alongside two new English/Japanese admin recovery journeys. Test credentials explicitly prevent live Stripe/Google calls. Final build and cleanup results are recorded in plan section 6k.
+
 ## Existing boundaries
 
-Same-booking edits and request resolutions use optimistic conditions. This does not establish a global serializable exclusion across every independent marketplace and school booking writer. Notification deduplication uses existing notification rows; a very late retry can recreate a notice after that row has been dismissed. Permanent event receipts and a background outbox remain separate infrastructure work.
+Same-booking edits and request resolutions use optimistic conditions. This does not establish a global serializable exclusion across every independent marketplace and school booking writer. Notification deduplication uses existing notification rows; a very late retry can recreate a notice after that row has been dismissed. Permanent notification receipts and a notification outbox remain separate infrastructure work; payment/webhook recovery now has durable work records.
 
-The section-6j [Stripe wiring audit](stripe-payment-audit.md) records the shared collection/refund paths, new cross-layer regression checks and existing failure-recovery/reconciliation limits. This is code-level verification with mocked/synthetic providers, not a live Stripe signoff.
+The five section-6j financial recovery findings are fixed in section 6k. Automatic retry requires the supervised worker or authenticated scheduled endpoint described in the [operations handoff](payment-recovery-operations.md); production scheduling has not been configured here. Code-level and synthetic verification does not establish live provider account permissions, balances or delivery.
 
 No historic cancellation is converted into a replacement request, no content is published, and Brandon retains staging, commits and pushes.

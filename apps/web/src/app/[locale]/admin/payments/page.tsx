@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { AdminRefundsTable } from "@/components/admin/admin-refunds-table";
 import { PageHeader } from "@/components/ui/page-header";
+import { AdminWebhookRecovery } from "@/components/admin/admin-webhook-recovery";
 
 export default async function AdminPaymentsPage() {
   const t = await getTranslations("admin.refundsPage");
@@ -9,6 +10,7 @@ export default async function AdminPaymentsPage() {
       <PageHeader title={t("title")} description={t("subtitle")} />
       <div className="mt-8">
         <AdminRefundsTable />
+        <AdminWebhookRecovery />
       </div>
     </main>
   );

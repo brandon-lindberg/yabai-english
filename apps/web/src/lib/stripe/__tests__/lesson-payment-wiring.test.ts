@@ -34,8 +34,6 @@ vi.mock("@/lib/credit-notes", () => ({ ensureCreditNoteNumber: mocks.creditNote 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import { POST as pay } from "@/app/api/bookings/[bookingId]/pay/route";
-import { POST as cancel } from "@/app/api/bookings/[bookingId]/cancel/route";
-import { POST as resolve } from "@/app/api/bookings/[bookingId]/reschedule-request/route";
 
 const params = { params: Promise.resolve({ bookingId: "booking" }) };
 const request = (body: unknown = {}) => new Request("http://localhost", { method: "POST", body: JSON.stringify(body) });
@@ -94,57 +92,4 @@ test("reopening an existing checkout reuses its session without creating another
   expect(mocks.checkout).not.toHaveBeenCalled(); expect(mocks.refund).not.toHaveBeenCalled();
 });
 
-test.each(["ENGLISH", "JAPANESE"] as const)("%s policy cancellation refunds the original intent in full and returns its fee on the platform", async language => {
-  mocks.bookingRead.mockResolvedValue(booking(language));
-  const response = await cancel(request({ intent: "refund" }), params);
-  expect(response.status).toBe(200); expect((await response.json()).refund).toMatchObject({ status: "SUCCEEDED", amountYen: 5000 });
-  expect(mocks.refund).toHaveBeenCalledWith({ payment_intent: "pi_original", amount: 5000, metadata: { paymentId: "payment", bookingId: "booking" } },
-    { stripeAccount: "acct_teacher", idempotencyKey: "lesson-refund:payment" });
-  expect(mocks.intent).toHaveBeenCalledWith("pi_original", { expand: ["latest_charge"] }, { stripeAccount: "acct_teacher" });
-  expect(mocks.feeRefund).toHaveBeenCalledWith("fee_original", { amount: 1000, metadata: { paymentId: "payment", bookingId: "booking" } });
-  expect(mocks.ledger).toHaveBeenCalledWith({ data: [
-    { paymentId: "payment", type: "REFUND", amountYen: -5000 },
-    expect.objectContaining({ paymentId: "payment", type: "PLATFORM_FEE", amountYen: -1000 }),
-  ] });
-  expect(mocks.checkout).not.toHaveBeenCalled();
-});
-
-test("teacher-initiated refund uses exactly the same original intent, connected account and full amount", async () => {
-  mocks.auth.mockResolvedValue({ user: { id: "teacher", role: "TEACHER" } });
-  mocks.bookingRead.mockResolvedValue({ ...booking(), status: "CANCELLED", privateRescheduleStatus: "PENDING", rescheduleResolvedAt: null });
-  expect((await resolve(request({ action: "refund" }), params)).status).toBe(200);
-  expect(mocks.refund).toHaveBeenCalledWith(expect.objectContaining({ payment_intent: "pi_original", amount: 5000 }),
-    { stripeAccount: "acct_teacher", idempotencyKey: "lesson-refund:payment" });
-  expect(mocks.refundCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({
-    bookingId: "booking", paymentId: "payment", actor: "TEACHER", status: "SUCCEEDED", providerRefundId: "re_original",
-  }) }));
-  expect(mocks.feeRefund).toHaveBeenCalledTimes(1); expect(mocks.checkout).not.toHaveBeenCalled();
-});
-
-test("retrying a recorded teacher refund never invokes Stripe again", async () => {
-  mocks.auth.mockResolvedValue({ user: { id: "teacher", role: "TEACHER" } });
-  mocks.bookingRead.mockResolvedValue({ ...booking(), status: "CANCELLED", privateRescheduleStatus: "REFUND_REQUESTED" });
-  mocks.refundRead.mockResolvedValue({ id: "stored-refund", status: "SUCCEEDED" });
-  expect((await resolve(request({ action: "refund" }), params)).status).toBe(200);
-  expect(mocks.refund).not.toHaveBeenCalled(); expect(mocks.feeRefund).not.toHaveBeenCalled();
-});
-
-test.each(["pending", "requires_action"])("a Stripe %s refund stays pending in the response and notification", async status => {
-  mocks.refund.mockResolvedValue({ id: "re_original", status });
-  const response = await cancel(request({ intent: "refund" }), params);
-  expect((await response.json()).refund.status).toBe("PENDING");
-  expect(mocks.notify).toHaveBeenCalledWith(expect.objectContaining({ event: "refund", refund: expect.objectContaining({ status: "PENDING" }) }));
-});
-
-test("late student cancellation requests a replacement without touching Stripe", async () => {
-  mocks.bookingRead.mockResolvedValue({ ...booking(), startsAt: new Date(Date.now() + 24 * 3_600_000) });
-  expect((await cancel(request({ intent: "request_reschedule" }), params)).status).toBe(200);
-  expect(mocks.refund).not.toHaveBeenCalled(); expect(mocks.feeRefund).not.toHaveBeenCalled(); expect(mocks.checkout).not.toHaveBeenCalled();
-});
-
-test("permanently closing a late request never invokes payment or refund APIs", async () => {
-  mocks.auth.mockResolvedValue({ user: { id: "teacher", role: "TEACHER" } });
-  mocks.bookingRead.mockResolvedValue({ ...booking(), status: "CANCELLED", privateRescheduleStatus: "PENDING" });
-  expect((await resolve(request({ action: "close" }), params)).status).toBe(200);
-  expect(mocks.refund).not.toHaveBeenCalled(); expect(mocks.feeRefund).not.toHaveBeenCalled(); expect(mocks.checkout).not.toHaveBeenCalled();
-});
+// Refund route/service/SDK contracts now run against real disposable PostgreSQL in tests/mirror/payment-recovery.test.ts.

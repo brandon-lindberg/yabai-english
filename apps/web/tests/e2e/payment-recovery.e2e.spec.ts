@@ -1,0 +1,45 @@
+import { test, expect } from "@playwright/test";
+import en from "../../messages/en.json";
+import ja from "../../messages/ja.json";
+import { readMirrorFixtures, fixtureCommand, signInMirrorUser } from "./helpers/mirror-fixtures";
+import { releaseCases, captureRelease } from "./helpers/release-verification";
+import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
+
+for (const scenario of releaseCases()) test(`${scenario.language}: admin reconciles fee recovery and replays a saved Stripe delivery safely`, async ({ page }) => {
+  const fixtures = readMirrorFixtures(), admin = fixtures.users.find(user => user.id.endsWith("-payment-admin"))!;
+  const learner = fixtures.users.find(user => user.id.endsWith(`-recovery-${scenario.language.toLowerCase()}`))!;
+  const data = fixtureCommand("release-payment-recovery", { learnerId: learner.id });
+  await page.setViewportSize({ width: scenario.width, height: 950 });
+  await signInMirrorUser(page, admin.email, "ENGLISH");
+  await expect(page).not.toHaveURL(/\/auth\/signin/);
+  await page.goto("/en/admin/payments");
+  await page.getByRole("button", { name: /Notifications/ }).click();
+  await expect(page.getByTestId("notification-panel")).toBeVisible();
+  await page.getByRole("button", { name: /Notifications/ }).click();
+  if (scenario.locale === "ja") await chooseInterfaceLocale(page, en.common, "ja");
+  const copy = scenario.locale === "ja" ? ja : en, t = copy.admin.refundsPage;
+  await setHeaderTheme(page, copy.common, scenario.theme);
+  const errors: string[] = [];page.on("pageerror", error => errors.push(error.message));
+  const row = page.locator(`[data-payment-recovery="${data.paymentId}"]`);
+  await expect(row.getByText(t.statusFeeRecovery, { exact: true })).toBeVisible();
+  await row.getByRole("button", { name: t.retryRecovery, exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByText(t.feeRecoveryConfirm, { exact: true })).toBeVisible();
+  await captureRelease(page, `${scenario.language}-admin-fee-recovery-confirm`);
+  await dialog.getByRole("button", { name: t.keepRecovery, exact: true }).click();
+  await row.getByRole("button", { name: t.retryRecovery, exact: true }).click();
+  const retry = page.waitForResponse(response => response.url().endsWith("/api/admin/payments/recovery") && response.request().method() === "POST");
+  await dialog.getByRole("button", { name: t.confirmRecovery, exact: true }).click();
+  expect((await retry).status()).toBe(200);
+  await expect(row.getByText(t.statusFeeRecovery, { exact: true })).toBeVisible();
+  // Stripe credentials are deliberately absent, so this remains a visible queued recovery.
+  const event = page.locator(`[data-recovery-event="${data.eventId}"]`);
+  await event.getByRole("button", { name: t.retryEvent, exact: true }).click();
+  await expect(dialog.getByText(t.eventConfirm, { exact: true })).toBeVisible();
+  await captureRelease(page, `${scenario.language}-admin-webhook-recovery-confirm`);
+  await dialog.getByRole("button", { name: t.confirmRecovery, exact: true }).click();
+  await expect(event).toHaveCount(0);
+  const booking = fixtureCommand("release-status").bookings.find((booking: { id: string }) => booking.id === data.bookingId);
+  expect(booking.status).toBe("CANCELLED");expect(booking.payments[0].status).toBe("SUCCEEDED");expect(booking.refunds).toHaveLength(1);
+  expect(errors).toEqual([]);
+});

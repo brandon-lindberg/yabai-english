@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { LocalDateTime } from "@/components/local-datetime";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -8,11 +9,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Status } from "@/components/ui/status";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import { useAdminCollection } from "@/hooks/use-admin-collection";
-import type { RefundRecoveryStatus } from "@/lib/refund-recovery";
+import type { RefundStatus } from "@/generated/prisma/client";
+import { AdminPaymentRecoveryAction } from "./admin-payment-recovery-action";
 
 type RefundRow = {
   id: string;
-  status: RefundRecoveryStatus;
+  status: RefundStatus;
+  paymentId: string;
+  feeRecoveryPending: boolean;
   amountYen: number;
   actor: string;
   recoveryNote: string | null;
@@ -28,6 +32,7 @@ const STATUS_LABEL_KEY = {
   PENDING_RECOVERY: "statusPendingRecovery",
   FAILED: "statusFailed",
   PENDING: "statusPending",
+  SUCCEEDED: "statusSucceeded",
 } as const;
 
 /**
@@ -39,13 +44,15 @@ const STATUS_TONE = {
   PENDING_RECOVERY: "error",
   FAILED: "error",
   PENDING: "pending",
+  SUCCEEDED: "pending",
 } as const;
 
 export function AdminRefundsTable() {
+  const [revision, setRevision] = useState(0);
   const t = useTranslations("admin.refundsPage");
   const locale = useLocale();
   const { items, loading, error } = useAdminCollection<RefundRow>(
-    "/api/admin/payments/refunds",
+    `/api/admin/payments/refunds?revision=${revision}`,
   );
 
   if (loading) {
@@ -65,6 +72,7 @@ export function AdminRefundsTable() {
               <th className="px-3 py-2">{t("amount")}</th>
               <th className="px-3 py-2">{t("note")}</th>
               <th className="px-3 py-2">{t("when")}</th>
+              <th className="px-3 py-2">{t("recoveryAction")}</th>
             </tr>
           </thead>
           <tbody>
@@ -73,6 +81,7 @@ export function AdminRefundsTable() {
                 <td className="px-3 py-2 align-top">
                   <Skeleton height="3" width="2/3" />
                 </td>
+                <td className="px-3 py-2 align-top"><Skeleton height="3" width="2/3" /></td>
                 <td className="px-3 py-2 align-top">
                   <div className="space-y-2">
                     <Skeleton height="3" width="3/4" />
@@ -118,14 +127,15 @@ export function AdminRefundsTable() {
             <th className="px-3 py-2">{t("amount")}</th>
             <th className="px-3 py-2">{t("note")}</th>
             <th className="px-3 py-2">{t("when")}</th>
+            <th className="px-3 py-2">{t("recoveryAction")}</th>
           </tr>
         </thead>
         <tbody>
           {items.map((row) => (
-            <tr key={row.id} className="border-b border-border last:border-0">
+            <tr key={row.id} data-payment-recovery={row.paymentId} className="border-b border-border last:border-0">
               <td className="px-3 py-2 align-top">
                 <Status tone={STATUS_TONE[row.status]}>
-                  {t(STATUS_LABEL_KEY[row.status])}
+                  {t(row.feeRecoveryPending ? "statusFeeRecovery" : STATUS_LABEL_KEY[row.status])}
                 </Status>
               </td>
               <td className="px-3 py-2 align-top">
@@ -147,15 +157,17 @@ export function AdminRefundsTable() {
               <td className="px-3 py-2 align-top font-medium">
                 ¥{row.amountYen.toLocaleString("en-US")}
               </td>
-              <td className="px-3 py-2 align-top text-xs">
-                <p className="whitespace-pre-wrap text-muted">{row.recoveryNote ?? "—"}</p>
+              <td className="max-w-xs px-3 py-2 align-top text-xs">
+                <p className="whitespace-pre-wrap break-words text-muted [overflow-wrap:anywhere]">{row.recoveryNote ?? "—"}</p>
                 {row.providerRefundId ? (
-                  <p className="mt-1 font-mono text-muted">{row.providerRefundId}</p>
+                  <p className="mt-1 break-all text-muted">{row.providerRefundId}</p>
                 ) : null}
               </td>
               <td className="px-3 py-2 align-top text-xs">
                 <LocalDateTime iso={row.createdAt} locale={locale} />
               </td>
+              <td className="px-3 py-2 align-top">{row.paymentId ? <AdminPaymentRecoveryAction paymentId={row.paymentId}
+                feeOnly={row.feeRecoveryPending} onCompleted={() => setRevision(value => value + 1)} /> : null}</td>
             </tr>
           ))}
         </tbody>

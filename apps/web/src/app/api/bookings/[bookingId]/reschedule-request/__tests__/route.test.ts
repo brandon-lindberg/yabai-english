@@ -1,7 +1,8 @@
+vi.mock("@/lib/payment-recovery", () => ({ prepareBookingRefund: vi.fn().mockResolvedValue(null) }));
 import { beforeEach, expect, test, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ auth: vi.fn(), booking: vi.fn(), update: vi.fn(), existingRefund: vi.fn(), refund: vi.fn(), notify: vi.fn() }));
 vi.mock("@/auth", () => ({ auth: mocks.auth }));
-vi.mock("@/lib/prisma", () => ({ prisma: { booking: { findUnique: mocks.booking, updateMany: mocks.update }, refund: { findFirst: mocks.existingRefund } } }));
+vi.mock("@/lib/prisma", () => ({ prisma: { $transaction: async (run: (tx: unknown) => unknown) => run({ booking: { updateMany: mocks.update } }), booking: { findUnique: mocks.booking, updateMany: mocks.update }, refund: { findFirst: mocks.existingRefund } } }));
 vi.mock("@/lib/payment-refunds", () => ({ issueAutomaticRefundForBooking: mocks.refund }));
 vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: mocks.notify }));
 vi.mock("@/lib/refund-notifications", () => ({ notifySuperAdminsOfStuckRefund: vi.fn() }));
@@ -50,10 +51,10 @@ test("a competing resolution cannot issue another refund", async () => {
   expect(mocks.refund).not.toHaveBeenCalled();
 });
 test("a recorded discretionary refund is returned on retry without issuing money again", async () => {
-  mocks.booking.mockResolvedValue({ id: "booking", status: "CANCELLED", privateRescheduleStatus: "REFUND_REQUESTED", teacher: { userId: "teacher" } });
+  mocks.booking.mockResolvedValue({ id: "booking", status: "CANCELLED", privateRescheduleStatus: "REFUND_REQUESTED", teacher: { userId: "teacher" }, payments: [{ id: "payment", status: "SUCCEEDED", amountYen: 5000 }] });
   mocks.existingRefund.mockResolvedValue({ id: "refund", status: "SUCCEEDED" });
   expect((await POST(request("refund"), params)).status).toBe(200);
-  expect(mocks.update).not.toHaveBeenCalled(); expect(mocks.refund).not.toHaveBeenCalled();
+  expect(mocks.refund).toHaveBeenCalledTimes(1); // Shared service reconciles without reissuing; covered by the DB suite.
 });
 test("a failed provider call keeps the refund decision locked and allows a safe retry", async () => {
   mocks.refund.mockRejectedValueOnce(new Error("provider unavailable"));

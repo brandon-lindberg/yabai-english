@@ -10,6 +10,7 @@ type Input = {
   startsAt?: Date;
   transitionId?: string;
   refund?: { id: string; status: string; amountYen: number };
+  partialRefund?: boolean;
 };
 
 /** Localized lifecycle notices; replacement-request closure is teacher-only. */
@@ -40,12 +41,12 @@ export async function notifyPrivateBookingEvent(input: Input) {
     if (input.event === "refund" && refund) {
       const amount = `¥${refund.amountYen.toLocaleString("en-US")}`;
       const succeeded = refund.status === "SUCCEEDED";
-      titleEn = succeeded ? "Lesson refunded" : "Lesson refund pending";
-      titleJa = succeeded ? "レッスンの返金が完了しました" : "レッスンの返金は未完了です";
+      titleEn = succeeded ? input.partialRefund ? "Lesson partially refunded" : "Lesson refunded" : "Lesson refund pending";
+      titleJa = succeeded ? input.partialRefund ? "レッスンの一部返金が完了しました" : "レッスンの返金が完了しました" : "レッスンの返金は未完了です";
       if (isStudent) {
-        bodyEn = succeeded ? `Your ${names.nameEn} lesson has been refunded. Please check your account.`
+        bodyEn = succeeded ? `Your ${names.nameEn} lesson has been ${input.partialRefund ? "partially " : ""}refunded. Please check your account.`
           : `The refund for your ${names.nameEn} lesson has not completed yet. Your cancellation is saved.`;
-        bodyJa = succeeded ? `${names.nameJa} の返金が完了しました。お支払い元の口座やカードの明細をご確認ください。`
+        bodyJa = succeeded ? `${names.nameJa} の${input.partialRefund ? "一部" : ""}返金が完了しました。お支払い元の口座やカードの明細をご確認ください。`
           : `${names.nameJa} の返金はまだ完了していません。キャンセルは保存されています。`;
       } else {
         bodyEn = succeeded ? `${amount} has been refunded for your ${names.nameEn} lesson. It will appear through the student's original payment method.`

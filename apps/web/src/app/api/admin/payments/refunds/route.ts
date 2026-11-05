@@ -18,8 +18,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const explicitStatus = REFUND_RECOVERY_STATUSES.includes(new URL(req.url).searchParams.get("status") as RefundRecoveryStatus);
   const refunds = await prisma.refund.findMany({
-    where: { status: { in: requestedStatuses(req.url) } },
+    where: { AND: [explicitStatus ? { status: { in: requestedStatuses(req.url) } } : { OR: [
+      { status: { in: requestedStatuses(req.url) } }, { status: "SUCCEEDED", recoveryNote: { not: null } },
+      { payment: { recovery: { feeRecoveryPending: true } } },
+      { payment: { recovery: { state: { not: "COMPLETE" } } } },
+    ] }, { OR: [{ payment: { recovery: null } }, { payment: { recovery: { state: { not: "COMPLETE" } } } }] }] },
     orderBy: { createdAt: "desc" },
     take: 200,
     select: {
@@ -30,6 +35,8 @@ export async function GET(req: Request) {
       reason: true,
       recoveryNote: true,
       providerRefundId: true,
+      paymentId: true,
+      payment: { select: { recovery: { select: { feeRecoveryPending: true, lastError: true, state: true } } } },
       createdAt: true,
       booking: {
         select: {
@@ -46,10 +53,12 @@ export async function GET(req: Request) {
     items: refunds.map((refund) => ({
       id: refund.id,
       status: refund.status,
+      paymentId: refund.paymentId,
+      feeRecoveryPending: refund.payment?.recovery?.feeRecoveryPending ?? (refund.status === "SUCCEEDED" && Boolean(refund.recoveryNote)),
       amountYen: refund.amountYen,
       actor: refund.actor,
       reason: refund.reason,
-      recoveryNote: refund.recoveryNote,
+      recoveryNote: refund.payment?.recovery?.lastError ?? refund.recoveryNote,
       providerRefundId: refund.providerRefundId,
       createdAt: refund.createdAt,
       bookingId: refund.booking.id,

@@ -1,6 +1,6 @@
 # Stripe payment and refund wiring audit
 
-Audited on `the-mirror`, 2026-11-02, for MIRROR_PLAN.md section 6j. This audit distinguishes verified existing routes from failure-recovery limits. No payment-processing implementation, Stripe credentials, account setup, fee policy or schema is changed in this section.
+Audited on `the-mirror`, 2026-11-02, for MIRROR_PLAN.md section 6j. The owner then authorized proper fixes for all five findings. **Section 6k fixes are delivered locally on 2026-11-03**, as recorded below. The original wiring and findings remain here as the audit baseline; their old line references describe the pre-fix implementation. Existing Stripe credentials, account setup, checkout collection and fee policy are retained.
 
 ## Verified wiring
 
@@ -19,7 +19,7 @@ The provider contract agrees with Stripe's documented [direct-charge model](http
 
 ## Existing recovery limits found
 
-These are code-review findings in the implementation present before section 6j. They are not claims of observed production failures. They remain follow-up work; passing normal-flow regressions does not resolve them.
+These are code-review findings in the implementation present before section 6j, not claims of observed production failures. All five are addressed by section 6k below; normal-flow checks alone were not treated as resolution.
 
 1. **Interrupted automatic cancellation has no durable refund retry.** The cancellation route writes `CANCELLED`, then awaits notifications/calendar work and the provider refund. A thrown error before `refund.create` can leave the booking cancelled without a recorded refund/recovery row. A repeated cancellation is refused by policy. The teacher-request route has a separate claim/retry guard, but the automatic cancellation route lacks equivalent durable recovery. See `src/app/api/bookings/[bookingId]/cancel/route.ts:107` and `src/lib/payment-refunds.ts:112`.
 
@@ -31,10 +31,36 @@ These are code-review findings in the implementation present before section 6j. 
 
 5. **Application-fee recovery can be hidden.** If the student refund succeeds but the separate application-fee return fails, the helper stores `SUCCEEDED` plus a recovery note. The admin recovery list filters `PENDING_RECOVERY`, `FAILED` and `PENDING`; it does not include a succeeded refund with an outstanding fee note. Student reimbursement can be complete while the teacher's fee return still requires attention. See `src/lib/payment-refunds.ts:120` and `src/app/api/admin/payments/refunds/route.ts`.
 
-These findings call for a focused recovery change with independent red/green tests for interruption, concurrency, replay and reconciliation. A live Stripe Dashboard configuration check, test-mode provider round trip and webhook delivery test would also be needed for operational signoff. Mocked code-level tests cannot establish live account permissions, balances, endpoint subscriptions or production delivery.
+These findings required the focused recovery change and independent red/green interruption, concurrency, replay and reconciliation tests now delivered in section 6k. Mocked and synthetic tests cannot establish live account permissions, balances, endpoint subscriptions or production delivery.
 
-## Section 6j evidence
+## Historical section 6j evidence
 
 The notification behavior demonstrated four failing assertions before the change (`.impeccable/student-refund-notifications-red.log`), then passed (`student-refund-notifications-green.log`). The complete safe mirror suite passes **774 checks**, with one skipped migration-only case and three existing TODOs. The new cross-layer checks pass in `stripe-wiring-audit.log`. TypeScript and full ESLint pass in `student-notifications-types.log` and `student-notifications-lint.log`.
 
 All **24 browser journeys** and the final production build pass (`student-notifications-browser.log`, `student-notifications-build.log`). Batched Impeccable inspection covers English desktop/light and Japanese mobile/dark refund and closure notices. The browser run preserves all **27 application-table fingerprints**; the owned schema, fixtures and connections are removed, task-owned processes have exited and preview port 3100 is released (`student-notifications-cleanup.json`). Browser tests use an isolated schema and explicit synthetic settlement; they do not charge or refund real money. Runtime financial code remains unchanged, while student notification selection/copy changes in the shared notifier. No staging, commit or push is performed by the agent.
+
+## Section 6k resolutions
+
+| Finding | Delivered fix |
+| --- | --- |
+| 1. Interrupted cancellation | Cancellation/teacher decisions and the refund obligation commit in one transaction. Group cancellation saves all affected seats' obligations together. Provider/notification failures cannot erase saved work. A worker or scheduled endpoint resumes it. |
+| 2. Receipt mistaken for completion | Webhook receipt, lease, retry and completion have distinct durable states. Failed handling returns 503. Checkout fulfillment resumes incomplete effects and preserves issued invoices, event identifiers and notification identities. Active claims exclude concurrent processing; expired claims recover. |
+| 3. Wrong historical account | Captured payment account takes precedence over the current teacher connection. Legacy fallback is captured once. Payment/booking/session/intent/account/amount/currency checks protect ownership. An invalid saved snapshot cannot silently switch accounts. |
+| 4. Missing Dashboard refunds | Authoritative provider reads import receipts and reconcile ledger, document and notification state. Full settled refunds cancel the booking through shared Calendar cleanup. Partial refunds preserve it and are identified as partial. Old payloads cannot regress current provider status. Repeated deliveries do not duplicate money or ledger reversals. |
+| 5. Hidden fee recovery | Separate durable fee state keeps settled student refunds visible to admins until fee reconciliation completes. The shared confirmed retry action returns only the outstanding fee, without issuing another customer refund. |
+
+Automatic, teacher and admin actions reuse [payment-recovery.ts](../apps/web/src/lib/payment-recovery.ts) and [payment-recovery-batch.ts](../apps/web/src/lib/payment-recovery-batch.ts). [webhook-work.ts](../apps/web/src/lib/stripe/webhook-work.ts) owns delivery processing; [webhook-handler.ts](../apps/web/src/lib/stripe/webhook-handler.ts) contains the shared dispatch. No parallel English/Japanese financial implementation is introduced.
+
+Customer refund creation requires a saved full-refund obligation; Dashboard reconciliation cannot invent one. The processor lists all provider refunds before issuing money and retains request identity/payload. An unknown outcome beyond the conservative 23-hour limit stops for attention rather than blindly reusing a potentially expired [Stripe idempotency key](https://docs.stripe.com/api/idempotent_requests). A confirmed failed refund requires explicit super-admin authorization for a replacement with a new saved identity. Scheduled passes do not authorize it. Pending provider refunds are awaited. Fee and refund ledger corrections append deltas rather than deleting financial history, including historical duplicate reversals.
+
+Late student cancellation and permanent teacher closure still grant no refund. Payment arriving after an unpaid reservation was cancelled is queued for return without reviving the booking. A duplicate paid event for an already-paid late cancellation grants no new entitlement. The migration preserves old financial/document identities and completed webhook receipts; it does not automatically replay historical events. Explicit admin replay is limited to saved financial events, excluding account mutations.
+
+### Section 6k verification
+
+Red/green evidence is retained under the ignored `.impeccable/` directory. `payment-recovery-initial-red.log` exposes original-account routing and interruption failures. `payment-webhook-baseline-red.log` runs the old signed endpoint against the new database regressions: interrupted-checkout retry and missing Dashboard-receipt assertions fail while the other 37 cases pass. `payment-fee-recovery-admin-red.log` exposes the missing settled-refund recovery row/action. The initial browser run catches missing pending notices and an unreachable mobile action; the captured confirmation passes all 26 journeys.
+
+Current code passes **39 isolated PostgreSQL cases**, exercising actual persistence, transactions and route handlers with external SDK/side-effect boundaries faked. Cases cover rollback, provider acceptance followed by lost response, concurrent claims/deliveries, expired leases, original accounts, partial/full/pending/requires-action/failed/cancelled refunds, fee-only recovery, event ordering, invoice interruption/replay, early Dashboard delivery, late payment, ledger corrections, concurrent credit notes, batch resumption, admin visibility and migration preservation/datamodel comparison. Financial assertions previously in mock-only refund tests now run here with real persistence. No application-database seed runs.
+
+The safe mirror suite passes **790 tests** (40 database-dependent skips and three existing TODOs). The separate foundation migration regression passes. TypeScript and full ESLint pass. Browser evidence covers both subjects, student/teacher outcomes and admin confirmation/retry in English desktop/light and Japanese mobile/dark. Final browser/build/cleanup results are recorded in section 6k of [MIRROR_PLAN.md](../MIRROR_PLAN.md).
+
+The additive recovery migration is applied locally with the installed Prisma CLI. No live Stripe charge/refund, Google operation, production migration or deployment was performed. **Automatic recovery must be activated when deploying**, using either the supervised worker or authenticated scheduled endpoint in [payment-recovery-operations.md](payment-recovery-operations.md). No production scheduler was configured here. Brandon retains staging, commits and pushes.

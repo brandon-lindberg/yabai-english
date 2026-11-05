@@ -1,5 +1,6 @@
+vi.mock("@/lib/payment-recovery", () => ({ prepareBookingRefund: vi.fn().mockResolvedValue(null) }));
 import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
-vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn() }));
+vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn().mockResolvedValue(undefined) }));
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
@@ -28,6 +29,7 @@ vi.mock("@/auth", () => ({
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    $transaction: async (run: (tx: unknown) => unknown) => run({ booking: { update: updateMock } }),
     freeTrialRedemption: { findUnique: vi.fn(), create: vi.fn() },
     booking: {
       findUnique: findUniqueMock,
@@ -225,7 +227,7 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
     expect(updateMock).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: "booking-1", status: "CONFIRMED", startsAt: booking.startsAt },
-        data: { status: BookingStatus.CANCELLED },
+        data: { status: BookingStatus.CANCELLED, cancelledFromStatus: BookingStatus.CONFIRMED },
       }),
     );
     expect(revalidatePathMock).toHaveBeenCalledWith("/ja/dashboard");

@@ -47,7 +47,9 @@
     "test:study:db": "yarn --cwd apps/web test:study:db",
     "japanese-content:study": "yarn --cwd apps/web japanese-content:study",
     "japanese-content:prompts": "yarn --cwd apps/web japanese-content:prompts",
-    "japanese-content:review": "yarn --cwd apps/web japanese-content:review"
+    "japanese-content:review": "yarn --cwd apps/web japanese-content:review",
+    "payments:recover": "yarn --cwd apps/web payments:recover",
+    "test:payments:db": "yarn --cwd apps/web test:payments:db"
   },
   "packageManager": "yarn@1.22.22",
   "dependencies": {

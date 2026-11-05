@@ -217,6 +217,14 @@ enum RefundStatus {
   PENDING_RECOVERY
 }
 
+enum PaymentRecoveryState {
+  QUEUED
+  PROCESSING
+  WAITING
+  NEEDS_ATTENTION
+  COMPLETE
+}
+
 enum TeacherPlatformTier {
   TIER_1
   TIER_2
@@ -476,7 +484,6 @@ model StudentProfile {
   placementReviewReason  String?
   placementReport        Json?
   placementWritingSample String?     @db.Text
-
 
   /// Onboarding data
   learningGoals          String[]  @default([])
@@ -824,7 +831,6 @@ model AvailabilitySlot {
   groupLessonSessions GroupLessonSession[]
 
   @@index([assignedStudentId])
-
   @@index([classLevelId])
   @@index([classTypeId])
   @@index([teacherLessonOfferingId])
@@ -936,6 +942,7 @@ model LessonProduct {
 }
 
 model Booking {
+  cancelledFromStatus BookingStatus?
   id              String         @id @default(cuid())
   studentId       String
   student         User           @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
@@ -1028,11 +1035,15 @@ model Payment {
   checkoutUrl                String?
   metadataJson               Json?
   paidAt                     DateTime?
+  fulfillmentCompletedAt    DateTime?
+  fulfillmentLeaseToken     String?
+  fulfillmentLeaseExpiresAt DateTime?
   createdAt                  DateTime                 @default(now())
   updatedAt                  DateTime                 @updatedAt
 
   ledgerEntries PaymentLedgerEntry[]
   refunds       Refund[]
+  recovery      PaymentRecovery?
 
   @@index([studentId, createdAt])
   @@index([teacherId, createdAt])
@@ -1060,6 +1071,8 @@ model Refund {
   payment          Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
   provider         PaymentProvider
   providerRefundId String?
+  providerAccountId String?
+  requestKey        String?          @unique
   amountYen        Int
   status           RefundStatus  @default(PENDING)
   actor            String
@@ -1071,10 +1084,45 @@ model Refund {
   creditNoteNo     String?       @unique
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+  recovery          PaymentRecovery?
 
+  @@unique([provider, providerAccountId, providerRefundId])
   @@index([bookingId, createdAt])
   @@index([paymentId, createdAt])
   @@index([provider, providerRefundId])
+}
+
+/// One durable full-refund obligation (or read-only reconciliation) per payment.
+/// Claims expire; provider request identity and original account never change on retry.
+model PaymentRecovery {
+  paymentId          String               @id
+  payment            Payment              @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  refundId           String?              @unique
+  refund             Refund?              @relation(fields: [refundId], references: [id], onDelete: SetNull)
+  requestedAmountYen Int?
+  actor              String               @default("STRIPE")
+  policyJson         Json?
+  connectedAccountId String?
+  paymentIntentId    String?
+  state              PaymentRecoveryState @default(QUEUED)
+  leaseToken         String?
+  leaseExpiresAt     DateTime?
+  attempts           Int                  @default(0)
+  revision           Int                  @default(0)
+  nextAttemptAt      DateTime             @default(now())
+  requestKey         String?
+  requestAmountYen   Int?
+  requestStartedAt   DateTime?
+  requestSequence    Int                  @default(0)
+  applicationFeeId   String?
+  feeRecoveryPending Boolean              @default(false)
+  lastError          String?
+  completedAt        DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  @@index([state, nextAttemptAt])
+  @@index([applicationFeeId])
 }
 
 model PaymentWebhookEvent {
@@ -1084,8 +1132,16 @@ model PaymentWebhookEvent {
   eventType       String
   processedAt     DateTime        @default(now())
   payloadJson     Json?
+  state           PaymentRecoveryState @default(QUEUED)
+  completedAt     DateTime?
+  leaseToken      String?
+  leaseExpiresAt  DateTime?
+  attempts        Int                  @default(0)
+  nextAttemptAt   DateTime             @default(now())
+  lastError       String?
 
   @@unique([provider, providerEventId])
+  @@index([state, nextAttemptAt])
 }
 
 // --- Phase 2: Learning ---

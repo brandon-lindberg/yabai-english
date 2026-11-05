@@ -6,7 +6,7 @@ const { findRefundMock, updateRefundMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/prisma", () => ({
-  prisma: { refund: { findUnique: findRefundMock, update: updateRefundMock } },
+  prisma: { refund: { findUnique: findRefundMock, updateMany: updateRefundMock } },
 }));
 
 import { buildCreditNoteNumber, ensureCreditNoteNumber } from "@/lib/credit-notes";
@@ -21,7 +21,10 @@ describe("buildCreditNoteNumber", () => {
 describe("ensureCreditNoteNumber", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    updateRefundMock.mockImplementation(async ({ data }) => ({ creditNoteNo: data.creditNoteNo }));
+    updateRefundMock.mockImplementation(async ({ data }) => {
+      findRefundMock.mockResolvedValue({ id: "r1", status: "SUCCEEDED", creditNoteNo: data.creditNoteNo });
+      return { count: 1 };
+    });
   });
 
   test("issues a number once a refund has actually succeeded", async () => {
@@ -31,7 +34,7 @@ describe("ensureCreditNoteNumber", () => {
 
     expect(no).toMatch(/^CRN-/);
     expect(updateRefundMock).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: "r1" } }),
+      expect.objectContaining({ where: { id: "r1", status: "SUCCEEDED", creditNoteNo: null } }),
     );
   });
 

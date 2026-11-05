@@ -4,7 +4,7 @@ const { prismaMock, confirmPaidBookingMock } = vi.hoisted(() => ({
   prismaMock: {
     payment: {
       findUnique: vi.fn(),
-      update: vi.fn(),
+      update: vi.fn(), updateMany: vi.fn(),
     },
     booking: {
       findUnique: vi.fn(),
@@ -23,16 +23,17 @@ import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-bo
 describe("confirmBookingFromStripeCheckoutSession", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaMock.payment.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.payment.findUnique.mockResolvedValue({
       id: "pay-1",
-      bookingId: "booking-1",
+      bookingId: "booking-1", provider: "STRIPE", amountYen: 5000,
       status: "REQUIRES_ACTION",
       providerCheckoutId: "cs_test_123",
     });
     prismaMock.booking.findUnique.mockResolvedValue({ status: "PENDING_PAYMENT" });
     prismaMock.payment.update.mockResolvedValue({
       id: "pay-1",
-      bookingId: "booking-1",
+      bookingId: "booking-1", provider: "STRIPE", amountYen: 5000,
       status: "SUCCEEDED",
     });
     confirmPaidBookingMock.mockResolvedValue({
@@ -97,7 +98,7 @@ describe("confirmBookingFromStripeCheckoutSession", () => {
   test("is idempotent when booking is already confirmed", async () => {
     prismaMock.payment.findUnique.mockResolvedValue({
       id: "pay-1",
-      bookingId: "booking-1",
+      bookingId: "booking-1", provider: "STRIPE", amountYen: 5000,
       status: "SUCCEEDED",
       providerCheckoutId: "cs_test_123",
     });

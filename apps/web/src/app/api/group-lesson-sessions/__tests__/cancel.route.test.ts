@@ -1,3 +1,4 @@
+vi.mock("@/lib/payment-recovery", () => ({ prepareBookingRefund: vi.fn().mockResolvedValue(null) }));
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
@@ -11,7 +12,7 @@ const {
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
-    groupLessonSession: { findUnique: vi.fn(), update: vi.fn() },
+    groupLessonSession: { findUnique: vi.fn(), updateMany: vi.fn() },
     booking: { update: vi.fn() },
   },
   deleteEventMock: vi.fn(),
@@ -21,7 +22,7 @@ const {
 }));
 
 vi.mock("@/auth", () => ({ auth: authMock }));
-vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/lib/prisma", () => ({ prisma: { ...prismaMock, $transaction: async (run: (tx: unknown) => unknown) => run(prismaMock) } }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/google-calendar", () => ({ deleteMeetLessonEvent: deleteEventMock }));
 vi.mock("@/lib/payment-refunds", () => ({
@@ -88,7 +89,7 @@ describe("POST /api/group-lesson-sessions/[sessionId]/cancel", () => {
     vi.setSystemTime(NOW);
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
     prismaMock.groupLessonSession.findUnique.mockResolvedValue(groupSession());
-    prismaMock.groupLessonSession.update.mockResolvedValue({});
+    prismaMock.groupLessonSession.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.booking.update.mockResolvedValue({});
     deleteEventMock.mockResolvedValue(true);
     issueRefundMock.mockResolvedValue({ id: "refund-1", status: "SUCCEEDED", amountYen: 3000 });
@@ -144,7 +145,7 @@ describe("POST /api/group-lesson-sessions/[sessionId]/cancel", () => {
     const res = await cancelClass();
 
     expect(res.status).toBe(409);
-    expect(prismaMock.groupLessonSession.update).not.toHaveBeenCalled();
+    expect(prismaMock.groupLessonSession.updateMany).not.toHaveBeenCalled();
     expect(prismaMock.booking.update).not.toHaveBeenCalled();
     expect(issueRefundMock).not.toHaveBeenCalled();
   });
@@ -152,15 +153,15 @@ describe("POST /api/group-lesson-sessions/[sessionId]/cancel", () => {
   test("closes the class so no one can take a seat being emptied", async () => {
     await cancelClass();
 
-    expect(prismaMock.groupLessonSession.update).toHaveBeenCalledWith(
+    expect(prismaMock.groupLessonSession.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: "sess-1" },
+        where: { id: "sess-1", cancelledAt: null },
         data: { cancelledAt: expect.any(Date) },
       }),
     );
     // Closed before the seats are emptied, not after.
     expect(
-      prismaMock.groupLessonSession.update.mock.invocationCallOrder[0]!,
+      prismaMock.groupLessonSession.updateMany.mock.invocationCallOrder[0]!,
     ).toBeLessThan(prismaMock.booking.update.mock.invocationCallOrder[0]!);
   });
 

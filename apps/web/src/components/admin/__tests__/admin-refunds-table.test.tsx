@@ -34,6 +34,14 @@ afterEach(() => {
 });
 
 describe("AdminRefundsTable", () => {
+  test("distinguishes a refunded student from the outstanding fee and exposes a recovery action", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ items: [
+      { ...stuckRefund, status: "SUCCEEDED", paymentId: "payment", feeRecoveryPending: true },
+    ] }) }));
+    renderTable();
+    await waitFor(() => expect(screen.getByText("Student refunded; fee recovery pending")).toBeTruthy());
+    expect(screen.getByRole("button", { name: "Reconcile / retry" })).toBeTruthy();
+  });
   test("shows the people, the amount and why it is stuck", async () => {
     vi.stubGlobal(
       "fetch",

@@ -2,6 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { setTimeout as delay } from "node:timers/promises";
 import { Client } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
@@ -51,6 +52,12 @@ export async function withIsolatedPostgres(
   } finally {
     try {
       await db?.$disconnect();
+      // pg's socket shutdown and PostgreSQL's activity view can differ by a few
+      // milliseconds after pool.end resolves. Still require actual closure.
+      for (let attempt = 0; attempt < 20; attempt++) {
+        if (!(await client.query("SELECT 1 FROM pg_stat_activity WHERE application_name = $1 AND pid <> pg_backend_pid()", [schema])).rowCount) break;
+        await delay(25);
+      }
       if ((await client.query("SELECT 1 FROM pg_stat_activity WHERE application_name = $1 AND pid <> pg_backend_pid()", [schema])).rowCount) {
         throw new Error("Test database connections did not close");
       }

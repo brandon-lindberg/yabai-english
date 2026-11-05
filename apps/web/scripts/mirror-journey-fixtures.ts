@@ -20,7 +20,7 @@ if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(connectionString).host
 const schema = new URL(connectionString).searchParams.get("schema") ?? "public";
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString, application_name: "mirror-journey-fixtures" }, { schema }) });
 const file = "../../.impeccable/mirror-fixtures.json";
-const lifecycleKinds = ["events", "cancel-late", "cancel-teacher", "cancel-close", "cancel-refund"] as const;
+const lifecycleKinds = ["events", "cancel-late", "cancel-teacher", "cancel-close", "cancel-refund", "recovery"] as const;
 export type Fixtures = { runId: string; schema?: string; users: { id: string; email: string }[]; englishTeacherId: string; japaneseTeacherId: string; placementProductId?: string; trialProductId?: string; pastBookings?: { ENGLISH: string; JAPANESE: string } };
 function readOwnedFixtures(): Fixtures {
   const fixtures = JSON.parse(readFileSync(file, "utf8")) as Fixtures;
@@ -39,7 +39,7 @@ try {
     if (release && !/^mirror_test_[a-f0-9]{32}$/.test(schema)) throw new Error("Release journeys require an isolated test schema");
     const placement = release || process.argv.includes("--japanese-placement");
     const runId = `mirror-qa-${randomUUID()}`;
-    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student", "resume-english", "new-english-teacher", "new-japanese-teacher", ...lifecycleKinds.flatMap(kind => [`${kind}-english`, `${kind}-japanese`])] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
+    const users = ["student", "new-student", "english-teacher", "japanese-teacher", ...(placement ? ["timeout-student"] : []), ...(release ? ["new-japanese-student", "placement-english", "timeout-english", "insufficient-english", "timeout-japanese", "insufficient-japanese", "study-student", "resume-english", "new-english-teacher", "new-japanese-teacher", ...lifecycleKinds.flatMap(kind => [`${kind}-english`, `${kind}-japanese`]), "payment-admin"] : [])].map((name) => ({ id: `${runId}-${name}`, email: `${runId}-${name}@example.invalid` }));
     const fixtures: Fixtures = { runId, schema, users, englishTeacherId: `${runId}-english-profile`, japaneseTeacherId: `${runId}-japanese-profile`, ...(placement ? { placementProductId: `${runId}-placement-product` } : {}), ...(release ? { trialProductId: `${runId}-trial-product`, pastBookings: { ENGLISH: `${runId}-past-en`, JAPANESE: `${runId}-past-ja` } } : {}) };
     mkdirSync("../../.impeccable", { recursive: true });
     // Record ownership before the transaction; cleanup is safe after failures.
@@ -47,8 +47,9 @@ try {
     await prisma.$transaction(async (tx) => {
       for (const [index, user] of users.entries()) {
         const teacher = user.id.endsWith("-teacher");
-        await tx.user.create({ data: { ...user, name: teacher ? user.id.includes("japanese-teacher") ? "Mirror QA Japanese Teacher" : "Mirror QA English Teacher" : `Mirror QA Student ${index}`, role: teacher ? "TEACHER" : "STUDENT", locale: "en", learningLanguage: placement && ([0, 4, 5].includes(index) || user.id.endsWith("-japanese")) ? "JAPANESE" : "ENGLISH" } });
-        if (release && index >= 6 && !teacher) await tx.studentProfile.create({ data: { userId: user.id, onboardingCompletedAt: new Date() } });
+        const admin = user.id.endsWith("-payment-admin");
+        await tx.user.create({ data: { ...user, name: admin ? "Mirror QA Payment Admin" : teacher ? user.id.includes("japanese-teacher") ? "Mirror QA Japanese Teacher" : "Mirror QA English Teacher" : `Mirror QA Student ${index}`, role: admin ? "SUPER_ADMIN" : teacher ? "TEACHER" : "STUDENT", locale: "en", learningLanguage: placement && ([0, 4, 5].includes(index) || user.id.endsWith("-japanese")) ? "JAPANESE" : "ENGLISH" } });
+        if (release && index >= 6 && !teacher && !admin) await tx.studentProfile.create({ data: { userId: user.id, onboardingCompletedAt: new Date() } });
       }
       await tx.studentProfile.create({ data: { userId: users[0].id, onboardingCompletedAt: new Date(), placedLevel: "ADVANCED", placedSubLevel: 3 } });
       if (placement) await tx.studentProfile.create({ data: { userId: users[4].id, onboardingCompletedAt: new Date() } });
@@ -125,6 +126,24 @@ try {
     if (!fixtures.users.some(user => user.id === learnerId)) throw new Error("Unknown release learner");
     const learner = await prisma.user.findUniqueOrThrow({ where: { id: learnerId }, select: { role: true, learningLanguage: true } });
     if (learner.role !== "STUDENT") throw new Error("Student fixture required");
+    if (operation === "release-payment-recovery") {
+      if (!learnerId.endsWith("-recovery-english") && !learnerId.endsWith("-recovery-japanese")) throw new Error("Owned recovery fixture required");
+      const language = learnerId.endsWith("-japanese") ? "JAPANESE" : "ENGLISH";
+      const bookingId = `${fixtures.runId}-recovery-${language.toLowerCase()}-booking`;
+      const paymentId = `${bookingId}-payment`, account = `acct_qa_${language === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId}`;
+      await prisma.$transaction(async tx => {
+        await tx.booking.update({ where: { id: bookingId }, data: { status: "CANCELLED", cancelledFromStatus: "CONFIRMED", privateRescheduleStatus: "REFUND_REQUESTED", rescheduleRequestedAt: new Date() } });
+        await tx.payment.update({ where: { id: paymentId }, data: { providerPaymentId: `pi_qa_${paymentId}`, providerCheckoutId: `cs_qa_${paymentId}`, metadataJson: { connectedAccountId: account } } });
+        const refund = await tx.refund.create({ data: { bookingId, paymentId, provider: "STRIPE", providerRefundId: `re_qa_${paymentId}`, providerAccountId: account,
+          amountYen: 5000, status: "SUCCEEDED", actor: "TEACHER", reason: "CANCELLATION_POLICY" } });
+        await tx.paymentRecovery.create({ data: { paymentId, refundId: refund.id, requestedAmountYen: 5000, connectedAccountId: account, paymentIntentId: `pi_qa_${paymentId}`,
+          state: "WAITING", feeRecoveryPending: true, lastError: "Student refunded. Application fee reconciliation remains pending.", nextAttemptAt: new Date(Date.now() + 600_000) } });
+        await tx.paymentWebhookEvent.create({ data: { provider: "STRIPE", providerEventId: `evt_qa_${paymentId}`, eventType: "checkout.session.async_payment_failed", state: "WAITING",
+          lastError: "Temporary processing interruption.", payloadJson: { id: `evt_qa_${paymentId}`, type: "checkout.session.async_payment_failed", account,
+            data: { object: { id: `cs_qa_${paymentId}`, metadata: { paymentId, bookingId } } } } } });
+      });
+      console.log(JSON.stringify({ paymentId, eventId: `evt_qa_${paymentId}`, bookingId })); return;
+    }
     if (["release-notification-availability", "release-notification-settle"].includes(operation)) {
       const kind = lifecycleKinds.find(kind => learnerId.endsWith(`-${kind}-english`) || learnerId.endsWith(`-${kind}-japanese`));
       if (!kind) throw new Error("Lifecycle fixture required");

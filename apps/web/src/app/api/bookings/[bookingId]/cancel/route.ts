@@ -6,16 +6,13 @@ import { prisma } from "@/lib/prisma";
 import { revalidateBookingPaths } from "@/lib/revalidate-booking-paths";
 import { loadBookingForCancellation } from "@/lib/booking-cancellation-data";
 import { evaluateBookingCancellationPolicy } from "@/lib/booking-policy";
-import {
-  deleteMeetLessonEvent,
-  removeMeetLessonEventAttendee,
-} from "@/lib/google-calendar";
-import { bookingOwnsItsCalendarEvent } from "@/lib/booking-calendar-ownership";
+import { cleanCancelledBookingCalendar } from "@/lib/cancelled-booking-calendar";
 import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
 import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
 import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
 import { evaluateBookingReschedulePolicy } from "@/lib/booking-reschedule";
 import type { BookingCancellationPreview } from "@/lib/booking-cancellation-preview";
+import { prepareBookingRefund } from "@/lib/payment-recovery";
 
 type Props = {
   params: Promise<{ bookingId: string }>;
@@ -106,9 +103,10 @@ export async function POST(req: Request, { params }: Props) {
   let updated;
   const replacementRequested = actor === "STUDENT" && !booking.groupLessonSessionId && policy.rescheduleOffered;
   try {
-    updated = await prisma.booking.update({
+    updated = await prisma.$transaction(async tx => {
+    const cancelled = await tx.booking.update({
     where: { id: booking.id, status: booking.status, startsAt: booking.startsAt },
-    data: { status: BookingStatus.CANCELLED, ...(replacementRequested ? {
+    data: { status: BookingStatus.CANCELLED, cancelledFromStatus: booking.status, ...(replacementRequested ? {
       privateRescheduleStatus: "PENDING", rescheduleRequestedAt: new Date(), rescheduleResolvedAt: null,
       googleEventId: null, studentGoogleEventId: null, meetUrl: null, meetCode: null, meetConferenceId: null,
     } : {}) },
@@ -119,51 +117,22 @@ export async function POST(req: Request, { params }: Props) {
       endsAt: true,
       privateRescheduleStatus: true,
     },
-  });
+    });
+    await prepareBookingRefund(tx, { booking, policy, actor });
+    return cancelled;
+    });
   } catch (error) {
     if (isStaleBookingMutation(error)) return NextResponse.json({ error: STALE_BOOKING_MESSAGE }, { status: 409 });
     throw error;
   }
-  await notifyPrivateBookingEvent({ bookingId: booking.id, event: "cancelled" });
+  // The obligation already committed with cancellation. Secondary delivery cannot lose it.
+  await notifyPrivateBookingEvent({ bookingId: booking.id, event: "cancelled" }).catch(() => undefined);
   if (replacementRequested) await notifyPrivateBookingEvent({ bookingId: booking.id, event: "reschedule_requested",
     transitionId: booking.updatedAt?.toISOString() });
-
-  // A seat's event belongs to the class, so cancelling one seat takes that
-  // student off the guest list. Deleting it — which is right for a private
-  // lesson — would cancel the lesson for every classmate.
-  const teacherCalendar = {
-    organizerUserId: booking.teacher.userId,
-    refreshTokenEncrypted: booking.teacher.googleCalendarRefreshToken,
-    calendarId: booking.googleCalendarId ?? booking.teacher.calendarId,
-  };
-  await Promise.all([
-    booking.googleEventId
-      ? bookingOwnsItsCalendarEvent(booking)
-        ? deleteMeetLessonEvent({ ...teacherCalendar, eventId: booking.googleEventId })
-        : booking.student?.email
-          ? removeMeetLessonEventAttendee({
-              ...teacherCalendar,
-              eventId: booking.googleEventId,
-              attendeeEmail: booking.student.email,
-            })
-          : Promise.resolve(false)
-      : Promise.resolve(false),
-    booking.studentGoogleEventId
-      ? deleteMeetLessonEvent({
-          organizerUserId: booking.studentId,
-          refreshTokenEncrypted: null,
-          eventId: booking.studentGoogleEventId,
-        })
-      : Promise.resolve(false),
-  ]);
-
   const refund = policy.refundEligible
-    ? await issueAutomaticRefundForBooking(prisma, {
-        booking,
-        policy,
-        actor,
-      })
-    : null;
+    ? await issueAutomaticRefundForBooking(prisma, { booking, policy, actor }) : null;
+
+  await cleanCancelledBookingCalendar(booking);
 
   // A refund that did not reach the student is owed money nobody else is
   // watching, so tell the people who can fix it rather than waiting for a

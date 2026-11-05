@@ -183,67 +183,20 @@ export async function retrieveStripeCheckoutSession({
   );
 }
 
-/**
- * Returns the platform's entire application fee for a direct charge back to the
- * connected account. The platform retains nothing on a refunded lesson, so the
- * amount is whatever Stripe still holds as unrefunded fee — we never need our
- * own record of what was charged. Returns null when there is nothing to refund.
- */
-export async function createStripeApplicationFeeRefund({
-  connectedAccountId,
-  paymentIntentId,
-  paymentId,
-  bookingId,
-}: {
-  connectedAccountId: string;
-  paymentIntentId: string;
-  paymentId: string;
-  bookingId: string;
-}) {
-  const intent = await stripe().paymentIntents.retrieve(
-    paymentIntentId,
-    { expand: ["latest_charge"] },
-    { stripeAccount: connectedAccountId },
-  );
-  const charge =
-    typeof intent.latest_charge === "object" && intent.latest_charge !== null
-      ? intent.latest_charge
-      : null;
-  const applicationFeeId =
-    typeof charge?.application_fee === "string"
-      ? charge.application_fee
-      : charge?.application_fee?.id ?? null;
-  if (!applicationFeeId) {
-    return null;
-  }
-
-  const applicationFee = await stripe().applicationFees.retrieve(applicationFeeId);
-  const refundableYen = applicationFee.amount - applicationFee.amount_refunded;
-  if (refundableYen <= 0) {
-    return null;
-  }
-
-  return stripe().applicationFees.createRefund(applicationFeeId, {
-    amount: refundableYen,
-    metadata: {
-      paymentId,
-      bookingId,
-    },
-  });
-}
-
 export async function createStripeRefundDirectCharge({
   connectedAccountId,
   paymentIntentId,
   amountYen,
   paymentId,
   bookingId,
+  idempotencyKey,
 }: {
   connectedAccountId: string;
   paymentIntentId: string;
   amountYen: number;
   paymentId: string;
   bookingId: string;
+  idempotencyKey?: string;
 }) {
   return stripe().refunds.create(
     {
@@ -252,8 +205,43 @@ export async function createStripeRefundDirectCharge({
       metadata: {
         paymentId,
         bookingId,
+        ...(idempotencyKey ? { recoveryKey: idempotencyKey } : {}),
       },
     },
-    { stripeAccount: connectedAccountId, idempotencyKey: `lesson-refund:${paymentId}` },
+    { stripeAccount: connectedAccountId, idempotencyKey: idempotencyKey ?? `lesson-refund:${paymentId}` },
   );
+}
+
+export async function listStripeRefundsForPayment(connectedAccountId: string, paymentIntentId: string) {
+  const refunds: Stripe.Refund[] = [];
+  let after: string | undefined;
+  do {
+    const page = await stripe().refunds.list({ payment_intent: paymentIntentId, limit: 100, ...(after ? { starting_after: after } : {}) }, { stripeAccount: connectedAccountId });
+    refunds.push(...page.data);
+    if (!page.has_more) break;
+    const next = page.data.at(-1)?.id;
+    if (!next || next === after) throw new Error("Stripe refund pagination did not advance");
+    after = next;
+  } while (true);
+  return refunds;
+}
+
+export async function retrieveStripeRefund(connectedAccountId: string, refundId: string) {
+  return stripe().refunds.retrieve(refundId, {}, { stripeAccount: connectedAccountId });
+}
+
+export async function retrieveStripePaymentIntent(connectedAccountId: string, paymentIntentId: string) {
+  return stripe().paymentIntents.retrieve(paymentIntentId, { expand: ["latest_charge"] }, { stripeAccount: connectedAccountId });
+}
+
+export async function retrieveStripeApplicationFee(feeId: string) {
+  return stripe().applicationFees.retrieve(feeId);
+}
+
+export async function retrieveStripeCharge(connectedAccountId: string, chargeId: string) {
+  return stripe().charges.retrieve(chargeId, {}, { stripeAccount: connectedAccountId });
+}
+
+export async function refundStripeApplicationFee(feeId: string, amount: number, paymentId: string, bookingId: string, idempotencyKey: string) {
+  return stripe().applicationFees.createRefund(feeId, { amount, metadata: { paymentId, bookingId } }, { idempotencyKey });
 }

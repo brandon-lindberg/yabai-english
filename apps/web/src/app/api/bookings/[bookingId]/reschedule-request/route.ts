@@ -8,10 +8,10 @@ import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
 import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
 import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
 import { revalidateBookingPaths } from "@/lib/revalidate-booking-paths";
+import { prepareBookingRefund } from "@/lib/payment-recovery";
 
 const bodySchema = z.object({ action: z.enum(["close", "refund"]) }).strict();
 type Props = { params: Promise<{ bookingId: string }> };
-const REFUND_CLAIM_MS = 5 * 60_000;
 
 export async function POST(req: Request, { params }: Props) {
   const session = await auth();
@@ -37,18 +37,18 @@ export async function POST(req: Request, { params }: Props) {
     return NextResponse.json({ ok: true, status: "CLOSED" });
   }
 
-  const existing = await prisma.refund.findFirst({ where: { bookingId }, orderBy: { createdAt: "desc" } });
-  if (existing) return NextResponse.json({ ok: true, refund: { id: existing.id, status: existing.status } });
   if (!booking.payments?.some(payment => payment.status === "SUCCEEDED" && payment.amountYen > 0)) {
     return NextResponse.json({ error: "There is no paid amount to refund." }, { status: 409 });
   }
-  if (refundRetry && booking.rescheduleResolvedAt && Date.now() - booking.rescheduleResolvedAt.getTime() < REFUND_CLAIM_MS) {
-    return NextResponse.json({ error: "A refund is already being processed. Try again later." }, { status: 409 });
-  }
   const claimedAt = new Date();
-  const changed = await prisma.booking.updateMany({ where: { id: booking.id, status: "CANCELLED",
+  const changed = await prisma.$transaction(async tx => {
+    const claimed = await tx.booking.updateMany({ where: { id: booking.id, status: "CANCELLED",
     privateRescheduleStatus: booking.privateRescheduleStatus, rescheduleResolvedAt: booking.rescheduleResolvedAt ?? null },
-    data: { privateRescheduleStatus: "REFUND_REQUESTED", rescheduleResolvedAt: claimedAt } });
+      data: { privateRescheduleStatus: "REFUND_REQUESTED", rescheduleResolvedAt: claimedAt } });
+    if (claimed.count) await prepareBookingRefund(tx, { booking, actor: session.user.role === "SUPER_ADMIN" ? "SUPER_ADMIN" : "TEACHER",
+      policy: { allowed: true, refundEligible: true, rescheduleOffered: false } });
+    return claimed;
+  });
   if (!changed.count) return NextResponse.json({ error: "The request changed. Reload before trying again." }, { status: 409 });
   try {
     const refund = await issueAutomaticRefundForBooking(prisma, { booking, actor: session.user.role === "SUPER_ADMIN" ? "SUPER_ADMIN" : "TEACHER",

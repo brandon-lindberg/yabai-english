@@ -23,7 +23,7 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("migrates English records and e
     // Compare through the same timestamp parser on both sides (pg interprets
     // timestamp-without-zone locally; Prisma interprets it as UTC).
     expect((await client.query('SELECT * FROM "Booking" WHERE id = $1', ["historic"])).rows[0])
-      .toEqual({ ...historicBefore, learningLanguage: "ENGLISH", privateRescheduleStatus: null, rescheduleRequestedAt: null, rescheduleResolvedAt: null });
+      .toEqual({ ...historicBefore, learningLanguage: "ENGLISH", privateRescheduleStatus: null, rescheduleRequestedAt: null, rescheduleResolvedAt: null, cancelledFromStatus: null });
     expect(await prisma.user.findUniqueOrThrow({ where: { id: "student" } })).toMatchObject({ locale: "en", learningLanguage: "ENGLISH" });
     expect(await prisma.teacherLessonOffering.findUniqueOrThrow({ where: { id: "english-offer" } })).toMatchObject({ learningLanguage: "ENGLISH" });
     await prisma.user.update({ where: { id: "student" }, data: { learningLanguage: "JAPANESE" } });

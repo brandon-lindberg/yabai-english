@@ -35,11 +35,11 @@ async function main() {
     const childEnv = { ...process.env, ...MIRROR_RELEASE_AUTH_ENV, DATABASE_URL: url.toString(), MIRROR_QA_DATABASE_URL: url.toString(), ...(capture ? { MIRROR_RELEASE_CAPTURE: "1" } : {}) };
     const fingerprint = async () => {
       const rows: Record<string, { count: number; digest: string }> = {};
-      for (const table of ["User", "StudentProfile", "TeacherProfile", "PlacementBankQuestion", "EnglishPlacementBankSnapshot", "EnglishPlacementAttempt", "StudyTrack", "StudyLevel", "StudyDeck", "StudyCard", "StudyAssessment", "StudyCatalogSnapshot", "UserStudyCardState", "UserStudyLevelProgress", "UserStudyAssessmentAttempt", "StudyQuickReviewDay", "StudyReviewPrompt", "JapanesePlacementBankSnapshot", "JapanesePlacementAttempt", "JapanesePlacementResponse", "Booking", "Payment", "Refund", "PaymentLedgerEntry", "PaymentWebhookEvent", "Invoice", "Notification"]) {
+      for (const table of ["User", "StudentProfile", "TeacherProfile", "PlacementBankQuestion", "EnglishPlacementBankSnapshot", "EnglishPlacementAttempt", "StudyTrack", "StudyLevel", "StudyDeck", "StudyCard", "StudyAssessment", "StudyCatalogSnapshot", "UserStudyCardState", "UserStudyLevelProgress", "UserStudyAssessmentAttempt", "StudyQuickReviewDay", "StudyReviewPrompt", "JapanesePlacementBankSnapshot", "JapanesePlacementAttempt", "JapanesePlacementResponse", "Booking", "Payment", "PaymentRecovery", "Refund", "PaymentLedgerEntry", "PaymentWebhookEvent", "Invoice", "Notification"]) {
         if (!(await client.query("SELECT to_regclass($1) AS name", [`public."${table}"`])).rows[0].name) {
           rows[table] = { count: 0, digest: "table-absent" }; continue;
         }
-        rows[table] = (await client.query(`SELECT count(*)::int AS count, md5(COALESCE(jsonb_agg(to_jsonb(t) ORDER BY t.id)::text,'[]')) AS digest FROM public."${table}" t`)).rows[0];
+        rows[table] = (await client.query(`SELECT count(*)::int AS count, md5(COALESCE(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]')) AS digest FROM public."${table}" t`)).rows[0];
       }
       return rows;
     };
