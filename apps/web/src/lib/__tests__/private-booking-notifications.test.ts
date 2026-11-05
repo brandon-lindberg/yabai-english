@@ -18,11 +18,12 @@ test.each(["cancelled", "rescheduled"] as const)("%s reaches both participants w
   for (const [arg] of mocks.notify.mock.calls) {
     expect(arg.bodyEn).toContain("Japanese conversation");
     expect(arg.bodyEn).not.toContain("Eikaiwa");
+    expect(`${arg.bodyEn} ${arg.bodyJa}`).not.toMatch(/\b(?:GMT|UTC|JST)\b/);
     expect(arg.href).toBe("/dashboard/schedule");
     expect(arg.deduplicationKey).toContain(event);
   }
   expect(mocks.notify.mock.calls.find(([arg]) => arg.userId === "student")![0].bodyEn).toContain("11:00");
-  expect(mocks.notify.mock.calls.find(([arg]) => arg.userId === "teacher")![0].bodyEn).toContain("02:00");
+  expect(mocks.notify.mock.calls.find(([arg]) => arg.userId === "teacher")![0].bodyEn).toContain("2:00 AM");
 });
 
 test.each(["SUCCEEDED", "PENDING", "PENDING_RECOVERY"] as const)("refund status %s is described truthfully for both participants", async status => {

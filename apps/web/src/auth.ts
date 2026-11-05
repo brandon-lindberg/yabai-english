@@ -3,7 +3,7 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { Adapter } from "next-auth/adapters";
 import { prisma } from "@/lib/prisma";
-import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
+import { placementRetakeStatus } from "@/lib/placement-cooldown";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 import { getSessionMaxAgeSeconds } from "@/lib/session-timeout";
 import { claimPendingMemberships } from "@/lib/claim-pending-memberships";
@@ -162,9 +162,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       } else if (session.user.role === Role.STUDENT && userId) {
         const row = await prisma.studentProfile.findUnique({
           where: { userId },
-          select: { placementCompletedAt: true },
+          select: { placementCompletedAt: true, timezone: true },
         });
-        session.user.canStartPlacement = isPlacementRetakeAllowed(row?.placementCompletedAt ?? null);
+        session.user.canStartPlacement = placementRetakeStatus(row?.placementCompletedAt, row?.timezone).allowed;
       } else {
         session.user.canStartPlacement = true;
       }

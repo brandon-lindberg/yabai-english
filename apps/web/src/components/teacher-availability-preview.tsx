@@ -111,14 +111,6 @@ export function TeacherAvailabilityPreview({
         <p className="text-xs text-muted">{t("availabilityPreviewNone")}</p>
       )}
 
-      {/* The note explains how to read the marks; with no marks it explains
-          nothing, so it goes with them. */}
-      {anyFree ? (
-        <p className="text-xs text-muted">
-          {t("availabilityPreviewTimezone", { timeZone })}
-        </p>
-      ) : null}
-
       {/* A four-hour band means *some* of that band; picking a time happens on
           the teacher's own page. */}
       <Link href={profileHref} className={`${actionLinkClass} text-xs`}>

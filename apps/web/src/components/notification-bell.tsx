@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import { Link } from "@/i18n/navigation";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { stripLegacyBookingTimeZone } from "@/lib/booking-notifications";
 
 type NotificationItem = {
   id: string;
@@ -188,7 +189,9 @@ export function NotificationBell() {
             ) : (
               items.map((item) => {
                 const title = locale.startsWith("ja") ? item.titleJa : item.titleEn;
-                const body = locale.startsWith("ja") ? item.bodyJa : item.bodyEn;
+                const storedBody = locale.startsWith("ja") ? item.bodyJa : item.bodyEn;
+                const bookingNotice = item.href?.startsWith("/dashboard/schedule") || item.titleEn.startsWith("New booking from ");
+                const body = storedBody && bookingNotice ? stripLegacyBookingTimeZone(storedBody) : storedBody;
                 return (
                   <li
                     key={item.id}

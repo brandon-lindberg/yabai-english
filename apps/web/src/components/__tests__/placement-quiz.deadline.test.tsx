@@ -58,6 +58,12 @@ async function mount(locale: "en" | "ja" = "en") {
   });
 }
 
+test("a cooldown displays the server's calendar date without a time", async () => {
+  mocks.fetch.mockResolvedValueOnce(response({ error: "cooldown", eligibleAt: "2026-11-29T15:00:00.000Z", eligibleDate: "2026-11-30" }, 403));
+  await mount();
+  expect(screen.getByText(en.placement.cooldownBody.replace("{date}", "November 30, 2026"))).toBeVisible();
+});
+
 test("the last fraction of a second stays answerable and timeout starts only at the deadline", async () => {
   await mount();
   expect(requests("finish")).toHaveLength(0);
@@ -318,7 +324,7 @@ test.each(["finish", "expired read"])("a session refresh cannot replace the %s r
   mocks.updateSession.mockImplementationOnce(async () => { mocks.refreshed = true; });
   mocks.fetch.mockImplementation(async (_url, init) => {
     if (!init?.body) {
-      if (++reads > 1) return response({ error: "cooldown", eligibleAt: "2026-11-30T00:00:00Z" }, 403);
+      if (++reads > 1) return response({ error: "cooldown", eligibleDate: "2026-11-30" }, 403);
       return response(source === "expired read" ? savedResult : { question: null, objectiveComplete: true, attemptToken: "saved-token", expiresAt: firstDeadline });
     }
     return response(savedResult);

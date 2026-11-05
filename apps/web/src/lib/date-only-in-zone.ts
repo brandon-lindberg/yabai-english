@@ -1,5 +1,10 @@
 import { DateTime } from "luxon";
 
+/** Formats a calendar date as given, independently of the runtime timezone. */
+export function formatCalendarDate(day: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(day));
+}
+
 export function dateOnlyInZone(
   value: Date | null | undefined,
   timezone: string,

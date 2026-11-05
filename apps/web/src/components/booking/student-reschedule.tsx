@@ -58,7 +58,7 @@ export function StudentReschedule({ bookingId, timeZone, onSaved, unavailableMes
   if (!open) return <Button variant="secondary" onClick={() => { setOpen(true); onOpenChange?.(true); }}>{t("rescheduleTitle")}</Button>;
   return <form onSubmit={event => void submit(event)} className={showHeading ? "mt-5 space-y-4 border-t border-border pt-5" : "space-y-4"}>
     {showHeading ? <h2 className="text-base font-semibold">{t("rescheduleTitle")}</h2> : null}
-    <p className="text-sm text-muted">{t("studentRescheduleHelp")} {b("timezoneShownAs")}: {timeZone}</p>
+    <p className="text-sm text-muted">{t("studentRescheduleHelp")}</p>
     <SlotSelectionCalendar locale={locale} timeZone={timeZone} slots={slots} compactMonth calendarView={view} onCalendarViewChange={setView}
       calendarAnchor={anchor} onCalendarAnchorChange={setAnchor} selectedStartsAtIso={selected} onSelectSlot={value => { if (!busy) setSelected(value); }}
       copy={{ noAvailabilityYet: b("noAvailabilityYet"), unavailableShort: b("unavailableShort"), calendarDay: b("calendarDay"),

@@ -13,6 +13,7 @@ import { shouldLoadTeacherBookingsOnSchedule } from "@/lib/dashboard/schedule-vi
 import { Section } from "@/components/ui/section";
 import { TeacherGroupClasses } from "@/components/dashboard/teacher-group-classes";
 import { buildGroupClassRows, type GroupClassRow } from "@/lib/dashboard/group-classes";
+import { resolveViewerTimeZone } from "@/lib/viewer-time-zone";
 
 /**
  * One schedule, two roles.
@@ -91,7 +92,7 @@ export default async function DashboardSchedulePage({
     groupClasses = buildGroupClassRows(sessions);
 
     viewer = "teacher";
-    timeZone = profile?.availabilitySlots[0]?.timezone ?? "Asia/Tokyo";
+    timeZone = resolveViewerTimeZone(profile?.availabilitySlots[0]?.timezone);
     scheduleItems = teacherBookings.scheduleItems;
     lessons = <TeacherUpcomingLessons upcoming={teacherBookings.upcoming} />;
   } else {
@@ -102,7 +103,7 @@ export default async function DashboardSchedulePage({
     const student = await getStudentBookingsForDashboard(prisma, session.user.id);
 
     viewer = "student";
-    timeZone = studentProfile?.timezone ?? "Asia/Tokyo";
+    timeZone = resolveViewerTimeZone(studentProfile?.timezone);
     scheduleItems = student.scheduleItems;
     lessons = <DashboardUpcomingLessons upcoming={student.upcoming} />;
   }

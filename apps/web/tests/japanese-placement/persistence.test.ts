@@ -44,6 +44,8 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("adds the staircase runtime ove
     expect(resumed).toEqual({ ...oldActive, serverNow: resumed.serverNow });
     expect((await service.getStoredJapaneseAttempt(db, "old-finished", "old-finished")).result).toEqual(oldFinished.result);
 
+    await db.studentProfile.create({ data: { userId: "new-student", timezone: "America/Los_Angeles" } });
+    const monthClock = vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-11-01T04:30:00.000Z"));
     const requestId = "00000000-0000-4000-8000-000000000092";
     const starts = await Promise.all([service.startStoredJapaneseAttempt(db, "new-student", { requestId }), service.startStoredJapaneseAttempt(db, "new-student", { requestId })]);
     expect(starts[0]).toEqual({ ...starts[1], serverNow: starts[0].serverNow });
@@ -58,7 +60,7 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("adds the staircase runtime ove
     view = retries[0];
     while (view.question) view = await service.submitStoredJapaneseResponse(db, "new-student", view.attemptId, answer(view.question.id));
     expect(view.result).toMatchObject({ policyRevision: "japanese-jlpt-staircase-v2", levelEstimate: { band: "N1" } });
-    expect(view).toMatchObject({ canStartNewAttempt: false, retakeEligibleAt: expect.any(String) });
+    expect(view).toMatchObject({ canStartNewAttempt: false, retakeEligibleAt: "2026-11-30T08:00:00.000Z", retakeEligibleDate: "2026-11-30" });
     const newRequest = "00000000-0000-4000-8000-000000000095";
     const refused = await Promise.allSettled([
       service.startStoredJapaneseAttempt(db, "new-student", { requestId: newRequest }),
@@ -69,7 +71,7 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("adds the staircase runtime ove
     expect(await service.startStoredJapaneseAttempt(db, "new-student", { requestId })).toEqual(view);
     expect(await service.getCurrentJapaneseAttempt(db, "new-student")).toEqual(view);
     const boundary = Date.parse(view.retakeEligibleAt!);
-    const monthClock = vi.spyOn(Date, "now").mockReturnValue(boundary - 1);
+    monthClock.mockReturnValue(boundary - 1);
     try {
       await expect(service.startStoredJapaneseAttempt(db, "new-student", { requestId: newRequest })).rejects.toMatchObject({ code: "PLACEMENT_COOLDOWN" });
       monthClock.mockReturnValue(boundary);

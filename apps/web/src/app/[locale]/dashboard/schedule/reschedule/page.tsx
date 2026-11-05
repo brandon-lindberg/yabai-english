@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { lessonProductNames } from "@/lib/lesson-product-catalog";
 import { PrivateRescheduleLesson } from "@/components/booking/private-reschedule-lesson";
 import { Section } from "@/components/ui/section";
+import { resolveViewerTimeZone } from "@/lib/viewer-time-zone";
 
 export default async function RescheduleRequestsPage() {
   const session = await auth();
@@ -29,7 +30,7 @@ export default async function RescheduleRequestsPage() {
       const counterpart = viewer === "teacher" ? booking.student : booking.teacher.user;
       return <PrivateRescheduleLesson key={booking.id} bookingId={booking.id} viewer={viewer}
         lessonLabel={locale === "ja" ? names.nameJa : names.nameEn} counterpart={counterpart.name ?? counterpart.email ?? ""}
-        startsAtIso={booking.startsAt.toISOString()} timeZone={viewer === "teacher" ? booking.teacher.availabilitySlots[0]?.timezone ?? "Asia/Tokyo" : booking.student.studentProfile?.timezone ?? "Asia/Tokyo"}
+        startsAtIso={booking.startsAt.toISOString()} timeZone={resolveViewerTimeZone(viewer === "teacher" ? booking.teacher.availabilitySlots[0]?.timezone : booking.student.studentProfile?.timezone)}
         status={booking.privateRescheduleStatus!} bookingStatus={booking.status} rescheduleCount={booking.rescheduleCount} paidAmountYen={booking.payments[0]?.amountYen ?? 0}
         refundStatus={booking.refunds[0]?.status ?? null} hasCalendar={Boolean(booking.googleEventId)} />;
     }) : <p className="text-sm text-muted">{t("empty")}</p>}

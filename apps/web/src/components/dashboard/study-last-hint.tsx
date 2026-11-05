@@ -1,7 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
+import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
+import { formatLessonInstant } from "@/lib/format-lesson-datetime";
 
 /**
  * "Last practice: {when}" with the timestamp in the viewer's own timezone.
@@ -14,13 +15,6 @@ import { useTranslations } from "next-intl";
  * server's timezone and locale.
  */
 
-function subscribeNoop(onStoreChange: () => void) {
-  void onStoreChange;
-  return () => {};
-}
-const getBrowserTz = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
-const getServerTz = (): string | undefined => undefined;
-
 export function StudyLastHint({
   iso,
   locale,
@@ -31,16 +25,12 @@ export function StudyLastHint({
   className?: string;
 }) {
   const t = useTranslations("dashboard.highlights");
-  const tz = useSyncExternalStore(subscribeNoop, getBrowserTz, getServerTz);
+  const tz = useBrowserTimezone();
 
   // Render nothing until the zone is known rather than flash a wrong time.
   if (!tz) return null;
 
-  const when = new Date(iso).toLocaleString(locale, {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: tz,
-  });
+  const when = formatLessonInstant(iso, locale, tz);
 
   return <p className={className}>{t("studyLastHint", { when })}</p>;
 }

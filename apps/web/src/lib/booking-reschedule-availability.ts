@@ -11,6 +11,7 @@ import { findOccurrenceConflict } from "./school-scheduling";
 import { slotHoldingBookingWhere } from "./pending-booking-hold";
 import type { TeacherAvailabilitySlotInput } from "./booking-slot-validation";
 import { hasPendingPrivateReschedule } from "./private-reschedule";
+import { resolveViewerTimeZone } from "./viewer-time-zone";
 
 type Slot = Omit<TeacherAvailabilitySlotInput, "startsOn" | "endsOn"> & {
   startsOn?: Date | string | null; endsOn?: Date | string | null; assignedStudentId: string | null;
@@ -70,7 +71,7 @@ export async function listStudentRescheduleSlots(db: Pick<PrismaClient, "booking
   ]);
   return studentRescheduleSlots({ booking, slots: booking.teacher.availabilitySlots, skipped: booking.teacher.availabilityOccurrenceSkips,
     blocking: [...bookings, ...schoolBookings].map(row => ({ startsAtIso: row.startsAt.toISOString(), endsAtIso: row.endsAt.toISOString() })),
-    schoolSlots, viewerTimezone: booking.student.studentProfile?.timezone ?? "Asia/Tokyo", now });
+    schoolSlots, viewerTimezone: resolveViewerTimeZone(booking.student.studentProfile?.timezone), now });
 }
 
 /** Shared booking projection for availability reads and the existing move endpoint. */

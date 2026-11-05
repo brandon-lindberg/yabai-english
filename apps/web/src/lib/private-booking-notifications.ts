@@ -1,7 +1,8 @@
-import { DateTime } from "luxon";
 import { prisma } from "./prisma";
 import { createUserNotification } from "./notifications";
 import { lessonProductNames } from "./lesson-product-catalog";
+import { formatLessonInstant } from "./format-lesson-datetime";
+import { resolveViewerTimeZone } from "./viewer-time-zone";
 
 type Input = {
   bookingId: string;
@@ -29,14 +30,11 @@ export async function notifyPrivateBookingEvent(input: Input) {
   const eventKey = ["booking", booking.id, input.event, input.previousStartsAt?.toISOString() ?? "",
     at.toISOString(), refund?.id ?? "", refund?.status ?? "", input.transitionId ?? ""].join(":");
   const recipients = [
-    { userId: booking.studentId, isStudent: true, timezone: booking.student?.studentProfile?.timezone ?? "Asia/Tokyo" },
-    { userId: booking.teacher.userId, isStudent: false, timezone: booking.teacher.availabilitySlots[0]?.timezone ?? "Asia/Tokyo" },
+    { userId: booking.studentId, isStudent: true, timezone: resolveViewerTimeZone(booking.student?.studentProfile?.timezone) },
+    { userId: booking.teacher.userId, isStudent: false, timezone: resolveViewerTimeZone(booking.teacher.availabilitySlots[0]?.timezone) },
   ].filter(recipient => input.event !== "reschedule_closed" || !recipient.isStudent);
   await Promise.all(recipients.map(async ({ userId, isStudent, timezone }) => {
-    const date = (value: Date, locale: "en" | "ja") => {
-      const local = DateTime.fromJSDate(value, { zone: "utc" }).setZone(timezone).setLocale(locale);
-      return `${local.toFormat(locale === "ja" ? "yyyy/LL/dd HH:mm" : "LLL d, yyyy HH:mm")} (${local.offsetNameShort ?? timezone})`;
-    };
+    const date = (value: Date, locale: "en" | "ja") => formatLessonInstant(value.toISOString(), locale, timezone);
     let titleEn: string, titleJa: string, bodyEn: string, bodyJa: string;
     if (input.event === "refund" && refund) {
       const amount = `¥${refund.amountYen.toLocaleString("en-US")}`;

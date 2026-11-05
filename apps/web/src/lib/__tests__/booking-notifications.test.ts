@@ -13,10 +13,11 @@ describe("buildTeacherBookingConfirmedNotification", () => {
 
     expect(result.titleJa).toContain("Taro Yamada");
     expect(result.titleEn).toContain("Taro Yamada");
-    expect(result.bodyJa).toContain("09:00");
-    expect(result.bodyEn).toContain("09:00");
+    expect(result.bodyJa).toContain("9:00");
+    expect(result.bodyEn).toContain("9:00 AM");
     expect(result.bodyJa).toContain("2026");
     expect(result.bodyEn).toContain("Apr 25");
+    expect(`${result.bodyJa} ${result.bodyEn}`).not.toMatch(/\b(?:GMT|UTC|JST)\b/);
   });
 
   test("respects non-default teacher timezone when formatting the lesson time", () => {
@@ -27,8 +28,8 @@ describe("buildTeacherBookingConfirmedNotification", () => {
     });
 
     // 2026-04-25T00:00:00Z in Madrid (CEST, UTC+2) is 02:00
-    expect(result.bodyEn).toContain("02:00");
-    expect(result.bodyJa).toContain("02:00");
+    expect(result.bodyEn).toContain("2:00 AM");
+    expect(result.bodyJa).toContain("2:00");
   });
 
   test("falls back to a generic student label when no name is available", () => {

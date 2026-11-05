@@ -6,7 +6,10 @@ import { describe, expect, test, vi } from "vitest";
 import en from "../../../messages/en.json";
 import { TeacherBrowseList } from "@/components/teacher-browse-list";
 
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock("@/hooks/use-browser-timezone", () => ({ useBrowserTimezone: () => "America/Los_Angeles" }));
 vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ refresh }),
   Link: ({
     href,
     children,
@@ -31,11 +34,12 @@ const days = [{ dayKey: "2026-09-07", shortLabel: "Mo", dayOfMonth: "7" }];
 const filled = [[false, false, true, false, false, false]];
 const empty = [[false, false, false, false, false, false]];
 
-function renderList() {
+function renderList(useBrowserZone = false) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
       <TeacherBrowseList
         timeZone="Asia/Tokyo"
+        useBrowserZone={useBrowserZone}
         previews={{
           "t-1": { days, grid: filled, profileHref: "/book/teachers/t-1" },
           "t-2": { days, grid: empty, profileHref: "/book/teachers/t-2" },
@@ -55,6 +59,14 @@ function renderList() {
 const panel = () => screen.queryByTestId("availability-panel");
 
 describe("TeacherBrowseList", () => {
+  test("a visitor gets a preview for their browser timezone before any times are shown", () => {
+    renderList(true);
+    fireEvent.mouseOver(screen.getByText("Mika Sato"));
+    expect(panel()).toBeNull();
+    expect(refresh).toHaveBeenCalledOnce();
+    expect(document.cookie).toContain("viewerTimeZone=America%2FLos_Angeles");
+  });
+
   test("renders the rows it is given", () => {
     renderList();
 

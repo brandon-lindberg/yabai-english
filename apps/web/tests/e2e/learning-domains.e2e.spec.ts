@@ -34,6 +34,40 @@ async function answerJapaneseCard(page: Page, learnerId: string, question: Japan
   return result.feedback;
 }
 
+test("Japanese placement and booking show local dates and times without zone labels", async ({ browser }) => {
+  const learner = releaseStudent("timeout-japanese");
+  const context = await browser.newContext({ viewport: { width: 1440, height: 950 }, timezoneId: "America/Los_Angeles" });
+  try {
+    const page = await context.newPage();
+    const site = sites.JAPANESE;
+    const teacherId = readMirrorFixtures().japaneseTeacherId;
+    await page.goto(`${site}/en/book`);
+    await expect.poll(async () => (await context.cookies(site)).find(cookie => cookie.name === "viewerTimeZone")?.value).toBe("America%2FLos_Angeles");
+    await page.locator(`[data-row-id="${teacherId}"]`).hover();
+    const preview = page.getByTestId("availability-panel");
+    await expect(preview).toBeVisible();
+    await expect(preview).not.toContainText(/America\/Los_Angeles|Asia\/Tokyo|\bGMT\b|\bJST\b/);
+
+    await signIn(page, "JAPANESE", learner.email);
+    fixtureCommand("release-japanese-n5-award", { learnerId: learner.id });
+    await page.goto(`${site}/en/japanese-placement`);
+    const { attempt } = await (await page.request.get(`${site}/api/japanese-placement/attempts`)).json();
+    expect(attempt).toMatchObject({ canStartNewAttempt: false, retakeEligibleDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) });
+    const date = new Intl.DateTimeFormat("en", { timeZone: "UTC", dateStyle: "long" }).format(new Date(attempt.retakeEligibleDate));
+    await expect(page.getByText(en.placement.cooldownBody.replace("{date}", date), { exact: true })).toBeVisible();
+    await captureRelease(page, "JAPANESE-placement-retake-date-desktop");
+    await page.setViewportSize({ width: 390, height: 850 });
+    await captureRelease(page, "JAPANESE-placement-retake-date-mobile");
+
+    await page.goto(`${site}/en/book/teachers/${teacherId}`);
+    const main = page.locator("main");
+    await expect(main.getByText(en.booking.selectSlot, { exact: true })).toBeVisible();
+    await expect(main).not.toContainText(/America\/Los_Angeles|Asia\/Tokyo|\bGMT\b|\bJST\b/);
+  } finally {
+    await context.close();
+  }
+});
+
 test("Japanese N5 practice loads and saves with or without a placement result", async ({ page }) => {
   const learner = releaseStudent("study-student");
   await signIn(page, "ENGLISH", learner.email);

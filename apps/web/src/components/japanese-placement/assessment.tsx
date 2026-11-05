@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Choice, ChoiceList } from "@/components/ui/choice";
@@ -11,7 +11,7 @@ import { JapanesePlacementResult } from "./result";
 import { SentenceTiles } from "./sentence-tiles";
 import { JapaneseAssessmentSkeleton } from "./loading";
 import { japaneseSentenceDraftKey, useJapaneseAssessment } from "./use-assessment";
-import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
+import { formatCalendarDate } from "@/lib/date-only-in-zone";
 
 export function JapanesePlacementAssessment() {
   const t = useTranslations("japanesePlacement");
@@ -21,8 +21,6 @@ export function JapanesePlacementAssessment() {
 function JapanesePlacementAssessmentContent() {
   const t = useTranslations("japanesePlacement");
   const placement = useTranslations("placement");
-  const format = useFormatter();
-  const timeZone = useBrowserTimezone();
   const locale = useLocale();
   const state = useJapaneseAssessment();
   const heading = useRef<HTMLHeadingElement>(null);
@@ -33,11 +31,8 @@ function JapanesePlacementAssessmentContent() {
   const recovery = <Button onClick={() => void state.retry()} loading={state.busy}>{t("retry")}</Button>;
   const dashboard = <Link href="/dashboard" className={buttonClasses({ variant: "secondary" })}>{t("dashboard")}</Link>;
   const book = <Link href="/book" className={buttonClasses()}>{t("book")}</Link>;
-  const cooldown = state.view?.status !== "IN_PROGRESS" && state.view?.canStartNewAttempt === false && state.view.retakeEligibleAt
-    ? placement("cooldownBody", { date: timeZone ? format.dateTime(new Date(state.view.retakeEligibleAt), {
-      year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", timeZoneName: "short",
-      timeZone,
-    }) : "…" }) : null;
+  const cooldown = state.view?.status !== "IN_PROGRESS" && state.view?.canStartNewAttempt === false && state.view.retakeEligibleDate
+    ? placement("cooldownBody", { date: formatCalendarDate(state.view.retakeEligibleDate, locale) }) : null;
   const errorPanel = state.error ? <InlineAlert role="alert" className="mb-5"><p>{t("network")}</p><div className="mt-3 flex flex-wrap gap-2"><Button onClick={() => void state.retry()} loading={state.busy}>{t(state.pending ? "retryAnswer" : "retry")}</Button>{state.view ? <Button variant="secondary" onClick={() => void state.refresh()} disabled={state.busy}>{t("loadSaved")}</Button> : null}</div></InlineAlert> : null;
   if (!state.loaded) return <JapaneseAssessmentSkeleton />;
   if (state.error === "BANK_UNAVAILABLE") return <Outcome title={t("unavailableTitle")} description={t("unavailableBody")} actions={<>{book}{recovery}{dashboard}</>} />;

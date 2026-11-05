@@ -1,6 +1,9 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRouter } from "@/i18n/navigation";
+import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
+import { VIEWER_TIME_ZONE_COOKIE } from "@/lib/viewer-time-zone";
 import {
   TeacherAvailabilityPreview,
   type PreviewDay,
@@ -34,11 +37,13 @@ export type TeacherPreview = {
 export function TeacherBrowseList({
   previews,
   timeZone,
+  useBrowserZone = false,
   header,
   children,
 }: {
   previews: Record<string, TeacherPreview>;
-  timeZone: string;
+  timeZone?: string;
+  useBrowserZone?: boolean;
   /**
    * Sits above the rows, inside the list's own column. Anything describing the
    * list — the teacher count, the guest's sign-in link — has to line up with
@@ -72,12 +77,22 @@ export function TeacherBrowseList({
   */
   const [sliding, setSliding] = useState(false);
   const regionRef = useRef<HTMLDivElement>(null);
+  const browserTimeZone = useBrowserTimezone();
+  const router = useRouter();
+  const requestedZone = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (!useBrowserZone || !browserTimeZone || browserTimeZone === timeZone || browserTimeZone === requestedZone.current) return;
+    requestedZone.current = browserTimeZone;
+    const secure = location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${VIEWER_TIME_ZONE_COOKIE}=${encodeURIComponent(browserTimeZone)}; Path=/; SameSite=Lax${secure}`;
+    router.refresh();
+  }, [browserTimeZone, router, timeZone, useBrowserZone]);
 
   function trackFrom(target: EventTarget | null) {
     if (!(target instanceof Element)) return;
     const row = target.closest("[data-row-id]");
     const id = row?.getAttribute("data-row-id");
-    if (!id || !previews[id]) return;
+    if (!id) return;
     setSliding(activeId !== null);
     setActiveId(id);
     const region = regionRef.current;
@@ -131,7 +146,7 @@ export function TeacherBrowseList({
           sliding ? "transition-[padding] duration-150 ease-out" : ""
         }`}
       >
-        {active ? (
+        {active && timeZone && (!useBrowserZone || timeZone === browserTimeZone) ? (
           <aside
             data-testid="availability-panel"
             /*

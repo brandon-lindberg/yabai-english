@@ -170,9 +170,9 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
     const payload = teacherCalls[0];
     expect(payload.titleEn).toContain("Alice Student");
     expect(payload.bodyEn).toContain("Alice Student");
-    expect(payload.bodyEn).toContain("09:00");
+    expect(payload.bodyEn).toContain("9:00 AM");
     expect(payload.titleJa).toContain("Alice Student");
-    expect(payload.bodyJa).toContain("09:00");
+    expect(payload.bodyJa).toContain("9:00");
   });
 
   test("does NOT notify the teacher when the booking is still pending payment", async () => {

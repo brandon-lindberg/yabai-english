@@ -7,6 +7,8 @@ import en from "../../../messages/en.json";
 import ja from "../../../messages/ja.json";
 import { OnboardingForm } from "@/components/onboarding-form";
 
+const browserZone = vi.hoisted(() => vi.fn(() => "Asia/Tokyo"));
+vi.mock("@/hooks/use-browser-timezone", () => ({ useBrowserTimezone: browserZone }));
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
   Link: ({ children, href }: { children: React.ReactNode; href: string }) => (
@@ -27,12 +29,19 @@ const next = () => screen.getByRole("button", { name: en.onboarding.wizardNext }
 describe("OnboardingForm", () => {
   beforeEach(() => {
     window.sessionStorage.clear();
+    browserZone.mockReturnValue("Asia/Tokyo");
   });
 
   test("starts at the first step", () => {
     renderForm();
 
     expect(screen.getByText(/Step 1 of 4/)).toBeInTheDocument();
+  });
+
+  test("keeps the detected browser zone even if the list of named zones omits it", () => {
+    browserZone.mockReturnValue("UTC");
+    renderForm();
+    expect(screen.getByRole("combobox", { name: en.onboarding.timezoneLabel })).toHaveValue("UTC");
   });
 
   test.each(["en", "ja"] as const)("Japanese learners receive subject-neutral goal choices and examples in %s", locale => {

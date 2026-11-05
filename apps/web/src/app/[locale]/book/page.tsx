@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
+import { cookies } from "next/headers";
+import { validViewerTimeZone, VIEWER_TIME_ZONE_COOKIE } from "@/lib/viewer-time-zone";
 import { prisma } from "@/lib/prisma";
 import { TeacherCard } from "@/components/teacher-card";
 import { TeacherBrowseControls } from "@/components/teacher-browse-controls";
@@ -172,60 +174,59 @@ export default async function BookPage({ searchParams }: Props) {
         select: { timezone: true },
       })
     : null;
-  const viewerTimeZone = studentProfile?.timezone ?? "Asia/Tokyo";
-  const days = previewDays(viewerTimeZone, locale);
-  // The window is the week on screen, clamped so it never starts in the past.
-  const { start: windowStart, end: windowEnd } = previewWindow(
-    days.map((day) => day.dayKey),
-    viewerTimeZone,
-  );
-
-  // One query for every teacher on the page, not one each: a held booking
-  // takes its time off the grid, or the panel repeats the sin of the count.
-  const takenBookings = await prisma.booking.findMany({
-    where: {
-      teacherId: { in: teacherProfiles.map((teacher) => teacher.id) },
-      startsAt: { gte: windowStart, lt: windowEnd },
-      ...slotHoldingBookingWhere(),
-    },
-    select: { teacherId: true, startsAt: true, endsAt: true },
-  });
-  const takenByTeacher = new Map<string, { startsAtIso: string; endsAtIso: string }[]>();
-  for (const booking of takenBookings) {
-    const list = takenByTeacher.get(booking.teacherId) ?? [];
-    list.push({
-      startsAtIso: booking.startsAt.toISOString(),
-      endsAtIso: booking.endsAt.toISOString(),
-    });
-    takenByTeacher.set(booking.teacherId, list);
-  }
-
+  const savedTimeZone = validViewerTimeZone(studentProfile?.timezone);
+  const viewerTimeZone = savedTimeZone ?? validViewerTimeZone((await cookies()).get(VIEWER_TIME_ZONE_COOKIE)?.value);
   const previews: Record<string, TeacherPreview> = {};
-  for (const teacher of teacherProfiles) {
-    const taken = takenByTeacher.get(teacher.id) ?? [];
-    const occurrences = teacher.availabilitySlots
-      .flatMap((slot) =>
-        expandRecurringOccurrencesInRange(
-          {
-            dayOfWeek: slot.dayOfWeek,
-            startMin: slot.startMin,
-            endMin: slot.endMin,
-            timezone: slot.timezone,
-            recurrence: slot.recurrence,
-            startsOn: dateOnlyInZone(slot.startsOn, slot.timezone),
-            endsOn: dateOnlyInZone(slot.endsOn, slot.timezone),
-          },
-          windowStart,
-          windowEnd,
-        ),
-      )
-      .filter((occurrence) => !taken.some((booking) => timeRangesOverlap(occurrence, booking)));
+  if (viewerTimeZone && teacherProfiles.length) {
+    const now = new Date();
+    const days = previewDays(viewerTimeZone, locale, now);
+    // The window is the week on screen, clamped so it never starts in the past.
+    const { start: windowStart, end: windowEnd } = previewWindow(days.map(day => day.dayKey), viewerTimeZone, now);
 
-    previews[teacher.id] = {
-      days,
-      grid: availabilityBands({ occurrences, dayKeys: days.map((d) => d.dayKey), timeZone: viewerTimeZone }),
-      profileHref: `/book/teachers/${teacher.id}`,
-    };
+    // One query covers all teachers, so held bookings take their time off the grid.
+    const takenBookings = await prisma.booking.findMany({
+      where: {
+        teacherId: { in: teacherProfiles.map((teacher) => teacher.id) },
+        startsAt: { gte: windowStart, lt: windowEnd },
+        ...slotHoldingBookingWhere(),
+      },
+      select: { teacherId: true, startsAt: true, endsAt: true },
+    });
+    const takenByTeacher = new Map<string, { startsAtIso: string; endsAtIso: string }[]>();
+    for (const booking of takenBookings) {
+      const list = takenByTeacher.get(booking.teacherId) ?? [];
+      list.push({
+        startsAtIso: booking.startsAt.toISOString(),
+        endsAtIso: booking.endsAt.toISOString(),
+      });
+      takenByTeacher.set(booking.teacherId, list);
+    }
+
+    for (const teacher of teacherProfiles) {
+      const taken = takenByTeacher.get(teacher.id) ?? [];
+      const occurrences = teacher.availabilitySlots
+        .flatMap((slot) =>
+          expandRecurringOccurrencesInRange(
+            {
+              dayOfWeek: slot.dayOfWeek,
+              startMin: slot.startMin,
+              endMin: slot.endMin,
+              timezone: slot.timezone,
+              recurrence: slot.recurrence,
+              startsOn: dateOnlyInZone(slot.startsOn, slot.timezone),
+              endsOn: dateOnlyInZone(slot.endsOn, slot.timezone),
+            },
+            windowStart,
+            windowEnd,
+          ),
+        )
+        .filter((occurrence) => !taken.some((booking) => timeRangesOverlap(occurrence, booking)));
+      previews[teacher.id] = {
+        days,
+        grid: availabilityBands({ occurrences, dayKeys: days.map((d) => d.dayKey), timeZone: viewerTimeZone }),
+        profileHref: `/book/teachers/${teacher.id}`,
+      };
+    }
   }
 
   /*
@@ -282,7 +283,7 @@ export default async function BookPage({ searchParams }: Props) {
           />
         </div>
       ) : (
-        <TeacherBrowseList previews={previews} timeZone={viewerTimeZone} header={controls}>
+        <TeacherBrowseList previews={previews} timeZone={viewerTimeZone} useBrowserZone={!savedTimeZone} header={controls}>
           {filtered.map((teacher) => (
             <TeacherCard
               key={teacher.id}

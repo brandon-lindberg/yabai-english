@@ -28,7 +28,7 @@ beforeEach(() => {
 
 test("Japanese dashboard shows the saved award and its completion date independently of the English profile", async () => {
   const result = japanesePlacementResultFixture();
-  mocks.award.mockResolvedValue({ id: result.attemptId, finishedAt: new Date(result.completedAt), result });
+  mocks.award.mockResolvedValue({ id: result.attemptId, finishedAt: new Date(result.completedAt), result, learner: { studentProfile: null } });
   const serialized = JSON.stringify((await StudentDashboard(props))?.props);
   expect(serialized).toContain("savedLevel");
   expect(serialized).toContain("N5");

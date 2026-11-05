@@ -67,6 +67,18 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe("English placement deadline and completion guards", () => {
+  test("starts at midnight on the saved local retake date", async () => {
+    fixture.mocks.studentProfile.findUnique.mockResolvedValue({
+      placementCompletedAt: new Date("2026-11-01T04:30:00.000Z"), timezone: "America/Los_Angeles",
+    });
+    vi.mocked(Date.now).mockReturnValue(Date.parse("2026-11-30T07:59:59.999Z"));
+    const blocked = await GET();
+    expect(blocked.status).toBe(403);
+    expect(await blocked.json()).toMatchObject({ error: "cooldown", eligibleDate: "2026-11-30", eligibleAt: "2026-11-30T08:00:00.000Z" });
+    vi.mocked(Date.now).mockReturnValue(Date.parse("2026-11-30T08:00:00.000Z"));
+    expect((await GET()).status).toBe(200);
+  });
+
   test("new attempts pin the scoring version and exact bank snapshot", async () => {
     const response = await (await GET()).json();
     const payload = inspect(response);

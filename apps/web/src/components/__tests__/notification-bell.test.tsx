@@ -65,11 +65,12 @@ describe("NotificationBell", () => {
   });
 
   test("opening the bell refreshes persisted alerts even without a live event", async () => {
-    fetchMock.mockResolvedValueOnce(jsonResponse({ items: [], unreadCount: 0 })).mockResolvedValue(jsonResponse({ items: [{ id: "cancel", titleEn: "Lesson cancelled", titleJa: "中止", bodyEn: null, bodyJa: null, readAt: null, createdAt: new Date().toISOString() }], unreadCount: 1 }));
+    fetchMock.mockResolvedValueOnce(jsonResponse({ items: [], unreadCount: 0 })).mockResolvedValue(jsonResponse({ items: [{ id: "cancel", titleEn: "Lesson cancelled", titleJa: "中止", bodyEn: "Your lesson on Dec 1, 2026 11:00 (GMT+9) was cancelled.", bodyJa: null, href: "/dashboard/schedule", readAt: null, createdAt: new Date().toISOString() }], unreadCount: 1 }));
     render(<NextIntlClientProvider locale="en" messages={en}><NotificationBell /></NextIntlClientProvider>);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
     fireEvent.click(screen.getByRole("button", { name: en.common.notifications }));
     expect(await screen.findByText("Lesson cancelled")).toBeVisible();
+    expect(screen.getByText("Your lesson on Dec 1, 2026 11:00 was cancelled.")).toBeVisible();
   });
 
   test("refreshes when a realtime notifications:update event fires", async () => {

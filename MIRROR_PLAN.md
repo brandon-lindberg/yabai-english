@@ -1972,6 +1972,14 @@ The completed Japanese recap shows one full-size card at a time on narrow screen
 
 Red tests reproduced easy cards displacing difficult ones in both languages. All 197 study tests, 19 PostgreSQL study tests, and 13 learning-domain Chromium tests passed. Chromium exercised touch swipes, tap-to-flip, vertical scrolling, and the desktop row with the full catalog in a disposable schema. TypeScript and targeted lint passed.
 
+#### 6w. Local placement retake dates and lesson times — 2026-11-05
+
+Both placement tests open at midnight one calendar month after the learner's local completion date. The server calculates eligibility and the display date together using the timezone saved on the learner's account. Placement notices show the localized date alone. A month with fewer days uses its last day, and timezone offsets are evaluated for the eligible day.
+
+Shared booking, availability, and reschedule screens use local clock times without zone labels. Booking notifications use each recipient's configured zone, and old notices have their suffix removed when displayed. Signed-out availability previews use the browser zone. Accounting reports follow the business calendar.
+
+Red and green coverage verified month-end and daylight-saving boundaries, date-only notices, and saved notification labels. All 103 English placement tests, 291 Japanese placement tests, 15 PostgreSQL placement tests, 1,017 mirror tests, 197 study tests, and 14 learning-domain Chromium tests passed. TypeScript and targeted lint passed.
+
 ## Source completeness standard
 
 Modern JLPT has no published exhaustive official vocabulary/kanji list. The measurable target is full, traceable coverage of a named, versioned community corpus, with every merge/correction explained and zero unreviewed omissions. Preserve level source and supplementary/inferred classifications. Multiple repositories inheriting Waller's lists are not independent pedagogical validation.

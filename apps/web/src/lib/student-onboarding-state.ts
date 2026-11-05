@@ -1,7 +1,7 @@
 import "server-only";
 import type { LearningLanguage, PrismaClient } from "@/generated/prisma/client";
 import { readJapanesePlacementRetake } from "./japanese-placement/retake";
-import { isPlacementRetakeAllowed } from "./placement-cooldown";
+import { placementRetakeStatus } from "./placement-cooldown";
 import { computeStudentOnboardingCompletion } from "./student-onboarding-next-links";
 
 type OnboardingDb = Pick<PrismaClient, "studentProfile" | "user" | "googleIntegrationSettings" | "booking" | "chatThread" | "userStudyLevelProgress" | "studyTrack" | "japanesePlacementAttempt">;
@@ -12,7 +12,7 @@ export async function readStudentOnboardingState(db: OnboardingDb, userId: strin
   const [profile, user, google, bookings, threads, studied, track, japaneseRetake] = await Promise.all([
     db.studentProfile.findUnique({ where: { userId }, select: {
       onboardingCompletedAt: true, placedLevel: true, placedSubLevel: true,
-      placementCompletedAt: true, shortBio: true, skippedOnboardingSteps: true,
+      placementCompletedAt: true, timezone: true, shortBio: true, skippedOnboardingSteps: true,
     } }),
     db.user.findUnique({ where: { id: userId }, select: { name: true, image: true } }),
     db.googleIntegrationSettings.findUnique({ where: { userId }, select: { calendarConnected: true, driveConnected: true } }),
@@ -27,7 +27,7 @@ export async function readStudentOnboardingState(db: OnboardingDb, userId: strin
   return {
     profile,
     japanesePlacementResult: japaneseRetake?.result ?? null,
-    canStartPlacement: isJapanese ? japaneseRetake!.canStartNewAttempt : isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null),
+    canStartPlacement: isJapanese ? japaneseRetake!.canStartNewAttempt : placementRetakeStatus(profile?.placementCompletedAt, profile?.timezone).allowed,
     materialsAvailable: !isJapanese || Boolean(track),
     completion: computeStudentOnboardingCompletion({
       profileShortBio: profile?.shortBio ?? null, userName: user?.name ?? null, userImage: user?.image ?? null,

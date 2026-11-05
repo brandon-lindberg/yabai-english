@@ -11,7 +11,7 @@ import { placementBankFileSchema } from "../placement-bank/schema";
 import type { LoadedPlacementQuestion } from "../placement-bank/load-placement-bank";
 import { applyAdaptiveAnswer, buildInitialAdaptiveState, chooseNextAdaptiveQuestion, ENGLISH_STAIRCASE_ROUTING_REVISION, type PlacementAdaptiveState } from "../placement-adaptive";
 import { ENGLISH_PLACEMENT_POLICY_V2 as policy, englishPlacementEvidence } from "../placement-policy";
-import { isPlacementRetakeAllowed, placementRetakeEligibleAt } from "../placement-cooldown";
+import { placementRetakeStatus } from "../placement-cooldown";
 import { scorePlacementAnswers } from "../placement-test";
 import type { EnglishPlacementActive, EnglishPlacementReply } from "./public";
 
@@ -119,9 +119,10 @@ export async function getOrStartEnglishAttempt(db: PrismaClient, userId: string,
   return transaction(db, userId, async (tx, now) => {
     const active = await tx.englishPlacementAttempt.findUnique({ where: { activeLearnerId: userId }, include });
     if (active) return !supported(active) || now >= active.expiresAt.getTime() ? finalize(tx, active, now) : { body: view(active, now) };
-    const profile = await tx.studentProfile.findUnique({ where: { userId }, select: { placementCompletedAt: true } });
-    if (profile?.placementCompletedAt && !isPlacementRetakeAllowed(profile.placementCompletedAt)) {
-      throw new EnglishPlacementFailure(403, "cooldown", { eligibleAt: placementRetakeEligibleAt(profile.placementCompletedAt).toISOString() });
+    const profile = await tx.studentProfile.findUnique({ where: { userId }, select: { placementCompletedAt: true, timezone: true } });
+    const { allowed, eligibleAt, eligibleDate } = placementRetakeStatus(profile?.placementCompletedAt, profile?.timezone, now);
+    if (!allowed) {
+      throw new EnglishPlacementFailure(403, "cooldown", { eligibleAt, eligibleDate });
     }
     const questions = await loadBank(), adaptiveState = buildInitialAdaptiveState();
     const first = chooseNextAdaptiveQuestion(adaptiveState, questions, recentIds);

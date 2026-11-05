@@ -81,6 +81,7 @@ async function view(tx: Tx, row: StoredAttempt, now: number) {
   return {
     canStartNewAttempt: row.status !== "IN_PROGRESS" && eligibility.canStartNewAttempt,
     retakeEligibleAt: eligibility.retakeEligibleAt,
+    retakeEligibleDate: eligibility.retakeEligibleDate,
     attemptId: row.id, status: row.status, answered: row.responses.length, total: row.questionLimit ?? row.bankSnapshot.itemCount,
     expiresAt: row.expiresAt?.toISOString() ?? null,
     timeLimitSec: row.expiresAt ? (row.expiresAt.getTime() - row.startedAt.getTime()) / 1000 : null,

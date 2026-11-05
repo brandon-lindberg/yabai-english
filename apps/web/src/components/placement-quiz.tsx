@@ -16,20 +16,13 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { Section } from "@/components/ui/section";
 import { Status } from "@/components/ui/status";
 import { useLatestRef } from "@/hooks/use-latest-ref";
-
-function formatPlacementEligibleDate(iso: string, locale: string): string {
-  const d = new Date(iso);
-  if (locale.startsWith("ja")) {
-    return new Intl.DateTimeFormat("ja-JP", { dateStyle: "long", timeZone: "UTC" }).format(d);
-  }
-  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" }).format(d);
-}
+import { formatCalendarDate } from "@/lib/date-only-in-zone";
 
 type PlacementResult = ReturnType<typeof scorePlacementAnswers>;
 
 type InconclusiveReason = "insufficient_evidence" | "question_pool_exhausted" | "attempt_unavailable";
 type ApiReply = Partial<EnglishPlacementActive> & Partial<PlacementResult> & {
-  error?: string; status?: string; reason?: InconclusiveReason; required?: number; eligibleAt?: string;
+  error?: string; status?: string; reason?: InconclusiveReason; required?: number; eligibleDate?: string;
 };
 
 export function PlacementQuiz() {
@@ -54,7 +47,7 @@ export function PlacementQuiz() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PlacementResult | null>(null);
   const [inconclusive, setInconclusive] = useState<{ reason: InconclusiveReason; required: number } | null>(null);
-  const [cooldownEligibleAt, setCooldownEligibleAt] = useState<string | null>(null);
+  const [cooldownEligibleDate, setCooldownEligibleDate] = useState<string | null>(null);
 
   const applyReply = useCallback((data: ApiReply) => {
     if (data.level) {
@@ -88,7 +81,7 @@ export function PlacementQuiz() {
     setResult(null);
     setInconclusive(null);
     setError(null);
-    setCooldownEligibleAt(null);
+    setCooldownEligibleDate(null);
     setExpiresAt(null);
     setRemainingSec(null);
     setAutoSubmitted(false);
@@ -101,8 +94,8 @@ export function PlacementQuiz() {
       const r = await fetch(`/api/placement?ts=${Date.now()}`, { cache: "no-store" });
       const data = (await r.json()) as ApiReply;
       if (!r.ok) {
-        if (data.error === "cooldown" && typeof data.eligibleAt === "string") {
-          setCooldownEligibleAt(data.eligibleAt);
+        if (data.error === "cooldown" && typeof data.eligibleDate === "string") {
+          setCooldownEligibleDate(data.eligibleDate);
           return;
         }
         setError(t("loadError"));
@@ -276,12 +269,12 @@ export function PlacementQuiz() {
     );
   }
 
-  if (cooldownEligibleAt) {
+  if (cooldownEligibleDate) {
     return (
       <Outcome
         title={t("cooldownTitle")}
         description={t("cooldownBody", {
-          date: formatPlacementEligibleDate(cooldownEligibleAt, locale),
+          date: formatCalendarDate(cooldownEligibleDate, locale),
         })}
         actions={
           <Link href="/dashboard" className={buttonClasses({ size: "lg" })}>

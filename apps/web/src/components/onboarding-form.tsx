@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
+import { DEFAULT_VIEWER_TIME_ZONE, resolveViewerTimeZone, validViewerTimeZone } from "@/lib/viewer-time-zone";
 import { useOnboardingSubmit } from "@/hooks/use-onboarding-submit";
 import { useSessionDraft } from "@/hooks/use-session-draft";
 import { buttonClasses } from "@/components/ui/button";
@@ -110,7 +111,7 @@ export function OnboardingForm({ initialTimezone, learningLanguage = "ENGLISH" }
       // Fall through to minimal fallback list.
     }
     return [
-      "Asia/Tokyo",
+      DEFAULT_VIEWER_TIME_ZONE,
       "Asia/Seoul",
       "Asia/Singapore",
       "Europe/London",
@@ -130,13 +131,10 @@ export function OnboardingForm({ initialTimezone, learningLanguage = "ENGLISH" }
     whatever their browser reported.
   */
   const browserTimezone = useBrowserTimezone();
-  const detectedTimezone =
-    initialTimezone === "Asia/Tokyo" || initialTimezone.length === 0
-      ? browserTimezone && timezoneOptions.includes(browserTimezone)
-        ? browserTimezone
-        : initialTimezone
-      : initialTimezone;
-  const timezone = chosenTimezone ?? detectedTimezone;
+  const savedZone = validViewerTimeZone(initialTimezone);
+  const detectedTimezone = savedZone && savedZone !== DEFAULT_VIEWER_TIME_ZONE ? savedZone : browserTimezone;
+  const timezone = resolveViewerTimeZone(chosenTimezone ?? detectedTimezone);
+  const availableZones = timezoneOptions.includes(timezone) ? timezoneOptions : [timezone, ...timezoneOptions];
 
   function canAdvanceFromStep(s: number): boolean {
     if (s === 0) return Boolean(timezone);
@@ -200,7 +198,7 @@ export function OnboardingForm({ initialTimezone, learningLanguage = "ENGLISH" }
                 onChange={(e) => setChosenTimezone(e.target.value)}
                 required
               >
-                {timezoneOptions.map((tz) => (
+                {availableZones.map((tz) => (
                   <option key={tz} value={tz}>
                     {tz}
                   </option>

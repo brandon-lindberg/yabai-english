@@ -21,6 +21,7 @@ import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
 import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { resolveViewerTimeZone } from "@/lib/viewer-time-zone";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { Status } from "@/components/ui/status";
 import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
@@ -275,7 +276,7 @@ export default async function TeacherProfileBookingPage({
         select: { timezone: true },
       })
     : null;
-  const viewerTimezone = studentProfile?.timezone ?? "Asia/Tokyo";
+  const viewerTimezone = resolveViewerTimeZone(studentProfile?.timezone);
   const skippedOccurrences = buildOccurrenceSkipIndex(
     teacher.availabilityOccurrenceSkips,
   );
@@ -374,7 +375,7 @@ export default async function TeacherProfileBookingPage({
       {session?.user ? (
         <Section title={t("availability")} size="lg" className="mt-10">
           <p className="mb-4 text-sm text-muted">
-            {t("selectSlot")} · {t("timezoneShownAs")}: {viewerTimezone}
+            {t("selectSlot")}
           </p>
           {ownPendingBookings.map((pending) => (
             <PendingReservationNotice

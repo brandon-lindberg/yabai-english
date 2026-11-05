@@ -44,12 +44,12 @@ test("Japanese onboarding never treats English placement as Japanese completion 
 test("published Japanese study and a valid Japanese estimate complete their own steps", async () => {
   db.studyTrack.findUnique.mockResolvedValue({ id: "jp-track" });
   db.userStudyLevelProgress.findFirst.mockResolvedValue({ id: "jp-progress" });
-  db.japanesePlacementAttempt.findFirst.mockResolvedValue({ id: "jp-attempt", finishedAt: new Date(), result: result("estimated") });
+  db.japanesePlacementAttempt.findFirst.mockResolvedValue({ id: "jp-attempt", finishedAt: new Date(), result: result("estimated"), learner: { studentProfile: { timezone: "Asia/Tokyo" } } });
   const state = await readStudentOnboardingState(client, "learner", "JAPANESE");
   expect(state.completion).toMatchObject({ placement: true, materials: true });
   expect(state.canStartPlacement).toBe(false);
   expect(state.materialsAvailable).toBe(true);
-  expect(db.japanesePlacementAttempt.findFirst).toHaveBeenCalledWith({ where: { learnerId: "learner", status: "COMPLETED", result: { path: ["levelEstimate", "status"], equals: "estimated" } }, orderBy: [{ finishedAt: "desc" }, { id: "desc" }], select: { id: true, finishedAt: true, result: true } });
+  expect(db.japanesePlacementAttempt.findFirst).toHaveBeenCalledWith({ where: { learnerId: "learner", status: "COMPLETED", result: { path: ["levelEstimate", "status"], equals: "estimated" } }, orderBy: [{ finishedAt: "desc" }, { id: "desc" }], select: expect.objectContaining({ id: true, finishedAt: true, result: true }) });
 });
 
 test.each([result("insufficient_evidence"), { ...result("estimated"), attemptId: "another-attempt" }, {}])("inconclusive or invalid Japanese receipts do not complete placement", async receipt => {
