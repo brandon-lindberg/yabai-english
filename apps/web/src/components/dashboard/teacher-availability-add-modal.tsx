@@ -164,8 +164,13 @@ function TeacherAvailabilityAddModalInner({
   const windowHint = tModal("availabilityWindowHint", { date: windowEndDayKey });
   const dateHint = belowLeadTime ? tModal("belowLeadTimeHint") : windowHint;
   const offerById = new Map(lessonOfferings.map((offer) => [offer.id, offer]));
-  const formatOfferingLabel = (offer: TeacherLessonOfferingOption) => {
-    const language = j(`${LEARNING_JOURNEYS[resolveLearningLanguage(offer.learningLanguage)].key}.name`);
+  const offeringGroups = Object.entries(LEARNING_JOURNEYS).flatMap(([language, journey]) => {
+    const offerings = lessonOfferings.filter(
+      (offer) => resolveLearningLanguage(offer.learningLanguage) === language,
+    );
+    return offerings.length ? [{ language, label: j(`${journey.key}.name`), offerings }] : [];
+  });
+  const formatOfferingLabel = (offer: TeacherLessonOfferingOption, language: string) => {
     // A trial is its own kind of slot, not a class at a price of zero — naming
     // the level and type here would read as a discounted conversation lesson.
     if (offer.isFreeTrial) {
@@ -403,11 +408,17 @@ function TeacherAvailabilityAddModalInner({
                 }}
               >
                 {lessonOfferings.length === 0 ? <option value="">—</option> : null}
-                {lessonOfferings.map((offer) => (
-                  <option key={offer.id} value={offer.id}>
-                    {formatOfferingLabel(offer)}
-                  </option>
-                ))}
+                {offeringGroups.map(({ language, label, offerings }) => {
+                  // Keep the subject visible in the selected value after the native picker closes.
+                  const options = offerings.map((offer) => (
+                    <option key={offer.id} value={offer.id}>
+                      {formatOfferingLabel(offer, label)}
+                    </option>
+                  ));
+                  return offeringGroups.length > 1 ? (
+                    <optgroup key={language} label={label}>{options}</optgroup>
+                  ) : options;
+                })}
               </Select>
             )}
           </Field>

@@ -30,6 +30,8 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("migrates English records and e
     expect(await prisma.studentProfile.findUniqueOrThrow({ where: { id: "profile" } })).toMatchObject({ placedLevel: "INTERMEDIATE", placedSubLevel: 2 });
     expect(await prisma.booking.findUniqueOrThrow({ where: { id: "historic" } })).toEqual(historicAfter);
 
+    expect(await prisma.teacherProfile.findUniqueOrThrow({ where: { id: "teacher" } })).toMatchObject({ teachingLanguages: ["ENGLISH"] });
+    await prisma.teacherProfile.update({ where: { id: "teacher" }, data: { teachingLanguages: ["ENGLISH", "JAPANESE"] } });
     const japanese = await prisma.teacherLessonOffering.create({ data: { id: "japanese-offer", teacherId: "teacher", durationMin: 60, rateYen: 6000, learningLanguage: "JAPANESE" } });
     await prisma.availabilitySlot.createMany({ data: [
       { id: "legacy-time", teacherId: "teacher", dayOfWeek: 1, startMin: 600, endMin: 660 },

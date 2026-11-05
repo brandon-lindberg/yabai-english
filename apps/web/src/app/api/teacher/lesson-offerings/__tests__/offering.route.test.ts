@@ -51,7 +51,7 @@ function del() {
 beforeEach(() => {
   vi.clearAllMocks();
   authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });
-  prismaMock.teacherProfile.findUnique.mockResolvedValue({ id: "tp-1" });
+  prismaMock.teacherProfile.findUnique.mockResolvedValue({ id: "tp-1", teachingLanguages: ["ENGLISH", "JAPANESE"] });
   prismaMock.teacherLessonOffering.findFirst.mockResolvedValue({
     id: "offer-1",
     isFreeTrial: false,

@@ -15,6 +15,7 @@ import {
 } from "./attempt";
 import { JAPANESE_STAIRCASE_POLICY_REVISION } from "./staircase-policy";
 import { readJapanesePlacementRetake, readLatestJapanesePlacementAward } from "./retake";
+import { learningLanguageForRequest } from "../learning-site-request";
 
 export class JapanesePlacementFailure extends PrivateApiFailure {}
 const startInput = z.object({ requestId: z.string().uuid() }).strict();
@@ -45,7 +46,7 @@ async function studentTransaction<T>(db: PrismaClient, learnerId: string, run: (
   return db.$transaction(async (tx) => {
     await lockJapaneseLearner(tx, learnerId);
     const user = await actor(tx, learnerId);
-    if (user.role !== "STUDENT" || user.learningLanguage !== "JAPANESE") throw new JapanesePlacementFailure(403, "JAPANESE_STUDENT_REQUIRED");
+    if (user.role !== "STUDENT" || await learningLanguageForRequest(user.learningLanguage) !== "JAPANESE") throw new JapanesePlacementFailure(403, "JAPANESE_STUDENT_REQUIRED");
     return run(tx, Date.now());
   }, { maxWait: 10_000, timeout: 10_000 });
 }

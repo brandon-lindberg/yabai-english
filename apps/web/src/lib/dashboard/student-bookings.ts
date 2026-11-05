@@ -1,3 +1,4 @@
+import { getRequestLearningSite } from "@/lib/learning-site-request";
 import type { PrismaClient } from "@/generated/prisma/client";
 import { groupBookingsForDashboard } from "@/lib/dashboard/booking-groups";
 import { sortStudentCompletedBookings } from "@/lib/dashboard/sort-completed-bookings";
@@ -6,8 +7,9 @@ import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 import { withBookingLessonProductNames } from "@/lib/lesson-product-catalog";
 
 export async function getStudentBookingsForDashboard(prisma: PrismaClient, studentId: string) {
+  const site = await getRequestLearningSite();
   const storedBookings = await prisma.booking.findMany({
-    where: { studentId },
+    where: { studentId, ...(site?.learningLanguage ? { learningLanguage: site.learningLanguage } : {}) },
     orderBy: { startsAt: "asc" },
     include: {
       lessonProduct: true,

@@ -1,3 +1,4 @@
+import { publicAppOrigin } from "@/lib/learning-sites";
 import { google } from "googleapis";
 import { prisma } from "@/lib/prisma";
 import { encryptIntegrationToken } from "@/lib/calendar-token";
@@ -7,13 +8,7 @@ import {
   deriveConnectionFlags,
 } from "@/lib/google/integration";
 
-function resolveBaseUrl(req: Request): string {
-  return (
-    process.env.NEXTAUTH_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    new URL(req.url).origin
-  );
-}
+const resolveBaseUrl = publicAppOrigin;
 
 function requireGoogleClient() {
   const clientId = process.env.AUTH_GOOGLE_ID;

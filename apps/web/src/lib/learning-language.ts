@@ -4,6 +4,19 @@ import type { Prisma } from "@/generated/prisma/client";
 
 export const learningLanguageSchema = z.nativeEnum(LearningLanguage);
 
+/** Admin permission, separate from the subject of any particular class. */
+export const teachingLanguagesSchema = z.array(learningLanguageSchema).min(1).max(2)
+  .refine((languages) => new Set(languages).size === languages.length, "Choose each language once")
+  .transform((languages) => [LearningLanguage.ENGLISH, LearningLanguage.JAPANESE].filter((language) => languages.includes(language)));
+
+export function teacherCanTeach(
+  profile: { teachingLanguages?: readonly LearningLanguage[] },
+  language: LearningLanguage,
+): boolean {
+  // Undefined occurs only in historical callers; persisted profiles always have this field.
+  return (profile.teachingLanguages ?? [LearningLanguage.ENGLISH]).includes(resolveLearningLanguage(language));
+}
+
 /** Missing historical intent defaults to English. Locale codes are never inferred. */
 export function resolveLearningLanguage(value: unknown): LearningLanguage {
   const parsed = learningLanguageSchema.safeParse(value);
@@ -19,7 +32,7 @@ export function learningLanguageOfferingWhere(learningLanguage: LearningLanguage
   return { active: true, learningLanguage };
 }
 
-/** Offerings are the teaching-subject authority; no second list on the profile. */
+/** Admin permission and an active class must agree before discovery. */
 export function learningLanguageTeacherWhere(
   learningLanguage: LearningLanguage,
 ): Prisma.TeacherProfileWhereInput {
@@ -27,12 +40,12 @@ export function learningLanguageTeacherWhere(
   // Historical teachers could publish unlinked English trial hours, including
   // after retiring their priced classes. Those hours retain their subject.
   return learningLanguage === LearningLanguage.ENGLISH
-    ? { OR: [
+    ? { teachingLanguages: { has: learningLanguage }, OR: [
         matching,
         { lessonOfferings: { none: {} } },
         { availabilitySlots: { some: { active: true, teacherLessonOfferingId: null } } },
       ] }
-    : matching;
+    : { teachingLanguages: { has: learningLanguage }, ...matching };
 }
 
 export function learningLanguageAvailabilityWhere(

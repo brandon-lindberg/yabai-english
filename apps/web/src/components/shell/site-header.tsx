@@ -14,6 +14,10 @@ import { DisclosureMenu } from "@/components/ui/disclosure-menu";
 import { InterfaceIcon } from "@/components/ui/interface-icon";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import type { LearningLanguage } from "@/generated/prisma/enums";
+import { useLearningSite } from "@/components/learning-site-provider";
+import { learningSiteHref } from "@/lib/learning-sites";
+import { siteSessionStartHref } from "@/lib/site-session-path";
+import { appPathForLocale } from "@/lib/i18n-app-path";
 import { LEARNING_JOURNEYS, journeyPath, journeySignInHref, learningLanguageFromPath } from "@/lib/learning-journey";
 import { learningLanguageSchema } from "@/lib/learning-language";
 import { selectLearningJourney } from "@/lib/learning-journey-actions";
@@ -28,7 +32,13 @@ export function SiteHeader({ guestLearningLanguage = null }: { guestLearningLang
   const requested = pathname === "/auth/signin" ? learningLanguageSchema.safeParse(query.get("learningLanguage")) : null;
   const learningLanguage = session?.user?.role === "STUDENT" ? session.user.learningLanguage
     : learningLanguageFromPath(pathname) ?? (requested?.success ? requested.data : guestLearningLanguage);
+  const { site, sites } = useLearningSite();
   const other = learningLanguage === "JAPANESE" ? "ENGLISH" : "JAPANESE";
+  const switchHref = sites
+    ? session?.user && site?.learningLanguage
+      ? siteSessionStartHref(sites[other], "switch", locale)
+      : learningSiteHref(sites, other, appPathForLocale(locale, "/"))
+    : journeyPath(other);
   const bookAction = !session?.user && learningLanguage ? selectLearningJourney.bind(null, learningLanguage, locale) : undefined;
 
   const navLinks =
@@ -62,12 +72,12 @@ export function SiteHeader({ guestLearningLanguage = null }: { guestLearningLang
             href="/"
             className="inline-flex text-sm font-semibold tracking-tight text-foreground sm:text-base md:mr-10"
           >
-            {t("appName")}
+            {site?.brandName ?? t("appName")}
           </Link>
           {learningLanguage && (!session?.user || session.user.role === "STUDENT") ? (
             <div className="flex items-center gap-2 text-[11px] text-muted">
               <span>{j(`${LEARNING_JOURNEYS[learningLanguage].key}.current`)}</span>
-              <Link href={journeyPath(other)} aria-label={j(`${LEARNING_JOURNEYS[other].key}.switch`)} title={j(`${LEARNING_JOURNEYS[other].key}.switch`)} className={`${actionLinkClass} inline-flex min-h-6 items-center`}>{t("change")}</Link>
+              <Link href={switchHref} aria-label={j(`${LEARNING_JOURNEYS[other].key}.switch`)} title={j(`${LEARNING_JOURNEYS[other].key}.switch`)} className={`${actionLinkClass} inline-flex min-h-6 items-center`}>{t("change")}</Link>
             </div>
           ) : null}
           </div>

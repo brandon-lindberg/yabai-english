@@ -56,6 +56,8 @@
     "japanese-content:prompts": "node --conditions=react-server --import tsx scripts/audit-japanese-study-prompts.ts",
     "japanese-content:review": "node --import tsx scripts/review-japanese-study-content.ts",
     "payments:recover": "node --conditions=react-server --import tsx scripts/recover-payments.ts",
+    "test:domains:db": "node --import tsx scripts/test-mirror-migration.ts --domains",
+    "test:domains:e2e": "yarn test:mirror:e2e --domains --synthetic-draft",
     "test:payments:db": "node --import tsx scripts/test-mirror-migration.ts --payments"
   },
   "dependencies": {

@@ -1,3 +1,7 @@
+import { LearningSiteProvider } from "@/components/learning-site-provider";
+import { getRequestLearningSite } from "@/lib/learning-site-request";
+import { configuredLearningSites } from "@/lib/learning-sites";
+import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -21,6 +25,16 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getRequestLearningSite();
+  return site ? {
+    metadataBase: new URL(site.origin),
+    title: site.brandName,
+    manifest: "/manifest.webmanifest",
+    appleWebApp: { capable: true, statusBarStyle: "default", title: site.brandName },
+  } : {};
+}
+
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
   if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
@@ -29,12 +43,15 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
   const messages = await getMessages();
+  const site = await getRequestLearningSite();
+  const sites = configuredLearningSites();
   const session = await auth();
   const guestLearningLanguage = session?.user ? null : await getGuestLearningLanguage();
 
   return (
     <NextIntlClientProvider messages={messages}>
       <AppProviders session={session}>
+        <LearningSiteProvider site={site} sites={sites}>
         <div className="flex min-h-0 flex-1 flex-col overflow-x-clip">
           <HiddenAccountGuard />
           <IdleLogoutGuard />
@@ -54,6 +71,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <SiteFooter />
           <AppChatPanel />
         </div>
+        </LearningSiteProvider>
       </AppProviders>
     </NextIntlClientProvider>
   );

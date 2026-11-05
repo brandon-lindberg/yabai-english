@@ -26,7 +26,7 @@ import {
   isWithinAvailabilityWindow,
 } from "@/lib/availability-window";
 import { canTeacherPublishAvailability, resolveTeacherPublishAvailabilityOptions } from "@/lib/payment-methods";
-import { teachingLanguagesFromOfferings } from "@/lib/learning-language";
+import { teacherCanTeach, resolveLearningLanguage } from "@/lib/learning-language";
 
 export async function GET() {
   const session = await auth();
@@ -136,6 +136,7 @@ export async function PATCH(req: Request) {
       id: true,
       rateYen: true,
       offersFreeTrial: true,
+      teachingLanguages: true,
       paymentPolicyAcceptedAt: true,
       paymentAccounts: {
         select: {
@@ -200,6 +201,7 @@ export async function PATCH(req: Request) {
       where: { id: { in: refOfferIds }, teacherId: profileSnapshot.id, active: true },
       select: {
         id: true,
+        learningLanguage: true,
         classLevelId: true,
         classTypeId: true,
         durationMin: true,
@@ -229,6 +231,9 @@ export async function PATCH(req: Request) {
       { error: "teacherLessonOfferingId does not belong to this teacher" },
       { status: 400 },
     );
+  }
+  if (foundOfferings.some((offering) => !teacherCanTeach(profileSnapshot, resolveLearningLanguage(offering.learningLanguage)))) {
+    return NextResponse.json({ error: "Availability requires a class in an assigned teaching language." }, { status: 403 });
   }
   const codeByTypeId = new Map(foundTypes.map((t) => [t.id, t.code]));
   const offeringById = new Map(foundOfferings.map((offering) => [offering.id, offering]));
@@ -289,8 +294,7 @@ export async function PATCH(req: Request) {
       select: { id: true },
     }),
   ]);
-  const subjects = teachingLanguagesFromOfferings(profileSnapshot.lessonOfferings);
-  const trialOfferings = (subjects.length ? subjects : ["ENGLISH" as const]).flatMap((learningLanguage) => {
+  const trialOfferings = (profileSnapshot.teachingLanguages ?? ["ENGLISH" as const]).flatMap((learningLanguage) => {
     const offering = deriveFreeTrialOffering({
     existing: profileSnapshot.lessonOfferings,
     offersFreeTrial: profileSnapshot.offersFreeTrial,

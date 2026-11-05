@@ -1,3 +1,4 @@
+import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { lessonProductNames } from "@/lib/lesson-product-catalog";
@@ -742,8 +743,9 @@ export async function GET() {
   }
 
   if (session.user.role === "STUDENT") {
+    const site = await getRequestLearningSite();
     const list = await prisma.booking.findMany({
-      where: { studentId: session.user.id },
+      where: { studentId: session.user.id, ...(site?.learningLanguage ? { learningLanguage: site.learningLanguage } : {}) },
       orderBy: { startsAt: "asc" },
       include: {
         lessonProduct: true,

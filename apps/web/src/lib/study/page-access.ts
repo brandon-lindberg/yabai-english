@@ -6,11 +6,12 @@ import { JapaneseStudyFailure, getJapaneseStudyOverview } from "./japanese-servi
 import type { PrismaClient } from "@/generated/prisma/client";
 import { isLoginAllowedForAccountStatus } from "../account-status";
 import { STUDY_LEVEL_ORDER, JAPANESE_STUDY_LEVEL_ORDER } from "./constants";
+import { learningLanguageForRequest } from "../learning-site-request";
 
 /** Page routing follows current persisted intent, independently of UI locale. */
 export async function getStudyPageActor(db: Pick<PrismaClient, "user">, userId: string) {
   const actor = await db.user.findUnique({ where: { id: userId }, select: { id: true, learningLanguage: true, role: true, accountStatus: true } });
-  return actor && isLoginAllowedForAccountStatus(actor.accountStatus) ? actor : null;
+  return actor && isLoginAllowedForAccountStatus(actor.accountStatus) ? { ...actor, learningLanguage: await learningLanguageForRequest(actor.learningLanguage) } : null;
 }
 export function studyPageLevel(raw: string, language: "ENGLISH" | "JAPANESE") {
   const levels = language === "JAPANESE" ? JAPANESE_STUDY_LEVEL_ORDER : STUDY_LEVEL_ORDER;

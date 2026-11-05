@@ -33,6 +33,7 @@
     "noNotifications": "通知はありません",
     "footerCopyright": "© {year} English Studio Japan",
     "footerOperatedBy": "運営: Yabai Studios",
+    "siteOperatedBy": "運営: Yabai Studios",
     "footerContact": "お問い合わせ",
     "footerAria": "サイトフッター",
     "org": "組織",
@@ -832,6 +833,13 @@
     "noRefundedLessons": "返金されたレッスンはありません。"
   },
   "admin": {
+    "teachingLanguages": {
+      "label": "指導する言語",
+      "help": "1つ以上選択してください。講師は選択した言語の講師一覧にのみ表示されます。",
+      "ENGLISH": "英語",
+      "JAPANESE": "日本語",
+      "subject": "レッスンの言語"
+    },
     "title": "管理ダッシュボード",
     "bookings": "予約一覧",
     "students": "受講生",

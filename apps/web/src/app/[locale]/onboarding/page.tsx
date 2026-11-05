@@ -1,3 +1,4 @@
+import { requireLearningSiteForPage } from "@/lib/learning-site-page";
 import { getTranslations } from "next-intl/server";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
@@ -21,6 +22,7 @@ export default async function OnboardingPage() {
     redirect({ href: "/dashboard", locale });
   }
 
+  await requireLearningSiteForPage("/onboarding", user.learningLanguage);
   const profile = await prisma.studentProfile.findUnique({
     where: { userId: user.id },
     select: {

@@ -74,6 +74,7 @@ export function TeacherLessonAddModal({
   open,
   kind,
   editing = null,
+  teachingLanguages = ["ENGLISH", "JAPANESE"],
   classLevels,
   classTypes,
   locale,
@@ -84,6 +85,7 @@ export function TeacherLessonAddModal({
   kind: "individual" | "group";
   /** The class being changed. Absent when adding a new one. */
   editing?: AddedOffering | null;
+  teachingLanguages?: LearningLanguage[];
   classLevels: TaxonomyOption[];
   classTypes: TaxonomyOption[];
   locale: string;
@@ -253,7 +255,7 @@ export function TeacherLessonAddModal({
           <Field label={j("languageTaught")} hint={editing ? j("subjectFixed") : undefined}>
             {(field) => <Select {...field} required disabled={Boolean(editing)} value={learningLanguage} onChange={(e) => setLearningLanguage(e.target.value as LearningLanguage)}>
               <option value="" disabled>{j("chooseSubject")}</option>
-              {Object.entries(LEARNING_JOURNEYS).map(([language, journey]) => <option key={language} value={language}>{j(`${journey.key}.name`)}</option>)}
+              {Object.entries(LEARNING_JOURNEYS).filter(([language]) => teachingLanguages.includes(language as LearningLanguage)).map(([language, journey]) => <option key={language} value={language}>{j(`${journey.key}.name`)}</option>)}
             </Select>}
           </Field>
           <Field label={t("teacherLessonLevelForRate")}>

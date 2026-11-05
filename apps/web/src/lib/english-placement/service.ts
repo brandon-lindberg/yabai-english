@@ -1,4 +1,5 @@
 import "server-only";
+import { learningLanguageForRequest } from "../learning-site-request";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { Prisma, type PrismaClient } from "@/generated/prisma/client";
@@ -40,7 +41,7 @@ async function transaction<T>(db: PrismaClient, userId: string, run: (tx: Tx, no
     await lockLearnerTransaction(tx, "english-placement", userId);
     const actor = await tx.user.findUnique({ where: { id: userId }, select: { role: true, accountStatus: true, learningLanguage: true } });
     if (!actor) throw new EnglishPlacementFailure(401, "Unauthorized");
-    if (!isLoginAllowedForAccountStatus(actor.accountStatus) || actor.role !== "STUDENT" || actor.learningLanguage !== "ENGLISH") throw new EnglishPlacementFailure(403, "English students only");
+    if (!isLoginAllowedForAccountStatus(actor.accountStatus) || actor.role !== "STUDENT" || await learningLanguageForRequest(actor.learningLanguage) !== "ENGLISH") throw new EnglishPlacementFailure(403, "English students only");
     return run(tx, Date.now());
   }, { maxWait: 10_000, timeout: 15_000 });
 }

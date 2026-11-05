@@ -1,5 +1,7 @@
 "use client";
 
+import { TeachingLanguagesField } from "@/components/admin/teaching-languages-field";
+import type { LearningLanguage } from "@/generated/prisma/enums";
 import { AccountStatus, PlacedLevel, Role } from "@/generated/prisma/browser";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -85,6 +87,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
   const [rateYen, setRateYen] = useState("");
   const [offersTrial, setOffersTrial] = useState(true);
   const [specialties, setSpecialties] = useState("");
+  const [teachingLanguages, setTeachingLanguages] = useState<LearningLanguage[]>([]);
   const [instrLangs, setInstrLangs] = useState("");
 
   const load = useCallback(async () => {
@@ -116,6 +119,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
       }
       if (data.teacherProfile) {
         setTeacherProfileId(data.teacherProfile.id);
+        setTeachingLanguages(data.teacherProfile.teachingLanguages ?? ["ENGLISH"]);
         setCalendarConnected(data.teacherProfile.calendarConnected);
         setDisplayName(data.teacherProfile.displayName ?? "");
         setBio(data.teacherProfile.bio ?? "");
@@ -168,6 +172,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
           .filter(Boolean);
         const rateNum = rateYen.trim() === "" ? null : Number(rateYen);
         body.teacherProfile = {
+          teachingLanguages,
           displayName: displayName.trim() || undefined,
           bio: bio.trim() || null,
           countryOfOrigin: country.trim() || null,
@@ -410,6 +415,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
       {role === Role.TEACHER ? (
         <Section title={t("sectionTeacher")}>
           <div className="space-y-4">
+            <TeachingLanguagesField value={teachingLanguages} onChange={setTeachingLanguages} />
             <Field label={t("displayName")}>
               {(field) => (
                 <Input
@@ -487,7 +493,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
       ) : null}
 
       <div className="flex flex-wrap items-start gap-3 border-t border-border pt-6">
-        <Button loading={saving} onClick={() => void save()}>
+        <Button loading={saving} disabled={role === Role.TEACHER && teachingLanguages.length === 0} onClick={() => void save()}>
           {saving ? t("saving") : t("save")}
         </Button>
         <Button

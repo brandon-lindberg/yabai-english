@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { teacherCanTeach } from "@/lib/learning-language";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -33,7 +34,7 @@ type Props = { params: Promise<{ offeringId: string }> };
 async function resolveEditableOffering(userId: string, offeringId: string) {
   const profile = await prisma.teacherProfile.findUnique({
     where: { userId },
-    select: { id: true },
+    select: { id: true, teachingLanguages: true },
   });
   if (!profile) return { error: "No teacher profile", status: 404 as const };
 
@@ -49,7 +50,7 @@ async function resolveEditableOffering(userId: string, offeringId: string) {
     return { error: "This class is not yours to change.", status: 403 as const };
   }
 
-  return { profileId: profile.id, offeringId: offering.id, learningLanguage: offering.learningLanguage };
+  return { profileId: profile.id, offeringId: offering.id, learningLanguage: offering.learningLanguage, canTeach: teacherCanTeach(profile, offering.learningLanguage) };
 }
 
 export async function PATCH(req: Request, { params }: Props) {
@@ -73,6 +74,9 @@ export async function PATCH(req: Request, { params }: Props) {
   }
 
   const offering = normalizeLessonOfferingInput(parsed.data);
+  if (!resolved.canTeach) {
+    return NextResponse.json({ error: "This teaching language has not been assigned by an admin." }, { status: 403 });
+  }
   if (offering.learningLanguage && offering.learningLanguage !== resolved.learningLanguage) {
     return NextResponse.json({ error: "Create a new class to teach a different language." }, { status: 409 });
   }

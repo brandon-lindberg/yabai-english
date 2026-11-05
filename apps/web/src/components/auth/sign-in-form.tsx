@@ -54,7 +54,6 @@ export function SignInForm({
   const selectedLanguage = recoveredChoice?.learningLanguage ?? learningLanguage;
   const journey = LEARNING_JOURNEYS[selectedLanguage];
   const other = selectedLanguage === "ENGLISH" ? "JAPANESE" : "ENGLISH";
-  const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -106,14 +105,15 @@ export function SignInForm({
     void beginGoogleSignIn(choice ?? undefined);
   }, [authError, hasGoogleOAuth, beginGoogleSignIn]);
 
-  async function onDevSubmit(e: React.FormEvent) {
+  async function onDevSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const email = String(new FormData(e.currentTarget).get("email") ?? "").trim();
     setError(null);
     setLoading(true);
     try {
       const redirectTo = await prepareLearningSignIn({ learningLanguage, locale, callbackUrl: safePostLoginPath });
       const res = await signIn("credentials", {
-        email: email.trim(),
+        email,
         redirect: false,
         redirectTo,
       });
@@ -236,8 +236,6 @@ export function SignInForm({
                   name="email"
                   autoComplete="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                 />
               )}

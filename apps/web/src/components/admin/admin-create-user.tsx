@@ -1,5 +1,7 @@
 "use client";
 
+import { TeachingLanguagesField } from "@/components/admin/teaching-languages-field";
+import type { LearningLanguage } from "@/generated/prisma/enums";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -36,6 +38,7 @@ export function AdminCreateUser() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState("TEACHER");
+  const [teachingLanguages, setTeachingLanguages] = useState<LearningLanguage[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /** The last address created, so the admin can see it landed. */
@@ -49,7 +52,7 @@ export function AdminCreateUser() {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), name: name.trim() || undefined, role }),
+        body: JSON.stringify({ email: email.trim(), name: name.trim() || undefined, role, ...(role === "TEACHER" ? { teachingLanguages } : {}) }),
       });
       const data = (await res.json().catch(() => null)) as { error?: string } | null;
       if (!res.ok) {
@@ -61,6 +64,7 @@ export function AdminCreateUser() {
       setCreated(email.trim().toLowerCase());
       setEmail("");
       setName("");
+      setTeachingLanguages([]);
       router.refresh();
     } catch {
       setError(t("error"));
@@ -103,12 +107,14 @@ export function AdminCreateUser() {
         )}
       </Field>
 
+      {role === "TEACHER" ? <TeachingLanguagesField value={teachingLanguages} onChange={setTeachingLanguages} /> : null}
+
       {/* Nothing is emailed. Saying so here stops an admin assuming the
           invitee has been told anything at all. */}
       <InlineAlert>{t("hint")}</InlineAlert>
 
       <div className="flex items-center gap-3">
-        <Button onClick={() => void submit()} disabled={!email.trim()} loading={busy}>
+        <Button onClick={() => void submit()} disabled={!email.trim() || (role === "TEACHER" && teachingLanguages.length === 0)} loading={busy}>
           {busy ? t("working") : t("submit")}
         </Button>
         {created ? <Status tone="settled">{t("created", { email: created })}</Status> : null}

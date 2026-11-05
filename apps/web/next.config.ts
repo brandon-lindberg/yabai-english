@@ -5,6 +5,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["englishstudiojapan.localhost", "japanesestudio.localhost"],
   // An isolated browser run must not take the active developer server's lock.
   distDir: process.env.MIRROR_QA_DIST_DIR ?? ".next",
   typescript: { tsconfigPath: process.env.MIRROR_QA_DIST_DIR ? "tsconfig.mirror.json" : "tsconfig.json" },

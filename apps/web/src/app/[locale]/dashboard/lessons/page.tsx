@@ -30,6 +30,7 @@ export default async function DashboardLessonsPage({
     select: {
       rateYen: true,
       offersFreeTrial: true,
+      teachingLanguages: true,
       lessonOfferings: {
         where: { active: true },
         orderBy: [{ isGroup: "asc" }, { durationMin: "asc" }],
@@ -70,6 +71,7 @@ export default async function DashboardLessonsPage({
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
       <PageHeader title={t("title")} description={t("intro")} />
       <TeacherLessonOfferingsForm
+        teachingLanguages={profile?.teachingLanguages ?? []}
         initialOffersFreeTrial={profile?.offersFreeTrial ?? true}
         initialLessonOfferings={profile?.lessonOfferings ?? []}
         classLevels={profile?.classLevels ?? []}

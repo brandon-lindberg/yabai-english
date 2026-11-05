@@ -1,3 +1,4 @@
+import { publicAppOrigin } from "@/lib/learning-sites";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -9,9 +10,7 @@ import {
 } from "@/lib/stripe/stripe-connect";
 import { isLocalStripeProviderAccount } from "@/lib/payment-methods";
 
-function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
-}
+
 
 /**
  * Surfaces Stripe API rejections (e.g. Connect not enabled on the platform
@@ -26,7 +25,7 @@ function stripeErrorResponse(error: unknown) {
   );
 }
 
-export async function POST() {
+export async function POST(req?: Request) {
   if (!stripeConnectConfigured()) {
     return NextResponse.json({ error: "Stripe is not configured" }, { status: 503 });
   }
@@ -104,7 +103,7 @@ export async function POST() {
     },
   });
 
-  const baseUrl = appUrl();
+  const baseUrl = publicAppOrigin(req);
   let link: { url: string };
   try {
     link = await createStripeAccountOnboardingLink({

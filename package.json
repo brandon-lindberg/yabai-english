@@ -49,6 +49,8 @@
     "japanese-content:prompts": "yarn --cwd apps/web japanese-content:prompts",
     "japanese-content:review": "yarn --cwd apps/web japanese-content:review",
     "payments:recover": "yarn --cwd apps/web payments:recover",
+    "test:domains:db": "yarn --cwd apps/web test:domains:db",
+    "test:domains:e2e": "yarn --cwd apps/web test:domains:e2e",
     "test:payments:db": "yarn --cwd apps/web test:payments:db"
   },
   "packageManager": "yarn@1.22.22",

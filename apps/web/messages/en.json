@@ -33,6 +33,7 @@
     "noNotifications": "No notifications",
     "footerCopyright": "© {year} English Studio Japan",
     "footerOperatedBy": "English Studio Japan is operated by Yabai Studios",
+    "siteOperatedBy": "{brand} is operated by Yabai Studios",
     "footerContact": "Contact us",
     "footerAria": "Site footer",
     "org": "Organization",
@@ -832,6 +833,13 @@
     "noRefundedLessons": "No refunded lessons."
   },
   "admin": {
+    "teachingLanguages": {
+      "label": "Teaching languages",
+      "help": "Select at least one. The teacher appears only in these language marketplaces.",
+      "ENGLISH": "English",
+      "JAPANESE": "Japanese",
+      "subject": "Lesson language"
+    },
     "title": "Admin dashboard",
     "bookings": "Bookings",
     "students": "Students",

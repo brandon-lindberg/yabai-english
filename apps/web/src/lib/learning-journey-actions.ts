@@ -1,5 +1,9 @@
 "use server";
 
+import { getRequestLearningSite } from "@/lib/learning-site-request";
+import { configuredLearningSites, learningSiteHref } from "@/lib/learning-sites";
+import { appPathForLocale } from "@/lib/i18n-app-path";
+import { redirect as redirectAbsolute } from "next/navigation";
 import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import { auth } from "@/auth";
@@ -12,6 +16,8 @@ import { journeyIntentSchema, JOURNEY_INTENT_SECONDS, journeyCallback, signInInt
 
 /** Server Actions supply the same-origin POST boundary before any intent cookie is issued. */
 export async function prepareLearningSignIn(input: { learningLanguage: LearningLanguage; locale: string; callbackUrl: string }) {
+  const site = await getRequestLearningSite();
+  if (site?.learningLanguage && site.learningLanguage !== input.learningLanguage) throw new Error("Choose this language on its learning site");
   const intent = journeyIntentSchema.parse({
     ...input,
     callbackUrl: journeyCallback(input.learningLanguage, input.locale, input.callbackUrl),
@@ -28,6 +34,11 @@ export async function prepareLearningSignIn(input: { learningLanguage: LearningL
 /** A named subject action is deliberate; merely viewing a landing page never switches an account. */
 export async function selectLearningJourney(language: LearningLanguage, locale: string) {
   const learningLanguage = learningLanguageSchema.parse(language);
+  const site = await getRequestLearningSite();
+  const sites = configuredLearningSites();
+  if (sites && site?.learningLanguage && site.learningLanguage !== learningLanguage) {
+    redirectAbsolute(learningSiteHref(sites, learningLanguage, appPathForLocale(locale, "/book")));
+  }
   const session = await auth();
   if (session?.user && session.user.role !== "STUDENT") redirect({ href: "/dashboard", locale });
   if (session?.user?.role === "STUDENT") {

@@ -14,9 +14,10 @@ import { MIRROR_RELEASE_AUTH_ENV } from "../test/mirror-release-environment";
 async function main() {
   if (existsSync("../../.impeccable/mirror-fixtures.json")) throw new Error("An existing fixture manifest must be cleaned up by its owner first");
   const args = process.argv.slice(2);
+  const domains = args.includes("--domains");
   const capture = args.includes("--capture");
   const synthetic = args.includes("--synthetic-draft");
-  const filter = args.filter(arg => !["--capture", "--synthetic-draft"].includes(arg));
+  const filter = args.filter(arg => !["--capture", "--synthetic-draft", "--domains"].includes(arg));
   if (filter.length && (filter.length !== 2 || filter[0] !== "--grep")) throw new Error("Use test:mirror:e2e [--capture] [--synthetic-draft] [--grep pattern]");
   const connectionString = process.env.MIRROR_TEST_DATABASE_URL ?? parse(readFileSync(".env", "utf8")).DATABASE_URL;
   if (!connectionString || !["localhost", "127.0.0.1", "[::1]"].includes(new URL(connectionString).hostname)) throw new Error("Local PostgreSQL required");
@@ -32,7 +33,7 @@ async function main() {
     const url = new URL(connectionString);
     url.searchParams.set("schema", schema);
     url.searchParams.set("options", `-c search_path=${schema}`);
-    const childEnv = { ...process.env, ...MIRROR_RELEASE_AUTH_ENV, DATABASE_URL: url.toString(), MIRROR_QA_DATABASE_URL: url.toString(), ...(capture ? { MIRROR_RELEASE_CAPTURE: "1" } : {}) };
+    const childEnv = { ...process.env, ...MIRROR_RELEASE_AUTH_ENV, DATABASE_URL: url.toString(), MIRROR_QA_DATABASE_URL: url.toString(), ...(capture ? { MIRROR_RELEASE_CAPTURE: "1" } : {}), ...(domains ? { MIRROR_DOMAIN_TEST: "true", LEARNING_SITES_ENABLED: "true", ENGLISH_SITE_URL: "http://englishstudiojapan.localhost:3100", JAPANESE_SITE_URL: "http://japanesestudio.localhost:3100", NEUTRAL_SITE_URL: "http://localhost:3100", AUTH_URL: "", NEXTAUTH_URL: "" } : {}) };
     const fingerprint = async () => {
       const rows: Record<string, { count: number; digest: string }> = {};
       for (const table of ["User", "StudentProfile", "TeacherProfile", "PlacementBankQuestion", "EnglishPlacementBankSnapshot", "EnglishPlacementAttempt", "StudyTrack", "StudyLevel", "StudyDeck", "StudyCard", "StudyAssessment", "StudyCatalogSnapshot", "UserStudyCardState", "UserStudyLevelProgress", "UserStudyAssessmentAttempt", "StudyQuickReviewDay", "StudyReviewPrompt", "JapanesePlacementBankSnapshot", "JapanesePlacementAttempt", "JapanesePlacementResponse", "Booking", "Payment", "PaymentRecovery", "Refund", "PaymentLedgerEntry", "PaymentWebhookEvent", "Invoice", "Notification"]) {

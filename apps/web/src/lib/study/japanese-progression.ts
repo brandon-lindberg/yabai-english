@@ -5,6 +5,7 @@ import { isLoginAllowedForAccountStatus } from "../account-status";
 import { readLatestJapanesePlacementAward } from "../japanese-placement/retake";
 import { JAPANESE_STUDY_LEVEL_ORDER, studyLevelIndex } from "./constants";
 import { getFlashcardPracticeRollupsByLevelId } from "./study-flashcard-stats";
+import { learningLanguageForRequest } from "../learning-site-request";
 
 type Mastery = { total: number; mastered: number };
 type ProgressionInput = {
@@ -34,7 +35,7 @@ type JapaneseTrack = StudyTrack & { levels: StudyLevel[] };
 export async function readJapaneseStudyContext(db: JapaneseStudyDb, learnerId: string) {
   const actor = await db.user.findUnique({ where: { id: learnerId }, select: { role: true, accountStatus: true, learningLanguage: true } });
   if (!actor) return { status: "unauthorized" } as const;
-  if (actor.role !== "STUDENT" || actor.learningLanguage !== "JAPANESE" || !isLoginAllowedForAccountStatus(actor.accountStatus)) return { status: "forbidden" } as const;
+  if (actor.role !== "STUDENT" || await learningLanguageForRequest(actor.learningLanguage) !== "JAPANESE" || !isLoginAllowedForAccountStatus(actor.accountStatus)) return { status: "forbidden" } as const;
   const track = await db.studyTrack.findUnique({ where: { slug: "japanese-flashcards", learningLanguage: "JAPANESE", publicationStatus: "PUBLISHED" }, include: { levels: { orderBy: { sortOrder: "asc" } } } });
   return track ? { status: "available", track } as const : { status: "unavailable" } as const;
 }

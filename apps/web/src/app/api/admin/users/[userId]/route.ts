@@ -14,6 +14,7 @@ import {
   TEACHER_CREDENTIALS_MAX_CHARS,
 } from "@/lib/markdown/limits";
 import { STUDENT_SHORT_BIO_MAX_CHARS } from "@/lib/student-short-bio";
+import { teachingLanguagesSchema } from "@/lib/learning-language";
 
 const teacherProfilePatchSchema = z
   .object({
@@ -22,6 +23,7 @@ const teacherProfilePatchSchema = z
     countryOfOrigin: z.string().max(80).trim().nullable().optional(),
     credentials: z.string().max(TEACHER_CREDENTIALS_MAX_CHARS).trim().nullable().optional(),
     instructionLanguages: z.array(z.string().min(1).max(20)).max(10).optional(),
+    teachingLanguages: teachingLanguagesSchema.optional(),
     specialties: z.array(z.string().min(1).max(40)).max(20).optional(),
     rateYen: z.number().int().min(0).max(9_999_999).nullable().optional(),
     offersFreeTrial: z.boolean().optional(),
@@ -120,6 +122,9 @@ export async function PATCH(req: Request, { params }: Props) {
     return NextResponse.json({ error: rateCheck.error }, { status: 400 });
   }
   const nextRole = data.role ?? existing.role;
+  if (nextRole === Role.TEACHER && existing.role !== Role.TEACHER && !data.teacherProfile?.teachingLanguages) {
+    return NextResponse.json({ error: "Select the teacher's teaching languages" }, { status: 400 });
+  }
   const nextAccountStatus = data.accountStatus ?? existing.accountStatus;
 
   const userUpdate: Prisma.UserUpdateInput = {};
@@ -143,6 +148,7 @@ export async function PATCH(req: Request, { params }: Props) {
       await provisionRoleProfile(tx as never, {
         userId,
         role: nextRole,
+        teachingLanguages: data.teacherProfile?.teachingLanguages,
         hasProfile:
           nextRole === Role.STUDENT
             ? Boolean(existing.studentProfile)

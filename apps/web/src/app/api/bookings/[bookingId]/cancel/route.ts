@@ -1,3 +1,4 @@
+import { bookingLearningSiteResponse } from "@/lib/booking-learning-site";
 import { isStaleBookingMutation, STALE_BOOKING_MESSAGE } from "@/lib/booking-conflict";
 import { NextResponse } from "next/server";
 import { BookingStatus } from "@/generated/prisma/client";
@@ -54,6 +55,9 @@ async function readCancellationContext(params: Props["params"]) {
     }
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+
+  const wrongSite = await bookingLearningSiteResponse(booking, session.user.role);
+  if (wrongSite) return wrongSite;
 
   const policy = evaluateBookingCancellationPolicy({
     actor,

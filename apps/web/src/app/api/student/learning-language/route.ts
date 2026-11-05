@@ -1,3 +1,4 @@
+import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
@@ -18,6 +19,10 @@ export async function PATCH(req: Request) {
   const parsed = bodySchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
+  const site = await getRequestLearningSite();
+  if (site?.learningLanguage && site.learningLanguage !== parsed.data.learningLanguage) {
+    return NextResponse.json({ error: "WRONG_LEARNING_SITE" }, { status: 403 });
   }
   const selected = await prisma.user.update({
     where: { id: session.user.id },

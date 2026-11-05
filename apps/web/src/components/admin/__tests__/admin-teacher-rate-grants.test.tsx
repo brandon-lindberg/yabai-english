@@ -9,11 +9,13 @@ import { AdminTeacherRateGrants } from "@/components/admin/admin-teacher-rate-gr
 const copy = en.admin.teacherRateGrants;
 
 const loaded = {
+  teachingLanguages: ["JAPANESE"],
   classLevels: [{ id: "lv-1", labelEn: "Beginner", labelJa: "初級" }],
   classTypes: [{ id: "ty-1", labelEn: "Conversation", labelJa: "会話" }],
   grants: [
     {
       id: "offer-1",
+      learningLanguage: "JAPANESE",
       durationMin: 30,
       rateYen: 1500,
       isGroup: false,
@@ -80,6 +82,7 @@ describe("AdminTeacherRateGrants", () => {
       );
     });
     const postCall = fetchMock.mock.calls.find(([, init]) => init?.method === "POST");
+    expect(JSON.parse(String(postCall?.[1]?.body))).toMatchObject({ learningLanguage: "JAPANESE" });
     expect(String(postCall?.[1]?.body)).toContain('"note":"School deal"');
   });
 

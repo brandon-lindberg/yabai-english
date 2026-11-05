@@ -1,3 +1,4 @@
+import { requireLearningSiteForPage } from "@/lib/learning-site-page";
 import type { ReactNode } from "react";
 import { requireStudentOnboardingComplete } from "@/lib/onboarding-gate";
 import { getLocale } from "next-intl/server";
@@ -11,6 +12,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   // Teachers must be able to open their profile, settings and schedule while
   // setting up. Their initial gate belongs to the dashboard entry page.
   if (session?.user?.role === "STUDENT") {
+    await requireLearningSiteForPage("/dashboard", session.user.learningLanguage);
     await requireStudentOnboardingComplete(locale, session.user);
   }
   const isStudent = session?.user?.role === "STUDENT";

@@ -1,3 +1,4 @@
+import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -14,9 +15,11 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const bookingId = searchParams.get("bookingId");
   const now = new Date();
+  const site = await getRequestLearningSite();
   const bookings = await prisma.booking.findMany({
     where: {
       studentId: session.user.id,
+      ...(site?.learningLanguage ? { learningLanguage: site.learningLanguage } : {}),
       ...(bookingId ? { id: bookingId } : { endsAt: { gte: now } }),
       status: { in: ["CONFIRMED", "PENDING_PAYMENT", "COMPLETED"] },
     },

@@ -23,6 +23,7 @@ import type { LearningLanguage } from "@/generated/prisma/enums";
 import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
 import { lessonProductNames } from "@/lib/lesson-product-catalog";
 import { LocalDateTime } from "@/components/local-datetime";
+import { learningLanguageForRequest } from "@/lib/learning-site-request";
 
 /**
  * A student's dashboard: the shared spine, then their own sections.
@@ -46,7 +47,7 @@ export async function StudentDashboard({
     learningLanguage: true, role: true, accountStatus: true,
   } });
   if (!user || user.role !== "STUDENT" || !isLoginAllowedForAccountStatus(user.accountStatus)) return null;
-  const learningLanguage = user.learningLanguage;
+  const learningLanguage = await learningLanguageForRequest(user.learningLanguage);
   const locale = await getLocale();
   const jp = await getTranslations("japanesePlacement");
   const studyJapanese = await getTranslations("japaneseStudy");

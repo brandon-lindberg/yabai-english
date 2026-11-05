@@ -37,7 +37,7 @@ test.each(["ja", "en"])("directory keeps Japanese intent when UI locale is %s", 
   const { default: BookPage } = await import("@/app/[locale]/book/page");
   await BookPage({ searchParams: Promise.resolve({}) });
   const query = prismaMock.teacherProfile.findMany.mock.calls[0][0];
-  expect(query.where.AND).toContainEqual({ lessonOfferings: { some: { active: true, learningLanguage: "JAPANESE" } } });
+  expect(query.where.AND).toContainEqual({ teachingLanguages: { has: "JAPANESE" }, lessonOfferings: { some: { active: true, learningLanguage: "JAPANESE" } } });
   expect(query.select.availabilitySlots.where.AND).toEqual([
     { OR: [{ assignedStudentId: null }, { assignedStudentId: "s1" }] },
     { teacherLessonOffering: { is: { active: true, learningLanguage: "JAPANESE" } } },

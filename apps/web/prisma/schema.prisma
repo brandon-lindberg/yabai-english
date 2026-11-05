@@ -521,6 +521,8 @@ model TeacherProfile {
   countryOfOrigin            String?
   credentials                String?   @db.Text
   instructionLanguages       String[]  @default(["EN"])
+  /// Subjects an admin permits this teacher to teach; instructionLanguages is the explanation language.
+  teachingLanguages          LearningLanguage[] @default([ENGLISH])
   specialties                String[]  @default([])
   rateYen                    Int?
   offersFreeTrial            Boolean   @default(true)

@@ -72,6 +72,7 @@ export async function GET(req: Request, { params }: Props) {
 
   const names = lessonProductNames(booking.lessonProduct, booking.learningLanguage);
   const pdfBytes = await buildInvoicePdf({
+    learningLanguage: booking.learningLanguage,
     // The invoice this return reverses; the credit note carries its own number
     // separately.
     invoiceNo: invoice.invoiceNo,

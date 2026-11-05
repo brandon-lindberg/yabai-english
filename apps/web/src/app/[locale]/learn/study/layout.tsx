@@ -1,3 +1,4 @@
+import { requireLearningSiteForPage } from "@/lib/learning-site-page";
 import type { ReactNode } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { requireAuth } from "@/lib/onboarding-gate";
@@ -8,6 +9,7 @@ import { actionLinkClass } from "@/components/ui/inline-link";
 export default async function StudyLayout({ children }: { children: ReactNode }) {
   const locale = await getLocale();
   const user = await requireAuth(locale);
+  await requireLearningSiteForPage("/learn/study", user.learningLanguage);
   const actor = await getStudyPageActor(prisma, user.id);
   if (actor?.learningLanguage !== "JAPANESE") return children;
   const t = await getTranslations("japaneseStudy");

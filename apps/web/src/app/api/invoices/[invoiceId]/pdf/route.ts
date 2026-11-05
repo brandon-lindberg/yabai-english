@@ -56,6 +56,7 @@ export async function GET(req: Request, { params }: Props) {
 
   const names = lessonProductNames(invoice.booking.lessonProduct, invoice.booking.learningLanguage);
   const pdfBytes = await buildInvoicePdf({
+    learningLanguage: invoice.booking.learningLanguage,
     invoiceNo: invoice.invoiceNo,
     amountYen: invoice.amountYen,
     paidAt: invoiceDate,

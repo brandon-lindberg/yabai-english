@@ -21,6 +21,18 @@ describe("GET /api/integrations/google/connect", () => {
     vi.stubEnv("NEXTAUTH_URL", "http://localhost:3000");
   });
 
+  test("Google uses the Japanese domain callback with the existing client and scopes", async () => {
+    vi.stubEnv("LEARNING_SITES_ENABLED", "true");
+    vi.stubEnv("ENGLISH_SITE_URL", "https://englishstudiojapan.com");
+    vi.stubEnv("JAPANESE_SITE_URL", "https://japanesestudio.love");
+    authMock.mockResolvedValue({ user: { id: "u_1" } });
+    const response = await GET(new Request("https://japanesestudio.love/api/integrations/google/connect"));
+    const target = new URL(response.headers.get("location")!);
+    expect(target.searchParams.get("redirect_uri")).toBe("https://japanesestudio.love/api/integrations/google/callback");
+    expect(target.searchParams.get("client_id")).toBe("test-google-id");
+    expect(target.searchParams.get("scope")?.split(" ")).toEqual(ALL_GOOGLE_SCOPES);
+  });
+
   test("returns 401 when unauthenticated", async () => {
     authMock.mockResolvedValue(null);
     const res = await GET(new Request("http://localhost/api/integrations/google/connect?feature=calendar"));

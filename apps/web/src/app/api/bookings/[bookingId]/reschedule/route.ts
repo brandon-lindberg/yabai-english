@@ -1,3 +1,4 @@
+import { bookingLearningSiteResponse } from "@/lib/booking-learning-site";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
@@ -31,6 +32,8 @@ export async function GET(_req: Request, { params }: Props) {
   const { bookingId } = await params;
   const booking = await loadRescheduleBooking(prisma, bookingId);
   if (!booking || session.user.role !== "STUDENT" || booking.studentId !== session.user.id) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const wrongSite = await bookingLearningSiteResponse(booking, session.user.role);
+  if (wrongSite) return wrongSite;
   const policy = evaluateBookingReschedulePolicy({ actor: "STUDENT", bookingStatus: booking.status, lessonStartsAt: booking.startsAt,
     rescheduleCount: booking.rescheduleCount, pendingPrivateReschedule: hasPendingPrivateReschedule(booking) });
   const slots = policy.allowed && !booking.groupLessonSessionId ? await listStudentRescheduleSlots(prisma, booking) : [];
@@ -84,6 +87,9 @@ export async function POST(req: Request, { params }: Props) {
     }
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+
+  const wrongSite = await bookingLearningSiteResponse(booking, session.user.role);
+  if (wrongSite) return wrongSite;
 
   const restoring = hasPendingPrivateReschedule(booking);
   const start = new Date(parsed.data.startsAt);

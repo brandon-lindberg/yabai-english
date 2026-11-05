@@ -1,3 +1,5 @@
+import { bookingLearningSiteResponse } from "@/lib/booking-learning-site";
+import { publicAppOrigin } from "@/lib/learning-sites";
 import { NextResponse } from "next/server";
 import { BookingStatus } from "@/generated/prisma/client";
 import { auth } from "@/auth";
@@ -15,9 +17,7 @@ type Props = {
   params: Promise<{ bookingId: string }>;
 };
 
-function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
-}
+
 
 export async function POST(req: Request, { params }: Props) {
   const session = await auth();
@@ -65,6 +65,8 @@ export async function POST(req: Request, { params }: Props) {
   if (!booking || booking.studentId !== session.user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  const wrongSite = await bookingLearningSiteResponse(booking, session.user.role);
+  if (wrongSite) return wrongSite;
 
   if (booking.status !== BookingStatus.PENDING_PAYMENT) {
     return NextResponse.json({ error: "Booking is not pending payment" }, { status: 409 });
@@ -138,7 +140,7 @@ export async function POST(req: Request, { params }: Props) {
     amountYen: payment.amountYen,
     at: new Date(),
   });
-  const baseUrl = appUrl();
+  const baseUrl = publicAppOrigin(req);
   const checkout = await createStripeCheckoutSessionDirectCharge({
     connectedAccountId,
     paymentId: payment.id,

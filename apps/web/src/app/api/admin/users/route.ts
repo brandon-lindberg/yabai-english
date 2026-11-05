@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import { Role } from "@/generated/prisma/enums";
 import { provisionRoleProfile } from "@/lib/admin/provision-role-profile";
+import { teachingLanguagesSchema } from "@/lib/learning-language";
 
 const listQuerySchema = z.object({
   role: z.enum(["STUDENT", "TEACHER", "SUPER_ADMIN"]).optional(),
@@ -168,7 +169,9 @@ const createSchema = z.object({
   */
   role: z.enum([Role.STUDENT, Role.TEACHER]),
   locale: z.string().trim().max(10).optional(),
-});
+  teachingLanguages: teachingLanguagesSchema.optional(),
+}).refine((data) => data.role === Role.TEACHER ? Boolean(data.teachingLanguages) : data.teachingLanguages === undefined,
+  { message: "Select the teacher's teaching languages", path: ["teachingLanguages"] });
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -206,7 +209,8 @@ export async function POST(req: Request) {
       },
       select: { id: true, email: true, role: true },
     });
-    await provisionRoleProfile(tx as never, { userId: user.id, role: parsed.data.role });
+    await provisionRoleProfile(tx as never, { userId: user.id, role: parsed.data.role,
+      ...(parsed.data.teachingLanguages ? { teachingLanguages: parsed.data.teachingLanguages } : {}) });
     return user;
   });
 

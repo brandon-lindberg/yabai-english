@@ -23,6 +23,7 @@ export type TaxonomyOption = {
 };
 
 type Props = {
+  teachingLanguages?: LearningLanguage[];
   initialOffersFreeTrial: boolean;
   initialLessonOfferings: Array<{
     learningLanguage?: LearningLanguage;
@@ -73,6 +74,7 @@ function toOffering(o: Props["initialLessonOfferings"][number]): AddedOffering {
  * from the class it belonged to.
  */
 export function TeacherLessonOfferingsForm({
+  teachingLanguages,
   initialOffersFreeTrial,
   initialLessonOfferings,
   classLevels,
@@ -173,6 +175,7 @@ export function TeacherLessonOfferingsForm({
           open
           kind={dialog.kind}
           editing={dialog.editing}
+          teachingLanguages={teachingLanguages}
           classLevels={classLevels}
           classTypes={classTypes}
           locale={locale}

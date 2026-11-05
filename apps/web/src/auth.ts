@@ -14,16 +14,13 @@ import { AccountStatus, Role, type OrgRole } from "@/generated/prisma/client";
 import { cookies, headers } from "next/headers";
 import { resolveLearningLanguage } from "@/lib/learning-language";
 import type { LearningLanguage } from "@/generated/prisma/client";
+import { learningLanguageForRequest } from "@/lib/learning-site-request";
+import { getAuthMode } from "@/lib/auth-mode";
+import { createDevSiteSession, refreshDevSiteSession, revokeDevSiteSession } from "@/lib/site-session";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
 
-const hasGoogleOAuth = Boolean(
-  process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
-);
-const useDevCredentialsOnly =
-  process.env.NODE_ENV !== "production" &&
-  process.env.DEV_AUTH_BYPASS === "true" &&
-  !hasGoogleOAuth;
+const { hasGoogleOAuth, devEmailSignIn: useDevCredentialsOnly } = getAuthMode();
 
 const providers = [];
 if (hasGoogleOAuth) {
@@ -178,11 +175,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       const userId = user?.id ?? token.sub;
       if (useDevCredentialsOnly && userId) {
+        if (user?.id && process.env.LEARNING_SITES_ENABLED === "true") {
+          token.siteSessionId = await createDevSiteSession(userId);
+        } else if (typeof token.siteSessionId === "string" && !await refreshDevSiteSession(token.siteSessionId, userId)) {
+          return null;
+        }
         const row = await prisma.user.findUnique({
           where: { id: userId },
-          select: { role: true, locale: true, accountStatus: true, learningLanguage: true },
+          select: { role: true, locale: true, accountStatus: true, learningLanguage: true, email: true, name: true, image: true },
         });
         if (row) {
+          if (typeof token.siteSessionId === "string") {
+            token.email = row.email;
+            token.name = row.name;
+            token.picture = row.image;
+          }
           token.role = row.role;
           token.locale = row.locale;
           token.learningLanguage = row.learningLanguage;
@@ -212,6 +219,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.accountStatus = t.accountStatus ?? AccountStatus.ACTIVE;
       }
 
+      session.user.learningLanguage = await learningLanguageForRequest(session.user.learningLanguage);
       const userId = session.user.id;
       if (session.user.role === Role.STUDENT && session.user.learningLanguage === "JAPANESE") {
         // English cooldown/results do not describe Japanese proficiency.
@@ -282,6 +290,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
+    async signOut(message) {
+      if (useDevCredentialsOnly && "token" in message && typeof message.token?.siteSessionId === "string") {
+        await revokeDevSiteSession(message.token.siteSessionId);
+      }
+    },
     // `signIn` claims invites by looking the user up, but on a first Google
     // sign-in it runs before the adapter has created the row, finds nobody, and
     // claims nothing. Without this a student invited by email would be turned

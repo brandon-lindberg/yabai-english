@@ -1,3 +1,4 @@
+import { bookingLearningSiteResponse } from "@/lib/booking-learning-site";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
@@ -33,12 +34,15 @@ export async function GET(_req: Request, { params }: Props) {
       id: true,
       status: true,
       studentId: true,
+      learningLanguage: true,
     },
   });
 
   if (!booking || booking.studentId !== session.user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  const wrongSite = await bookingLearningSiteResponse(booking, session.user.role);
+  if (wrongSite) return wrongSite;
 
   return NextResponse.json({
     ok: true,

@@ -1,17 +1,11 @@
+import { publicAppOrigin } from "@/lib/learning-sites";
 import { auth } from "@/auth";
 import { handleGoogleCallback } from "@/lib/google/oauth-service";
 import { DASHBOARD_GOOGLE_SETTINGS_PATH } from "@/lib/dashboard-google-settings-path";
 import { readGoogleConnectState, googleConnectRedirect } from "@/lib/google/connect-state";
 import { buildPostCallbackReturnUrl } from "@/lib/google/integration";
 
-function resolvePublicBaseUrl(req: Request): string {
-  return (
-    process.env.NEXTAUTH_URL ??
-    process.env.AUTH_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    new URL(req.url).origin
-  );
-}
+const resolvePublicBaseUrl = publicAppOrigin;
 
 export async function GET(req: Request) {
   const baseUrl = resolvePublicBaseUrl(req);

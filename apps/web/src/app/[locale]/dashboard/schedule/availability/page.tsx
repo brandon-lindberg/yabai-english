@@ -16,7 +16,6 @@ import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 import { buttonClasses } from "@/components/ui/button";
 import { ensureFreeTrialOffering } from "@/lib/free-trial-offering-sync";
-import { teachingLanguagesFromOfferings } from "@/lib/learning-language";
 
 export default async function DashboardScheduleAvailabilityPage({
   searchParams,
@@ -44,6 +43,7 @@ export default async function DashboardScheduleAvailabilityPage({
       id: true,
       paymentPolicyAcceptedAt: true,
       offersFreeTrial: true,
+      teachingLanguages: true,
       availabilitySlots: {
         where: { active: true },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
@@ -98,11 +98,11 @@ export default async function DashboardScheduleAvailabilityPage({
 
   // The picker offers a slot's class from the teacher's offerings, so the trial
   // has to exist before the editor renders or there is nothing to select.
-  for (const learningLanguage of teachingLanguagesFromOfferings(profile.lessonOfferings)) {
+  for (const learningLanguage of profile.teachingLanguages) {
     await ensureFreeTrialOffering(prisma, { teacherId: profile.id, offersFreeTrial: profile.offersFreeTrial, learningLanguage });
   }
   const lessonOfferings = await prisma.teacherLessonOffering.findMany({
-    where: { teacherId: profile.id, active: true },
+    where: { teacherId: profile.id, active: true, learningLanguage: { in: profile.teachingLanguages } },
     orderBy: [{ isGroup: "asc" }, { durationMin: "asc" }, { rateYen: "asc" }],
     include: { classLevel: { select: { id: true, code: true, labelEn: true, labelJa: true } }, classType: { select: { id: true, code: true, labelEn: true, labelJa: true } } },
   });
