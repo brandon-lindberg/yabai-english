@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
-import { readMirrorFixtures, submitMirrorSignIn, fixtureCommand } from "./helpers/mirror-fixtures";
+import { readMirrorFixtures, followMirrorGoogleSignIn, fixtureCommand } from "./helpers/mirror-fixtures";
 import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
 import { captureRelease, releaseCases } from "./helpers/release-verification";
 
@@ -15,9 +15,8 @@ for (const scenario of releaseCases()) test(`${scenario.language}: landing, onbo
   await page.setViewportSize({ width: scenario.width, height: 950 });
   await page.emulateMedia({ reducedMotion: "reduce", colorScheme: scenario.theme });
   await page.goto(`/en/learn-${scenario.language === "JAPANESE" ? "japanese" : "english"}`);
-  await page.getByRole("link", { name: scenario.language === "JAPANESE" ? en.learningJourney.japanese.start : en.learningJourney.english.start, exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`learningLanguage=${scenario.language}`));
-  await submitMirrorSignIn(page, fixture.users[scenario.student].email);
+  await followMirrorGoogleSignIn(page, fixture.users[scenario.student].email, () =>
+    page.getByRole("link", { name: scenario.language === "JAPANESE" ? en.learningJourney.japanese.start : en.learningJourney.english.start, exact: true }).click());
   await expect(page).toHaveURL(/\/en\/onboarding$/);
   await page.getByRole("combobox").selectOption(scenario.locale === "ja" ? "Asia/Tokyo" : "Europe/London");
   await page.getByRole("button", { name: en.onboarding.wizardNext, exact: true }).click();

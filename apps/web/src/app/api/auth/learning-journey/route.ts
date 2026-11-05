@@ -4,7 +4,9 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { journeyCallback, journeyIntentSchema, signInIntentCookieName } from "@/lib/learning-journey";
+import { journeyCallback, signInIntentCookieName } from "@/lib/learning-journey";
+import { parseLearningSignInIntent } from "@/lib/learning-sign-in";
+import { authErrorHref } from "@/lib/auth-error-kind";
 import { rememberGuestLearningLanguage } from "@/lib/learning-language-request";
 import { appPathForLocale } from "@/lib/i18n-app-path";
 import { otherLearningSite, siteSessionStartHref } from "@/lib/site-session-path";
@@ -14,9 +16,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const name = signInIntentCookieName(url.searchParams.get("intent") ?? "");
   const store = await cookies();
-  const raw = name ? store.get(name)?.value : null;
-  const parsed = journeyIntentSchema.safeParse(raw ? parseJson(raw) : null);
-  const intent = parsed.success ? parsed.data : null;
+  const intent = name ? parseLearningSignInIntent(store.get(name)?.value) : null;
   const send = (path: string) => {
     const response = NextResponse.redirect(new URL(path, publicAppOrigin(req)), 303);
     response.headers.set("Cache-Control", "no-store");
@@ -24,16 +24,16 @@ export async function GET(req: Request) {
   };
   if (!name || !intent || intent.expiresAt <= Date.now()) {
     if (name) store.delete(name);
-    return send(`${appPathForLocale(intent?.locale ?? "ja", "/auth/signin")}?error=JourneyExpired${intent ? `&learningLanguage=${intent.learningLanguage}` : ""}`);
+    return send(appPathForLocale(intent?.locale ?? "ja", authErrorHref("JourneyExpired")));
   }
   const site = await getRequestLearningSite();
   if (site?.learningLanguage && site.learningLanguage !== intent.learningLanguage) {
     store.delete(name);
-    return send(`${appPathForLocale(intent.locale, "/auth/signin")}?learningLanguage=${site.learningLanguage}`);
+    return send(appPathForLocale(intent.locale, authErrorHref("JourneyExpired")));
   }
   const session = await auth();
   if (!session?.user?.id) {
-    return send(`${appPathForLocale(intent.locale, "/auth/signin")}?learningLanguage=${intent.learningLanguage}`);
+    return send(appPathForLocale(intent.locale, authErrorHref("JourneyExpired")));
   }
   store.delete(name);
   const sites = configuredLearningSites();
@@ -47,8 +47,4 @@ export async function GET(req: Request) {
   return finishSignIn(profile?.onboardingCompletedAt
     ? journeyCallback(intent.learningLanguage, intent.locale, intent.callbackUrl)
     : appPathForLocale(intent.locale, "/onboarding"));
-}
-
-function parseJson(value: string): unknown {
-  try { return JSON.parse(value); } catch { return null; }
 }

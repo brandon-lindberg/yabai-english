@@ -1,8 +1,9 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { JapaneseStudyFailure } from "@/lib/study/japanese-service";
 
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), db: {}, queue: vi.fn(), review: vi.fn(), overview: vi.fn(), quick: vi.fn() }));
+const mocks = vi.hoisted(() => ({ auth: vi.fn(), headers: vi.fn(), db: {}, queue: vi.fn(), review: vi.fn(), overview: vi.fn(), quick: vi.fn() }));
 vi.mock("@/auth", () => ({ auth: mocks.auth }));
+vi.mock("next/headers", () => ({ headers: mocks.headers }));
 vi.mock("@/lib/prisma", () => ({ prisma: mocks.db }));
 vi.mock("@/lib/study/japanese-service", async original => ({
   ...await original<typeof import("@/lib/study/japanese-service")>(),
@@ -16,6 +17,7 @@ import { POST as review } from "@/app/api/japanese-study/reviews/route";
 const request = (body?: unknown, headers = {}) => new Request("http://localhost/api/japanese-study/queue", {
   method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify(body),
 });
+afterEach(() => vi.unstubAllEnvs());
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.auth.mockResolvedValue({ user: { id: "signed-in-actor", role: "SUPER_ADMIN", learningLanguage: "ENGLISH" } });
@@ -29,6 +31,29 @@ it("uses authenticated identity and leaves fresh role/subject checks to the serv
   expect(mocks.overview).toHaveBeenCalledWith(mocks.db, "signed-in-actor");
   expect(mocks.queue).toHaveBeenCalledWith(mocks.db, "signed-in-actor", { levelCode: "N5" });
   expect(mocks.review).toHaveBeenCalledWith(mocks.db, "signed-in-actor", { promptId: "opaque-prompt", choiceId: "opaque-choice" });
+});
+
+it("accepts study writes from the current learning host when Next reports a localhost URL", async () => {
+  const english = "http://englishstudiojapan.localhost";
+  const japanese = "http://japanesestudio.localhost";
+  vi.stubEnv("LEARNING_SITES_ENABLED", "true");
+  vi.stubEnv("ENGLISH_SITE_URL", english);
+  vi.stubEnv("JAPANESE_SITE_URL", japanese);
+  mocks.headers.mockResolvedValue(new Headers({ host: new URL(japanese).host }));
+  const sameSite = { Origin: japanese, "Sec-Fetch-Site": "same-origin" };
+  mocks.quick.mockResolvedValue({ cards: [], total: 0 });
+
+  expect((await queue(request({ levelCode: "N5" }, sameSite))).status).toBe(200);
+  expect((await review(request({ promptId: "prompt", choiceId: "choice" }, sameSite))).status).toBe(200);
+  expect((await quick(request({}, sameSite))).status).toBe(200);
+
+  for (const origin of [english, "http://localhost"]) {
+    const response = await queue(request({ levelCode: "N5" }, { Origin: origin }));
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: "CROSS_SITE_REQUEST" });
+  }
+  expect((await queue(request({ levelCode: "N5" }, { ...sameSite, "Sec-Fetch-Site": "cross-site" }))).status).toBe(403);
+  expect(mocks.queue).toHaveBeenCalledTimes(1);
 });
 
 it("denies guests, cross-origin writes, non-JSON and oversized requests before persistence", async () => {

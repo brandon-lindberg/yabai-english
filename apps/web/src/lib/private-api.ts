@@ -1,6 +1,7 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { getRequestLearningSite } from "./learning-site-request";
 import { PrivateApiFailure } from "./private-api-error";
 
 const reply = (body: unknown, status = 200) => NextResponse.json(body, {
@@ -13,7 +14,11 @@ export async function authenticatedPrivateApi(req: Request, run: (actorId: strin
     if (!session?.user?.id) return reply({ error: "UNAUTHORIZED" }, 401);
     if (req.method === "POST") {
       const origin = req.headers.get("Origin");
-      if (req.headers.get("Sec-Fetch-Site") === "cross-site" || (origin && origin !== new URL(req.url).origin)) {
+      // Next can normalize a local alias to localhost in req.url. Use the
+      // same allowlisted site that owns this request's session and learning path.
+      const site = origin ? await getRequestLearningSite() : null;
+      const expectedOrigin = site?.origin ?? new URL(req.url).origin;
+      if (req.headers.get("Sec-Fetch-Site") === "cross-site" || (origin && origin !== expectedOrigin)) {
         return reply({ error: "CROSS_SITE_REQUEST" }, 403);
       }
       if (req.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() !== "application/json") {

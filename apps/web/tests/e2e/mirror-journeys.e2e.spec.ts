@@ -150,7 +150,7 @@ test("capture the two established-world landing variants in a bounded viewport/t
       const context = await browser.newContext({ viewport: { width, height: 844 }, locale: "en", colorScheme: theme, reducedMotion: "reduce" });
       try {
         const page = await context.newPage();
-        for (const [name, path] of [["choice", "/en"], ["japanese-signin", "/en/auth/signin?learningLanguage=JAPANESE"]]) {
+        for (const [name, path] of [["choice", "/en"], ["sign-in-recovery", "/en/auth/error?error=SignInUnavailable"]]) {
           await page.goto(path);
           await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
           await setHeaderTheme(page, en.common, theme);

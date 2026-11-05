@@ -8,6 +8,25 @@ import { utcCalendarDayKey } from "@/lib/study/quick-review-day";
 const migration = "20261023030000_study_review_prompts";
 const enabled = !!process.env.MIRROR_TEST_DATABASE_URL;
 
+test.runIf(enabled)("Japanese quick review puts the most missed unlocked cards first, even if never answered correctly", async () => {
+  await withIsolatedPostgres(migration, async ({ db, applyMigration }) => {
+    await applyMigration(); await seed(db);
+    const easy = await db.studyCard.findMany({ where: { deckId: "deck-N5", id: { notIn: ["extra-1", "extra-2"] } }, take: 5 });
+    await db.userStudyCardState.createMany({ data: [
+      ...easy.map(card => ({ cardId: card.id, correctCount: 1, dueAt: new Date(0) })),
+      { cardId: "extra-1", correctCount: 0, wrongCount: 2 },
+      { cardId: "extra-2", correctCount: 1, wrongCount: 2 },
+      { cardId: "word-0", correctCount: 0, wrongCount: 9 },
+    ].map(state => ({ userId: "learner", ...state })) });
+    const { cards } = await createJapaneseQuickReviewQueue(db, "learner", {});
+    const ids = cards.map(card => card.question.unitId);
+    expect(ids.slice(0, 2)).toEqual(["extra-1", "extra-2"]);
+    expect(ids).toHaveLength(5);
+    expect(new Set(ids).size).toBe(5);
+    expect(ids).not.toContain("word-0");
+  });
+}, 30_000);
+
 test.runIf(enabled)("Japanese daily review is stable, scoped and saved once through the existing automatic grader", async () => {
   await withIsolatedPostgres(migration, async ({ db, applyMigration }) => {
     await applyMigration(); await seed(db);
@@ -16,7 +35,7 @@ test.runIf(enabled)("Japanese daily review is stable, scoped and saved once thro
     await db.studyQuickReviewDay.create({ data: { id: "english-day", userId: "learner", learningLanguage: "ENGLISH", dayKey: utcCalendarDayKey(), cardIds: ["legacy-English-card"], interactions: [] } });
     const before = await db.studyQuickReviewDay.findUniqueOrThrow({ where: { id: "english-day" } });
     const summary = await getJapaneseDashboardStudy(db, "learner");
-    expect(summary).toMatchObject({ available: true, quickReview: { total: 5, answered: 0 } });
+    expect(summary).toMatchObject({ available: true, quickReview: { total: 5, answered: 0, reviewedCards: [] } });
     expect(await db.studyReviewPrompt.count()).toBe(0);
     expect(await db.studyQuickReviewDay.count({ where: { learningLanguage: "JAPANESE" } })).toBe(0);
     const [first, same] = await Promise.all([createJapaneseQuickReviewQueue(db, "learner", {}), createJapaneseQuickReviewQueue(db, "learner", {})]);
@@ -26,18 +45,20 @@ test.runIf(enabled)("Japanese daily review is stable, scoped and saved once thro
     expect(first.cards.every(card => card.question.level.introduction === "N5")).toBe(true);
     expect(JSON.stringify(first)).not.toMatch(/correctChoiceId|answerJson|feedback|legacy-English/);
     const input = await answer(db, first.cards[0].question.id);
-    await Promise.all([submitJapaneseStudyReview(db, "learner", input), submitJapaneseStudyReview(db, "learner", input)]);
+    const [firstResult] = await Promise.all([submitJapaneseStudyReview(db, "learner", input), submitJapaneseStudyReview(db, "learner", input)]);
+    const reviewedCards = [{ id: first.cards[0].question.unitId, feedback: firstResult.feedback }];
     const resumed = await createJapaneseQuickReviewQueue(db, "learner", {});
     expect(resumed).toMatchObject({ total: 5, answered: 1, correct: 1, wrong: 0, xp: 12 });
     expect(resumed.cards).toHaveLength(4);
     for (const card of resumed.cards) {
       const correct = await answer(db, card.question.id);
       const wrong = card.question.choices.find(choice => choice.id !== correct.choiceId)!.id;
-      await submitJapaneseStudyReview(db, "learner", { ...correct, choiceId: wrong });
+      const result = await submitJapaneseStudyReview(db, "learner", { ...correct, choiceId: wrong });
+      reviewedCards.push({ id: card.question.unitId, feedback: result.feedback });
     }
     expect(await createJapaneseQuickReviewQueue(db, "learner", {})).toMatchObject({ total: 5, answered: 5, correct: 1, wrong: 4, xp: 20, cards: [] });
     const completed = await getJapaneseDashboardStudy(db, "learner");
-    expect(completed).toMatchObject({ available: true, quickReview: { total: 5, answered: 5, xp: 20 }, trackPractice: { totalAttempts: 15, totalCorrect: 11 } });
+    expect(completed).toMatchObject({ available: true, quickReview: { total: 5, answered: 5, xp: 20, reviewedCards }, trackPractice: { totalAttempts: 15, totalCorrect: 11 } });
     expect(await db.studyQuickReviewDay.findUnique({ where: { id: "english-day" } })).toEqual(before);
   });
 }, 30_000);

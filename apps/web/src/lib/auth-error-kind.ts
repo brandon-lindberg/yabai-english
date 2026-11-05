@@ -12,6 +12,10 @@
  */
 export type AuthErrorKind = "retry" | "denied" | "journey-expired";
 
+export function authErrorHref(error: string) {
+  return `/auth/error?${new URLSearchParams({ error })}`;
+}
+
 /**
  * Maps a `?error=` query value to the message the sign-in page should show.
  * Returns `null` for absent or unrecognized values so nothing is rendered.

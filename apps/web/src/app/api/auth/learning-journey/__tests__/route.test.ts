@@ -34,7 +34,7 @@ test("first-time students reach onboarding after their selected subject is saved
 test.each([null, intent({ expiresAt: Date.now() - 1000 }), { learningLanguage: "ja" }])("missing, expired, or invalid intent cannot change an account", async (value) => {
   store.get.mockReturnValue(value ? { value: JSON.stringify(value) } : undefined);
   const response = await GET(request());
-  expect(response.headers.get("location")).toContain("/auth/signin");
+  expect(response.headers.get("location")).toContain("/auth/error?error=JourneyExpired");
   expect(updateMock).not.toHaveBeenCalled();
 });
 test("callback validation also runs when consuming a cookie", async () => {

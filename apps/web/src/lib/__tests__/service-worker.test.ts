@@ -187,8 +187,10 @@ describe("service worker asset caching", () => {
     for (const url of [
       "https://example.test/api/auth/session",
       "https://example.test/auth/signin",
+      "https://example.test/en/auth/signin",
+      "https://example.test/ja/auth/error?error=Configuration",
     ]) {
-      const { event, getResponse } = fetchEvent(url, { mode: "cors" });
+      const { event, getResponse } = fetchEvent(url, { mode: "navigate" });
       sw.listeners.fetch(event);
       expect(getResponse()).toBeUndefined();
     }

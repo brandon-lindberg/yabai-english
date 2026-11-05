@@ -6,7 +6,7 @@ import { chooseInterfaceLocale, closeHeaderMenu, openHeaderMenu, setHeaderTheme 
 
 test("desktop preferences use icons in the main row and preserve signup intent", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/en/auth/signin?learningLanguage=JAPANESE&callbackUrl=%2Fbook");
+  await page.goto("/en/choose-language?signIn=1&callbackUrl=%2Fbook");
   await expect(page.getByRole("button", { name: en.common.locale, exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: en.common.menu, exact: true })).toBeHidden();
   expect((await page.locator("header").boundingBox())!.height).toBeLessThanOrEqual(76);
@@ -18,7 +18,7 @@ test("desktop preferences use icons in the main row and preserve signup intent",
   await page.setViewportSize({ width: 1440, height: 900 });
   await chooseInterfaceLocale(page, en.common, "ja");
   await expect(page.locator("html")).toHaveAttribute("lang", "ja");
-  expect(new URL(page.url()).searchParams.get("learningLanguage")).toBe("JAPANESE");
+  expect(new URL(page.url()).searchParams.get("signIn")).toBe("1");
   expect(new URL(page.url()).searchParams.get("callbackUrl")).toBe("/book");
 });
 

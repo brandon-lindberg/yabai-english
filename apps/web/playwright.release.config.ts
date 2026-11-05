@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 import base from "./playwright.mirror.config";
-import { MIRROR_RELEASE_AUTH_ENV } from "./test/mirror-release-environment";
+import { MIRROR_GOOGLE_AUTH_ENV, MIRROR_RELEASE_AUTH_ENV } from "./test/mirror-release-environment";
 
 if (!process.env.MIRROR_QA_DATABASE_URL) throw new Error("Run the isolated test:mirror:e2e command");
 const server = base.webServer;
@@ -11,10 +11,16 @@ export default defineConfig({
   use: { ...base.use, actionTimeout: 20_000 },
   webServer: { ...server, env: {
     MIRROR_QA_DIST_DIR: ".next/mirror-qa",
-    DATABASE_URL: process.env.MIRROR_QA_DATABASE_URL, DEV_AUTH_BYPASS: "true", AUTH_GOOGLE_ID: "", AUTH_GOOGLE_SECRET: "",
+    DATABASE_URL: process.env.MIRROR_QA_DATABASE_URL, DEV_AUTH_BYPASS: "true",
     STRIPE_SECRET_KEY: "", STRIPE_WEBHOOK_SECRET: "", BOOKING_AUTO_CONFIRM: "false",
     ...MIRROR_RELEASE_AUTH_ENV,
+    ...MIRROR_GOOGLE_AUTH_ENV,
     NEXT_PUBLIC_APP_URL: "http://localhost:3100", AUTH_URL: domains ? "" : "http://localhost:3100", NEXTAUTH_URL: "", AUTH_TRUST_HOST: "true",
-    ...(domains ? { LEARNING_SITES_ENABLED: "true", ENGLISH_SITE_URL: "http://englishstudiojapan.localhost:3100", JAPANESE_SITE_URL: "http://japanesestudio.localhost:3100", NEUTRAL_SITE_URL: "http://localhost:3100" } : {}),
+    ...(domains ? {
+      LEARNING_SITES_ENABLED: "true", ENGLISH_SITE_URL: "http://englishstudiojapan.localhost:3100",
+      JAPANESE_SITE_URL: "http://japanesestudio.localhost:3100", NEUTRAL_SITE_URL: "http://localhost:3100",
+      AUTH_REDIRECT_PROXY_URL: "http://localhost:3100/api/auth",
+      NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ""} --import=./test/mirror-google-callback.mjs`.trim(),
+    } : {}),
   } },
 });

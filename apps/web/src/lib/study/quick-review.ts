@@ -5,32 +5,31 @@ import {
   eligibleReplacementCandidates,
   learnedDismissedIds,
   parseQuickReviewInteractions,
-  pickRandomId,
   replaceSlotCardId,
   type QuickReviewOutcome,
 } from "./quick-review-actions";
 
 import { isQuickReviewCardFrontEligible, utcCalendarDayKey, QUICK_REVIEW_DAILY_MAX, parseQuickReviewCardIds, type QuickReviewCard, type QuickReviewPanelData } from "./quick-review-day";
 export { isQuickReviewCardFrontEligible, utcCalendarDayKey, formatQuickReviewDayDisplay, QUICK_REVIEW_DAILY_MAX, type QuickReviewCard, type QuickReviewPanelData } from "./quick-review-day";
-import { weightedSampleWithoutReplacement } from "./quiz";
+import { attemptedQuickReviewState, quickReviewStateFields, selectQuickReviewCardIds } from "./quick-review-selection";
 
 function quickReviewCardScope(learningLanguage: LearningLanguage) {
   return { kind: "ENGLISH_EXERCISE" as const, deck: { level: { track: { learningLanguage, publicationStatus: "PUBLISHED" as const } } } };
 }
 
-async function queryEligibleQuickReviewPoolIds(prisma: PrismaClient, userId: string, learningLanguage: LearningLanguage, limit?: number): Promise<string[]> {
-  const cards = await prisma.studyCard.findMany({
-    where: { ...quickReviewCardScope(learningLanguage),
-      userStates: { some: { userId, correctCount: { gte: 1 } } },
-      exerciseJson: { equals: Prisma.DbNull }, frontJa: { not: { contains: "___" } },
+async function queryEligibleQuickReviewPool(prisma: PrismaClient, userId: string, learningLanguage: LearningLanguage) {
+  return prisma.userStudyCardState.findMany({
+    where: {
+      userId,
+      ...attemptedQuickReviewState,
+      card: { ...quickReviewCardScope(learningLanguage), exerciseJson: { equals: Prisma.DbNull }, frontJa: { not: { contains: "___" } } },
     },
-    select: { id: true },
+    select: quickReviewStateFields,
   });
-  return (limit == null ? cards : weightedSampleWithoutReplacement(cards, () => 1, limit)).map(card => card.id);
 }
 
 /**
- * Returns up to five cards the learner has answered correctly at least once.
+ * Returns up to five previously attempted cards, prioritizing difficulty.
  * The initial set is chosen once per `dayKey` and stored; “Learned” can swap in new cards the same day.
  */
 export async function getOrCreateQuickReviewCards(
@@ -61,7 +60,8 @@ export async function getOrCreateQuickReviewCards(
     return { cards: filteredCards, dayKey, ...stats };
   }
 
-  const ids = await queryEligibleQuickReviewPoolIds(prisma, userId, learningLanguage, QUICK_REVIEW_DAILY_MAX);
+  const pool = await queryEligibleQuickReviewPool(prisma, userId, learningLanguage);
+  const ids = selectQuickReviewCardIds(pool, QUICK_REVIEW_DAILY_MAX);
   if (ids.length === 0) {
     return { cards: [], dayKey, learnedToday: 0, notYetToday: 0 };
   }
@@ -129,15 +129,15 @@ export async function applyQuickReviewOutcome(
   let nextSlotIds = [...slotIds];
   if (input.outcome === "learned") {
     const dismissed = learnedDismissedIds(interactions);
-    const pool = await queryEligibleQuickReviewPoolIds(prisma, userId, learningLanguage);
+    const pool = await queryEligibleQuickReviewPool(prisma, userId, learningLanguage);
     const candidates = eligibleReplacementCandidates(
       pool,
       nextSlotIds,
       dismissed,
       input.cardId,
     );
-    const replacement = pickRandomId(candidates, Math.random);
-    nextSlotIds = replaceSlotCardId(nextSlotIds, input.cardId, replacement);
+    const [replacement] = selectQuickReviewCardIds(candidates, 1);
+    nextSlotIds = replaceSlotCardId(nextSlotIds, input.cardId, replacement ?? null);
   }
 
   await prisma.studyQuickReviewDay.update({

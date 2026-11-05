@@ -34,6 +34,7 @@ export const japaneseStudyFeedbackSchema = z.object({
   onyomi: z.array(text).optional(), kunyomi: z.array(text).optional(), nanori: z.array(text).optional(),
 }).strict();
 export type JapaneseStudyFeedback = z.infer<typeof japaneseStudyFeedbackSchema>;
+export type JapaneseQuickReviewCard = { id: string; feedback: JapaneseStudyFeedback };
 
 export const japaneseStudyResultSchema = z.object({
   promptId: z.string(), correct: z.boolean(), feedback: japaneseStudyFeedbackSchema,
@@ -62,6 +63,7 @@ const validDailyCounts = (value: { answered: number; correct: number; wrong: num
 };
 export const japaneseQuickReviewStatusSchema = z.object(dailyFields).strict().superRefine(validDailyCounts);
 export type JapaneseQuickReviewStatus = z.infer<typeof japaneseQuickReviewStatusSchema>;
+export type JapaneseQuickReviewRecap = JapaneseQuickReviewStatus & { reviewedCards: JapaneseQuickReviewCard[] };
 export const japaneseQuickReviewQueueSchema = z.object({ ...dailyFields, cards: z.array(issuedQuestionSchema).max(QUICK_REVIEW_DAILY_MAX) }).strict().superRefine((value, ctx) => {
   validDailyCounts(value, ctx); uniqueQuestions(value.cards, ctx);
   if (value.cards.length + value.answered !== value.total) ctx.addIssue({ code: "custom", message: "Invalid daily queue size" });

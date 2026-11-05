@@ -14,7 +14,7 @@ From the repository root, run `yarn dev`. The existing ignored `apps/web/.env.lo
 
 Removing `/en` selects the Japanese interface. Interface language and learning subject are independent. Modern Chromium resolves `.localhost` names to loopback; no hosts-file edit or public DNS change is required. Stop/restart a developer server you already own after changing its environment.
 
-Local previews use the app's existing development email sign-in for accounts already in the local database. The local overrides set `DEV_AUTH_BYPASS=true` and blank `AUTH_GOOGLE_ID`/`AUTH_GOOGLE_SECRET`. The original values in `.env` and production are untouched. To restore local Google sign-in later, remove those two empty local overrides and register the appropriate local callback URLs first. Development email sign-in is disabled by the existing production guard.
+Local previews use Google sign-in with the existing credentials in `.env`. Both local learning aliases send Google to `http://localhost:3000/api/auth/callback/google`. Auth.js then returns the callback to the learning site that started the login. The auth handler uses the configured site origin to distinguish that return from the localhost forwarding step. The localhost callback must be registered on the Google OAuth client. [Auth.js redirect proxy setup](https://authjs.dev/getting-started/deployment#securing-a-preview-deployment), [Google redirect URI requirements](https://developers.google.com/identity/protocols/oauth2/web-server#creatingcred).
 
 ## Configuration and shared boundaries
 
@@ -29,6 +29,7 @@ JAPANESE_SITE_URL=http://japanesestudio.localhost:3000
 NEUTRAL_SITE_URL=http://localhost:3000
 AUTH_URL=
 NEXTAUTH_URL=
+AUTH_REDIRECT_PROXY_URL=http://localhost:3000/api/auth
 ```
 
 The two learning origins must be distinct HTTPS origins, except that HTTP loopback hosts are accepted locally. The neutral origin is optional. Unknown hosts and conflicting forwarded hosts are rejected; navigation URLs are constructed only from the allowlist. Canonical `www` aliases are supported for configured public hosts.
@@ -37,11 +38,11 @@ A bound domain wins over a student's saved `User.learningLanguage` and guest coo
 
 ## Single sign-in
 
-Sign in from either learning site. The existing sign-in flow also establishes a session on the other learning domain in the same browser, then returns to the original page or onboarding. The **Change** link and the sign-in page can recover a missing site cookie from an active login on the other learning site. The neutral chooser remains a public entry point.
+Select **Sign in** from either learning site. The app restores an active login from the other domain when available. Otherwise it shows the sign-in page with **Continue with Google**. After the visitor selects Google and signs in, the app establishes the session on both sites and returns to the original page or onboarding. Sign-up uses the same confirmation page. The **Change** link can also recover a missing site cookie. The neutral chooser remains a public entry point.
 
-Each domain sets its own host-only cookie. In Google mode both cookies refer to the same Auth.js database session, so signing out of that shared login ends it on both domains. A handoff preserves an active database-backed login for a different account. Existing independent database sessions for the same account join the new shared session on the next sign-in.
+Each domain sets its own host-only cookie. Both cookies refer to the same Auth.js database session, so signing out of that shared login ends it on both domains. A handoff preserves an active login for a different account. Existing independent database sessions for the same account join the new shared session on the next sign-in.
 
-The handoff uses the existing `VerificationToken` table. Each code expires after at most 60 seconds, can be claimed once, and is bound to the configured source, destination and the initiating browser's verifier. The database row references a session ID. The session credential stays out of URLs. Development email sign-in uses a backing session row for equivalent shared revocation during local testing. Sign in once after restarting the local server if your browser still has a development cookie issued before this change. This change needs no schema migration. [OAuth security guidance on authorization codes and browser binding](https://www.rfc-editor.org/rfc/rfc9700.html#section-4.5).
+The handoff uses the existing `VerificationToken` table. Each code expires after at most 60 seconds, can be claimed once, and is bound to the configured source, destination and the initiating browser's verifier. The database row references a session ID. The session credential stays out of URLs. The domain callback test uses simulated Google endpoints and runs both localhost callback hops through Auth.js and PostgreSQL. Other browser journeys can use the fixture CLI to create a database session for an owned test user. [OAuth security guidance on authorization codes and browser binding](https://www.rfc-editor.org/rfc/rfc9700.html#section-4.5).
 
 ## Learning-site routing
 

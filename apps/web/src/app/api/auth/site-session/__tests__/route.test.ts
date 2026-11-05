@@ -62,6 +62,14 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllEnvs());
 
+it("leaves the cross-site handoff to document navigation when Next fetches a redirect", async () => {
+  const url = `${japanese}${endpoint}?flow=signin&locale=en`;
+  const response = await GET(new NextRequest(url, { headers: { host: new URL(url).host, rsc: "1" } }));
+  expect(response.status).toBe(204);
+  expect(response.headers.get("set-cookie")).toBeNull();
+  expect(db.session.findUnique).not.toHaveBeenCalled();
+});
+
 describe("learning-site sign-in handoff", () => {
   it("shares the existing session with a browser-bound single-use code", async () => {
     const { authorize, cookie } = await startHandoff();

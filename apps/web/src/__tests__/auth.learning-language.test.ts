@@ -18,7 +18,6 @@ vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined })
 
 type Callbacks = NonNullable<NextAuthConfig["callbacks"]>;
 type SessionArgs = Parameters<NonNullable<Callbacks["session"]>>[0];
-type JwtArgs = Parameters<NonNullable<Callbacks["jwt"]>>[0];
 
 describe("auth preserves the selected lesson subject", () => {
   beforeAll(async () => {
@@ -50,12 +49,10 @@ describe("auth preserves the selected lesson subject", () => {
     }
   });
 
-  test("dev JWT refresh reads a subject switch from persistence", async () => {
-    prismaMock.user.findUnique.mockResolvedValue({ role: "STUDENT", locale: "en", learningLanguage: "JAPANESE", accountStatus: "ACTIVE" });
-    const token = await captured.config!.callbacks!.jwt!({ token: { sub: "student-1", learningLanguage: "ENGLISH" } } as unknown as JwtArgs);
-    expect(token?.learningLanguage).toBe("JAPANESE");
-    const session = await captured.config!.callbacks!.session!({ session: { user: {} }, token } as SessionArgs) as Session;
-    expect(session.user.learningLanguage).toBe("JAPANESE");
+  test("the legacy development flag cannot enable email authentication", () => {
+    expect(captured.config!.providers).toEqual([]);
+    expect(captured.config!.session?.strategy).toBe("database");
+    expect(captured.config!.pages).toMatchObject({ signIn: "/auth/signin", error: "/auth/error" });
   });
 });
 

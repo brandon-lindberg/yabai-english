@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StudyRpgXpBar } from "./study-rpg-xp-bar";
 import type { StudyRpgSnapshot } from "@/lib/study/rpg-xp";
+import type { JapaneseStudyFeedback } from "@/lib/study/japanese-public";
 
 export function StudyPracticeLoading({ label }: { label: string }) {
   return <div role="status" aria-busy="true" aria-label={label} className="space-y-6" data-testid="study-practice-loading">
@@ -28,6 +29,33 @@ export function StudySessionProgress({ rpg, index, total, xp, correct, wrong, sh
 
 export function StudyPromptCard({ label, children }: { label: string; children: ReactNode }) {
   return <section aria-label={label} className="rounded-2xl border border-border bg-surface p-4 sm:p-8">{children}</section>;
+}
+
+export function JapaneseStudyFeedbackDetails({ feedback, compact = false }: { feedback: JapaneseStudyFeedback; compact?: boolean }) {
+  const t = useTranslations("japaneseStudy");
+  const term = compact ? "sr-only" : "text-muted";
+  const detail = compact ? "text-foreground" : "mt-1 text-foreground";
+  return (
+    <dl className={compact
+      ? "max-h-full w-full space-y-2 overflow-y-auto px-1 text-center text-sm leading-snug [overflow-wrap:anywhere]"
+      : "space-y-3 text-sm"}>
+      {feedback.reading ? <div>
+        <dt className={term}>{t("reading")}</dt>
+        <dd lang="ja" className={`${detail} ${compact ? "font-semibold" : "font-medium"}`}>{feedback.reading}</dd>
+      </div> : null}
+      <div>
+        <dt className={term}>{t("meanings")}</dt>
+        <dd lang="en" className={compact ? detail : `${detail} leading-relaxed`}>{feedback.meanings.join(compact ? ", " : "; ")}</dd>
+      </div>
+      {(["onyomi", "kunyomi", "nanori"] as const).map(category => {
+        const readings = feedback[category];
+        return readings?.length ? <div key={category} className={compact ? "text-xs" : undefined}>
+          <dt className="text-muted">{t(category)}</dt>
+          <dd lang="ja" className={compact ? detail : `${detail} break-words leading-relaxed`}>{readings.join(" · ")}</dd>
+        </div> : null;
+      })}
+    </dl>
+  );
 }
 
 export function StudyRankProgress({ rpg }: { rpg: StudyRpgSnapshot }) {

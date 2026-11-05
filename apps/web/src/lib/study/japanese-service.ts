@@ -17,6 +17,7 @@ import { classifyPracticeBand, filterCardIdsByFocus, studyAccuracyPercent } from
 import { getTotalStudyXpForTrack } from "./get-overview";
 import { readJapaneseDailyReview, recordJapaneseDailyAnswer, isCurrentJapaneseDailyPrompt, type JapaneseDailyReceipt } from "./japanese-daily-review";
 import { QUICK_REVIEW_DAILY_MAX } from "./quick-review-day";
+import { selectQuickReviewCardIds } from "./quick-review-selection";
 import { studyLevelIndex } from "./constants";
 
 export class JapaneseStudyFailure extends PrivateApiFailure {}
@@ -190,8 +191,7 @@ export async function createJapaneseQuickReviewQueue(db: PrismaClient, userId: s
     const now = nowTime();
     let daily = await readJapaneseDailyReview(tx, userId, progression, now);
     if (!daily.row && daily.pool.length) {
-      const states = new Map(daily.pool.map(state => [state.cardId, state]));
-      const ids = buildWeightedSessionQueue(daily.pool.map(state => ({ id: state.cardId })), states, QUICK_REVIEW_DAILY_MAX, now, Math.random, { allowRepeats: false }).map(card => card.id);
+      const ids = selectQuickReviewCardIds(daily.pool, QUICK_REVIEW_DAILY_MAX);
       await tx.studyQuickReviewDay.create({ data: { userId, learningLanguage: "JAPANESE", dayKey: daily.status.dayKey, cardIds: ids, interactions: [] } });
       daily = await readJapaneseDailyReview(tx, userId, progression, now);
     }

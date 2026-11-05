@@ -1,7 +1,7 @@
 import "server-only";
 import type { PrismaClient } from "@/generated/prisma/client";
 import { JapaneseStudyFailure, getJapaneseStudyOverview } from "../study/japanese-service";
-import { readJapaneseDailyReview } from "../study/japanese-daily-review";
+import { readJapaneseDailyReview, readJapaneseDailyReviewRecap } from "../study/japanese-daily-review";
 import { combineTrackPracticeRollups } from "../study/study-flashcard-stats";
 import { studyRpgProgressFromTotalXp } from "../study/rpg-xp";
 
@@ -19,7 +19,7 @@ export async function getJapaneseDashboardStudy(db: PrismaClient, userId: string
     const daily = await readJapaneseDailyReview(db, userId, source, new Date(Date.now()));
     return { available: true, overview: { levels, rpg: studyRpgProgressFromTotalXp(source.levels.reduce((sum, level) => sum + level.xp, 0)) },
       resume: latest && resumed ? { ...resumed, lastStudiedAt: latest.lastStudiedAt! } : null,
-      trackPractice, quickReview: daily.status,
+      trackPractice, quickReview: await readJapaneseDailyReviewRecap(db, userId, daily),
     } as const;
   } catch (error) {
     if (error instanceof JapaneseStudyFailure && [401, 403, 503].includes(error.status)) return { available: false } as const;

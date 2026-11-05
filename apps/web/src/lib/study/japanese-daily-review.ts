@@ -3,6 +3,8 @@ import { z } from "zod";
 import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 import { QUICK_REVIEW_DAILY_MAX, parseQuickReviewCardIds, utcCalendarDayKey } from "./quick-review-day";
 import type { getJapaneseStudyProgressionForTrack } from "./japanese-progression";
+import { japaneseStudyResultSchema, type JapaneseQuickReviewRecap } from "./japanese-public";
+import { attemptedQuickReviewState, quickReviewStateFields } from "./quick-review-selection";
 
 type Overview = Awaited<ReturnType<typeof getJapaneseStudyProgressionForTrack>>;
 type Db = Pick<PrismaClient, "userStudyCardState" | "studyQuickReviewDay">;
@@ -28,7 +30,7 @@ export async function readJapaneseDailyReview(db: Db, userId: string, overview: 
   const dayKey = utcCalendarDayKey(now);
   const levelIds = overview.levels.filter(level => level.unlocked).map(level => level.id);
   const [pool, row] = await Promise.all([
-    db.userStudyCardState.findMany({ where: { userId, correctCount: { gte: 1 }, card: {
+    db.userStudyCardState.findMany({ select: quickReviewStateFields, where: { userId, ...attemptedQuickReviewState, card: {
       kind: { in: ["JAPANESE_VOCABULARY", "JAPANESE_KANJI"] }, deck: { levelId: { in: levelIds } },
     } } }),
     db.studyQuickReviewDay.findUnique({ where: dayWhere(userId, dayKey) }),
@@ -42,6 +44,31 @@ export async function readJapaneseDailyReview(db: Db, userId: string, overview: 
     answered: results.length, correct: results.filter(result => result.correct).length,
     wrong: results.filter(result => !result.correct).length, xp: results.reduce((sum, result) => sum + result.xp, 0),
   } };
+}
+
+/** Today's completed deck in its original order, using only this learner's graded prompts. */
+export async function readJapaneseDailyReviewRecap(
+  db: Pick<PrismaClient, "studyReviewPrompt">,
+  userId: string,
+  daily: Awaited<ReturnType<typeof readJapaneseDailyReview>>,
+): Promise<JapaneseQuickReviewRecap> {
+  const { ids, receipts, status } = daily;
+  if (!status.total || status.answered !== status.total) return { ...status, reviewedCards: [] };
+
+  const prompts = await db.studyReviewPrompt.findMany({
+    where: { userId, answeredAt: { not: null }, id: { in: receipts.map(receipt => receipt.promptId) } },
+    select: { id: true, cardId: true, resultJson: true },
+  });
+  const byId = new Map(prompts.map(prompt => [prompt.id, prompt]));
+  const byCard = new Map(receipts.map(receipt => [receipt.cardId, receipt]));
+  const reviewedCards = ids.flatMap(id => {
+    const receipt = byCard.get(id);
+    const prompt = receipt && byId.get(receipt.promptId);
+    if (!prompt || prompt.cardId !== id) return [];
+    const result = japaneseStudyResultSchema.safeParse(prompt.resultJson);
+    return result.success && result.data.promptId === prompt.id ? [{ id, feedback: result.data.feedback }] : [];
+  });
+  return { ...status, reviewedCards };
 }
 
 /** Called inside the same learner lock/transaction as the automatic review. */

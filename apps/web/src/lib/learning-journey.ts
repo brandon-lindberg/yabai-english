@@ -34,6 +34,7 @@ export const journeyIntentSchema = z.object({
   locale: z.enum(["ja", "en"]),
   callbackUrl: z.string(),
   expiresAt: z.number().int().positive(),
+  retried: z.boolean().optional(),
 }).strict();
 
 export function journeyCallback(language: LearningLanguage, locale: string, raw: string) {

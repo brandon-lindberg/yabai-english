@@ -18,6 +18,32 @@ import { JAPANESE_PLACEMENT_DOMAINS } from "@/lib/japanese-placement/public";
 
 const migration = "20261023020000_study_subject_persistence";
 
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("English quick review selects and replaces with difficult cards in priority order", async () => {
+  await withIsolatedPostgres(migration, async ({ db, applyMigration }) => {
+    await applyMigration();
+    await db.user.create({ data: { id: "learner", role: "STUDENT" } });
+    await db.studyTrack.create({ data: { slug: "english-flashcards", titleJa: "英語", titleEn: "English", levels: { create: {
+      levelCode: "BEGINNER_1", titleJa: "初級", titleEn: "Beginner", decks: { create: { id: "deck", titleJa: "語彙", titleEn: "Vocabulary" } },
+    } } } });
+    await db.studyCard.createMany({ data: Array.from({ length: 8 }, (_, index) => ({
+      id: `card-${index}`, deckId: "deck", frontJa: index === 0 ? "___" : "猫", backEn: "cat",
+    })) });
+    await db.userStudyCardState.createMany({ data: Array.from({ length: 8 }, (_, index) => ({
+      userId: "learner", cardId: `card-${index}`, correctCount: index < 2 ? 0 : 1,
+      wrongCount: Math.max(0, 6 - index),
+    })) });
+    const selection = await getOrCreateQuickReviewCards(db, "learner");
+    expect(selection.cards.map(card => card.id)).toEqual(["card-1", "card-2", "card-3", "card-4", "card-5"]);
+
+    // A newly missed card is the first replacement, ahead of the remaining easy cards.
+    await db.userStudyCardState.update({ where: { userId_cardId: { userId: "learner", cardId: "card-7" } }, data: { wrongCount: 1 } });
+    const result = await applyQuickReviewOutcome(db, "learner", { dayKey: selection.dayKey, cardId: "card-1", outcome: "learned" });
+    expect(result).toMatchObject({ ok: true, learnedToday: 1 });
+    if (!result.ok) throw new Error("Expected a replacement");
+    expect(result.cards.map(card => card.id)).toEqual(["card-7", "card-2", "card-3", "card-4", "card-5"]);
+  });
+}, 30_000);
+
 // Explicit opt-in, disposable schema only. Application data is never seeded or changed.
 test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("preserves English history, imports Japanese atomically and isolates real study queries", async () => {
   const fixture = japaneseStudyFixture();
@@ -137,7 +163,8 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("Japanese study reads its own p
     await db.userStudyLevelProgress.create({ data: { userId: "japanese-student", levelId: plan.levels.find(level => level.levelCode === "N3")!.id, xp: 12 } });
     await db.userStudyCardState.update({ where: { userId_cardId: { userId: "japanese-student", cardId: "kanji" } }, data: { wrongCount: 5, streakCorrect: 0 } });
     await db.japanesePlacementAttempt.create({ data: { id: "completed-latest", learnerId: "japanese-student", bankSnapshotId: snapshot.id, requestId: "00000000-0000-4000-8000-000000000092", schemaVersion: 2, scoringRevision: "synthetic-read-boundary", status: "COMPLETED", startedAt: at, finishedAt: new Date(at.getTime() + 1000), result: result("completed-latest", false) } });
-    expect(await getJapaneseStudyProgression(db, "japanese-student")).toMatchObject({ placementBand: null, unlocked: ["N5", "N4", "N3"], mastered: [] });
+    // An inconclusive attempt leaves the learner's most recent awarded level in effect.
+    expect(await getJapaneseStudyProgression(db, "japanese-student")).toMatchObject({ placementBand: "N3", unlocked: ["N5", "N4", "N3"], mastered: [] });
     expect(await db.japanesePlacementAttempt.findUnique({ where: { id: earlier.id } })).toEqual(earlier);
     expect(await db.userStudyAssessmentAttempt.count()).toBe(0);
     expect(await db.studentProfile.findUnique({ where: { userId: "japanese-student" } })).toMatchObject({ placedLevel: "ADVANCED", placedSubLevel: 3 });

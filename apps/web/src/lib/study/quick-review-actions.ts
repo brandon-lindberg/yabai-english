@@ -33,15 +33,15 @@ export function learnedDismissedIds(interactions: readonly QuickReviewInteractio
  * Cards that may fill the slot left by `leavingSlotId` for today's quick review.
  * Excludes other currently visible slots and any card the user already dismissed as learned today.
  */
-export function eligibleReplacementCandidates(
-  pool: readonly string[],
+export function eligibleReplacementCandidates<T extends { cardId: string }>(
+  pool: readonly T[],
   currentSlots: readonly string[],
   learnedDismissed: ReadonlySet<string>,
   leavingSlotId: string,
-): string[] {
-  const occupied = new Set(currentSlots.filter((id) => id !== leavingSlotId));
+): T[] {
+  const occupied = new Set(currentSlots);
   return pool.filter(
-    (id) => id !== leavingSlotId && !occupied.has(id) && !learnedDismissed.has(id),
+    ({ cardId }) => cardId !== leavingSlotId && !occupied.has(cardId) && !learnedDismissed.has(cardId),
   );
 }
 
@@ -60,12 +60,6 @@ export function replaceSlotCardId(
     next[idx] = replacementId;
   }
   return next;
-}
-
-export function pickRandomId(candidates: readonly string[], rng: () => number): string | null {
-  if (candidates.length === 0) return null;
-  const idx = Math.min(candidates.length - 1, Math.floor(rng() * candidates.length));
-  return candidates[idx] ?? null;
 }
 
 export function countQuickReviewOutcomeStats(

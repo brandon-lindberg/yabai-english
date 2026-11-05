@@ -196,7 +196,7 @@ export async function StudentDashboard({
 
       {studyOverview ? <DashboardStudyHighlight overview={studyOverview} resume={studyResume ?? null} learningLanguage={learningLanguage} /> : null}
       {trackPractice ? <DashboardFlashcardStats trackPractice={trackPractice} /> : null}
-      {japaneseStudy ? <DashboardJapaneseQuickReview key={`${userId}:JAPANESE`} initialStatus={japaneseStudy.quickReview} initialRpg={japaneseStudy.overview.rpg} /> : null}
+      {japaneseStudy ? <DashboardJapaneseQuickReview key={`${userId}:${japaneseStudy.quickReview.dayKey}`} initialStatus={japaneseStudy.quickReview} initialRpg={japaneseStudy.overview.rpg} /> : null}
 
       {/* No wrapping <section>: this brings its own, and renders nothing when
           there is nothing to review — an empty wrapper would still take a gap

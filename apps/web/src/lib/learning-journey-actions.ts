@@ -4,31 +4,31 @@ import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { configuredLearningSites, learningSiteHref } from "@/lib/learning-sites";
 import { appPathForLocale } from "@/lib/i18n-app-path";
 import { redirect as redirectAbsolute } from "next/navigation";
-import { randomUUID } from "node:crypto";
-import { cookies } from "next/headers";
-import { auth } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "@/i18n/navigation";
 import type { LearningLanguage } from "@/generated/prisma/enums";
 import { learningLanguageSchema } from "@/lib/learning-language";
-import { learningCookieOptions, rememberGuestLearningLanguage } from "@/lib/learning-language-request";
-import { journeyIntentSchema, JOURNEY_INTENT_SECONDS, journeyCallback, signInIntentCookieName } from "@/lib/learning-journey";
+import { rememberGuestLearningLanguage } from "@/lib/learning-language-request";
+import { prepareLearningSignIn } from "@/lib/learning-sign-in";
+import { isGoogleSignInConfigured } from "@/lib/auth-mode";
+import { authErrorHref } from "@/lib/auth-error-kind";
 
-/** Server Actions supply the same-origin POST boundary before any intent cookie is issued. */
-export async function prepareLearningSignIn(input: { learningLanguage: LearningLanguage; locale: string; callbackUrl: string }) {
-  const site = await getRequestLearningSite();
-  if (site?.learningLanguage && site.learningLanguage !== input.learningLanguage) throw new Error("Choose this language on its learning site");
-  const intent = journeyIntentSchema.parse({
-    ...input,
-    callbackUrl: journeyCallback(input.learningLanguage, input.locale, input.callbackUrl),
-    expiresAt: Date.now() + JOURNEY_INTENT_SECONDS * 1000,
-  });
-  const nonce = randomUUID();
-  (await cookies()).set(signInIntentCookieName(nonce)!, JSON.stringify(intent), {
-    ...learningCookieOptions, maxAge: JOURNEY_INTENT_SECONDS,
-  });
-  await rememberGuestLearningLanguage(intent.learningLanguage);
-  return `/api/auth/learning-journey?intent=${nonce}`;
+/** Start OAuth only after the Google form is submitted. */
+export async function startGoogleSignIn(input: Parameters<typeof prepareLearningSignIn>[0]) {
+  const locale = input?.locale === "en" ? "en" : "ja";
+  const unavailable = appPathForLocale(locale, authErrorHref("SignInUnavailable"));
+  if (!isGoogleSignInConfigured()) redirectAbsolute(unavailable);
+
+  let destination = unavailable;
+  try {
+    const redirectTo = await prepareLearningSignIn({ ...input, locale });
+    const authorizationUrl = new URL(await signIn("google", { redirect: false, redirectTo }));
+    if (authorizationUrl.origin === "https://accounts.google.com") destination = authorizationUrl.href;
+  } catch (error) {
+    console.error("[auth] Google sign-in could not start", error instanceof Error ? error.name : "Unknown error");
+  }
+  redirectAbsolute(destination);
 }
 
 /** A named subject action is deliberate; merely viewing a landing page never switches an account. */

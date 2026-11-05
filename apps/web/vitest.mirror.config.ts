@@ -11,6 +11,8 @@ export default defineConfig({
     include: [
       "src/lib/__tests__/learning-language*.test.ts",
       "src/lib/__tests__/learning-journey*.test.ts",
+      "src/lib/__tests__/auth-mode.test.ts",
+      "src/lib/__tests__/service-worker.test.ts",
       "src/lib/__tests__/student-onboarding-next-links.test.ts",
       "src/lib/__tests__/student-onboarding-state.test.ts",
       "src/lib/__tests__/onboarding-entry.test.ts",
@@ -19,6 +21,8 @@ export default defineConfig({
       "src/lib/shell/__tests__/header-nav-links.test.ts",
       "src/app/api/auth/learning-journey/__tests__/*.test.ts",
       "src/app/api/auth/site-session/__tests__/*.test.ts",
+      "src/app/api/auth/[[]...nextauth]/__tests__/*.test.ts",
+      "src/app/[[]locale]/auth/signin/__tests__/*.test.{ts,tsx}",
       "src/components/auth/__tests__/sign-in-retry.test.tsx",
       "src/components/marketing/__tests__/learning-landing.test.tsx",
       "src/components/dashboard/__tests__/student-dashboard-language.test.ts",

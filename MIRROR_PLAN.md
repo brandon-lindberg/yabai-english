@@ -1938,6 +1938,40 @@ Either learning domain can initiate the existing sign-in. The other domain recei
 
 The red browser tests reproduced the missing second-site session from both starting domains. The 954 mirror tests and all nine Chromium domain tests passed, including both sign-in directions, mobile, shared sign-out, and concurrent code redemption against isolated PostgreSQL. TypeScript, targeted lint and the production build passed. The [domain handoff](docs/learning-domains.md#single-sign-in) describes the existing Auth.js and Prisma records used for the exchange. Production OAuth and public domains are verified separately at deployment.
 
+#### 6r. Google-only sign-in with confirmation — complete locally (2026-11-05)
+
+The owner requested Google-only sign-in and clarified that Sign in and Sign up should open the confirmation page. Signed-out visitors see **Continue with Google** before leaving the learning site. The Google button submits the existing learning intent and starts OAuth. An active session from the other learning site can still be restored automatically. A recoverable OAuth failure can retry once with its original subject and destination. The neutral chooser remains available when the visitor has yet to select a learning site.
+
+The red tests reproduced the enabled email provider and service worker handling of localized sign-in. The app uses Google and database sessions in every environment. Browser QA intercepts the Google authorization navigation and creates a session only for its owned fixture user. Both local aliases use the existing localhost Google callback through Auth.js. Google accepted the local authorization request, and the callback proxy returned to each initiating site in a synthetic callback check.
+
+Red tests reproduced the missing confirmation page and a cross-site handoff initiated by a router fetch. All 966 mirror tests, ten Chromium domain tests, and two single-domain signup-to-onboarding tests passed. Chromium verified the Google button on desktop and mobile, that OAuth starts only after confirmation, and that both domains still share a session. TypeScript, targeted lint, and the production build passed. See the [local Google setup](docs/learning-domains.md#single-sign-in).
+
+#### 6s. Local Google callback host correction — implemented locally (2026-11-05)
+
+The owner's startup log showed repeated 302s on the same Google callback. Next.js presents the loopback alias request to the auth route with a `localhost` URL, which made Auth.js treat the forwarded return as another request to its forwarding host. The Auth.js route now uses the existing allowlisted learning-site origin and preserves the request method, path, query, cookies, and body. The localhost forwarding host retains its own origin.
+
+The red Chromium test followed both hops and observed the learning host redirect back to the callback. The domain browser configuration now exercises the same localhost callback proxy as local development. A successful simulated Google response exercises the state and PKCE checks, the configured callback URL in the token exchange, the Auth.js database session, and access from both learning domains. All 11 domain browser tests and 971 mirror tests passed, along with TypeScript, targeted lint, and the production build.
+
+#### 6t. Japanese N5 practice on the learning domain — fixed locally (2026-11-05)
+
+The flashcard overview correctly opened N5. The practice POST failed because the shared private API guard compared the browser's Japanese Studio origin with Next's internal `localhost` URL. The guard now uses the same allowlisted learning-site origin as the page and session. A request from another origin still returns 403. The shared guard also serves review submissions, quick review, and Japanese placement.
+
+Red route and browser tests reproduced the 403. Chromium then opened N5 from the flashcard overview and saved an answer with and without a stored N5 result. Both cases passed again with the full 10,291-card catalog in a disposable PostgreSQL schema. All 12 domain browser cases, 192 study tests, and 291 Japanese placement tests passed, along with TypeScript and targeted lint.
+
+#### 6u. Completed Japanese quick review on the Dashboard — 2026-11-05
+
+After the final answer, **Review today’s cards** opens a single horizontal row of the completed daily cards. The Dashboard shows the saved cards in their original order, with the score and XP above them. Each card flips to its saved reading and meanings, including kanji readings when present. The row scrolls sideways on mobile. Reloading the Dashboard on the same review day restores the deck. Flipping is read-only and reuses the English Dashboard flip-card component.
+
+Red and green tests covered the completed deck and a stale tab that opens an already completed review. All 196 study tests, 17 PostgreSQL study tests, and 13 learning-domain Chromium cases passed. The browser suite used the full 10,291-card catalog in a disposable schema and verified desktop, mobile, keyboard flipping, and reload. TypeScript and targeted lint passed.
+
+#### 6v. Difficulty-first Quick Review and mobile carousel — 2026-11-05
+
+New English and Japanese daily decks prioritize previously attempted cards with unresolved mistakes. The shared selector ranks them by miss rate, current correct streak, and number of misses. Cards answered only incorrectly are eligible. Random previously attempted cards fill any remaining slots. English replacements use the same ranking, and resuming a Japanese review loads the saved daily selection.
+
+The completed Japanese recap shows one full-size card at a time on narrow screens. A horizontal swipe changes cards, a tap flips the card, and a vertical gesture scrolls the Dashboard. Previous and Next buttons provide keyboard navigation. Wide screens show the complete deck in one row.
+
+Red tests reproduced easy cards displacing difficult ones in both languages. All 197 study tests, 19 PostgreSQL study tests, and 13 learning-domain Chromium tests passed. Chromium exercised touch swipes, tap-to-flip, vertical scrolling, and the desktop row with the full catalog in a disposable schema. TypeScript and targeted lint passed.
+
 ## Source completeness standard
 
 Modern JLPT has no published exhaustive official vocabulary/kanji list. The measurable target is full, traceable coverage of a named, versioned community corpus, with every merge/correction explained and zero unreviewed omissions. Preserve level source and supplementary/inferred classifications. Multiple repositories inheriting Waller's lists are not independent pedagogical validation.

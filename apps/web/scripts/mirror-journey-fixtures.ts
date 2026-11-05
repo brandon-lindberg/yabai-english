@@ -11,6 +11,7 @@ import { parseEnglishAttemptHandle } from "../src/lib/english-placement/service"
 import { lockLearnerTransaction } from "../src/lib/learner-transaction-lock";
 import { ENGLISH_PLACEMENT_POLICY_V2 } from "../src/lib/placement-policy";
 import { japaneseStudyAnswer } from "../test/japanese-study-db-fixture";
+import { japanesePlacementResultFixture } from "../test/japanese-placement-result-fixture";
 
 // Explicit local QA only. Own every created row by a unique id and remove only
 // that recorded set. Never reseed, truncate, or reset an application database.
@@ -187,13 +188,16 @@ try {
       console.log(JSON.stringify(await japaneseStudyAnswer(prisma, promptId))); return;
     }
     const emptyHistory = operation === "release-japanese-empty-history";
-    if (operation !== "release-japanese-deadline" && !emptyHistory) throw new Error("Unknown release operation");
-    const answered = emptyHistory ? 0 : z.object({ learnerId: z.string(), answered: z.union([z.literal(11), z.literal(18)]) }).strict().parse(input).answered;
-    if (learner.learningLanguage !== "JAPANESE") throw new Error("Japanese fixture required");
+    const awardedHistory = operation === "release-japanese-n5-award";
+    const completedHistory = emptyHistory || awardedHistory;
+    if (operation !== "release-japanese-deadline" && !completedHistory) throw new Error("Unknown release operation");
+    const answered = completedHistory ? 0 : z.object({ learnerId: z.string(), answered: z.union([z.literal(11), z.literal(18)]) }).strict().parse(input).answered;
+    if (!awardedHistory && learner.learningLanguage !== "JAPANESE") throw new Error("Japanese fixture required");
     const snapshot = await prisma.japanesePlacementBankSnapshot.findFirstOrThrow({ where: { revokedAt: null, content: { path: ["schemaVersion"], equals: 5 } }, orderBy: { publishedAt: "desc" } });
     const bank = loadApprovedJapaneseBank(snapshot.content);
-    // Explicit isolated history fixture: a later completed empty attempt, never an app learner write.
-    let state = startJapaneseAttempt(bank, { id: randomUUID(), learnerId, startedAt: new Date(emptyHistory ? Date.now() : Date.now() - bank.assessment!.timeLimitSec * 1000 + 7_000).toISOString() }, JAPANESE_STAIRCASE_POLICY_REVISION);
+    const now = Date.now();
+    const startedAt = emptyHistory ? now : now - bank.assessment!.timeLimitSec * 1000 + (awardedHistory ? 0 : 7_000);
+    let state = startJapaneseAttempt(bank, { id: randomUUID(), learnerId, startedAt: new Date(startedAt).toISOString() }, JAPANESE_STAIRCASE_POLICY_REVISION);
     for (let index = 0; index < answered; index++) {
       const question = nextJapaneseQuestion(bank, state)!;
       const item = bank.items.find(item => item.id === question.id)!;
@@ -201,14 +205,26 @@ try {
         : { kind: "sentence_assembly" as const, itemId: item.id, tileIds: item.acceptedOrders[0] };
       state = recordJapaneseResponse(bank, state, { ...response, submittedAt: new Date(Date.parse(state.startedAt) + (index + 1) * 1000).toISOString() });
     }
+    const result = awardedHistory ? { ...japanesePlacementResultFixture(), attemptId: state.id, completedAt: state.expiresAt }
+      : emptyHistory ? summarizeJapaneseAttempt(bank, state, state.expiresAt) : undefined;
     await prisma.japanesePlacementAttempt.create({ data: {
-      id: state.id, learnerId, activeLearnerId: emptyHistory ? null : learnerId, requestId: randomUUID(), bankSnapshotId: snapshot.id,
+      id: state.id, learnerId, activeLearnerId: completedHistory ? null : learnerId, requestId: randomUUID(), bankSnapshotId: snapshot.id,
       schemaVersion: state.schemaVersion, scoringRevision: japaneseScoringRevision(state.schemaVersion, state.policyRevision), policyRevision: state.policyRevision,
       questionLimit: japaneseQuestionLimit(bank), startedAt: new Date(state.startedAt), expiresAt: new Date(state.expiresAt),
-      ...(emptyHistory ? { status: "COMPLETED", finishedAt: new Date(state.expiresAt), result: summarizeJapaneseAttempt(bank, state, state.expiresAt) } : {}),
+      ...(result ? { status: "COMPLETED", finishedAt: new Date(state.expiresAt), result } : {}),
       responses: { create: state.responses.map((payload, position) => ({ itemId: payload.itemId, position, payload })) },
     } });
     console.log(JSON.stringify({ attemptId: state.id, expiresAt: state.expiresAt }));
+  } else if (process.argv[2] === "browser-session") {
+    const fixtures = readOwnedFixtures();
+    const { email } = z.object({ email: z.string().email() }).parse(JSON.parse(readFileSync(0, "utf8")));
+    const user = fixtures.users.find(user => user.email === email);
+    if (!user) throw new Error("A browser session requires an owned fixture account");
+    const session = await prisma.session.create({
+      data: { userId: user.id, sessionToken: randomUUID(), expires: new Date(Date.now() + 60 * 60_000) },
+      select: { sessionToken: true, expires: true },
+    });
+    console.log(JSON.stringify(session));
   } else if (["placement-timeout", "placement-status", "release-status"].includes(process.argv[2])) {
     const fixtures = readOwnedFixtures();
     if (process.argv[2].startsWith("release-")) {

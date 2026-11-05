@@ -6,13 +6,12 @@ import { configuredLearningSites, learningSiteForHost } from "@/lib/learning-sit
 import {
   otherLearningSite, SITE_SESSION_FLOWS, siteSessionHref, siteSessionReturnPath, siteSessionSignInFallback,
 } from "@/lib/site-session-path";
-import {
-  activeSiteSessionById, activeSiteSessionFromCookie, siteSessionCookie,
-  siteSessionCookieValue,
-} from "@/lib/site-session";
+import { activeSiteSessionById, activeSiteSessionFromCookie } from "@/lib/site-session";
+import { siteSessionCookie } from "@/lib/site-session-cookie";
 
 const GRANT_PREFIX = "learning-site-session:";
 const HANDOFF_SECONDS = 60;
+const handoffHeaders = { "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" };
 const nonce = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
 const flow = z.enum(SITE_SESSION_FLOWS);
 const locale = z.enum(["ja", "en"]);
@@ -25,10 +24,7 @@ const stateSchema = z.object({
 });
 
 function redirectTo(url: URL) {
-  const response = NextResponse.redirect(url, 303);
-  response.headers.set("Cache-Control", "no-store");
-  response.headers.set("Referrer-Policy", "no-referrer");
-  return response;
+  return NextResponse.redirect(url, { status: 303, headers: handoffHeaders });
 }
 
 function digest(value: string) {
@@ -47,6 +43,13 @@ export async function GET(request: NextRequest) {
   const sites = configuredLearningSites();
   const site = sites && learningSiteForHost(request.headers.get("host") ?? "", sites);
   if (!sites || !site?.learningLanguage) return new NextResponse(null, { status: 404 });
+  // A client-router fetch falls back to document navigation on a non-RSC response.
+  // Let the document request carry the browser's first-party session cookies.
+  const fetchDestination = request.headers.get("sec-fetch-dest");
+  if (request.method !== "GET" || request.headers.has("rsc") || (fetchDestination && fetchDestination !== "document")
+    || request.headers.get("sec-purpose")?.includes("prefetch") || request.headers.get("purpose") === "prefetch") {
+    return new NextResponse(null, { status: 204, headers: handoffHeaders });
+  }
 
   const other = otherLearningSite(sites, site);
   const query = request.nextUrl.searchParams;
@@ -127,9 +130,7 @@ export async function GET(request: NextRequest) {
   const session = claimed && await activeSiteSessionById(claimed.identifier.slice(GRANT_PREFIX.length));
   if (!session) return finish(existing ? success : fallback);
   if (existing && (existing.id === session.id || existing.user.id !== session.user.id)) return finish(success);
-  const value = await siteSessionCookieValue(session, site.origin);
-  if (!value) return finish(existing ? success : fallback);
   const response = finish(success);
-  response.cookies.set(localCookie.name, value, { ...localCookie.options, expires: session.expires });
+  response.cookies.set(localCookie.name, session.sessionToken, { ...localCookie.options, expires: session.expires });
   return response;
 }
