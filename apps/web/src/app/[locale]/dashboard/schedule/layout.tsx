@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { shouldLoadTeacherBookingsOnSchedule } from "@/lib/dashboard/schedule-view-role";
 import { buttonClasses } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
+import { teacherMarketplaceVisibilityFields } from "@/lib/teacher-marketplace-booking-access";
 
 export default async function DashboardScheduleLayout({ children }: { children: ReactNode }) {
   const t = await getTranslations("dashboard.schedulePage");
@@ -31,7 +32,8 @@ export default async function DashboardScheduleLayout({ children }: { children: 
             credentials: true,
             instructionLanguages: true,
             specialties: true,
-            marketplaceHidden: true,
+            ...teacherMarketplaceVisibilityFields,
+            teachingLanguages: true,
             user: { select: { image: true } },
           },
         })
@@ -68,6 +70,9 @@ export default async function DashboardScheduleLayout({ children }: { children: 
               initialInstructionLanguages={teacherProfile?.instructionLanguages ?? ["EN"]}
               initialSpecialties={teacherProfile?.specialties ?? []}
               initialMarketplaceHidden={teacherProfile?.marketplaceHidden ?? false}
+              initialJapaneseMarketplaceHidden={teacherProfile?.japaneseMarketplaceHidden ?? false}
+              teachingLanguages={teacherProfile?.teachingLanguages}
+              activeLearningLanguage={session?.user.learningLanguage}
             />
           ) : (
             <Link href="/book" className={buttonClasses()}>

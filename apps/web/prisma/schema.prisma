@@ -541,8 +541,10 @@ model TeacherProfile {
   specialties                String[]  @default([])
   rateYen                    Int?
   offersFreeTrial            Boolean   @default(true)
-  /// When true, profile is hidden from /book marketplace; only rostered students may book via direct link.
+  /// English marketplace visibility. True limits booking to rostered students.
   marketplaceHidden          Boolean   @default(false)
+  /// Japanese marketplace visibility, independent of the English setting.
+  japaneseMarketplaceHidden  Boolean   @default(false)
   /// 適格請求書発行事業者登録番号 (T + 13 digits). Teachers invoice their own
   /// students, so the registration number is theirs. Null when a teacher is not
   /// a registered issuer, in which case their documents omit the line.

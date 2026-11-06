@@ -2014,10 +2014,12 @@ Use one shared admin workspace for both learning sites. Organize navigation arou
 
 Local verification used disposable PostgreSQL schemas and simulated Google and Stripe responses. It covered the additive migration, existing English discovery, a dual-language teacher, stale sign-in and handoff tokens on both sites, concurrent requests, and a previously authorized refund after both participants were suspended. Overview links to the current refund and webhook queues. The broader lesson search and recovery redesign is in 7d.
 
-#### 7c. Student and teacher profiles
+#### 7c. Student and teacher profiles — implemented locally
 
 - Show English and Japanese lesson and assessment history separately on student profiles, with the saved learning path and interface language labeled independently. The Japanese result, completion date, and retake date are read-only and distinguish awarded, inconclusive, and unassessed states.
 - On teacher profiles, show permission, effective visibility, class offerings, availability, and blockers for each subject. Use the same eligibility rules as discovery and booking. Group classes and their taxonomy by subject. Add per-subject public or roster-only visibility for dual-language teachers with a compatibility backfill for existing English teachers. Separate Google and Stripe readiness, profile editing, tiers, and pricing exceptions. Use searchable student and class selectors for rate overrides.
+
+Student profiles show the current placement and up to five recent assessments and lessons per language. Japanese retake dates use the existing cooldown calculation. Teacher and admin profiles can set either marketplace independently using the teacher's existing roster. The additive migration copies existing privacy to Japanese and keeps the original English setting. Local checks exercise the backfill, roster and booking restrictions, and class-specific rate overrides.
 
 #### 7d. Lessons and payment recovery
 

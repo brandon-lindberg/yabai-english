@@ -46,7 +46,7 @@ function pickLabel(
  * through its own endpoint, and it is a concession recorded against an admin
  * rather than a field of the teacher's profile.
  */
-export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId: string }) {
+export function AdminTeacherRateGrants({ teacherProfileId, onChange }: { teacherProfileId: string; onChange?: () => void }) {
   const t = useTranslations("admin.teacherRateGrants");
   const locale = useLocale();
   const subjectCopy = useTranslations("admin.teachingLanguages");
@@ -116,6 +116,7 @@ export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId:
       setRateInput("");
       setNote("");
       await load();
+      onChange?.();
     } catch {
       setError(t("error"));
     } finally {
@@ -133,6 +134,7 @@ export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId:
         return;
       }
       await load();
+      onChange?.();
     } catch {
       setError(t("error"));
     } finally {

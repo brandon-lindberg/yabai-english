@@ -2,6 +2,15 @@ import { describe, expect, test } from "vitest";
 import { marketplaceTeacherWhere } from "../marketplace-teacher-filter";
 
 describe("marketplaceTeacherWhere", () => {
+  test("Japanese discovery uses its own visibility even for a rostered learner", () => {
+    expect(marketplaceTeacherWhere(null, "JAPANESE")).toMatchObject({ japaneseMarketplaceHidden: false });
+    expect(marketplaceTeacherWhere(null, "JAPANESE")).not.toHaveProperty("marketplaceHidden");
+    expect(marketplaceTeacherWhere("student-1", "JAPANESE").OR).toEqual([
+      { japaneseMarketplaceHidden: false },
+      { rosterEntries: { some: { studentId: "student-1" } } },
+    ]);
+  });
+
   test("returns base clause when no viewer", () => {
     const where = marketplaceTeacherWhere(null);
     expect(where.marketplaceHidden).toBe(false);

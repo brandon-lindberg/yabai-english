@@ -39,7 +39,10 @@ describe("GET /api/lesson-products", () => {
     const res = await GET(new Request("http://localhost/api/lesson-products?teacherProfileId=english-only&learningLanguage=ENGLISH"));
     await expect(res.json()).resolves.toEqual([]);
     expect(findUniqueMock.mock.calls[0][0]).toMatchObject({
-      where: { id: "english-only", AND: [{ lessonOfferings: { some: { active: true, learningLanguage: "JAPANESE" } } }] },
+      where: { id: "english-only", AND: [{
+        japaneseMarketplaceHidden: false,
+        AND: [{ lessonOfferings: { some: { active: true, learningLanguage: "JAPANESE" } } }],
+      }] },
       select: { lessonOfferings: { where: { active: true, learningLanguage: "JAPANESE" } } },
     });
   });

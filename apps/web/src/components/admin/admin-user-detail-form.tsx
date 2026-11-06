@@ -26,6 +26,12 @@ import { Section } from "@/components/ui/section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Status } from "@/components/ui/status";
 import { AdminTeacherRateGrants } from "@/components/admin/admin-teacher-rate-grants";
+import { AdminStudentHistory } from "@/components/admin/admin-student-history";
+import { AdminTeacherOverview } from "@/components/admin/admin-teacher-overview";
+import { AdminStudentRateOverride } from "@/components/admin/admin-student-rate-override";
+import type { AdminStudentOverview } from "@/lib/admin/student-overview";
+import type { AdminTeacherOverview as TeacherOverview } from "@/lib/admin/teacher-overview";
+import { teacherMarketplaceVisibilityKey } from "@/lib/teacher-marketplace-booking-access";
 
 const LOCALES = ["ja", "en"] as const;
 const ROLES = [Role.STUDENT, Role.TEACHER, Role.SUPER_ADMIN] as const;
@@ -52,18 +58,24 @@ type UserDetailJson = {
   name: string | null;
   email: string | null;
   locale: string;
+  learningLanguage: LearningLanguage;
   role: Role;
   accountStatus: AccountStatus;
   studentProfile: StudentProfileDto | null;
   teacherProfile: AdminTeacherProfileDto | null;
   adminAccessEvents?: Array<{ id: number; actorId: string; actorName?: string; fromStatus: AccountStatus; toStatus: AccountStatus; reason: string; createdAt: string }>;
   followUp?: { upcomingLessons: number; unresolvedPayments: number } | null;
+  studentOverview?: AdminStudentOverview | null;
+  teacherOverview?: TeacherOverview | null;
 };
 
 export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { userId: string; backHref?: string }) {
   const t = useTranslations("admin.userDetail");
   const tg = useTranslations("admin.grid");
   const tGrants = useTranslations("admin.teacherRateGrants");
+  const overviewCopy = useTranslations("admin.profileOverview");
+  const tierCopy = useTranslations("admin.teacherTiersPage");
+  const languageCopy = useTranslations("admin.teachingLanguages");
   const viewerLocale = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -72,7 +84,9 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [teacherProfileId, setTeacherProfileId] = useState<string | null>(null);
-  const [calendarConnected, setCalendarConnected] = useState(false);
+  const [overview, setOverview] = useState<{
+    student?: AdminStudentOverview | null; teacher?: TeacherOverview | null; language: LearningLanguage; locale: string;
+  }>({ language: "ENGLISH", locale: "ja" });
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -105,18 +119,19 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
   const [teachingLanguages, setTeachingLanguages] = useState<LearningLanguage[]>([]);
   const [instrLangs, setInstrLangs] = useState("");
 
+  const fetchUser = useCallback(async () => {
+    const res = await fetch(`/api/admin/users/${userId}`);
+    const data = (await res.json()) as UserDetailJson & { error?: string };
+    if (!res.ok) throw new Error(data.error ?? t("loadError"));
+    return data;
+  }, [t, userId]);
+
   const load = useCallback(async () => {
     setLoading(true);
     setLoadError(false);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/users/${userId}`);
-      const data = (await res.json()) as UserDetailJson & { error?: string };
-      if (!res.ok) {
-        setLoadError(true);
-        setError(data.error ?? t("loadError"));
-        return;
-      }
+      const data = await fetchUser();
       setName(data.name ?? "");
       setEmail(data.email ?? "");
       setLocale(data.locale);
@@ -124,6 +139,7 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
       setAccountStatus(data.accountStatus);
       setAccessEvents(data.adminAccessEvents ?? []);
       setFollowUp(data.followUp);
+      setOverview({ student: data.studentOverview, teacher: data.teacherOverview, language: data.learningLanguage, locale: data.locale });
       setIdentity({ name: data.name, email: data.email });
       if (data.studentProfile) {
         setStuTz(data.studentProfile.timezone);
@@ -138,7 +154,6 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
       if (data.teacherProfile) {
         setTeacherProfileId(data.teacherProfile.id);
         setTeachingLanguages(data.teacherProfile.teachingLanguages ?? ["ENGLISH"]);
-        setCalendarConnected(data.teacherProfile.calendarConnected);
         setDisplayName(data.teacherProfile.displayName ?? "");
         setBio(data.teacherProfile.bio ?? "");
         setCountry(data.teacherProfile.countryOfOrigin ?? "");
@@ -150,19 +165,25 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
         setSpecialties(data.teacherProfile.specialties.join(", "));
         setInstrLangs(data.teacherProfile.instructionLanguages.join(", "));
       } else {
-        setCalendarConnected(false);
+        setTeacherProfileId(null);
       }
-    } catch {
+    } catch (error) {
       setLoadError(true);
-      setError(t("loadError"));
+      setError(error instanceof Error ? error.message : t("loadError"));
     } finally {
       setLoading(false);
     }
-  }, [t, userId]);
+  }, [fetchUser, t]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (!loading && teacherProfileId && window.location.hash === "#pricing") {
+      document.getElementById("pricing")?.scrollIntoView();
+    }
+  }, [loading, teacherProfileId]);
 
   async function save() {
     setSaving(true);
@@ -227,6 +248,23 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
     throw new Error(access
       ? t(data?.error === "ACCOUNT_ACCESS_CHANGED" ? "accessStale" : "saveError")
       : data?.error ?? t("saveError"));
+  }
+
+  async function saveVisibility(language: LearningLanguage, rosterOnly: boolean) {
+    setSaving(true);
+    setStatusMsg(null);
+    try {
+      await writeUser({ teacherProfile: { [teacherMarketplaceVisibilityKey(language)]: rosterOnly } });
+      await refreshTeacherOverview();
+      setStatusMsg(t("saved"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function refreshTeacherOverview() {
+    const { teacherOverview } = await fetchUser();
+    setOverview((previous) => ({ ...previous, teacher: teacherOverview }));
   }
 
   function openAccess(action: AccessAction) {
@@ -329,7 +367,7 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
   const hiddenAction = accountStatus === AccountStatus.ACTIVE ? "hide" : "unhide";
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 md:space-y-10">
       <div className="break-words">
         <PageHeader title={identity.name ?? identity.email ?? t("title")} description={identity.name ? identity.email : undefined} />
       </div>
@@ -350,7 +388,7 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
           <div className="my-4 space-y-2 border-y border-border py-3">
             <p className="text-sm font-semibold">{t("followUp")}</p>
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-              <Link className={actionLinkClass} href={`/admin/lessons?person=${encodeURIComponent(userId)}`}>{t("upcoming", { count: followUp.upcomingLessons })}</Link>
+              <Link className={actionLinkClass} href={`/admin/lessons?view=upcoming&person=${encodeURIComponent(userId)}`}>{t("upcoming", { count: followUp.upcomingLessons })}</Link>
               <Link className={actionLinkClass} href={`/admin/payments?person=${encodeURIComponent(userId)}`}>{t("payments", { count: followUp.unresolvedPayments })}</Link>
             </div>
           </div>
@@ -417,6 +455,9 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
         </Modal>
       )}
 
+      {overview.student && <AdminStudentHistory overview={overview.student} studentId={userId} learningLanguage={overview.language} interfaceLocale={overview.locale} />}
+      {overview.teacher && <AdminTeacherOverview overview={overview.teacher} saving={saving} onVisibility={saveVisibility} />}
+
       <Section title={t("sectionUser")}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t("name")}>
@@ -435,7 +476,7 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
               />
             )}
           </Field>
-          <Field label={t("locale")}>
+          <Field label={overviewCopy("interfaceLanguage")}>
             {(field) => (
               <Select
                 {...field}
@@ -444,7 +485,7 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
               >
                 {LOCALES.map((l) => (
                   <option key={l} value={l}>
-                    {l}
+                    {languageCopy(l === "ja" ? "JAPANESE" : "ENGLISH")}
                   </option>
                 ))}
               </Select>
@@ -467,6 +508,7 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
               maxChars={STUDENT_SHORT_BIO_MAX_CHARS}
               onChange={setStuBio}
             />
+            <h3 className="font-semibold">{overviewCopy("englishPlacement")}</h3>
             <Field label={t("placedLevel")}>
               {(field) => (
                 <Select
@@ -570,9 +612,6 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
                 />
               )}
             </Field>
-            <p className="text-sm text-muted">
-              {t("calendarConnected")}: {calendarConnected ? tg("yes") : tg("no")}
-            </p>
           </div>
         </Section>
       ) : null}
@@ -583,12 +622,22 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
         </Button>
       </div>
 
-      {/* Its own section, and its own endpoint: granting a below-minimum class
-          is a concession recorded against an admin, not a profile field. */}
       {role === Role.TEACHER && teacherProfileId ? (
-        <Section title={tGrants("title")}>
-          <AdminTeacherRateGrants teacherProfileId={teacherProfileId} />
-        </Section>
+        <div id="pricing" className="scroll-mt-6">
+          <Section title={overviewCopy("pricing")}>
+            <div className="space-y-6">
+              <Section as="h3" size="sm" title={tGrants("title")} ruled={false}>
+                <AdminTeacherRateGrants teacherProfileId={teacherProfileId} onChange={() => {
+                  void refreshTeacherOverview().catch(() => setError(t("loadError")));
+                }} />
+              </Section>
+              {overview.teacher && <Section as="h3" size="sm" title={tierCopy("legacyTitle")}>
+                <AdminStudentRateOverride teacherId={teacherProfileId} offerings={overview.teacher.offerings}
+                  permittedLanguages={overview.teacher.subjects.filter((subject) => subject.permitted).map((subject) => subject.learningLanguage)} />
+              </Section>}
+            </div>
+          </Section>
+        </div>
       ) : null}
 
     </div>

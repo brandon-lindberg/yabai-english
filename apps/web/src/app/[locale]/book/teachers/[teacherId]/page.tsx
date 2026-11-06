@@ -19,7 +19,7 @@ import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { buildLocalizedTeacherProfilePath } from "@/lib/teacher-card-href";
 import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
-import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
+import { studentMayAccessTeacherBookingFlow, teacherMarketplaceRosterOnly, teacherMarketplaceVisibilityFields } from "@/lib/teacher-marketplace-booking-access";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
 import { resolveViewerTimeZone } from "@/lib/viewer-time-zone";
 import { MarkdownView } from "@/components/ui/markdown-view";
@@ -98,7 +98,7 @@ export default async function TeacherProfileBookingPage({
       specialties: true,
       instructionLanguages: true,
       rateYen: true,
-      marketplaceHidden: true,
+      ...teacherMarketplaceVisibilityFields,
       user: {
         select: {
           name: true,
@@ -149,7 +149,7 @@ export default async function TeacherProfileBookingPage({
 
   const viewerStudentId =
     session?.user?.role === "STUDENT" ? session.user.id : null;
-  if (teacher.marketplaceHidden) {
+  if (teacherMarketplaceRosterOnly(teacher, learningLanguage)) {
     // A hidden teacher's page is reached through the link they share, usually
     // by a student not yet signed in. Who may see it depends on who they are,
     // so ask them to sign in and come straight back — a 404 here was a dead end

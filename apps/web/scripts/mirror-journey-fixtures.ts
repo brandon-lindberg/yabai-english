@@ -59,7 +59,7 @@ try {
       for (const [id, userId, learningLanguage] of teachers) {
         const offerId = `${id}-offer`;
         const fresh = userId.includes("-new-");
-        await tx.teacherProfile.create({ data: { id, userId, teachingLanguages: [learningLanguage], marketplaceHidden: fresh, offersFreeTrial: release, ...(release ? { paymentPolicyAcceptedAt: new Date() } : {}), onboardingCompletedAt: fresh ? null : new Date(), displayName: learningLanguage === "JAPANESE" ? "Mirror QA Japanese Teacher" : "Mirror QA English Teacher", instructionLanguages: ["EN", "JA"], countryOfOrigin: "JP", bio: "Synthetic local verification account." } });
+        await tx.teacherProfile.create({ data: { id, userId, teachingLanguages: [learningLanguage], marketplaceHidden: fresh, japaneseMarketplaceHidden: fresh, offersFreeTrial: release, ...(release ? { paymentPolicyAcceptedAt: new Date() } : {}), onboardingCompletedAt: fresh ? null : new Date(), displayName: learningLanguage === "JAPANESE" ? "Mirror QA Japanese Teacher" : "Mirror QA English Teacher", instructionLanguages: ["EN", "JA"], countryOfOrigin: "JP", bio: "Synthetic local verification account." } });
         const level = await tx.teacherClassLevel.create({ data: { teacherId: id, code: "beginner", labelEn: "Beginner", labelJa: "初級" } });
         const type = await tx.teacherClassType.create({ data: { teacherId: id, code: "conversation", labelEn: "Conversation", labelJa: "会話" } });
         await tx.teacherLessonOffering.create({ data: { id: offerId, teacherId: id, learningLanguage, durationMin: 60, rateYen: 5000, classLevelId: level.id, classTypeId: type.id } });

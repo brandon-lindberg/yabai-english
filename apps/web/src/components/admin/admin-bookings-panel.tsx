@@ -51,17 +51,19 @@ export function AdminBookingsPanel({
   locale,
   nowIso,
   queue,
+  initialScope = "upcoming",
 }: {
   bookings: AdminBookingRow[];
   locale: string;
   /** Taken on the server so the split does not shift between render and hydrate. */
   nowIso: string;
   queue?: "upcoming" | "reschedules";
+  initialScope?: "upcoming" | "past";
 }) {
   const t = useTranslations("admin.bookingsPanel");
   const td = useTranslations("dashboard");
   const language = useTranslations("admin.teachingLanguages");
-  const [scope, setScope] = useState<"upcoming" | "past">("upcoming");
+  const [scope, setScope] = useState(initialScope);
   const [status, setStatus] = useState<BookingStatus | "ALL">("ALL");
   const [query, setQuery] = useState("");
 

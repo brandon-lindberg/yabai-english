@@ -7,7 +7,8 @@ import {
 } from "@/lib/lesson-products";
 import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
 import { auth } from "@/auth";
-import { learningLanguageOfferingWhere, learningLanguageTeacherWhere } from "@/lib/learning-language";
+import { learningLanguageOfferingWhere } from "@/lib/learning-language";
+import { marketplaceTeacherWhere } from "@/lib/marketplace-teacher-filter";
 import { getRequestLearningLanguage } from "@/lib/learning-language-request";
 import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
@@ -27,7 +28,7 @@ export async function GET(req: Request) {
   const learningLanguage = await getRequestLearningLanguage(session);
 
   const teacher = await prisma.teacherProfile.findUnique({
-    where: { id: teacherProfileId, AND: [learningLanguageTeacherWhere(learningLanguage)] },
+    where: { id: teacherProfileId, AND: [marketplaceTeacherWhere(session?.user.role === "STUDENT" ? session.user.id : null, learningLanguage)] },
     select: {
       offersFreeTrial: true,
       paymentPolicyAcceptedAt: true,

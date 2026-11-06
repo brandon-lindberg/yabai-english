@@ -15,6 +15,7 @@ export default async function AdminTeacherTiersPage() {
     orderBy: { userId: "asc" },
     select: {
       id: true,
+      userId: true,
       displayName: true,
       user: { select: { name: true, email: true } },
       tierState: true,
@@ -31,6 +32,7 @@ export default async function AdminTeacherTiersPage() {
     const effective = resolveEffectiveTeacherTier(teacher.tierState, new Date());
     return {
       teacherId: teacher.id,
+      userId: teacher.userId,
       name: teacher.displayName ?? teacher.user.name ?? teacher.user.email ?? "Teacher",
       email: teacher.user.email,
       calculatedTier: teacher.tierState?.calculatedTier ?? "TIER_1",

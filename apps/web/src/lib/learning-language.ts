@@ -34,21 +34,28 @@ export function learningLanguageOfferingWhere(learningLanguage: LearningLanguage
 
 export const activeTeacherAccountWhere = { user: { accountStatus: "ACTIVE" } } as const;
 
-/** Admin permission and an active class must agree before discovery. */
-export function learningLanguageTeacherWhere(
+export function learningLanguageClassWhere(
   learningLanguage: LearningLanguage,
 ): Prisma.TeacherProfileWhereInput {
   const matching = { lessonOfferings: { some: learningLanguageOfferingWhere(learningLanguage) } };
-  const eligible = { ...activeTeacherAccountWhere, teachingLanguages: { has: learningLanguage } };
   // Historical teachers could publish unlinked English trial hours, including
   // after retiring their priced classes. Those hours retain their subject.
   return learningLanguage === LearningLanguage.ENGLISH
-    ? { ...eligible, OR: [
+    ? { OR: [
         matching,
         { lessonOfferings: { none: {} } },
         { availabilitySlots: { some: { active: true, teacherLessonOfferingId: null } } },
       ] }
-    : { ...eligible, ...matching };
+    : matching;
+}
+
+/** Admin permission and an active class must agree before discovery. */
+export function learningLanguageTeacherWhere(learningLanguage: LearningLanguage): Prisma.TeacherProfileWhereInput {
+  return {
+    ...activeTeacherAccountWhere,
+    teachingLanguages: { has: learningLanguage },
+    ...learningLanguageClassWhere(learningLanguage),
+  };
 }
 
 export function learningLanguageAvailabilityWhere(

@@ -19,6 +19,9 @@ import { countActiveAdmins, lockAdminAccountChanges } from "@/lib/admin/account-
 import { PrivateApiFailure } from "@/lib/private-api-error";
 import { adminLessonsForPerson, upcomingAdminLessonsWhere } from "@/lib/admin/lesson-filters";
 import { adminRefundRecoveryWhere } from "@/lib/refund-recovery";
+import { teacherMarketplaceVisibilityPatch } from "@/lib/teacher-marketplace-booking-access";
+import { loadAdminStudentOverview } from "@/lib/admin/student-overview";
+import { loadAdminTeacherOverview } from "@/lib/admin/teacher-overview";
 
 const teacherProfilePatchSchema = z
   .object({
@@ -31,6 +34,7 @@ const teacherProfilePatchSchema = z
     specialties: z.array(z.string().min(1).max(40)).max(20).optional(),
     rateYen: z.number().int().min(0).max(9_999_999).nullable().optional(),
     offersFreeTrial: z.boolean().optional(),
+    ...teacherMarketplaceVisibilityPatch,
   })
   .strict();
 
@@ -82,6 +86,7 @@ export async function GET(_req: Request, { params }: Props) {
     include: {
       studentProfile: true,
       teacherProfile: true,
+      googleIntegrationSettings: { select: { calendarConnected: true, meetConnected: true, driveConnected: true } },
       adminAccessEvents: { orderBy: { id: "desc" }, take: 10 },
     },
   });
@@ -89,7 +94,11 @@ export async function GET(_req: Request, { params }: Props) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { teacherProfile, adminAccessEvents, ...rest } = user;
+  const { teacherProfile, adminAccessEvents, googleIntegrationSettings, ...rest } = user;
+  const [studentOverview, teacherOverview] = await Promise.all([
+    user.role === "STUDENT" ? loadAdminStudentOverview(prisma, user.id, user.studentProfile) : null,
+    user.role === "TEACHER" && teacherProfile ? loadAdminTeacherOverview(prisma, teacherProfile, user.accountStatus, googleIntegrationSettings) : null,
+  ]);
   const actors = adminAccessEvents?.length ? await prisma.user.findMany({
     where: { id: { in: [...new Set(adminAccessEvents.map(({ actorId }) => actorId))] } },
     select: { id: true, name: true, email: true },
@@ -106,6 +115,8 @@ export async function GET(_req: Request, { params }: Props) {
     ...rest,
     teacherProfile: teacherProfileToAdminDto(teacherProfile),
     adminAccessEvents: adminAccessEvents?.map((event) => ({ ...event, actorName: actorNames.get(event.actorId) })),
+    studentOverview,
+    teacherOverview,
     followUp,
   }, { headers: { "Cache-Control": "private, no-store" } });
 }

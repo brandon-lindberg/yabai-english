@@ -8,6 +8,7 @@ import { buildTeacherOnboardingReturnFromProfile } from "@/lib/teacher-onboardin
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { PageHeader } from "@/components/ui/page-header";
+import { teacherMarketplaceVisibilityFields } from "@/lib/teacher-marketplace-booking-access";
 
 export default async function DashboardProfilePage({
   searchParams,
@@ -34,7 +35,8 @@ export default async function DashboardProfilePage({
           credentials: true,
           instructionLanguages: true,
           specialties: true,
-          marketplaceHidden: true,
+          ...teacherMarketplaceVisibilityFields,
+          teachingLanguages: true,
         },
       }),
       prisma.user.findUnique({
@@ -71,6 +73,9 @@ export default async function DashboardProfilePage({
           initialInstructionLanguages={profile?.instructionLanguages ?? ["EN"]}
           initialSpecialties={profile?.specialties ?? []}
           initialMarketplaceHidden={profile?.marketplaceHidden ?? false}
+          initialJapaneseMarketplaceHidden={profile?.japaneseMarketplaceHidden ?? false}
+          teachingLanguages={profile?.teachingLanguages}
+          activeLearningLanguage={session.user.learningLanguage}
           postSaveRedirect={onboardingNext ?? postSaveRedirect}
         />
       </div>

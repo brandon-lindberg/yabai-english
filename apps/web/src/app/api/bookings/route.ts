@@ -1,7 +1,7 @@
 import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { lockActiveAccounts } from "@/lib/active-account-lock";
+import { lockTeacherBookingAccess } from "@/lib/teacher-booking-lock";
 import { lessonProductNames } from "@/lib/lesson-product-catalog";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
@@ -27,7 +27,7 @@ import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifica
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
 import { z } from "zod";
 import { BookingStatus, LessonTier, type LearningLanguage, type Prisma } from "@/generated/prisma/client";
-import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
+import { studentMayAccessTeacherBookingFlow, teacherMarketplaceRosterOnly } from "@/lib/teacher-marketplace-booking-access";
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 import {
@@ -215,7 +215,7 @@ export async function POST(req: Request) {
   });
   if (
     !studentMayAccessTeacherBookingFlow({
-      marketplaceHidden: teacher.marketplaceHidden,
+      marketplaceHidden: teacherMarketplaceRosterOnly(teacher, learningLanguage),
       viewerStudentId: session.user.id,
       isStudentOnRoster: Boolean(onRoster),
     })
@@ -474,7 +474,9 @@ export async function POST(req: Request) {
   });
 
   const booking = await prisma.$transaction(async (tx) => {
-    if (!await lockActiveAccounts(tx, session.user.id, teacher.userId)) {
+    if (!await lockTeacherBookingAccess(tx, {
+      studentId: session.user.id, teacherUserId: teacher.userId, teacherId: teacher.id, learningLanguage,
+    })) {
       throw new Error("ACCOUNT_UNAVAILABLE");
     }
     const profile = await tx.studentProfile.findUnique({

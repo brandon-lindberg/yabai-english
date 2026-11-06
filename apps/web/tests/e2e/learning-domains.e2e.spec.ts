@@ -722,3 +722,113 @@ test("domain branding and admin language control fit desktop and mobile in both 
     }
   }
 });
+
+test("admin profiles separate subjects, marketplace privacy, and pricing", async ({ browser }) => {
+  const fixture = readMirrorFixtures();
+  const learner = releaseStudent("study-student");
+  const teacher = fixture.users[2];
+  const admin = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const studentPage = await browser.newPage();
+  const teacherPage = await browser.newPage();
+  const copy = en.admin.profileOverview;
+  const folder = "../../.impeccable/review/admin-profiles";
+  mkdirSync(folder, { recursive: true });
+  try {
+    await signIn(admin, "ENGLISH", releaseStudent("payment-admin").email);
+    const detailApi = `${sites.ENGLISH}/api/admin/users/${teacher.id}`;
+    const detailPage = `${sites.ENGLISH}/en/admin/users/${teacher.id}`;
+    const assignment = await admin.request.patch(detailApi, { data: { teacherProfile: { teachingLanguages: ["ENGLISH", "JAPANESE"] } } });
+    expect(assignment.status()).toBe(200);
+    const detail = await (await admin.request.get(detailApi)).json();
+    const baseClass = detail.teacherOverview.offerings.find((item: { isFreeTrial: boolean }) => !item.isFreeTrial);
+    const classResponse = await admin.request.post(`${sites.ENGLISH}/api/admin/teacher-offerings`, { data: {
+      teacherId: fixture.englishTeacherId, learningLanguage: "JAPANESE", durationMin: 60, rateYen: 2500,
+      classLevelId: baseClass.classLevel.id, classTypeId: baseClass.classType.id,
+    } });
+    expect(classResponse.status()).toBe(200);
+    const japaneseClass = (await classResponse.json()).offering;
+
+    await admin.goto(detailPage);
+    const japanese = admin.getByRole("region", { name: "Japanese", exact: true });
+    const english = admin.getByRole("region", { name: "English", exact: true });
+    await japanese.getByRole("combobox", { name: "Japanese visibility" }).selectOption("roster");
+    await japanese.getByRole("button", { name: copy.saveVisibility }).click();
+    await expect(japanese.getByText(copy.rosterOnly, { exact: true }).first()).toBeVisible();
+    await expect(english.getByRole("combobox", { name: "English visibility" })).toHaveValue("public");
+    await japanese.getByText("1 class", { exact: true }).click();
+    await expect(japanese.getByText("Beginner · Conversation")).toBeVisible();
+    await admin.screenshot({ path: `${folder}/teacher-desktop.png` });
+
+    await signIn(studentPage, "ENGLISH", learner.email);
+    await studentPage.goto(`${sites.ENGLISH}/en/book`);
+    await expect(studentPage.getByText("Mirror QA English Teacher", { exact: true }).first()).toBeVisible();
+    const japaneseProfile = `${sites.JAPANESE}/en/book/teachers/${fixture.englishTeacherId}`;
+    await studentPage.goto(japaneseProfile);
+    await expect(studentPage.getByRole("heading", { name: "404", exact: true })).toBeVisible();
+    const productUrl = `${sites.JAPANESE}/api/lesson-products?teacherProfileId=${fixture.englishTeacherId}`;
+    expect(await (await studentPage.request.get(productUrl)).json()).toEqual([]);
+    const blocked = await studentPage.request.post(`${sites.JAPANESE}/api/bookings`, { data: {
+      lessonProductId: fixture.placementProductId, teacherProfileId: fixture.englishTeacherId,
+      startsAt: new Date(Date.now() + 8 * 86400_000).toISOString(),
+    } });
+    expect(blocked.status()).toBe(403);
+
+    await signIn(teacherPage, "ENGLISH", teacher.email);
+    await teacherPage.goto(`${sites.ENGLISH}/en/dashboard/profile`);
+    await teacherPage.getByRole("button", { name: en.dashboard.profilePage.editProfile }).click();
+    const settings = teacherPage.getByRole("dialog");
+    const englishPrivate = settings.getByRole("checkbox", { name: /Only show my English/ });
+    const japanesePrivate = settings.getByRole("checkbox", { name: /Only show my Japanese/ });
+    await expect(englishPrivate).not.toBeChecked();
+    await expect(japanesePrivate).toBeChecked();
+    await englishPrivate.check();
+    const saved = teacherPage.waitForResponse(response => response.url().endsWith("/api/teacher/profile") && response.request().method() === "PATCH");
+    await settings.getByRole("button", { name: en.dashboard.profilePage.save, exact: true }).click();
+    expect((await saved).ok()).toBe(true);
+    expect((await saved).request().postDataJSON()).toMatchObject({ marketplaceHidden: true });
+    expect((await saved).request().postDataJSON()).not.toHaveProperty("japaneseMarketplaceHidden");
+    const roster = await teacherPage.request.post(`${sites.ENGLISH}/api/teacher/roster`, { data: { email: learner.email } });
+    expect(roster.ok()).toBe(true);
+    await studentPage.goto(japaneseProfile);
+    await expect(studentPage.getByRole("heading", { name: "Mirror QA English Teacher" })).toBeVisible();
+    expect(await (await studentPage.request.get(productUrl)).json()).not.toEqual([]);
+
+    await admin.goto(`${detailPage}#pricing`);
+    await admin.getByRole("searchbox", { name: copy.searchStudents }).fill(learner.email);
+    const student = admin.getByRole("combobox", { name: copy.selectStudent });
+    await expect(student.locator(`option[value="${learner.id}"]`)).toHaveCount(1);
+    await student.selectOption(learner.id);
+    await admin.getByRole("searchbox", { name: copy.searchClasses }).fill("Japanese");
+    const offering = admin.getByRole("combobox", { name: copy.selectClass, exact: true });
+    await expect(offering.locator("option")).toHaveCount(2);
+    await offering.selectOption(japaneseClass.id);
+    await admin.locator("#pricing").getByRole("textbox", { name: en.admin.teacherTiersPage.fieldRateYen, exact: true }).fill("2300");
+    const rateSaved = admin.waitForResponse(response => response.url().endsWith("/api/admin/teacher-student-rates") && response.request().method() === "POST");
+    await admin.getByRole("button", { name: en.admin.teacherTiersPage.saveLegacyRate }).click();
+    expect((await (await rateSaved).json()).override).toMatchObject({ studentId: learner.id, teacherLessonOfferingId: japaneseClass.id, rateYen: 2300 });
+    await expect(admin.getByText(copy.rateSaved, { exact: true })).toBeVisible();
+
+    const historyStudent = fixture.users[0];
+    fixtureCommand("release-japanese-n5-award", { learnerId: historyStudent.id });
+    await admin.goto(`${sites.ENGLISH}/en/admin/users/${historyStudent.id}`);
+    await expect(admin.getByRole("heading", { name: copy.studentHistory })).toBeVisible();
+    await expect(japanese.getByText("N5", { exact: true }).first()).toBeVisible();
+    await expect(japanese.getByText(copy.retake, { exact: true })).toBeVisible();
+    await expect(english.getByText("Advanced 3", { exact: true })).toBeVisible();
+    await japanese.getByText(copy.recentLessons, { exact: true }).click();
+    await expect(japanese.getByRole("link", { name: copy.allLessons })).toHaveAttribute("href", /subject=JAPANESE/);
+    await admin.screenshot({ path: `${folder}/student-desktop.png` });
+    await admin.setViewportSize({ width: 390, height: 844 });
+    await setHeaderTheme(admin, en.common, "dark");
+    expect(await admin.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await admin.locator("section").filter({ has: admin.getByRole("heading", { name: copy.studentHistory }) }).first()
+      .screenshot({ path: `${folder}/student-mobile.png`, animations: "disabled" });
+    await admin.goto(detailPage);
+    await expect(admin.getByRole("heading", { name: copy.teachingSubjects })).toBeVisible();
+    expect(await admin.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await admin.locator("section").filter({ has: admin.getByRole("heading", { name: copy.teachingSubjects }) }).first()
+      .screenshot({ path: `${folder}/teacher-mobile.png`, animations: "disabled" });
+  } finally {
+    await Promise.all([admin.close(), studentPage.close(), teacherPage.close()]);
+  }
+});

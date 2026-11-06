@@ -40,6 +40,8 @@ export default defineConfig({
       "src/lib/__tests__/free-trial-offering*.test.ts",
       "src/lib/__tests__/schedule-offering-sync.test.ts",
       "src/app/api/teacher/availability/__tests__/*.test.ts",
+      "src/app/api/teacher/profile/__tests__/*.test.ts",
+      "src/components/dashboard/__tests__/teacher-profile-form.test.tsx",
       "tests/mirror/*.test.ts",
       "src/__tests__/auth.learning-language.test.ts",
       "src/__tests__/learning-language-pages.test.ts",
