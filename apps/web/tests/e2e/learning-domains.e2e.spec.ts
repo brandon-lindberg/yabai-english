@@ -16,7 +16,11 @@ async function signIn(page: Page, language: keyof typeof sites, email: string) {
 
 async function completeGoogleCallback(page: Page, origin: string, email: string) {
   await page.goto(`${origin}/en/auth/signin?callbackUrl=%2Fen%2Fdashboard`);
-  const google = await interceptMirrorGoogleSignIn(page, () => page.getByRole("button", { name: en.auth.continueWithGoogle, exact: true }).click());
+  await completeGoogleFromPage(page, origin, email, en.auth.continueWithGoogle);
+}
+
+async function completeGoogleFromPage(page: Page, origin: string, email: string, button: string) {
+  const google = await interceptMirrorGoogleSignIn(page, () => page.getByRole("button", { name: button, exact: true }).click());
   const state = google.searchParams.get("state");
   expect(state).toBeTruthy();
   const callback = new URL(googleCallback);
@@ -914,4 +918,81 @@ for (const scenario of releaseCases()) test(`${scenario.language}: admin schools
   await page.getByRole("link", { name: copy.admin.profileOverview.pricing }).first().click();
   await expect(page).toHaveURL(/\/admin\/users\/.+#pricing$/);
   await expect(page.locator("#pricing").getByRole("heading", { name: copy.admin.profileOverview.pricing })).toBeVisible();
+});
+
+for (const scenario of releaseCases()) test(`${scenario.language}: a teacher invitation can be shared without an email`, async ({ page, browser }) => {
+  const fixtures = readMirrorFixtures();
+  const existing = scenario.language === "JAPANESE" ? fixtures.users[0] : null;
+  const email = existing?.email ?? `${fixtures.runId}-invited-teacher@example.invalid`;
+  const copy = scenario.locale === "ja" ? ja : en;
+  const t = copy.admin.teacherInvitations;
+  const origin = sites[scenario.language];
+  const localePath = scenario.locale === "en" ? "/en" : "";
+  const api = "/api/admin/teacher-invitations";
+  await page.setViewportSize({ width: scenario.width, height: 900 });
+  await signIn(page, "ENGLISH", releaseStudent("payment-admin").email);
+  if (scenario.locale === "ja") await chooseInterfaceLocale(page, en.common, "ja");
+  await setHeaderTheme(page, copy.common, scenario.theme);
+  await page.goto(`${sites.ENGLISH}${localePath}/admin/users`);
+  await page.getByRole("link", { name: t.title, exact: true }).click();
+  await page.getByRole("checkbox", { name: copy.admin.teachingLanguages[scenario.language], exact: true }).check();
+  await page.getByLabel(t.label).fill("Private message");
+  const creation = page.waitForResponse((response) => new URL(response.url()).pathname === api && response.request().method() === "POST");
+  await page.getByRole("button", { name: t.generate }).click();
+  const created = await creation;
+  expect(created.status()).toBe(201);
+  expect(created.headers()["cache-control"]).toContain("no-store");
+  expect(created.request().postDataJSON()).toEqual({ label: "Private message", teachingLanguages: [scenario.language] });
+  const { link } = await created.json();
+  const invite = new URL(link);
+  expect(invite.origin).toBe(origin);
+  expect(invite.search).toBe("");
+  expect(invite.hash).toMatch(/^#[\w-]{43}$/);
+  await expect(page.getByLabel(t.link)).toHaveValue(link);
+  await expect(page.getByRole("listitem").filter({ hasText: "Private message" })).toBeVisible();
+  await captureRelease(page, `${scenario.language}-teacher-invitation-admin`);
+
+  const recipient = await browser.newPage({ viewport: { width: scenario.width, height: 900 } });
+  const replay = await browser.newPage();
+  try {
+    await recipient.goto(link);
+    await expect(recipient.getByRole("heading", { name: copy.teacherInvitation.title })).toBeVisible();
+    await expect(recipient.getByRole("button", { name: copy.auth.continueWithGoogle })).toBeVisible();
+    await completeGoogleFromPage(recipient, origin, email, copy.auth.continueWithGoogle);
+    await expect(recipient).toHaveURL(`${origin}${localePath}/teacher-invite`);
+    const before = await (await recipient.request.get(`${origin}/api/auth/session`)).json();
+    expect(before.user).toMatchObject({ role: "STUDENT", email, ...(existing ? { id: existing.id } : {}) });
+    expect((await recipient.request.post(`${origin}${api}`, { data: { teachingLanguages: [scenario.language] } })).status()).toBe(403);
+    await setHeaderTheme(recipient, copy.common, scenario.theme);
+    await captureRelease(recipient, `${scenario.language}-teacher-invitation-accept`);
+    await recipient.getByRole("button", { name: copy.teacherInvitation.accept }).click();
+    await expect(recipient).toHaveURL(`${origin}${localePath}/onboarding/teacher`);
+    const after = await (await recipient.request.get(`${origin}/api/auth/session`)).json();
+    expect(after.user).toMatchObject({ id: before.user.id, role: "TEACHER" });
+    const account = await (await page.request.get(`${sites.ENGLISH}/api/admin/users/${after.user.id}`)).json();
+    expect(account.teacherProfile.teachingLanguages).toEqual([scenario.language]);
+    if (existing) expect(account.studentProfile.placedLevel).toBe("ADVANCED");
+    const other = sites[scenario.language === "ENGLISH" ? "JAPANESE" : "ENGLISH"];
+    expect((await (await recipient.request.get(`${other}/api/auth/session`)).json()).user).toMatchObject({ id: after.user.id, role: "TEACHER" });
+
+    await replay.goto(link);
+    await replay.getByRole("button", { name: copy.auth.continueWithGoogle }).click();
+    await expect(replay.getByRole("heading", { name: copy.teacherInvitation.unavailableTitle })).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByText(t.empty, { exact: true })).toBeVisible();
+    await page.getByRole("checkbox", { name: copy.admin.teachingLanguages[scenario.language], exact: true }).check();
+    await page.getByRole("button", { name: t.generate }).click();
+    const secondLink = page.getByLabel(t.link);
+    await expect(secondLink).toBeVisible();
+    const revokedLink = await secondLink.inputValue();
+    await page.getByRole("button", { name: t.revoke, exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: t.revoke, exact: true }).click();
+    await expect(page.getByText(t.empty, { exact: true })).toBeVisible();
+    await replay.goto(revokedLink);
+    await replay.getByRole("button", { name: copy.auth.continueWithGoogle }).click();
+    await expect(replay.getByRole("heading", { name: copy.teacherInvitation.unavailableTitle })).toBeVisible();
+  } finally {
+    await Promise.all([recipient.close(), replay.close()]);
+  }
 });

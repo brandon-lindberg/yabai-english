@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import type {
-  InputHTMLAttributes,
+  ComponentPropsWithRef,
   ReactNode,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
@@ -211,7 +211,7 @@ function Label({
 export function Input({
   className = "",
   ...rest
-}: InputHTMLAttributes<HTMLInputElement>) {
+}: ComponentPropsWithRef<"input">) {
   return <input {...rest} className={controlClasses(rest["aria-invalid"] === true, className)} />;
 }
 

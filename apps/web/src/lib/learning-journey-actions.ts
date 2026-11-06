@@ -4,7 +4,7 @@ import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { configuredLearningSites, learningSiteHref } from "@/lib/learning-sites";
 import { appPathForLocale } from "@/lib/i18n-app-path";
 import { redirect as redirectAbsolute } from "next/navigation";
-import { auth, signIn } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "@/i18n/navigation";
 import type { LearningLanguage } from "@/generated/prisma/enums";
@@ -13,6 +13,7 @@ import { rememberGuestLearningLanguage } from "@/lib/learning-language-request";
 import { prepareLearningSignIn } from "@/lib/learning-sign-in";
 import { isGoogleSignInConfigured } from "@/lib/auth-mode";
 import { authErrorHref } from "@/lib/auth-error-kind";
+import { googleAuthorizationUrl } from "@/lib/google-authorization-url";
 
 /** Start OAuth only after the Google form is submitted. */
 export async function startGoogleSignIn(input: Parameters<typeof prepareLearningSignIn>[0]) {
@@ -23,8 +24,7 @@ export async function startGoogleSignIn(input: Parameters<typeof prepareLearning
   let destination = unavailable;
   try {
     const redirectTo = await prepareLearningSignIn({ ...input, locale });
-    const authorizationUrl = new URL(await signIn("google", { redirect: false, redirectTo }));
-    if (authorizationUrl.origin === "https://accounts.google.com") destination = authorizationUrl.href;
+    destination = await googleAuthorizationUrl(redirectTo);
   } catch (error) {
     console.error("[auth] Google sign-in could not start", error instanceof Error ? error.name : "Unknown error");
   }

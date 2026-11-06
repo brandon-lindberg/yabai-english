@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 
 type Labels = { label: string; pendingLabel: string };
 
-export function GoogleSignInForm({ action, autoRetry = false, label, pendingLabel }: Labels & { action: () => Promise<void>; autoRetry?: boolean }) {
+export function GoogleSignInForm({ action, autoRetry = false, label, pendingLabel, children }: Labels & {
+  action: (data: FormData) => Promise<void>;
+  autoRetry?: boolean;
+  children?: ReactNode;
+}) {
   const form = useRef<HTMLFormElement>(null);
   const submitted = useRef(false);
   useEffect(() => {
@@ -14,6 +18,7 @@ export function GoogleSignInForm({ action, autoRetry = false, label, pendingLabe
 
   return (
     <form ref={form} action={action} onSubmit={() => { submitted.current = true; }}>
+      {children}
       <GoogleSignInButton label={label} pendingLabel={pendingLabel} />
     </form>
   );

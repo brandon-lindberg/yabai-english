@@ -109,6 +109,21 @@
       "custom": "Custom"
     }
   },
+  "teacherInvitation": {
+    "title": "You’re invited to teach",
+    "intro": "Sign in with Google and accept the invitation to start teacher setup. This link can be used once.",
+    "signedInIntro": "Accept the invitation to start teacher setup with the Google account shown below.",
+    "account": "Signed in as {account}",
+    "currentAccount": "your current Google account",
+    "accept": "Accept invitation",
+    "switchAccount": "Use another Google account",
+    "openLink": "Open the full invitation link you received to continue.",
+    "unavailableTitle": "Invitation unavailable",
+    "unavailable": "This link has expired, been used, or been revoked. Ask the person who invited you for a new link.",
+    "ineligible": "This account can’t accept the invitation. Try another Google account or contact the person who invited you.",
+    "googleError": "Google sign-in could not start. Try again.",
+    "home": "Back to home"
+  },
   "auth": {
     "idleLockTitle": "Signed out for your security",
     "idleLockBody": "You were inactive for a while, so this page has been hidden. Sign in again to continue.",
@@ -903,6 +918,30 @@
       "ownerEmailHint": "Must already have an account. They become the organization's owner.",
       "schoolSlug": "School slug",
       "slugHint": "Used in URLs. Filled from the name; edit it if you need something different."
+    },
+    "teacherInvitations": {
+      "title": "Invite teacher",
+      "intro": "Generate a link to share privately. The first eligible person to accept it with Google gets teacher access. Each link expires after seven days.",
+      "back": "Back to People",
+      "label": "Reference (optional)",
+      "labelHint": "Add a private note to help you identify this link later.",
+      "generate": "Generate invite link",
+      "ready": "Invite link ready",
+      "copyHelp": "Copy the link now and send it in a private message. This is the only time the link is shown.",
+      "link": "Invitation link",
+      "copy": "Copy link",
+      "copied": "Link copied.",
+      "manualCopy": "Copy the selected link.",
+      "expires": "Expires",
+      "active": "Active invitations",
+      "refreshing": "Updating active invitations…",
+      "empty": "There are no unused invitations.",
+      "unnamed": "Teacher invitation",
+      "revoke": "Revoke link",
+      "revokeTitle": "Revoke this invitation?",
+      "revokeHelp": "Anyone with this link will need a new invitation.",
+      "cancel": "Keep link",
+      "error": "The invitation could not be updated. Try again."
     },
     "createUser": {
       "created": "Created {email}. Tell them to sign in with Google using that address.",

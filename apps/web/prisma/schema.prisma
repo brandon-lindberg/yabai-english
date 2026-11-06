@@ -317,6 +317,22 @@ model AdminAccountAccessEvent {
   @@index([userId, id])
 }
 
+/// An invitation to teach, issued and shared by a platform administrator.
+model TeacherInvitation {
+  id                String             @id @default(cuid())
+  tokenHash         String             @unique @db.VarChar(43)
+  label             String?            @db.VarChar(80)
+  teachingLanguages LearningLanguage[]
+  createdById       String
+  createdAt         DateTime           @default(now())
+  expiresAt         DateTime
+  redeemedAt        DateTime?
+  redeemedById      String?
+  revokedAt         DateTime?
+
+  @@index([expiresAt])
+}
+
 /// Content-addressed English evidence, retained independently of later bank edits.
 model EnglishPlacementBankSnapshot {
   id        String @id @default(cuid())

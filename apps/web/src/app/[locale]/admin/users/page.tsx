@@ -13,9 +13,10 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
   const query = parsed.success ? parsed.data : defaultPeopleQuery;
   return (
     <main>
-      <PageHeader title={t("title")} description={t("subtitle")} actions={
-        <Link className={buttonClasses()} href="/admin/invite">{admin("createUser.open")}</Link>
-      } />
+      <PageHeader title={t("title")} description={t("subtitle")} actions={<>
+        <Link className={buttonClasses({ variant: "secondary" })} href="/admin/invite">{admin("createUser.open")}</Link>
+        <Link className={buttonClasses()} href="/admin/invite/teacher">{admin("teacherInvitations.title")}</Link>
+      </>} />
       <AdminPeopleNav active="directory" />
       <AdminUserGrid key={adminPeopleSearch(query)} initialQuery={query} columnStorageKey="admin-people-columns" />
     </main>

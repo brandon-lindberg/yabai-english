@@ -2039,6 +2039,12 @@ School member rows show the platform role and account status alongside each orga
 
 Local release verification covered 45 browser scenarios across the two-domain suite, shared lesson and placement journeys, and the focused payment recovery rerun. The admin checks covered keyboard actions, English desktop light mode, Japanese mobile dark mode, and school-role assignments without platform admin access. Google and Stripe used simulated responses with disposable PostgreSQL schemas.
 
+#### 7f. One-time teacher invitations — implemented locally
+
+People → Invite teacher generates a seven-day link for the chosen teaching languages. The administrator can add a private reference, copy the link at creation, share it by direct message, or revoke it while unused. The link requires no email address. Its first eligible Google account to accept it receives teacher access. Manual account creation and role changes are still available under People.
+
+The browser passes the link secret in the URL fragment. The database stores its hash, expiry and claim record. Acceptance promotes the existing user, provisions the teacher profile and taxonomy, and consumes the link in one transaction. Student history is retained. The existing sign-in session continues into teacher onboarding and can be shared between the two domains. The additive invitation migration was applied locally.
+
 ## Source completeness standard
 
 Modern JLPT has no published exhaustive official vocabulary/kanji list. The measurable target is full, traceable coverage of a named, versioned community corpus, with every merge/correction explained and zero unreviewed omissions. Preserve level source and supplementary/inferred classifications. Multiple repositories inheriting Waller's lists are not independent pedagogical validation.

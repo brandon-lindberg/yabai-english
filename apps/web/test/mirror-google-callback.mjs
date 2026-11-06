@@ -8,7 +8,7 @@ if (process.env.MIRROR_DOMAIN_TEST !== "true" || !/^mirror_test_[a-f0-9]{32}$/.t
 const issuer = "https://accounts.google.com";
 const tokenEndpoint = "https://oauth2.googleapis.com/token";
 const userInfoEndpoint = "https://openidconnect.googleapis.com/v1/userinfo";
-const fixtureEmail = /^mirror-qa-[a-f0-9-]+-(student|japanese-teacher)@example\.invalid$/;
+const fixtureEmail = /^mirror-qa-[a-f0-9-]+-(student|japanese-teacher|invited-teacher)@example\.invalid$/;
 let keys;
 
 function encode(value) {

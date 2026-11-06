@@ -4,6 +4,7 @@ import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 export async function invalidateUserSessions(
   prisma: PrismaClient | Prisma.TransactionClient,
   userId: string,
+  exceptSessionToken?: string,
 ): Promise<void> {
-  await prisma.session.deleteMany({ where: { userId } });
+  await prisma.session.deleteMany({ where: { userId, ...(exceptSessionToken ? { sessionToken: { not: exceptSessionToken } } : {}) } });
 }
