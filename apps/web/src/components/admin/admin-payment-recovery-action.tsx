@@ -14,7 +14,9 @@ export function AdminPaymentRecoveryAction(props: Props) {
     if (busy) return; setBusy(true); setError(false);
     try {
       const response = await fetch("/api/admin/payments/recovery", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(props.eventId ? { eventId: props.eventId } : { paymentId: props.paymentId }) });
+        body: JSON.stringify(props.eventId ? { eventId: props.eventId } : {
+          paymentId: props.paymentId, ...(props.feeOnly ? { feeOnly: true } : {}),
+        }) });
       const data = await response.json();
       if (!response.ok) { setError(true); return; }
       setOpen(false); setOutcome(data.pending ? "queued" : "complete"); props.onCompleted();

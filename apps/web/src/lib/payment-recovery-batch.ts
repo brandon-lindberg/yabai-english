@@ -10,7 +10,7 @@ export const dueRecoveryWhere = (force = false) => ({
 });
 
 /** Legacy records with an explicit full-refund policy row supply evidence of an obligation. */
-export async function recoverPayment(db: PrismaClient, paymentId: string) {
+export async function recoverPayment(db: PrismaClient, paymentId: string, { feeOnly = false }: { feeOnly?: boolean } = {}) {
   const payment = await db.payment.findUnique({ where: { id: paymentId }, include: { recovery: true,
     refunds: { where: { reason: "CANCELLATION_POLICY", status: { not: "SUCCEEDED" } } } } });
   if (!payment?.bookingId || payment.provider !== "STRIPE") throw new Error("Stripe payment not found");
@@ -19,13 +19,13 @@ export async function recoverPayment(db: PrismaClient, paymentId: string) {
     if (!booking) throw new Error("Booking not found");
     const fullObligation = payment.refunds.find(refund => refund.amountYen === payment.amountYen);
     await db.$transaction(async tx => {
-      if (fullObligation) await prepareBookingRefund(tx, { booking, actor: "SUPER_ADMIN",
+      if (fullObligation && !feeOnly) await prepareBookingRefund(tx, { booking, actor: "SUPER_ADMIN",
         policy: { allowed: true, refundEligible: true, rescheduleOffered: false } });
       else await queuePaymentReconciliation(tx, paymentId);
     });
   }
   // This path is an explicit super-admin action. The scheduled worker never authorizes a new failed attempt.
-  await processPaymentRecovery(db, paymentId, { force: true, reissueFailed: true });
+  await processPaymentRecovery(db, paymentId, { force: true, reissueFailed: !feeOnly, feeOnly });
   return db.paymentRecovery.findUnique({ where: { paymentId } });
 }
 

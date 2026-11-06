@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useIsWideScreen } from "@/hooks/use-is-wide-screen";
 import {
@@ -52,45 +53,55 @@ type Props = {
   viewer: "teacher" | "student";
 };
 
+type CalendarItem = Pick<DashboardScheduleItem, "id" | "startsAtIso" | "endsAtIso" | "title" | "counterpartName" | "isPast" | "groupSeats"> & {
+  annotation?: string;
+};
+
+type CalendarNavigation = {
+  anchorIso: string;
+  view: CalendarViewMode;
+  onNavigate: (anchorIso: string, view: CalendarViewMode) => void;
+};
+
 /**
- * Where a mark on the grid leads: always to its details, in place.
- *
- * A lesson already taught used to be a link to the completed history, which
- * cost someone glancing back at last week a trip to another tab. It now opens
- * the same dialog, carrying its notes and invoice; the dialog itself knows not
- * to offer cancelling or joining something that already happened.
+ * Dashboard items open the reservation dialog. Admin items link directly to
+ * the booking record while sharing the same calendar and slot styles.
  */
 function ScheduleItemAction({
   item,
   label,
   className,
   onOpen,
+  href,
   children,
 }: {
-  item: DashboardScheduleItem;
+  item: CalendarItem;
   /** The accessible name: the chip itself has room for far less. */
   label: string;
   className?: string;
-  onOpen: (id: string) => void;
+  onOpen?: (id: string) => void;
+  href?: string;
   children: ReactNode;
 }) {
+  const attributes = { "aria-label": label, "data-testid": "schedule-chip", "data-booking-id": item.id, className };
+  if (href) return <Link {...attributes} href={href} title={label} prefetch={false}>{children}</Link>;
   return (
-    <button
-      type="button"
-      onClick={() => onOpen(item.id)}
-      aria-label={label}
-      data-testid="schedule-chip"
-      data-booking-id={item.id}
-      className={className}
-    >
+    <button {...attributes} type="button" onClick={() => onOpen?.(item.id)}>
       {children}
     </button>
   );
 }
 
-export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
+export function ScheduleCalendar({ items, timeZone, onOpen, hrefOf, navigation, compactBelow }: {
+  items: CalendarItem[];
+  timeZone: string;
+  onOpen?: (id: string) => void;
+  hrefOf?: (item: CalendarItem) => string;
+  navigation?: CalendarNavigation;
+  compactBelow?: number;
+}) {
   const locale = useLocale();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(compactBelow);
   const t = useTranslations("dashboard");
   const tb = useTranslations("booking");
   /*
@@ -101,16 +112,22 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
   */
   const isWideScreen = useIsWideScreen();
   const [chosenView, setView] = useState<CalendarViewMode | null>(null);
-  const view = chosenView ?? (isWideScreen ? "month" : "week");
+  const view = navigation?.view ?? chosenView ?? (isWideScreen ? "month" : "week");
   // Open on the next lesson, not the first item: `items` now leads with the
   // upcoming ones but carries the whole past archive behind them, and anchoring
   // on `items[0]` blindly would land the teacher in their oldest lesson ever
   // the moment they have nothing booked.
-  const [anchorIso, setAnchorIso] = useState(
+  const [localAnchor, setAnchorIso] = useState(
     () => items.find((item) => !item.isPast)?.startsAtIso ?? new Date().toISOString(),
   );
-  const [openBookingId, setOpenBookingId] = useState<string | null>(null);
-  const openedItem = items.find((item) => item.id === openBookingId) ?? null;
+  const anchorIso = navigation?.anchorIso ?? localAnchor;
+  function navigate(anchor: string, mode: CalendarViewMode) {
+    if (navigation) navigation.onNavigate(anchor, mode);
+    else {
+      setAnchorIso(anchor);
+      setView(mode);
+    }
+  }
 
   const formatTime = useCallback(
     (iso: string) =>
@@ -131,7 +148,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
   // A group class has no single person to name, so the chip says how full it is
   // instead; the dialog behind it carries the rest.
   const chipWho = useCallback(
-    (item: DashboardScheduleItem) =>
+    (item: CalendarItem) =>
       bookingChipWho(
         { counterpartLabel: item.counterpartName, groupSeats: item.groupSeats },
         groupSeatsLabel,
@@ -149,17 +166,18 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
    * looking at it.
    */
   const chipLabel = useCallback(
-    (item: DashboardScheduleItem) =>
+    (item: CalendarItem) =>
       [
-        t(item.isPast ? "statusCompleted" : "slotReserved"),
+        item.annotation ?? t(item.isPast ? "statusCompleted" : "slotReserved"),
         `${formatTime(item.startsAtIso)} – ${formatTime(item.endsAtIso)}`,
         chipWho(item),
-      ].join(" · "),
+        item.annotation ? item.title : null,
+      ].filter(Boolean).join(" · "),
     [t, formatTime, chipWho],
   );
 
   const mapByDay = useMemo(() => {
-    const map = new Map<string, DashboardScheduleItem[]>();
+    const map = new Map<string, CalendarItem[]>();
     for (const item of items) {
       const key = dayKeyFromIso(item.startsAtIso, timeZone);
       const list = map.get(key);
@@ -192,8 +210,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
           );
 
   function openDay(dayKey: string) {
-    setAnchorIso(dayKeyToIsoAtNoon(dayKey, timeZone));
-    setView("day");
+    navigate(dayKeyToIsoAtNoon(dayKey, timeZone), "day");
   }
 
   const copy = {
@@ -206,23 +223,40 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
 
   /** Time, then who it is with. Both truncate, so back-to-back blocks degrade
    *  to a readable time rather than an ellipsis on every line. */
-  function ChipLines({ item }: { item: DashboardScheduleItem }) {
+  function ChipLines({ item }: { item: CalendarItem }) {
     return (
       <>
         <span className="block truncate font-semibold">{formatTime(item.startsAtIso)}</span>
         <span className="mt-0.5 block truncate">{chipWho(item)}</span>
+        {item.annotation && <span className="mt-0.5 block truncate font-normal">{item.annotation}</span>}
       </>
     );
   }
 
+  function renderBooking(item: CalendarItem, className: string, content: ReactNode) {
+    return <ScheduleItemAction key={item.id} item={item} label={chipLabel(item)} className={className}
+      onOpen={onOpen} href={hrefOf?.(item)}>{content}</ScheduleItemAction>;
+  }
+
+  function renderAgendaBooking(item: CalendarItem) {
+    return renderBooking(item,
+      `flex w-full flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded-md px-2.5 py-1.5 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`,
+      <>
+        <span className="shrink-0 font-semibold">{formatTime(item.startsAtIso)} – {formatTime(item.endsAtIso)}</span>
+        <span className="min-w-0 truncate">{chipWho(item)}</span>
+        {item.annotation && <span className="w-full">{item.annotation}</span>}
+      </>,
+    );
+  }
+
+  const weekLimit = hrefOf ? undefined : 4;
   return (
-    <>
       <CalendarFrame
         label={label}
         view={view}
-        onViewChange={setView}
-        onPrevious={() => setAnchorIso(shiftCalendarAnchor(anchorIso, view, -1, timeZone))}
-        onNext={() => setAnchorIso(shiftCalendarAnchor(anchorIso, view, 1, timeZone))}
+        onViewChange={(mode) => navigate(anchorIso, mode)}
+        onPrevious={() => navigate(shiftCalendarAnchor(anchorIso, view, -1, timeZone), view)}
+        onNext={() => navigate(shiftCalendarAnchor(anchorIso, view, 1, timeZone), view)}
         copy={copy}
         viewsLabel={t("scheduleCalendar")}
       >
@@ -233,23 +267,18 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
             <ul className="list-none border-t border-border p-0">
               {(mapByDay.get(anchorKey) ?? []).map((item) => (
                 <li key={item.id} className="border-b border-border">
-                  <ScheduleItemAction
-                    item={item}
-                    label={chipLabel(item)}
-                    onOpen={setOpenBookingId}
-                    className="flex w-full flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3 text-left transition-colors hover:bg-[var(--app-hover)]"
-                  >
+                  {renderBooking(item, "flex w-full flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3 text-left transition-colors hover:bg-[var(--app-hover)]", <>
                     <span
                       className={`min-w-0 font-semibold ${item.isPast ? "text-muted" : "text-foreground"}`}
                     >
                       {item.title}
                     </span>
-                    <span className="shrink-0 text-sm tabular-nums text-muted">
+                    <span className="min-w-0 break-words text-sm tabular-nums text-muted">
                       {formatTime(item.startsAtIso)} – {formatTime(item.endsAtIso)} ·{" "}
                       {chipWho(item)}
-                      {item.isPast ? ` · ${t("statusCompleted")}` : ""}
+                      {item.annotation ? ` · ${item.annotation}` : item.isPast ? ` · ${t("statusCompleted")}` : ""}
                     </span>
-                  </ScheduleItemAction>
+                  </>)}
                 </li>
               ))}
             </ul>
@@ -263,16 +292,9 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
               if (dayItems.length === 0) {
                 return <CalendarEmpty size="cell">{t("unavailableShort")}</CalendarEmpty>;
               }
-              return dayItems.slice(0, 4).map((item) => (
-                <ScheduleItemAction
-                  key={item.id}
-                  item={item}
-                  label={chipLabel(item)}
-                  onOpen={setOpenBookingId}
-                  className={`block w-full overflow-hidden rounded-md px-2 py-1 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`}
-                >
+              return dayItems.slice(0, weekLimit).map((item) => renderBooking(item,
+                `block w-full overflow-hidden rounded-md px-2 py-1 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`,
                   <ChipLines item={item} />
-                </ScheduleItemAction>
               ));
             }}
           />
@@ -296,20 +318,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
                     <p className="mt-1 text-xs text-muted">{t("unavailableShort")}</p>
                   ) : (
                     <div className="mt-2 space-y-1.5">
-                      {dayItems.slice(0, 4).map((item) => (
-                        <ScheduleItemAction
-                          key={item.id}
-                          item={item}
-                          label={chipLabel(item)}
-                          onOpen={setOpenBookingId}
-                          className={`flex w-full items-baseline gap-2 rounded-md px-2.5 py-1.5 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`}
-                        >
-                          <span className="shrink-0 font-semibold">
-                            {formatTime(item.startsAtIso)} – {formatTime(item.endsAtIso)}
-                          </span>
-                          <span className="truncate">{chipWho(item)}</span>
-                        </ScheduleItemAction>
-                      ))}
+                      {dayItems.slice(0, weekLimit).map(renderAgendaBooking)}
                     </div>
                   )}
                 </li>
@@ -330,16 +339,9 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
               const more = dayItems.length - chips.length;
               return (
                 <>
-                  {chips.map((item) => (
-                    <ScheduleItemAction
-                      key={item.id}
-                      item={item}
-                      label={chipLabel(item)}
-                      onOpen={setOpenBookingId}
-                      className={`w-full overflow-hidden rounded px-1 py-0.5 text-left text-[9px] font-semibold leading-tight tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`}
-                    >
-                      <ChipLines item={item} />
-                    </ScheduleItemAction>
+                  {chips.map((item) => renderBooking(item,
+                    `block w-full overflow-hidden rounded px-1 py-0.5 text-left text-[9px] font-semibold leading-tight tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`,
+                    <ChipLines item={item} />,
                   ))}
                   {more > 0 ? (
                     <button
@@ -347,7 +349,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
                       onClick={() => openDay(cell.dayKey)}
                       className="px-0.5 text-left text-[9px] font-medium text-muted hover:underline"
                     >
-                      +{more} more
+                      {t("calendarMore", { count: more })}
                     </button>
                   ) : null}
                 </>
@@ -385,20 +387,7 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
                         )}
                       </button>
                       <div className="mt-2 space-y-1.5">
-                        {dayItems.map((item) => (
-                          <ScheduleItemAction
-                            key={item.id}
-                            item={item}
-                            label={chipLabel(item)}
-                            onOpen={setOpenBookingId}
-                            className={`flex w-full items-baseline gap-2 rounded-md px-2.5 py-1.5 text-left text-xs tabular-nums ${slotClasses({ kind: "booked", past: item.isPast, interactive: true })}`}
-                          >
-                            <span className="shrink-0 font-semibold">
-                              {formatTime(item.startsAtIso)} – {formatTime(item.endsAtIso)}
-                            </span>
-                            <span className="truncate">{chipWho(item)}</span>
-                          </ScheduleItemAction>
-                        ))}
+                        {dayItems.map(renderAgendaBooking)}
                       </div>
                     </li>
                   );
@@ -407,7 +396,16 @@ export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
             );
           })()}
       </CalendarFrame>
+  );
+}
 
+export function DashboardScheduleCalendar({ items, timeZone, viewer }: Props) {
+  const [openBookingId, setOpenBookingId] = useState<string | null>(null);
+  const openedItem = items.find((item) => item.id === openBookingId) ?? null;
+
+  return (
+    <>
+      <ScheduleCalendar items={items} timeZone={timeZone} onOpen={setOpenBookingId} />
       <BookingDetailModal
         timeZone={timeZone}
         viewer={viewer}

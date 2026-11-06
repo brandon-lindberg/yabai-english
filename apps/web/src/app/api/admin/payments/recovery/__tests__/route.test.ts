@@ -9,7 +9,7 @@ beforeEach(() => {vi.clearAllMocks();mocks.auth.mockResolvedValue({ user: { id: 
 const req = (data: unknown) => new Request("http://localhost", { method: "POST", body: JSON.stringify(data) });
 test.each(["STUDENT", "TEACHER"])("%s cannot retry or inspect financial recovery", async role => {
   mocks.auth.mockResolvedValue({ user: { id: "user", role } });
-  expect((await GET()).status).toBe(403);expect((await POST(req({ paymentId: "payment" }))).status).toBe(403);
+  expect((await GET(new Request("http://localhost/api/admin/payments/recovery"))).status).toBe(403);expect((await POST(req({ paymentId: "payment" }))).status).toBe(403);
   expect(mocks.recover).not.toHaveBeenCalled();expect(mocks.read).not.toHaveBeenCalled();
 });
 test("anonymous recovery is rejected", async () => {
@@ -22,7 +22,7 @@ test("a client cannot choose an amount, Stripe account or entitlement", async ()
 test("admin payment reconciliation uses persisted obligations and returns the actual pending state", async () => {
   mocks.recover.mockResolvedValue({ state: "WAITING" });const response = await POST(req({ paymentId: "payment" }));
   expect(await response.json()).toMatchObject({ pending: true, state: "WAITING" });
-  expect(mocks.recover).toHaveBeenCalledWith(expect.anything(), "payment");
+  expect(mocks.recover).toHaveBeenCalledWith(expect.anything(), "payment", { feeOnly: undefined });
 });
 test("recovery failure keeps the request retryable", async () => {
   mocks.recover.mockRejectedValue(new Error("provider unavailable"));expect((await POST(req({ paymentId: "payment" }))).status).toBe(503);

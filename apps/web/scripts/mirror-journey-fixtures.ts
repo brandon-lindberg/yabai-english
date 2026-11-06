@@ -131,19 +131,36 @@ try {
       if (!learnerId.endsWith("-recovery-english") && !learnerId.endsWith("-recovery-japanese")) throw new Error("Owned recovery fixture required");
       const language = learnerId.endsWith("-japanese") ? "JAPANESE" : "ENGLISH";
       const bookingId = `${fixtures.runId}-recovery-${language.toLowerCase()}-booking`;
-      const paymentId = `${bookingId}-payment`, account = `acct_qa_${language === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId}`;
+      const teacherId = language === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId;
+      const paymentId = `${bookingId}-payment`, account = `acct_qa_${teacherId}`;
+      const startsAt = new Date("2025-02-13T00:15:00.000Z");
+      const endsAt = new Date("2025-02-13T01:15:00.000Z");
+      const invoiceNo = `QA-${language}-INVOICE`;
+      const creditNoteNo = `QA-${language}-CREDIT`;
+      let refundId = "";
+      let invoiceId = "";
       await prisma.$transaction(async tx => {
-        await tx.booking.update({ where: { id: bookingId }, data: { status: "CANCELLED", cancelledFromStatus: "CONFIRMED", privateRescheduleStatus: "REFUND_REQUESTED", rescheduleRequestedAt: new Date() } });
-        await tx.payment.update({ where: { id: paymentId }, data: { providerPaymentId: `pi_qa_${paymentId}`, providerCheckoutId: `cs_qa_${paymentId}`, metadataJson: { connectedAccountId: account } } });
+        const target = await tx.booking.update({ where: { id: bookingId }, data: { startsAt, endsAt, status: "CANCELLED", cancelledFromStatus: "CONFIRMED", privateRescheduleStatus: "REFUND_REQUESTED", rescheduleRequestedAt: startsAt } });
+        await tx.booking.createMany({ data: Array.from({ length: 205 }, (_, index) => {
+          const offset = (index + 1) * 86_400_000;
+          return {
+            id: `${bookingId}-search-${index}`, teacherId, studentId: learnerId, lessonProductId: target.lessonProductId,
+            learningLanguage: language, status: "COMPLETED", startsAt: new Date(+startsAt + offset), endsAt: new Date(+endsAt + offset),
+          };
+        }) });
+        await tx.payment.update({ where: { id: paymentId }, data: { paidAt: startsAt, providerPaymentId: `pi_qa_${paymentId}`, providerCheckoutId: `cs_qa_${paymentId}`, metadataJson: { connectedAccountId: account } } });
+        const invoice = await tx.invoice.create({ data: { bookingId, studentId: learnerId, invoiceNo, amountYen: 5000, paidAt: startsAt } });
         const refund = await tx.refund.create({ data: { bookingId, paymentId, provider: "STRIPE", providerRefundId: `re_qa_${paymentId}`, providerAccountId: account,
-          amountYen: 5000, status: "SUCCEEDED", actor: "TEACHER", reason: "CANCELLATION_POLICY" } });
+          amountYen: 5000, status: "SUCCEEDED", actor: "TEACHER", reason: "CANCELLATION_POLICY", creditNoteNo } });
+        refundId = refund.id;
+        invoiceId = invoice.id;
         await tx.paymentRecovery.create({ data: { paymentId, refundId: refund.id, requestedAmountYen: 5000, connectedAccountId: account, paymentIntentId: `pi_qa_${paymentId}`,
           state: "WAITING", feeRecoveryPending: true, lastError: "Student refunded. Application fee reconciliation remains pending.", nextAttemptAt: new Date(Date.now() + 600_000) } });
         await tx.paymentWebhookEvent.create({ data: { provider: "STRIPE", providerEventId: `evt_qa_${paymentId}`, eventType: "checkout.session.async_payment_failed", state: "WAITING",
           lastError: "Temporary processing interruption.", payloadJson: { id: `evt_qa_${paymentId}`, type: "checkout.session.async_payment_failed", account,
             data: { object: { id: `cs_qa_${paymentId}`, metadata: { paymentId, bookingId } } } } } });
       });
-      console.log(JSON.stringify({ paymentId, eventId: `evt_qa_${paymentId}`, bookingId })); return;
+      console.log(JSON.stringify({ paymentId, eventId: `evt_qa_${paymentId}`, bookingId, invoiceId, invoiceNo, refundId, creditNoteNo })); return;
     }
     if (["release-notification-availability", "release-notification-settle"].includes(operation)) {
       const kind = lifecycleKinds.find(kind => learnerId.endsWith(`-${kind}-english`) || learnerId.endsWith(`-${kind}-japanese`));

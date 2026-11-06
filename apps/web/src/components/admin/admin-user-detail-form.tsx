@@ -7,7 +7,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { AdminTeacherProfileDto } from "@/lib/admin-user-dto";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClasses } from "@/components/ui/button";
+import { adminPersonScheduleHref } from "@/lib/admin/lesson-calendar";
 import { CheckRow } from "@/components/ui/check-row";
 import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -71,6 +72,7 @@ type UserDetailJson = {
 
 export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { userId: string; backHref?: string }) {
   const t = useTranslations("admin.userDetail");
+  const tCalendar = useTranslations("admin.lessonCalendar");
   const tg = useTranslations("admin.grid");
   const tGrants = useTranslations("admin.teacherRateGrants");
   const overviewCopy = useTranslations("admin.profileOverview");
@@ -369,7 +371,9 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
   return (
     <div className="space-y-6 md:space-y-10">
       <div className="break-words">
-        <PageHeader title={identity.name ?? identity.email ?? t("title")} description={identity.name ? identity.email : undefined} />
+        <PageHeader title={identity.name ?? identity.email ?? t("title")} description={identity.name ? identity.email : undefined}
+          actions={(role === Role.STUDENT || role === Role.TEACHER || teacherProfileId) &&
+            <Link href={adminPersonScheduleHref(userId)} className={buttonClasses({ variant: "secondary" })}>{tCalendar("open")}</Link>} />
       </div>
       {error ? (
         <p role="alert">

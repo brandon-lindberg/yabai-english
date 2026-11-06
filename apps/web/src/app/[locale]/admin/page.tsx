@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
 import { LearningLanguage } from "@/generated/prisma/enums";
 import { pendingPrivateReschedules, upcomingAdminLessonsWhere } from "@/lib/admin/lesson-filters";
-import { adminRefundRecoveryWhere, adminWebhookRecoveryWhere } from "@/lib/refund-recovery";
+import { adminPaymentRecoveryWhere, adminWebhookRecoveryWhere } from "@/lib/refund-recovery";
 
 export default async function AdminPage() {
   const t = await getTranslations("admin");
@@ -37,7 +37,7 @@ export default async function AdminPage() {
     }),
     prisma.studentProfile.count({ where: reviewWhere }),
     prisma.booking.count({ where: pendingPrivateReschedules }),
-    prisma.refund.count({ where: adminRefundRecoveryWhere() }),
+    prisma.payment.count({ where: adminPaymentRecoveryWhere() }),
     prisma.paymentWebhookEvent.count({ where: adminWebhookRecoveryWhere }),
     prisma.booking.groupBy({
       by: ["learningLanguage"],

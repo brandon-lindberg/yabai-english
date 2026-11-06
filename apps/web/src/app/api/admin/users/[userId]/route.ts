@@ -18,7 +18,7 @@ import { teachingLanguagesSchema } from "@/lib/learning-language";
 import { countActiveAdmins, lockAdminAccountChanges } from "@/lib/admin/account-access";
 import { PrivateApiFailure } from "@/lib/private-api-error";
 import { adminLessonsForPerson, upcomingAdminLessonsWhere } from "@/lib/admin/lesson-filters";
-import { adminRefundRecoveryWhere } from "@/lib/refund-recovery";
+import { adminPaymentRecoveryWhere } from "@/lib/refund-recovery";
 import { teacherMarketplaceVisibilityPatch } from "@/lib/teacher-marketplace-booking-access";
 import { loadAdminStudentOverview } from "@/lib/admin/student-overview";
 import { loadAdminTeacherOverview } from "@/lib/admin/teacher-overview";
@@ -109,7 +109,7 @@ export async function GET(_req: Request, { params }: Props) {
     prisma.booking.count({
       where: { ...participants, ...upcomingAdminLessonsWhere(new Date()) },
     }),
-    prisma.refund.count({ where: { booking: participants, ...adminRefundRecoveryWhere() } }),
+    prisma.payment.count({ where: adminPaymentRecoveryWhere({ person: userId }) }),
   ]).then(([upcomingLessons, unresolvedPayments]) => ({ upcomingLessons, unresolvedPayments })) : null;
   return NextResponse.json({
     ...rest,

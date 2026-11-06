@@ -4,174 +4,74 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { LocalDateTime } from "@/components/local-datetime";
-import { EmptyState } from "@/components/ui/empty-state";
+import { DataList, DataRow } from "@/components/ui/data-row";
+import { Section } from "@/components/ui/section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Status } from "@/components/ui/status";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import { useAdminCollection } from "@/hooks/use-admin-collection";
-import type { RefundStatus } from "@/generated/prisma/client";
+import { formatYen } from "@/lib/format-money";
+import type { AdminPaymentRecoveryRow } from "@/lib/admin/payment-recovery-queue";
+import type { AdminPaymentRecoveryQueue } from "@/lib/refund-recovery";
+import { AdminParticipantLink } from "./admin-participant-link";
 import { AdminPaymentRecoveryAction } from "./admin-payment-recovery-action";
+import { AdminRefundStatus } from "./admin-refund-status";
 
-type RefundRow = {
-  id: string;
-  status: RefundStatus;
-  paymentId: string;
-  feeRecoveryPending: boolean;
-  amountYen: number;
-  actor: string;
-  recoveryNote: string | null;
-  providerRefundId: string | null;
-  createdAt: string;
-  bookingId: string;
-  lessonStartsAt: string;
-  student: { id: string; name: string | null; email: string | null };
-  teacher: { id: string; name: string | null; email: string | null };
-};
+const queues = [
+  { value: "student", id: "student-reimbursements", title: "reimbursements", help: "reimbursementsHelp", empty: "reimbursementsEmpty" },
+  { value: "fees", id: "platform-fee-returns", title: "platformFees", help: "platformFeesHelp", empty: "platformFeesEmpty" },
+] as const satisfies ReadonlyArray<{ value: AdminPaymentRecoveryQueue; id: string; title: string; help: string; empty: string }>;
 
-const STATUS_LABEL_KEY = {
-  PENDING_RECOVERY: "statusPendingRecovery",
-  FAILED: "statusFailed",
-  PENDING: "statusPending",
-  SUCCEEDED: "statusSucceeded",
-} as const;
-
-/**
- * PENDING sits on the status ladder — mid-transformation, not settled. The
- * other two are interruptions to it: the student is owed money that did not
- * arrive.
- */
-const STATUS_TONE = {
-  PENDING_RECOVERY: "error",
-  FAILED: "error",
-  PENDING: "pending",
-  SUCCEEDED: "pending",
-} as const;
-
-export function AdminRefundsTable({ personId }: { personId?: string }) {
-  const [revision, setRevision] = useState(0);
+function RecoveryQueue({ queue, filters, revision, onCompleted }: {
+  queue: typeof queues[number];
+  filters: { personId?: string; bookingId?: string };
+  revision: number;
+  onCompleted: () => void;
+}) {
   const t = useTranslations("admin.refundsPage");
+  const language = useTranslations("admin.teachingLanguages");
   const locale = useLocale();
-  const { items, loading, error } = useAdminCollection<RefundRow>(
-    `/api/admin/payments/refunds?${new URLSearchParams({ revision: String(revision), ...(personId ? { person: personId } : {}) })}`,
-  );
-
-  if (loading) {
-    return (
-      <div
-        className="overflow-x-auto border-y border-border"
-        role="status"
-        aria-busy="true"
-        aria-label={t("loading")}
-        data-testid="admin-refunds-loading"
-      >
-        <table className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums">
-          <thead>
-            <tr className="border-b border-border bg-[var(--app-hover)]">
-              <th className="px-3 py-2">{t("status")}</th>
-              <th className="px-3 py-2">{t("people")}</th>
-              <th className="px-3 py-2">{t("amount")}</th>
-              <th className="px-3 py-2">{t("note")}</th>
-              <th className="px-3 py-2">{t("when")}</th>
-              <th className="px-3 py-2">{t("recoveryAction")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <tr key={i} className="border-b border-border last:border-0">
-                <td className="px-3 py-2 align-top">
-                  <Skeleton height="3" width="2/3" />
-                </td>
-                <td className="px-3 py-2 align-top"><Skeleton height="3" width="2/3" /></td>
-                <td className="px-3 py-2 align-top">
-                  <div className="space-y-2">
-                    <Skeleton height="3" width="3/4" />
-                    <Skeleton height="3" width="2/3" />
-                  </div>
-                </td>
-                <td className="px-3 py-2 align-top">
-                  <Skeleton height="3" width="1/2" />
-                </td>
-                <td className="px-3 py-2 align-top">
-                  <Skeleton height="3" width="3/4" />
-                </td>
-                <td className="px-3 py-2 align-top">
-                  <Skeleton height="3" width="2/3" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <p role="alert">
-        <Status tone="error">{error}</Status>
-      </p>
-    );
-  }
-
-  if (items.length === 0) {
-    return <EmptyState title={t("empty")} />;
-  }
-
+  const params = new URLSearchParams({ queue: queue.value, revision: String(revision) });
+  if (filters.personId) params.set("person", filters.personId);
+  if (filters.bookingId) params.set("booking", filters.bookingId);
+  const { items, loading, error } = useAdminCollection<AdminPaymentRecoveryRow>(`/api/admin/payments/recovery?${params}`);
+  const feeOnly = queue.value === "fees";
   return (
-    <div className="overflow-x-auto border-y border-border">
-      <table className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums">
-        <thead>
-          <tr className="border-b border-border bg-[var(--app-hover)]">
-            <th className="px-3 py-2">{t("status")}</th>
-            <th className="px-3 py-2">{t("people")}</th>
-            <th className="px-3 py-2">{t("amount")}</th>
-            <th className="px-3 py-2">{t("note")}</th>
-            <th className="px-3 py-2">{t("when")}</th>
-            <th className="px-3 py-2">{t("recoveryAction")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((row) => (
-            <tr key={row.id} data-payment-recovery={row.paymentId} className="border-b border-border last:border-0">
-              <td className="px-3 py-2 align-top">
-                <Status tone={STATUS_TONE[row.status]}>
-                  {t(row.feeRecoveryPending ? "statusFeeRecovery" : STATUS_LABEL_KEY[row.status])}
-                </Status>
-              </td>
-              <td className="px-3 py-2 align-top">
-                <div className="space-y-1">
-                  <div>
-                    <span className="text-muted">{t("studentAbbr")}: </span>
-                    <Link href={`/admin/users/${row.student.id}`} className={actionLinkClass}>
-                      {row.student.name ?? row.student.email}
-                    </Link>
-                  </div>
-                  <div>
-                    <span className="text-muted">{t("teacherAbbr")}: </span>
-                    <Link href={`/admin/users/${row.teacher.id}`} className={actionLinkClass}>
-                      {row.teacher.name ?? row.teacher.email}
-                    </Link>
-                  </div>
-                </div>
-              </td>
-              <td className="px-3 py-2 align-top font-medium">
-                ¥{row.amountYen.toLocaleString("en-US")}
-              </td>
-              <td className="max-w-xs px-3 py-2 align-top text-xs">
-                <p className="whitespace-pre-wrap break-words text-muted [overflow-wrap:anywhere]">{row.recoveryNote ?? "—"}</p>
-                {row.providerRefundId ? (
-                  <p className="mt-1 break-all text-muted">{row.providerRefundId}</p>
-                ) : null}
-              </td>
-              <td className="px-3 py-2 align-top text-xs">
+    <div id={queue.id} className="scroll-mt-32">
+      <Section title={t(queue.title)} description={t(queue.help)}>
+        {loading ? <div role="status" aria-label={t("loading")} className="space-y-2 py-2">
+          <Skeleton width="1/2" height="4" />
+          <Skeleton width="1/3" height="4" />
+        </div> : error ? <p role="alert"><Status tone="error">{t("loadError")}</Status></p>
+          : !items.length ? <p className="border-y border-border py-4 text-sm text-muted">{t(queue.empty)}</p>
+          : <DataList>{items.map((row) => (
+            <DataRow key={row.paymentId} dataId={row.paymentId} actions={row.canRetry && <AdminPaymentRecoveryAction
+              paymentId={row.paymentId} feeOnly={feeOnly} onCompleted={onCompleted} />}>
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <AdminRefundStatus status={row.status} feeOnly={feeOnly} />
+                {row.amountYen != null && <span className="font-semibold tabular-nums">{formatYen(row.amountYen, locale)}</span>}
+              </div>
+              {row.student && row.teacher && <p className="mt-2 text-sm">
+                <AdminParticipantLink participant={row.student} /> <span className="text-muted">·</span> <AdminParticipantLink participant={row.teacher} />
+              </p>}
+              <p className="mt-1 break-words text-xs text-muted">
+                {row.learningLanguage && <>{language(row.learningLanguage)} · </>}
                 <LocalDateTime iso={row.createdAt} locale={locale} />
-              </td>
-              <td className="px-3 py-2 align-top">{row.paymentId ? <AdminPaymentRecoveryAction paymentId={row.paymentId}
-                feeOnly={row.feeRecoveryPending} onCompleted={() => setRevision(value => value + 1)} /> : null}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </p>
+              {row.recoveryNote && <p className="mt-2 max-w-prose whitespace-pre-wrap break-words text-sm text-muted">{row.recoveryNote}</p>}
+              {row.providerRefundId && <p className="mt-1 break-all text-xs text-muted">{row.providerRefundId}</p>}
+              {row.bookingId ? <Link href={`/admin/lessons/${row.bookingId}#${row.status ? "refunds" : "payment"}`}
+                className={`${actionLinkClass} mt-2 inline-block text-sm`}>{t("viewBooking")}</Link>
+                : <p className="mt-2 break-words text-xs text-muted">{row.paymentId} · {t("detachedPayment")}</p>}
+            </DataRow>
+          ))}</DataList>}
+      </Section>
     </div>
   );
+}
+
+export function AdminRefundsTable({ personId, bookingId }: { personId?: string; bookingId?: string }) {
+  const [revision, setRevision] = useState(0);
+  return <>{queues.map((queue) => <RecoveryQueue key={queue.value} queue={queue}
+    filters={{ personId, bookingId }} revision={revision} onCompleted={() => setRevision((value) => value + 1)} />)}</>;
 }

@@ -47,7 +47,7 @@ vi.mock("stripe", () => ({ default: class {
   charges = { retrieve: async () => ({ payment_intent: "pi_original" }) };
 } }));
 
-import { prepareBookingRefund, processPaymentRecovery, recordStripeRefund } from "@/lib/payment-recovery";
+import { prepareBookingRefund, processPaymentRecovery, queuePaymentReconciliation, recordStripeRefund } from "@/lib/payment-recovery";
 import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
 import { loadBookingForCancellation } from "@/lib/booking-cancellation-data";
 import { receiveStripeWebhook, processStoredStripeWebhook } from "@/lib/stripe/webhook-work";
@@ -57,6 +57,7 @@ import { ensureCreditNoteNumber } from "@/lib/credit-notes";
 import { recoverPayment, runPaymentRecoveryBatch } from "@/lib/payment-recovery-batch";
 import { changeAdminAccountAccess } from "@/lib/admin/account-access";
 import { GET as adminRefunds } from "@/app/api/admin/payments/refunds/route";
+import { GET as adminRecovery, POST as retryRecovery } from "@/app/api/admin/payments/recovery/route";
 import type Stripe from "stripe";
 
 const policy = { allowed: true, refundEligible: true, rescheduleOffered: false };
@@ -189,6 +190,20 @@ dbTest("fee failure stays visible after student reimbursement, and fee-only retr
   expect(state.refundCalls).toHaveLength(1);expect(state.feeRefunded).toBe(1000);
   expect((await db.paymentLedgerEntry.aggregate({ where: { paymentId: "payment", type: "PLATFORM_FEE" }, _sum: { amountYen: true } }))._sum.amountYen).toBe(0);
   expect((await db.paymentRecovery.findUniqueOrThrow({ where: { paymentId: "payment" } })).feeRecoveryPending).toBe(false);
+}), 30_000);
+
+dbTest("a stale fee-only confirmation cannot create a student refund", () => withDb(async db => {
+  await prepare(db);
+  await db.paymentRecovery.update({ where: { paymentId: "payment" }, data: { feeRecoveryPending: true } });
+  state.session = { user: { id: "admin", role: "SUPER_ADMIN" } };
+  const response = await retryRecovery(new Request("http://localhost/api/admin/payments/recovery", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paymentId: "payment", feeOnly: true }),
+  }));
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({ pending: true });
+  expect(state.refundCalls).toHaveLength(0);
+  expect(state.feeCalls).toBe(0);
+  expect((await db.paymentRecovery.findUniqueOrThrow({ where: { paymentId: "payment" } })).state).toBe("NEEDS_ATTENTION");
 }), 30_000);
 
 dbTest("Dashboard full refunds import without app refund creation and repeated events remain idempotent", () => withDb(async db => {
@@ -379,9 +394,26 @@ dbTest("admin fee recovery remains visible after student settlement and disappea
   state.session = { user: { id: "admin", role: "SUPER_ADMIN" } };
   const pending = await (await adminRefunds(new Request("http://localhost"))).json();
   expect(pending.items).toHaveLength(1);expect(pending.items[0]).toMatchObject({ status: "SUCCEEDED", feeRecoveryPending: true, paymentId: "payment" });
-  state.feeFails = false;await recoverPayment(db, "payment");
+  const fees = await (await adminRecovery(new Request("http://localhost/api/admin/payments/recovery?queue=fees&booking=booking"))).json();
+  expect(fees.items).toEqual([expect.objectContaining({ paymentId: "payment", bookingId: "booking", status: "SUCCEEDED" })]);
+  expect((await (await adminRecovery(new Request("http://localhost/api/admin/payments/recovery?queue=student"))).json()).items).toHaveLength(0);
+  state.feeFails = false;
+  const retried = await retryRecovery(new Request("http://localhost/api/admin/payments/recovery", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paymentId: "payment", feeOnly: true }),
+  }));
+  expect(await retried.json()).toMatchObject({ state: "COMPLETE", pending: false });
   expect((await (await adminRefunds(new Request("http://localhost"))).json()).items).toHaveLength(0);
   expect(state.refunded).toBe(5000);
+}), 30_000);
+
+dbTest("durable reconciliation appears before a refund row exists and respects the booking filter", () => withDb(async db => {
+  await db.$transaction(tx => queuePaymentReconciliation(tx, "payment"));
+  state.session = { user: { id: "admin", role: "SUPER_ADMIN" } };
+  const query = (booking: string) => adminRecovery(new Request(`http://localhost/api/admin/payments/recovery?queue=student&booking=${booking}`));
+  expect((await (await query("booking")).json()).items).toEqual([
+    expect.objectContaining({ paymentId: "payment", bookingId: "booking", status: null }),
+  ]);
+  expect((await (await query("other-booking")).json()).items).toEqual([]);
 }), 30_000);
 
 dbTest("cash collected after an unpaid cancellation is queued for refund without reviving its reservation", () => withDb(async db => {

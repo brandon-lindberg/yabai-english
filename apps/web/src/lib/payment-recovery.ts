@@ -153,7 +153,7 @@ async function recordFeeLedger(db: PrismaClient, paymentId: string, fee: { amoun
 }
 
 /** Customer refunds require a durable obligation; fee returns follow full settled reversals. */
-export async function processPaymentRecovery(db: PrismaClient, paymentId: string, options: { force?: boolean; reissueFailed?: boolean } = {}) {
+export async function processPaymentRecovery(db: PrismaClient, paymentId: string, options: { force?: boolean; reissueFailed?: boolean; feeOnly?: boolean } = {}) {
   const token = randomUUID(), now = new Date();
   const claimed = await db.paymentRecovery.updateMany({ where: { paymentId,
     ...(options.force ? {} : { nextAttemptAt: { lte: now }, state: { notIn: ["COMPLETE", "NEEDS_ATTENTION"] } }),
@@ -182,7 +182,11 @@ export async function processPaymentRecovery(db: PrismaClient, paymentId: string
     for (const refund of remote) if (!await recordStripeRefund(db, account, refund, { schedule: false })) throw new Error("Provider refund could not be linked to its original payment");
     const activeTotal = () => remote.filter(activeProviderRefund).reduce((sum, refund) => sum + refund.amount, 0);
     const successTotal = () => remote.filter(refund => refund.status === "succeeded").reduce((sum, refund) => sum + refund.amount, 0);
-    if (job.requestedAmountYen && activeTotal() < job.requestedAmountYen) {
+    if (options.feeOnly && successTotal() < job.payment.amountYen) {
+      await finish("NEEDS_ATTENTION", "Stripe has not confirmed a full student reimbursement. Review it before retrying the platform fee.");
+      return { pending: true };
+    }
+    if (!options.feeOnly && job.requestedAmountYen && activeTotal() < job.requestedAmountYen) {
       if (remote.some(refund => ["pending", "requires_action"].includes(refund.status ?? ""))) {
         await finish("WAITING", "A provider refund is pending. Reconcile again after it settles."); return { pending: true };
       }

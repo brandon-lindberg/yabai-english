@@ -2021,9 +2021,15 @@ Local verification used disposable PostgreSQL schemas and simulated Google and S
 
 Student profiles show the current placement and up to five recent assessments and lessons per language. Japanese retake dates use the existing cooldown calculation. Teacher and admin profiles can set either marketplace independently using the teacher's existing roster. The additive migration copies existing privacy to Japanese and keeps the original English setting. Local checks exercise the backfill, roster and booking restrictions, and class-specific rate overrides.
 
-#### 7d. Lessons and payment recovery
+#### 7d. Lessons and payment recovery — implemented locally
 
 Add server-side booking search by person or ID and filters for saved lesson subject, date, and status. Link booking detail to its participants, reschedule state, payment, and refund. Organize recovery by student reimbursement, platform-fee returns, and Stripe deliveries. Reuse the current Stripe recovery services and confirmations, and verify existing checkout, invoices, refunds, and recovery in both language paths.
+
+Lesson search filters before pagination and uses the admin’s local calendar dates. Booking details show invoice and credit-note references. Participants can download their documents through the existing flow. The recovery queues include payments awaiting reconciliation before a refund record exists. Fee-only retries verify the existing Stripe reimbursement before working on the platform fee.
+
+Admins can find a teacher or student by name or email and open that person’s schedule from their profile. The schedule reuses the dashboard’s day, week, and month views and includes past and cancelled bookings. Selecting a lesson opens its booking record, which links back to the calendar and to each participant’s schedule on the lesson date.
+
+Local PostgreSQL and browser tests covered historic lesson search, participant links, local date filters, trial and checkout, teacher-initiated refunds, invoice and credit-note downloads, and Stripe delivery and fee recovery in both learning paths. Stripe responses were simulated.
 
 #### 7e. Schools, Moderation, and release verification
 

@@ -16,7 +16,7 @@ test("fee-only recovery requires a confirmation that makes the already-refunded 
   expect(screen.getByText(en.admin.refundsPage.feeRecoveryConfirm)).toBeVisible();
   fireEvent.click(screen.getByRole("button", { name: en.admin.refundsPage.confirmRecovery }));
   await waitFor(() => expect(done).toHaveBeenCalledOnce());
-  expect(fetch).toHaveBeenCalledWith("/api/admin/payments/recovery", expect.objectContaining({ method: "POST", body: JSON.stringify({ paymentId: "payment" }) }));
+  expect(fetch).toHaveBeenCalledWith("/api/admin/payments/recovery", expect.objectContaining({ method: "POST", body: JSON.stringify({ paymentId: "payment", feeOnly: true }) }));
 });
 test("a failed retry keeps a readable error and allows another explicit attempt", async () => {
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) }));
