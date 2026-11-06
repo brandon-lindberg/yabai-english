@@ -2041,9 +2041,11 @@ Local release verification covered 45 browser scenarios across the two-domain su
 
 #### 7f. One-time teacher invitations — implemented locally
 
-People → Invite teacher generates a seven-day link for the chosen teaching languages. The administrator can add a private reference, copy the link at creation, share it by direct message, or revoke it while unused. The link requires no email address. Its first eligible Google account to accept it receives teacher access. Manual account creation and role changes are still available under People.
+People → Invite teacher requires a choice between a link restricted to a specified Google email and an open link for the first eligible Google account. Both expire after seven days and apply the chosen teaching languages. The administrator can add a private reference, copy the link at creation, share it by direct message, or revoke it while unused. Manual account creation and role changes are still available under People.
 
 The browser passes the link secret in the URL fragment. The database stores its hash, expiry and claim record. Acceptance promotes the existing user, provisions the teacher profile and taxonomy, and consumes the link in one transaction. Student history is retained. The existing sign-in session continues into teacher onboarding and can be shared between the two domains. The additive invitation migration was applied locally.
+
+Email-bound links use the address verified during the invitation’s Google sign-in. A wrong account leaves the link available so the recipient can try again. The recipient email stays out of the link. The additive email migration was applied locally and preserves previously generated open links. Local database and browser tests covered both link modes, account switching, revocation, and the existing Google sign-in callback.
 
 ## Source completeness standard
 

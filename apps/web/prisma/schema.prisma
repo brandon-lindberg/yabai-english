@@ -322,6 +322,7 @@ model TeacherInvitation {
   id                String             @id @default(cuid())
   tokenHash         String             @unique @db.VarChar(43)
   label             String?            @db.VarChar(80)
+  recipientEmail    String?            @db.VarChar(254)
   teachingLanguages LearningLanguage[]
   createdById       String
   createdAt         DateTime           @default(now())

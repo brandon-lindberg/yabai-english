@@ -20,18 +20,19 @@ function InviteButtons({ canAccept }: { canAccept: boolean }) {
   </div>;
 }
 
-export function TeacherInvitationForm({ action, account, canAccept, pendingLink }: {
+export function TeacherInvitationForm({ action, account, canAccept, pendingLink, verifyEmail }: {
   action: (data: FormData) => Promise<void>;
   account: string | null;
   canAccept: boolean;
   pendingLink: boolean;
+  verifyEmail: boolean;
 }) {
   const authCopy = useTranslations("auth");
   const t = useTranslations("teacherInvitation");
   const token = useSyncExternalStore(subscribe, () => window.location.hash.slice(1), () => null);
   if (!token && !pendingLink) return token === null ? null : <p className="text-sm text-muted">{t("openLink")}</p>;
   const secret = <input type="hidden" name="token" value={token ?? ""} />;
-  if (!account) return <GoogleSignInForm action={action} label={authCopy("continueWithGoogle")} pendingLabel={authCopy("signingIn")}>{secret}</GoogleSignInForm>;
+  if (!account || verifyEmail) return <GoogleSignInForm action={action} label={authCopy("continueWithGoogle")} pendingLabel={authCopy("signingIn")}>{secret}</GoogleSignInForm>;
   return <form action={action} className="space-y-4">
     {secret}
     <p className="break-words text-sm text-muted">{t("account", { account })}</p>

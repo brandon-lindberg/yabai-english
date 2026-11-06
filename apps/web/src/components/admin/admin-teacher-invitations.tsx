@@ -7,13 +7,14 @@ import type { LearningLanguage } from "@/generated/prisma/enums";
 import { TeachingLanguagesField } from "@/components/admin/teaching-languages-field";
 import { LocalDateTime } from "@/components/local-datetime";
 import { Button } from "@/components/ui/button";
+import { ChoiceRadio } from "@/components/ui/choice";
 import { DataList, DataRow } from "@/components/ui/data-row";
 import { Field, Input } from "@/components/ui/field";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { Modal } from "@/components/ui/modal";
 import { Section } from "@/components/ui/section";
 
-type Invitation = { id: string; label: string | null; teachingLanguages: LearningLanguage[]; expiresAt: string };
+type Invitation = { id: string; label: string | null; recipientEmail: string | null; teachingLanguages: LearningLanguage[]; expiresAt: string };
 type GeneratedInvitation = Invitation & { link: string };
 const endpoint = "/api/admin/teacher-invitations";
 
@@ -24,6 +25,8 @@ export function AdminTeacherInvitations({ invitations }: { invitations: Invitati
   const router = useRouter();
   const [refreshing, startRefresh] = useTransition();
   const linkRef = useRef<HTMLInputElement>(null);
+  const [mode, setMode] = useState<"email" | "open" | null>(null);
+  const [recipientEmail, setRecipientEmail] = useState("");
   const [label, setLabel] = useState("");
   const [subjects, setSubjects] = useState<LearningLanguage[]>([]);
   const [generated, setGenerated] = useState<GeneratedInvitation | null>(null);
@@ -35,15 +38,18 @@ export function AdminTeacherInvitations({ invitations }: { invitations: Invitati
 
   async function generate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!mode || !subjects.length) return;
     setBusy(true);
     setError(false);
     try {
       const response = await fetch(`${endpoint}?locale=${locale}`, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ label, teachingLanguages: subjects }) });
+        body: JSON.stringify({ mode, label, teachingLanguages: subjects, ...(mode === "email" ? { recipientEmail } : {}) }) });
       if (!response.ok) throw new Error("Invitation creation failed");
       setGenerated(await response.json() as GeneratedInvitation);
       setCopyState(null);
       setLabel("");
+      setRecipientEmail("");
+      setMode(null);
       startRefresh(() => router.refresh());
     } catch {
       setError(true);
@@ -85,9 +91,22 @@ export function AdminTeacherInvitations({ invitations }: { invitations: Invitati
   const active = invitations.filter((invite) => !revoked.includes(invite.id));
   return <div className="space-y-8">
     <form className="max-w-lg space-y-4" onSubmit={generate}>
-      <Field label={t("label")} hint={t("labelHint")}>{(props) => <Input {...props} maxLength={80} value={label} onChange={(event) => setLabel(event.target.value)} />}</Field>
-      <TeachingLanguagesField value={subjects} onChange={setSubjects} />
-      <Button type="submit" disabled={!subjects.length} loading={busy && !confirm}>{t("generate")}</Button>
+      <fieldset disabled={busy}>
+        <legend className="text-sm font-semibold">{t("modeLabel")}</legend>
+        <ul className="mt-2 space-y-2">
+          {(["email", "open"] as const).map((option) => <ChoiceRadio key={option} name="mode" checked={mode === option}
+            state={mode === option ? "selected" : "idle"} onSelect={() => setMode(option)}>
+            <span className="block font-semibold">{t(`mode.${option}.title`)}</span>
+            <span className="mt-1 block text-sm font-normal text-muted">{t(`mode.${option}.help`)}</span>
+          </ChoiceRadio>)}
+        </ul>
+      </fieldset>
+      {mode && <>
+        {mode === "email" && <Field label={t("recipientEmail")} required>{(props) => <Input {...props} type="email" required autoComplete="off" maxLength={254} value={recipientEmail} onChange={(event) => setRecipientEmail(event.target.value)} />}</Field>}
+        <Field label={t("label")} hint={t("labelHint")}>{(props) => <Input {...props} maxLength={80} value={label} onChange={(event) => setLabel(event.target.value)} />}</Field>
+        <TeachingLanguagesField value={subjects} onChange={setSubjects} />
+        <Button type="submit" disabled={!subjects.length || (mode === "email" && !recipientEmail.trim())} loading={busy && !confirm}>{t("generate")}</Button>
+      </>}
       {error && !confirm && <InlineAlert role="alert" variant="warning">{t("error")}</InlineAlert>}
     </form>
 
@@ -105,6 +124,7 @@ export function AdminTeacherInvitations({ invitations }: { invitations: Invitati
         <Button variant="secondary" size="sm" disabled={busy} onClick={() => { setError(false); setConfirm(invite); }}>{t("revoke")}</Button>
       }>
         <p className="break-words font-semibold">{invite.label ?? t("unnamed")}</p>
+        <p className="mt-1 break-words text-sm text-muted">{invite.recipientEmail ? t("restrictedTo", { email: invite.recipientEmail }) : t("mode.open.title")}</p>
         <p className="mt-1 text-sm text-muted">{invite.teachingLanguages.map((subject) => language(subject)).join(" · ")}</p>
         <p className="mt-1 text-sm text-muted">{t("expires")} <LocalDateTime iso={invite.expiresAt} locale={locale} /></p>
       </DataRow>)}</DataList> : <p className="border-y border-border py-4 text-sm text-muted" role={refreshing ? "status" : undefined}>{t(refreshing ? "refreshing" : "empty")}</p>}

@@ -920,10 +920,11 @@ for (const scenario of releaseCases()) test(`${scenario.language}: admin schools
   await expect(page.locator("#pricing").getByRole("heading", { name: copy.admin.profileOverview.pricing })).toBeVisible();
 });
 
-for (const scenario of releaseCases()) test(`${scenario.language}: a teacher invitation can be shared without an email`, async ({ page, browser }) => {
+for (const scenario of releaseCases()) test(`${scenario.language}: a teacher invitation can use a specified Google email or be shared openly`, async ({ page, browser }) => {
   const fixtures = readMirrorFixtures();
   const existing = scenario.language === "JAPANESE" ? fixtures.users[0] : null;
   const email = existing?.email ?? `${fixtures.runId}-invited-teacher@example.invalid`;
+  const mode = scenario.language === "ENGLISH" ? "email" : "open";
   const copy = scenario.locale === "ja" ? ja : en;
   const t = copy.admin.teacherInvitations;
   const origin = sites[scenario.language];
@@ -935,21 +936,30 @@ for (const scenario of releaseCases()) test(`${scenario.language}: a teacher inv
   await setHeaderTheme(page, copy.common, scenario.theme);
   await page.goto(`${sites.ENGLISH}${localePath}/admin/users`);
   await page.getByRole("link", { name: t.title, exact: true }).click();
+  await expect(page.getByRole("heading", { name: t.title, exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: t.generate })).toHaveCount(0);
+  await captureRelease(page, `${scenario.language}-teacher-invitation-mode`);
+  await page.getByRole("radio", { name: new RegExp(t.mode[mode].title) }).check();
+  if (mode === "email") await page.getByRole("textbox", { name: t.recipientEmail }).fill(email);
+  else await expect(page.getByRole("textbox", { name: t.recipientEmail })).toHaveCount(0);
   await page.getByRole("checkbox", { name: copy.admin.teachingLanguages[scenario.language], exact: true }).check();
-  await page.getByLabel(t.label).fill("Private message");
+  const reference = `${scenario.language} private message`;
+  await page.getByLabel(t.label).fill(reference);
   const creation = page.waitForResponse((response) => new URL(response.url()).pathname === api && response.request().method() === "POST");
   await page.getByRole("button", { name: t.generate }).click();
   const created = await creation;
   expect(created.status()).toBe(201);
   expect(created.headers()["cache-control"]).toContain("no-store");
-  expect(created.request().postDataJSON()).toEqual({ label: "Private message", teachingLanguages: [scenario.language] });
+  expect(created.request().postDataJSON()).toEqual({ mode, label: reference, teachingLanguages: [scenario.language], ...(mode === "email" ? { recipientEmail: email } : {}) });
   const { link } = await created.json();
   const invite = new URL(link);
   expect(invite.origin).toBe(origin);
-  expect(invite.search).toBe("");
+  expect(invite.searchParams.get("mode")).toBe(mode === "email" ? "email" : null);
+  expect(link).not.toContain(email);
   expect(invite.hash).toMatch(/^#[\w-]{43}$/);
   await expect(page.getByLabel(t.link)).toHaveValue(link);
-  await expect(page.getByRole("listitem").filter({ hasText: "Private message" })).toBeVisible();
+  const invitationRow = page.getByRole("listitem").filter({ hasText: reference });
+  await expect(invitationRow).toBeVisible();
   await captureRelease(page, `${scenario.language}-teacher-invitation-admin`);
 
   const recipient = await browser.newPage({ viewport: { width: scenario.width, height: 900 } });
@@ -958,8 +968,13 @@ for (const scenario of releaseCases()) test(`${scenario.language}: a teacher inv
     await recipient.goto(link);
     await expect(recipient.getByRole("heading", { name: copy.teacherInvitation.title })).toBeVisible();
     await expect(recipient.getByRole("button", { name: copy.auth.continueWithGoogle })).toBeVisible();
+    if (mode === "email") {
+      await completeGoogleFromPage(recipient, origin, fixtures.users[0].email, copy.auth.continueWithGoogle);
+      await expect(recipient.getByText(copy.teacherInvitation.emailMismatch)).toBeVisible();
+      await expect(recipient.getByRole("button", { name: copy.teacherInvitation.accept })).toHaveCount(0);
+    }
     await completeGoogleFromPage(recipient, origin, email, copy.auth.continueWithGoogle);
-    await expect(recipient).toHaveURL(`${origin}${localePath}/teacher-invite`);
+    await expect(recipient).toHaveURL(`${origin}${localePath}/teacher-invite${mode === "email" ? "?mode=email" : ""}`);
     const before = await (await recipient.request.get(`${origin}/api/auth/session`)).json();
     expect(before.user).toMatchObject({ role: "STUDENT", email, ...(existing ? { id: existing.id } : {}) });
     expect((await recipient.request.post(`${origin}${api}`, { data: { teachingLanguages: [scenario.language] } })).status()).toBe(403);
@@ -980,15 +995,19 @@ for (const scenario of releaseCases()) test(`${scenario.language}: a teacher inv
     await expect(replay.getByRole("heading", { name: copy.teacherInvitation.unavailableTitle })).toBeVisible();
 
     await page.reload();
-    await expect(page.getByText(t.empty, { exact: true })).toBeVisible();
+    await expect(invitationRow).toHaveCount(0);
+    await page.getByRole("radio", { name: new RegExp(t.mode.open.title) }).check();
     await page.getByRole("checkbox", { name: copy.admin.teachingLanguages[scenario.language], exact: true }).check();
+    const revokeReference = `${scenario.language} link to revoke`;
+    await page.getByLabel(t.label).fill(revokeReference);
     await page.getByRole("button", { name: t.generate }).click();
     const secondLink = page.getByLabel(t.link);
     await expect(secondLink).toBeVisible();
     const revokedLink = await secondLink.inputValue();
-    await page.getByRole("button", { name: t.revoke, exact: true }).click();
+    const revokeRow = page.getByRole("listitem").filter({ hasText: revokeReference });
+    await revokeRow.getByRole("button", { name: t.revoke, exact: true }).click();
     await page.getByRole("dialog").getByRole("button", { name: t.revoke, exact: true }).click();
-    await expect(page.getByText(t.empty, { exact: true })).toBeVisible();
+    await expect(revokeRow).toHaveCount(0);
     await replay.goto(revokedLink);
     await replay.getByRole("button", { name: copy.auth.continueWithGoogle }).click();
     await expect(replay.getByRole("heading", { name: copy.teacherInvitation.unavailableTitle })).toBeVisible();

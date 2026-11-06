@@ -16,6 +16,7 @@ import { resolveLearningLanguage } from "@/lib/learning-language";
 import type { LearningLanguage } from "@/generated/prisma/client";
 import { learningLanguageForRequest } from "@/lib/learning-site-request";
 import { isGoogleSignInConfigured } from "@/lib/auth-mode";
+import { recordTeacherInvitationGoogleSignIn } from "@/lib/teacher-invitation-google-sign-in";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
 const accountAccessAdapter: Adapter = {
@@ -240,6 +241,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
+    async signIn({ user, account, profile }) {
+      if (user.id && account?.provider === "google") await recordTeacherInvitationGoogleSignIn(user.id, profile);
+    },
     // `signIn` claims invites by looking the user up, but on a first Google
     // sign-in it runs before the adapter has created the row, finds nobody, and
     // claims nothing. Without this a student invited by email would be turned

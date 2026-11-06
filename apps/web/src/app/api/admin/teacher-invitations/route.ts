@@ -5,7 +5,7 @@ import { configuredLearningSites, publicAppOrigin } from "@/lib/learning-sites";
 import { PrivateApiFailure } from "@/lib/private-api-error";
 import { prisma } from "@/lib/prisma";
 import { requireSuperAdmin } from "@/lib/require-super-admin";
-import { createTeacherInvitation, revokeTeacherInvitation } from "@/lib/teacher-invitations";
+import { createTeacherInvitation, revokeTeacherInvitation, teacherInvitationPath } from "@/lib/teacher-invitations";
 
 const noStore = { "Cache-Control": "private, no-store" };
 
@@ -20,7 +20,8 @@ export async function POST(request: Request) {
     const subject = site?.learningLanguage && invite.teachingLanguages.includes(site.learningLanguage)
       ? site.learningLanguage : invite.teachingLanguages[0];
     // The explicit locale lets a new visitor open the invitation in its chosen language.
-    const link = new URL(`/${locale}/teacher-invite`, sites?.[subject].origin ?? publicAppOrigin());
+    const link = new URL(`/${locale}${teacherInvitationPath}`, sites?.[subject].origin ?? publicAppOrigin());
+    if (invite.recipientEmail) link.searchParams.set("mode", "email");
     link.hash = token;
     return NextResponse.json({ ...invite, link: link.href }, { status: 201, headers: noStore });
   } catch (cause) {

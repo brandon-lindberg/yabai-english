@@ -113,6 +113,8 @@
     "title": "You’re invited to teach",
     "intro": "Sign in with Google and accept the invitation to start teacher setup. This link can be used once.",
     "signedInIntro": "Accept the invitation to start teacher setup with the Google account shown below.",
+    "emailIntro": "Continue with the Google email address your inviter specified.",
+    "emailMismatch": "Google did not verify the invited email address. Choose the account you were invited with.",
     "account": "Signed in as {account}",
     "currentAccount": "your current Google account",
     "accept": "Accept invitation",
@@ -921,7 +923,14 @@
     },
     "teacherInvitations": {
       "title": "Invite teacher",
-      "intro": "Generate a link to share privately. The first eligible person to accept it with Google gets teacher access. Each link expires after seven days.",
+      "intro": "Create a one-time link to share privately. Each link expires after seven days and requires Google sign-in.",
+      "modeLabel": "Who can accept this invitation?",
+      "mode": {
+        "email": { "title": "Require a Google email", "help": "Only the Google account with the address you enter can accept." },
+        "open": { "title": "Let the recipient choose", "help": "Use this if you don’t know their email. The first eligible Google account to accept gets access." }
+      },
+      "recipientEmail": "Teacher’s Google email",
+      "restrictedTo": "Google email required · {email}",
       "back": "Back to People",
       "label": "Reference (optional)",
       "labelHint": "Add a private note to help you identify this link later.",
