@@ -2047,6 +2047,10 @@ The browser passes the link secret in the URL fragment. The database stores its 
 
 Email-bound links use the address verified during the invitation’s Google sign-in. A wrong account leaves the link available so the recipient can try again. The recipient email stays out of the link. The additive email migration was applied locally and preserves previously generated open links. Local database and browser tests covered both link modes, account switching, revocation, and the existing Google sign-in callback.
 
+#### 7g. Google Account guidance after failed signup — implemented locally
+
+The shared Google flow carries the signup intent through the language selector, domain handoff, and OAuth retry. A recoverable signup failure that returns to the app offers a manual retry, explains how to use an existing email address such as Yahoo, and links to Google Account creation in the current interface language. Normal signup and sign-in screens retain their existing copy and controls. Errors shown entirely on Google's site remain in Google's flow.
+
 ## Source completeness standard
 
 Modern JLPT has no published exhaustive official vocabulary/kanji list. The measurable target is full, traceable coverage of a named, versioned community corpus, with every merge/correction explained and zero unreviewed omissions. Preserve level source and supplementary/inferred classifications. Multiple repositories inheriting Waller's lists are not independent pedagogical validation.

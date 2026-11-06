@@ -17,11 +17,12 @@ import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { configuredLearningSites, learningSiteHref } from "@/lib/learning-sites";
 import { SITE_SESSION_SKIP, siteSessionStartHref } from "@/lib/site-session-path";
 
-type SignInQuery = { callbackUrl?: string; error?: string; learningLanguage?: string; siteSession?: string };
+type SignInQuery = { callbackUrl?: string; error?: string; learningLanguage?: string; siteSession?: string; signup?: string };
 
 export default async function SignInPage({ searchParams }: { searchParams: Promise<SignInQuery> }) {
   const locale = await getLocale();
   const query = await searchParams;
+  const signup = query.signup === "1";
   const local = (path: string) => appPathForLocale(locale, path);
   if (query.error) redirect(local(authErrorHref(query.error)));
 
@@ -30,7 +31,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   const requested = learningLanguageSchema.safeParse(query.learningLanguage);
   const callbackUrl = resolveSafeCallbackUrl(query.callbackUrl, "/book");
   if (sites && requested.success && site?.learningLanguage !== requested.data) {
-    redirect(learningSiteHref(sites, requested.data, local(journeySignInHref(requested.data, callbackUrl))));
+    redirect(learningSiteHref(sites, requested.data, local(journeySignInHref(requested.data, callbackUrl, signup))));
   }
   const session = await auth();
   if (session) {
@@ -41,10 +42,10 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   }
 
   const learningLanguage = site?.learningLanguage ?? (requested.success ? requested.data : await getGuestLearningLanguage());
-  if (!learningLanguage) redirect(local(`/choose-language?${new URLSearchParams({ signIn: "1", callbackUrl })}`));
+  if (!learningLanguage) redirect(local(`/choose-language?${new URLSearchParams({ signIn: "1", callbackUrl, ...(signup ? { signup: "1" } : {}) })}`));
   const safePostLoginPath = journeyCallback(learningLanguage, locale, callbackUrl);
   if (site?.learningLanguage && query.siteSession !== SITE_SESSION_SKIP) {
-    redirect(siteSessionStartHref(site, "signin", locale, safePostLoginPath));
+    redirect(siteSessionStartHref(site, signup ? "signup" : "signin", locale, safePostLoginPath));
   }
   if (!isGoogleSignInConfigured()) redirect(local(authErrorHref("SignInUnavailable")));
 
@@ -59,7 +60,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
           <GoogleSignInForm
             label={t("continueWithGoogle")}
             pendingLabel={t("signingIn")}
-            action={startGoogleSignIn.bind(null, { learningLanguage, locale, callbackUrl: safePostLoginPath })}
+            action={startGoogleSignIn.bind(null, { learningLanguage, locale, callbackUrl: safePostLoginPath, ...(signup ? { signup: true } : {}) })}
           />
           <Link href="/" className={buttonClasses({ variant: "ghost" })}>{t("backToHome")}</Link>
         </div>

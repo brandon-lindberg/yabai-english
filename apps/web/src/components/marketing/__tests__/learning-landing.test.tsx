@@ -18,5 +18,6 @@ test.each(["ENGLISH", "JAPANESE"] as const)("%s landing names the subject before
   expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(`Learn ${subject}`);
   const signup = screen.getByRole("link", { name: `Start learning ${subject}` });
   expect(signup.getAttribute("href")).toContain(`learningLanguage=${learningLanguage}`);
+  expect(signup.getAttribute("href")).toContain("signup=1");
   expect(screen.getByRole("button", { name: `Find ${subject} teachers` })).toBeTruthy();
 });

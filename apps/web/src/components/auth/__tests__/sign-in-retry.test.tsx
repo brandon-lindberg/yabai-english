@@ -42,11 +42,32 @@ test("a repeated failure offers a manual Google retry", async () => {
   render(await page("Configuration"));
   expect(screen.getByRole("alert")).toHaveTextContent(en.auth.signInRetry);
   expect(screen.getByRole("button", { name: en.auth.continueWithGoogle })).toHaveAttribute("data-auto-retry", "false");
+  expect(screen.queryByRole("link", { name: "Create a Google Account" })).toBeNull();
+});
+
+test("a failed signup shows Google account creation help and waits for a manual retry", async () => {
+  recover.mockResolvedValue({ ...intent, signup: true });
+  render(await page("OAuthCallbackError"));
+  expect(screen.getByRole("heading", { name: "Sign-up incomplete" })).toBeVisible();
+  expect(screen.getByText(/including Yahoo/i)).toBeVisible();
+  expect(screen.getByRole("link", { name: "Create a Google Account" })).toHaveAttribute("href", "https://accounts.google.com/signup?hl=en");
+  const button = screen.getByRole("button", { name: en.auth.continueWithGoogle });
+  expect(button).toHaveAttribute("data-auto-retry", "false");
+  fireEvent.click(button);
+  expect(start).toHaveBeenCalledWith({ ...intent, signup: true, retried: false });
 });
 
 test("a denied account sees the reason and a way home", async () => {
+  recover.mockResolvedValue({ ...intent, signup: true });
   render(await page("AccessDenied"));
   expect(screen.getByRole("alert")).toHaveTextContent(en.auth.signInDenied);
   expect(screen.getByRole("link", { name: en.auth.backToHome })).toBeVisible();
   expect(screen.queryByRole("button", { name: en.auth.continueWithGoogle })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Create a Google Account" })).toBeNull();
+});
+
+test("opening the error page without an attempted signup shows no signup help", async () => {
+  recover.mockResolvedValue(null);
+  render(await page("Configuration"));
+  expect(screen.queryByRole("link", { name: "Create a Google Account" })).toBeNull();
 });

@@ -8,7 +8,7 @@ import { journeyIntentSchema, JOURNEY_INTENT_SECONDS, journeyCallback, signInInt
 
 const LEARNING_CALLBACK_PATH = "/api/auth/learning-journey";
 
-export async function prepareLearningSignIn(input: { learningLanguage: LearningLanguage; locale: string; callbackUrl: string; retried?: boolean }) {
+export async function prepareLearningSignIn(input: { learningLanguage: LearningLanguage; locale: string; callbackUrl: string; retried?: boolean; signup?: true }) {
   const site = await getRequestLearningSite();
   if (site?.learningLanguage && site.learningLanguage !== input.learningLanguage) throw new Error("Choose this language on its learning site");
   const intent = journeyIntentSchema.parse({

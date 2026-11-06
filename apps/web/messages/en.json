@@ -137,6 +137,11 @@
     "signInRetry": "We couldn't finish signing you in. This usually means the sign-in link expired or was already used — please try again.",
     "signInDenied": "This account can't sign in right now. If you think that's a mistake, please contact us.",
     "signInUnavailable": "Google sign-in is temporarily unavailable. Please try again in a moment.",
+    "signupIncomplete": "Sign-up incomplete",
+    "signupRetry": "Try continuing with Google again.",
+    "googleAccountNeeded": "A Google Account is required",
+    "googleAccountHelp": "You can use an email address you already have, including Yahoo. Choose “Use your existing email” when creating your Google Account, then return here to continue.",
+    "createGoogleAccount": "Create a Google Account",
     "backToHome": "Back to home"
   },
   "home": {

@@ -28,6 +28,12 @@ test("an external callback cannot travel through the OAuth bridge", async () => 
   expect(JSON.parse(value).callbackUrl).toBe("/en/book");
 });
 
+test("signup is stored in the same attempt cookie that survives a Google failure", async () => {
+  await prepareLearningSignIn({ learningLanguage: "ENGLISH", locale: "en", callbackUrl: "/book", signup: true });
+  const [, value] = store.set.mock.calls.find(([name]) => name.startsWith("learning-signin-"))!;
+  expect(JSON.parse(value)).toMatchObject({ signup: true, learningLanguage: "ENGLISH", callbackUrl: "/en/book" });
+});
+
 test("confirming the Google button stores the learning intent and starts only Google", async () => {
   vi.stubEnv("AUTH_GOOGLE_ID", "test-client");
   vi.stubEnv("AUTH_GOOGLE_SECRET", "test-secret");

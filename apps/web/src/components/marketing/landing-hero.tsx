@@ -32,7 +32,7 @@ export async function LandingHero({ learningLanguage = "ENGLISH" }: { learningLa
         </p>
 
         <div className="mt-10 flex flex-wrap items-center gap-3">
-          <Link href={journeySignInHref(learningLanguage)} className={buttonClasses({ size: "lg" })}>
+          <Link href={journeySignInHref(learningLanguage, "/book", true)} className={buttonClasses({ size: "lg" })}>
             {j(`${journey.key}.start`)}
           </Link>
           <form action={selectLearningJourney.bind(null, learningLanguage, locale)}>

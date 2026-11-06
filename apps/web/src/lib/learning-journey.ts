@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { LearningLanguage } from "@/generated/prisma/enums";
 import { learningLanguageSchema } from "@/lib/learning-language";
 import { resolveSafeCallbackUrl, stripOptionalLocalePrefix } from "@/lib/auth-callback-url";
+import { authSignInHref } from "@/lib/auth-sign-in-href";
 import { appPathForLocale } from "@/lib/i18n-app-path";
 
 export const LEARNING_LANGUAGE_COOKIE = "learning-language";
@@ -16,8 +17,8 @@ export function journeyPath(language: LearningLanguage) {
   return LEARNING_JOURNEYS[language].path;
 }
 
-export function journeySignInHref(language: LearningLanguage, callbackUrl = "/book") {
-  return `/auth/signin?${new URLSearchParams({ learningLanguage: language, callbackUrl: resolveSafeCallbackUrl(callbackUrl, "/book") })}`;
+export function journeySignInHref(language: LearningLanguage, callbackUrl = "/book", signup = false) {
+  return `${authSignInHref(callbackUrl, "/book", signup)}&learningLanguage=${language}`;
 }
 
 export function learningLanguageFromPath(pathname: string): LearningLanguage | null {
@@ -35,6 +36,7 @@ export const journeyIntentSchema = z.object({
   callbackUrl: z.string(),
   expiresAt: z.number().int().positive(),
   retried: z.boolean().optional(),
+  signup: z.literal(true).optional(),
 }).strict();
 
 export function journeyCallback(language: LearningLanguage, locale: string, raw: string) {

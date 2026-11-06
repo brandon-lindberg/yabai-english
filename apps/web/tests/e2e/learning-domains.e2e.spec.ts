@@ -365,28 +365,42 @@ test("sign-in and signup show a Google button before opening the only provider",
     expect(Object.keys(await (await page.request.get(`${origin}/api/auth/providers`)).json())).toEqual(["google"]);
     await page.locator("header").getByRole("link", { name: copy.common.signIn, exact: true }).click();
     const googleButton = page.getByRole("button", { name: copy.auth.continueWithGoogle, exact: true });
+    const createAccount = page.getByRole("link", { name: copy.auth.createGoogleAccount, exact: true });
     await expect(googleButton).toBeVisible();
+    await expect(createAccount).toHaveCount(0);
     expect(new URL(page.url()).origin).toBe(origin);
     expect((await context.cookies(origin)).some(cookie => cookie.name.includes("pkce"))).toBe(false);
     await expect(page.locator('input[type="email"]')).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect((await googleButton.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await interceptMirrorGoogleSignIn(page, () => googleButton.click());
+    const failure = `${origin}${prefix}/auth/error?error=Configuration`;
+    await interceptMirrorGoogleSignIn(page, () => page.goto(failure));
+    await page.goto(failure);
+    await expect(page.getByRole("alert")).toHaveText(copy.auth.signInRetry);
+    await expect(createAccount).toHaveCount(0);
 
     await page.goto(`${origin}${prefix}/auth/signup`);
     await expect(googleButton).toBeVisible();
+    await expect(createAccount).toHaveCount(0);
     expect(new URL(page.url()).pathname).toBe(`${prefix}/auth/signin`);
+    expect(new URL(page.url()).searchParams.get("signup")).toBe("1");
     const google = await interceptMirrorGoogleSignIn(page, () => googleButton.click());
     await expect(page).toHaveURL(/^https:\/\/accounts\.google\.com\/o\/oauth2\/v2\/auth\?/);
     expect(google.searchParams.get("redirect_uri")).toBe(googleCallback);
     expect(google.searchParams.get("code_challenge_method")).toBe("S256");
 
-    const failure = `${origin}${prefix}/auth/error?error=Configuration`;
-    await interceptMirrorGoogleSignIn(page, () => page.goto(failure));
-    await page.goto(failure);
-    await expect(page.getByRole("alert")).toHaveText(copy.auth.signInRetry);
+    const callback = new URL(googleCallback);
+    callback.search = new URLSearchParams({ state: google.searchParams.get("state")!, error: "access_denied" }).toString();
+    await page.goto(callback.href);
+    await expect(page).toHaveURL(/\/auth\/error/);
+    await expect(page.getByRole("heading", { name: copy.auth.signupIncomplete })).toBeVisible();
+    await expect(page.getByText(copy.auth.googleAccountHelp)).toBeVisible();
+    await expect(createAccount).toHaveAttribute("href", `https://accounts.google.com/signup?hl=${copy === en ? "en" : "ja"}`);
     await expect(googleButton).toBeVisible();
     await expect(page.locator('input[type="email"]')).toHaveCount(0);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await setHeaderTheme(page, copy.common, copy === en ? "light" : "dark");
+    await captureRelease(page, `${language}-failed-signup-help`);
   }
 });
 

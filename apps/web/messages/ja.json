@@ -137,6 +137,11 @@
     "signInRetry": "ログインを完了できませんでした。ログインの有効期限が切れたか、すでに使用済みの可能性があります。もう一度お試しください。",
     "signInDenied": "このアカウントは現在ログインできません。お心当たりがない場合はお問い合わせください。",
     "signInUnavailable": "現在 Google でログインできません。しばらくしてからもう一度お試しください。",
+    "signupIncomplete": "アカウント登録を完了できませんでした",
+    "signupRetry": "もう一度「Google で続ける」をお試しください。",
+    "googleAccountNeeded": "Google アカウントが必要です",
+    "googleAccountHelp": "Yahoo!メールなど、お持ちのメールアドレスを使えます。Google アカウント作成時に「既存のメールアドレスを使用する」を選び、作成後にこのページに戻ってください。",
+    "createGoogleAccount": "Google アカウントを作成",
     "backToHome": "トップに戻る"
   },
   "home": {

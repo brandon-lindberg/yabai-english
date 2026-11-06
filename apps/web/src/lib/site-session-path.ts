@@ -5,7 +5,7 @@ import type { LearningSite, LearningSites } from "@/lib/learning-sites";
 
 export const SITE_SESSION_PATH = "/api/auth/site-session";
 export const SITE_SESSION_SKIP = "skip";
-export const SITE_SESSION_FLOWS = ["signin", "after-signin", "switch"] as const;
+export const SITE_SESSION_FLOWS = ["signin", "signup", "after-signin", "switch"] as const;
 type SiteSessionFlow = (typeof SITE_SESSION_FLOWS)[number];
 
 export function otherLearningSite(sites: LearningSites, site: LearningSite) {
@@ -32,6 +32,6 @@ export function siteSessionReturnPath(flow: SiteSessionFlow, locale: string, ret
     : resolveSafeCallbackUrl(returnTo, appPathForLocale(locale, "/dashboard"));
 }
 
-export function siteSessionSignInFallback(locale: string, returnTo: string) {
-  return appPathForLocale(locale, `${authSignInHref(returnTo)}&siteSession=${SITE_SESSION_SKIP}`);
+export function siteSessionSignInFallback(locale: string, returnTo: string, signup = false) {
+  return appPathForLocale(locale, `${authSignInHref(returnTo, "/dashboard", signup)}&siteSession=${SITE_SESSION_SKIP}`);
 }

@@ -114,6 +114,16 @@ describe("learning-site sign-in handoff", () => {
     expect(db.verificationToken.create).not.toHaveBeenCalled();
   });
 
+  it("keeps signup separate when the other site has no shared session", async () => {
+    const { authorize, cookie } = await startHandoff("flow=signup&locale=en&returnTo=/en/book");
+    const response = await visit(location(await visit(authorize)), cookie);
+    const next = new URL(location(response));
+    expect(next.pathname).toBe("/en/auth/signin");
+    expect(next.searchParams.get("signup")).toBe("1");
+    expect(next.searchParams.get("siteSession")).toBe("skip");
+    expect(next.searchParams.get("callbackUrl")).toBe("/en/book");
+  });
+
   it("returns to the original site after priming the second session", async () => {
     const { authorize, cookie } = await startHandoff("flow=after-signin&locale=en&returnTo=/en/onboarding");
     const response = await visit(location(await visit(authorize, `${sessionCookie}=${originalSession.sessionToken}`)), cookie);

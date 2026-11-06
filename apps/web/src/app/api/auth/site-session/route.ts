@@ -105,7 +105,8 @@ export async function GET(request: NextRequest) {
 
   const returnTo = siteSessionReturnPath(state.flow, state.locale, state.returnTo);
   const success = new URL(returnTo, state.flow === "after-signin" ? other.origin : site.origin);
-  const fallback = state.flow === "signin" ? new URL(siteSessionSignInFallback(state.locale, returnTo), site.origin) : success;
+  const fallback = state.flow === "signin" || state.flow === "signup"
+    ? new URL(siteSessionSignInFallback(state.locale, returnTo, state.flow === "signup"), site.origin) : success;
   const finish = (url: URL) => {
     const response = redirectTo(url);
     response.cookies.set(stateName, "", { ...localCookie.options, maxAge: 0 });
