@@ -15,6 +15,10 @@ import {
 } from "@/lib/markdown/limits";
 import { STUDENT_SHORT_BIO_MAX_CHARS } from "@/lib/student-short-bio";
 import { teachingLanguagesSchema } from "@/lib/learning-language";
+import { countActiveAdmins, lockAdminAccountChanges } from "@/lib/admin/account-access";
+import { PrivateApiFailure } from "@/lib/private-api-error";
+import { adminLessonsForPerson, upcomingAdminLessonsWhere } from "@/lib/admin/lesson-filters";
+import { adminRefundRecoveryWhere } from "@/lib/refund-recovery";
 
 const teacherProfilePatchSchema = z
   .object({
@@ -47,7 +51,7 @@ const patchBodySchema = z
     email: z.string().trim().email().max(320).nullable().optional(),
     locale: z.string().trim().min(2).max(10).optional(),
     role: z.nativeEnum(Role).optional(),
-    accountStatus: z.nativeEnum(AccountStatus).optional(),
+    accountStatus: z.enum([AccountStatus.ACTIVE, AccountStatus.HIDDEN]).optional(),
     studentProfile: studentProfilePatchSchema.optional(),
     teacherProfile: teacherProfilePatchSchema.optional(),
   })
@@ -78,17 +82,32 @@ export async function GET(_req: Request, { params }: Props) {
     include: {
       studentProfile: true,
       teacherProfile: true,
+      adminAccessEvents: { orderBy: { id: "desc" }, take: 10 },
     },
   });
   if (!user) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { teacherProfile, ...rest } = user;
+  const { teacherProfile, adminAccessEvents, ...rest } = user;
+  const actors = adminAccessEvents?.length ? await prisma.user.findMany({
+    where: { id: { in: [...new Set(adminAccessEvents.map(({ actorId }) => actorId))] } },
+    select: { id: true, name: true, email: true },
+  }) : [];
+  const actorNames = new Map(actors.map(({ id, name, email }) => [id, name ?? email ?? id]));
+  const participants = adminLessonsForPerson(userId);
+  const followUp = user.accountStatus === "SUSPENDED" ? await Promise.all([
+    prisma.booking.count({
+      where: { ...participants, ...upcomingAdminLessonsWhere(new Date()) },
+    }),
+    prisma.refund.count({ where: { booking: participants, ...adminRefundRecoveryWhere() } }),
+  ]).then(([upcomingLessons, unresolvedPayments]) => ({ upcomingLessons, unresolvedPayments })) : null;
   return NextResponse.json({
     ...rest,
     teacherProfile: teacherProfileToAdminDto(teacherProfile),
-  });
+    adminAccessEvents: adminAccessEvents?.map((event) => ({ ...event, actorName: actorNames.get(event.actorId) })),
+    followUp,
+  }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
 export async function PATCH(req: Request, { params }: Props) {
@@ -102,30 +121,11 @@ export async function PATCH(req: Request, { params }: Props) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const existing = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      role: true,
-      accountStatus: true,
-      studentProfile: { select: { id: true } },
-      teacherProfile: { select: { id: true } },
-    },
-  });
-  if (!existing) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
   const data = parsed.data;
   const rateCheck = validatePublicLessonRateYen(data.teacherProfile?.rateYen);
   if (!rateCheck.ok) {
     return NextResponse.json({ error: rateCheck.error }, { status: 400 });
   }
-  const nextRole = data.role ?? existing.role;
-  if (nextRole === Role.TEACHER && existing.role !== Role.TEACHER && !data.teacherProfile?.teachingLanguages) {
-    return NextResponse.json({ error: "Select the teacher's teaching languages" }, { status: 400 });
-  }
-  const nextAccountStatus = data.accountStatus ?? existing.accountStatus;
 
   const userUpdate: Prisma.UserUpdateInput = {};
   if (data.name !== undefined) userUpdate.name = data.name;
@@ -136,6 +136,35 @@ export async function PATCH(req: Request, { params }: Props) {
 
   try {
     await prisma.$transaction(async (tx) => {
+      await lockAdminAccountChanges(tx, gate.session.user.id);
+      const existing = await tx.user.findUnique({
+        where: { id: userId },
+        select: {
+          email: true,
+          role: true,
+          accountStatus: true,
+          studentProfile: { select: { id: true } },
+          teacherProfile: { select: { id: true } },
+        },
+      });
+      if (!existing) throw new PrivateApiFailure(404, "Not found");
+
+      const nextRole = data.role ?? existing.role;
+      const nextAccountStatus = data.accountStatus ?? existing.accountStatus;
+      if (existing.accountStatus === "SUSPENDED" && (
+        nextAccountStatus !== "SUSPENDED" || nextRole !== existing.role ||
+        (data.email !== undefined && userUpdate.email !== existing.email)
+      )) {
+        throw new PrivateApiFailure(409, "Reinstate this account before changing its email, role, or access.");
+      }
+      if (nextRole === Role.TEACHER && existing.role !== Role.TEACHER && !data.teacherProfile?.teachingLanguages) {
+        throw new PrivateApiFailure(400, "Select the teacher's teaching languages");
+      }
+      if (existing.role === Role.SUPER_ADMIN && existing.accountStatus === AccountStatus.ACTIVE &&
+        (nextRole !== Role.SUPER_ADMIN || nextAccountStatus !== AccountStatus.ACTIVE) &&
+        await countActiveAdmins(tx) <= 1) {
+        throw new PrivateApiFailure(403, "Cannot remove access for the last active admin.");
+      }
       if (Object.keys(userUpdate).length > 0) {
         await tx.user.update({
           where: { id: userId },
@@ -177,11 +206,12 @@ export async function PATCH(req: Request, { params }: Props) {
         });
       }
 
-      if (nextAccountStatus === AccountStatus.HIDDEN) {
+      if (nextAccountStatus === AccountStatus.HIDDEN || nextRole !== existing.role) {
         await invalidateUserSessions(tx, userId);
       }
     });
   } catch (e) {
+    if (e instanceof PrivateApiFailure) return NextResponse.json({ error: e.code }, { status: e.status });
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return NextResponse.json({ error: "Email already in use." }, { status: 409 });
     }
@@ -210,25 +240,29 @@ export async function DELETE(_req: Request, { params }: Props) {
 
   const { userId } = await params;
 
-  const target = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, role: true },
-  });
-  if (!target) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  try {
+    await prisma.$transaction(async (tx) => {
+      await lockAdminAccountChanges(tx, actorId);
+      const target = await tx.user.findUnique({
+        where: { id: userId },
+        select: { role: true, accountStatus: true },
+      });
+      if (!target) throw new PrivateApiFailure(404, "Not found");
+      if (target.accountStatus === "SUSPENDED") {
+        throw new PrivateApiFailure(409, "Reinstate this account before deleting it.");
+      }
+      const check = checkAdminCanDeleteUser({
+        actorUserId: actorId,
+        targetUserId: userId,
+        targetRole: target.role,
+        adminUserCount: await countActiveAdmins(tx),
+      });
+      if (!check.ok) throw new PrivateApiFailure(check.status, check.error);
+      await tx.user.delete({ where: { id: userId } });
+    });
+  } catch (e) {
+    if (e instanceof PrivateApiFailure) return NextResponse.json({ error: e.code }, { status: e.status });
+    throw e;
   }
-
-  const adminUserCount = await prisma.user.count({ where: { role: Role.SUPER_ADMIN } });
-  const check = checkAdminCanDeleteUser({
-    actorUserId: actorId,
-    targetUserId: userId,
-    targetRole: target.role,
-    adminUserCount,
-  });
-  if (!check.ok) {
-    return NextResponse.json({ error: check.error }, { status: check.status });
-  }
-
-  await prisma.user.delete({ where: { id: userId } });
   return NextResponse.json({ ok: true });
 }

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import type { BookingStatus } from "@/generated/prisma/client";
+import type { BookingStatus, LearningLanguage } from "@/generated/prisma/enums";
 import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
 import { bookingStatusKey, bookingStatusTone } from "@/lib/booking-status";
 import { buttonClasses } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { tabClasses } from "@/components/ui/sub-nav";
 
 export type AdminBookingRow = {
   id: string;
+  learningLanguage: LearningLanguage;
   startsAtIso: string;
   lessonName: string;
   studentName: string;
@@ -49,14 +50,17 @@ export function AdminBookingsPanel({
   bookings,
   locale,
   nowIso,
+  queue,
 }: {
   bookings: AdminBookingRow[];
   locale: string;
   /** Taken on the server so the split does not shift between render and hydrate. */
   nowIso: string;
+  queue?: "upcoming" | "reschedules";
 }) {
   const t = useTranslations("admin.bookingsPanel");
   const td = useTranslations("dashboard");
+  const language = useTranslations("admin.teachingLanguages");
   const [scope, setScope] = useState<"upcoming" | "past">("upcoming");
   const [status, setStatus] = useState<BookingStatus | "ALL">("ALL");
   const [query, setQuery] = useState("");
@@ -93,7 +97,7 @@ export function AdminBookingsPanel({
     const needle = query.trim().toLowerCase();
     const rows = bookings.filter((b) => {
       const at = new Date(b.startsAtIso).getTime();
-      if (scope === "upcoming" ? at < now : at >= now) return false;
+      if (!queue && (scope === "upcoming" ? at < now : at >= now)) return false;
       if (status !== "ALL" && b.status !== status) return false;
       if (!needle) return true;
       return (
@@ -108,11 +112,11 @@ export function AdminBookingsPanel({
         new Date(a.startsAtIso).getTime() - new Date(b.startsAtIso).getTime();
       return scope === "upcoming" ? delta : -delta;
     });
-  }, [bookings, scope, status, query, now]);
+  }, [bookings, queue, scope, status, query, now]);
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-6 border-b border-border">
+      {!queue && <div className="flex gap-6 border-b border-border">
         {(["upcoming", "past"] as const).map((s) => (
           <button
             key={s}
@@ -124,7 +128,7 @@ export function AdminBookingsPanel({
             {s === "upcoming" ? t("scopeUpcoming") : t("scopePast")}
           </button>
         ))}
-      </div>
+      </div>}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
         <Field label={t("searchLabel")} className="min-w-0 flex-1">
@@ -168,7 +172,7 @@ export function AdminBookingsPanel({
         countLabel={(count) => t("countLabel", { count })}
         empty={
           <p className="border-y border-border py-6 text-sm text-muted">
-            {scope === "upcoming" ? t("emptyUpcoming") : t("emptyPast")}
+            {queue === "reschedules" ? t("emptyReschedules") : scope === "upcoming" ? t("emptyUpcoming") : t("emptyPast")}
           </p>
         }
         renderItem={(b) => (
@@ -200,7 +204,7 @@ export function AdminBookingsPanel({
               </Status>
             </div>
             <p className="mt-0.5 text-sm text-muted">
-              {b.studentName} — {b.teacherName}
+              {language(b.learningLanguage)} · {b.studentName} — {b.teacherName}
             </p>
           </DataRow>
         )}

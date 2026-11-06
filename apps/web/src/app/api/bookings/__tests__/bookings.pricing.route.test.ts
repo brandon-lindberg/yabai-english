@@ -65,6 +65,7 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/active-account-lock", () => ({ lockActiveAccounts: vi.fn().mockResolvedValue(true) }));
 import { POST } from "@/app/api/bookings/route";
 
 describe("POST /api/bookings pricing", () => {

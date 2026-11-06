@@ -842,13 +842,15 @@
     "nav": {
       "overview": "概要",
       "schools": "スクール",
-      "users": "全ユーザー",
+      "users": "ユーザー",
       "invite": "講師を招待",
       "teachers": "講師",
       "teacherTiers": "講師ティア",
       "students": "受講生",
-      "reports": "通報",
-      "payments": "決済"
+      "reports": "通報管理",
+      "payments": "決済",
+      "label": "管理メニュー",
+      "lessons": "レッスン"
     },
     "schoolsPage": {
       "title": "スクール・組織管理",
@@ -911,7 +913,8 @@
       "hint": "招待メールは送信されません。このアドレスで Google サインインするようご案内ください。"
     },
     "usersPage": {
-      "title": "全ユーザー"
+      "title": "ユーザー",
+      "subtitle": "生徒・講師・管理者のアカウントを検索できます。"
     },
     "teachersPage": {
       "title": "講師"
@@ -945,6 +948,7 @@
       "title": "受講生"
     },
     "refundsPage": {
+      "allExceptions": "すべての要確認の決済処理を表示",
       "title": "支払いの照合・復旧",
       "subtitle": "中断した支払い・返金・手数料の返還を Stripe と照合して復旧します。",
       "loading": "返金を読み込み中…",
@@ -992,7 +996,7 @@
     },
     "userDetail": {
       "title": "ユーザー",
-      "back": "一覧に戻る",
+      "back": "ユーザー一覧に戻る",
       "save": "保存",
       "saving": "保存中…",
       "saved": "保存しました。",
@@ -1001,7 +1005,7 @@
       "delete": "ユーザーを削除",
       "deleteConfirm": "削除を確認するにはユーザーのメールアドレスを入力してください。",
       "loadError": "ユーザーを読み込めませんでした。",
-      "sectionUser": "アカウント",
+      "sectionUser": "プロフィール詳細",
       "sectionStudent": "受講生プロフィール",
       "sectionTeacher": "講師プロフィール",
       "name": "名前",
@@ -1025,7 +1029,23 @@
       "instructionLanguages": "指導言語（カンマ区切り）",
       "loading": "読み込み中…",
       "calendarConnected": "Googleカレンダー連携済み",
-      "cancel": "キャンセル"
+      "cancel": "キャンセル",
+      "accessTitle": "アカウントの利用権限",
+      "saveError": "変更を保存できませんでした。もう一度お試しください。",
+      "suspend": "アカウントを停止",
+      "reinstate": "停止を解除",
+      "changeRole": "権限を変更",
+      "privateReason": "管理者のみ閲覧できる理由",
+      "suspendEffect": "すべてのセッションを終了し、両サイトへのログインを停止します。レッスンや支払いの履歴は確認用に保持されます。",
+      "reinstateEffect": "停止前の状態に戻します。利用が再開された場合は、Googleで再度ログインする必要があります。",
+      "changeRoleEffect": "このアカウントの利用権限を変更し、現在のセッションを終了します。",
+      "hideEffect": "現在のセッションを終了し、ログインと講師検索への表示を停止します。",
+      "unhideEffect": "このアカウントで再びログインできるようにします。",
+      "accessHistory": "停止履歴",
+      "accessStale": "利用権限が変更されました。この画面を閉じ、プロフィールを再読み込みしてください。",
+      "followUp": "対応が必要な項目",
+      "upcoming": "今後のレッスン {count}件",
+      "payments": "要確認の決済処理 {count}件"
     },
     "grid": {
       "colActions": "",
@@ -1060,7 +1080,22 @@
       "sortDesc": "降順",
       "sortSummary": "{field}（{direction}）で並べ替え",
       "colRate": "料金",
-      "colActionsLabel": "ユーザーを開く"
+      "colActionsLabel": "ユーザーを開く",
+      "colSubject": "学習・指導言語",
+      "allRoles": "すべての権限",
+      "allSubjects": "すべての言語",
+      "allStatuses": "すべての状態",
+      "roles": {
+        "TEACHER": "講師",
+        "STUDENT": "生徒",
+        "SUPER_ADMIN": "全体管理者"
+      },
+      "accessStatus": {
+        "ACTIVE": "有効",
+        "HIDDEN": "非表示",
+        "SUSPENDED": "停止中"
+      },
+      "empty": "絞り込み条件に一致するユーザーがいません。"
     },
     "placementReview": {
       "levelLabel": "{name} さんのレベル",
@@ -1089,13 +1124,21 @@
       "showing": "{total}件中 {shown}件を表示",
       "joinCta": "Meet",
       "reviewQueueLink": "レベル判定レビュー待ち",
-      "allStudentsCta": "受講生一覧を開く"
+      "allStudentsCta": "受講生一覧を開く",
+      "pendingReschedules": "日程変更待ちの個人レッスン",
+      "emptyReschedules": "該当する日程変更リクエストがありません。",
+      "clearFilters": "すべてのレッスンを表示"
     },
     "overview": {
       "statUpcoming": "今後の予約",
       "statNeedsReview": "レベル判定レビュー待ち",
       "statStudents": "受講生",
-      "studentsHint": "受講生の検索・並べ替え・編集は受講生画面で行えます。"
+      "studentsHint": "受講生の検索・並べ替え・編集は受講生画面で行えます。",
+      "attention": "対応が必要な項目",
+      "reschedules": "個人レッスンの日程変更リクエスト",
+      "payments": "要確認の決済処理",
+      "englishReviews": "英語レベルチェックの確認",
+      "upcomingSubjects": "言語別の今後のレッスン"
     },
     "teacherRateGrants": {
       "title": "最低料金未満のクラス料金",

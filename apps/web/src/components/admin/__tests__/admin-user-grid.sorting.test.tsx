@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../../messages/en.json";
 import { AdminUserGrid } from "../admin-user-grid";
@@ -27,7 +27,7 @@ vi.mock("@/i18n/navigation", () => ({
 function renderGrid() {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
-      <AdminUserGrid mode="all" columnStorageKey="test-sorting" />
+      <AdminUserGrid columnStorageKey="test-sorting" />
     </NextIntlClientProvider>,
   );
 }
@@ -45,8 +45,9 @@ describe("AdminUserGrid sorting", () => {
   });
 
   afterEach(() => {
+    cleanup();
     vi.unstubAllGlobals();
-    window.localStorage.clear();
+    window.localStorage?.clear();
   });
 
   test("the sorted column announces its direction, and only that column", async () => {

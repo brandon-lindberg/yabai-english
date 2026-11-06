@@ -5,6 +5,7 @@ const { captured, prismaMock } = vi.hoisted(() => ({
   captured: { config: null as NextAuthConfig | null },
   prismaMock: {
     user: { findUnique: vi.fn() },
+    session: { findUnique: vi.fn() },
     studentProfile: { findUnique: vi.fn() },
     organizationMembership: { findMany: vi.fn() },
   },
@@ -53,6 +54,11 @@ describe("auth preserves the selected lesson subject", () => {
     expect(captured.config!.providers).toEqual([]);
     expect(captured.config!.session?.strategy).toBe("database");
     expect(captured.config!.pages).toMatchObject({ signIn: "/auth/signin", error: "/auth/error" });
+  });
+
+  test("a stale session belonging to a suspended account is unusable", async () => {
+    prismaMock.session.findUnique.mockResolvedValue({ sessionToken: "stale", user: { id: "learner", accountStatus: "SUSPENDED" } });
+    await expect(captured.config!.adapter!.getSessionAndUser!("stale")).resolves.toBeNull();
   });
 });
 

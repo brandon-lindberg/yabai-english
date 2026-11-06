@@ -47,12 +47,12 @@ const STATUS_TONE = {
   SUCCEEDED: "pending",
 } as const;
 
-export function AdminRefundsTable() {
+export function AdminRefundsTable({ personId }: { personId?: string }) {
   const [revision, setRevision] = useState(0);
   const t = useTranslations("admin.refundsPage");
   const locale = useLocale();
   const { items, loading, error } = useAdminCollection<RefundRow>(
-    `/api/admin/payments/refunds?revision=${revision}`,
+    `/api/admin/payments/refunds?${new URLSearchParams({ revision: String(revision), ...(personId ? { person: personId } : {}) })}`,
   );
 
   if (loading) {

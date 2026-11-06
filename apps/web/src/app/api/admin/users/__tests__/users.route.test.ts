@@ -26,6 +26,18 @@ describe("GET /api/admin/users", () => {
     vi.clearAllMocks();
   });
 
+  test("filters suspended teachers by teaching subject rather than interface language", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin", role: "SUPER_ADMIN" } });
+    prismaMock.$transaction.mockResolvedValue([[], 0]);
+    const response = await GET(new Request("http://localhost/api/admin/users?role=TEACHER&subject=JAPANESE&status=SUSPENDED"));
+    expect(response.status).toBe(200);
+    expect(prismaMock.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ role: "TEACHER", accountStatus: "SUSPENDED", AND: expect.arrayContaining([
+        expect.objectContaining({ OR: expect.arrayContaining([{ role: "TEACHER", teacherProfile: { teachingLanguages: { has: "JAPANESE" } } }]) }),
+      ]) }),
+    }));
+  });
+
   test("401 when unauthenticated", async () => {
     authMock.mockResolvedValue(null);
     const res = await GET(new Request("http://localhost/api/admin/users"));

@@ -14,6 +14,18 @@ async function signIn(page: Page, language: keyof typeof sites, email: string) {
   await expect(page).toHaveURL(/\/en\/dashboard$/);
 }
 
+async function completeGoogleCallback(page: Page, origin: string, email: string) {
+  await page.goto(`${origin}/en/auth/signin?callbackUrl=%2Fen%2Fdashboard`);
+  const google = await interceptMirrorGoogleSignIn(page, () => page.getByRole("button", { name: en.auth.continueWithGoogle, exact: true }).click());
+  const state = google.searchParams.get("state");
+  expect(state).toBeTruthy();
+  const callback = new URL(googleCallback);
+  callback.search = new URLSearchParams({ state: state!, code: email }).toString();
+  const forwarded = page.waitForResponse(response => response.url() === callback.href);
+  await page.goto(callback.href);
+  expect(new URL((await forwarded).headers().location).origin).toBe(origin);
+}
+
 function japaneseAnswer(learnerId: string, question: JapaneseStudyQuestion) {
   return fixtureCommand("release-study-answer", { learnerId, promptId: question.id });
 }
@@ -378,20 +390,110 @@ test("the localhost Google callback creates a shared login from either learning 
   const student = readMirrorFixtures().users[0];
   for (const origin of Object.values(sites)) {
     await context.clearCookies();
-    await page.goto(`${origin}/en/auth/signin?callbackUrl=%2Fen%2Fdashboard`);
-    const google = await interceptMirrorGoogleSignIn(page, () => page.getByRole("button", { name: en.auth.continueWithGoogle, exact: true }).click());
-    const state = google.searchParams.get("state");
-    expect(state).toBeTruthy();
-    const callback = new URL(googleCallback);
-    callback.search = new URLSearchParams({ state: state!, code: student.email }).toString();
-    const forwarded = page.waitForResponse(response => response.url() === callback.href);
-    await page.goto(callback.href);
-    expect(new URL((await forwarded).headers().location).origin).toBe(origin);
+    await completeGoogleCallback(page, origin, student.email);
     await expect(page).toHaveURL(`${origin}/en/dashboard`);
     for (const [learningLanguage, site] of Object.entries(sites)) {
       const session = await (await page.request.get(`${site}/api/auth/session`)).json();
       expect(session?.user).toMatchObject({ id: student.id, learningLanguage });
     }
+  }
+});
+
+test("account suspension revokes student and teacher access across both learning sites", async ({ browser }) => {
+  const fixture = readMirrorFixtures();
+  const admin = await browser.newPage();
+  const student = await browser.newPage();
+  const teacher = await browser.newPage();
+  try {
+    await signIn(admin, "ENGLISH", releaseStudent("payment-admin").email);
+    const studentUser = fixture.users[0];
+    const teacherUser = fixture.users[3];
+    await completeGoogleCallback(student, sites.ENGLISH, studentUser.email);
+    await completeGoogleCallback(teacher, sites.JAPANESE, teacherUser.email);
+    await expect(teacher).toHaveURL(`${sites.JAPANESE}/en/dashboard`);
+    const teacherProfilePath = `${sites.JAPANESE}/en/book/teachers/${fixture.japaneseTeacherId}`;
+    await student.goto(teacherProfilePath);
+    await expect(student.getByRole("heading", { name: "Mirror QA Japanese Teacher" })).toBeVisible();
+
+    const sessionName = /^authjs\.session-token(?:\.|$)/;
+    const japaneseCookies = (await student.context().cookies(sites.JAPANESE)).filter(cookie => sessionName.test(cookie.name));
+    expect(japaneseCookies).not.toHaveLength(0);
+    await student.context().clearCookies({ domain: new URL(sites.JAPANESE).hostname, name: sessionName });
+    const handoffStart = await student.request.get(`${sites.JAPANESE}/api/auth/site-session?flow=switch&locale=en`, { maxRedirects: 0 });
+    expect(handoffStart.status()).toBe(303);
+    const handoffCookie = handoffStart.headersArray().find(({ name }) => name.toLowerCase() === "set-cookie")!.value.split(";")[0];
+    const authorize = await student.request.get(handoffStart.headers().location, { maxRedirects: 0 });
+    const completion = authorize.headers().location;
+    expect(new URL(completion).searchParams.get("code")).toBeTruthy();
+    await student.context().addCookies(japaneseCookies);
+
+    for (const [person, account, source, role] of [
+      [teacher, teacherUser, sites.JAPANESE, "TEACHER"],
+      [student, studentUser, sites.ENGLISH, "STUDENT"],
+    ] as const) {
+      const endpoint = `${source}/api/admin/users/${account.id}/access`;
+      const profile = `${source}/en/admin/users/${account.id}`;
+      const denied = await person.request.post(endpoint, { data: { action: "suspend", reason: "Unauthorized", expectedEventId: null } });
+      expect(denied.status()).toBe(403);
+
+      await admin.goto(`${source}/en/admin/users?role=${role}&q=${encodeURIComponent(account.email)}`);
+      const row = admin.getByRole("row").filter({ hasText: account.email });
+      await row.getByRole("link").click();
+      await expect(admin).toHaveURL(new RegExp(`/admin/users/${account.id}\\?from=`));
+      await admin.getByRole("button", { name: en.admin.userDetail.suspend, exact: true }).click();
+      const dialog = admin.getByRole("dialog");
+      await expect(dialog).toContainText(account.email);
+      await dialog.getByRole("textbox", { name: en.admin.userDetail.privateReason }).fill("Payment issue under review");
+      const suspended = admin.waitForResponse(response => response.url() === endpoint && response.request().method() === "POST");
+      await dialog.getByRole("button", { name: en.admin.userDetail.suspend, exact: true }).click();
+      expect((await suspended).status()).toBe(200);
+      await expect(admin.getByRole("button", { name: en.admin.userDetail.reinstate })).toBeVisible();
+      await expect(admin.getByText(en.admin.userDetail.followUp, { exact: true })).toBeVisible();
+      await expect(admin.getByRole("link", { name: /upcoming lessons?/ })).toHaveAttribute("href", new RegExp(`person=${account.id}`));
+      await expect(admin.getByRole("link", { name: /payment recovery items?/ })).toHaveAttribute("href", new RegExp(`person=${account.id}`));
+      await admin.getByText(en.admin.userDetail.accessHistory, { exact: true }).click();
+      await expect(admin.getByText("Payment issue under review", { exact: true })).toBeVisible();
+
+      for (const origin of Object.values(sites)) {
+        const session = await (await person.request.get(`${origin}/api/auth/session`)).json();
+        expect(session?.user).toBeFalsy();
+        expect((await person.request.get(`${origin}/api/bookings`)).status()).toBe(401);
+      }
+      if (role === "TEACHER") {
+        await student.goto(teacherProfilePath);
+        await expect(student.getByRole("heading", { name: "404", exact: true })).toBeVisible();
+        await student.goto(`${sites.JAPANESE}/en/book`);
+        await expect(student.getByText("Mirror QA Japanese Teacher", { exact: true })).toHaveCount(0);
+        const products = await (await student.request.get(`${sites.JAPANESE}/api/lesson-products`)).json();
+        const blocked = await student.request.post(`${sites.JAPANESE}/api/bookings`, { data: {
+          teacherProfileId: fixture.japaneseTeacherId, lessonProductId: products[0].id,
+          startsAt: new Date(Date.now() + 8 * 86400_000).toISOString(),
+        } });
+        expect(blocked.status()).toBe(409);
+      } else {
+        const handoff = await student.request.get(completion, { maxRedirects: 0, headers: { cookie: handoffCookie } });
+        expect(handoff.headersArray().some(({ name, value }) => name.toLowerCase() === "set-cookie" && value.startsWith("authjs.session-token="))).toBe(false);
+      }
+      await person.context().clearCookies();
+      await completeGoogleCallback(person, source, account.email);
+      await expect(person.getByRole("alert")).toHaveText(en.auth.signInDenied);
+      await expect(person.getByRole("main").getByRole("link", { name: en.contact.title })).toBeVisible();
+
+      await admin.getByRole("link", { name: en.admin.userDetail.back }).click();
+      await expect(admin.getByRole("combobox", { name: en.admin.grid.colRole })).toHaveValue(role);
+      await admin.getByRole("combobox", { name: en.admin.grid.colStatus }).selectOption("SUSPENDED");
+      await expect(admin).toHaveURL(/status=SUSPENDED/);
+      await expect(row.getByText(en.admin.grid.accessStatus.SUSPENDED)).toBeVisible();
+      await admin.goto(profile);
+      await admin.getByRole("button", { name: en.admin.userDetail.reinstate, exact: true }).click();
+      await dialog.getByRole("textbox", { name: en.admin.userDetail.privateReason }).fill("Review resolved");
+      await dialog.getByRole("button", { name: en.admin.userDetail.reinstate, exact: true }).click();
+      await expect(admin.getByRole("button", { name: en.admin.userDetail.suspend, exact: true })).toBeVisible();
+      await completeGoogleCallback(person, source, account.email);
+      await expect.poll(async () => (await (await person.request.get(`${source}/api/auth/session`)).json())?.user?.id).toBe(account.id);
+    }
+  } finally {
+    await Promise.all([admin.close(), student.close(), teacher.close()]);
   }
 });
 
@@ -589,6 +691,33 @@ test("domain branding and admin language control fit desktop and mobile in both 
         await expect(page.getByText("Loading editor…", { exact: true })).toHaveCount(0);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
         await page.screenshot({ path: `${folder}/admin-${size.width}-${theme}.png`, fullPage: true });
+        const editor = page.locator(".mdxeditor").first();
+        await expect(editor).toBeVisible();
+        if (theme === "dark") {
+          expect(await editor.evaluate(node => {
+            const colors = getComputedStyle(node);
+            return colors.getPropertyValue("--baseTextContrast").trim() === colors.getPropertyValue("--app-text").trim();
+          })).toBe(true);
+        }
+        await page.goto(`${sites.ENGLISH}/en/admin/users?role=TEACHER&subject=JAPANESE`);
+        await expect(page.getByRole("heading", { name: en.admin.usersPage.title })).toBeVisible();
+        await expect(page.getByRole("link", { name: "Mirror QA Japanese Teacher", exact: true }).first()).toBeVisible();
+        await expect(page.getByRole("combobox", { name: en.admin.grid.colSubject })).toHaveValue("JAPANESE");
+        const nav = page.getByRole("navigation", { name: en.admin.nav.label });
+        if (size.width < 768) {
+          const menu = page.getByRole("button", { name: new RegExp(en.admin.nav.label) });
+          await expect(menu).toHaveAttribute("aria-expanded", "false");
+          await menu.click();
+          await expect(menu).toHaveAttribute("aria-expanded", "true");
+        }
+        await expect(nav.getByRole("link", { name: en.admin.nav.users })).toHaveAttribute("aria-current", "page");
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        await page.screenshot({ path: `${folder}/people-${size.width}-${theme}.png`, fullPage: true });
+        await nav.getByRole("link", { name: en.admin.nav.overview }).click();
+        await expect(page.getByRole("heading", { name: en.admin.overview.attention })).toBeVisible();
+        await page.screenshot({ path: `${folder}/overview-${size.width}-${theme}.png`, fullPage: true });
+        await page.getByRole("link", { name: en.admin.overview.reschedules }).click();
+        await expect(page.getByText(en.admin.bookingsPanel.pendingReschedules)).toBeVisible();
       } finally { await context.close(); }
     }
   }

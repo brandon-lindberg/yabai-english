@@ -17,6 +17,7 @@ export default async function SignInErrorPage({ searchParams }: { searchParams: 
   const autoRetry = kind === "retry" && !intent?.retried;
 
   const t = await getTranslations({ locale, namespace: "auth" });
+  const contact = await getTranslations({ locale, namespace: "contact" });
   const j = await getTranslations({ locale, namespace: "learningJourney" });
   const message = kind === "denied" ? t("signInDenied")
     : kind === "journey-expired" ? j("expired")
@@ -27,6 +28,7 @@ export default async function SignInErrorPage({ searchParams }: { searchParams: 
         <h1 className="text-3xl font-black tracking-[-0.04em]">{t("signInTitle")}</h1>
         <p role="alert" className="mt-3 text-muted">{message}</p>
         <div className="mt-6 space-y-3">
+          {kind === "denied" && <Link className={buttonClasses()} href="/contact" locale={locale}>{contact("title")}</Link>}
           {canRetry && (intent ? (
             <GoogleSignInForm
               autoRetry={autoRetry}

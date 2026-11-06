@@ -5,6 +5,7 @@ import type { Adapter } from "next-auth/adapters";
 import { prisma } from "@/lib/prisma";
 import { placementRetakeStatus } from "@/lib/placement-cooldown";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
+import { lockActiveAccounts } from "@/lib/active-account-lock";
 import { getSessionMaxAgeSeconds } from "@/lib/session-timeout";
 import { claimPendingMemberships } from "@/lib/claim-pending-memberships";
 import { claimTeacherRosterInvites } from "@/lib/claim-teacher-roster-invites";
@@ -17,6 +18,20 @@ import { learningLanguageForRequest } from "@/lib/learning-site-request";
 import { isGoogleSignInConfigured } from "@/lib/auth-mode";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
+const accountAccessAdapter: Adapter = {
+  ...prismaAdapter,
+  async createSession(data) {
+    return prisma.$transaction(async (tx) => {
+      if (!await lockActiveAccounts(tx, data.userId)) throw new Error("Account access changed during sign-in");
+      return tx.session.create({ data });
+    });
+  },
+  async getSessionAndUser(token) {
+    const record = await prismaAdapter.getSessionAndUser!(token);
+    const user = record?.user as { accountStatus?: AccountStatus } | undefined;
+    return user && isLoginAllowedForAccountStatus(user.accountStatus) ? record : null;
+  },
+};
 
 const googleOptions = {
   clientId: process.env.AUTH_GOOGLE_ID,
@@ -70,7 +85,7 @@ async function logAuthError(error: Error) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: prismaAdapter,
+  adapter: accountAccessAdapter,
   session: {
     strategy: "database",
     maxAge: getSessionMaxAgeSeconds(),

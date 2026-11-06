@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { REFUND_RECOVERY_STATUSES, type RefundRecoveryStatus } from "@/lib/refund-recovery";
-
-function requestedStatuses(url: string): RefundRecoveryStatus[] {
-  const requested = new URL(url).searchParams.get("status");
-  const match = REFUND_RECOVERY_STATUSES.find((status) => status === requested);
-  return match ? [match] : [...REFUND_RECOVERY_STATUSES];
-}
+import { adminRefundRecoveryWhere, REFUND_RECOVERY_STATUSES } from "@/lib/refund-recovery";
+import { adminLessonsForPerson } from "@/lib/admin/lesson-filters";
 
 export async function GET(req: Request) {
   const session = await auth();
@@ -18,13 +13,15 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const explicitStatus = REFUND_RECOVERY_STATUSES.includes(new URL(req.url).searchParams.get("status") as RefundRecoveryStatus);
+  const query = new URL(req.url).searchParams;
+  const requested = query.get("status");
+  const person = query.get("person");
+  if (person && person.length > 200) return NextResponse.json({ error: "Invalid account filter" }, { status: 400 });
   const refunds = await prisma.refund.findMany({
-    where: { AND: [explicitStatus ? { status: { in: requestedStatuses(req.url) } } : { OR: [
-      { status: { in: requestedStatuses(req.url) } }, { status: "SUCCEEDED", recoveryNote: { not: null } },
-      { payment: { recovery: { feeRecoveryPending: true } } },
-      { payment: { recovery: { state: { not: "COMPLETE" } } } },
-    ] }, { OR: [{ payment: { recovery: null } }, { payment: { recovery: { state: { not: "COMPLETE" } } } }] }] },
+    where: {
+      ...adminRefundRecoveryWhere(REFUND_RECOVERY_STATUSES.find((status) => status === requested)),
+      ...(person ? { booking: adminLessonsForPerson(person) } : {}),
+    },
     orderBy: { createdAt: "desc" },
     take: 200,
     select: {

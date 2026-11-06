@@ -1,15 +1,7 @@
-import { getTranslations } from "next-intl/server";
-import { AdminUserGrid } from "@/components/admin/admin-user-grid";
-import { PageHeader } from "@/components/ui/page-header";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
+import { adminPeopleHref } from "@/lib/admin/people-query";
 
 export default async function AdminStudentsPage() {
-  const t = await getTranslations("admin.studentsPage");
-  return (
-    <main>
-      <PageHeader title={t("title")} />
-      <div className="mt-8">
-        <AdminUserGrid mode="students" columnStorageKey="admin-grid-students" />
-      </div>
-    </main>
-  );
+  redirect({ href: adminPeopleHref("role=STUDENT"), locale: await getLocale() });
 }

@@ -1994,6 +1994,39 @@ The preview reuses Dashboard card ranking and flip controls. Opening it, flippin
 
 Red and green coverage verified personal misses, starter cards, locked levels, and read-only access. All 295 Japanese placement, 197 study, and 20 PostgreSQL study tests passed. Chromium verified desktop and mobile placement, the existing Dashboard carousel, and that the practice link loads the actual missed card. TypeScript and targeted lint passed.
 
+### 7. Super-admin redesign — audited and planned
+
+Use one shared admin workspace for both learning sites. Organize navigation around Overview, People, Lessons, Payments, Schools, and Moderation. Use Impeccable, retain the shared design primitives and provider services, and implement each section with red and green tests. The audit found overlapping People screens, missing language and marketplace context, dark-mode editor contrast problems, and booking search limited to 200 loaded rows. Manual account suspension is part of the first admin release.
+
+#### 7a. Admin shell and People directory — implemented locally
+
+- Use a desktop side rail and a compact mobile menu. Make Overview lead with work that needs attention, including pending reschedules, payment exceptions, and English placement reviews. Link counts to filtered lists and show upcoming lessons by subject.
+- Consolidate All users, Students, and Teachers into views of one searchable, paginated directory. Use URL-backed filters for role, subject, and account status. Include a Suspended filter, and restore the list context when returning from a profile. Move Add user into People and make the Google sign-in handoff clear.
+- Separate routine profile edits from access changes. Confirm high-impact actions, protect the last active super-admin server-side, and fix dark-mode editor contrast and phone layouts before sign-off.
+
+#### 7b. Manual suspension and reinstatement — implemented locally
+
+- A super-admin can suspend or reinstate a teacher or student from their profile. Show the target, role, and effect before confirmation. Require a private reason and record the administrator, time, reason, and status transition in an access history. Show the suspended state in the directory and profile. Use a brief localized account-access message and the existing contact route for the affected person.
+- Give suspension a distinct account state that applies across both domains, independent of teacher marketplace visibility. Reuse shared account eligibility and session revocation. Saving the suspension and its audit entry revokes every existing login in the same transaction. The same Google identity is denied on subsequent sign-in, and outstanding cross-domain handoffs cannot restore access. Enforce the state on protected pages and APIs and on the teacher side of discovery, direct links, and new booking, including roster access. Recheck eligibility on writes that can race with suspension.
+- Retain the user ID, verified identity and Google account link, profiles, and lesson, placement, study, message, and financial records. Keeping the linked identity closes the same-account signup route. A different Google identity requires separate repeat-account abuse handling.
+- Surface upcoming lessons and unresolved payments on the suspended account for admin follow-up. Cancellation, rescheduling, and refunds require a separate decision through existing workflows. Keep payment recovery and settlement for existing obligations available to authorized staff and provider processes. Reinstatement restores the prior account access state. The user signs in again, and current marketplace rules determine teacher visibility.
+- Acceptance tests cover students and teachers in both learning paths, non-admin denial, existing sessions and handoffs, repeat sign-in with the linked identity, marketplace and booking restrictions, preserved history and payment processing, duplicate or concurrent actions, and reinstatement. Run the migration and compatibility checks against a disposable production-shaped English dataset.
+
+Local verification used disposable PostgreSQL schemas and simulated Google and Stripe responses. It covered the additive migration, existing English discovery, a dual-language teacher, stale sign-in and handoff tokens on both sites, concurrent requests, and a previously authorized refund after both participants were suspended. Overview links to the current refund and webhook queues. The broader lesson search and recovery redesign is in 7d.
+
+#### 7c. Student and teacher profiles
+
+- Show English and Japanese lesson and assessment history separately on student profiles, with the saved learning path and interface language labeled independently. The Japanese result, completion date, and retake date are read-only and distinguish awarded, inconclusive, and unassessed states.
+- On teacher profiles, show permission, effective visibility, class offerings, availability, and blockers for each subject. Use the same eligibility rules as discovery and booking. Group classes and their taxonomy by subject. Add per-subject public or roster-only visibility for dual-language teachers with a compatibility backfill for existing English teachers. Separate Google and Stripe readiness, profile editing, tiers, and pricing exceptions. Use searchable student and class selectors for rate overrides.
+
+#### 7d. Lessons and payment recovery
+
+Add server-side booking search by person or ID and filters for saved lesson subject, date, and status. Link booking detail to its participants, reschedule state, payment, and refund. Organize recovery by student reimbursement, platform-fee returns, and Stripe deliveries. Reuse the current Stripe recovery services and confirmations, and verify existing checkout, invoices, refunds, and recovery in both language paths.
+
+#### 7e. Schools, Moderation, and release verification
+
+Keep organization and school membership roles distinct from platform access. Label chat reports as Moderation, and group teacher tiers and pricing exceptions under People. Verify keyboard navigation, mobile actions, and both locales and themes. Cover English-only, Japanese-only, dual-language, and suspended accounts in the release fixtures.
+
 ## Source completeness standard
 
 Modern JLPT has no published exhaustive official vocabulary/kanji list. The measurable target is full, traceable coverage of a named, versioned community corpus, with every merge/correction explained and zero unreviewed omissions. Preserve level source and supplementary/inferred classifications. Multiple repositories inheriting Waller's lists are not independent pedagogical validation.

@@ -1,6 +1,7 @@
 import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { lockActiveAccounts } from "@/lib/active-account-lock";
 import { lessonProductNames } from "@/lib/lesson-product-catalog";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
@@ -473,6 +474,9 @@ export async function POST(req: Request) {
   });
 
   const booking = await prisma.$transaction(async (tx) => {
+    if (!await lockActiveAccounts(tx, session.user.id, teacher.userId)) {
+      throw new Error("ACCOUNT_UNAVAILABLE");
+    }
     const profile = await tx.studentProfile.findUnique({
       where: { userId: session.user.id },
     });
@@ -573,7 +577,7 @@ export async function POST(req: Request) {
       return { _err: "ALREADY_SEATED" } as const;
     }
     const msg = String((e as Error).message);
-    if (msg === "NO_PROFILE") {
+    if (msg === "NO_PROFILE" || msg === "ACCOUNT_UNAVAILABLE") {
       return { _err: msg } as const;
     }
     throw e;
@@ -581,6 +585,9 @@ export async function POST(req: Request) {
 
   if (booking && typeof booking === "object" && "_err" in booking) {
     const code = (booking as { _err: string })._err;
+    if (code === "ACCOUNT_UNAVAILABLE") {
+      return NextResponse.json({ error: "This lesson is unavailable." }, { status: 409 });
+    }
     if (code === "CLASS_FULL") {
       return NextResponse.json(
         { error: (booking as { _message?: string })._message ?? "This class is full." },

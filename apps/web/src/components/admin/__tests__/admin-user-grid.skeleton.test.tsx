@@ -38,7 +38,7 @@ describe("AdminUserGrid skeleton loading", () => {
 
     render(
       <NextIntlClientProvider locale="en" messages={en}>
-        <AdminUserGrid columnStorageKey="admin.users.cols.test" mode="all" />
+        <AdminUserGrid columnStorageKey="admin.users.cols.test" />
       </NextIntlClientProvider>,
     );
 
@@ -60,6 +60,7 @@ describe("AdminUserGrid skeleton loading", () => {
             email: "alice@example.com",
             role: "STUDENT",
             locale: "en",
+            learningLanguage: "ENGLISH",
             accountStatus: "ACTIVE",
             createdAt: new Date("2024-01-01").toISOString(),
             updatedAt: new Date("2024-01-01").toISOString(),
@@ -75,7 +76,7 @@ describe("AdminUserGrid skeleton loading", () => {
 
     render(
       <NextIntlClientProvider locale="en" messages={en}>
-        <AdminUserGrid columnStorageKey="admin.users.cols.test2" mode="all" />
+        <AdminUserGrid columnStorageKey="admin.users.cols.test2" />
       </NextIntlClientProvider>,
     );
 

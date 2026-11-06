@@ -842,13 +842,15 @@
     "nav": {
       "overview": "Overview",
       "schools": "Schools",
-      "users": "All users",
+      "users": "People",
       "invite": "Invite teacher",
       "teachers": "Teachers",
       "teacherTiers": "Teacher tiers",
       "students": "Students",
-      "reports": "Reports",
-      "payments": "Payments"
+      "reports": "Moderation",
+      "payments": "Payments",
+      "label": "Admin navigation",
+      "lessons": "Lessons"
     },
     "schoolsPage": {
       "title": "Schools & organizations",
@@ -911,7 +913,8 @@
       "hint": "No invitation email is sent. Tell them to sign in with Google using this address."
     },
     "usersPage": {
-      "title": "All users"
+      "title": "People",
+      "subtitle": "Find student, teacher, and administrator accounts."
     },
     "teachersPage": {
       "title": "Teachers"
@@ -946,6 +949,7 @@
     },
     "refundsPage": {
       "title": "Payment recovery",
+      "allExceptions": "View all payment exceptions",
       "subtitle": "Reconcile interrupted payments, refunds and application-fee returns with Stripe.",
       "loading": "Loading refunds…",
       "empty": "No refund or fee recovery needs attention.",
@@ -992,7 +996,7 @@
     },
     "userDetail": {
       "title": "User",
-      "back": "Back to list",
+      "back": "Back to People",
       "save": "Save changes",
       "saving": "Saving…",
       "saved": "Saved.",
@@ -1001,7 +1005,7 @@
       "delete": "Delete user",
       "deleteConfirm": "Type the user email to confirm deletion.",
       "loadError": "Could not load user.",
-      "sectionUser": "Account",
+      "sectionUser": "Profile details",
       "sectionStudent": "Student profile",
       "sectionTeacher": "Teacher profile",
       "name": "Name",
@@ -1025,7 +1029,23 @@
       "instructionLanguages": "Instruction languages (comma-separated)",
       "loading": "Loading…",
       "calendarConnected": "Google Calendar connected",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "accessTitle": "Account access",
+      "saveError": "Could not save the change. Try again.",
+      "suspend": "Suspend account",
+      "reinstate": "Reinstate account",
+      "changeRole": "Change role",
+      "privateReason": "Private reason",
+      "suspendEffect": "Ends all sessions and blocks sign-in on both sites. Lessons and payment history are kept for follow-up.",
+      "reinstateEffect": "Restores the previous account status. If access is restored, the person signs in again with Google.",
+      "changeRoleEffect": "Changes what this account can access and ends its current sessions.",
+      "hideEffect": "Ends active sessions and hides the account from sign-in and discovery.",
+      "unhideEffect": "Restores sign-in access for this account.",
+      "accessHistory": "Suspension history",
+      "accessStale": "Account access changed. Close this dialog and reload the profile.",
+      "followUp": "Follow-up",
+      "upcoming": "{count, plural, one {# upcoming lesson} other {# upcoming lessons}}",
+      "payments": "{count, plural, one {# payment recovery item} other {# payment recovery items}}"
     },
     "grid": {
       "colActions": "",
@@ -1060,7 +1080,22 @@
       "sortDesc": "descending",
       "sortSummary": "Sorted by {field}, {direction}",
       "colRate": "Rate",
-      "colActionsLabel": "Open user"
+      "colActionsLabel": "Open user",
+      "colSubject": "Subject",
+      "allRoles": "All roles",
+      "allSubjects": "All subjects",
+      "allStatuses": "All statuses",
+      "roles": {
+        "TEACHER": "Teacher",
+        "STUDENT": "Student",
+        "SUPER_ADMIN": "Super admin"
+      },
+      "accessStatus": {
+        "ACTIVE": "Active",
+        "HIDDEN": "Hidden",
+        "SUSPENDED": "Suspended"
+      },
+      "empty": "No people match these filters."
     },
     "placementReview": {
       "levelLabel": "Placement level for {name}",
@@ -1089,13 +1124,21 @@
       "showing": "Showing {shown} of {total}",
       "joinCta": "Meet",
       "reviewQueueLink": "Placement review queue",
-      "allStudentsCta": "Open the students list"
+      "allStudentsCta": "Open the students list",
+      "pendingReschedules": "Pending private lesson reschedules",
+      "emptyReschedules": "No pending reschedules match this filter.",
+      "clearFilters": "View all lessons"
     },
     "overview": {
       "statUpcoming": "Upcoming bookings",
       "statNeedsReview": "Awaiting placement review",
       "statStudents": "Students",
-      "studentsHint": "Search, sort and edit every student on the students screen."
+      "studentsHint": "Search, sort and edit every student on the students screen.",
+      "attention": "Needs attention",
+      "reschedules": "Private lesson reschedule requests",
+      "payments": "Payment exceptions",
+      "englishReviews": "English placement reviews",
+      "upcomingSubjects": "Upcoming lessons by subject"
     },
     "teacherRateGrants": {
       "title": "Below-minimum class rates",

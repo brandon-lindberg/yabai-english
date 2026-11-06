@@ -7,7 +7,7 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { AccountStatus, Role } from "@/generated/prisma/browser";
+import { AccountStatus, LearningLanguage, Role } from "@/generated/prisma/enums";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -16,8 +16,10 @@ import { formatYen } from "@/lib/format-money";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckRow } from "@/components/ui/check-row";
-import { Field, Input } from "@/components/ui/field";
+import { Field, Input, Select } from "@/components/ui/field";
 import { actionLinkClass } from "@/components/ui/inline-link";
+import { Status } from "@/components/ui/status";
+import { adminPeopleSearch, adminPeopleSortValues, defaultPeopleQuery, type AdminPeopleQuery } from "@/lib/admin/people-query";
 
 export type AdminUserListItem = {
   id: string;
@@ -25,6 +27,7 @@ export type AdminUserListItem = {
   email: string | null;
   role: Role;
   locale: string;
+  learningLanguage: LearningLanguage;
   accountStatus: AccountStatus;
   createdAt: string;
   updatedAt: string;
@@ -35,6 +38,7 @@ export type AdminUserListItem = {
   } | null;
   teacherProfile: {
     displayName: string | null;
+    teachingLanguages: LearningLanguage[];
     rateYen: number | null;
     calendarConnected: boolean;
   } | null;
@@ -55,17 +59,7 @@ type ListResponse = {
   pageSize: number;
 };
 
-type SortValue =
-  | "createdAt_desc"
-  | "createdAt_asc"
-  | "email_desc"
-  | "email_asc"
-  | "name_desc"
-  | "name_asc"
-  | "role_desc"
-  | "role_asc"
-  | "accountStatus_desc"
-  | "accountStatus_asc";
+type SortValue = AdminPeopleQuery["sort"];
 
 const columnHelper = createColumnHelper<AdminUserListItem>();
 
@@ -77,12 +71,14 @@ const SORT_FIELD_LABEL_KEY = {
   role: "colRole",
   accountStatus: "colStatus",
 } as const;
+type SortField = keyof typeof SORT_FIELD_LABEL_KEY;
 
 /** Maps TanStack column id → `admin.grid` translation key */
 const COLUMN_LABEL_KEY: Partial<
   Record<
     string,
     | "colRole"
+    | "colSubject"
     | "colName"
     | "colEmail"
     | "colLocale"
@@ -98,6 +94,7 @@ const COLUMN_LABEL_KEY: Partial<
   >
 > = {
   role: "colRole",
+  subject: "colSubject",
   name: "colName",
   email: "colEmail",
   locale: "colLocale",
@@ -112,57 +109,51 @@ const COLUMN_LABEL_KEY: Partial<
   orgs: "colOrgs",
 };
 
-function defaultColumnVisibility(mode: "all" | "teachers" | "students"): VisibilityState {
-  if (mode === "teachers") {
-    return {
-      role: false,
-      placedLevel: false,
-      needsReview: false,
-      stuTz: false,
-    };
-  }
-  if (mode === "students") {
-    return {
-      role: false,
-      displayName: false,
-      rateYen: false,
-      cal: false,
-    };
-  }
-  return {};
-}
+const defaultColumnVisibility: VisibilityState = {
+  email: false,
+  locale: false,
+  placedLevel: false,
+  needsReview: false,
+  stuTz: false,
+  displayName: false,
+  rateYen: false,
+  cal: false,
+  orgs: false,
+};
 
 export function AdminUserGrid({
   columnStorageKey,
-  mode,
+  initialQuery = defaultPeopleQuery,
 }: {
   columnStorageKey: string;
-  mode: "all" | "teachers" | "students";
+  initialQuery?: AdminPeopleQuery;
 }) {
   const t = useTranslations("admin.grid");
+  const language = useTranslations("admin.teachingLanguages");
   const locale = useLocale();
-  const roleFilter: Role | undefined =
-    mode === "teachers" ? "TEACHER" : mode === "students" ? "STUDENT" : undefined;
 
   const [rows, setRows] = useState<AdminUserListItem[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
-  const [sort, setSort] = useState<SortValue>("createdAt_desc");
-  const [q, setQ] = useState("");
-  const [qDebounced, setQDebounced] = useState("");
+  const [page, setPage] = useState(initialQuery.page);
+  const { pageSize } = initialQuery;
+  const [sort, setSort] = useState<SortValue>(initialQuery.sort);
+  const [q, setQ] = useState(initialQuery.q ?? "");
+  const [qDebounced, setQDebounced] = useState(initialQuery.q ?? "");
+  const [roleFilter, setRoleFilter] = useState<Role | "">(initialQuery.role ?? "");
+  const [subject, setSubject] = useState<LearningLanguage | "">(initialQuery.subject ?? "");
+  const [status, setStatus] = useState<AccountStatus | "">(initialQuery.status ?? "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => {
-    if (typeof window === "undefined") return defaultColumnVisibility(mode);
+    if (typeof window === "undefined") return defaultColumnVisibility;
     try {
       const raw = localStorage.getItem(columnStorageKey);
       if (raw) return JSON.parse(raw) as VisibilityState;
     } catch {
       /* ignore */
     }
-    return defaultColumnVisibility(mode);
+    return defaultColumnVisibility;
   });
 
   useEffect(() => {
@@ -174,31 +165,37 @@ export function AdminUserGrid({
   }, [columnStorageKey, columnVisibility]);
 
   useEffect(() => {
-    const id = window.setTimeout(() => setQDebounced(q.trim()), 300);
+    const search = q.trim();
+    if (search === qDebounced) return;
+    const id = window.setTimeout(() => {
+      setQDebounced(search);
+      setPage(1);
+    }, 300);
     return () => window.clearTimeout(id);
-  }, [q]);
+  }, [q, qDebounced]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [qDebounced, roleFilter, sort]);
+  const search = adminPeopleSearch({
+    page, pageSize, sort, q: qDebounced, role: roleFilter || undefined,
+    subject: subject || undefined, status: status || undefined,
+  });
+  const returnQuery = search ? `?${new URLSearchParams({ from: search })}` : "";
 
   useEffect(() => {
     const ac = new AbortController();
     setLoading(true);
     setError(null);
-    const params = new URLSearchParams();
-    if (roleFilter) params.set("role", roleFilter);
-    if (qDebounced) params.set("q", qDebounced);
-    params.set("sort", sort);
-    params.set("page", String(page));
-    params.set("pageSize", String(pageSize));
+    const queryString = search ? `?${search}` : "";
+    if (window.location.search !== queryString) {
+      window.history.replaceState(null, "", `${window.location.pathname}${queryString}`);
+    }
 
     void (async () => {
       try {
-        const res = await fetch(`/api/admin/users?${params.toString()}`, {
+        const res = await fetch(`/api/admin/users${queryString}`, {
           signal: ac.signal,
         });
         const data = (await res.json()) as ListResponse & { error?: string };
+        if (ac.signal.aborted) return;
         if (!res.ok) {
           setError(data.error ?? t("loadError"));
           setRows([]);
@@ -208,23 +205,24 @@ export function AdminUserGrid({
         setRows(data.items);
         setTotal(data.total);
       } catch (e) {
-        if ((e as Error).name === "AbortError") return;
+        if (ac.signal.aborted || (e as Error).name === "AbortError") return;
         setError(t("loadError"));
       } finally {
-        setLoading(false);
+        if (!ac.signal.aborted) setLoading(false);
       }
     })();
 
     return () => ac.abort();
-  }, [page, pageSize, qDebounced, roleFilter, sort, t]);
+  }, [search, t]);
 
   const [sortField, sortDirection] = sort.split("_") as [
-    "createdAt" | "email" | "name" | "role" | "accountStatus",
+    SortField,
     "asc" | "desc",
   ];
 
   const cycleSort = useCallback(
-    (field: "createdAt" | "email" | "name" | "role" | "accountStatus") => {
+    (field: SortField) => {
+      setPage(1);
       setSort((prev) => {
         const descKey = `${field}_desc` as SortValue;
         const ascKey = `${field}_asc` as SortValue;
@@ -237,18 +235,25 @@ export function AdminUserGrid({
 
   const columns = useMemo(() => {
     const cols = [
-      columnHelper.display({
-        id: "actions",
-        // `colActions` is an empty string, so this column had no name at all —
-        // a header cell a screen reader reads as blank.
-        header: () => <span className="sr-only">{t("colActionsLabel")}</span>,
-        cell: ({ row }) => (
-          <Link
-            href={`/admin/users/${row.original.id}`}
-            className={actionLinkClass}
+      columnHelper.accessor("name", {
+        enableHiding: false,
+        header: () => (
+          <button
+            type="button"
+            className="font-semibold hover:underline"
+            onClick={() => cycleSort("name")}
           >
-            {t("open")}
-          </Link>
+            {t("colName")}
+          </button>
+        ),
+        cell: ({ row }) => (
+          <div className="space-y-1">
+            <Link href={`/admin/users/${row.original.id}${returnQuery}`} className={actionLinkClass}>
+              {row.original.name || row.original.teacherProfile?.displayName || row.original.email || row.original.id}
+            </Link>
+            {row.original.email && (row.original.name || row.original.teacherProfile?.displayName) &&
+              <div className="text-xs text-muted">{row.original.email}</div>}
+          </div>
         ),
       }),
       columnHelper.accessor("role", {
@@ -261,18 +266,16 @@ export function AdminUserGrid({
             {t("colRole")}
           </button>
         ),
-        cell: (ctx) => ctx.getValue(),
+        cell: (ctx) => t(`roles.${ctx.getValue()}`),
       }),
-      columnHelper.accessor("name", {
-        header: () => (
-          <button
-            type="button"
-            className="font-semibold hover:underline"
-            onClick={() => cycleSort("name")}
-          >
-            {t("colName")}
-          </button>
-        ),
+      columnHelper.display({
+        id: "subject",
+        header: t("colSubject"),
+        cell: ({ row: { original } }) => {
+          const subjects = original.role === Role.TEACHER ? original.teacherProfile?.teachingLanguages
+            : original.role === Role.STUDENT ? [original.learningLanguage] : [];
+          return subjects?.length ? subjects.map((subject) => language(subject)).join(" · ") : "—";
+        },
       }),
       columnHelper.accessor("email", {
         header: () => (
@@ -289,6 +292,7 @@ export function AdminUserGrid({
         header: t("colLocale"),
       }),
       columnHelper.accessor("accountStatus", {
+        enableHiding: false,
         header: () => (
           <button
             type="button"
@@ -298,6 +302,10 @@ export function AdminUserGrid({
             {t("colStatus")}
           </button>
         ),
+        cell: (ctx) => {
+          const status = ctx.getValue();
+          return <Status tone={status === "SUSPENDED" ? "error" : status === "ACTIVE" ? "settled" : "open"}>{t(`accessStatus.${status}`)}</Status>;
+        },
       }),
       columnHelper.accessor("createdAt", {
         header: () => (
@@ -388,7 +396,7 @@ export function AdminUserGrid({
       }),
     ];
     return cols;
-  }, [cycleSort, locale, t]);
+  }, [cycleSort, language, locale, returnQuery, t]);
 
   const table = useReactTable({
     data: rows,
@@ -403,31 +411,59 @@ export function AdminUserGrid({
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const configurableColumns = table
     .getAllLeafColumns()
-    .filter((col) => col.id !== "actions");
+    .filter((col) => col.getCanHide());
   const configurableColumnCount = configurableColumns.length;
   const visibleColumnCount = configurableColumns.filter((col) => col.getIsVisible()).length;
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Field label={t("searchLabel")} className="max-w-md flex-1">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-[minmax(10rem,2fr)_repeat(3,minmax(7rem,1fr))]">
+        <Field label={t("searchLabel")} className="col-span-2 lg:col-span-1">
           {(field) => (
             <Input
               {...field}
+              className="min-h-11"
               type="search"
               value={q}
+              maxLength={200}
               onChange={(e) => setQ(e.target.value)}
               placeholder={t("searchPlaceholder")}
             />
           )}
         </Field>
-        <p className="text-sm text-muted">
-          {t("sortSummary", {
-            field: t(SORT_FIELD_LABEL_KEY[sortField]),
-            direction: t(sortDirection === "asc" ? "sortAsc" : "sortDesc"),
-          })}
-        </p>
+        <Field label={t("colRole")}>
+          {(field) => <Select {...field} className="min-h-11" value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value as Role | ""); setPage(1); }}>
+            <option value="">{t("allRoles")}</option>
+            {Object.values(Role).map((item) => <option key={item} value={item}>{t(`roles.${item}`)}</option>)}
+          </Select>}
+        </Field>
+        <Field label={t("colSubject")}>
+          {(field) => <Select {...field} className="min-h-11" value={subject} onChange={(e) => { setSubject(e.target.value as LearningLanguage | ""); setPage(1); }}>
+            <option value="">{t("allSubjects")}</option>
+            {Object.values(LearningLanguage).map((item) => <option key={item} value={item}>{language(item)}</option>)}
+          </Select>}
+        </Field>
+        <Field label={t("colStatus")}>
+          {(field) => <Select {...field} className="min-h-11" value={status} onChange={(e) => { setStatus(e.target.value as AccountStatus | ""); setPage(1); }}>
+            <option value="">{t("allStatuses")}</option>
+            {Object.values(AccountStatus).map((item) => <option key={item} value={item}>{t(`accessStatus.${item}`)}</option>)}
+          </Select>}
+        </Field>
+        <Field label={t("sortLabel")} className="lg:hidden">
+          {(field) => <Select {...field} className="min-h-11 text-sm" value={sort} onChange={(e) => { setSort(e.target.value as SortValue); setPage(1); }}>
+            {adminPeopleSortValues.map((value) => {
+              const [field, direction] = value.split("_") as [SortField, "asc" | "desc"];
+              return <option key={value} value={value}>{t(SORT_FIELD_LABEL_KEY[field])} · {t(direction === "asc" ? "sortAsc" : "sortDesc")}</option>;
+            })}
+          </Select>}
+        </Field>
       </div>
+      <p className="hidden text-sm text-muted lg:block">
+        {t("sortSummary", {
+          field: t(SORT_FIELD_LABEL_KEY[sortField]),
+          direction: t(sortDirection === "asc" ? "sortAsc" : "sortDesc"),
+        })}
+      </p>
 
       {/*
         Thirteen checkboxes across two rows used to sit here, open, above the
@@ -441,8 +477,7 @@ export function AdminUserGrid({
           {t("columnsLabel")} ({visibleColumnCount}/{configurableColumnCount})
         </summary>
         <div className="mt-3 grid gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
-          {table.getAllLeafColumns().map((col) => {
-            if (col.id === "actions") return null;
+          {configurableColumns.map((col) => {
             const labelKey = COLUMN_LABEL_KEY[col.id];
             return (
               <CheckRow
@@ -466,14 +501,15 @@ export function AdminUserGrid({
         </p>
       ) : null}
 
-      <div className="overflow-x-auto border-y border-border">
+      <div className="border-y border-border">
         <table
-          className="w-full min-w-[720px] border-collapse text-left text-sm tabular-nums"
+          role="table"
+          className="w-full border-collapse text-left text-sm tabular-nums max-lg:block lg:table-fixed"
           aria-busy={loading || undefined}
         >
-          <thead>
+          <thead role="rowgroup" className="max-lg:hidden">
             {table.getHeaderGroups().map((hg) => (
-              <tr key={hg.id} className="border-b border-border bg-[var(--app-hover)]">
+              <tr key={hg.id} role="row" className="border-b border-border">
                 {hg.headers.map((header) => (
                   /*
                     `aria-sort` was absent everywhere: five sortable columns, and
@@ -482,6 +518,7 @@ export function AdminUserGrid({
                   */
                   <th
                     key={header.id}
+                    role="columnheader"
                     aria-sort={
                       header.column.id === sortField
                         ? sortDirection === "asc"
@@ -489,7 +526,7 @@ export function AdminUserGrid({
                           : "descending"
                         : undefined
                     }
-                    className="px-3 py-2 font-semibold text-foreground"
+                    className={`break-words px-3 py-2 font-semibold text-foreground ${header.column.id === "name" ? "w-[30%]" : ""}`}
                   >
                     {header.isPlaceholder
                       ? null
@@ -499,13 +536,13 @@ export function AdminUserGrid({
               </tr>
             ))}
           </thead>
-          <tbody>
+          <tbody role="rowgroup" className="max-lg:block">
             {loading
               ? Array.from({ length: 10 }).map((_, i) => (
                   <tr
                     key={`skeleton-row-${i}`}
                     data-testid="admin-user-grid-skeleton-row"
-                    className="border-b border-border last:border-0"
+                    className="border-b border-border last:border-0 max-lg:grid max-lg:grid-cols-2"
                   >
                     {table.getVisibleLeafColumns().map((col) => (
                       <td key={col.id} className="px-3 py-2">
@@ -515,16 +552,21 @@ export function AdminUserGrid({
                   </tr>
                 ))
               : table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="border-b border-border last:border-0">
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-3 py-2 text-foreground">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
+                  <tr key={row.id} role="row" className="border-b border-border last:border-0 max-lg:grid max-lg:grid-cols-2 max-lg:py-2">
+                    {row.getVisibleCells().map((cell) => {
+                      const key = COLUMN_LABEL_KEY[cell.column.id];
+                      return (
+                        <td key={cell.id} role="cell" className={`min-w-0 break-words px-3 py-2 text-foreground ${cell.column.id === "name" ? "max-lg:col-span-2" : ""}`}>
+                          {key && cell.column.id !== "name" && <span className="mb-0.5 block text-xs text-muted lg:hidden">{t(key)}</span>}
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
           </tbody>
         </table>
+        {!loading && !error && rows.length === 0 && <p className="py-5 text-sm text-muted">{t("empty")}</p>}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">

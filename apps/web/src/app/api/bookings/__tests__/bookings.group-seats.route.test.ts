@@ -23,6 +23,7 @@ vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/notifications", () => ({ createUserNotification: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
+vi.mock("@/lib/active-account-lock", () => ({ lockActiveAccounts: vi.fn().mockResolvedValue(true) }));
 import { POST } from "@/app/api/bookings/route";
 
 const BOOKING_NOW = new Date("2026-07-01T00:00:00.000Z");

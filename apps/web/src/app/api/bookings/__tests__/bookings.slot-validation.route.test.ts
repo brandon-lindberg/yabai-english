@@ -46,6 +46,8 @@ vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/notifications", () => ({ createUserNotification: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
+vi.mock("@/lib/active-account-lock", () => ({ lockActiveAccounts: vi.fn().mockResolvedValue(true) }));
+import { lockActiveAccounts } from "@/lib/active-account-lock";
 import { POST } from "@/app/api/bookings/route";
 
 describe("POST /api/bookings slot validation", () => {
@@ -132,6 +134,20 @@ describe("POST /api/bookings slot validation", () => {
 
     expect(res.status).toBe(200);
     expect(prismaMock.$transaction).toHaveBeenCalled();
+  });
+
+  test("blocks a new booking when suspension wins the booking write race", async () => {
+    vi.mocked(lockActiveAccounts).mockResolvedValueOnce(false);
+    const response = await POST(new Request("http://localhost/api/bookings", {
+      method: "POST",
+      body: JSON.stringify({
+        lessonProductId: "lp-60",
+        teacherProfileId: "teacher-profile-1",
+        startsAt: validBookingStartsAtIso(),
+      }),
+    }));
+    expect(lockActiveAccounts).toHaveBeenCalledWith(expect.anything(), "student-1", "teacher-user-1");
+    expect(response.status).toBe(409);
   });
 
   test("returns 409 when startsAt is not on the teacher calendar", async () => {

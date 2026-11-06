@@ -29,6 +29,7 @@ describe("learning language is a subject, independent of UI/instruction language
 
   test("Japanese discovery requires an active Japanese offering", () => {
     expect(learningLanguageTeacherWhere("JAPANESE")).toEqual({
+      user: { accountStatus: "ACTIVE" },
       teachingLanguages: { has: "JAPANESE" },
       lessonOfferings: { some: { active: true, learningLanguage: "JAPANESE" } },
     });

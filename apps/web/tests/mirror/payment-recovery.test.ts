@@ -55,6 +55,7 @@ import { POST as cancel } from "@/app/api/bookings/[bookingId]/cancel/route";
 import { POST as resolve } from "@/app/api/bookings/[bookingId]/reschedule-request/route";
 import { ensureCreditNoteNumber } from "@/lib/credit-notes";
 import { recoverPayment, runPaymentRecoveryBatch } from "@/lib/payment-recovery-batch";
+import { changeAdminAccountAccess } from "@/lib/admin/account-access";
 import { GET as adminRefunds } from "@/app/api/admin/payments/refunds/route";
 import type Stripe from "stripe";
 
@@ -129,6 +130,21 @@ dbTest("a crash before transaction commit leaves the original reservation and no
   })).rejects.toThrow("crash");
   expect((await db.booking.findUniqueOrThrow({ where: { id: "booking" } })).status).toBe("CONFIRMED");
   expect(await db.paymentRecovery.count()).toBe(0); expect(await db.refund.count()).toBe(0);
+}), 30_000);
+
+dbTest("an authorized refund remains recoverable after both lesson participants are suspended", () => withDb(async db => {
+  await prepare(db);
+  const before = await db.paymentRecovery.findUniqueOrThrow({ where: { paymentId: "payment" } });
+  for (const userId of ["student", "teacher-user"]) {
+    await changeAdminAccountAccess(db, "admin", userId, { action: "suspend", reason: "Under review", expectedEventId: null });
+  }
+  expect(await db.paymentRecovery.findUniqueOrThrow({ where: { paymentId: "payment" } })).toEqual(before);
+  expect(state.refundCalls).toHaveLength(0);
+  await processPaymentRecovery(db, "payment", { force: true });
+  expect(state.refunded).toBe(5000);
+  expect(state.refundCalls).toHaveLength(1);
+  expect(await refundTotal(db)).toBe(-5000);
+  expect(await db.booking.count({ where: { id: "booking", status: "CANCELLED" } })).toBe(1);
 }), 30_000);
 
 dbTest("unknown provider outcome resumes from Stripe without sending the student money twice", () => withDb(async db => {

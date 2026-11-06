@@ -19,6 +19,7 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
       deleteMany: vi.fn(),
     },
     $transaction: vi.fn(),
+    $queryRaw: vi.fn(),
   },
 }));
 
@@ -33,6 +34,11 @@ vi.mock("@/lib/prisma", () => ({
 import { DELETE, GET, PATCH } from "@/app/api/admin/users/[userId]/route";
 
 const params = Promise.resolve({ userId: "target" });
+
+beforeEach(() => {
+  prismaMock.user.count.mockResolvedValue(1);
+  prismaMock.$transaction.mockImplementation(async (fn) => fn(prismaMock));
+});
 
 describe("GET /api/admin/users/[userId]", () => {
   beforeEach(() => {
@@ -86,6 +92,15 @@ describe("PATCH /api/admin/users/[userId]", () => {
     vi.clearAllMocks();
   });
 
+  test("profile updates cannot restore a suspended account", async () => {
+    authMock.mockResolvedValue({ user: { id: "admin", role: "SUPER_ADMIN" } });
+    prismaMock.user.findUnique.mockResolvedValue({ id: "target", role: "STUDENT", accountStatus: "SUSPENDED", studentProfile: { id: "sp" }, teacherProfile: null });
+    prismaMock.$transaction.mockImplementation(async (fn) => fn(prismaMock));
+    const response = await PATCH(new Request("http://localhost/api/admin/users/target", { method: "PATCH", body: JSON.stringify({ accountStatus: "ACTIVE" }) }), { params });
+    expect(response?.status).toBe(409);
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
+  });
+
   test("invalidates sessions when account becomes HIDDEN", async () => {
     authMock.mockResolvedValue({ user: { id: "admin", role: "SUPER_ADMIN" } });
     prismaMock.user.findUnique
@@ -121,6 +136,16 @@ describe("PATCH /api/admin/users/[userId]", () => {
     expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({
       where: { userId: "target" },
     });
+  });
+
+  test.each([{ role: "STUDENT" }, { accountStatus: "HIDDEN" }])("guards the last active admin from access changes %j", async (body) => {
+    authMock.mockResolvedValue({ user: { id: "admin", role: "SUPER_ADMIN" } });
+    prismaMock.user.findUnique.mockResolvedValue({ role: "SUPER_ADMIN", accountStatus: "ACTIVE" });
+    const response = await PATCH(new Request("http://localhost/api/admin/users/admin", {
+      method: "PATCH", body: JSON.stringify(body),
+    }), { params: Promise.resolve({ userId: "admin" }) });
+    expect(response?.status).toBe(403);
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
   });
 });
 

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, expect, test, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../../messages/en.json";
 
@@ -114,4 +114,24 @@ describe("AdminUserDetailForm prose fields are markdown", () => {
     );
     expect(bare).toHaveLength(0);
   });
+});
+
+test("suspension requires a private reason and sends the dedicated access action", async () => {
+  const dialog = HTMLDialogElement.prototype;
+  dialog.showModal ??= function () { this.open = true; };
+  dialog.close ??= function () { this.open = false; };
+  mockUser("STUDENT");
+  renderAdmin();
+
+  fireEvent.click(await screen.findByRole("button", { name: "Suspend account" }));
+  const confirmation = screen.getByRole("dialog");
+  const confirm = within(confirmation).getByRole("button", { name: "Suspend account" });
+  expect(confirmation).toHaveTextContent("p@example.com");
+  expect(confirm).toBeDisabled();
+  fireEvent.change(within(confirmation).getByRole("textbox", { name: "Private reason" }), { target: { value: "Payment issue" } });
+  fireEvent.click(confirm);
+  await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/admin/users/u1/access", expect.objectContaining({
+    method: "POST",
+    body: JSON.stringify({ action: "suspend", reason: "Payment issue", expectedEventId: null }),
+  })));
 });

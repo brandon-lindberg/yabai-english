@@ -326,6 +326,23 @@ body.chat-open {
 /*  Lexical checklist rows — it breaks their layout.                    */
 /* ------------------------------------------------------------------ */
 
+html[data-theme="dark"] .admin-workspace .mdxeditor,
+html[data-theme="dark"]:has(.admin-workspace) .mdxeditor-popup-container {
+  --basePageBg: var(--app-surface);
+  --baseBase: var(--app-canvas);
+  --baseBgSubtle: var(--app-surface);
+  --baseBg: var(--app-elevated);
+  --baseBgHover: var(--app-hover);
+  --baseBgActive: var(--app-chip);
+  --baseLine: var(--app-border);
+  --baseBorder: var(--app-border);
+  --baseBorderHover: var(--app-muted);
+  --baseText: var(--app-muted);
+  --baseTextContrast: var(--app-text);
+  --accentText: var(--app-link);
+  --accentTextContrast: var(--app-text);
+}
+
 @layer components {
   .mdxeditor-rich-lists .mdxeditor-root-contenteditable {
     box-sizing: border-box;

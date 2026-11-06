@@ -6,30 +6,9 @@ import type { Prisma } from "@/generated/prisma/client";
 import { Role } from "@/generated/prisma/enums";
 import { provisionRoleProfile } from "@/lib/admin/provision-role-profile";
 import { teachingLanguagesSchema } from "@/lib/learning-language";
+import { adminPeopleQuery, type AdminPeopleQuery } from "@/lib/admin/people-query";
 
-const listQuerySchema = z.object({
-  role: z.enum(["STUDENT", "TEACHER", "SUPER_ADMIN"]).optional(),
-  q: z.string().trim().max(200).optional(),
-  sort: z
-    .enum([
-      "createdAt_desc",
-      "createdAt_asc",
-      "email_desc",
-      "email_asc",
-      "name_desc",
-      "name_asc",
-      "role_desc",
-      "role_asc",
-      "accountStatus_desc",
-      "accountStatus_asc",
-    ])
-    .optional()
-    .default("createdAt_desc"),
-  page: z.coerce.number().int().min(1).optional().default(1),
-  pageSize: z.coerce.number().int().min(1).max(100).optional().default(20),
-});
-
-function parseSort(sort: z.infer<typeof listQuerySchema>["sort"]): Prisma.UserOrderByWithRelationInput {
+function parseSort(sort: AdminPeopleQuery["sort"]): Prisma.UserOrderByWithRelationInput {
   const [field, dir] = sort.split("_") as [string, "asc" | "desc"];
   const order = dir === "asc" ? "asc" : "desc";
   if (field === "createdAt") return { createdAt: order };
@@ -51,14 +30,19 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const raw = Object.fromEntries(url.searchParams.entries());
-  const parsed = listQuerySchema.safeParse(raw);
+  const parsed = adminPeopleQuery.safeParse(raw);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid query" }, { status: 400 });
   }
 
-  const { role, q, sort, page, pageSize } = parsed.data;
+  const { role, subject, status, q, sort, page, pageSize } = parsed.data;
   const where: Prisma.UserWhereInput = {};
   if (role) where.role = role;
+  if (status) where.accountStatus = status;
+  if (subject) where.AND = [{ OR: [
+    { role: Role.TEACHER, teacherProfile: { teachingLanguages: { has: subject } } },
+    { role: Role.STUDENT, learningLanguage: subject },
+  ] }];
   if (q) {
     where.OR = [
       { email: { contains: q, mode: "insensitive" } },
@@ -81,6 +65,7 @@ export async function GET(req: Request) {
         email: true,
         role: true,
         locale: true,
+        learningLanguage: true,
         accountStatus: true,
         createdAt: true,
         updatedAt: true,
@@ -94,6 +79,7 @@ export async function GET(req: Request) {
         teacherProfile: {
           select: {
             displayName: true,
+            teachingLanguages: true,
             rateYen: true,
             googleCalendarRefreshToken: true,
           },
@@ -126,6 +112,7 @@ export async function GET(req: Request) {
     email: row.email,
     role: row.role,
     locale: row.locale,
+    learningLanguage: row.learningLanguage,
     accountStatus: row.accountStatus,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -133,6 +120,7 @@ export async function GET(req: Request) {
     teacherProfile: row.teacherProfile
       ? {
           displayName: row.teacherProfile.displayName,
+          teachingLanguages: row.teacherProfile.teachingLanguages,
           rateYen: row.teacherProfile.rateYen,
           calendarConnected:
             row.googleIntegrationSettings?.calendarConnected ??

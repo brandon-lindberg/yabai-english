@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import type { LearningLanguage } from "@/generated/prisma/enums";
-import { learningLanguageTeacherWhere } from "@/lib/learning-language";
+import { activeTeacherAccountWhere, learningLanguageTeacherWhere } from "@/lib/learning-language";
 
 export type StudentRosterTeacherRow = {
   rosterEntryId: string;
@@ -14,7 +14,7 @@ export async function getStudentRosterTeachers(
   learningLanguage?: LearningLanguage,
 ): Promise<StudentRosterTeacherRow[]> {
   const entries = await prisma.teacherRosterEntry.findMany({
-    where: { studentId, ...(learningLanguage ? { teacher: learningLanguageTeacherWhere(learningLanguage) } : {}) },
+    where: { studentId, teacher: learningLanguage ? learningLanguageTeacherWhere(learningLanguage) : activeTeacherAccountWhere },
     include: {
       teacher: {
         select: {

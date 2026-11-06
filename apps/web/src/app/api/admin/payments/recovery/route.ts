@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { adminWebhookRecoveryWhere } from "@/lib/refund-recovery";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -13,7 +14,7 @@ async function authorized() {
 }
 export async function GET() {
   const refusal = await authorized(); if (refusal) return refusal;
-  const events = await prisma.paymentWebhookEvent.findMany({ where: { provider: "STRIPE", state: { not: "COMPLETE" } }, orderBy: { processedAt: "desc" }, take: 100,
+  const events = await prisma.paymentWebhookEvent.findMany({ where: adminWebhookRecoveryWhere, orderBy: { processedAt: "desc" }, take: 100,
     select: { providerEventId: true, eventType: true, state: true, attempts: true, lastError: true, nextAttemptAt: true } });
   return NextResponse.json({ items: events }, { headers: { "Cache-Control": "no-store" } });
 }
