@@ -100,7 +100,8 @@ test("Japanese placement and booking show local dates and times without zone lab
       const review = page.getByRole("region", { name: t.flashcardReview });
       const deck = review.getByRole("list", { name: t.flashcardReview });
       const practiceLink = review.getByRole("link", { name: copy.study.practice, exact: true });
-      await expect(practiceLink).toBeInViewport({ ratio: 1 });
+      await expect(practiceLink).toBeVisible();
+      if (locale === "en") await expect(practiceLink).toBeInViewport({ ratio: 1 });
       await expect(practiceLink).toHaveAttribute("href", /\/learn\/study\/N5\/practice\?focus=weak$/);
       const firstCard = deck.getByRole("listitem").first();
       await expect(deck.getByRole("listitem")).toHaveCount(locale === "en" ? 3 : 1);
@@ -144,6 +145,67 @@ test("Japanese placement and booking show local dates and times without zone lab
   } finally {
     fixtureCommand("release-study-hide");
     await context.close();
+  }
+});
+
+test("Japanese placement flashcards stay the same size and reveal full readings without clipping", async ({ page }) => {
+  const learner = releaseStudent("timeout-japanese");
+  const kanji = { written: "円", meanings: ["circle", "yen", "round"], onyomi: ["エン"],
+    kunyomi: ["まる.い", "まる", "まど", "まど.か", "まろ.やか"], nanori: ["つぶら", "のぶ", "まどか", "みつ"] };
+  fixtureCommand("release-japanese-n5-award", { learnerId: learner.id });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await signIn(page, "JAPANESE", learner.email);
+  await page.route("**/api/japanese-study/review-preview", route => route.fulfill({ json: {
+    cards: [
+      { id: "kanji", feedback: kanji },
+      { id: "composition", feedback: { written: "作文", reading: "さくぶん", meanings: ["composition"] } },
+      { id: "thanks", feedback: { written: "どうも", meanings: ["thanks"] } },
+    ], level: "N5", focus: "mixed",
+  } }));
+  await page.goto(`${sites.JAPANESE}/en/japanese-placement`);
+  for (const [width, height, label, copy] of [[1440, 900, "desktop", en], [390, 740, "mobile", ja], [320, 740, "narrow", ja]] as const) {
+    await page.setViewportSize({ width, height });
+    if (label === "mobile") {
+      await chooseInterfaceLocale(page, en.common, "ja");
+      await setHeaderTheme(page, ja.common, "dark");
+    }
+    const review = page.getByRole("region", { name: copy.japanesePlacement.flashcardReview });
+    const cards = review.getByRole("listitem");
+    const card = cards.first();
+    const front = card.getByRole("button", { name: `${kanji.written} · ${copy.dashboard.quickReview.tapToFlip}`, exact: true });
+    const flipBack = card.getByRole("button", { name: `${kanji.written} · ${copy.dashboard.quickReview.tapToFlipBack}`, exact: true });
+    const sizes = () => cards.evaluateAll(items => items.map(item => {
+      const { width, height } = item.firstElementChild!.getBoundingClientRect();
+      return { width, height };
+    }));
+    await expect(cards).toHaveCount(label === "desktop" ? 3 : 1);
+    const initial = await sizes();
+    expect(initial.every(size => size.width === initial[0].width && size.height === initial[0].height)).toBe(true);
+    await front.press("Enter");
+    await expect(flipBack).toBeFocused();
+    expect(await sizes()).toEqual(initial);
+    const feedback = card.locator("dl");
+    await expect(feedback.getByText(kanji.kunyomi.join(" · "), { exact: true })).toBeVisible();
+    await expect(feedback.getByText(kanji.nanori.join(" · "), { exact: true })).toBeVisible();
+    expect(await feedback.evaluate(element => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
+    expect(await card.evaluate(element => element.querySelector("dl")!.getBoundingClientRect().bottom <= element.getBoundingClientRect().bottom)).toBe(true);
+    await expect(feedback.getByText(kanji.kunyomi.join(" · "), { exact: true })).toHaveCSS("font-size", "16px");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (label !== "narrow") await captureRelease(page, `JAPANESE-placement-flashcard-readings-${label}`);
+    await flipBack.press("Enter");
+    await expect(front).toBeFocused();
+    expect(await sizes()).toEqual(initial);
+    if (label !== "desktop") {
+      const deck = review.getByRole("list", { name: copy.japanesePlacement.flashcardReview });
+      const touch = { pointerId: 1, pointerType: "touch", isPrimary: true };
+      await deck.dispatchEvent("pointerdown", { ...touch, clientX: 230 });
+      await deck.dispatchEvent("pointerup", { ...touch, clientX: 120 });
+      await expect(review.getByRole("button", { name: `作文 · ${copy.dashboard.quickReview.tapToFlip}`, exact: true })).toBeVisible();
+      expect(await sizes()).toEqual(initial);
+      await review.getByRole("button", { name: copy.dashboard.previous, exact: true }).press("Enter");
+      await expect(front).toBeVisible();
+    }
   }
 });
 

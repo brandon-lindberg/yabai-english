@@ -42,7 +42,7 @@ export function JapaneseReviewDeck({ cards, label, compact = false }: {
         {total > 1 ? <span className={hideOnWide}>{t("dailySwipeHint")}</span> : null}
       </p>}
     <ul role="list" aria-label={label}
-      className={`min-w-0 touch-pan-y touch-pinch-zoom px-1 py-1 ${compact ? "mt-1 sm:grid sm:grid-cols-3 sm:gap-2 sm:touch-auto" : "mt-3 lg:grid lg:auto-cols-[minmax(0,11rem)] lg:grid-flow-col lg:gap-3 lg:touch-auto"}`}
+      className={`min-w-0 touch-pan-y touch-pinch-zoom px-1 py-1 ${compact ? "mt-1 grid sm:grid-cols-3 sm:gap-2 sm:touch-auto" : "mt-3 lg:grid lg:auto-cols-[minmax(0,11rem)] lg:grid-flow-col lg:gap-3 lg:touch-auto"}`}
       onPointerDown={event => {
         if (!event.isPrimary) return;
         suppressTap.current = false;
@@ -58,10 +58,11 @@ export function JapaneseReviewDeck({ cards, label, compact = false }: {
           suppressTap.current = false;
         }
       }}>
-      {cards.map(({ id, feedback }, index) => <li key={id} className={`min-w-0 ${index === current ? "" : compact ? "hidden sm:block" : "hidden lg:block"}`}>
+      {/* Hidden preview cards still size the carousel's shared row on phones. */}
+      {cards.map(({ id, feedback }, index) => <li key={id} className={`min-w-0 ${compact ? "col-start-1 row-start-1 sm:col-auto sm:row-auto" : ""} ${index === current ? "" : compact ? "invisible sm:visible" : "hidden lg:block"}`}>
         <QuickReviewFlipCard name={feedback.written} compact={compact}
           front={<span lang="ja" className="break-words text-2xl font-semibold leading-snug text-foreground [overflow-wrap:anywhere]">{feedback.written}</span>}
-          back={<JapaneseStudyFeedbackDetails feedback={feedback} compact />}
+          back={<JapaneseStudyFeedbackDetails feedback={feedback} layout={compact ? "preview" : "recap"} />}
         />
       </li>)}
     </ul>

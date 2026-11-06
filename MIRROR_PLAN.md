@@ -1990,7 +1990,7 @@ Red tests reproduced the missing score disclosure and scattered instructions. Th
 
 The result summary groups the score and local retake date below **View scores**. The adjacent flashcard section shows three published cards, prioritizing the learner's missed cards across unlocked levels. If the learner has fewer than three attempted cards, a sample from the unlocked catalog fills the hand. The practice link opens the existing difficult-card queue at an unlocked level with weak cards, or regular practice when there are none.
 
-The preview reuses Dashboard card ranking and flip controls. Opening it, flipping cards, and switching to the score report leave study progress and the daily review intact. The cards appear together on wide screens and one at a time on phones with swipe and keyboard navigation.
+The preview reuses Dashboard card ranking and flip controls. Opening it, flipping cards, and switching to the score report leave study progress and the daily review intact. The cards appear together on wide screens and one at a time on phones with swipe and keyboard navigation. Both faces of every placement card share the same dimensions, sized to fit the longest answer in the set.
 
 Red and green coverage verified personal misses, starter cards, locked levels, and read-only access. All 295 Japanese placement, 197 study, and 20 PostgreSQL study tests passed. Chromium verified desktop and mobile placement, the existing Dashboard carousel, and that the practice link loads the actual missed card. TypeScript and targeted lint passed.
 

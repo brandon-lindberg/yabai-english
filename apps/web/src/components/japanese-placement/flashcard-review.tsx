@@ -32,7 +32,7 @@ export function JapanesePlacementFlashcardReview() {
   return <section aria-labelledby="japanese-placement-flashcard-review">
     <h2 id="japanese-placement-flashcard-review" className="text-base font-semibold text-foreground">{t("flashcardReview")}</h2>
     {preview === null ? <div role="status" aria-label={t("flashcardLoading")} aria-busy="true" className="mt-4">
-      <Skeleton rounded="2xl" className="mx-auto !h-30 max-w-44 sm:!h-40 sm:max-w-none" />
+      <Skeleton rounded="2xl" className="mx-auto !h-30 max-w-72 sm:!h-40 sm:max-w-none" />
     </div> : preview === "unavailable" ? <p className="mt-2 text-sm text-muted">{t("flashcardUnavailable")}</p>
       : preview === "failed" ? <div className="mt-2">
         <p role="status" className="text-sm text-muted">{t("flashcardError")}</p>

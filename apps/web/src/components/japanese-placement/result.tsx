@@ -79,7 +79,7 @@ export function JapanesePlacementResult({ result, teacher = false, review, retak
 
   return <>
     <div hidden={showScores} className="border-y border-border">
-      <div className={review ? "grid md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]" : undefined}>
+      <div className={review ? "grid md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" : undefined}>
         <section aria-labelledby={headingId} className="min-w-0 py-3 sm:py-6 md:pr-6">
           <h2 id={headingId} className={estimated ? "text-base font-semibold text-foreground" : "text-xl font-bold leading-tight text-foreground"}>{title}</h2>
           {estimated ? <>
