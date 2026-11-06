@@ -25,14 +25,22 @@ export async function isCurrentJapaneseDailyPrompt(db: Db, userId: string, cardI
   return !!row && parseQuickReviewCardIds(row.cardIds).includes(cardId) && parseJapaneseDailyReceipts(row.interactions).some(receipt => receipt.cardId === cardId && receipt.promptId === promptId);
 }
 
+export function japaneseReviewCardScope(levelIds: string[]) {
+  return { kind: { in: ["JAPANESE_VOCABULARY", "JAPANESE_KANJI"] }, deck: { levelId: { in: levelIds } } } satisfies Prisma.StudyCardWhereInput;
+}
+
+export function readJapaneseQuickReviewPool(db: Pick<Db, "userStudyCardState">, userId: string, levelIds: string[]) {
+  return db.userStudyCardState.findMany({ select: quickReviewStateFields,
+    where: { userId, ...attemptedQuickReviewState, card: japaneseReviewCardScope(levelIds) },
+  });
+}
+
 /** Caller supplies the already authorized Japanese overview. No question issuance or writes. */
 export async function readJapaneseDailyReview(db: Db, userId: string, overview: Overview, now: Date) {
   const dayKey = utcCalendarDayKey(now);
   const levelIds = overview.levels.filter(level => level.unlocked).map(level => level.id);
   const [pool, row] = await Promise.all([
-    db.userStudyCardState.findMany({ select: quickReviewStateFields, where: { userId, ...attemptedQuickReviewState, card: {
-      kind: { in: ["JAPANESE_VOCABULARY", "JAPANESE_KANJI"] }, deck: { levelId: { in: levelIds } },
-    } } }),
+    readJapaneseQuickReviewPool(db, userId, levelIds),
     db.studyQuickReviewDay.findUnique({ where: dayWhere(userId, dayKey) }),
   ]);
   const eligible = new Set(pool.map(state => state.cardId));

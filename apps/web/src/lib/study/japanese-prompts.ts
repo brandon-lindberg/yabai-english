@@ -107,6 +107,12 @@ function answers(entry: Entry, task: JapaneseStudyTask): string[] {
   return [];
 }
 
+function entryFeedback(entry: Entry): JapaneseStudyFeedback {
+  return { written: entry.written, ...(entry.reading ? { reading: entry.reading } : {}), meanings: entry.meanings,
+    ...(entry.record.kind === "kanji" ? { onyomi: entry.record.content.onyomi, kunyomi: entry.record.content.kunyomi, nanori: entry.record.content.nanori } : {}),
+  };
+}
+
 /** Build once per catalog snapshot; prompt creation then scans pre-indexed candidate pools. */
 export function createJapanesePromptBank(rawContents: readonly unknown[], referenceRows: readonly Reference[]) {
   const compare = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
@@ -139,6 +145,7 @@ export function createJapanesePromptBank(rawContents: readonly unknown[], refere
       return [...new Set(entries.filter(entry => rank(entry.formLevel) <= rank(studyBand ?? entry.introduction)).map(entry => entry.memberId))];
     },
     tasks(unitId: string, memberId?: string, studyBand?: JapaneseLevel) { const entry = select(unitId, memberId, studyBand); return taskNames.filter(task => answers(entry, task).length > 0); },
+    feedback(unitId: string, studyBand: JapaneseLevel) { return entryFeedback(select(unitId, undefined, studyBand)); },
     create(unitId: string, options: { task: JapaneseStudyTask; seed: string; memberId?: string; studyBand?: JapaneseLevel }): CompiledJapaneseStudyPrompt {
       const entry = select(unitId, options.memberId, options.studyBand);
       const accepted = answers(entry, options.task);
@@ -169,10 +176,7 @@ export function createJapanesePromptBank(rawContents: readonly unknown[], refere
         stimulus: { written: entry.written, ...(options.task === "vocabulary_meaning" ? { reading: entry.reading } : { meanings: entry.meanings }) },
         choices: shuffleTokensForQueue(choices, seed),
       });
-      const feedback: JapaneseStudyFeedback = { written: entry.written, ...(entry.reading ? { reading: entry.reading } : {}), meanings: entry.meanings,
-        ...(entry.record.kind === "kanji" ? { onyomi: entry.record.content.onyomi, kunyomi: entry.record.content.kunyomi, nanori: entry.record.content.nanori } : {}),
-      };
-      return { question, correctChoiceId: choices[0].id, feedback };
+      return { question, correctChoiceId: choices[0].id, feedback: entryFeedback(entry) };
     },
   };
 }

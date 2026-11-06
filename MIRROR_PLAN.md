@@ -1980,6 +1980,20 @@ Shared booking, availability, and reschedule screens use local clock times witho
 
 Red and green coverage verified month-end and daylight-saving boundaries, date-only notices, and saved notification labels. All 103 English placement tests, 291 Japanese placement tests, 15 PostgreSQL placement tests, 1,017 mirror tests, 197 study tests, and 14 learning-domain Chromium tests passed. TypeScript and targeted lint passed.
 
+#### 6x. Japanese placement page redesign — 2026-11-06
+
+The result overview keeps the awarded level large and places the score summary, next action, and date-only retake notice in the first viewport. **View scores** opens a six-skill report on the same route. Returning to the overview restores focus to that button. The assessment instructions sit beside Start, and the active question keeps the prompt close to the timer and progress. Both views use the existing Japanese placement result, deadline, and eligibility rules.
+
+Red tests reproduced the missing score disclosure and scattered instructions. The Japanese placement and mirror suites passed 294 and 1,017 tests respectively. Four focused Chromium cases verified the overview at 1440 × 900 and 390 × 740, keyboard score review, a full published-bank attempt, and both timeout outcomes. TypeScript and targeted lint passed.
+
+#### 6y. Flashcard review beside the Japanese placement result — 2026-11-06
+
+The result summary groups the score and local retake date below **View scores**. The adjacent flashcard section shows three published cards, prioritizing the learner's missed cards across unlocked levels. If the learner has fewer than three attempted cards, a sample from the unlocked catalog fills the hand. The practice link opens the existing difficult-card queue at an unlocked level with weak cards, or regular practice when there are none.
+
+The preview reuses Dashboard card ranking and flip controls. Opening it, flipping cards, and switching to the score report leave study progress and the daily review intact. The cards appear together on wide screens and one at a time on phones with swipe and keyboard navigation.
+
+Red and green coverage verified personal misses, starter cards, locked levels, and read-only access. All 295 Japanese placement, 197 study, and 20 PostgreSQL study tests passed. Chromium verified desktop and mobile placement, the existing Dashboard carousel, and that the practice link loads the actual missed card. TypeScript and targeted lint passed.
+
 ## Source completeness standard
 
 Modern JLPT has no published exhaustive official vocabulary/kanji list. The measurable target is full, traceable coverage of a named, versioned community corpus, with every merge/correction explained and zero unreviewed omissions. Preserve level source and supplementary/inferred classifications. Multiple repositories inheriting Waller's lists are not independent pedagogical validation.

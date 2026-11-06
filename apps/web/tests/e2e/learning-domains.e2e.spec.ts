@@ -36,7 +36,8 @@ async function answerJapaneseCard(page: Page, learnerId: string, question: Japan
 
 test("Japanese placement and booking show local dates and times without zone labels", async ({ browser }) => {
   const learner = releaseStudent("timeout-japanese");
-  const context = await browser.newContext({ viewport: { width: 1440, height: 950 }, timezoneId: "America/Los_Angeles" });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, timezoneId: "America/Los_Angeles" });
+  fixtureCommand("release-study-publish");
   try {
     const page = await context.newPage();
     const site = sites.JAPANESE;
@@ -49,21 +50,99 @@ test("Japanese placement and booking show local dates and times without zone lab
     await expect(preview).not.toContainText(/America\/Los_Angeles|Asia\/Tokyo|\bGMT\b|\bJST\b/);
 
     await signIn(page, "JAPANESE", learner.email);
+    await page.goto(`${site}/en/japanese-placement`);
+    const instructions = page.getByRole("region", { name: en.japanesePlacement.beforeYouStart });
+    await expect(instructions.getByRole("button", { name: en.japanesePlacement.start })).toBeVisible();
+    await captureRelease(page, "JAPANESE-placement-redesign-intro-desktop");
     fixtureCommand("release-japanese-n5-award", { learnerId: learner.id });
     await page.goto(`${site}/en/japanese-placement`);
     const { attempt } = await (await page.request.get(`${site}/api/japanese-placement/attempts`)).json();
     expect(attempt).toMatchObject({ canStartNewAttempt: false, retakeEligibleDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) });
-    const date = new Intl.DateTimeFormat("en", { timeZone: "UTC", dateStyle: "long" }).format(new Date(attempt.retakeEligibleDate));
-    await expect(page.getByText(en.placement.cooldownBody.replace("{date}", date), { exact: true })).toBeVisible();
-    await captureRelease(page, "JAPANESE-placement-retake-date-desktop");
-    await page.setViewportSize({ width: 390, height: 850 });
-    await captureRelease(page, "JAPANESE-placement-retake-date-mobile");
+    const initialReview = page.getByRole("region", { name: en.japanesePlacement.flashcardReview });
+    await expect(initialReview.getByRole("listitem")).toHaveCount(3);
+    await expect(initialReview.getByRole("link", { name: en.study.practice, exact: true })).toHaveAttribute("href", /\/learn\/study\/N5\/practice$/);
+    const api = `${site}/api/japanese-study`;
+    const practice = await page.request.post(`${api}/queue`, { data: { levelCode: "N5", limit: 1 } });
+    expect(practice.status()).toBe(200);
+    const { question } = (await practice.json() as JapaneseStudyQueue).cards[0];
+    async function miss(card: JapaneseStudyQuestion) {
+      const answer = japaneseAnswer(learner.id, card);
+      const choiceId = card.choices.find(choice => choice.id !== answer.choiceId)!.id;
+      const saved = await page.request.post(`${api}/reviews`, { data: { ...answer, choiceId } });
+      expect(saved.status()).toBe(200);
+    }
+    await miss(question);
+    const daily = await page.request.post(`${api}/quick-review`, { data: {} });
+    expect(daily.status()).toBe(200);
+    const dailyQueue = await daily.json() as JapaneseQuickReviewQueue;
+    expect(dailyQueue.cards.map(card => card.question.unitId)).toEqual([question.unitId]);
+    await miss(dailyQueue.cards[0].question);
+    await page.reload();
+    const previewResponse = await page.request.get(`${api}/review-preview`);
+    expect(previewResponse.headers()["cache-control"]).toBe("private, no-store");
+    const flashcards = await previewResponse.json();
+    expect(flashcards).toMatchObject({ level: "N5", focus: "weak" });
+    expect(flashcards.cards[0].id).toBe(question.unitId);
+    const { written: missedWord, meanings } = flashcards.cards[0].feedback;
+    for (const [locale, label, copy] of [["en", "desktop", en], ["ja", "mobile", ja]] as const) {
+      if (locale === "ja") {
+        await page.setViewportSize({ width: 390, height: 740 });
+        await chooseInterfaceLocale(page, en.common, "ja");
+        await setHeaderTheme(page, ja.common, "dark");
+      }
+      const t = copy.japanesePlacement;
+      const date = new Intl.DateTimeFormat(locale, { timeZone: "UTC", dateStyle: "long" }).format(new Date(attempt.retakeEligibleDate));
+      const summary = page.getByRole("region", { name: t.resultTitle });
+      const retakeDate = summary.getByText(t.retakeFrom.replace("{date}", date), { exact: true });
+      await expect(retakeDate).toBeInViewport({ ratio: 1 });
+      await expect(page.getByText("N5", { exact: true })).toBeVisible();
+      await expect(page.getByRole("link", { name: t.book, exact: true })).toHaveCount(0);
+      const review = page.getByRole("region", { name: t.flashcardReview });
+      const deck = review.getByRole("list", { name: t.flashcardReview });
+      const practiceLink = review.getByRole("link", { name: copy.study.practice, exact: true });
+      await expect(practiceLink).toBeInViewport({ ratio: 1 });
+      await expect(practiceLink).toHaveAttribute("href", /\/learn\/study\/N5\/practice\?focus=weak$/);
+      const firstCard = deck.getByRole("listitem").first();
+      await expect(deck.getByRole("listitem")).toHaveCount(locale === "en" ? 3 : 1);
+      const front = firstCard.getByRole("button", { name: `${missedWord} · ${copy.dashboard.quickReview.tapToFlip}`, exact: true });
+      const back = firstCard.getByRole("button", { name: `${missedWord} · ${copy.dashboard.quickReview.tapToFlipBack}`, exact: true });
+      await expect(front).toBeVisible();
+      const scores = summary.getByRole("button", { name: t.viewScores, exact: true });
+      const heading = page.getByRole("heading", { name: t.breakdown, exact: true });
+      await expect(scores).toBeInViewport({ ratio: 1 });
+      await expect(heading).toHaveCount(0);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await captureRelease(page, `JAPANESE-placement-flashcards-${label}`);
+      await front.press("Enter");
+      await expect(back).toBeFocused();
+      if (meanings.length) await expect(firstCard.getByText(meanings.join(", "), { exact: true })).toBeVisible();
+      await scores.press("Enter");
+      await expect(heading).toBeFocused();
+      const report = page.getByRole("region", { name: t.breakdown });
+      for (const domain of Object.values(t.domains)) await expect(report.getByText(domain, { exact: true })).toBeInViewport({ ratio: 1 });
+      await captureRelease(page, `JAPANESE-placement-redesign-scores-${label}`);
+      await page.getByRole("button", { name: t.backToResult, exact: true }).press("Enter");
+      await expect(scores).toBeFocused();
+      await expect(back).toBeVisible();
+      if (locale === "ja") {
+        await review.getByRole("button", { name: copy.dashboard.next, exact: true }).press("Enter");
+        await expect(review.getByText(copy.japaneseStudy.dailyCardPosition.replace("{current}", "2").replace("{total}", "3"), { exact: true })).toBeVisible();
+        const weakQueue = japaneseStudyPost(page, "queue");
+        await practiceLink.click();
+        await expect(page).toHaveURL(/\/learn\/study\/N5\/practice\?focus=weak$/);
+        await expect(page.locator("main").getByText(copy.study.practiceWeak, { exact: false })).toBeVisible();
+        const response = await weakQueue;
+        expect(response.status()).toBe(200);
+        expect((await response.json() as JapaneseStudyQueue).cards.map(card => card.question.unitId)).toEqual([question.unitId]);
+      }
+    }
 
     await page.goto(`${site}/en/book/teachers/${teacherId}`);
     const main = page.locator("main");
     await expect(main.getByText(en.booking.selectSlot, { exact: true })).toBeVisible();
     await expect(main).not.toContainText(/America\/Los_Angeles|Asia\/Tokyo|\bGMT\b|\bJST\b/);
   } finally {
+    fixtureCommand("release-study-hide");
     await context.close();
   }
 });

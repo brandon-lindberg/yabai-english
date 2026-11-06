@@ -31,6 +31,7 @@ function result(timeout = false, attemptId = "browser-contract-attempt") {
 function view(mode: Mode, attemptId = "browser-contract-attempt") {
   const now = Date.now();
   return { attemptId, status: mode === "result" ? "COMPLETED" : "IN_PROGRESS", answered: mode === "result" ? 24 : mode === "tiles" ? 5 : 0, total: 24,
+    canStartNewAttempt: mode === "result", retakeEligibleAt: null, retakeEligibleDate: null,
     expiresAt: new Date(now + (mode === "timeout" ? 700 : 1_200_000)).toISOString(), timeLimitSec: 1200, serverNow: new Date(now).toISOString(),
     question: mode === "result" ? null : question(mode === "tiles" ? writing : reading), result: mode === "result" ? result(false, attemptId) : null };
 }
@@ -95,6 +96,7 @@ test("published bank completes through the student UI, resumes and shares only t
   expect([...bands]).toEqual(expect.arrayContaining(["N3", "N2", "N1"]));
   expect(current).toMatchObject({ status: "COMPLETED", answered: 24, result: { completionReason: "question_limit", levelEstimate: { status: "estimated", band: "N1", basis: "jlpt_aligned_rules" } } });
   await expect(page.getByText("N1", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: en.japanesePlacement.viewScores, exact: true }).click();
   await expect(page.getByText(en.japanesePlacement.ruleBasis, { exact: true })).toBeVisible();
   expect(fixtureCommand("placement-status")).toEqual(englishBefore);
   await page.reload();
@@ -184,6 +186,7 @@ test("keyboard sentence assembly, resume and automatic timeout follow the public
   }
   await page.getByRole("button", { name: en.japanesePlacement.submitSentence }).click();
   await expect(page.getByText("N3", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: en.japanesePlacement.viewScores, exact: true }).click();
   await expect(page.getByText(en.japanesePlacement.ruleBasis, { exact: true })).toBeVisible();
   await expect(page.getByText(/Estimated range:/)).toHaveCount(0);
   expect(payloads.at(-1)).toEqual({ kind: "sentence_assembly", itemId: writing.id, tileIds: writing.acceptedOrders![0] });
@@ -233,7 +236,7 @@ test("bounded screenshot matrix", async ({ page }) => {
     else if (state === "intro") await expect(page.getByRole("button", { name: copy.start, exact: true })).toBeVisible();
     else if (state === "result") {
       await expect(page.getByText("N3", { exact: true })).toBeVisible();
-      await expect(page.getByText(copy.ruleBasis, { exact: true })).toBeVisible();
+      await expect(page.getByRole("button", { name: copy.viewScores, exact: true })).toBeVisible();
     }
     else if (state === "unavailable") await expect(page.getByText(copy.unavailableTitle, { exact: true })).toBeVisible();
     else if (state === "network") await expect(page.getByRole("alert")).toBeVisible();

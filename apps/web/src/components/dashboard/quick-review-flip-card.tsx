@@ -4,10 +4,11 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
-export function QuickReviewFlipCard({ front, back, name, disabled = false, onLearned, onNotYet }: {
+export function QuickReviewFlipCard({ front, back, name, compact = false, disabled = false, onLearned, onNotYet }: {
   front: ReactNode;
   back: ReactNode;
   name?: string;
+  compact?: boolean;
   disabled?: boolean;
   onLearned?: () => void;
   onNotYet?: () => void;
@@ -34,7 +35,7 @@ export function QuickReviewFlipCard({ front, back, name, disabled = false, onLea
 
   return (
     <div className="mx-auto w-full max-w-[11rem] rounded-2xl perspective-[960px] focus-within:ring-2 focus-within:ring-foreground/30 focus-within:ring-offset-2">
-      <div className={`relative aspect-[3/5] min-h-[12rem] w-full transition-transform duration-500 motion-reduce:transition-none [transform-style:preserve-3d] ${flipped ? "[transform:rotateY(180deg)]" : ""}`}>
+      <div className={`relative w-full transition-transform duration-500 motion-reduce:transition-none [transform-style:preserve-3d] ${compact ? "h-30 sm:h-40" : "aspect-[3/5] min-h-[12rem]"} ${flipped ? "[transform:rotateY(180deg)]" : ""}`}>
         <button ref={frontButton} type="button" aria-pressed={flipped}
           aria-label={name ? `${name} · ${t("tapToFlip")}` : t("tapToFlip")}
           disabled={disabled} inert={flipped} onClick={() => flip(true)}

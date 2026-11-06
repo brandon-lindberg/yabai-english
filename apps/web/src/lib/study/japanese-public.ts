@@ -35,6 +35,13 @@ export const japaneseStudyFeedbackSchema = z.object({
 }).strict();
 export type JapaneseStudyFeedback = z.infer<typeof japaneseStudyFeedbackSchema>;
 export type JapaneseQuickReviewCard = { id: string; feedback: JapaneseStudyFeedback };
+export const JAPANESE_REVIEW_PREVIEW_SIZE = 3;
+export const japaneseStudyReviewPreviewSchema = z.object({
+  cards: z.array(z.object({ id: text, feedback: japaneseStudyFeedbackSchema }).strict()).max(JAPANESE_REVIEW_PREVIEW_SIZE),
+  level: z.enum(JAPANESE_REFERENCE_BANDS),
+  focus: z.enum(["weak", "mixed"]),
+}).strict();
+export type JapaneseStudyReviewPreview = z.infer<typeof japaneseStudyReviewPreviewSchema>;
 
 export const japaneseStudyResultSchema = z.object({
   promptId: z.string(), correct: z.boolean(), feedback: japaneseStudyFeedbackSchema,

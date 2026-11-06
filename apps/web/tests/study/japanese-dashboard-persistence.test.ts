@@ -1,12 +1,43 @@
 import { expect, test, vi } from "vitest";
 import { withIsolatedPostgres } from "../../test/isolated-postgres";
 import { seedJapaneseStudy as seed, japaneseStudyAnswer as answer } from "../../test/japanese-study-db-fixture";
-import { createJapaneseQuickReviewQueue, submitJapaneseStudyReview } from "@/lib/study/japanese-service";
+import { createJapaneseQuickReviewQueue, getJapaneseStudyReviewPreview, submitJapaneseStudyReview } from "@/lib/study/japanese-service";
 import { getJapaneseDashboardStudy } from "@/lib/dashboard/japanese-study";
 import { utcCalendarDayKey } from "@/lib/study/quick-review-day";
 
 const migration = "20261023030000_study_review_prompts";
 const enabled = !!process.env.MIRROR_TEST_DATABASE_URL;
+
+test.runIf(enabled)("placement flashcards prioritize personal misses, fill from unlocked cards, and never issue a review", async () => {
+  await withIsolatedPostgres(migration, async ({ db, applyMigration }) => {
+    await applyMigration(); await seed(db);
+    const starter = await getJapaneseStudyReviewPreview(db, "learner");
+    expect(starter).toMatchObject({ level: "N5", focus: "mixed" });
+    expect(new Set(starter.cards.map(card => card.id)).size).toBe(3);
+    expect(starter.cards.map(card => card.id)).not.toContain("word-0");
+    await db.userStudyCardState.createMany({ data: [
+      { userId: "learner", cardId: "extra-1", correctCount: 0, wrongCount: 2 },
+      { userId: "learner", cardId: "extra-2", correctCount: 1, wrongCount: 2 },
+      { userId: "learner", cardId: "word-0", correctCount: 0, wrongCount: 9 },
+      { userId: "other", cardId: "extra-3", correctCount: 0, wrongCount: 8 },
+    ] });
+    const preview = await getJapaneseStudyReviewPreview(db, "learner");
+    expect(preview).toMatchObject({ level: "N5", focus: "weak" });
+    expect(preview.cards).toHaveLength(3);
+    expect(preview.cards.slice(0, 2)).toEqual([
+      { id: "extra-1", feedback: { written: "猫", reading: "ねこ", meanings: ["cat"] } },
+      { id: "extra-2", feedback: { written: "犬", reading: "いぬ", meanings: ["dog"] } },
+    ]);
+    expect(preview.cards.map(card => card.id)).not.toContain("word-0");
+    expect(await db.studyReviewPrompt.count()).toBe(0);
+    expect(await db.studyQuickReviewDay.count()).toBe(0);
+    expect(await db.userStudyLevelProgress.count()).toBe(0);
+    expect(await db.userStudyCardState.count()).toBe(4);
+    await expect(getJapaneseStudyReviewPreview(db, "teacher")).rejects.toMatchObject({ status: 403 });
+    await db.studyTrack.update({ where: { id: "track" }, data: { publicationStatus: "DRAFT" } });
+    await expect(getJapaneseStudyReviewPreview(db, "learner")).rejects.toMatchObject({ status: 503 });
+  });
+}, 30_000);
 
 test.runIf(enabled)("Japanese quick review puts the most missed unlocked cards first, even if never answered correctly", async () => {
   await withIsolatedPostgres(migration, async ({ db, applyMigration }) => {

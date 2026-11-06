@@ -30,8 +30,74 @@ test.each(["en", "ja"])("an awarded result shows the server's next retake date a
   show(locale);
   expect(await screen.findByText("N3", { exact: true })).toBeVisible();
   expect(screen.queryByRole("button", { name: copy.japanesePlacement.newStart })).toBeNull();
-  expect(screen.getByRole("status")).toHaveTextContent(copy.placement.cooldownBody.replace("{date}", locale === "ja" ? "2026年11月22日" : "November 22, 2026"));
-  expect(screen.getByRole("link", { name: copy.japanesePlacement.book })).toBeVisible();
+  const summary = screen.getByRole("region", { name: copy.japanesePlacement.resultTitle });
+  expect(within(summary).getByRole("status")).toHaveTextContent(copy.japanesePlacement.retakeFrom.replace("{date}", locale === "ja" ? "2026年11月22日" : "November 22, 2026"));
+  expect(screen.queryByRole("link", { name: copy.japanesePlacement.book })).toBeNull();
+  expect(screen.queryByRole("link", { name: copy.japanesePlacement.dashboard })).toBeNull();
+});
+
+test("shows a read-only flashcard hand and links to difficult-card practice", async () => {
+  const domain = { ...result.domains[0], answered: 3, correct: 2, incorrect: 1, unanswered: 1, observation: "observed" as const };
+  const award = { ...result, completionReason: "question_limit", domains: [domain, ...result.domains.slice(1)],
+    levelEstimate: { status: "estimated", scope: "reading_writing", band: "N3", provisional: true, basis: "jlpt_aligned_rules" },
+  };
+  fetchMock.mockResolvedValueOnce(reply({ attempt: { ...completed, answered: 3, canStartNewAttempt: false,
+    retakeEligibleAt: "2026-11-21T15:00:00.000Z", retakeEligibleDate: "2026-11-22", result: award,
+  } })).mockResolvedValueOnce(reply({ cards: [
+    { id: "cat", feedback: { written: "猫", reading: "ねこ", meanings: ["cat"] } },
+    { id: "dog", feedback: { written: "犬", reading: "いぬ", meanings: ["dog"] } },
+    { id: "bird", feedback: { written: "鳥", reading: "とり", meanings: ["bird"] } },
+  ], level: "N4", focus: "weak" }));
+  show();
+  const preview = await screen.findByRole("region", { name: "Flashcard review" });
+  const link = await within(preview).findByRole("link", { name: messages.study.practice });
+  expect(link).toHaveAttribute("href", "/learn/study/N4/practice?focus=weak");
+  const cards = within(preview).getAllByRole("listitem");
+  expect(cards).toHaveLength(3);
+  fireEvent.click(within(cards[0]).getByRole("button", { name: `猫 · ${messages.dashboard.quickReview.tapToFlip}` }));
+  expect(within(cards[0]).getByText("ねこ")).toBeVisible();
+  const level = screen.getByRole("region", { name: messages.japanesePlacement.resultTitle });
+  expect(within(level).getByText("2 correct / 3 answered")).toBeVisible();
+  expect(within(level).getByText("Retake available from November 22, 2026.")).toBeVisible();
+  expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(["/api/japanese-placement/attempts", "/api/japanese-study/review-preview"]);
+});
+
+test.each(["en", "ja"] as const)("opens a separate score view and returns focus to the result action (%s)", async locale => {
+  const copy = locale === "ja" ? jaMessages : messages;
+  const t = copy.japanesePlacement;
+  const domain = { domain: "kana" as const, planned: 5, answered: 3, correct: 2, incorrect: 1, notSure: 1, unanswered: 1, observation: "observed" as const };
+  fetchMock.mockResolvedValueOnce(reply({ attempt: { ...completed, answered: 3, result: { ...result, completionReason: "question_limit",
+    domains: result.domains.map(row => row.domain === "kana" ? domain : row),
+    levelEstimate: { status: "estimated", scope: "reading_writing", band: "N3", provisional: true, basis: "jlpt_aligned_rules" },
+  } } })).mockResolvedValueOnce(reply({ cards: [], level: "N3", focus: "mixed" }));
+  show(locale);
+  expect(await screen.findByText("N3", { exact: true })).toBeVisible();
+  const practice = await screen.findByRole("link", { name: copy.study.practice });
+  expect(practice).toHaveAttribute("href", "/learn/study/N3/practice");
+  expect(screen.queryByRole("heading", { name: t.breakdown })).toBeNull();
+  expect(screen.queryByText(t.ruleBasis)).toBeNull();
+  const viewLabel = t.viewScores;
+  const backLabel = t.backToResult;
+  fireEvent.click(screen.getByRole("button", { name: viewLabel }));
+  await waitFor(() => expect(screen.getByRole("heading", { name: t.breakdown })).toHaveFocus());
+  expect(screen.getByText(t.domains.kana)).toBeVisible();
+  expect(within(screen.getByRole("region", { name: t.breakdown })).getByText(locale === "en" ? "2 correct / 3 answered" : "解答3問中 2問正解")).toBeVisible();
+  expect(screen.getByText(locale === "en" ? "1 not sure · 1 unanswered" : "わからない：1問・未解答：1問")).toBeVisible();
+  expect(screen.getByText(t.ruleBasis)).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: backLabel }));
+  expect(screen.getByRole("button", { name: viewLabel })).toHaveFocus();
+  expect(screen.getByText("N3", { exact: true })).toBeVisible();
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+
+test("puts test instructions and the explicit Start action in the same section", async () => {
+  fetchMock.mockResolvedValueOnce(reply({ attempt: null }));
+  show();
+  const instructions = await screen.findByRole("region", { name: "Before you start" });
+  expect(within(instructions).getByText(messages.japanesePlacement.duration)).toBeVisible();
+  expect(within(instructions).getByText(messages.japanesePlacement.startNotice)).toBeVisible();
+  expect(within(instructions).getByRole("button", { name: messages.japanesePlacement.start })).toBeEnabled();
+  expect(fetchMock).toHaveBeenCalledTimes(1);
 });
 
 test("an active eligible retake still resumes when its earlier award has a past retake date", async () => {
@@ -161,8 +227,9 @@ test("uses server time despite client clock skew and fetches the final result on
   await act(async () => { vi.advanceTimersByTime(1_000); });
   expect(screen.getByText("Not enough evidence to estimate a level")).toBeVisible();
   await act(async () => { vi.advanceTimersByTime(5_000); });
-  expect(fetchMock).toHaveBeenCalledTimes(2);
-  expect(fetchMock.mock.calls.every(([, options]) => !options?.method || options.method === "GET")).toBe(true);
+  const placementCalls = fetchMock.mock.calls.filter(([url]) => url.startsWith("/api/japanese-placement/attempts"));
+  expect(placementCalls).toHaveLength(2);
+  expect(placementCalls.every(([, options]) => !options?.method || options.method === "GET")).toBe(true);
 });
 
 test.each([[503, "BANK_UNAVAILABLE", "The Japanese assessment is not available yet"], [409, "ATTEMPT_VERSION_UNSUPPORTED", "This assessment has been updated"]])("explains unavailable state %s without exposing implementation details", async (status, error, text) => {
@@ -287,6 +354,7 @@ test.each(["en", "ja"])("explains a rule-based result without a model range in %
   render(<NextIntlClientProvider locale={locale} messages={copy}><JapanesePlacementResult result={{ ...result, completionReason: "question_limit",
     levelEstimate: { status: "estimated", scope: "reading_writing", provisional: true, band: "N3", basis: "jlpt_aligned_rules" } }} /></NextIntlClientProvider>);
   expect(screen.getByText("N3", { exact: true })).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: copy.japanesePlacement.viewScores }));
   expect(screen.getByText(locale === "en" ? "This estimate uses JLPT-aligned reading and sentence-building tasks." : "JLPTの各レベルを参考にした読解・文の組み立て問題から推定しています。")).toBeVisible();
   expect(screen.queryByText(/Estimated range:|推定範囲：/)).toBeNull();
 });
@@ -294,5 +362,5 @@ test.each(["en", "ja"])("explains a rule-based result without a model range in %
 test.each(["en", "ja"])("explains unconfirmed skill evidence accurately after a complete assessment in %s", (locale) => {
   render(<NextIntlClientProvider locale={locale} messages={locale === "ja" ? jaMessages : messages}><JapanesePlacementResult result={{ ...result, completionReason: "question_limit",
     levelEstimate: { status: "insufficient_evidence", scope: "reading_writing", reason: "unconfirmed_reading_or_construction" } }} /></NextIntlClientProvider>);
-  expect(screen.getByText(locale === "en" ? "Your answers did not establish a consistent reading and sentence-building level. You can take a new assessment when you’re ready." : "今回の解答では、読解と文の組み立てのレベルを十分に確認できませんでした。準備ができたら、新しい診断を受けられます。")).toBeVisible();
+  expect(screen.getByText(locale === "en" ? "Your answers did not establish a consistent reading and sentence-building level." : "今回の解答では、読解と文の組み立てのレベルを十分に確認できませんでした。")).toBeVisible();
 });

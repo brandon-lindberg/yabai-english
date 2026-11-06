@@ -9,15 +9,16 @@ import { canonicalJson } from "../canonical-json";
 import { PrivateApiFailure } from "../private-api-error";
 import { JAPANESE_REFERENCE_BANDS } from "../japanese-placement/public";
 import { createJapanesePromptBank, gradeJapaneseStudyPrompt, parseJapaneseStudyContent } from "./japanese-prompts";
-import { japaneseStudyFeedbackSchema, japaneseStudyQuestionSchema, japaneseStudyResponseSchema, japaneseStudyResultSchema as resultSchema } from "./japanese-public";
+import { JAPANESE_REVIEW_PREVIEW_SIZE, japaneseStudyFeedbackSchema, japaneseStudyQuestionSchema, japaneseStudyResponseSchema, japaneseStudyResultSchema as resultSchema, japaneseStudyReviewPreviewSchema } from "./japanese-public";
 import { getJapaneseStudyProgressionForTrack, readJapaneseStudyContext } from "./japanese-progression";
 import { buildWeightedSessionQueue } from "./scheduler";
 import { lockStudyLearner, saveStudyReviewProgress } from "./review-progress";
 import { classifyPracticeBand, filterCardIdsByFocus, studyAccuracyPercent } from "./study-card-analytics";
 import { getTotalStudyXpForTrack } from "./get-overview";
-import { readJapaneseDailyReview, recordJapaneseDailyAnswer, isCurrentJapaneseDailyPrompt, type JapaneseDailyReceipt } from "./japanese-daily-review";
+import { readJapaneseDailyReview, recordJapaneseDailyAnswer, isCurrentJapaneseDailyPrompt, japaneseReviewCardScope, readJapaneseQuickReviewPool, type JapaneseDailyReceipt } from "./japanese-daily-review";
 import { QUICK_REVIEW_DAILY_MAX } from "./quick-review-day";
 import { selectQuickReviewCardIds } from "./quick-review-selection";
+import { weightedSampleWithoutReplacement } from "./quiz";
 import { studyLevelIndex } from "./constants";
 
 export class JapaneseStudyFailure extends PrivateApiFailure {}
@@ -68,20 +69,62 @@ export async function getJapaneseStudyOverview(db: PrismaClient, userId: string)
 
 
 type Track = Awaited<ReturnType<typeof requireContext>>;
+type PromptCard = Pick<StudyCard, "id" | "kind" | "contentJson"> & { deck: { levelId: string } };
+function promptContent(card: PromptCard, track: Track) {
+  const content = parseJapaneseStudyContent(card.contentJson);
+  const level = track.levels.find(level => level.id === card.deck.levelId);
+  if (content.unit.id !== card.id || content.unit.level.code !== level?.levelCode || card.kind !== (content.unit.kind === "kanji" ? "JAPANESE_KANJI" : "JAPANESE_VOCABULARY")) return fail(503, "STUDY_UNAVAILABLE");
+  return content;
+}
+
+function snapshotReferences(snapshot: { provenanceJson: Prisma.JsonValue }) {
+  // Import provenance is server-owned and bound to this published snapshot.
+  return (snapshot.provenanceJson as unknown as { source: { reconciliation: JapaneseFlashcardCatalog["reconciliation"] } }).source.reconciliation;
+}
+
 async function preparePromptBank(tx: Prisma.TransactionClient, track: Track) {
   const snapshot = await tx.studyCatalogSnapshot.findUniqueOrThrow({ where: { id: track.catalogSnapshotId! } });
   const cards = await tx.studyCard.findMany({ where: { deck: { level: { trackId: track.id } } }, include: { deck: { select: { levelId: true } } } });
-  // Import provenance is server-owned and bound to this published snapshot.
-  const provenance = snapshot.provenanceJson as unknown as { source: { reconciliation: JapaneseFlashcardCatalog["reconciliation"] } };
-  const bank = createJapanesePromptBank(cards.map(card => {
-    const content = parseJapaneseStudyContent(card.contentJson);
-    const level = track.levels.find(level => level.id === card.deck.levelId);
-    if (content.unit.id !== card.id || content.unit.level.code !== level?.levelCode || card.kind !== (content.unit.kind === "kanji" ? "JAPANESE_KANJI" : "JAPANESE_VOCABULARY")) return fail(503, "STUDY_UNAVAILABLE");
-    return content;
-  }), provenance.source.reconciliation);
+  const bank = createJapanesePromptBank(cards.map(card => promptContent(card, track)), snapshotReferences(snapshot));
   return { cards, bank, snapshot };
 }
 type PreparedBank = Awaited<ReturnType<typeof preparePromptBank>>;
+
+/** Show the learner a few published cards without issuing prompts or touching study progress. */
+export async function getJapaneseStudyReviewPreview(db: PrismaClient, userId: string) {
+  return db.$transaction(async tx => {
+    const track = await requireContext(tx, userId);
+    const progression = await getJapaneseStudyProgressionForTrack(tx, userId, track);
+    const unlocked = progression.levels.filter(level => level.unlocked && level.mastery.total > 0);
+    const practiceLevel = unlocked.at(-1);
+    if (!practiceLevel) return fail(503, "STUDY_UNAVAILABLE");
+    const levelIds = unlocked.map(level => level.id);
+    const scope = japaneseReviewCardScope(levelIds);
+    const pool = await readJapaneseQuickReviewPool(tx, userId, levelIds);
+    const ids = selectQuickReviewCardIds(pool, JAPANESE_REVIEW_PREVIEW_SIZE);
+    const remaining = JAPANESE_REVIEW_PREVIEW_SIZE - ids.length;
+    if (remaining > 0) {
+      const available = await tx.studyCard.findMany({ where: { ...scope, id: { notIn: ids } }, select: { id: true, deck: { select: { levelId: true } } } });
+      const atLevel = available.filter(card => card.deck.levelId === practiceLevel.id);
+      ids.push(...weightedSampleWithoutReplacement(atLevel.length >= remaining ? atLevel : available, () => 1, remaining).map(card => card.id));
+    }
+    const [cards, snapshot] = await Promise.all([
+      tx.studyCard.findMany({ where: { ...scope, id: { in: ids } }, select: { id: true, kind: true, contentJson: true, deck: { select: { levelId: true } } } }),
+      tx.studyCatalogSnapshot.findUniqueOrThrow({ where: { id: track.catalogSnapshotId! }, select: { provenanceJson: true } }),
+    ]);
+    const bank = createJapanesePromptBank(cards.map(card => promptContent(card, track)), snapshotReferences(snapshot));
+    const byId = new Map(cards.map(card => [card.id, card]));
+    const weakIds = new Set(pool.filter(state => classifyPracticeBand(state) === "weak").map(state => state.cardId));
+    const firstWeak = ids.find(id => weakIds.has(id));
+    const weakLevel = unlocked.find(level => firstWeak && byId.get(firstWeak)?.deck.levelId === level.id)
+      ?? unlocked.findLast(level => level.practice.weakCount > 0);
+    return japaneseStudyReviewPreviewSchema.parse({
+      cards: ids.map(id => ({ id, feedback: bank.feedback(id, progression.unlocked.at(-1)!) })),
+      level: (weakLevel ?? practiceLevel).code,
+      focus: weakLevel ? "weak" : "mixed",
+    });
+  }, { isolationLevel: "RepeatableRead" });
+}
 
 async function issueQuestions(tx: Prisma.TransactionClient, userId: string, selected: PreparedBank["cards"], stateByCard: ReadonlyMap<string, { correctCount: number; wrongCount: number }>, prepared: PreparedBank, studyBand: JapaneseLevel, now: Date) {
   const { bank, snapshot } = prepared;

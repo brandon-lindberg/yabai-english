@@ -99,8 +99,12 @@ test("Japanese placement follows N5-first confirmation, resumes sentence tiles a
   await setHeaderTheme(page, en.common, "dark");
   await page.goto("/en/japanese-placement");
   const started = page.waitForResponse(response => response.url().endsWith("/api/japanese-placement/attempts") && response.request().method() === "POST");
+  await expect(page.getByRole("region", { name: en.japanesePlacement.beforeYouStart })).toBeVisible();
+  await captureRelease(page, "JAPANESE-placement-redesign-intro-mobile");
   await page.getByRole("button", { name: en.japanesePlacement.start, exact: true }).click();
   let current = await (await started).json() as JapaneseAttemptView;
+  await expect(page.getByRole("timer")).toBeVisible();
+  await captureRelease(page, "JAPANESE-placement-redesign-question-mobile");
   const deadline = current.expiresAt;
   const path: string[] = [], ids = new Set<string>(), passages = new Set<string>();
   let resumed = false;
@@ -131,10 +135,11 @@ test("Japanese placement follows N5-first confirmation, resumes sentence tiles a
   const refused = await page.request.post("/api/japanese-placement/attempts", { data: { requestId: crypto.randomUUID() } });
   expect(refused.status()).toBe(403);
   expect(await refused.json()).toEqual({ error: "PLACEMENT_COOLDOWN" });
-  await expect(page.getByText(en.japanesePlacement.ruleBasis, { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: en.japanesePlacement.newStart, exact: true })).toHaveCount(0);
-  await expect(page.getByRole("status").filter({ hasText: "You already completed a placement test" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: en.japanesePlacement.retakeFrom.split("{date}")[0] })).toBeVisible();
   await captureRelease(page, "JAPANESE-placement-result");
+  await page.getByRole("button", { name: en.japanesePlacement.viewScores, exact: true }).click();
+  await expect(page.getByText(en.japanesePlacement.ruleBasis, { exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("button", { name: en.japanesePlacement.newStart, exact: true })).toHaveCount(0);
   expect((await (await page.request.get(`/api/japanese-placement/attempts/${current.attemptId}`)).json()).result).toEqual(current.result);
@@ -265,7 +270,6 @@ for (const answered of [11, 18]) test(`Japanese ${answered}-answer timeout ${ans
     expect(result.result).toMatchObject({ levelEstimate: { band: "N2" }, timeoutAdjustment: { unadjustedBand: "N1", unanswered: 6 } });
     expect(result.result!.timeoutAdjustment!.penaltyBandFraction).toBeGreaterThan(0);
     expect(result.result!.timeoutAdjustment!.bandReduction).toBe(1);
-    await expect(page.getByText(copy.japanesePlacement.ruleBasis, { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: copy.japanesePlacement.newStart, exact: true })).toHaveCount(0);
     expect(result.canStartNewAttempt).toBe(false);
     const denied = await page.request.post("/api/japanese-placement/attempts", { data: { requestId: crypto.randomUUID() } });
@@ -273,6 +277,10 @@ for (const answered of [11, 18]) test(`Japanese ${answered}-answer timeout ${ans
     expect(await denied.json()).toEqual({ error: "PLACEMENT_COOLDOWN" });
   } else await expect(page.getByText(copy.japanesePlacement.insufficient, { exact: true })).toBeVisible();
   await captureRelease(page, `JAPANESE-placement-timeout-${answered}`);
+  if (answered === 18) {
+    await page.getByRole("button", { name: copy.japanesePlacement.viewScores, exact: true }).click();
+    await expect(page.getByText(copy.japanesePlacement.ruleBasis, { exact: true })).toBeVisible();
+  }
   await page.reload();
   expect((await (await page.request.get(`/api/japanese-placement/attempts/${staged.attemptId}`)).json()).result).toEqual(result.result);
   expect(profile(learner.id)).toEqual(englishBefore);
