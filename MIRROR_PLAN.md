@@ -2031,9 +2031,13 @@ Admins can find a teacher or student by name or email and open that person’s s
 
 Local PostgreSQL and browser tests covered historic lesson search, participant links, local date filters, trial and checkout, teacher-initiated refunds, invoice and credit-note downloads, and Stripe delivery and fee recovery in both learning paths. Stripe responses were simulated.
 
-#### 7e. Schools, Moderation, and release verification
+#### 7e. Schools, Moderation, and release verification — implemented locally
 
 Keep organization and school membership roles distinct from platform access. Label chat reports as Moderation, and group teacher tiers and pricing exceptions under People. Verify keyboard navigation, mobile actions, and both locales and themes. Cover English-only, Japanese-only, dual-language, and suspended accounts in the release fixtures.
+
+School member rows show the platform role and account status alongside each organization-wide or school-specific membership. The assignment form uses the same scope rules as the server. Moderation shows report reasons, local timestamps, and links to both profiles in a list that fits phones. People has Directory and Teacher tiers tabs, with pricing exceptions available from teacher profiles and tier rows.
+
+Local release verification covered 45 browser scenarios across the two-domain suite, shared lesson and placement journeys, and the focused payment recovery rerun. The admin checks covered keyboard actions, English desktop light mode, Japanese mobile dark mode, and school-role assignments without platform admin access. Google and Stripe used simulated responses with disposable PostgreSQL schemas.
 
 ## Source completeness standard
 

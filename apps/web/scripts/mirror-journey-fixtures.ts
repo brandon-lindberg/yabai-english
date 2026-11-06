@@ -127,6 +127,20 @@ try {
     if (!fixtures.users.some(user => user.id === learnerId)) throw new Error("Unknown release learner");
     const learner = await prisma.user.findUniqueOrThrow({ where: { id: learnerId }, select: { role: true, learningLanguage: true } });
     if (learner.role !== "STUDENT") throw new Error("Student fixture required");
+    if (operation === "release-admin-moderation") {
+      const teacher = fixtures.users.find((user) => user.id.endsWith(learner.learningLanguage === "JAPANESE" ? "-japanese-teacher" : "-english-teacher"))!;
+      const report = {
+        studentReportedAt: new Date(),
+        studentReportReason: "I received repeated messages after asking the other participant to stop.",
+      };
+      const thread = await prisma.chatThread.upsert({
+        where: { studentId_teacherId: { studentId: learnerId, teacherId: teacher.id } },
+        update: report,
+        create: { studentId: learnerId, teacherId: teacher.id, ...report },
+        select: { id: true, studentReportReason: true },
+      });
+      console.log(JSON.stringify(thread)); return;
+    }
     if (operation === "release-payment-recovery") {
       if (!learnerId.endsWith("-recovery-english") && !learnerId.endsWith("-recovery-japanese")) throw new Error("Owned recovery fixture required");
       const language = learnerId.endsWith("-japanese") ? "JAPANESE" : "ENGLISH";

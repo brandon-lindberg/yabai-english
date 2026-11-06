@@ -870,7 +870,10 @@
       "schoolName": "スクール名",
       "ownerEmail": "オーナーのメールアドレス",
       "schoolsTitle": "スクール",
-      "membersTitle": "メンバー",
+      "membersTitle": "所属と権限",
+      "membershipHelp": "所属の権限は、この組織とそのスクール内で適用されます。サービス全体の利用権限はユーザー画面で管理します。",
+      "platformAccess": "サービスの利用権限 · {role} · {status}",
+      "scopedRole": "{scope} · {role}",
       "members": "名",
       "orgWide": "組織全体",
       "addSchoolTitle": "スクールを追加",
@@ -878,7 +881,9 @@
       "assignRoleTitle": "役割を割り当て・変更",
       "assignRoleCta": "役割を割り当て",
       "userEmail": "ユーザーのメール",
-      "role": "役割",
+      "role": "所属先での役割",
+      "organizationRoleHint": "組織全体とすべてのスクールに適用されます。",
+      "schoolRoleHint": "選択したスクールにのみ適用されます。",
       "school": "スクール",
       "deleteOrg": "組織を削除",
       "deleteConfirmPrompt": "下に <code>{slug}</code> と入力すると、この組織を完全に削除します。関連するスクール・メンバー・スケジュールもすべて削除されます。",
@@ -917,6 +922,7 @@
     },
     "usersPage": {
       "title": "ユーザー",
+      "directory": "ユーザー一覧",
       "subtitle": "生徒・講師・管理者のアカウントを検索できます。"
     },
     "teachersPage": {

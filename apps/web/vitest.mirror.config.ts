@@ -85,6 +85,8 @@ export default defineConfig({
       "src/app/api/group-lesson-sessions/__tests__/cancel.route.test.ts",
       "src/components/admin/__tests__/*recovery*.test.tsx",
       "src/components/admin/__tests__/admin-refunds-table.test.tsx",
+      "src/components/admin/__tests__/admin-moderation-and-members.test.tsx",
+      "src/app/api/admin/reports/**/__tests__/*.test.ts",
       "src/components/__tests__/notification-bell.test.tsx",
       "src/components/__tests__/teacher-availability-preview.test.tsx",
       "src/components/__tests__/teacher-browse-list.test.tsx",

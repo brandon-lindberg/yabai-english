@@ -367,13 +367,17 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
   const suspended = accountStatus === AccountStatus.SUSPENDED;
   const needsReason = accessAction === "suspend" || accessAction === "reinstate";
   const hiddenAction = accountStatus === AccountStatus.ACTIVE ? "hide" : "unhide";
+  const pricingTeacherId = role === Role.TEACHER ? teacherProfileId : null;
 
   return (
     <div className="space-y-6 md:space-y-10">
       <div className="break-words">
         <PageHeader title={identity.name ?? identity.email ?? t("title")} description={identity.name ? identity.email : undefined}
-          actions={(role === Role.STUDENT || role === Role.TEACHER || teacherProfileId) &&
-            <Link href={adminPersonScheduleHref(userId)} className={buttonClasses({ variant: "secondary" })}>{tCalendar("open")}</Link>} />
+          actions={<>
+            {(role === Role.STUDENT || role === Role.TEACHER || teacherProfileId) &&
+              <Link href={adminPersonScheduleHref(userId)} className={buttonClasses({ variant: "secondary" })}>{tCalendar("open")}</Link>}
+            {pricingTeacherId && <a href="#pricing" className={buttonClasses({ variant: "secondary" })}>{overviewCopy("pricing")}</a>}
+          </>} />
       </div>
       {error ? (
         <p role="alert">
@@ -626,17 +630,17 @@ export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { use
         </Button>
       </div>
 
-      {role === Role.TEACHER && teacherProfileId ? (
+      {pricingTeacherId ? (
         <div id="pricing" className="scroll-mt-6">
           <Section title={overviewCopy("pricing")}>
             <div className="space-y-6">
               <Section as="h3" size="sm" title={tGrants("title")} ruled={false}>
-                <AdminTeacherRateGrants teacherProfileId={teacherProfileId} onChange={() => {
+                <AdminTeacherRateGrants teacherProfileId={pricingTeacherId} onChange={() => {
                   void refreshTeacherOverview().catch(() => setError(t("loadError")));
                 }} />
               </Section>
               {overview.teacher && <Section as="h3" size="sm" title={tierCopy("legacyTitle")}>
-                <AdminStudentRateOverride teacherId={teacherProfileId} offerings={overview.teacher.offerings}
+                <AdminStudentRateOverride teacherId={pricingTeacherId} offerings={overview.teacher.offerings}
                   permittedLanguages={overview.teacher.subjects.filter((subject) => subject.permitted).map((subject) => subject.learningLanguage)} />
               </Section>}
             </div>

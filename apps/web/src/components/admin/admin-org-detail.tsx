@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import type { AdminOrganization, AdminSchool, OrgRole } from "@/components/admin/admin-org-types";
+import type { AdminOrganization, AdminSchool } from "@/components/admin/admin-org-types";
+import { OrgRole } from "@/generated/prisma/enums";
+import { AdminParticipantLink } from "@/components/admin/admin-participant-link";
 import {
   AdminField,
   UserEmailCombobox,
@@ -16,6 +18,7 @@ import { DataList, DataRow } from "@/components/ui/data-row";
 import { Field, Select } from "@/components/ui/field";
 import { Status } from "@/components/ui/status";
 import { groupMembershipsByPerson } from "@/lib/org/member-identity";
+import { isOrgWideRole } from "@/lib/org-authorization";
 
 /**
  * One organization: its schools, its members, and the two things you do to it.
@@ -28,6 +31,8 @@ import { groupMembershipsByPerson } from "@/lib/org/member-identity";
 export function AdminOrgDetail({ org }: { org: AdminOrganization }) {
   const router = useRouter();
   const t = useTranslations("admin.schoolsPage");
+  const platform = useTranslations("admin.grid");
+  const roleName = useTranslations("org.roles");
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -51,8 +56,8 @@ export function AdminOrgDetail({ org }: { org: AdminOrganization }) {
   return (
     <div className="space-y-10">
       <div className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
-        <section className="min-w-0">
-          <h2 className="text-sm font-semibold text-foreground">{t("schoolsTitle")}</h2>
+        <section className="min-w-0" aria-labelledby="organization-schools">
+          <h2 id="organization-schools" className="text-base font-semibold text-foreground">{t("schoolsTitle")}</h2>
           <DataList className="mt-2">
             {org.schools.map((school) => (
               <DataRow key={school.id}>
@@ -72,8 +77,9 @@ export function AdminOrgDetail({ org }: { org: AdminOrganization }) {
           </details>
         </section>
 
-        <section className="min-w-0">
-          <h2 className="text-sm font-semibold text-foreground">{t("membersTitle")}</h2>
+        <section className="min-w-0" aria-labelledby="organization-members">
+          <h2 id="organization-members" className="text-base font-semibold text-foreground">{t("membersTitle")}</h2>
+          <p className="mt-1 text-sm text-muted">{t("membershipHelp")}</p>
           {/*
             One row per person, not per grant. The same member appeared twice —
             once as OWNER · Org-wide and once as SCHOOL_ADMIN · their school —
@@ -82,29 +88,26 @@ export function AdminOrgDetail({ org }: { org: AdminOrganization }) {
           <DataList className="mt-2">
             {groupMembershipsByPerson(org.memberships).map(({ key, memberships }) => {
               const first = memberships[0]!;
-              const name =
-                first.user?.name ?? first.user?.email ?? first.inviteEmail ?? "";
               return (
-                <DataRow
-                  key={key}
-                  actions={
-                    <span className="flex flex-col items-start gap-0.5 text-sm text-muted sm:items-end">
-                      {memberships.map((m) => (
-                        <span key={m.id}>
-                          {m.orgRole} ·{" "}
-                          {m.schoolId
-                            ? (org.schools.find((school) => school.id === m.schoolId)?.name ??
-                              m.schoolId)
-                            : t("orgWide")}
-                        </span>
-                      ))}
-                    </span>
-                  }
-                >
-                  <p className="font-medium text-foreground">{name}</p>
-                  {first.user ? null : (
-                    <p className="mt-0.5 text-sm text-muted">{t("invitePending")}</p>
-                  )}
+                <DataRow key={key}>
+                  <p className="break-words font-semibold">
+                    {first.user ? <AdminParticipantLink participant={first.user} /> : first.inviteEmail}
+                  </p>
+                  <p className="mt-1 text-sm text-muted">
+                    {first.user ? t("platformAccess", {
+                      role: platform(`roles.${first.user.role}`), status: platform(`accessStatus.${first.user.accountStatus}`),
+                    }) : t("invitePending")}
+                  </p>
+                  <ul className="mt-2 space-y-1 text-sm">
+                    {memberships.map((membership) => (
+                      <li key={membership.id} className="break-words">{t("scopedRole", {
+                        role: roleName(membership.orgRole),
+                        scope: membership.schoolId
+                          ? org.schools.find((school) => school.id === membership.schoolId)?.name ?? t("school")
+                          : t("orgWide"),
+                      })}</li>
+                    ))}
+                  </ul>
                 </DataRow>
               );
             })}
@@ -231,13 +234,15 @@ function AssignRoleForm({
   onAssigned: () => void;
 }) {
   const t = useTranslations("admin.schoolsPage");
+  const roleName = useTranslations("org.roles");
   const [email, setEmail] = useState("");
   const [orgRole, setOrgRole] = useState<OrgRole>("SCHOOL_ADMIN");
   const [schoolId, setSchoolId] = useState<string>(schools[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const orgWide = orgRole === "OWNER" || orgRole === "ORG_ADMIN";
+  const orgWide = isOrgWideRole(orgRole);
+  const effectiveSchoolId = schools.some((school) => school.id === schoolId) ? schoolId : schools[0]?.id ?? "";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -249,7 +254,7 @@ function AssignRoleForm({
       body: JSON.stringify({
         email: email.trim(),
         orgRole,
-        schoolId: orgWide ? null : schoolId,
+        schoolId: orgWide ? null : effectiveSchoolId,
       }),
     });
     setBusy(false);
@@ -272,17 +277,17 @@ function AssignRoleForm({
       />
       {/* Both labels were detached — no `htmlFor`, not wrapping — so neither
           select had an accessible name. */}
-      <Field label={t("role")}>
+      <Field label={t("role")} hint={t(orgWide ? "organizationRoleHint" : "schoolRoleHint")}>
         {(field) => (
           <Select
             {...field}
             value={orgRole}
             onChange={(e) => setOrgRole(e.target.value as OrgRole)}
           >
-            {(["OWNER", "ORG_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"] as const).map(
+            {Object.values(OrgRole).map(
               (r) => (
                 <option key={r} value={r}>
-                  {r}
+                  {roleName(r)}
                 </option>
               ),
             )}
@@ -294,7 +299,7 @@ function AssignRoleForm({
           {(field) => (
             <Select
               {...field}
-              value={schoolId}
+              value={effectiveSchoolId}
               onChange={(e) => setSchoolId(e.target.value)}
             >
               {schools.map((s) => (
@@ -311,7 +316,7 @@ function AssignRoleForm({
           <Status tone="error">{error}</Status>
         </p>
       ) : null}
-      <Button type="submit" size="sm" loading={busy} disabled={!orgWide && !schoolId}>
+      <Button type="submit" size="sm" loading={busy} disabled={!orgWide && !effectiveSchoolId}>
         {busy ? t("saving") : t("assignRoleCta")}
       </Button>
     </form>

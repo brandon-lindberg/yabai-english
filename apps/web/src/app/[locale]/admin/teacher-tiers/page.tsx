@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
+import { AdminPeopleNav } from "@/components/admin/admin-people-nav";
 import { prisma } from "@/lib/prisma";
 import { resolveEffectiveTeacherTier } from "@/lib/platform-fees";
 import {
@@ -47,9 +48,8 @@ export default async function AdminTeacherTiersPage() {
   return (
     <main>
       <PageHeader title={t("title")} description={t("subtitle")} />
-      <div className="mt-8">
-        <AdminTeacherTiersView rows={rows} />
-      </div>
+      <AdminPeopleNav active="tiers" />
+      <AdminTeacherTiersView rows={rows} />
     </main>
   );
 }

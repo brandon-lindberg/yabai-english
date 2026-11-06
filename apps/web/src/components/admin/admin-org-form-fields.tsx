@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Field, Input } from "@/components/ui/field";
 
@@ -107,6 +107,7 @@ export function UserEmailCombobox({
   const [results, setResults] = useState<UserSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [highlight, setHighlight] = useState(0);
+  const listId = useId();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const justSelectedRef = useRef(false);
@@ -138,7 +139,8 @@ export function UserEmailCombobox({
           return;
         }
         const data = (await res.json()) as { items: UserSuggestion[] };
-        setResults(data.items ?? []);
+        if (ctrl.signal.aborted) return;
+        setResults(data.items?.filter((item) => item.email) ?? []);
         setHighlight(0);
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
@@ -171,6 +173,11 @@ export function UserEmailCombobox({
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Escape" && open) {
+      e.preventDefault();
+      setOpen(false);
+      return;
+    }
     if (!open || results.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -184,13 +191,11 @@ export function UserEmailCombobox({
         e.preventDefault();
         pick(pick_);
       }
-    } else if (e.key === "Escape") {
-      setOpen(false);
     }
   }
 
-  const showDropdown =
-    open && value.trim().length >= 2 && (loading || results.length > 0);
+  const showDropdown = open && value.trim().length >= 2;
+  const activeOption = showDropdown ? results[highlight] : undefined;
 
   return (
     <div
@@ -202,13 +207,20 @@ export function UserEmailCombobox({
           <Input
             {...field}
             type="email"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={showDropdown}
+            aria-controls={showDropdown ? listId : undefined}
+            aria-activedescendant={activeOption ? `${listId}-${activeOption.id}` : undefined}
             required={required}
             value={value}
             onChange={(e) => {
               onChange(e.target.value);
+              setResults([]);
               setOpen(true);
             }}
             onFocus={() => setOpen(true)}
+            onBlur={() => setOpen(false)}
             onKeyDown={onKeyDown}
             autoComplete="off"
           />
@@ -216,7 +228,10 @@ export function UserEmailCombobox({
       </Field>
       {showDropdown && (
         <ul
+          id={listId}
           role="listbox"
+          aria-label={label}
+          aria-busy={loading}
           className="absolute left-0 right-0 z-10 mt-1 max-h-64 overflow-auto rounded-md border border-border bg-background py-1"
         >
           {loading && results.length === 0 && (
@@ -225,6 +240,7 @@ export function UserEmailCombobox({
           {results.map((u, i) => (
             <li
               key={u.id}
+              id={`${listId}-${u.id}`}
               role="option"
               aria-selected={i === highlight}
               onMouseDown={(e) => {

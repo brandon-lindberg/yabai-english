@@ -98,7 +98,13 @@ for (const scenario of releaseCases()) test(`${scenario.language}: admin reconci
   await page.getByRole("link", { name: detail.recoveryLink }).click();
   await expect(page).toHaveURL(new RegExp(`booking=${data.bookingId}`));
   await expect(page.locator("#student-reimbursements")).toContainText(t.reimbursementsEmpty);
+  const unfilteredFees = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return url.pathname === "/api/admin/payments/recovery" && url.searchParams.get("queue") === "fees" && !url.searchParams.has("booking");
+  });
   await page.getByRole("link", { name: t.allExceptions }).click();
+  expect((await unfilteredFees).ok()).toBe(true);
+  await expect(page.locator("#stripe-deliveries")).toBeVisible();
   const row = page.locator(`#platform-fee-returns [data-row-id="${data.paymentId}"]`);
   await expect(row.getByText(t.statusFeeRecovery, { exact: true })).toBeVisible();
   await row.getByRole("button", { name: t.retryRecovery, exact: true }).click();

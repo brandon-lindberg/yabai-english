@@ -755,7 +755,7 @@ test("admin profiles separate subjects, marketplace privacy, and pricing", async
     await japanese.getByRole("button", { name: copy.saveVisibility }).click();
     await expect(japanese.getByText(copy.rosterOnly, { exact: true }).first()).toBeVisible();
     await expect(english.getByRole("combobox", { name: "English visibility" })).toHaveValue("public");
-    await japanese.getByText("1 class", { exact: true }).click();
+    await japanese.locator("summary").click();
     await expect(japanese.getByText("Beginner · Conversation")).toBeVisible();
     await admin.screenshot({ path: `${folder}/teacher-desktop.png` });
 
@@ -831,4 +831,87 @@ test("admin profiles separate subjects, marketplace privacy, and pricing", async
   } finally {
     await Promise.all([admin.close(), studentPage.close(), teacherPage.close()]);
   }
+});
+
+for (const scenario of releaseCases()) test(`${scenario.language}: admin schools and moderation keep membership separate from platform access`, async ({ page, browser }) => {
+  const copy = scenario.locale === "ja" ? ja : en;
+  const t = copy.admin.schoolsPage;
+  const owner = releaseStudent(`recovery-${scenario.language.toLowerCase()}`);
+  const report = fixtureCommand("release-admin-moderation", { learnerId: owner.id });
+  const origin = sites.ENGLISH;
+  await page.setViewportSize({ width: scenario.width, height: 900 });
+  await signIn(page, "ENGLISH", releaseStudent("payment-admin").email);
+  if (scenario.locale === "ja") await chooseInterfaceLocale(page, en.common, "ja");
+  await setHeaderTheme(page, copy.common, scenario.theme);
+  const prefix = scenario.locale === "en" ? "/en" : "";
+  const orgName = `Mirror QA ${scenario.language} Academy`;
+  const schoolName = "Tokyo School";
+  const created = await page.request.post(`${origin}/api/org`, { data: {
+    name: orgName, slug: `qa-${scenario.language.toLowerCase()}-academy`, schoolName, ownerEmail: owner.email,
+  } });
+  expect(created.status()).toBe(201);
+  const { organization, school } = await created.json();
+  await page.goto(`${origin}${prefix}/admin/schools`);
+  await page.getByRole("link", { name: orgName }).click();
+  const memberships = page.getByRole("region", { name: t.membersTitle });
+  const access = t.platformAccess.replace("{role}", copy.admin.grid.roles.STUDENT).replace("{status}", copy.admin.grid.accessStatus.ACTIVE);
+  await expect(memberships.getByText(access, { exact: true })).toBeVisible();
+  await expect(memberships.getByText(t.scopedRole.replace("{role}", copy.org.roles.OWNER).replace("{scope}", t.orgWide))).toBeVisible();
+  const assign = memberships.getByText(t.assignRoleTitle, { exact: true });
+  await assign.focus();
+  await assign.press("Enter");
+  const role = memberships.getByRole("combobox", { name: t.role });
+  await role.selectOption("ORG_ADMIN");
+  await expect(memberships.getByRole("combobox", { name: t.school })).toHaveCount(0);
+  await expect(memberships.getByText(t.organizationRoleHint)).toBeVisible();
+  await role.selectOption("SCHOOL_ADMIN");
+  await expect(memberships.getByRole("combobox", { name: t.school })).toHaveValue(school.id);
+  await expect(memberships.getByText(t.schoolRoleHint)).toBeVisible();
+  const email = memberships.getByRole("combobox", { name: t.userEmail });
+  await email.fill(owner.email);
+  await expect(memberships.getByRole("listbox", { name: t.userEmail }).getByRole("option").filter({ hasText: owner.email })).toBeVisible();
+  await email.press("ArrowDown");
+  await expect(email).toHaveAttribute("aria-activedescendant", /.+/);
+  await email.press("Enter");
+  await expect(email).toHaveAttribute("aria-expanded", "false");
+  const assignment = page.waitForResponse((response) => response.url().endsWith(`/organizations/${organization.id}/assign-role`));
+  await memberships.getByRole("button", { name: t.assignRoleCta }).click();
+  expect((await assignment).status()).toBe(201);
+  await expect(memberships.getByText(t.scopedRole.replace("{role}", copy.org.roles.SCHOOL_ADMIN).replace("{scope}", schoolName))).toBeVisible();
+  await expect(memberships.getByText(access, { exact: true })).toHaveCount(1);
+  await captureRelease(page, `${scenario.language}-admin-school-memberships`);
+
+  const memberPage = await browser.newPage();
+  try {
+    await signIn(memberPage, scenario.language, owner.email);
+    expect((await memberPage.request.get(`${sites[scenario.language]}/api/admin/reports/chat-threads`)).status()).toBe(403);
+    await memberPage.goto(`${sites[scenario.language]}/en/admin/schools`);
+    await expect(memberPage).toHaveURL(/\/dashboard$/);
+  } finally {
+    await memberPage.close();
+  }
+
+  const adminNav = page.getByRole("navigation", { name: copy.admin.nav.label });
+  if (scenario.width < 768) {
+    const menu = page.getByRole("button", { name: new RegExp(copy.admin.nav.label) });
+    await menu.focus();
+    await menu.press("Enter");
+  }
+  await adminNav.getByRole("link", { name: copy.admin.nav.reports }).press("Enter");
+  await expect(page.getByRole("heading", { name: copy.admin.nav.reports, level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: copy.admin.reportsPage.title })).toBeVisible();
+  const thread = page.locator(`[data-row-id="${report.id}"]`);
+  await expect(thread.getByText(report.studentReportReason)).toBeVisible();
+  await expect(thread.getByRole("link")).toHaveCount(2);
+  await captureRelease(page, `${scenario.language}-admin-moderation`);
+
+  await page.goto(`${origin}${prefix}/admin/users`);
+  const peopleNav = page.getByRole("navigation", { name: copy.admin.nav.users, exact: true });
+  await expect(peopleNav.getByRole("link", { name: copy.admin.usersPage.directory })).toHaveAttribute("aria-current", "page");
+  await peopleNav.getByRole("link", { name: copy.admin.nav.teacherTiers }).press("Enter");
+  await expect(peopleNav.getByRole("link", { name: copy.admin.nav.teacherTiers })).toHaveAttribute("aria-current", "page");
+  await captureRelease(page, `${scenario.language}-admin-teacher-tiers`);
+  await page.getByRole("link", { name: copy.admin.profileOverview.pricing }).first().click();
+  await expect(page).toHaveURL(/\/admin\/users\/.+#pricing$/);
+  await expect(page.locator("#pricing").getByRole("heading", { name: copy.admin.profileOverview.pricing })).toBeVisible();
 });

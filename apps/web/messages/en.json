@@ -870,7 +870,10 @@
       "schoolName": "School name",
       "ownerEmail": "Owner email",
       "schoolsTitle": "Schools",
-      "membersTitle": "Members",
+      "membersTitle": "Memberships",
+      "membershipHelp": "Memberships control access within this organization and its schools. Manage platform access in People.",
+      "platformAccess": "Platform access · {role} · {status}",
+      "scopedRole": "{scope} · {role}",
       "members": "members",
       "orgWide": "Org-wide",
       "addSchoolTitle": "Add another school",
@@ -878,7 +881,9 @@
       "assignRoleTitle": "Assign or update a role",
       "assignRoleCta": "Assign role",
       "userEmail": "User email",
-      "role": "Role",
+      "role": "Membership role",
+      "organizationRoleHint": "Applies across the organization and all its schools.",
+      "schoolRoleHint": "Applies only to the selected school.",
       "school": "School",
       "deleteOrg": "Delete org",
       "deleteConfirmPrompt": "Type <code>{slug}</code> below to permanently delete this organization. This also deletes all its schools, members, and schedule data.",
@@ -917,6 +922,7 @@
     },
     "usersPage": {
       "title": "People",
+      "directory": "Directory",
       "subtitle": "Find student, teacher, and administrator accounts."
     },
     "teachersPage": {
