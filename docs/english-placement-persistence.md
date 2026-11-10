@@ -12,11 +12,11 @@ The existing English question selector, staircase transition, evidence checks an
 
 ## Requests and retries
 
-- Opening or refreshing the quiz resumes the same active row, next question, revision and deadline. Competing starts serialize to the same attempt.
+- Opening or refreshing the quiz resumes the same active row, next question, revision and deadline. When there is no active attempt, GET returns eligibility and the introduction. Only an explicit POST with `action: "start"` can create an attempt. Competing starts serialize to the same attempt.
 - Each accepted answer appends one receipt containing question ID, choice and server acceptance time. An exact retry returns the current saved view without adding evidence or selecting another question. A different answer for an already accepted revision returns `attempt_conflict`.
 - Answer handling evaluates time after acquiring the learner lock. A new answer at or after the deadline is rejected. A stale finish handle still finalizes the latest accepted server history, so a lost final answer response cannot discard an accepted answer.
 - Finish and expired-read paths share one finalizer. The terminal receipt and any profile/report/cooldown update commit together. Later retries return the stored receipt without regrading, rewriting the profile, extending cooldown or depending on the live bank.
-- Deadline settlement requires a read or submission; no background worker is added. An expired read returns its saved outcome. A later read can start a fresh attempt after an inconclusive outcome; awarded placements retain the existing cooldown.
+- Deadline settlement requires a read or submission. An expired read returns its saved outcome. After an inconclusive outcome, a later read returns the introduction and an explicit start can create a fresh attempt. Awarded placements retain the existing cooldown.
 - Unsupported stored runtime versions close with an unavailable outcome instead of acquiring new scoring rules. Existing unpersisted signed tokens must restart. Previously saved English profile results and all Japanese history are retained without backfilling fabricated attempts.
 
 ## Preserved assessment rules

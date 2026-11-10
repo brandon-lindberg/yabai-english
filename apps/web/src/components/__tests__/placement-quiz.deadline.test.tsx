@@ -37,7 +37,7 @@ beforeEach(() => {
   firstDeadline = Date.now() + 900;
   let starts = 0;
   mocks.fetch.mockImplementation(async (_url, init) => {
-    if (!init?.body) {
+    if (!init?.body || JSON.parse(init.body).action === "start") {
       starts++;
       return response({ question, attemptToken: `token-${starts}`, expiresAt: starts === 1 ? firstDeadline : Date.now() + 1200000, progress: { current: 1, total: 24 } });
     }
@@ -83,7 +83,7 @@ test.each(["en", "ja"] as const)("an inconclusive timeout gives a localized reco
   expect(vi.getTimerCount()).toBe(0);
   await act(async () => fireEvent.click(screen.getByRole("button", { name: restartLabel })));
   expect(screen.getByRole("button", { name: "Yes" })).toBeEnabled();
-  expect(mocks.fetch.mock.calls.filter(([, init]) => !init?.body)).toHaveLength(2);
+  expect(requests("start")).toHaveLength(1);
   expect(mocks.updateSession).not.toHaveBeenCalled();
 });
 
@@ -157,7 +157,7 @@ test("a failed restart does not reopen the expired question and can be retried",
   let starts = 0;
   const original = mocks.fetch.getMockImplementation()!;
   mocks.fetch.mockImplementation(async (url, init) => {
-    if (!init?.body && ++starts === 2) throw new Error("offline");
+    if ((!init?.body || JSON.parse(init.body).action === "start") && ++starts === 2) throw new Error("offline");
     return original(url, init);
   });
   await mount();

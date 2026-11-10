@@ -23,11 +23,26 @@ async function openEnglish(page: Page, name: string, locale: "en" | "ja" = "en")
   await signInMirrorUser(page, releaseStudent(name).email, "ENGLISH");
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   if (locale === "ja") await chooseInterfaceLocale(page, en.common, "ja");
+  const before = fixtureCommand("release-learning-state").englishAttempts;
   const initial = page.waitForResponse(response => response.url().includes("/api/placement?") && response.request().method() === "GET");
   await page.goto(locale === "ja" ? "/placement" : "/en/placement");
   const response = await initial;
   expect(response.status()).toBe(200);
-  return await response.json() as EnglishView;
+  expect(await response.json()).toEqual({ status: "ready" });
+  const copy = locale === "ja" ? ja : en;
+  await expect(page.getByText(copy.placement.scopeNotice)).toBeVisible();
+  await expect(page.getByRole("progressbar")).toHaveCount(0);
+  const revisited = page.waitForResponse(response => response.url().includes("/api/placement?") && response.request().method() === "GET");
+  await page.reload();
+  expect(await (await revisited).json()).toEqual({ status: "ready" });
+  expect(fixtureCommand("release-learning-state").englishAttempts).toEqual(before);
+  await page.getByRole("button", { name: copy.placement.start, exact: true }).focus();
+  await captureRelease(page, `ENGLISH-placement-introduction-${name}-${locale}`);
+  const started = placementReply(page, "start");
+  await page.getByRole("button", { name: copy.placement.start, exact: true }).click();
+  const startedResponse = await started;
+  expect(startedResponse.status()).toBe(200);
+  return await startedResponse.json() as EnglishView;
 }
 
 async function answerEnglish(page: Page, current: EnglishView, correct = true) {
@@ -97,9 +112,13 @@ test("Japanese placement follows N5-first confirmation, resumes sentence tiles a
   await signInMirrorUser(page, fixture.users[0].email, "JAPANESE");
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await setHeaderTheme(page, en.common, "dark");
+  const before = fixtureCommand("release-learning-state").attempts;
   await page.goto("/en/japanese-placement");
   const started = page.waitForResponse(response => response.url().endsWith("/api/japanese-placement/attempts") && response.request().method() === "POST");
   await expect(page.getByRole("region", { name: en.japanesePlacement.beforeYouStart })).toBeVisible();
+  await expect(page.getByText(en.japanesePlacement.scopeNotice)).toBeVisible();
+  await expect(page.getByRole("timer")).toHaveCount(0);
+  expect(fixtureCommand("release-learning-state").attempts).toEqual(before);
   await captureRelease(page, "JAPANESE-placement-redesign-intro-mobile");
   await page.getByRole("button", { name: en.japanesePlacement.start, exact: true }).click();
   let current = await (await started).json() as JapaneseAttemptView;
@@ -202,7 +221,7 @@ for (const answered of [14, 15]) test(`English ${answered}-answer timeout ${answ
   }
   await captureRelease(page, `ENGLISH-placement-timeout-${answered}`);
   if (answered === 14) {
-    const retry = page.waitForResponse(response => response.url().includes("/api/placement?") && response.request().method() === "GET");
+    const retry = placementReply(page, "start");
     await page.getByRole("button", { name: copy.placement.startAgain, exact: true }).click();
     const response = await retry; expect(response.status()).toBe(200);
     expect(await response.json()).toMatchObject({ question: { cefrBand: "A1" }, progress: { current: 1, total: 24 } });

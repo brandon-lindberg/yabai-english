@@ -13,6 +13,7 @@ import { SentenceTiles } from "./sentence-tiles";
 import { JapaneseAssessmentSkeleton } from "./loading";
 import { japaneseSentenceDraftKey, useJapaneseAssessment } from "./use-assessment";
 import { formatCalendarDate } from "@/lib/date-only-in-zone";
+import { PlacementIntroduction } from "@/components/placement-introduction";
 
 export function JapanesePlacementAssessment() {
   const t = useTranslations("japanesePlacement");
@@ -46,24 +47,16 @@ function JapanesePlacementAssessmentContent() {
     return <>{errorPanel}<JapanesePlacementResult key={result.attemptId} result={result} retakeDate={retakeDate} retakeAction={retake} review={<JapanesePlacementFlashcardReview />} /></>;
   }
   if (retakeDate) return <Outcome title={placement("cooldownTitle")} description={t("retakeFrom", { date: retakeDate })} actions={<>{book}{dashboard}</>} />;
-  if (!state.view || state.view.status === "ABANDONED") return <div className="grid border-y border-border sm:grid-cols-2">
-    <div className="py-5 sm:py-7 sm:pr-8">
-      <h2 className="text-2xl font-bold leading-tight tracking-tight text-foreground">{t("welcomeTitle")}</h2>
-      <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">{t("welcomeBody")}</p>
-    </div>
-    <section aria-labelledby="japanese-placement-instructions" className="border-t border-border py-4 sm:border-l sm:border-t-0 sm:py-7 sm:pl-7">
-      <h3 id="japanese-placement-instructions" className="text-base font-semibold text-foreground">{t("beforeYouStart")}</h3>
-      <p className="mt-2 text-sm font-semibold text-foreground">{t("duration")}</p>
-      <ul className="mt-1.5 list-disc space-y-1.5 ps-4 text-sm leading-relaxed text-muted">
-        <li>{t("startNotice")}</li>
-        <li>{t("staircaseNotice")}</li>
-      </ul>
-      <div className="mt-4">
-        {errorPanel}
-        {state.error ? null : <Button size="lg" loading={state.busy} onClick={() => void state.start()}>{t("start")}</Button>}
-      </div>
-    </section>
-  </div>;
+  if (!state.view || state.view.status === "ABANDONED") return <PlacementIntroduction
+    title={t("welcomeTitle")}
+    description={t("welcomeBody")}
+    scope={t("scopeNotice")}
+    instructionsTitle={t("beforeYouStart")}
+    duration={t("duration")}
+    timerNotice={t("startNotice")}
+    questionNotice={t("staircaseNotice")}
+    actions={<>{errorPanel}{state.error ? null : <Button size="lg" loading={state.busy} onClick={() => void state.start()}>{t("start")}</Button>}</>}
+  />;
   const locked = state.busy || state.pending !== null || state.remaining === 0;
   const progress = t("progress", { current: Math.min(state.view.answered + 1, state.view.total), total: state.view.total });
   return <div className="space-y-4 border-t border-border pt-3">

@@ -17,4 +17,4 @@ export type EnglishPlacementActive = {
   serverNow: number;
   progress: { current: number; total: number };
 };
-export type EnglishPlacementReply = EnglishPlacementActive | EnglishPlacementResult | EnglishPlacementInconclusive;
+export type EnglishPlacementReply = EnglishPlacementActive | EnglishPlacementResult | EnglishPlacementInconclusive | { status: "ready" };

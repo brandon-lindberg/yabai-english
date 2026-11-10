@@ -90,14 +90,22 @@ test.each(["en", "ja"] as const)("opens a separate score view and returns focus 
   expect(fetchMock).toHaveBeenCalledTimes(2);
 });
 
-test("puts test instructions and the explicit Start action in the same section", async () => {
-  fetchMock.mockResolvedValueOnce(reply({ attempt: null }));
-  show();
-  const instructions = await screen.findByRole("region", { name: "Before you start" });
-  expect(within(instructions).getByText(messages.japanesePlacement.duration)).toBeVisible();
-  expect(within(instructions).getByText(messages.japanesePlacement.startNotice)).toBeVisible();
-  expect(within(instructions).getByRole("button", { name: messages.japanesePlacement.start })).toBeEnabled();
-  expect(fetchMock).toHaveBeenCalledTimes(1);
+test.each(["en", "ja"])("explains the scope and starts only after explicit consent (%s)", async locale => {
+  const copy = (locale === "ja" ? jaMessages : messages).japanesePlacement;
+  fetchMock.mockResolvedValueOnce(reply({ attempt: null })).mockResolvedValueOnce(reply({ attempt: null })).mockResolvedValueOnce(reply(active()));
+  show(locale);
+  const instructions = await screen.findByRole("region", { name: copy.beforeYouStart });
+  expect(within(instructions).getByText(copy.duration)).toBeVisible();
+  expect(within(instructions).getByText(copy.startNotice)).toBeVisible();
+  expect(screen.getByText(copy.scopeNotice)).toBeVisible();
+  expect(screen.queryByRole("timer")).toBeNull();
+  await act(async () => { window.dispatchEvent(new Event("focus")); document.dispatchEvent(new Event("visibilitychange")); });
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(fetchMock.mock.calls[0][1]?.method).not.toBe("POST");
+  expect(fetchMock.mock.calls[1][1]?.method).not.toBe("POST");
+  fireEvent.click(within(instructions).getByRole("button", { name: copy.start }));
+  expect(await screen.findByRole("timer")).toBeVisible();
+  expect(fetchMock.mock.calls[2][1].method).toBe("POST");
 });
 
 test("an active eligible retake still resumes when its earlier award has a past retake date", async () => {
@@ -152,9 +160,9 @@ test.each(["en", "ja"])("keeps source credits accessible without interrupting an
 test("loads saved progress without starting a new timer, and requires an explicit start", async () => {
   fetchMock.mockResolvedValueOnce(reply({ attempt: null })).mockResolvedValueOnce(reply(active()));
   show();
-  expect(await screen.findByRole("button", { name: "Start assessment" })).toBeEnabled();
+  expect(await screen.findByRole("button", { name: messages.japanesePlacement.start })).toBeEnabled();
   expect(fetchMock).toHaveBeenCalledTimes(1);
-  fireEvent.click(screen.getByRole("button", { name: "Start assessment" }));
+  fireEvent.click(screen.getByRole("button", { name: messages.japanesePlacement.start }));
   expect(await screen.findByRole("button", { name: "がっこう" })).toBeEnabled();
   expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({ requestId: expect.stringMatching(/^[a-f0-9-]{36}$/) });
   expect(screen.getByRole("timer")).toHaveTextContent("20:00");
@@ -172,7 +180,7 @@ test("resumes an existing question and never posts a new start on mount", async 
 test("preserves the start UUID after an uncertain network failure", async () => {
   fetchMock.mockResolvedValueOnce(reply({ attempt: null })).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce(reply(active()));
   show();
-  fireEvent.click(await screen.findByRole("button", { name: "Start assessment" }));
+  fireEvent.click(await screen.findByRole("button", { name: messages.japanesePlacement.start }));
   fireEvent.click(await screen.findByRole("button", { name: "Retry" }));
   await screen.findByRole("button", { name: "がっこう" });
   expect(fetchMock.mock.calls[2][1].body).toBe(fetchMock.mock.calls[1][1].body);

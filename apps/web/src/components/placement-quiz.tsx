@@ -7,7 +7,7 @@ import type { EnglishPlacementActive } from "@/lib/english-placement/public";
 import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Choice, ChoiceList } from "@/components/ui/choice";
@@ -17,6 +17,7 @@ import { Section } from "@/components/ui/section";
 import { Status } from "@/components/ui/status";
 import { useLatestRef } from "@/hooks/use-latest-ref";
 import { formatCalendarDate } from "@/lib/date-only-in-zone";
+import { PlacementIntroduction } from "@/components/placement-introduction";
 
 type PlacementResult = ReturnType<typeof scorePlacementAnswers>;
 
@@ -43,13 +44,16 @@ export function PlacementQuiz() {
   const [autoSubmitted, setAutoSubmitted] = useState(false);
   const [clockOffsetMs, setClockOffsetMs] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [ready, setReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PlacementResult | null>(null);
   const [inconclusive, setInconclusive] = useState<{ reason: InconclusiveReason; required: number } | null>(null);
   const [cooldownEligibleDate, setCooldownEligibleDate] = useState<string | null>(null);
+  const lastLoadWasStart = useRef(false);
 
   const applyReply = useCallback((data: ApiReply) => {
+    setReady(data.status === "ready");
     if (data.level) {
       setResult(data as PlacementResult);
       setQuestion(null);
@@ -76,8 +80,10 @@ export function PlacementQuiz() {
     }
   }, [updateSessionRef]);
 
-  const loadAttempt = useCallback(async () => {
+  const loadAttempt = useCallback(async (start = false) => {
+    lastLoadWasStart.current = start;
     setLoading(true);
+    setReady(false);
     setResult(null);
     setInconclusive(null);
     setError(null);
@@ -91,7 +97,10 @@ export function PlacementQuiz() {
     setAttemptToken("");
     setPendingAnswer(null);
     try {
-      const r = await fetch(`/api/placement?ts=${Date.now()}`, { cache: "no-store" });
+      const r = await fetch(start ? "/api/placement" : `/api/placement?ts=${Date.now()}`, {
+        cache: "no-store",
+        ...(start ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "start" }) } : {}),
+      });
       const data = (await r.json()) as ApiReply;
       if (!r.ok) {
         if (data.error === "cooldown" && typeof data.eligibleDate === "string") {
@@ -294,7 +303,7 @@ export function PlacementQuiz() {
           title={t("inconclusiveTitle")}
           description={t(bodyKey, { count: inconclusive.required })}
           actions={<>
-            <Button size="lg" onClick={() => void loadAttempt()}>{t("startAgain")}</Button>
+            <Button size="lg" onClick={() => void loadAttempt(true)}>{t("startAgain")}</Button>
             <Link href="/dashboard" className={buttonClasses({ variant: "secondary", size: "lg" })}>
               {t("backToDashboard")}
             </Link>
@@ -304,11 +313,22 @@ export function PlacementQuiz() {
     );
   }
 
+  if (ready) return <PlacementIntroduction
+    title={t("welcomeTitle")}
+    description={t("welcomeBody")}
+    scope={t("scopeNotice")}
+    instructionsTitle={t("beforeYouStart")}
+    duration={t("pageIntro", { minutes: ENGLISH_PLACEMENT_POLICY_V2.timeLimitSec / 60 })}
+    timerNotice={t("startNotice")}
+    questionNotice={t("staircaseNotice")}
+    actions={<Button size="lg" onClick={() => void loadAttempt(true)}>{t("start")}</Button>}
+  />;
+
   if (!result && !question && !objectiveComplete) {
     return (
       <Outcome
         title={t("loadError")}
-        actions={<Button size="lg" onClick={() => void loadAttempt()}>{t("startAgain")}</Button>}
+        actions={<Button size="lg" onClick={() => void loadAttempt(lastLoadWasStart.current)}>{t(lastLoadWasStart.current ? "startAgain" : "retryLoad")}</Button>}
       />
     );
   }

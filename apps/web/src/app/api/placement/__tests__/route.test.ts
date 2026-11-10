@@ -47,7 +47,7 @@ async function answerCorrectly(attempt: Attempt, choice?: number): Promise<Attem
 }
 
 async function startAndAnswer(count: number): Promise<Attempt> {
-  let attempt = await (await GET()).json() as Attempt;
+  let attempt = await (await post({ action: "start" })).json() as Attempt;
   for (let i = 0; i < count; i++) attempt = await answerCorrectly(attempt);
   return attempt;
 }
@@ -66,6 +66,31 @@ beforeEach(() => {
 });
 afterEach(() => vi.restoreAllMocks());
 
+describe("explicit English placement start", () => {
+  test("opening and revisiting the page cannot create an attempt or a bank snapshot", async () => {
+    for (let visit = 0; visit < 2; visit++) {
+      const response = await GET();
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ status: "ready" });
+    }
+    expect(fixture.attempts.size).toBe(0);
+    expect(fixture.banks.size).toBe(0);
+    expect(mocks.bank).not.toHaveBeenCalled();
+    expectNoResultSaved();
+  });
+
+  test("only an explicit start creates the attempt and repeated starts preserve its deadline", async () => {
+    const first = await post({ action: "start" });
+    expect(first.status).toBe(200);
+    const started = await first.json();
+    expect(started).toMatchObject({ progress: { current: 1, total: 24 }, expiresAt: Date.now() + 1_200_000 });
+    vi.mocked(Date.now).mockReturnValue(Date.now() + 60_000);
+    expect(await (await post({ action: "start" })).json()).toMatchObject({ attemptToken: started.attemptToken, expiresAt: started.expiresAt });
+    expect(await (await GET()).json()).toMatchObject({ attemptToken: started.attemptToken, expiresAt: started.expiresAt });
+    expect(fixture.attempts.size).toBe(1);
+  });
+});
+
 describe("English placement deadline and completion guards", () => {
   test("starts at midnight on the saved local retake date", async () => {
     fixture.mocks.studentProfile.findUnique.mockResolvedValue({
@@ -76,11 +101,12 @@ describe("English placement deadline and completion guards", () => {
     expect(blocked.status).toBe(403);
     expect(await blocked.json()).toMatchObject({ error: "cooldown", eligibleDate: "2026-11-30", eligibleAt: "2026-11-30T08:00:00.000Z" });
     vi.mocked(Date.now).mockReturnValue(Date.parse("2026-11-30T08:00:00.000Z"));
-    expect((await GET()).status).toBe(200);
+    expect(await (await GET()).json()).toEqual({ status: "ready" });
+    expect((await post({ action: "start" })).status).toBe(200);
   });
 
   test("new attempts pin the scoring version and exact bank snapshot", async () => {
-    const response = await (await GET()).json();
+    const response = await (await post({ action: "start" })).json();
     const payload = inspect(response);
     expect(response.minimumAnswers).toBe(15);
     expect(response.question.cefrBand).toBe("A1");
@@ -108,7 +134,7 @@ describe("English placement deadline and completion guards", () => {
     const response = await finish(attempt);
     expect(await response.json()).toMatchObject({ status: "inconclusive", reason: "attempt_unavailable" });
     expectNoResultSaved();
-    expect((await (await GET()).json()).question.cefrBand).toBe("A1");
+    expect((await (await post({ action: "start" })).json()).question.cefrBand).toBe("A1");
   });
 
   test("a corrupt frozen answer key cannot reinterpret accepted evidence", async () => {
@@ -263,7 +289,7 @@ describe("durable English attempt lifecycle", () => {
   });
 
   test("competing starts share one attempt and do not extend the deadline", async () => {
-    const [first, second] = await Promise.all([GET(), GET()]);
+    const [first, second] = await Promise.all([post({ action: "start" }), post({ action: "start" })]);
     const a = await first.json(), b = await second.json();
     expect(a).toEqual(b);
     expect(fixture.attempts.size).toBe(1);
@@ -323,7 +349,9 @@ describe("durable English attempt lifecycle", () => {
     const timed = await (await GET()).json();
     expect(timed).toMatchObject({ status: "inconclusive", answered: 14, required: 15 });
     expect(await (await finish(current)).json()).toEqual(timed);
-    const next = await (await GET()).json();
+    expect(await (await GET()).json()).toEqual({ status: "ready" });
+    expect(fixture.attempts.size).toBe(1);
+    const next = await (await post({ action: "start" })).json();
     expect(next.question.cefrBand).toBe("A1");
     expect(next.attemptToken).not.toBe(current.attemptToken);
     expect(fixture.mocks.studentProfile.update).not.toHaveBeenCalled();

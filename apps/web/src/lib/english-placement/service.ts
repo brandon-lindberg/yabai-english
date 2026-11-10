@@ -115,7 +115,7 @@ async function finalize(tx: Tx, row: Row, now: number): Promise<Operation> {
   return { body, recentIds: selected.map(q => q.id) };
 }
 
-export async function getOrStartEnglishAttempt(db: PrismaClient, userId: string, loadBank: () => Promise<LoadedPlacementQuestion[]>, recentIds: string[] = []): Promise<Operation> {
+export async function getOrStartEnglishAttempt(db: PrismaClient, userId: string, loadBank?: () => Promise<LoadedPlacementQuestion[]>, recentIds: string[] = []): Promise<Operation> {
   return transaction(db, userId, async (tx, now) => {
     const active = await tx.englishPlacementAttempt.findUnique({ where: { activeLearnerId: userId }, include });
     if (active) return !supported(active) || now >= active.expiresAt.getTime() ? finalize(tx, active, now) : { body: view(active, now) };
@@ -124,6 +124,8 @@ export async function getOrStartEnglishAttempt(db: PrismaClient, userId: string,
     if (!allowed) {
       throw new EnglishPlacementFailure(403, "cooldown", { eligibleAt, eligibleDate });
     }
+    // Page reads omit the bank loader. Only an explicit start can create an attempt.
+    if (!loadBank) return { body: { status: "ready" } };
     const questions = await loadBank(), adaptiveState = buildInitialAdaptiveState();
     const first = chooseNextAdaptiveQuestion(adaptiveState, questions, recentIds);
     if (!first) throw new EnglishPlacementFailure(503, "Question pool unavailable");

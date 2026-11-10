@@ -1,10 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { PlacementQuiz } from "@/components/placement-quiz";
 import { PageHeader } from "@/components/ui/page-header";
-import { AppCard } from "@/components/ui/app-card";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
-import { ENGLISH_PLACEMENT_POLICY_V2 } from "@/lib/placement-policy";
 
 type Props = {
   searchParams: Promise<{ onboardingNext?: string; onboardingStep?: string }>;
@@ -16,12 +14,10 @@ export default async function PlacementPage({ searchParams }: Props) {
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
 
   return (
-    <main className="mx-auto max-w-2xl flex-1 px-4 py-10 sm:px-6">
+    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-5 sm:px-6 sm:py-8">
       <OnboardingResumeBanner href={onboardingHref} step={onboardingStep ?? null} />
-      <PageHeader title={t("title")} description={t("pageIntro", { minutes: ENGLISH_PLACEMENT_POLICY_V2.timeLimitSec / 60 })} />
-      <AppCard className="mt-8">
-        <PlacementQuiz />
-      </AppCard>
+      <PageHeader title={t("title")} />
+      <PlacementQuiz />
     </main>
   );
 }

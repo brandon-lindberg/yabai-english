@@ -1994,6 +1994,16 @@ The preview reuses Dashboard card ranking and flip controls. Opening it, flippin
 
 Red and green coverage verified personal misses, starter cards, locked levels, and read-only access. All 295 Japanese placement, 197 study, and 20 PostgreSQL study tests passed. Chromium verified desktop and mobile placement, the existing Dashboard carousel, and that the practice link loads the actual missed card. TypeScript and targeted lint passed.
 
+#### 6z. Explicit placement start and scope explanation — implemented locally (2026-11-10)
+
+Opening Level check first shows a short introduction explaining the estimated starting level, assessed skills, time limit and adaptive questions. Both learning paths explain that speaking and listening are outside the check. The Japanese introduction also identifies the estimate's relationship to JLPT. A shared introduction component uses the existing Impeccable layout and localized copy.
+
+English GET requests return readiness when no attempt exists. Only the explicit Start level check action creates an attempt through POST. Reloading the introduction and retrying a failed eligibility read create no attempt, timer or assessment evidence. Repeated explicit starts reuse the existing transaction and active-learner lock. An attempt already started resumes its saved question and original server deadline. Japanese retains its explicit start flow with the same shared presentation.
+
+TDD red reproduced seven failures for premature creation and the missing explicit start. Regression coverage verifies both interface languages, introduction revisits, failed reads, uncertain starts, original deadlines, results and cooldowns. Browser verification uses disposable PostgreSQL fixtures to check that both introductions leave attempt records untouched, then completes real English and Japanese assessments. Desktop and mobile captures check the explanation and primary action.
+
+Five Chromium scenarios passed, including qualifying and insufficient timeouts. Targeted unit/component checks, TypeScript and lint passed. Temporary QA fixtures, schema, connections and server were removed, and application table fingerprints matched before and after verification.
+
 ### 7. Super-admin redesign — audited and planned
 
 Use one shared admin workspace for both learning sites. Organize navigation around Overview, People, Lessons, Payments, Schools, and Moderation. Use Impeccable, retain the shared design primitives and provider services, and implement each section with red and green tests. The audit found overlapping People screens, missing language and marketplace context, dark-mode editor contrast problems, and booking search limited to 200 loaded rows. Manual account suspension is part of the first admin release.

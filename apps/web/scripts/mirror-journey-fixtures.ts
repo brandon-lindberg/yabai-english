@@ -110,6 +110,7 @@ try {
       console.log(JSON.stringify({
         profiles: await prisma.studentProfile.findMany({ where: { userId: { in: userIds } }, orderBy: { userId: "asc" }, select: { userId: true, placedLevel: true, placedSubLevel: true, placementCompletedAt: true, placementReport: true } }),
         attempts: await prisma.japanesePlacementAttempt.findMany({ where: { learnerId: { in: userIds } }, orderBy: { id: "asc" }, select: { id: true, learnerId: true, status: true, result: true } }),
+        englishAttempts: await prisma.englishPlacementAttempt.findMany({ where: { learnerId: { in: userIds } }, orderBy: { id: "asc" }, select: { id: true, learnerId: true, status: true, expiresAt: true } }),
         states: await prisma.userStudyCardState.findMany({ where: { userId: { in: userIds } }, orderBy: { cardId: "asc" }, include: { card: { select: { deck: { select: { level: { select: { track: { select: { learningLanguage: true } } } } } } } } } }),
         progress: await prisma.userStudyLevelProgress.findMany({ where: { userId: { in: userIds } }, orderBy: { levelId: "asc" } }),
       }));

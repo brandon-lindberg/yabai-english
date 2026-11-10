@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 const recentCookie = "placement_recent_ids";
 const postSchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("start") }).strict(),
   z.object({ action: z.literal("answer"), attemptToken: z.string().min(20).max(10_000), answer: z.number().int().min(0).max(2) }).strict(),
   z.object({ action: z.literal("finish"), attemptToken: z.string().min(20).max(10_000) }).strict(),
 ]);
@@ -26,9 +27,9 @@ async function run(req?: Request) {
   const parsed = req ? postSchema.safeParse(await req.json().catch(() => null)) : null;
   if (parsed && !parsed.success) return send({ error: "Invalid body" }, 400);
   try {
-    const result = parsed?.success
+    const result = parsed?.success && parsed.data.action !== "start"
       ? await submitEnglishAttempt(prisma, session.user.id, parsed.data, recentIds)
-      : await getOrStartEnglishAttempt(prisma, session.user.id, getPlacementBankQuestions, recentIds);
+      : await getOrStartEnglishAttempt(prisma, session.user.id, parsed?.success ? getPlacementBankQuestions : undefined, recentIds);
     if (result.recentIds) store.set(recentCookie, result.recentIds.join(","), { httpOnly: true, sameSite: "lax", path: "/", maxAge: 3600 });
     return send(result.body);
   } catch (error) {
