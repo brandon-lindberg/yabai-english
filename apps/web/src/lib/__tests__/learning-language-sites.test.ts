@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from "vitest";
-import { configuredLearningSites, learningSiteForHost, learningSiteHref, learningSitePathLanguage } from "../learning-sites";
+import { configuredLearningSites, learningSiteForHost, learningSiteHref, learningSitePathLanguage, publicAppOrigin } from "../learning-sites";
 
 const environment = { LEARNING_SITES_ENABLED: "true", ENGLISH_SITE_URL: "https://englishstudiojapan.com", JAPANESE_SITE_URL: "https://japanesestudio.love", NEUTRAL_SITE_URL: "https://studio.example" };
 afterEach(() => vi.unstubAllEnvs());
@@ -16,6 +16,30 @@ test("configuration is opt-in and local origins retain their ports", () => {
   const sites = configuredLearningSites({ ...environment, ENGLISH_SITE_URL: "http://englishstudiojapan.localhost:3100", JAPANESE_SITE_URL: "http://japanesestudio.localhost:3100", NEUTRAL_SITE_URL: "http://localhost:3100" })!;
   expect(learningSiteForHost("japanesestudio.localhost:3100", sites)?.origin).toBe("http://japanesestudio.localhost:3100");
   expect(learningSiteForHost("japanesestudio.localhost:3101", sites)).toBeNull();
+});
+
+test.each(["https://englishstudiojapan.com", "https://www.englishstudiojapan.com"])("both public English hostnames resolve to the configured origin %s", origin => {
+  const env = { ...environment, ENGLISH_SITE_URL: origin };
+  const sites = configuredLearningSites(env)!;
+  for (const host of ["englishstudiojapan.com", "www.englishstudiojapan.com", "WWW.ENGLISHSTUDIOJAPAN.COM"]) {
+    expect(learningSiteForHost(host, sites)).toMatchObject({ origin, learningLanguage: "ENGLISH" });
+    expect(publicAppOrigin(new Request(`https://${host}/api/auth/callback/google`), env)).toBe(origin);
+  }
+  expect(learningSiteForHost("www.www.englishstudiojapan.com", sites)).toBeNull();
+  expect(learningSiteForHost("englishstudiojapan.com.evil.example", sites)).toBeNull();
+});
+
+test("a public alias preserves its configured port", () => {
+  const sites = configuredLearningSites({ ...environment, ENGLISH_SITE_URL: "https://www.englishstudiojapan.com:8443" })!;
+  expect(learningSiteForHost("englishstudiojapan.com:8443", sites)?.origin).toBe("https://www.englishstudiojapan.com:8443");
+  expect(learningSiteForHost("englishstudiojapan.com", sites)).toBeNull();
+  expect(learningSiteForHost("englishstudiojapan.com:8444", sites)).toBeNull();
+});
+
+test("loopback hosts keep exact matching even when their name starts with www", () => {
+  const sites = configuredLearningSites({ ...environment, ENGLISH_SITE_URL: "http://www.englishstudiojapan.localhost:3000" })!;
+  expect(learningSiteForHost("www.englishstudiojapan.localhost:3000", sites)?.learningLanguage).toBe("ENGLISH");
+  expect(learningSiteForHost("englishstudiojapan.localhost:3000", sites)).toBeNull();
 });
 test.each(["japanesestudio.love.evil.example", "japanesestudio.love@evil.example", "japanesestudio.love,evil.example", "https://japanesestudio.love", "japanesestudio.love/path"])("rejects untrusted host %s", host => {
   expect(learningSiteForHost(host, configuredLearningSites(environment)!)).toBeNull();

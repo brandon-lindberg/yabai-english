@@ -39,6 +39,27 @@ test("proxy moves a bookmarked wrong-language page to the correct domain", () =>
   expect(response.status).toBe(307);
   expect(response.headers.get("location")).toBe("https://japanesestudio.love/en/japanese-placement?from=saved");
 });
+
+test("a Render health check on the English root redirects to its configured www hostname", () => {
+  vi.stubEnv("ENGLISH_SITE_URL", "https://www.englishstudiojapan.com");
+  const response = proxy(new NextRequest("https://englishstudiojapan.com/", { headers: { host: "englishstudiojapan.com" } }));
+  expect(response.status).toBe(307);
+  expect(response.headers.get("location")).toBe("https://www.englishstudiojapan.com/");
+  expect(proxy(new NextRequest(response.headers.get("location")!)).headers.get("location")).toBeNull();
+});
+
+test("English aliases share forwarded-host validation and provider return origins", () => {
+  vi.stubEnv("ENGLISH_SITE_URL", "https://www.englishstudiojapan.com");
+  const request = new NextRequest("https://englishstudiojapan.com/api/bookings", {
+    method: "POST", headers: { host: "englishstudiojapan.com", "x-forwarded-host": "www.englishstudiojapan.com" },
+  });
+  const response = proxy(request);
+  expect(response.status).toBe(200);
+  expect(response.headers.get("location")).toBeNull();
+  expect(publicAppOrigin(request)).toBe("https://www.englishstudiojapan.com");
+  request.headers.set("x-forwarded-host", "japanesestudio.love");
+  expect(proxy(request).status).toBe(421);
+});
 test("proxy rejects wrong-domain API mutations and unknown hosts without redirecting a POST", () => {
   const response = proxy(new NextRequest("https://englishstudiojapan.com/api/japanese-study/queue", { method: "POST" }));
   expect(response.status).toBe(403);

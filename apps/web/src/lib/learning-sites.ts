@@ -28,14 +28,15 @@ export function configuredLearningSites(env: Environment = process.env): Learnin
   };
 }
 
-/** Exact configured hosts only; a suffix, forwarded-host list or credential is never a match. */
+/** Match configured hosts and public www counterparts, preserving exact loopback hosts and ports. */
 export function learningSiteForHost(host: string, sites: LearningSites): LearningSite | null {
   if (!host || /[\s\/@\\?#,%]/.test(host)) return null;
   const normalized = host.toLowerCase();
   return [sites.ENGLISH, sites.JAPANESE, sites.neutral].find(site => {
     if (!site) return false;
     const url = new URL(site.origin);
-    return normalized === url.host || (!localHostname(url.hostname) && normalized === `www.${url.host}`);
+    const alias = url.hostname.startsWith("www.") ? url.host.slice(4) : `www.${url.host}`;
+    return normalized === url.host || (!localHostname(url.hostname) && normalized === alias);
   }) ?? null;
 }
 

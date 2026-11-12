@@ -2004,6 +2004,14 @@ TDD red reproduced seven failures for premature creation and the missing explici
 
 Five Chromium scenarios passed, including qualifying and insufficient timeouts. Targeted unit/component checks, TypeScript and lint passed. Temporary QA fixtures, schema, connections and server were removed, and application table fingerprints matched before and after verification.
 
+#### 6aa. Production domain preparation and English aliases — 2026-11-12
+
+The owner configured Namecheap DNS and Render custom domains, with verified TLS for `japanesestudio.love` and its `www` redirect. The owner reports verified Search Console ownership. Google screenshots show the Japanese origin, both sign-in/integration callbacks, the authorized domain and verified branding. The owner reports saving the production domain settings with Render's Save only option. Production uses `https://www.englishstudiojapan.com` and `https://japanesestudio.love`; fixed `AUTH_URL` and `NEXTAUTH_URL` overrides are removed for the next deployment.
+
+Pre-merge checks reproduced the English root hostname being rejected when the configured origin includes `www`. The shared host matcher now accepts either public form and retains the configured canonical origin for redirects and provider returns. Exact local-host and port checks, opposite-site forwarded-host rejection and unknown-host guards remain covered. Render health checks on the verified English root receive a redirect to the configured `www` origin.
+
+TDD red reproduced four failures. Green verification passed 1,071 mirror checks, TypeScript and targeted lint. The mirror run separately reports 50 database-dependent skips and three existing TODOs. The production database, pending migration state, backup, Japanese content publication and automatic payment-recovery scheduling still need deployment verification. The owner retains commits, merging and deployment.
+
 ### 7. Super-admin redesign — audited and planned
 
 Use one shared admin workspace for both learning sites. Organize navigation around Overview, People, Lessons, Payments, Schools, and Moderation. Use Impeccable, retain the shared design primitives and provider services, and implement each section with red and green tests. The audit found overlapping People screens, missing language and marketplace context, dark-mode editor contrast problems, and booking search limited to 200 loaded rows. Manual account suspension is part of the first admin release.
