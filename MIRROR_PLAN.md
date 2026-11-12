@@ -2012,6 +2012,22 @@ Pre-merge checks reproduced the English root hostname being rejected when the co
 
 TDD red reproduced four failures. Green verification passed 1,071 mirror checks, TypeScript and targeted lint. The mirror run separately reports 50 database-dependent skips and three existing TODOs. The production database, pending migration state, backup, Japanese content publication and automatic payment-recovery scheduling still need deployment verification. The owner retains commits, merging and deployment.
 
+#### 6ab. Production Japanese content publication — prepared locally (2026-11-12)
+
+The owner reports downloading the production database export, confirms Render's build/pre-deploy/start commands, and supplies production migration status from the mirror checkout showing the expected 17 pending migrations. The owner then restores the local database connection. Production migration and deployment remain pending.
+
+The new `yarn japanese-content:deploy` command validates the released question bank, reviewed flashcard artifacts and public notices offline by default. Explicit inspection/publication uses only `JAPANESE_RELEASE_DATABASE_URL` and requires the expected PostgreSQL host and database name. Publication additionally requires the approved study snapshot and card digest. The command reuses the existing importer, publication guards, database transactions and bank publisher. A missing catalog is imported once. Existing drafts and published content are verified, with identical retries preserving learner activity.
+
+TDD red reproduced 21 failures. Green verification passed 218 study checks, seven existing placement release checks, 21 actual PostgreSQL study cases, TypeScript and targeted lint. The database case interrupts bank publication after study publication and verifies safe retries, stable card/history rows, Japanese progress and English records. The default production command was also run against the full approved 10,291-card artifacts without database access. Test schemas and connections are cleaned up by the existing runner. Actual production publication follows the migration deployment using the [operator workflow](docs/japanese-study-publication.md#production-deployment). Automatic payment-recovery scheduling remains the next deployment prerequisite.
+
+#### 6ac. GitHub unit-test deployment preflight — verified locally (2026-11-12)
+
+The owner reports adding `PAYMENT_RECOVERY_SECRET` in Render. Scheduling the existing recovery endpoint remains pending. GitHub CI run 43192521659 failed 15 unit tests across four files after migrations, TypeScript and lint passed. Red verification reproduced ten assertion/interaction failures locally. Five full Japanese assessment simulations exceeded GitHub's five-second test budget.
+
+The tests now expect language-labelled teacher offerings, select the required teaching language when adding a class, and assert viewer-local slot labels without a timezone suffix. The client import-graph guard recognizes module-level Server Action boundaries while retaining checks for ordinary runtime imports, comment-only directives and inline directives. Only the full Japanese assessment simulations receive a twenty-second test budget. The application timer, scoring, sign-in and payment flows are unchanged by these CI fixes.
+
+Green verification used Node 22.17.0, all 93 migrations and an exclusively task-owned temporary local PostgreSQL database. The complete unit suite passed 3,451 tests across 458 files, with three skipped files and seven existing TODOs. TypeScript, targeted lint and whitespace checks passed. The temporary database and its connections were removed, and test processes exited. The owner must commit/push these fixes and confirm the GitHub rerun before merging. No production migration or publication was performed.
+
 ### 7. Super-admin redesign — audited and planned
 
 Use one shared admin workspace for both learning sites. Organize navigation around Overview, People, Lessons, Payments, Schools, and Moderation. Use Impeccable, retain the shared design primitives and provider services, and implement each section with red and green tests. The audit found overlapping People screens, missing language and marketplace context, dark-mode editor contrast problems, and booking search limited to 200 loaded rows. Manual account suspension is part of the first admin release.

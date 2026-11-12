@@ -54,6 +54,8 @@ The default operation validates the exact release and public notices without rea
 
 The publisher reuses an identical version/digest, refuses conflicting content and refuses a revoked snapshot. Revocation remains an explicit administrative operation; republishing does not silently reactivate it. Production activation is a separate deployment operation using the deployed code, public notices, migrations and an explicitly chosen database; this local command deliberately does not target a remote database.
 
+The [production content deployment workflow](japanese-study-publication.md#production-deployment) now provides that separate operation, using the same publisher alongside the approved flashcard importer and publisher. Its default is offline verification, with explicit database targeting and pinned publication required for production writes.
+
 The raw `japanese-placement:audit --rubric` and content exports intentionally remain authoring/draft views. Use `japanese-placement:publish` to check the owner-authorized release; a draft audit does not query database activation state.
 
 ## Verification and activation record

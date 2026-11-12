@@ -46,6 +46,7 @@
     "test:study": "yarn --cwd apps/web test:study",
     "test:study:db": "yarn --cwd apps/web test:study:db",
     "japanese-content:study": "yarn --cwd apps/web japanese-content:study",
+    "japanese-content:deploy": "yarn --cwd apps/web japanese-content:deploy",
     "japanese-content:prompts": "yarn --cwd apps/web japanese-content:prompts",
     "japanese-content:review": "yarn --cwd apps/web japanese-content:review",
     "payments:recover": "yarn --cwd apps/web payments:recover",

@@ -33,6 +33,55 @@ The first command is read-only and also verifies an already published catalog. T
 
 Default `yarn japanese-content:study` remains database-free. Operator modes retain the existing loopback-only database restriction. This publication is local; no production deployment or remote database update occurred. Remote publication requires a separately targeted deployment operation rather than assuming that committing code copies local database state.
 
+## Production deployment
+
+The deployment command added on 2026-11-12 publishes the placement bank and the approved flashcards through their existing services. Run it from the local checkout containing the reviewed `.cache/japanese-content/flashcards-v4.json` and `study-v1.json` artifacts. Those files are ignored by Git, so this workflow runs from the operator's checkout after Render has applied the migrations and deployed the matching code.
+
+From the repository root, verify the exact files and public placement notices first. This default mode opens no database connection.
+
+```sh
+yarn japanese-content:deploy
+```
+
+The report must show placement version 3 with 470 items and digest `43832badc0f39b039b2d0ffda31481f99774bd6f9035b5b42e65195bb8b9d203`, and study with 10,291 cards and the snapshot/card pins in this document. Changed artifacts require a new content review.
+
+For a database operation, supply the production connection using the separate `JAPANESE_RELEASE_DATABASE_URL` environment variable. The command requires an independently supplied expected hostname and database name, uses the public schema, and reports only hostname/database metadata. It never falls back to `DATABASE_URL` or reads an environment file. In the owner's local zsh terminal, this prompts for hidden input.
+
+```sh
+read -rs 'JAPANESE_RELEASE_DATABASE_URL?Paste the production database URL and press Enter '
+export JAPANESE_RELEASE_DATABASE_URL
+```
+
+After the migration deployment completes, inspect the target. Replace the hostname placeholder with the production PostgreSQL hostname confirmed in Render.
+
+```sh
+yarn japanese-content:deploy --inspect \
+  --expected-host '<production PostgreSQL hostname>' \
+  --expected-database english_platform
+```
+
+An absent Japanese bank or catalog appears as `null`. An existing catalog is checked through the shared read-only inspector. Resolve any unexpected content or target mismatch before publication.
+
+Publish the reviewed release with its explicit pins.
+
+```sh
+yarn japanese-content:deploy --publish \
+  --expected-host '<production PostgreSQL hostname>' \
+  --expected-database english_platform \
+  --expected-study-snapshot ja-study:d9a72223da0534a2bbec995f8e26a508f1dd678c3c39f9d958607484207457b2 \
+  --expected-cards-sha256 fc8b021f80054501c56a1b3631ed411d1572cee350d26307dd5f13b1e22d93c8
+```
+
+Publication verifies the target and content pins before opening the database. The existing importer creates a Japanese draft only when the catalog is absent. An existing draft or published catalog goes through the shared publication verifier. The placement bank uses the existing version/digest/revocation checks. Each feature commits independently. After an interruption, inspect and rerun the same pinned command to verify completed work and resume the remaining operation. A conflicting or revoked release requires operator review.
+
+Repeat inspection after publication and verify placement, N5 practice and the beta ribbon through the Japanese site. Then clear the release connection from the terminal.
+
+```sh
+unset JAPANESE_RELEASE_DATABASE_URL
+```
+
+TDD initially reproduced 21 failures for the missing deployment workflow. Verification passed 218 study checks, seven existing placement release checks, and all 21 isolated PostgreSQL study cases. The new database case interrupts bank publication after study publication, resumes twice, and checks saved Japanese progress and English records. TypeScript and targeted lint passed. Verification used disposable local schemas, and production publication remains an explicit operator action.
+
 ## Learner experience and credits
 
 Japanese learners use the existing shared `/learn/study` hub and N5–N1 practice routes. Existing placement/mastery rules determine which levels open. The single study layout reads persisted learning language and adds a compact **Beta / ベータ版** ribbon at its upper-left corner, using existing theme tokens and preserving page sizing. It appears on the Japanese hub and practice pages in either UI locale; English study has no ribbon.
