@@ -4,7 +4,7 @@ export const NODE_COMMAND_TIMEOUT_MS = 10_000;
 
 export const nodeCommandTestTimeout = (commands = 1) => commands * NODE_COMMAND_TIMEOUT_MS + 5_000;
 
-type CommandOptions = { timeout?: number; env?: NodeJS.ProcessEnv };
+type CommandOptions = { timeout?: number; env?: NodeJS.ProcessEnv; cwd?: string };
 type CommandResult = { status: number | null; stdout: string; stderr: string; signal: string | null; error: ExecFileException | null };
 
 /** Keep Vitest's timers/RPC responsive and resolve only after the child closes. */
