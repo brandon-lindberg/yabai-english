@@ -87,7 +87,7 @@ describe("TeacherLessonOfferingsForm — the list", () => {
   test("lists a class rather than offering its fields inline", () => {
     renderForm();
 
-    expect(screen.getByText("Beginner · Conversation · 30 min")).toBeInTheDocument();
+    expect(screen.getByText("English · Beginner · Conversation · 30 min")).toBeInTheDocument();
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
   });
 
@@ -114,8 +114,8 @@ describe("TeacherLessonOfferingsForm — the list", () => {
   test("keeps individual and group classes in their own sections", () => {
     renderForm([individualClass, groupClass]);
 
-    expect(screen.getByText("Beginner · Conversation · 30 min")).toBeInTheDocument();
-    expect(screen.getByText("Beginner · Conversation · 60 min")).toBeInTheDocument();
+    expect(screen.getByText("English · Beginner · Conversation · 30 min")).toBeInTheDocument();
+    expect(screen.getByText("English · Beginner · Conversation · 60 min")).toBeInTheDocument();
   });
 
   test("says so when a section is empty", () => {
@@ -137,7 +137,7 @@ describe("TeacherLessonOfferingsForm — the list", () => {
       },
     ]);
 
-    expect(screen.getByText("Beginner · Conversation · 30 min")).toBeInTheDocument();
+    expect(screen.getByText("English · Beginner · Conversation · 30 min")).toBeInTheDocument();
     expect(screen.queryByText(/20 min/)).not.toBeInTheDocument();
     expect(screen.queryByText(/45 min/)).not.toBeInTheDocument();
   });
@@ -148,7 +148,7 @@ describe("TeacherLessonOfferingsForm — editing", () => {
     renderForm([individualClass]);
 
     fireEvent.click(
-      rowFor("Beginner · Conversation · 30 min").getByRole("button", {
+      rowFor("English · Beginner · Conversation · 30 min").getByRole("button", {
         name: p.teacherUpdateRate,
       }),
     );
@@ -171,7 +171,7 @@ describe("TeacherLessonOfferingsForm — editing", () => {
     renderForm([groupClass]);
 
     fireEvent.click(
-      rowFor("Beginner · Conversation · 60 min").getByRole("button", {
+      rowFor("English · Beginner · Conversation · 60 min").getByRole("button", {
         name: p.teacherUpdateRate,
       }),
     );
@@ -195,7 +195,7 @@ describe("TeacherLessonOfferingsForm — editing", () => {
     renderForm([individualClass]);
 
     fireEvent.click(
-      rowFor("Beginner · Conversation · 30 min").getByRole("button", {
+      rowFor("English · Beginner · Conversation · 30 min").getByRole("button", {
         name: p.teacherUpdateRate,
       }),
     );
@@ -203,11 +203,11 @@ describe("TeacherLessonOfferingsForm — editing", () => {
     fireEvent.click(screen.getByRole("button", { name: p.teacherEditClassConfirm }));
 
     await waitFor(() =>
-      expect(screen.getByText("Beginner · Conversation · 40 min")).toBeInTheDocument(),
+      expect(screen.getByText("English · Beginner · Conversation · 40 min")).toBeInTheDocument(),
     );
     expect(screen.getByText(/¥5,500/)).toBeInTheDocument();
     // Changed, not duplicated.
-    expect(screen.queryByText("Beginner · Conversation · 30 min")).not.toBeInTheDocument();
+    expect(screen.queryByText("English · Beginner · Conversation · 30 min")).not.toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 
@@ -228,12 +228,19 @@ describe("TeacherLessonOfferingsForm — editing", () => {
     fireEvent.change(screen.getByRole("textbox", { name: p.teacherRateYenLabelTaxIncluded }), {
       target: { value: "9900" },
     });
+    expect(screen.getByRole("button", { name: p.teacherAddClassConfirm })).toBeDisabled();
+    fireEvent.change(screen.getByRole("combobox", { name: en.learningJourney.languageTaught }), {
+      target: { value: "ENGLISH" },
+    });
+    fireEvent.change(screen.getByRole("combobox", { name: p.teacherDurationLabel }), {
+      target: { value: "90" },
+    });
     fireEvent.click(screen.getByRole("button", { name: p.teacherAddClassConfirm }));
 
     await waitFor(() =>
-      expect(screen.getByText("Beginner · Conversation · 90 min")).toBeInTheDocument(),
+      expect(screen.getByText("English · Beginner · Conversation · 90 min")).toBeInTheDocument(),
     );
-    expect(screen.getByText("Beginner · Conversation · 30 min")).toBeInTheDocument();
+    expect(screen.getByText("English · Beginner · Conversation · 30 min")).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 });
@@ -312,7 +319,7 @@ describe("TeacherLessonOfferingsForm — everything saves itself", () => {
     expect(
       await screen.findByText("Remove this class from your schedule before deleting it."),
     ).toBeInTheDocument();
-    expect(screen.getByText("Beginner · Conversation · 30 min")).toBeInTheDocument();
+    expect(screen.getByText("English · Beginner · Conversation · 30 min")).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 });

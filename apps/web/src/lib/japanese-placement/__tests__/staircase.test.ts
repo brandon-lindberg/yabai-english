@@ -7,6 +7,8 @@ import { japaneseResultSchema } from "../public";
 
 const policy = "japanese-jlpt-staircase-v2" as const;
 const start = { id: "staircase-attempt", learnerId: "student", startedAt: "2026-10-27T01:00:00.000Z" };
+// Full-attempt simulations repeatedly validate and replay the released 470-item bank.
+const fullAttemptTimeoutMs = 20_000;
 let bank: JapanesePlacementBank;
 beforeAll(async () => { bank = await loadReleasedJapaneseBank("data/japanese-placement", "public"); });
 function answer(item: JapanesePlacementBank["items"][number], correct: boolean): JapaneseResponse {
@@ -74,7 +76,7 @@ describe("Japanese independently versioned N5-first staircase", () => {
     if (result.levelEstimate.status === "estimated") {
       expect(JAPANESE_STUDY_BANDS.indexOf(result.timeoutAdjustment!.unadjustedBand) - JAPANESE_STUDY_BANDS.indexOf(result.levelEstimate.band!)).toBe(1);
     }
-  });
+  }, fullAttemptTimeoutMs);
 
   test("insufficient evidence is not turned into a penalized measured band", () => {
     let attempt = startJapaneseAttempt(bank, start, policy);
@@ -101,7 +103,7 @@ describe("Japanese independently versioned N5-first staircase", () => {
     expect(result.completionReason).toBe("question_limit");
     expect(result.answered).toBe(23);
     expect(result).not.toHaveProperty("timeoutAdjustment");
-  });
+  }, fullAttemptTimeoutMs);
 
   test.each([[0, "BELOW_N5"], [1, "N5"]] as const)("timeout does not invent a lower basic proficiency for profile %i", (ability, bandLabel) => {
     let attempt = startJapaneseAttempt(bank, start, policy);
@@ -115,5 +117,5 @@ describe("Japanese independently versioned N5-first staircase", () => {
     expect(result.timeoutAdjustment).toMatchObject({ unadjustedBand: bandLabel, bandReduction: 0 });
     expect(japaneseResultSchema.safeParse(result).success).toBe(true);
     expect(japaneseResultSchema.safeParse({ ...result, timeoutAdjustment: { ...result.timeoutAdjustment, bandReduction: 2 } }).success).toBe(false);
-  });
+  }, fullAttemptTimeoutMs);
 });

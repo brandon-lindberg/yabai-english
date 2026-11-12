@@ -54,6 +54,10 @@ type StoredCards = Prisma.StudyCardGetPayload<{ select: typeof cardSelection }>[
 const plannedCards = (plan: ImportPlan): StoredCards => plan.cards.map(card => ({ ...card, contentJson: card.contentJson as Prisma.JsonValue, exerciseJson: null }));
 export const japaneseStudyCardsDigest = (cards: StoredCards) => sha256(canonicalJson(cards));
 
+export function japaneseStudyPublicationGuard(plan: ImportPlan): JapaneseDraftRefreshGuard {
+  return { expectedSnapshotId: plan.snapshot.id, expectedCardsSha256: japaneseStudyCardsDigest(plannedCards(plan)) };
+}
+
 async function readDraft(tx: Prisma.TransactionClient) {
   const track = await tx.studyTrack.findUnique({ where: { slug: "japanese-flashcards" } });
   if (!track) return null;
