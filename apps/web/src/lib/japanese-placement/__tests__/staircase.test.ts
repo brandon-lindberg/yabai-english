@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, test } from "vitest";
+import { setImmediate } from "node:timers/promises";
 import { bankDigest, JAPANESE_STUDY_BANDS, type JapanesePlacementBank } from "../bank";
 import { initialJapaneseEvidence, selectJapaneseItem, updateJapaneseEvidence, estimateJapaneseLevel } from "../adaptive";
 import { loadReleasedJapaneseBank } from "../release";
@@ -17,8 +18,30 @@ function answer(item: JapanesePlacementBank["items"][number], correct: boolean):
     : { kind: "sentence_assembly", itemId: item.id, tileIds: correct ? item.acceptedOrders[0] : [...item.acceptedOrders[0]].reverse() }) };
 }
 
-describe("Japanese independently versioned N5-first staircase", () => {
-  test("matches the owner's exact opening without kana advancing the ladder", () => {
+async function simulateResponses(count: number, responseAt: (item: JapanesePlacementBank["items"][number], index: number) => JapaneseResponse = item => answer(item, true)) {
+  let attempt = startJapaneseAttempt(bank, start, policy);
+  for (let index = 0; index < count; index++) {
+    const question = nextJapaneseQuestion(bank, attempt)!;
+    const item = bank.items.find(q => q.id === question.id)!;
+    attempt = recordJapaneseResponse(bank, attempt, responseAt(item, index));
+    // Full-bank validation/replay is synchronous. Let worker RPC and timers run.
+    await setImmediate();
+  }
+  return attempt;
+}
+
+describe("Japanese independently versioned N5-first staircase", { timeout: fullAttemptTimeoutMs }, () => {
+  test("services the worker event loop between real answer transitions", async () => {
+    let serviced = false;
+    const workerTick = setImmediate().then(() => { serviced = true; });
+    try {
+      const attempt = await simulateResponses(2);
+      expect(attempt.responses).toHaveLength(2);
+      expect(serviced).toBe(true);
+    } finally { await workerTick; }
+  });
+
+  test("matches the owner's exact opening without kana advancing the ladder", async () => {
     let attempt = startJapaneseAttempt(bank, start, policy);
     const path: string[] = [];
     const responses = [true, false, false, true, true, true, true];
@@ -28,6 +51,7 @@ describe("Japanese independently versioned N5-first staircase", () => {
       expect(item.domain).not.toBe("kana");
       path.push(item.referenceBand!);
       if (i < responses.length) attempt = recordJapaneseResponse(bank, attempt, answer(item, responses[i]));
+      await setImmediate();
     }
     expect(path).toEqual(["N5", "N4", "N4", "N5", "N4", "N4", "N4", "N3"]);
     expect(attempt.policyRevision).toBe(policy);
@@ -60,13 +84,8 @@ describe("Japanese independently versioned N5-first staircase", () => {
     expect(summarizeJapaneseAttempt(bank, legacy, legacy.expiresAt)).not.toHaveProperty("timeoutAdjustment");
   });
 
-  test.each([12, 20, 23])("qualifying timeout at %i responses has a bounded native-band penalty", count => {
-    let attempt = startJapaneseAttempt(bank, start, policy);
-    for (let i = 0; i < count; i++) {
-      const question = nextJapaneseQuestion(bank, attempt)!;
-      const item = bank.items.find(q => q.id === question.id)!;
-      attempt = recordJapaneseResponse(bank, attempt, answer(item, true));
-    }
+  test.each([12, 20, 23])("qualifying timeout at %i responses has a bounded native-band penalty", async count => {
+    const attempt = await simulateResponses(count);
     const result = summarizeJapaneseAttempt(bank, attempt, attempt.expiresAt);
     expect(result.scoringRevision).toBe("japanese-reading-writing-staircase-v2");
     expect(result.levelEstimate.status).toBe("estimated");
@@ -76,46 +95,31 @@ describe("Japanese independently versioned N5-first staircase", () => {
     if (result.levelEstimate.status === "estimated") {
       expect(JAPANESE_STUDY_BANDS.indexOf(result.timeoutAdjustment!.unadjustedBand) - JAPANESE_STUDY_BANDS.indexOf(result.levelEstimate.band!)).toBe(1);
     }
-  }, fullAttemptTimeoutMs);
+  });
 
-  test("insufficient evidence is not turned into a penalized measured band", () => {
-    let attempt = startJapaneseAttempt(bank, start, policy);
-    for (let i = 0; i < 11; i++) {
-      const question = nextJapaneseQuestion(bank, attempt)!;
-      const item = bank.items.find(q => q.id === question.id)!;
-      attempt = recordJapaneseResponse(bank, attempt, answer(item, true));
-    }
+  test("insufficient evidence is not turned into a penalized measured band", async () => {
+    const attempt = await simulateResponses(11);
     const result = summarizeJapaneseAttempt(bank, attempt, attempt.expiresAt);
     expect(result.levelEstimate.status).toBe("insufficient_evidence");
     expect(result).not.toHaveProperty("timeoutAdjustment");
   });
 
-  test("completed skips are not counted a second time as timeout-unanswered work", () => {
-    let attempt = startJapaneseAttempt(bank, start, policy);
-    for (let i = 0; i < 24; i++) {
-      const question = nextJapaneseQuestion(bank, attempt)!;
-      const item = bank.items.find(q => q.id === question.id)!;
-      attempt = recordJapaneseResponse(bank, attempt, i === 10
+  test("completed skips are not counted a second time as timeout-unanswered work", async () => {
+    const attempt = await simulateResponses(24, (item, i) => i === 10
         ? { kind: "skip", itemId: item.id, reason: "not_sure", submittedAt: "2026-10-27T01:01:00.000Z" }
         : answer(item, true));
-    }
     const result = summarizeJapaneseAttempt(bank, attempt);
     expect(result.completionReason).toBe("question_limit");
     expect(result.answered).toBe(23);
     expect(result).not.toHaveProperty("timeoutAdjustment");
-  }, fullAttemptTimeoutMs);
+  });
 
-  test.each([[0, "BELOW_N5"], [1, "N5"]] as const)("timeout does not invent a lower basic proficiency for profile %i", (ability, bandLabel) => {
-    let attempt = startJapaneseAttempt(bank, start, policy);
-    for (let i = 0; i < 23; i++) {
-      const question = nextJapaneseQuestion(bank, attempt)!;
-      const item = bank.items.find(q => q.id === question.id)!;
-      attempt = recordJapaneseResponse(bank, attempt, answer(item, JAPANESE_STUDY_BANDS.indexOf(item.referenceBand!) <= ability));
-    }
+  test.each([[0, "BELOW_N5"], [1, "N5"]] as const)("timeout does not invent a lower basic proficiency for profile %i", async (ability, bandLabel) => {
+    const attempt = await simulateResponses(23, item => answer(item, JAPANESE_STUDY_BANDS.indexOf(item.referenceBand!) <= ability));
     const result = summarizeJapaneseAttempt(bank, attempt, attempt.expiresAt);
     expect(result.levelEstimate).toMatchObject({ band: bandLabel });
     expect(result.timeoutAdjustment).toMatchObject({ unadjustedBand: bandLabel, bandReduction: 0 });
     expect(japaneseResultSchema.safeParse(result).success).toBe(true);
     expect(japaneseResultSchema.safeParse({ ...result, timeoutAdjustment: { ...result.timeoutAdjustment, bandReduction: 2 } }).success).toBe(false);
-  }, fullAttemptTimeoutMs);
+  });
 });
