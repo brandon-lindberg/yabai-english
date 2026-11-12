@@ -2044,6 +2044,12 @@ The complete CI verification sequence was run locally on Node 22.17.0 from a fre
 
 The real operator artifacts were separately verified offline at 10,291 flashcards and the approved snapshot/card hashes. The temporary checkout, exclusive local database, browser schema, fixtures, processes and QA server were cleaned up. Nothing was published or migrated in production. The owner retains commits and pushes; a successful remote CI rerun and payment-recovery scheduling remain deployment prerequisites.
 
+#### 6af. Supported Chromium CI runner — prepared locally (2026-11-12)
+
+The next GitHub run reached Chromium installation on Ubuntu 26.04, which the lockfile's Playwright 1.59.1 does not support. The earlier macOS browser verification did not exercise Linux dependency installation. CI now selects `ubuntu-24.04` explicitly, retaining Node 22, PostgreSQL 16, the frozen dependency lockfile and `playwright install --with-deps chromium`. GitHub documents [explicit OS labels as the way to avoid automatic runner-image migrations](https://github.com/actions/runner-images#latest-migration-process).
+
+A red/green compatibility probe against the installed, locked Playwright package reproduced missing Ubuntu 26.04 dependency mappings and verified Ubuntu 24.04 dependency mappings plus Chromium, headless-shell and FFmpeg download archives. The updated workflow parsed successfully and whitespace validation passed. No package upgrade, application code change or production action was made. The owner must commit/push the workflow and confirm the actual Ubuntu installation and remaining checks in the remote CI rerun.
+
 ### 7. Super-admin redesign — audited and planned
 
 Use one shared admin workspace for both learning sites. Organize navigation around Overview, People, Lessons, Payments, Schools, and Moderation. Use Impeccable, retain the shared design primitives and provider services, and implement each section with red and green tests. The audit found overlapping People screens, missing language and marketplace context, dark-mode editor contrast problems, and booking search limited to 200 loaded rows. Manual account suspension is part of the first admin release.
