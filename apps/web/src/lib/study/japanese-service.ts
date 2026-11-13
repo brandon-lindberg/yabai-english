@@ -1,7 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import type { Prisma, PrismaClient, StudyCard } from "@/generated/prisma/client";
+import type { Prisma, PrismaClient, StudyCard, StudyReviewPrompt, UserStudyLevelProgress } from "@/generated/prisma/client";
 import type { JapaneseLevel } from "../japanese-content/corpus-audit";
 import { sha256 } from "../japanese-content/digest";
 import { canonicalJson } from "../canonical-json";
@@ -10,15 +10,17 @@ import { JAPANESE_REFERENCE_BANDS } from "../japanese-placement/public";
 import { createJapanesePromptBank, gradeJapaneseStudyPrompt, type JapaneseStudyContent } from "./japanese-prompts";
 import { readJapanesePromptCards, readJapanesePromptReferences } from "./japanese-runtime-source";
 import { JAPANESE_REVIEW_PREVIEW_SIZE, japaneseStudyFeedbackSchema, japaneseStudyQuestionSchema, japaneseStudyResponseSchema, japaneseStudyResultSchema as resultSchema, japaneseStudyReviewPreviewSchema } from "./japanese-public";
-import { getJapaneseStudyProgressionForTrack, readJapaneseStudyContext } from "./japanese-progression";
+import { getJapaneseStudyProgressionForTrack, readJapaneseStudyContext, readJapaneseProgressionState, japaneseProgressionFromState } from "./japanese-progression";
 import { buildWeightedSessionQueue } from "./scheduler";
 import { lockStudyLearner, saveStudyReviewProgress } from "./review-progress";
 import { classifyPracticeBand, filterCardIdsByFocus, studyAccuracyPercent } from "./study-card-analytics";
-import { getTotalStudyXpForTrack } from "./get-overview";
+import { replaceFlashcardPracticeState } from "./study-flashcard-stats";
 import { readJapaneseDailyReview, recordJapaneseDailyAnswer, isCurrentJapaneseDailyPrompt, japaneseReviewCardScope, readJapaneseQuickReviewPool, type JapaneseDailyReceipt } from "./japanese-daily-review";
 import { QUICK_REVIEW_DAILY_MAX } from "./quick-review-day";
 import { selectQuickReviewCardIds } from "./quick-review-selection";
 import { weightedSampleWithoutReplacement } from "./quiz";
+import { studyMasteryPercent } from "./mastery";
+import type { ReportQueuePreparation } from "./queue-preparation";
 import { studyLevelIndex } from "./constants";
 
 export class JapaneseStudyFailure extends PrivateApiFailure {}
@@ -34,7 +36,7 @@ type Progression = Awaited<ReturnType<typeof getJapaneseStudyProgressionForTrack
 type StudyDb = Parameters<typeof readJapaneseStudyContext>[0];
 const json = (value: unknown) => JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 const nowTime = () => new Date(Date.now());
-const masteryScore = (mastery: { total: number; mastered: number }) => mastery.total ? Math.round(mastery.mastered / mastery.total * 100) : 0;
+const masteryScore = (mastery: { total: number; mastered: number }) => studyMasteryPercent(mastery.total, mastery.mastered);
 const hashCard = (card: Pick<StudyCard, "id" | "deckId" | "kind" | "sortOrder" | "contentJson">) => sha256(canonicalJson({
   id: card.id, deckId: card.deckId, kind: card.kind, sortOrder: card.sortOrder, contentJson: card.contentJson,
 }));
@@ -48,15 +50,17 @@ async function requireContext(db: StudyDb, userId: string) {
   return context.track;
 }
 
-async function saveMilestones(tx: Prisma.TransactionClient, userId: string, progression: Progression, now: Date) {
-  for (const level of progression.levels.filter(level => level.unlocked)) {
-    const score = masteryScore(level.mastery);
-    const row = await tx.userStudyLevelProgress.upsert({
-      where: { userId_levelId: { userId, levelId: level.id } },
-      create: { userId, levelId: level.id, masteryScore: score }, update: { masteryScore: score },
-    });
-    if (!row.completedAt && progression.mastered.includes(level.code as JapaneseLevel)) {
-      await tx.userStudyLevelProgress.update({ where: { id: row.id }, data: { completedAt: now } });
+async function saveMilestones(tx: Prisma.TransactionClient, userId: string, progression: Progression, now: Date, previous: readonly UserStudyLevelProgress[]) {
+  const known = new Map(previous.map(row => [row.levelId, row]));
+  const unlocked = progression.levels.filter(level => level.unlocked);
+  const dataFor = (level: Progression["levels"][number]) => ({ masteryScore: masteryScore(level.mastery),
+    ...(progression.mastered.includes(level.code as JapaneseLevel) ? { completedAt: now } : {}) });
+  const missing = unlocked.filter(level => !known.has(level.id));
+  if (missing.length) await tx.userStudyLevelProgress.createMany({ data: missing.map(level => ({ userId, levelId: level.id, ...dataFor(level) })) });
+  for (const level of unlocked) {
+    const row = known.get(level.id), data = dataFor(level);
+    if (row && (row.masteryScore !== data.masteryScore || (!row.completedAt && data.completedAt))) {
+      await tx.userStudyLevelProgress.update({ where: { id: row.id }, data: { ...data, completedAt: row.completedAt ?? data.completedAt } });
     }
   }
 }
@@ -123,43 +127,54 @@ export async function getJapaneseStudyReviewPreview(db: PrismaClient, userId: st
   }, { isolationLevel: "RepeatableRead" });
 }
 
-async function issueQuestions(tx: Prisma.TransactionClient, userId: string, selected: PreparedBank["cards"], stateByCard: ReadonlyMap<string, { correctCount: number; wrongCount: number }>, prepared: PreparedBank, studyBand: JapaneseLevel, now: Date) {
+async function issueQuestions(tx: Prisma.TransactionClient, userId: string, selected: PreparedBank["cards"], stateByCard: ReadonlyMap<string, { correctCount: number; wrongCount: number }>, prepared: PreparedBank, studyBand: JapaneseLevel, now: Date, report?: ReportQueuePreparation) {
   const { bank, snapshot } = prepared;
-  const issued = [];
-  for (const card of selected) {
+  const revisions = selected.map(card => {
     const baseReps = reps(stateByCard.get(card.id));
-    const activeKey = sha256(canonicalJson({ userId, cardId: card.id, snapshotId: snapshot.id, baseReps }));
-    const contentSha256 = hashCard(card);
-    let prompt = await tx.studyReviewPrompt.findUnique({ where: { activeKey } });
-    if (prompt && (prompt.expiresAt <= now || prompt.contentSha256 !== contentSha256 || prompt.studyBand !== studyBand)) {
-      await tx.studyReviewPrompt.update({ where: { id: prompt.id }, data: { activeKey: null } });
-      prompt = null;
-    }
+    return { card, baseReps, activeKey: sha256(canonicalJson({ userId, cardId: card.id, snapshotId: snapshot.id, baseReps })), contentSha256: hashCard(card) };
+  });
+  const existing = await tx.studyReviewPrompt.findMany({ where: { activeKey: { in: revisions.map(row => row.activeKey) } } });
+  const byKey = new Map(existing.map(row => [row.activeKey, row]));
+  const stale = existing.filter(prompt => {
+    const revision = revisions.find(row => row.activeKey === prompt.activeKey)!;
+    return prompt.expiresAt <= now || prompt.contentSha256 !== revision.contentSha256 || prompt.studyBand !== studyBand;
+  });
+  if (stale.length) await tx.studyReviewPrompt.updateMany({ where: { id: { in: stale.map(row => row.id) } }, data: { activeKey: null } });
+  for (const row of stale) byKey.delete(row.activeKey);
+  const created: Prisma.StudyReviewPromptCreateManyInput[] = [];
+  const issued = revisions.map(({ card, baseReps, activeKey, contentSha256 }, index) => {
+    let prompt: Pick<StudyReviewPrompt, "questionJson" | "expiresAt"> | undefined = byKey.get(activeKey);
     if (!prompt) {
       const variants = bank.members(card.id, studyBand).flatMap(memberId => bank.tasks(card.id, memberId, studyBand).map(task => ({ memberId, task })));
       const variant = variants[baseReps % variants.length];
       if (!variant) return fail(503, "STUDY_UNAVAILABLE");
       const compiled = bank.create(card.id, { ...variant, studyBand, seed: randomUUID() });
-      prompt = await tx.studyReviewPrompt.create({ data: {
+      const row = {
         id: compiled.question.id, userId, cardId: card.id, catalogSnapshotId: snapshot.id, contentSha256,
         baseReps, studyBand, activeKey, questionJson: json(compiled.question),
         answerJson: json({ correctChoiceId: compiled.correctChoiceId, feedback: compiled.feedback }),
         issuedAt: now, expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000),
-      } });
+      };
+      created.push(row);
+      prompt = { questionJson: row.questionJson as Prisma.JsonValue, expiresAt: row.expiresAt };
     }
-    issued.push({ question: japaneseStudyQuestionSchema.parse(prompt.questionJson), expiresAt: prompt.expiresAt.toISOString() });
-  }
+    const issued = { question: japaneseStudyQuestionSchema.parse(prompt.questionJson), expiresAt: prompt.expiresAt.toISOString() };
+    report?.({ completed: index + 2, total: selected.length + 2 });
+    return issued;
+  });
+  if (created.length) await tx.studyReviewPrompt.createMany({ data: created });
   return issued;
 }
 /** One active, server-owned question per canonical unit and performance revision. */
-export async function createJapaneseStudyQueue(db: PrismaClient, userId: string, raw: unknown) {
+export async function createJapaneseStudyQueue(db: PrismaClient, userId: string, raw: unknown, report?: ReportQueuePreparation) {
   const parsed = queueSchema.safeParse(raw);
   if (!parsed.success) return fail(400, "INVALID_QUEUE");
   const { levelCode, limit, focus, kind } = parsed.data;
   return db.$transaction(async tx => {
     await lockStudyLearner(tx, userId);
     const track = await requireContext(tx, userId);
-    const progression = await getJapaneseStudyProgressionForTrack(tx, userId, track);
+    const progressionState = await readJapaneseProgressionState(tx, userId, track);
+    const progression = japaneseProgressionFromState(track, progressionState);
     if (!progression.unlocked.includes(levelCode)) return fail(403, "LEVEL_LOCKED");
     const studyBand = progression.unlocked.at(-1)!;
     const level = track.levels.find(level => level.levelCode === levelCode)!;
@@ -172,10 +187,12 @@ export async function createJapaneseStudyQueue(db: PrismaClient, userId: string,
     const focused = new Set(filterCardIdsByFocus(candidates, stateByCard, focus));
     const now = nowTime();
     const selected = buildWeightedSessionQueue(candidates.filter(card => focused.has(card.id)), stateByCard, limit, now, Math.random, { allowRepeats: false });
+    report?.({ completed: 0, total: selected.length + 2 });
     const prepared = await preparePromptBank(db, tx, track, selected.map(card => card.id), progression.levels.filter(level => level.unlocked).map(level => level.id));
+    report?.({ completed: 1, total: selected.length + 2 });
     const byId = new Map(prepared.cards.map(card => [card.id, card]));
-    const issued = await issueQuestions(tx, userId, selected.map(card => byId.get(card.id)!), stateByCard, prepared, studyBand, now);
-    await saveMilestones(tx, userId, progression, now);
+    const issued = await issueQuestions(tx, userId, selected.map(card => byId.get(card.id)!), stateByCard, prepared, studyBand, now, report);
+    await saveMilestones(tx, userId, progression, now, progressionState.progress);
     return { levelCode, cards: issued };
   }, { timeout: 30_000 });
 }
@@ -193,7 +210,8 @@ export async function submitJapaneseStudyReview(db: PrismaClient, userId: string
     const now = nowTime();
     if (dailyDayKey && !await isCurrentJapaneseDailyPrompt(tx, userId, prompt.cardId, promptId, dailyDayKey, now)) return fail(409, "DAILY_REVIEW_CHANGED");
     const card = await tx.studyCard.findUnique({ where: { id: prompt.cardId }, include: { deck: { include: { level: true } } } });
-    const progression = await getJapaneseStudyProgressionForTrack(tx, userId, track);
+    const progressionState = await readJapaneseProgressionState(tx, userId, track);
+    const progression = japaneseProgressionFromState(track, progressionState);
     if (!card || card.deck.level.trackId !== track.id || !progression.unlocked.includes(card.deck.level.levelCode as JapaneseLevel) ||
       prompt.catalogSnapshotId !== track.catalogSnapshotId || prompt.contentSha256 !== hashCard(card) ||
       studyLevelIndex(prompt.studyBand, "JAPANESE") > studyLevelIndex(progression.unlocked.at(-1)!, "JAPANESE")) return fail(409, "PROMPT_STALE");
@@ -207,13 +225,15 @@ export async function submitJapaneseStudyReview(db: PrismaClient, userId: string
     const compiled = { question: japaneseStudyQuestionSchema.parse(prompt.questionJson), ...answerSchema.parse(prompt.answerJson) };
     const graded = gradeJapaneseStudyPrompt(compiled, { promptId, choiceId });
     if (graded.status !== "graded") return fail(400, "INVALID_REVIEW");
-    const saved = await saveStudyReviewProgress(tx, { userId, cardId: card.id, levelId: card.deck.levelId, correct: graded.correct, now, answerTimeMs });
-    const after = await getJapaneseStudyProgressionForTrack(tx, userId, track);
-    await saveMilestones(tx, userId, after, now);
+    const saved = await saveStudyReviewProgress(tx, { userId, cardId: card.id, levelId: card.deck.levelId, correct: graded.correct, now, answerTimeMs }, { previous });
+    progressionState.practice.set(card.deck.levelId, replaceFlashcardPracticeState(progressionState.practice.get(card.deck.levelId)!, previous, saved.state));
+    progressionState.progress = [...progressionState.progress.filter(row => row.levelId !== card.deck.levelId), saved.progress];
+    const after = japaneseProgressionFromState(track, progressionState);
+    await saveMilestones(tx, userId, after, now, progressionState.progress);
     const level = after.levels.find(level => level.id === card.deck.levelId)!;
     const result = resultSchema.parse({
       promptId, correct: graded.correct, feedback: graded.feedback, xpGained: saved.xpGained, levelXp: saved.progress.xp,
-      totalStudyXp: await getTotalStudyXpForTrack(tx, userId, track.id),
+      totalStudyXp: progressionState.progress.reduce((sum, row) => sum + row.xp, 0),
       masteryScore: masteryScore(level.mastery),
       correctCount: saved.state.correctCount, wrongCount: saved.state.wrongCount, streakCorrect: saved.state.streakCorrect,
       accuracyPercent: studyAccuracyPercent(saved.state.correctCount, saved.state.wrongCount), averageAnswerMs: saved.state.averageAnswerMs,
@@ -226,12 +246,13 @@ export async function submitJapaneseStudyReview(db: PrismaClient, userId: string
 }
 
 /** Up to five previously correct, authorized cards, fixed for the current UTC day. */
-export async function createJapaneseQuickReviewQueue(db: PrismaClient, userId: string, raw: unknown) {
+export async function createJapaneseQuickReviewQueue(db: PrismaClient, userId: string, raw: unknown, report?: ReportQueuePreparation) {
   if (!z.object({}).strict().safeParse(raw).success) return fail(400, "INVALID_QUICK_REVIEW");
   return db.$transaction(async tx => {
     await lockStudyLearner(tx, userId);
     const track = await requireContext(tx, userId);
-    const progression = await getJapaneseStudyProgressionForTrack(tx, userId, track);
+    const progressionState = await readJapaneseProgressionState(tx, userId, track);
+    const progression = japaneseProgressionFromState(track, progressionState);
     const now = nowTime();
     let daily = await readJapaneseDailyReview(tx, userId, progression, now);
     if (!daily.row && daily.pool.length) {
@@ -242,17 +263,19 @@ export async function createJapaneseQuickReviewQueue(db: PrismaClient, userId: s
     if (!daily.row) return { ...daily.status, cards: [] };
     const pending = daily.ids.filter(id => !daily.receipts.some(receipt => receipt.cardId === id && receipt.result));
     if (!pending.length) return { ...daily.status, cards: [] };
+    report?.({ completed: 0, total: pending.length + 2 });
     const prepared = await preparePromptBank(db, tx, track, pending, progression.levels.filter(level => level.unlocked).map(level => level.id));
+    report?.({ completed: 1, total: pending.length + 2 });
     const byId = new Map(prepared.cards.map(card => [card.id, card]));
     const selected = pending.map(id => byId.get(id)!);
-    const issued = await issueQuestions(tx, userId, selected, new Map(daily.pool.map(state => [state.cardId, state])), prepared, progression.unlocked.at(-1)!, now);
+    const issued = await issueQuestions(tx, userId, selected, new Map(daily.pool.map(state => [state.cardId, state])), prepared, progression.unlocked.at(-1)!, now, report);
     const receipts: JapaneseDailyReceipt[] = daily.ids.map(cardId => {
       const previous = daily.receipts.find(receipt => receipt.cardId === cardId);
       if (previous?.result) return previous;
       return { cardId, promptId: issued.find(card => card.question.unitId === cardId)!.question.id };
     });
     await tx.studyQuickReviewDay.update({ where: { id: daily.row.id }, data: { interactions: receipts as unknown as Prisma.InputJsonValue } });
-    await saveMilestones(tx, userId, progression, now);
+    await saveMilestones(tx, userId, progression, now, progressionState.progress);
     return { ...daily.status, cards: issued };
   }, { timeout: 30_000 });
 }

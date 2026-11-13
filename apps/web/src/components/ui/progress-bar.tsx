@@ -17,7 +17,7 @@ export function ProgressBar({
   testId,
   className = "",
 }: {
-  percent: number;
+  percent?: number;
   /** Accessible name, e.g. "Question 3 of 24". */
   label: string;
   /** Spoken value, when a bare percentage would be less useful than "3 of 24". */
@@ -27,7 +27,7 @@ export function ProgressBar({
   testId?: string;
   className?: string;
 }) {
-  const pct = Math.min(100, Math.max(0, percent));
+  const pct = percent == null ? undefined : Math.min(100, Math.max(0, percent));
   return (
     <div
       className={[
@@ -42,14 +42,14 @@ export function ProgressBar({
       aria-label={label}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-valuenow={Math.round(pct)}
-      aria-valuetext={valueText ?? `${Math.round(pct)}%`}
+      aria-valuenow={pct == null ? undefined : Math.round(pct)}
+      aria-valuetext={valueText ?? (pct == null ? undefined : `${Math.round(pct)}%`)}
     >
       <div
         /* `motion-reduce` matters here: this bar animates on every answer, which
            is exactly the repetitive movement 2.3.3 asks us to drop. */
         className="h-full rounded-full bg-foreground/80 transition-[width] duration-300 ease-out motion-reduce:transition-none"
-        style={{ width: `${pct}%` }}
+        style={{ width: `${pct ?? 0}%` }}
       />
     </div>
   );

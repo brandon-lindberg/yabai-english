@@ -10,7 +10,8 @@ test("progress counts a large catalog in the database and reads only this learne
       { levelId: "N5", _count: { cards: 7000 } }, { levelId: "N5", _count: { cards: 3000 } },
       { levelId: "N4", _count: { cards: 291 } },
     ]) },
-    userStudyCardState: { findMany: vi.fn().mockResolvedValue([{ ...state, card: { deck: { levelId: "N5" } } }]) },
+    userStudyCardState: { findMany: vi.fn(() => { throw new Error("Do not transfer learner history for summary statistics"); }) },
+    $queryRaw: vi.fn().mockResolvedValue([{ levelId: "N5", weakCount: BigInt(1), masteredCount: BigInt(0), learningCount: BigInt(0), newCount: BigInt(0), statesTotal: BigInt(1), cardsTouched: BigInt(1), totalCorrect: BigInt(1), totalAttempts: BigInt(5), latencyWeightedSum: 16000, latencySamples: BigInt(2) }]),
   };
   const actual = await getFlashcardPracticeRollupsByLevelId(db as unknown as PrismaClient, "learner", ["N5", "N4", "empty"]);
   const expected = rollupFlashcardPracticeForLevel(["reviewed"], new Map([["reviewed", state]]));
@@ -19,7 +20,8 @@ test("progress counts a large catalog in the database and reads only this learne
   expect(actual.get("empty")).toEqual(rollupFlashcardPracticeForLevel([], new Map()));
   expect(db.studyCard.findMany).not.toHaveBeenCalled();
   expect(db.studyDeck.findMany).toHaveBeenCalledWith({ where: { levelId: { in: ["N5", "N4", "empty"] } }, select: { levelId: true, _count: { select: { cards: true } } } });
-  expect(db.userStudyCardState.findMany.mock.calls[0][0].where).toEqual({ userId: "learner", card: { deck: { levelId: { in: ["N5", "N4", "empty"] } } } });
+  expect(db.userStudyCardState.findMany).not.toHaveBeenCalled();
+  expect(db.$queryRaw).toHaveBeenCalledTimes(1);
 });
 
 test("counted progress preserves new, learning, weak, mastered and weighted timing semantics", async () => {
@@ -32,7 +34,8 @@ test("counted progress preserves new, learning, weak, mastered and weighted timi
   const db = {
     studyCard: { findMany: vi.fn().mockRejectedValue(new Error("Unbounded catalog read")) },
     studyDeck: { findMany: vi.fn().mockResolvedValue([{ levelId: "level", _count: { cards: 5 } }]) },
-    userStudyCardState: { findMany: vi.fn().mockResolvedValue(states.map(state => ({ ...state, card: { deck: { levelId: "level" } } }))) },
+    userStudyCardState: { findMany: vi.fn(() => { throw new Error("Do not transfer learner history"); }) },
+    $queryRaw: vi.fn().mockResolvedValue([{ levelId: "level", statesTotal: BigInt(4), cardsTouched: BigInt(3), weakCount: BigInt(1), masteredCount: BigInt(1), learningCount: BigInt(1), newCount: BigInt(1), totalCorrect: BigInt(14), totalAttempts: BigInt(20), latencyWeightedSum: 41000, latencySamples: BigInt(12) }]),
   };
   const actual = await getFlashcardPracticeRollupsByLevelId(db as unknown as PrismaClient, "learner", ["level"]);
   expect(actual.get("level")).toEqual(rollupFlashcardPracticeForLevel(["unseen", ...states.map(row => row.cardId)], new Map(states.map(row => [row.cardId, row]))));

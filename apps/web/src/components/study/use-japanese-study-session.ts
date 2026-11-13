@@ -1,4 +1,5 @@
 "use client";
+import { QUEUE_STREAM_TYPE, readPreparedQueue, QueuePreparationError, type QueuePreparationProgress } from "@/lib/study/queue-preparation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { japaneseStudyQueueSchema, japaneseStudyResultSchema, japaneseQuickReviewQueueSchema, type JapaneseStudyQueue, type JapaneseQuickReviewQueue, type JapaneseStudyResult } from "@/lib/study/japanese-public";
 import { studyRpgProgressFromTotalXp, type StudyRpgSnapshot } from "@/lib/study/rpg-xp";
@@ -21,6 +22,7 @@ export function useJapaneseStudySession({ levelCode, initialRpg, queueFocus = "m
   const [queue, setQueue] = useState<JapaneseStudyQueue | JapaneseQuickReviewQueue | null>(null);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [preparation, setPreparation] = useState<QueuePreparationProgress | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ErrorState>(null);
   const [result, setResult] = useState<JapaneseStudyResult | null>(null);
@@ -43,21 +45,22 @@ export function useJapaneseStudySession({ levelCode, initialRpg, queueFocus = "m
     const abort = new AbortController(); controller.current = abort;
     inFlight.current = true;
     pending.current = null; resultRef.current = null;
-    setLoading(true); setBusy(false); setError(null); setResult(null); setSelected(null); setFinished(false);
+    setPreparation(null); setLoading(true); setBusy(false); setError(null); setResult(null); setSelected(null); setFinished(false);
     if (resetScore) { setScore({ xp: 0, correct: 0, wrong: 0 }); setUnlocked([]); }
     try {
       const response = await fetch(quickReview ? "/api/japanese-study/quick-review" : "/api/japanese-study/queue", {
-        method: "POST", headers: { "Content-Type": "application/json" }, signal: abort.signal,
+        method: "POST", headers: { "Content-Type": "application/json", Accept: QUEUE_STREAM_TYPE }, signal: abort.signal,
         body: JSON.stringify(quickReview ? {} : { levelCode, limit: 24, focus: queueFocus, kind }),
       });
       if (revision !== generation.current) return;
       if (!response.ok) { setError(requestError(response.status, "queue")); return; }
-      const data = quickReview ? japaneseQuickReviewQueueSchema.parse(await response.json()) : japaneseStudyQueueSchema.parse(await response.json());
+      const payload = await readPreparedQueue(response, progress => { if (revision === generation.current) setPreparation(progress); });
+      const data = quickReview ? japaneseQuickReviewQueueSchema.parse(payload) : japaneseStudyQueueSchema.parse(payload);
       if ("levelCode" in data && (data.levelCode !== levelCode || data.cards.some(card => card.question.level.introduction !== levelCode))) throw new Error("Queue level mismatch");
       if ("dayKey" in data && revision === generation.current) setScore({ xp: data.xp, correct: data.correct, wrong: data.wrong });
       if (revision === generation.current) { setQueue(data); setIndex(0); }
-    } catch {
-      if (revision === generation.current) setError("queue");
+    } catch (error) {
+      if (revision === generation.current) setError(error instanceof QueuePreparationError ? requestError(error.status, "queue") : "queue");
     } finally {
       if (revision === generation.current) { inFlight.current = false; setLoading(false); }
     }
@@ -108,6 +111,6 @@ export function useJapaneseStudySession({ levelCode, initialRpg, queueFocus = "m
     if (index + 1 >= (queue?.cards.length ?? 0)) setFinished(true);
     else setIndex(previous => previous + 1);
   };
-  return { queue, current, index, loading, busy, error, result, unlocked, selected, finished, score, rpg,
+  return { queue, current, index, loading, preparation, busy, error, result, unlocked, selected, finished, score, rpg,
     locked: busy || !!pending.current || !!result || !!error, choose, next, retry: save, loadQueue };
 }

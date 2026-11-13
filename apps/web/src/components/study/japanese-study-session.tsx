@@ -30,7 +30,7 @@ export function JapaneseStudySession(props: JapaneseStudySessionProps & { quickR
   useEffect(() => { if (state.result) feedbackHeading.current?.focus(); }, [state.result]);
   useEffect(() => { if (alreadyCompleted) refreshRecap(); }, [alreadyCompleted]);
   const hub = <Link href="/learn/study" className={buttonClasses({ variant: "secondary" })}>{t("backToHub")}</Link>;
-  if (state.loading) return <StudyPracticeLoading label={jp("loading")} />;
+  if (state.loading) return <StudyPracticeLoading label={t("preparingCards")} progress={state.preparation} />;
   if (state.error === "unavailable") return <JapaneseStudyUnavailable />;
   if (state.error === "signedOut") return <Outcome title={jp("signedOut")} actions={<Link href="/auth/signin" className={buttonClasses()}>{jp("signIn")}</Link>} />;
   if (state.error === "access") return <Outcome title={jp("accessTitle")} description={jp("accessBody")} actions={hub} />;

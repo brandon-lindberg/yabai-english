@@ -1,16 +1,19 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import type { QueuePreparationProgress } from "@/lib/study/queue-preparation";
 import { StudyRpgXpBar } from "./study-rpg-xp-bar";
 import type { StudyRpgSnapshot } from "@/lib/study/rpg-xp";
 import type { JapaneseStudyFeedback } from "@/lib/study/japanese-public";
 
-export function StudyPracticeLoading({ label }: { label: string }) {
-  return <div role="status" aria-busy="true" aria-label={label} className="space-y-6" data-testid="study-practice-loading">
-    <div className="border-y border-border py-4"><Skeleton height="4" width="1/2" /><div className="mt-3"><Skeleton height="3" width="full" rounded="full" /></div></div>
-    <div className="flex justify-between gap-3"><Skeleton height="3" width="1/4" /><Skeleton height="3" width="1/3" /></div>
-    <div className="rounded-2xl border border-border bg-surface p-4 sm:p-8"><Skeleton height="8" width="3/4" /><div className="mt-4"><Skeleton height="4" width="1/2" /></div></div>
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">{[0, 1, 2, 3].map(i => <div key={i} className="rounded-xl border border-border px-4 py-4"><Skeleton height="4" width="3/4" /></div>)}</div>
+export function StudyPracticeLoading({ label, progress }: { label: string; progress?: QueuePreparationProgress | null }) {
+  const percent = progress ? Math.floor(progress.completed / progress.total * 100) : undefined;
+  return <div aria-busy="true" className="mx-auto flex min-h-80 w-full max-w-md flex-col justify-center gap-5 py-16" data-testid="study-practice-loading">
+    <div className="flex items-baseline justify-between gap-4">
+      <p role="status" className="text-lg font-semibold text-foreground">{label}</p>
+      {percent != null ? <span aria-hidden="true" className="text-sm tabular-nums text-muted">{percent}%</span> : null}
+    </div>
+    <ProgressBar percent={percent} label={label} />
   </div>;
 }
 

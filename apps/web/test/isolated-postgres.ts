@@ -29,7 +29,7 @@ export async function withIsolatedPostgres(
       const prior = await readFile(path.join(migrations, name, "migration.sql"), "utf8");
       await client.query(prior.replace('CREATE SCHEMA IF NOT EXISTS "public";', ""));
     }
-    db = new PrismaClient({ adapter: new PrismaPg({ connectionString, application_name: schema }, { schema }) });
+    db = new PrismaClient({ adapter: new PrismaPg({ connectionString, application_name: schema, options: `-c search_path=${schema}` }, { schema }) });
     let applied = false;
     // Every current-client operation needs the target plus subsequent migrations,
     // even when a historical upgrade test does not request a datamodel diff.

@@ -1,6 +1,6 @@
 # Learning performance audit — 13 November 2026
 
-Status: **audit complete; first memory/resource fixes implemented locally; further optimization and deployment-capacity verification required.**
+Status: **audit complete; memory/resource and flashcard batching/loading fixes implemented locally; placement optimization and deployment-capacity verification remain required.**
 
 The findings and baseline measurements below describe the pre-6aj working tree. See the [implementation follow-up](#first-implementation-follow-up) for the current local changes; remaining findings are still open.
 
@@ -163,6 +163,12 @@ Required: add a cheap liveness route, bounded dependency timeouts, and low-overh
 
 Do not hide the problem by extending health-check timeouts, disabling checks, increasing retry frequency or running minute-by-minute full-content probes.
 
+### F13 — P1: concurrent first English placement starts race to create the same bank snapshot
+
+Follow-up five-learner testing reproduced this twice on fresh disposable schemas. Two different English students begin concurrently before a bank snapshot exists. `english-placement/service.ts` uses an upsert with an empty update inside separate learner transactions; one request receives `P2002` on the bank's unique `digest` and returns HTTP 500. The other request creates the shared snapshot successfully. An explicit retry succeeds. This is a request-level race, not a PostgreSQL outage or evidence of corrupted answers.
+
+Required before release: atomically create-or-read the immutable shared bank without an unhandled unique-key race, and add a cold-start regression with **different learners**. A same-learner lock cannot serialize shared-bank creation across students. Preserve digest validation, transaction rollback, server timing and cooldown semantics. An extra index does not fix this race: the unique index is correctly rejecting a duplicate.
+
 ## Implementation order and acceptance gates
 
 1. **Stabilize memory first:** finish the compact Japanese runtime data path, separate build/runtime heap budgets, and fix stream resource cleanup. Keep the earlier bounded-catalog/rollup changes. Measure a fresh production process, cold loads and mixed requests before the owner pushes.
@@ -216,3 +222,49 @@ Additional complete 24-answer runs for both languages, using fresh processes/lea
 Both experimental limits finish the tests, but neither meets the RSS target; the smaller limit leaves very little JS headroom and worsens answer latency. The implementation retains 256 MiB. **The 400 MiB capacity target remains unmet.** Next remove duplicate flashcard progress work and repeated placement-bank allocations rather than squeezing the heap further.
 
 After implementation, 3,485 full unit tests, 232 study checks and 22 isolated PostgreSQL study checks pass. TypeScript, focused lint and the final production build pass. Temporary test resources and servers have been cleaned up; the local derived reference table remains as the intended application migration. Nothing staged, committed, pushed or deployed.
+
+## Five-learner follow-up — 13 November 2026
+
+Tested the committed first optimization batch `fe0e0a2` with its matching local production build and real `yarn start` memory flags. All fixtures/writes were isolated in temporary loopback PostgreSQL schemas; no production traffic or data was used. No application implementation changed in this follow-up.
+
+Two runs synchronize **five distinct authenticated students: two English and three Japanese**. One English student uses the highest English flashcard level; the Japanese students have all levels open. First all have no saved card history. Then one English student's saved history covers its track, and two Japanese students have saved states for all 10,291 units, with the same five users loading queues and saving concurrently. The test then starts five placements simultaneously. A second run records an explicit retry after the failed English start so subsequent assessment answers can be measured. These are short synchronized bursts, not a sustained-capacity test or a claim about every possible five-user mix.
+
+| Observation | Local measurement |
+| --- | --- |
+| First five concurrent flashcard queues | 666–894 ms per response |
+| Concurrent new-history answer saves | 16–65 ms |
+| Concurrent answer saves with established histories | 17–276 ms |
+| Five concurrent placement starts | One English HTTP 500 in each run; other starts succeed |
+| Placement answer waves after explicit retry | 722–931 ms |
+| Peak sampled process RSS | **502 MiB / 492 MiB** |
+
+All 40 flashcard requests in each run succeeded. Neither local process crashed, but neither run establishes safe operation under Render's 512 MB limit. Shared process memory does not multiply by five; overlapping per-request allocations, queued work and cached framework/runtime data determine the peak. The local machine is not constrained to Render's 0.5 CPU / 512 MB, and sample intervals can miss transient peaks. Docker's daemon was unavailable; no constrained Linux/container result is claimed. Servers, connections and schemas were removed after both runs.
+
+`EXPLAIN (ANALYZE, BUFFERS)` on representative reads after fixture statistics were collected shows:
+
+- The 127-row reference lookup uses **`StudyCatalogReference_pkey`**, with approximately **0.047 ms database execution time** locally.
+- The established learner state query uses the existing **`UserStudyCardState_userId_cardId_key`** while returning **10,291 states**, taking approximately **11.6 ms** in PostgreSQL. That execution time excludes transfer, Prisma decoding and JavaScript rollup work; the projection still asks for the full history. Adding another index cannot remove the requested rows or the repeated before/after scans.
+
+PostgreSQL's planner uses statistics and query structure to choose access paths; a sequential scan on a small table or a broad result is not by itself evidence of a missing index. Use the plans of the final batched queries to decide additional indexes. [PostgreSQL EXPLAIN guidance](https://www.postgresql.org/docs/current/using-explain.html).
+
+Priority remains bounded server work: batch prompt issuance, avoid full-history recalculation per answer, and validate/index/cache immutable assessment banks once, with F13 added to the placement work. More database connections do not fix expensive application CPU work; query efficiency and pool capacity should be evaluated together. [Node event-loop guidance](https://nodejs.org/learn/asynchronous-work/dont-block-the-event-loop), [node-postgres pool sizing](https://node-postgres.com/guides/pool-sizing).
+
+The browser already receives a **24-question flashcard queue**, so it already has a small preload buffer. Keep this public-question buffer and consider fetching the next small batch near the end, after measuring need. Server-owned grading/answer keys remain server-side. An initial preparing/loading state can explain a genuine wait; percentages require measurable progress. This UI feedback does not replace server optimization or shorten answer-save transactions. No loading UI was changed in this diagnostic task.
+
+## Second implementation follow-up — batched flashcards and preparation feedback
+
+Plan section 6ai(2), implemented locally on 13 November 2026 with TDD red/green:
+
+- Shared PostgreSQL summaries return one row per requested level instead of transferring the learner's entire card history to Node. The JavaScript and SQL classifiers consume one declarative practice-band policy. Tests compare actual database results with the original JavaScript calculation at rounding/mastery boundaries, with unseen cards, weighted latency, another learner's data and a single-card update. Latency multiplication uses bigint to avoid integer overflow.
+- Japanese question issuance reads existing prompts in one batch and inserts missing prompts in one batch. Expired/stale prompts are released together. Learner serialization, private answer bindings, identical retry receipts and rollback behavior remain enforced.
+- Japanese answer saving reads progression once, updates only the affected card's aggregate contribution, reuses the locked prior state and saved XP, and writes only changed milestones. It no longer repeats the full progress read or reacquires the same lock/state. Study completion does not modify placement results.
+- English overview batches actor/profile, progress, assessments and statistics rather than rereading them per level. English queues select metadata first, fetch full content for selected cards only, and read at most 96 distractor rows. Existing English MCQ, reorder and multi-step projections/grading and touched-card/exit-assessment access remain.
+- Both practice interfaces and Japanese dashboard quick review use one shared **Preparing your cards…** bar. The same authenticated queue request streams measured preparation work; there is no polling, timer-based percentage or artificial display delay. Before the workload is known, the bar has no percentage. The server sends ready only after the queue service, including its transaction commit, resolves. Errors/abort cannot publish a successful completion. Plain JSON clients retain their existing response contract. Both locales, reduced motion, stream framing, incomplete/malformed streams, safe errors and cancellation are covered.
+
+The repeated local production-build five-user workload uses the same two English/three Japanese actors and established-history fixtures described above. All **40 flashcard requests succeed**. Cold concurrent queues take **706–790 ms**, established-history queues **18–125 ms**, new-history answer saves **23–53 ms**, and established-history answer saves **16–55 ms**, compared with the prior established-history save range of **17–276 ms**. These are single short macOS/localhost runs, not production latency guarantees or sustained capacity evidence.
+
+The aggregate query returns **five summary rows**, rather than 10,291 state rows, using the existing user/card index. Its representative local execution takes approximately **21.4 ms** (the former state-transfer query approximately 12.7 ms before Node decoding/rollups). The optimization shifts aggregation to PostgreSQL and removes repeated transfer/calculation; it does not eliminate the need to examine relevant learner history inside PostgreSQL. No speculative index migration was added.
+
+The process still peaks at **481 MiB RSS**, so the **400 MiB memory-headroom gate remains unmet**. The run again reproduces the already documented English first-bank publication race (F13), followed by a recorded explicit retry; subsequent placement answer waves take **619–739 ms**. Placement runtime/cache/race work remains section 6ai(3), followed by dashboard/shared-shell work and the final capacity gate. Do not describe this batch as resolving the outage or clearing the release gate. Production content, payments, hosting settings and data were untouched.
+
+Verification: **3,485 full unit tests, 242 study checks and 24 isolated PostgreSQL study checks pass**, along with TypeScript, focused lint and the production build. The loading bar was inspected on 390px phones and 1280px desktop views for both learning subjects in light/dark themes using genuine server frames with throttled browser delivery; there was no horizontal page overflow and the prepared questions appeared afterward. The browser cases use the English interface. A self-redirect on the default Japanese-interface locale URL in this isolated production preview prevents claiming that browser path verified; bilingual component/interaction tests pass, and routing was not changed. The existing 127.0.0.1/local-origin discrepancy in the preview's Japanese POST was resolved in the harness by using localhost, preserving the application origin guard. Temporary local resources are cleaned up. No production action, staging, commit or push.

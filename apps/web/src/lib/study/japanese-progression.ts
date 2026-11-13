@@ -29,7 +29,7 @@ export function japaneseStudyProgression(input: ProgressionInput) {
   return { unlocked: levels.slice(0, cap + 1), mastered, completed: levels.filter(code => completed.includes(code)) };
 }
 
-type JapaneseStudyDb = Pick<PrismaClient, "user" | "studyTrack" | "japanesePlacementAttempt" | "userStudyLevelProgress" | "studyDeck" | "userStudyCardState">;
+type JapaneseStudyDb = Pick<PrismaClient, "user" | "studyTrack" | "japanesePlacementAttempt" | "userStudyLevelProgress" | "studyDeck" | "$queryRaw">;
 type JapaneseTrack = StudyTrack & { levels: StudyLevel[] };
 
 export async function readJapaneseStudyContext(db: JapaneseStudyDb, learnerId: string) {
@@ -42,12 +42,20 @@ export async function readJapaneseStudyContext(db: JapaneseStudyDb, learnerId: s
 
 /** Shared read calculation for HTTP overview and transactional milestones. */
 export async function getJapaneseStudyProgressionForTrack(db: JapaneseStudyDb, learnerId: string, track: JapaneseTrack) {
+  return japaneseProgressionFromState(track, await readJapaneseProgressionState(db, learnerId, track));
+}
+
+export async function readJapaneseProgressionState(db: JapaneseStudyDb, learnerId: string, track: JapaneseTrack) {
   const levelIds = track.levels.map(row => row.id);
   const [attempt, progress, practice] = await Promise.all([
     readLatestJapanesePlacementAward(db, learnerId),
     db.userStudyLevelProgress.findMany({ where: { userId: learnerId, level: { trackId: track.id } } }),
     getFlashcardPracticeRollupsByLevelId(db, learnerId, levelIds),
   ]);
+  return { attempt, progress, practice };
+}
+
+export function japaneseProgressionFromState(track: JapaneseTrack, { attempt, progress, practice }: Awaited<ReturnType<typeof readJapaneseProgressionState>>) {
   const result = attempt?.result;
   const placementBand = result?.levelEstimate.status === "estimated" ? result.levelEstimate.band : null;
   const codeById = new Map(track.levels.map(row => [row.id, row.levelCode]));

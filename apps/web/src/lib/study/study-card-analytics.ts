@@ -1,3 +1,4 @@
+import { matchesPracticeCondition, STUDY_PRACTICE_FALLBACK, STUDY_PRACTICE_RULES } from "./practice-band-policy";
 export type StudyPracticeBand = "new" | "learning" | "weak" | "mastered";
 
 export type StudyCardPerformanceSlice = {
@@ -7,13 +8,6 @@ export type StudyCardPerformanceSlice = {
   averageAnswerMs: number | null;
   latencySampleCount: number;
 };
-
-const MASTERED_MIN_ATTEMPTS = 8;
-const MASTERED_MIN_ACCURACY = 88;
-const MASTERED_MIN_STREAK = 5;
-
-const WEAK_MIN_ATTEMPTS = 2;
-const WEAK_MAX_ACCURACY = 65;
 
 export function studyAttemptCount(correctCount: number, wrongCount: number): number {
   return correctCount + wrongCount;
@@ -53,21 +47,9 @@ export function nextAverageAnswerMs(
 export function classifyPracticeBand(state: StudyCardPerformanceSlice | null | undefined): StudyPracticeBand {
   if (!state) return "new";
   const attempts = studyAttemptCount(state.correctCount, state.wrongCount);
-  if (attempts === 0) return "new";
-
   const acc = studyAccuracyPercent(state.correctCount, state.wrongCount) ?? 0;
-
-  const mastered =
-    attempts >= MASTERED_MIN_ATTEMPTS &&
-    acc >= MASTERED_MIN_ACCURACY &&
-    state.streakCorrect >= MASTERED_MIN_STREAK;
-  if (mastered) return "mastered";
-
-  const weakByAccuracy = attempts >= WEAK_MIN_ATTEMPTS && acc <= WEAK_MAX_ACCURACY;
-  const weakByMistakes = attempts >= WEAK_MIN_ATTEMPTS && state.wrongCount > state.correctCount;
-  if (weakByAccuracy || weakByMistakes) return "weak";
-
-  return "learning";
+  const metrics = { ...state, attempts, accuracy: acc };
+  return STUDY_PRACTICE_RULES.find(rule => matchesPracticeCondition(rule.when, metrics))?.band ?? STUDY_PRACTICE_FALLBACK;
 }
 
 /** Distractors to pair with the correct answer (total options = 1 + count). */

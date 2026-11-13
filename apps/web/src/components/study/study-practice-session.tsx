@@ -12,6 +12,7 @@ import type { StudyLevelCode } from "@/generated/prisma/browser";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Choice, ChoiceList } from "@/components/ui/choice";
 import { Outcome } from "@/components/ui/outcome";
+import { QUEUE_STREAM_TYPE, readPreparedQueue, type QueuePreparationProgress } from "@/lib/study/queue-preparation";
 import { Status } from "@/components/ui/status";
 
 export type StudyQueueFocus = "mixed" | "weak" | "mastered";
@@ -30,6 +31,8 @@ export function StudyPracticeSession({
   const [cards, setCards] = useState<StudyQueueCard[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [preparation, setPreparation] = useState<QueuePreparationProgress | null>(null);
+  const queueController = useRef<AbortController | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [emptyReason, setEmptyReason] = useState<"no_weak_cards" | "no_mastered_cards" | null>(null);
   const [sessionXp, setSessionXp] = useState(0);
@@ -42,23 +45,29 @@ export function StudyPracticeSession({
   const promptShownAtMs = useRef<number>(0);
 
   const loadQueue = useCallback(async () => {
+    queueController.current?.abort();
+    const abort = new AbortController(); queueController.current = abort;
+    setPreparation(null);
     setLoading(true);
     setError(null);
     setEmptyReason(null);
     try {
       const res = await fetch(
         `/api/study/queue?trackSlug=english-flashcards&levelCode=${encodeURIComponent(levelCode)}&limit=24&focus=${encodeURIComponent(queueFocus)}`,
+        { signal: abort.signal, headers: { Accept: QUEUE_STREAM_TYPE } },
       );
+      if (abort.signal.aborted) return;
       if (!res.ok) {
         const j = (await res.json().catch(() => ({}))) as { error?: string };
         setError(j.error ?? `HTTP ${res.status}`);
         setCards([]);
         return;
       }
-      const data = (await res.json()) as {
+      const data = (await readPreparedQueue(res, progress => { if (!abort.signal.aborted) setPreparation(progress); })) as {
         cards: StudyQueueCard[];
         emptyReason?: "no_weak_cards" | "no_mastered_cards";
       };
+      if (abort.signal.aborted) return;
       setCards(data.cards);
       if (data.cards.length === 0 && data.emptyReason) {
         setEmptyReason(data.emptyReason);
@@ -68,15 +77,17 @@ export function StudyPracticeSession({
       setFeedback(null);
       setLastCorrectAnswer(null);
     } catch {
+      if (abort.signal.aborted) return;
       setError("Network error");
       setCards([]);
     } finally {
-      setLoading(false);
+      if (!abort.signal.aborted) setLoading(false);
     }
   }, [levelCode, queueFocus]);
 
   useEffect(() => {
     void loadQueue();
+    return () => queueController.current?.abort();
   }, [loadQueue]);
 
   useEffect(() => {
@@ -154,7 +165,7 @@ export function StudyPracticeSession({
 
   const submitMultiStep = (multiStepAnswers: string[]) => void postReview({ multiStepAnswers });
 
-  if (loading) return <StudyPracticeLoading label="Loading practice" />;
+  if (loading) return <StudyPracticeLoading label={t("preparingCards")} progress={preparation} />;
 
   if (error) {
     return (

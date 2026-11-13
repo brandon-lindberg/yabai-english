@@ -1,5 +1,5 @@
 import "server-only";
-import type { Prisma } from "@/generated/prisma/client";
+import type { Prisma, UserStudyCardState } from "@/generated/prisma/client";
 import { nextStudyReviewState } from "./scheduler";
 import { xpForMcq } from "./quiz";
 import { lockLearnerTransaction } from "../learner-transaction-lock";
@@ -12,10 +12,10 @@ export async function lockStudyLearner(tx: Prisma.TransactionClient, userId: str
 /** Shared persistence only; each language owns its prompt and grading rules. */
 export async function saveStudyReviewProgress(tx: Prisma.TransactionClient, input: {
   userId: string; cardId: string; levelId: string; correct: boolean; now: Date; answerTimeMs?: number;
-}) {
+}, locked?: { previous: UserStudyCardState | null }) {
   const { userId, cardId, levelId, correct, now, answerTimeMs } = input;
-  await lockStudyLearner(tx, userId);
-  const previous = await tx.userStudyCardState.findUnique({ where: { userId_cardId: { userId, cardId } } });
+  if (!locked) await lockStudyLearner(tx, userId);
+  const previous = locked ? locked.previous : await tx.userStudyCardState.findUnique({ where: { userId_cardId: { userId, cardId } } });
   const state = nextStudyReviewState(previous, correct, now, answerTimeMs);
   await tx.userStudyCardState.upsert({
     where: { userId_cardId: { userId, cardId } },

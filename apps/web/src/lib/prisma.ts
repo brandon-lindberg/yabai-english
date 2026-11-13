@@ -9,6 +9,8 @@ function createPrismaClient() {
   const schema = process.env.DATABASE_URL ? new URL(process.env.DATABASE_URL).searchParams.get("schema") ?? "public" : "public";
   const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL,
+    // Keep raw aggregates in the same schema as Prisma's qualified model reads.
+    options: `-c search_path=${(`"${schema.replaceAll('"', '""')}"`).replace(/[\\\s]/g, "\\$&")}`,
   }, { schema });
   // Query logging is opt-in (PRISMA_LOG_QUERIES=true) because it floods the
   // dev terminal and the browser console via Next's server-log forwarding.

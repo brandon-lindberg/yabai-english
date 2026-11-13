@@ -1,10 +1,11 @@
 import type { PrismaClient } from "@/generated/prisma/client";
-import { isStudyLevelUnlocked } from "./access";
-import { computeLevelMastery } from "./mastery";
+import { studyLevelAccess } from "./access";
+import { studyMasteryPercent } from "./mastery";
+import { previousStudyLevel } from "./constants";
 import { studyRpgProgressFromTotalXp, type StudyRpgSnapshot } from "./rpg-xp";
 import {
   combineTrackPracticeRollups,
-  getFlashcardPracticeRollupsByLevelId,
+  getFlashcardStatisticsByLevelId,
   type FlashcardLevelPracticeRollup,
 } from "./study-flashcard-stats";
 
@@ -42,33 +43,21 @@ export async function getStudyTrackOverview(
   });
   if (!track) return null;
 
-  const totalStudyXp = await getTotalStudyXpForTrack(prisma, userId, track.id);
-  const rpg = studyRpgProgressFromTotalXp(totalStudyXp);
-
-  const practiceByLevelId = await getFlashcardPracticeRollupsByLevelId(
-    prisma,
-    userId,
-    track.levels.map((l) => l.id),
-  );
-
-  const levels = [];
-  for (const level of track.levels) {
-    const locked = !(await isStudyLevelUnlocked(prisma, userId, track.id, level.levelCode));
-    const progress = await prisma.userStudyLevelProgress.findUnique({
-      where: { userId_levelId: { userId, levelId: level.id } },
-    });
-    const { masteryScore, cardsTotal, cardsTouched } = await computeLevelMastery(
-      prisma,
-      userId,
-      level.id,
-    );
-
-    const assessment = await prisma.studyAssessment.findFirst({
-      where: { levelId: level.id, kind: "LEVEL_EXIT" },
-      select: { id: true },
-    });
-
-    levels.push({
+  const [actor, progressRows, assessments, statistics] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: { role: true, studentProfile: { select: { placedLevel: true, placedSubLevel: true } } } }),
+    prisma.userStudyLevelProgress.findMany({ where: { userId, level: { trackId: track.id } } }),
+    prisma.studyAssessment.findMany({ where: { level: { trackId: track.id }, kind: "LEVEL_EXIT" }, select: { id: true, levelId: true } }),
+    getFlashcardStatisticsByLevelId(prisma, userId, track.levels.map(level => level.id)),
+  ]);
+  const rpg = studyRpgProgressFromTotalXp(progressRows.reduce((sum, row) => sum + row.xp, 0));
+  const byLevel = new Map(progressRows.map(row => [row.levelId, row]));
+  const levels = track.levels.map(level => {
+    const progress = byLevel.get(level.id);
+    const previous = track.levels.find(row => row.levelCode === previousStudyLevel(level.levelCode));
+    const locked = !studyLevelAccess({ role: actor?.role, levelCode: level.levelCode, ...actor?.studentProfile,
+      previousPassed: Boolean(previous && byLevel.get(previous.id)?.assessmentPassedAt) });
+    const { practice, cardsTotal, cardsTouched } = statistics.get(level.id)!;
+    return {
       id: level.id,
       levelCode: level.levelCode,
       titleJa: level.titleJa,
@@ -76,18 +65,18 @@ export async function getStudyTrackOverview(
       sortOrder: level.sortOrder,
       locked,
       xp: progress?.xp ?? 0,
-      masteryScore,
+      masteryScore: studyMasteryPercent(cardsTotal, cardsTouched),
       assessmentPassedAt: progress?.assessmentPassedAt ?? null,
       completedAt: progress?.completedAt ?? null,
       cardsTotal,
       cardsTouched,
-      exitAssessmentId: assessment?.id ?? null,
-      practice: practiceByLevelId.get(level.id)!,
-    });
-  }
+      exitAssessmentId: assessments.find(row => row.levelId === level.id)?.id ?? null,
+      practice,
+    };
+  });
 
   const trackPractice: FlashcardLevelPracticeRollup = combineTrackPracticeRollups(
-    track.levels.map((l) => practiceByLevelId.get(l.id)!),
+    track.levels.map((l) => statistics.get(l.id)!.practice),
   );
 
   return {

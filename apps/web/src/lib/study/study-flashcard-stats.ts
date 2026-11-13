@@ -1,5 +1,6 @@
-import type { PrismaClient } from "@/generated/prisma/client";
+import { Prisma, type PrismaClient } from "@/generated/prisma/client";
 import { classifyPracticeBand, type StudyCardPerformanceSlice } from "./study-card-analytics";
+import { practiceBandSql } from "./practice-band-sql";
 
 export type FlashcardLevelPracticeRollup = {
   weakCount: number;
@@ -63,23 +64,24 @@ export function rollupFlashcardPracticeForLevel(
     }
   }
 
-  const avgAccuracyPercent =
-    totalAttempts > 0 ? Math.min(100, Math.round((totalCorrect / totalAttempts) * 100)) : null;
-  const avgAnswerMs =
-    latencySamples > 0 ? Math.round(latencyWeightedSum / latencySamples) : null;
-
-  return {
+  return finishRollup({
     weakCount,
     masteredCount,
     newCount,
     learningCount,
     totalCorrect,
     totalAttempts,
-    avgAccuracyPercent,
-    avgAnswerMs,
+    avgAccuracyPercent: null,
+    avgAnswerMs: null,
     latencyWeightedSum,
     latencySamples,
-  };
+  });
+}
+
+function finishRollup(rollup: FlashcardLevelPracticeRollup) {
+  rollup.avgAccuracyPercent = rollup.totalAttempts > 0 ? Math.min(100, Math.round(rollup.totalCorrect / rollup.totalAttempts * 100)) : null;
+  rollup.avgAnswerMs = rollup.latencySamples > 0 ? Math.round(rollup.latencyWeightedSum / rollup.latencySamples) : null;
+  return rollup;
 }
 
 /** Sum rollups across levels (e.g. dashboard “whole track” row). */
@@ -97,68 +99,62 @@ export function combineTrackPracticeRollups(
     out.latencyWeightedSum += r.latencyWeightedSum;
     out.latencySamples += r.latencySamples;
   }
-  out.avgAccuracyPercent =
-    out.totalAttempts > 0 ? Math.min(100, Math.round((out.totalCorrect / out.totalAttempts) * 100)) : null;
-  out.avgAnswerMs =
-    out.latencySamples > 0 ? Math.round(out.latencyWeightedSum / out.latencySamples) : null;
-  return out;
+  return finishRollup(out);
 }
 
-function stateFromRow(row: {
-  correctCount: number;
-  wrongCount: number;
-  streakCorrect: number;
-  averageAnswerMs: number | null;
-  latencySampleCount: number;
-}): StudyCardPerformanceSlice {
-  return {
-    correctCount: row.correctCount,
-    wrongCount: row.wrongCount,
-    streakCorrect: row.streakCorrect,
-    averageAnswerMs: row.averageAnswerMs,
-    latencySampleCount: row.latencySampleCount,
-  };
-}
+type SummaryRow = { levelId: string; statesTotal: bigint; cardsTouched: bigint } & Record<"weakCount" | "masteredCount" | "learningCount" | "newCount" | "totalCorrect" | "totalAttempts" | "latencyWeightedSum" | "latencySamples", bigint | number>;
+type SummaryDb = Pick<PrismaClient, "studyDeck" | "$queryRaw">;
 
-/** Count the catalog in PostgreSQL; transfer only the learner's saved states. */
-export async function getFlashcardPracticeRollupsByLevelId(
-  prisma: Pick<PrismaClient, "studyDeck" | "userStudyCardState">,
+/** Transfer one aggregate per level, never a learner's whole card history. */
+export async function getFlashcardStatisticsByLevelId(
+  prisma: SummaryDb,
   userId: string,
   levelIds: readonly string[],
-): Promise<Map<string, FlashcardLevelPracticeRollup>> {
-  const map = new Map<string, FlashcardLevelPracticeRollup>();
+){
+  const map = new Map<string, { practice: FlashcardLevelPracticeRollup; cardsTouched: number; cardsTotal: number }>();
   for (const id of levelIds) {
-    map.set(id, emptyRollup());
+    map.set(id, { practice: emptyRollup(), cardsTouched: 0, cardsTotal: 0 });
   }
   if (levelIds.length === 0) return map;
 
   const scope = { levelId: { in: [...levelIds] } };
   const [decks, states] = await Promise.all([
     prisma.studyDeck.findMany({ where: scope, select: { levelId: true, _count: { select: { cards: true } } } }),
-    prisma.userStudyCardState.findMany({
-      where: { userId, card: { deck: scope } },
-      select: {
-        cardId: true, correctCount: true, wrongCount: true, streakCorrect: true,
-        averageAnswerMs: true, latencySampleCount: true, card: { select: { deck: { select: { levelId: true } } } },
-      },
-    }),
+    prisma.$queryRaw<SummaryRow[]>(Prisma.sql`
+      SELECT d."levelId", COUNT(*) AS "statesTotal",
+        COUNT(*) FILTER (WHERE s."correctCount" >= 1) AS "cardsTouched",
+        COUNT(*) FILTER (WHERE ${practiceBandSql} = 'weak') AS "weakCount",
+        COUNT(*) FILTER (WHERE ${practiceBandSql} = 'mastered') AS "masteredCount",
+        COUNT(*) FILTER (WHERE ${practiceBandSql} = 'learning') AS "learningCount",
+        COUNT(*) FILTER (WHERE ${practiceBandSql} = 'new') AS "newCount",
+        SUM(s."correctCount"::bigint) AS "totalCorrect", SUM(s."correctCount"::bigint + s."wrongCount") AS "totalAttempts",
+        COALESCE(SUM(s."averageAnswerMs"::bigint * s."latencySampleCount") FILTER (WHERE s."latencySampleCount" > 0 AND s."averageAnswerMs" IS NOT NULL), 0) AS "latencyWeightedSum",
+        COALESCE(SUM(s."latencySampleCount"::bigint) FILTER (WHERE s."latencySampleCount" > 0 AND s."averageAnswerMs" IS NOT NULL), 0) AS "latencySamples"
+      FROM "UserStudyCardState" s JOIN "StudyCard" c ON c.id = s."cardId" JOIN "StudyDeck" d ON d.id = c."deckId"
+      WHERE s."userId" = ${userId} AND d."levelId" IN (${Prisma.join([...levelIds])}) GROUP BY d."levelId"`),
   ]);
-  const stateByCard = new Map(states.map((s) => [s.cardId, stateFromRow(s)]));
   const totals = new Map<string, number>();
   for (const deck of decks) totals.set(deck.levelId, (totals.get(deck.levelId) ?? 0) + deck._count.cards);
-  const idsByLevel = new Map<string, string[]>();
-  for (const state of states) {
-    const lid = state.card.deck.levelId;
-    const arr = idsByLevel.get(lid) ?? [];
-    arr.push(state.cardId);
-    idsByLevel.set(lid, arr);
-  }
-
   for (const levelId of levelIds) {
-    const ids = idsByLevel.get(levelId) ?? [];
-    const rollup = rollupFlashcardPracticeForLevel(ids, stateByCard);
-    rollup.newCount += Math.max(0, (totals.get(levelId) ?? 0) - ids.length);
-    map.set(levelId, rollup);
+    const row = states.find(row => row.levelId === levelId), rollup = emptyRollup();
+    if (row) for (const key of ["weakCount", "masteredCount", "learningCount", "newCount", "totalCorrect", "totalAttempts", "latencyWeightedSum", "latencySamples"] as const) rollup[key] = Number(row[key]);
+    const cardsTotal = totals.get(levelId) ?? 0;
+    rollup.newCount += Math.max(0, cardsTotal - Number(row?.statesTotal ?? 0));
+    finishRollup(rollup);
+    map.set(levelId, { practice: rollup, cardsTotal, cardsTouched: Number(row?.cardsTouched ?? 0) });
   }
   return map;
+}
+
+export async function getFlashcardPracticeRollupsByLevelId(prisma: SummaryDb, userId: string, levelIds: readonly string[]) {
+  const summaries = await getFlashcardStatisticsByLevelId(prisma, userId, levelIds);
+  return new Map([...summaries].map(([id, row]) => [id, row.practice]));
+}
+
+/** Recalculate only the changed card's contribution after the locked write. */
+export function replaceFlashcardPracticeState(before: FlashcardLevelPracticeRollup, previous: StudyCardPerformanceSlice | null, next: StudyCardPerformanceSlice) {
+  const contribution = (state: StudyCardPerformanceSlice | null) => rollupFlashcardPracticeForLevel(["card"], new Map(state ? [["card", state]] : []));
+  const old = contribution(previous), current = contribution(next), after = { ...before };
+  for (const key of ["weakCount", "masteredCount", "learningCount", "newCount", "totalCorrect", "totalAttempts", "latencyWeightedSum", "latencySamples"] as const) after[key] += current[key] - old[key];
+  return finishRollup(after);
 }

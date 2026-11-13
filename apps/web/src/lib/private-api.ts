@@ -26,7 +26,8 @@ export async function authenticatedPrivateApi(req: Request, run: (actorId: strin
       }
     }
     // The service rereads the account. Session role/subject fields never authorize data access.
-    return reply(await run(session.user.id));
+    const result = await run(session.user.id);
+    return result instanceof Response ? result : reply(result);
   } catch (error) {
     if (error instanceof PrivateApiFailure) return reply({ error: error.code }, error.status);
     console.error("Private API request failed", error);

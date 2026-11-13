@@ -1691,6 +1691,7 @@
     "notation": "A dot separates the kanji reading from okurigana. A hyphen marks a prefix or suffix. Name readings are listed separately."
   },
   "study": {
+    "preparingCards": "Preparing your cards…",
     "title": "Flashcards",
     "subtitle": "All track levels are listed below. Practice any level that is unlocked for you—usually from your placement band upward, or after you pass the previous level’s exit test. Earn XP for your study rank as you go.",
     "mastery": "Mastery",

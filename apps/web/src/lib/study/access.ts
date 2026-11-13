@@ -3,6 +3,17 @@ import { StudyLevelCode } from "@/generated/prisma/client";
 import { previousStudyLevel, studyLevelIndex, STUDY_LEVEL_ORDER } from "./constants";
 import { placementMaxStudyLevelIndex } from "./placement-unlock";
 
+/** Shared access calculation for individual checks and batched overviews. */
+export function studyLevelAccess(input: {
+  role?: string; levelCode: StudyLevelCode; placedLevel?: Parameters<typeof placementMaxStudyLevelIndex>[0];
+  placedSubLevel?: number | null; previousPassed: boolean;
+}) {
+  if (!STUDY_LEVEL_ORDER.includes(input.levelCode)) return false;
+  if (input.role === "TEACHER" || input.role === "SUPER_ADMIN" || input.levelCode === StudyLevelCode.BEGINNER_1) return true;
+  const cap = placementMaxStudyLevelIndex(input.placedLevel ?? "UNSET", input.placedSubLevel);
+  return (cap !== null && studyLevelIndex(input.levelCode) <= cap) || input.previousPassed;
+}
+
 /**
  * A study level is unlocked if:
  * - It is Beginner 1 (default entry for everyone), or
@@ -34,12 +45,7 @@ export async function isStudyLevelUnlocked(
     select: { placedLevel: true, placedSubLevel: true },
   });
 
-  const cap = placementMaxStudyLevelIndex(
-    profile?.placedLevel ?? "UNSET",
-    profile?.placedSubLevel,
-  );
-  const idx = studyLevelIndex(levelCode);
-  if (cap !== null && idx <= cap) return true;
+  if (studyLevelAccess({ role: user?.role, levelCode, ...profile, previousPassed: false })) return true;
 
   const prev = previousStudyLevel(levelCode);
   if (!prev) return true;
@@ -53,5 +59,5 @@ export async function isStudyLevelUnlocked(
     where: { userId_levelId: { userId, levelId: prevLevel.id } },
   });
 
-  return Boolean(prevProgress?.assessmentPassedAt);
+  return studyLevelAccess({ role: user?.role, levelCode, ...profile, previousPassed: Boolean(prevProgress?.assessmentPassedAt) });
 }

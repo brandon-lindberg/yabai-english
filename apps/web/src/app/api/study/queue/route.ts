@@ -3,22 +3,8 @@ import { auth } from "@/auth";
 import { englishLearningAccessError } from "@/lib/english-learning-access";
 import { prisma } from "@/lib/prisma";
 import { isStudyLevelUnlocked } from "@/lib/study/access";
-import {
-  classifyPracticeBand,
-  filterCardIdsByFocus,
-  mcqDistractorCountForBand,
-  type StudyCardPerformanceSlice,
-} from "@/lib/study/study-card-analytics";
-import { parseStudyCardExercise, shuffleTokensForQueue } from "@/lib/study/card-exercise";
-import type { StudyQueueCard } from "@/lib/study/practice-queue-card";
-import {
-  buildFourOptions,
-  extractFillBlankAnswer,
-  MCQ_SHORT_FALLBACK_PHRASES,
-  mcqCanonicalAnswer,
-  mcqPoolPhraseWhenFragmentMode,
-} from "@/lib/study/quiz";
-import { buildWeightedSessionQueue } from "@/lib/study/scheduler";
+import { prepareEnglishStudyQueue } from "@/lib/study/english-queue";
+import { queuePreparationResponse } from "@/lib/study/queue-preparation-server";
 import { StudyLevelCode } from "@/generated/prisma/client";
 import { z } from "zod";
 
@@ -28,28 +14,6 @@ const querySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(24),
   focus: z.enum(["mixed", "weak", "mastered"]).default("mixed"),
 });
-
-type CardRow = { id: string; frontJa: string; backEn: string; deckId: string; exerciseJson: unknown };
-
-type StateRow = {
-  dueAt: Date | null;
-  correctCount: number;
-  wrongCount: number;
-  streakCorrect: number;
-  averageAnswerMs: number | null;
-  latencySampleCount: number;
-};
-
-function toPerformanceSlice(st: StateRow | undefined): StudyCardPerformanceSlice | undefined {
-  if (!st) return undefined;
-  return {
-    correctCount: st.correctCount,
-    wrongCount: st.wrongCount,
-    streakCorrect: st.streakCorrect,
-    averageAnswerMs: st.averageAnswerMs,
-    latencySampleCount: st.latencySampleCount,
-  };
-}
 
 export async function GET(req: Request) {
   const session = await auth();
@@ -95,110 +59,6 @@ export async function GET(req: Request) {
     update: {},
   });
 
-  const cards: CardRow[] = await prisma.studyCard.findMany({
-    where: { kind: "ENGLISH_EXERCISE", deck: { levelId: level.id } },
-    orderBy: [{ deck: { sortOrder: "asc" } }, { sortOrder: "asc" }],
-    select: { id: true, frontJa: true, backEn: true, deckId: true, exerciseJson: true },
-  });
-
-  if (cards.length === 0) {
-    return NextResponse.json({
-      levelId: level.id,
-      levelCode: level.levelCode,
-      cards: [],
-      focus: parsed.data.focus,
-    });
-  }
-
-  const states = await prisma.userStudyCardState.findMany({
-    where: { userId: session.user.id, cardId: { in: cards.map((c) => c.id) } },
-  });
-  const stateByCard = new Map(
-    states.map((s) => [
-      s.cardId,
-      {
-        dueAt: s.dueAt,
-        correctCount: s.correctCount,
-        wrongCount: s.wrongCount,
-        streakCorrect: s.streakCorrect,
-        averageAnswerMs: s.averageAnswerMs,
-        latencySampleCount: s.latencySampleCount,
-      } satisfies StateRow,
-    ]),
-  );
-
-  const perfMap = new Map<string, StudyCardPerformanceSlice | undefined>();
-  for (const c of cards) {
-    perfMap.set(c.id, toPerformanceSlice(stateByCard.get(c.id)));
-  }
-
-  const focus = parsed.data.focus;
-  const pool: CardRow[] =
-    focus === "mixed"
-      ? cards
-      : (() => {
-          const ids = new Set(filterCardIdsByFocus(cards, perfMap, focus));
-          return ids.size === 0 ? [] : cards.filter((c) => ids.has(c.id));
-        })();
-
-  if (pool.length === 0) {
-    return NextResponse.json({
-      levelId: level.id,
-      levelCode: level.levelCode,
-      cards: [],
-      focus,
-      emptyReason: focus === "weak" ? "no_weak_cards" : "no_mastered_cards",
-    });
-  }
-
-  const now = new Date();
-  const rng = Math.random;
-  const weightedQueue = buildWeightedSessionQueue(pool, stateByCard, parsed.data.limit, now, rng);
-
-  const out: StudyQueueCard[] = weightedQueue.map((c) => {
-    const ex = parseStudyCardExercise(c.exerciseJson);
-    if (ex?.kind === "reorder") {
-      return {
-        id: c.id,
-        kind: "reorder" as const,
-        frontJa: c.frontJa,
-        tokens: shuffleTokensForQueue(ex.tokens, c.id),
-      };
-    }
-    if (ex?.kind === "multi_step") {
-      return {
-        id: c.id,
-        kind: "multi_step" as const,
-        frontJa: c.frontJa,
-        steps: ex.steps.map((s) => ({ prompt: s.prompt })),
-      };
-    }
-    const st = stateByCard.get(c.id);
-    const band = classifyPracticeBand(toPerformanceSlice(st));
-    const distractorCount = mcqDistractorCountForBand(band);
-    const fragmentMode = extractFillBlankAnswer(c.frontJa, c.backEn) != null;
-    const correctPhrase = mcqCanonicalAnswer(c.frontJa, c.backEn);
-    const distractorPool = pool
-      .filter((o) => o.id !== c.id)
-      .map((o) =>
-        fragmentMode ? mcqPoolPhraseWhenFragmentMode(o.frontJa, o.backEn) : o.backEn.trim(),
-      );
-    return {
-      id: c.id,
-      kind: "mcq" as const,
-      frontJa: c.frontJa,
-      options: buildFourOptions(correctPhrase, distractorPool, {
-        rng,
-        distractorCount,
-        shortFallbackPool: fragmentMode ? MCQ_SHORT_FALLBACK_PHRASES : undefined,
-      }),
-    };
-  });
-
-  return NextResponse.json({
-    levelId: level.id,
-    levelCode: level.levelCode,
-    cards: out,
-    focus,
-  });
+  const result = await queuePreparationResponse(req, async report => ({ ...await prepareEnglishStudyQueue(prisma, session.user.id, level.id, parsed.data, report), levelCode: level.levelCode }));
+  return result instanceof Response ? result : NextResponse.json({ ...result, levelCode: level.levelCode }, { headers: { "Cache-Control": "private, no-store" } });
 }
