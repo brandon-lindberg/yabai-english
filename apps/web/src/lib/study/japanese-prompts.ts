@@ -4,7 +4,6 @@ import { kanjiSchema, vocabularySchema, type JapaneseLevel } from "../japanese-c
 import { dictionaryWordSchema, japaneseVocabularyPairKey, toHiragana, normalizeDictionaryText as normMeaning } from "../japanese-content/dictionary";
 import { phraseAttestationSchema } from "../japanese-content/phrase-evidence";
 import { sha256 } from "../japanese-content/digest";
-import type { JapaneseFlashcardCatalog } from "../japanese-content/flashcard-catalog";
 import { requireUnique, sameStringMembers } from "../unique";
 import { canonicalJson } from "../canonical-json";
 import { studyLevelIndex } from "./constants";
@@ -34,7 +33,13 @@ const contentSchema = z.object({ schemaVersion: z.literal(1), unit: z.object({
 }).passthrough(), records: z.array(z.discriminatedUnion("kind", [vocabularyRecord, kanjiRecord])).min(1) }).strict();
 export type JapaneseStudyContent = z.infer<typeof contentSchema>;
 type Record = JapaneseStudyContent["records"][number];
-type Reference = JapaneseFlashcardCatalog["reconciliation"][number];
+export const japanesePromptReferenceSchema = z.object({
+  sourceRow: text, sourceFileId: text, level,
+  status: z.enum(["matched", "ambiguous", "unmatched"]),
+  kana: text, kanji: z.string(), candidateCardIds: z.array(text),
+}).strict();
+export type JapanesePromptReference = z.infer<typeof japanesePromptReferenceSchema>;
+type Reference = JapanesePromptReference;
 
 /** Decode persisted content without discarding source metadata or accepting legacy English rows. */
 export function parseJapaneseStudyContent(raw: unknown): JapaneseStudyContent {

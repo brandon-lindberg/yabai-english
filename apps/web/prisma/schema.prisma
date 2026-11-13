@@ -1315,8 +1315,19 @@ model StudyCatalogSnapshot {
   previousSnapshot StudyCatalogSnapshot? @relation("StudyCatalogHistory", fields: [previousSnapshotId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   nextSnapshots StudyCatalogSnapshot[] @relation("StudyCatalogHistory")
   cards StudyCatalogCardSnapshot[]
+  references StudyCatalogReference[]
   tracks StudyTrack[]
   reviewPrompts StudyReviewPrompt[]
+}
+
+/// Compact immutable prompt evidence, derived from snapshot provenance by PostgreSQL.
+model StudyCatalogReference {
+  snapshotId String
+  snapshot StudyCatalogSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  sourceRow String
+  referenceJson Json
+
+  @@id([snapshotId, sourceRow])
 }
 
 /// Complete immutable card revisions, independent of active cards and learner state.

@@ -4,11 +4,11 @@ import { z } from "zod";
 import type { Prisma, PrismaClient, StudyCard } from "@/generated/prisma/client";
 import type { JapaneseLevel } from "../japanese-content/corpus-audit";
 import { sha256 } from "../japanese-content/digest";
-import type { JapaneseFlashcardCatalog } from "../japanese-content/flashcard-catalog";
 import { canonicalJson } from "../canonical-json";
 import { PrivateApiFailure } from "../private-api-error";
 import { JAPANESE_REFERENCE_BANDS } from "../japanese-placement/public";
-import { createJapanesePromptBank, gradeJapaneseStudyPrompt, parseJapaneseStudyContent } from "./japanese-prompts";
+import { createJapanesePromptBank, gradeJapaneseStudyPrompt, type JapaneseStudyContent } from "./japanese-prompts";
+import { readJapanesePromptCards, readJapanesePromptReferences } from "./japanese-runtime-source";
 import { JAPANESE_REVIEW_PREVIEW_SIZE, japaneseStudyFeedbackSchema, japaneseStudyQuestionSchema, japaneseStudyResponseSchema, japaneseStudyResultSchema as resultSchema, japaneseStudyReviewPreviewSchema } from "./japanese-public";
 import { getJapaneseStudyProgressionForTrack, readJapaneseStudyContext } from "./japanese-progression";
 import { buildWeightedSessionQueue } from "./scheduler";
@@ -71,22 +71,20 @@ export async function getJapaneseStudyOverview(db: PrismaClient, userId: string)
 type Track = Awaited<ReturnType<typeof requireContext>>;
 type PromptCard = Pick<StudyCard, "id" | "kind" | "contentJson"> & { deck: { levelId: string } };
 function promptContent(card: PromptCard, track: Track) {
-  const content = parseJapaneseStudyContent(card.contentJson);
+  // The compiler validates the complete content once, after checking its row binding.
+  const content = card.contentJson as unknown as JapaneseStudyContent | null;
   const level = track.levels.find(level => level.id === card.deck.levelId);
-  if (content.unit.id !== card.id || content.unit.level.code !== level?.levelCode || card.kind !== (content.unit.kind === "kanji" ? "JAPANESE_KANJI" : "JAPANESE_VOCABULARY")) return fail(503, "STUDY_UNAVAILABLE");
+  if (content?.unit?.id !== card.id || content.unit.level?.code !== level?.levelCode || card.kind !== (content.unit.kind === "kanji" ? "JAPANESE_KANJI" : "JAPANESE_VOCABULARY")) return fail(503, "STUDY_UNAVAILABLE");
   return content;
 }
 
-function snapshotReferences(snapshot: { provenanceJson: Prisma.JsonValue }) {
-  // Import provenance is server-owned and bound to this published snapshot.
-  return (snapshot.provenanceJson as unknown as { source: { reconciliation: JapaneseFlashcardCatalog["reconciliation"] } }).source.reconciliation;
-}
-
-async function preparePromptBank(tx: Prisma.TransactionClient, track: Track) {
-  const snapshot = await tx.studyCatalogSnapshot.findUniqueOrThrow({ where: { id: track.catalogSnapshotId! } });
-  const cards = await tx.studyCard.findMany({ where: { deck: { level: { trackId: track.id } } }, include: { deck: { select: { levelId: true } } } });
-  const bank = createJapanesePromptBank(cards.map(card => promptContent(card, track)), snapshotReferences(snapshot));
-  return { cards, bank, snapshot };
+async function preparePromptBank(db: PrismaClient, tx: Prisma.TransactionClient, track: Track, ids: string[], levelIds: string[]) {
+  const cards = await readJapanesePromptCards(tx, track.id, ids, levelIds);
+  if (ids.some(id => !cards.some(card => card.id === id))) return fail(503, "STUDY_UNAVAILABLE");
+  const contents = cards.map(card => promptContent(card, track));
+  const references = await readJapanesePromptReferences(db, tx, track.catalogSnapshotId!, contents);
+  const bank = createJapanesePromptBank(contents, references);
+  return { cards, bank, snapshot: { id: track.catalogSnapshotId! } };
 }
 type PreparedBank = Awaited<ReturnType<typeof preparePromptBank>>;
 
@@ -108,11 +106,10 @@ export async function getJapaneseStudyReviewPreview(db: PrismaClient, userId: st
       const atLevel = available.filter(card => card.deck.levelId === practiceLevel.id);
       ids.push(...weightedSampleWithoutReplacement(atLevel.length >= remaining ? atLevel : available, () => 1, remaining).map(card => card.id));
     }
-    const [cards, snapshot] = await Promise.all([
-      tx.studyCard.findMany({ where: { ...scope, id: { in: ids } }, select: { id: true, kind: true, contentJson: true, deck: { select: { levelId: true } } } }),
-      tx.studyCatalogSnapshot.findUniqueOrThrow({ where: { id: track.catalogSnapshotId! }, select: { provenanceJson: true } }),
-    ]);
-    const bank = createJapanesePromptBank(cards.map(card => promptContent(card, track)), snapshotReferences(snapshot));
+    const cards = await tx.studyCard.findMany({ where: { ...scope, id: { in: ids } }, select: { id: true, kind: true, contentJson: true, deck: { select: { levelId: true } } } });
+    const contents = cards.map(card => promptContent(card, track));
+    const references = await readJapanesePromptReferences(db, tx, track.catalogSnapshotId!, contents);
+    const bank = createJapanesePromptBank(contents, references);
     const byId = new Map(cards.map(card => [card.id, card]));
     const weakIds = new Set(pool.filter(state => classifyPracticeBand(state) === "weak").map(state => state.cardId));
     const firstWeak = ids.find(id => weakIds.has(id));
@@ -165,15 +162,19 @@ export async function createJapaneseStudyQueue(db: PrismaClient, userId: string,
     const progression = await getJapaneseStudyProgressionForTrack(tx, userId, track);
     if (!progression.unlocked.includes(levelCode)) return fail(403, "LEVEL_LOCKED");
     const studyBand = progression.unlocked.at(-1)!;
-    const { cards, bank, snapshot } = await preparePromptBank(tx, track);
     const level = track.levels.find(level => level.levelCode === levelCode)!;
-    const candidates = cards.filter(card => card.deck.levelId === level.id && (kind === "mixed" || card.kind === (kind === "kanji" ? "JAPANESE_KANJI" : "JAPANESE_VOCABULARY")));
+    const candidates = await tx.studyCard.findMany({
+      where: { deck: { levelId: level.id }, ...(kind === "mixed" ? {} : { kind: kind === "kanji" ? "JAPANESE_KANJI" : "JAPANESE_VOCABULARY" }) },
+      select: { id: true },
+    });
     const states = await tx.userStudyCardState.findMany({ where: { userId, cardId: { in: candidates.map(card => card.id) } } });
     const stateByCard = new Map(states.map(state => [state.cardId, state]));
     const focused = new Set(filterCardIdsByFocus(candidates, stateByCard, focus));
     const now = nowTime();
     const selected = buildWeightedSessionQueue(candidates.filter(card => focused.has(card.id)), stateByCard, limit, now, Math.random, { allowRepeats: false });
-    const issued = await issueQuestions(tx, userId, selected, stateByCard, { cards, bank, snapshot }, studyBand, now);
+    const prepared = await preparePromptBank(db, tx, track, selected.map(card => card.id), progression.levels.filter(level => level.unlocked).map(level => level.id));
+    const byId = new Map(prepared.cards.map(card => [card.id, card]));
+    const issued = await issueQuestions(tx, userId, selected.map(card => byId.get(card.id)!), stateByCard, prepared, studyBand, now);
     await saveMilestones(tx, userId, progression, now);
     return { levelCode, cards: issued };
   }, { timeout: 30_000 });
@@ -241,7 +242,7 @@ export async function createJapaneseQuickReviewQueue(db: PrismaClient, userId: s
     if (!daily.row) return { ...daily.status, cards: [] };
     const pending = daily.ids.filter(id => !daily.receipts.some(receipt => receipt.cardId === id && receipt.result));
     if (!pending.length) return { ...daily.status, cards: [] };
-    const prepared = await preparePromptBank(tx, track);
+    const prepared = await preparePromptBank(db, tx, track, pending, progression.levels.filter(level => level.unlocked).map(level => level.id));
     const byId = new Map(prepared.cards.map(card => [card.id, card]));
     const selected = pending.map(id => byId.get(id)!);
     const issued = await issueQuestions(tx, userId, selected, new Map(daily.pool.map(state => [state.cardId, state])), prepared, progression.unlocked.at(-1)!, now);

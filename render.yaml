@@ -32,7 +32,8 @@ services:
     region: singapore
     rootDir: apps/web
     # yarn postinstall runs `prisma generate`, so no separate generate step needed.
-    buildCommand: yarn install --frozen-lockfile --ignore-engines && yarn build
+    # Only the build needs a large heap. `yarn start` has explicit runtime limits.
+    buildCommand: yarn install --frozen-lockfile --ignore-engines && NODE_OPTIONS=--max-old-space-size=4096 yarn build
     # Migrations run AFTER a successful build but BEFORE traffic is shifted,
     # so a migration failure won't take the old version down.
     preDeployCommand: yarn prisma migrate deploy
@@ -44,15 +45,6 @@ services:
       # Node 22 LTS — matches local dev and what Next 16 expects.
       - key: NODE_VERSION
         value: "22"
-
-      # `next build` peaks around 3.3 GB on this codebase (measured), and Node
-      # defaults its heap to roughly 2 GB on Render's build machine — which is
-      # where the build was dying with "Reached heap limit". Raise the ceiling.
-      # If a build still fails after this, look at *how* it fails: a heap-limit
-      # message means raise it again, an abrupt kill means the machine itself is
-      # too small and the plan needs raising instead.
-      - key: NODE_OPTIONS
-        value: "--max-old-space-size=4096"
 
       # Wire the web service to the managed database above.
       - key: DATABASE_URL

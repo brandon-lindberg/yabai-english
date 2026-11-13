@@ -120,9 +120,9 @@ function stateFromRow(row: {
   };
 }
 
-/** Per-level flashcard practice analytics for a track (one query). */
+/** Count the catalog in PostgreSQL; transfer only the learner's saved states. */
 export async function getFlashcardPracticeRollupsByLevelId(
-  prisma: Pick<PrismaClient, "studyCard" | "userStudyCardState">,
+  prisma: Pick<PrismaClient, "studyDeck" | "userStudyCardState">,
   userId: string,
   levelIds: readonly string[],
 ): Promise<Map<string, FlashcardLevelPracticeRollup>> {
@@ -132,35 +132,33 @@ export async function getFlashcardPracticeRollupsByLevelId(
   }
   if (levelIds.length === 0) return map;
 
-  const cards = await prisma.studyCard.findMany({
-    where: { deck: { levelId: { in: [...levelIds] } } },
-    select: { id: true, deck: { select: { levelId: true } } },
-  });
-
-  const states = await prisma.userStudyCardState.findMany({
-    where: { userId, cardId: { in: cards.map((c) => c.id) } },
-    select: {
-      cardId: true,
-      correctCount: true,
-      wrongCount: true,
-      streakCorrect: true,
-      averageAnswerMs: true,
-      latencySampleCount: true,
-    },
-  });
+  const scope = { levelId: { in: [...levelIds] } };
+  const [decks, states] = await Promise.all([
+    prisma.studyDeck.findMany({ where: scope, select: { levelId: true, _count: { select: { cards: true } } } }),
+    prisma.userStudyCardState.findMany({
+      where: { userId, card: { deck: scope } },
+      select: {
+        cardId: true, correctCount: true, wrongCount: true, streakCorrect: true,
+        averageAnswerMs: true, latencySampleCount: true, card: { select: { deck: { select: { levelId: true } } } },
+      },
+    }),
+  ]);
   const stateByCard = new Map(states.map((s) => [s.cardId, stateFromRow(s)]));
-
+  const totals = new Map<string, number>();
+  for (const deck of decks) totals.set(deck.levelId, (totals.get(deck.levelId) ?? 0) + deck._count.cards);
   const idsByLevel = new Map<string, string[]>();
-  for (const c of cards) {
-    const lid = c.deck.levelId;
+  for (const state of states) {
+    const lid = state.card.deck.levelId;
     const arr = idsByLevel.get(lid) ?? [];
-    arr.push(c.id);
+    arr.push(state.cardId);
     idsByLevel.set(lid, arr);
   }
 
   for (const levelId of levelIds) {
     const ids = idsByLevel.get(levelId) ?? [];
-    map.set(levelId, rollupFlashcardPracticeForLevel(ids, stateByCard));
+    const rollup = rollupFlashcardPracticeForLevel(ids, stateByCard);
+    rollup.newCount += Math.max(0, (totals.get(levelId) ?? 0) - ids.length);
+    map.set(levelId, rollup);
   }
   return map;
 }

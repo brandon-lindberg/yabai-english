@@ -29,7 +29,7 @@ export function japaneseStudyProgression(input: ProgressionInput) {
   return { unlocked: levels.slice(0, cap + 1), mastered, completed: levels.filter(code => completed.includes(code)) };
 }
 
-type JapaneseStudyDb = Pick<PrismaClient, "user" | "studyTrack" | "japanesePlacementAttempt" | "userStudyLevelProgress" | "studyCard" | "userStudyCardState">;
+type JapaneseStudyDb = Pick<PrismaClient, "user" | "studyTrack" | "japanesePlacementAttempt" | "userStudyLevelProgress" | "studyDeck" | "userStudyCardState">;
 type JapaneseTrack = StudyTrack & { levels: StudyLevel[] };
 
 export async function readJapaneseStudyContext(db: JapaneseStudyDb, learnerId: string) {

@@ -6,7 +6,7 @@
     "postinstall": "prisma generate",
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "node --max-old-space-size=256 --max-semi-space-size=2 node_modules/next/dist/bin/next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

@@ -9,6 +9,12 @@ import {
   publishChatUpdate,
   publishNotificationsUpdate,
 } from "@/lib/realtime-bus";
+import { EventEmitter } from "node:events";
+
+function listenerCount() {
+  const bus = (globalThis as unknown as { [key: symbol]: EventEmitter })[Symbol.for("english-platform.realtime-bus")];
+  return bus?.eventNames().reduce((total, event) => total + bus.listenerCount(event), 0) ?? 0;
+}
 
 async function readChunk(
   reader: ReadableStreamDefaultReader<Uint8Array>,
@@ -24,7 +30,35 @@ describe("GET /api/realtime/stream", () => {
   });
 
   afterEach(() => {
+    vi.clearAllTimers();
     vi.useRealTimers();
+  });
+
+  test.each(["cancel", "abort", "cancel then abort"])("releases the heartbeat and listener on %s", async (end) => {
+    vi.useFakeTimers();
+    authMock.mockResolvedValue({ user: { id: "cleanup-user", role: "STUDENT" } });
+    const initialListeners = listenerCount();
+    const abort = new AbortController();
+    const response = await GET(new Request("http://localhost/api/realtime/stream", { signal: abort.signal }));
+    const reader = response.body!.getReader();
+    await readChunk(reader);
+    expect(listenerCount()).toBe(initialListeners + 1);
+    if (end.startsWith("cancel")) await reader.cancel();
+    if (end.includes("abort")) {
+      if (end.startsWith("cancel")) await vi.advanceTimersByTimeAsync(25_000);
+      abort.abort();
+    }
+    expect({ listeners: listenerCount(), timers: vi.getTimerCount() }).toEqual({ listeners: initialListeners, timers: 0 });
+  });
+
+  test("an already aborted request does not retain stream resources", async () => {
+    vi.useFakeTimers();
+    authMock.mockResolvedValue({ user: { id: "aborted-user", role: "STUDENT" } });
+    const initialListeners = listenerCount();
+    const abort = new AbortController(); abort.abort();
+    const response = await GET(new Request("http://localhost/api/realtime/stream", { signal: abort.signal }));
+    expect((await response.body!.getReader().read()).done).toBe(true);
+    expect({ listeners: listenerCount(), timers: vi.getTimerCount() }).toEqual({ listeners: initialListeners, timers: 0 });
   });
 
   test("rejects unauthenticated requests with 401", async () => {

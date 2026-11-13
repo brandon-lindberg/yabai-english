@@ -30,42 +30,42 @@ export async function GET(req: Request) {
   const userId = session.user.id;
   const encoder = new TextEncoder();
 
+  let cleanup = () => {};
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
       let closed = false;
+      const resources: { heartbeat?: ReturnType<typeof setInterval>; unsubscribe?: () => void } = {};
+      cleanup = () => {
+        if (closed) return;
+        closed = true;
+        clearInterval(resources.heartbeat);
+        resources.unsubscribe?.();
+        req.signal.removeEventListener("abort", cleanup);
+        try { controller.close(); } catch { /* Cancellation may have closed the stream already. */ }
+      };
+      if (req.signal.aborted) { cleanup(); return; }
+      req.signal.addEventListener("abort", cleanup, { once: true });
+
       const safeEnqueue = (chunk: string) => {
         if (closed) return;
         try {
           controller.enqueue(encoder.encode(chunk));
         } catch {
-          closed = true;
+          cleanup();
         }
       };
 
-      safeEnqueue(`event: connected\ndata: {}\n\n`);
-
-      const unsubscribe = subscribeToUserRealtime(userId, (event) => {
+      resources.unsubscribe = subscribeToUserRealtime(userId, (event) => {
         safeEnqueue(encodeFrame(event));
       });
 
-      const heartbeat = setInterval(() => {
+      resources.heartbeat = setInterval(() => {
         safeEnqueue(`: keep-alive\n\n`);
       }, HEARTBEAT_INTERVAL_MS);
 
-      const cleanup = () => {
-        if (closed) return;
-        closed = true;
-        clearInterval(heartbeat);
-        unsubscribe();
-        try {
-          controller.close();
-        } catch {
-          // already closed
-        }
-      };
-
-      req.signal.addEventListener("abort", cleanup);
+      safeEnqueue(`event: connected\ndata: {}\n\n`);
     },
+    cancel() { cleanup(); },
   });
 
   return new Response(stream, {
