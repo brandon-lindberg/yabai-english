@@ -8,13 +8,13 @@ type CommandOptions = { timeout?: number; env?: NodeJS.ProcessEnv; cwd?: string 
 type CommandResult = { status: number | null; stdout: string; stderr: string; signal: string | null; error: ExecFileException | null };
 
 /** Keep Vitest's timers/RPC responsive and resolve only after the child closes. */
-export function runNodeCommand(args: string[], options: CommandOptions = {}): Promise<CommandResult> {
+export function runTestCommand(file: string, args: string[], options: CommandOptions = {}): Promise<CommandResult> {
   const timeout = options.timeout ?? NODE_COMMAND_TIMEOUT_MS;
   if (!Number.isFinite(timeout) || timeout <= 0) throw new Error("A finite command deadline is required");
   return new Promise((resolve) => {
     let expired = false;
     let forceStop: ReturnType<typeof setTimeout> | undefined;
-    const child = execFile(process.execPath, args, {
+    const child = execFile(file, args, {
       encoding: "utf8", maxBuffer: 16 * 1024 * 1024, ...options, timeout: 0,
     }, (error, stdout, stderr) => {
       clearTimeout(deadline);
@@ -30,6 +30,8 @@ export function runNodeCommand(args: string[], options: CommandOptions = {}): Pr
     }, timeout);
   });
 }
+
+export const runNodeCommand = (args: string[], options?: CommandOptions) => runTestCommand(process.execPath, args, options);
 
 export const runServerScript = (script: string, args: string[] = [], options?: CommandOptions) =>
   runNodeCommand(["--conditions=react-server", "--import", "tsx", script, ...args], options);

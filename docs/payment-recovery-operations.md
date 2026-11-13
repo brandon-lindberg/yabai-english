@@ -13,12 +13,30 @@ yarn --cwd apps/web prisma generate
 
 The additive migration `20261102020000_durable_payment_recovery` is already applied to the local application database. Deploy it to the target database before starting the updated application. Use this project's locked Prisma version, rather than an unpinned `npx prisma` download. Historical amounts, refund receipts, invoices and credit notes are retained. Old webhook receipts are marked complete; deployment does not automatically replay them or infer refund entitlement for old cancellations.
 
-**Automatic recovery needs a running worker or scheduled endpoint. Neither has been configured in production by this change.** Choose one:
+Payments, refunds and incoming Stripe webhooks are processed immediately through the existing integration. A running worker or scheduled endpoint provides automatic resumption of unfinished work. At the current one-paying-user volume, manual recovery through **Admin → Payments** is an acceptable temporary rollout option. Check payment/refund outcomes and resolve pending work while automatic recovery is disabled.
+
+The owner chose a **15-minute schedule** on 2026-11-12. The prepared GitHub Actions workflow below is the current deployment path. A supervised worker remains an alternative, rather than a second job to enable alongside it.
 
 - Supervise `yarn payments:recover --watch` from the repository root. It runs a bounded pass, waits 30 seconds and repeats; SIGINT/SIGTERM disconnect the database and stop the loop. Restart it through the process supervisor if it exits.
-- Schedule an authenticated GET or POST to `/api/internal/payments/recover` every minute. Set a server-side `PAYMENT_RECOVERY_SECRET` (or the existing `CRON_SECRET`) and send `Authorization: Bearer <that secret>`. Keep this secret out of client configuration. Missing configuration returns 503; invalid authentication returns 401. The route allows a 300-second execution budget; use hosting that supports it.
+- Schedule an authenticated GET or POST to `/api/internal/payments/recover` every 15 minutes. Set a server-side `PAYMENT_RECOVERY_SECRET` (or the existing `CRON_SECRET`) and send `Authorization: Bearer <that secret>`. Keep this secret out of client configuration. Missing configuration returns 503; invalid authentication returns 401. The route allows a 300-second execution budget; use hosting that supports it.
 
 `yarn payments:recover --once` performs one maintenance pass and exits. Each pass selects up to five saved deliveries and five payment jobs, honoring retry delays and active leases. Concurrent invocations cannot claim the same active work. The scheduled worker processes saved obligations and reconciliation; it does not authorize discretionary student refunds or replacement attempts for a confirmed failed refund.
+
+## Fifteen-minute GitHub Actions schedule
+
+The repository's [Payment recovery workflow](../.github/workflows/payment-recovery.yml) makes one authenticated POST to `https://www.englishstudiojapan.com/api/internal/payments/recover` every 15 minutes, at minutes 7, 22, 37 and 52. One job covers both learning languages. It reuses the existing server processor without checking out application code, installing dependencies or receiving database/Stripe credentials. Standard GitHub-hosted runners are [free for public repositories](https://docs.github.com/en/billing/concepts/product-billing/github-actions), including this repository at preparation time.
+
+Automatic calls are disabled unless the repository variable `PAYMENT_RECOVERY_ENABLED` equals `true`. Calls are restricted to this repository's `master` branch. An explicit manual run on `master` is available for the post-deployment check while automatic calls remain disabled. Concurrent runs are serialized and do not cancel work already in progress. The request has a 310-second timeout within a six-minute job budget, does not follow redirects or immediately retry, and discards the financial response body from public Actions logs. Only HTTP 200 is accepted.
+
+Prepare these settings in **GitHub → yabai-english → Settings → Secrets and variables → Actions**:
+
+1. In **Secrets**, create a repository secret named `PAYMENT_RECOVERY_SECRET`. Use the same value already saved in Render. Copy it directly between the services; never put it in the repository, a public Actions variable, a URL or this document.
+2. In **Variables**, create a repository variable named `PAYMENT_RECOVERY_ENABLED` with value `false`.
+3. Commit/push the workflow and its checks on `the-mirror`, and confirm CI passes. Merge/deploy the new app and its migrations before running the recovery endpoint. Adding the workflow to `master` alone does not activate automatic calls.
+4. After Render is live, open **Actions → Payment recovery → Run workflow**, choose `master`, and run it once. Confirm a successful request and inspect **Admin → Payments** for pending or attention-required work. A successful batch request does not prove every refund has settled.
+5. Change `PAYMENT_RECOVERY_ENABLED` to `true` to activate the scheduled calls. Confirm the next scheduled run succeeds. Set it back to `false` to stop future automatic requests without deleting saved work or interrupting an active request.
+
+This is 96 scheduled requests per day before provider scheduling delays. With empty queues, a pass performs two bounded database reads and no Stripe calls. Normal refunds still start immediately; this interval affects background resumption. GitHub [may delay/drop scheduled runs and disables public-repository schedules after 60 days without repository activity](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule). Check Actions after long quiet periods and use the existing manual admin recovery when needed. No external job or production request is created by merely preparing the workflow locally.
 
 ## Existing webhook endpoint
 
@@ -56,4 +74,4 @@ Recovery preserves provider receipts and ledger history, adding reconciliation d
 
 ## Local evidence and limits
 
-The [audit](stripe-payment-audit.md) records red/green evidence and the final regression results. Database tests use disposable local PostgreSQL schemas and a fake Stripe SDK; browser fixtures explicitly disable Stripe/Google credentials. No live charge, refund, endpoint change, production worker or production migration was performed. Production activation still needs the migration, automatic execution above and verification of the existing provider endpoint/account configuration.
+The [audit](stripe-payment-audit.md) records red/green evidence and the final regression results. Database tests use disposable local PostgreSQL schemas and a fake Stripe SDK; browser fixtures explicitly disable Stripe/Google credentials. No live charge, refund, endpoint change, production worker or production migration was performed. Production activation needs the migration and verification of the existing provider endpoint/account configuration. Automatic resumption additionally requires activating the schedule above; manual oversight remains necessary while it is off.
