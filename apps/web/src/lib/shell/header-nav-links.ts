@@ -5,6 +5,7 @@ export type HeaderNavLinkId =
   | "learn"
   | "schedule"
   | "placement"
+  | "japanese-placement"
   | "admin"
   | "org";
 
@@ -30,6 +31,7 @@ export type HeaderNavInput = {
   role: string | null | undefined;
   canStartPlacement?: boolean | null;
   activeOrgId?: string | null;
+  learningLanguage?: "ENGLISH" | "JAPANESE";
 };
 
 /**
@@ -60,7 +62,8 @@ export function getHeaderPrimaryNavLinks(input: HeaderNavInput): HeaderNavLink[]
       { id: "learn", href: "/learn/study", labelKey: "learn" },
       { id: "schedule", href: "/dashboard/schedule", labelKey: "schedule" },
     ];
-    if (input.canStartPlacement) {
+    if (input.learningLanguage === "JAPANESE") links.push({ id: "japanese-placement", href: "/japanese-placement", labelKey: "placement" });
+    if (input.canStartPlacement && input.learningLanguage !== "JAPANESE") {
       links.push({
         id: "placement",
         href: "/placement",

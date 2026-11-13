@@ -1,20 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-
-function subscribeNoop(onStoreChange: () => void) {
-  // A browser's timezone never changes during a session — nothing to subscribe to.
-  void onStoreChange;
-  return () => {};
-}
-
-function getBrowserTimeZone() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
-function getServerTimeZone(): string | undefined {
-  return undefined;
-}
+import { useBrowserTimezone } from "./use-browser-timezone";
 
 /**
  * The viewer's IANA timezone, or `undefined` until the client has mounted.
@@ -25,10 +11,6 @@ function getServerTimeZone(): string | undefined {
  * more than one surface formats a lesson time.
  */
 export function useViewerTimeZone(preferred?: string): string | undefined {
-  const browserTimeZone = useSyncExternalStore(
-    subscribeNoop,
-    getBrowserTimeZone,
-    getServerTimeZone,
-  );
+  const browserTimeZone = useBrowserTimezone();
   return preferred ?? browserTimeZone;
 }

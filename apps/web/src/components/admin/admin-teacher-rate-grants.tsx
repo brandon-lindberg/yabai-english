@@ -7,11 +7,13 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Field, Input, Select } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Status } from "@/components/ui/status";
+import type { LearningLanguage } from "@/generated/prisma/enums";
 import { MIN_PUBLIC_LESSON_RATE_YEN } from "@/lib/lesson-rate-policy";
 
 type TaxonomyOption = { id: string; labelEn: string; labelJa: string | null };
 
 type Grant = {
+  learningLanguage: LearningLanguage;
   id: string;
   durationMin: number;
   rateYen: number;
@@ -21,6 +23,7 @@ type Grant = {
 };
 
 type Loaded = {
+  teachingLanguages: LearningLanguage[];
   classLevels: TaxonomyOption[];
   classTypes: TaxonomyOption[];
   grants: Grant[];
@@ -43,15 +46,17 @@ function pickLabel(
  * through its own endpoint, and it is a concession recorded against an admin
  * rather than a field of the teacher's profile.
  */
-export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId: string }) {
+export function AdminTeacherRateGrants({ teacherProfileId, onChange }: { teacherProfileId: string; onChange?: () => void }) {
   const t = useTranslations("admin.teacherRateGrants");
   const locale = useLocale();
+  const subjectCopy = useTranslations("admin.teachingLanguages");
 
   const [data, setData] = useState<Loaded | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
 
+  const [learningLanguage, setLearningLanguage] = useState<LearningLanguage | "">("");
   const [durationMin, setDurationMin] = useState<number>(30);
   const [rateInput, setRateInput] = useState("");
   const [classLevelId, setClassLevelId] = useState("");
@@ -67,6 +72,7 @@ export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId:
         return;
       }
       setData(body);
+      setLearningLanguage((current) => body.teachingLanguages?.includes(current as LearningLanguage) ? current : (body.teachingLanguages?.[0] ?? ""));
       setClassLevelId((current) => current || (body.classLevels[0]?.id ?? ""));
       setClassTypeId((current) => current || (body.classTypes[0]?.id ?? ""));
     } catch {
@@ -83,7 +89,7 @@ export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId:
   // The same rule the API enforces, said before the round trip rather than after.
   const needsNoGrant = !Number.isNaN(entered) && entered >= MIN_PUBLIC_LESSON_RATE_YEN;
   const canGrant =
-    !Number.isNaN(entered) && entered > 0 && !needsNoGrant && Boolean(classLevelId && classTypeId);
+    !Number.isNaN(entered) && entered > 0 && !needsNoGrant && Boolean(classLevelId && classTypeId && learningLanguage);
 
   async function grant() {
     setSaving(true);
@@ -94,6 +100,7 @@ export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           teacherId: teacherProfileId,
+          learningLanguage,
           durationMin,
           rateYen: entered,
           classLevelId,
@@ -109,6 +116,7 @@ export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId:
       setRateInput("");
       setNote("");
       await load();
+      onChange?.();
     } catch {
       setError(t("error"));
     } finally {
@@ -126,6 +134,7 @@ export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId:
         return;
       }
       await load();
+      onChange?.();
     } catch {
       setError(t("error"));
     } finally {
@@ -162,7 +171,7 @@ export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId:
                   ¥{grant.rateYen.toLocaleString()} · {grant.durationMin} min
                 </p>
                 <p className="mt-0.5 text-xs text-muted">
-                  {pickLabel(grant.classLevel, locale)} · {pickLabel(grant.classType, locale)}
+                  {subjectCopy(grant.learningLanguage ?? "ENGLISH")} · {pickLabel(grant.classLevel, locale)} · {pickLabel(grant.classType, locale)}
                 </p>
                 {grant.adminRateOverrideNote ? (
                   <p className="mt-1 whitespace-pre-wrap text-xs text-muted">
@@ -191,6 +200,11 @@ export function AdminTeacherRateGrants({ teacherProfileId }: { teacherProfileId:
         <p className="text-sm text-muted">{t("noTaxonomy")}</p>
       ) : (
         <div className="space-y-4 border-t border-border pt-5">
+          <Field label={subjectCopy("subject")}>
+            {(field) => <Select {...field} value={learningLanguage} onChange={(event) => setLearningLanguage(event.target.value as LearningLanguage)}>
+              {(data.teachingLanguages ?? []).map((language) => <option key={language} value={language}>{subjectCopy(language)}</option>)}
+            </Select>}
+          </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t("duration")}>
               {(field) => (

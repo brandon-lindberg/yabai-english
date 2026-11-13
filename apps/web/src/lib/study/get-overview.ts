@@ -9,7 +9,7 @@ import {
 } from "./study-flashcard-stats";
 
 export async function getTotalStudyXpForTrack(
-  prisma: PrismaClient,
+  prisma: Pick<PrismaClient, "userStudyLevelProgress">,
   userId: string,
   trackId: string,
 ): Promise<number> {
@@ -35,7 +35,7 @@ export async function getStudyTrackOverview(
   trackSlug: string,
 ) {
   const track = await prisma.studyTrack.findUnique({
-    where: { slug: trackSlug },
+    where: { slug: trackSlug, learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" },
     include: {
       levels: { orderBy: { sortOrder: "asc" } },
     },

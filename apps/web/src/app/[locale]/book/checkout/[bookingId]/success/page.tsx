@@ -1,3 +1,4 @@
+import { redirectBookingToLearningSite } from "@/lib/booking-learning-site";
 import { notFound, redirect } from "next/navigation";
 import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
@@ -31,6 +32,7 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
   if (!booking || booking.studentId !== session.user.id) {
     notFound();
   }
+  await redirectBookingToLearningSite(booking, `/book/checkout/${bookingId}/success${sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : ""}`);
 
   if (booking.status === "PENDING_PAYMENT") {
     if (!sessionId || sessionId === "confirmed") {
@@ -65,6 +67,9 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
       <PageHeader title={t("checkoutSuccessTitle")} description={t("checkoutSuccessBody")} />
 
       <BookingSummary
+        learningLanguage={booking.learningLanguage}
+        lessonTier={booking.lessonProduct.tier}
+        durationMin={booking.lessonProduct.durationMin}
         lessonNameJa={booking.lessonProduct.nameJa}
         lessonNameEn={booking.lessonProduct.nameEn}
         startsAtIso={booking.startsAt.toISOString()}

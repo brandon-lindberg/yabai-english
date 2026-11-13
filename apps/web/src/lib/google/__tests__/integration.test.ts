@@ -1,13 +1,12 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   ALL_GOOGLE_SCOPES,
   GOOGLE_SCOPES,
-  buildGoogleConnectState,
   buildPostCallbackReturnUrl,
-  parseGoogleConnectState,
   deriveConnectionFlags,
   hasAllGoogleScopes,
 } from "@/lib/google/integration";
+import { createGoogleConnectState, googleConnectRedirect, readGoogleConnectState } from "@/lib/google/connect-state";
 
 describe("google connect scopes", () => {
   test("one consent asks for every scope the app uses", () => {
@@ -30,25 +29,37 @@ describe("google connect scopes", () => {
 });
 
 describe("state payload", () => {
-  test("encodes and decodes without a feature", () => {
-    const encoded = buildGoogleConnectState({
+  beforeEach(() => vi.stubEnv("AUTH_SECRET", "test-only-integration-state-secret"));
+  afterEach(() => vi.unstubAllEnvs());
+
+  async function roundTrip(owner: { userId: string; returnTo: string }) {
+    const req = new Request("https://app.example.test/api/integrations/google/connect");
+    const pending = (await createGoogleConnectState(owner))!;
+    const response = googleConnectRedirect(req, new URL("https://accounts.google.com"), pending);
+    const cookie = response.cookies.getAll()[0];
+    const callback = new Request("https://app.example.test/api/integrations/google/callback", {
+      headers: { cookie: `${cookie.name}=${cookie.value}` },
+    });
+    return readGoogleConnectState(callback, pending.state, owner.userId);
+  }
+
+  test("protects the owner and return path without a feature", async () => {
+    expect(await roundTrip({
       userId: "u_1",
       returnTo: "/dashboard/settings",
-    });
-    expect(parseGoogleConnectState(encoded)).toEqual({
+    })).toEqual({
       userId: "u_1",
       returnTo: "/dashboard/settings",
     });
   });
 
-  test("round-trips a returnTo that itself contains the separator", () => {
+  test("round-trips a returnTo containing a colon", async () => {
     const returnTo = "/dashboard/settings?onboardingNext=/onboarding/next:1";
-    const encoded = buildGoogleConnectState({ userId: "u_1", returnTo });
-    expect(parseGoogleConnectState(encoded)).toEqual({ userId: "u_1", returnTo });
+    expect(await roundTrip({ userId: "u_1", returnTo })).toEqual({ userId: "u_1", returnTo });
   });
 
-  test("rejects malformed state", () => {
-    expect(parseGoogleConnectState(Buffer.from("u_1", "utf8").toString("base64url"))).toBeNull();
+  test("rejects malformed state", async () => {
+    expect(await readGoogleConnectState(new Request("https://app.example.test"), "malformed", "u_1")).toBeNull();
   });
 });
 

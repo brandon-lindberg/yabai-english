@@ -24,8 +24,7 @@ describe("timezone conversion", () => {
     });
 
     expect(slots[0]?.startsAtIso).toBe("2026-07-05T01:30:00.000Z");
-    expect(slots[0]?.label).toContain("Sat, Jul 4 21:30");
-    expect(slots[0]?.label).toContain("America/New_York");
+    expect(slots[0]?.label).toBe("Sat, Jul 4 21:30 - 22:10");
   });
 
   test("groups one instant by the viewer timezone day", () => {

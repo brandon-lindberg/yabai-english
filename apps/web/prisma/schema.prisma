@@ -7,6 +7,12 @@ datasource db {
   provider = "postgresql"
 }
 
+/// Lesson subject, independent of UI locale and teacher instruction languages.
+enum LearningLanguage {
+  ENGLISH
+  JAPANESE
+}
+
 enum Role {
   STUDENT
   TEACHER
@@ -16,6 +22,19 @@ enum Role {
 enum AccountStatus {
   ACTIVE
   HIDDEN
+  SUSPENDED
+}
+
+enum JapanesePlacementAttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum EnglishPlacementAttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
 }
 
 enum BookingStatus {
@@ -23,6 +42,13 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+}
+
+enum PrivateRescheduleStatus {
+  PENDING
+  RESCHEDULED
+  CLOSED
+  REFUND_REQUESTED
 }
 
 enum LessonTier {
@@ -52,7 +78,7 @@ enum ExerciseType {
   ORDERING
 }
 
-/// Leveled flashcard curriculum (Beginner 1–3, Intermediate 1–3, Advanced 1–3).
+/// Independent English curriculum and Japanese community introduction bands.
 enum StudyLevelCode {
   BEGINNER_1
   BEGINNER_2
@@ -63,6 +89,22 @@ enum StudyLevelCode {
   ADVANCED_1
   ADVANCED_2
   ADVANCED_3
+  N5
+  N4
+  N3
+  N2
+  N1
+}
+
+enum StudyPublicationStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum StudyCardKind {
+  ENGLISH_EXERCISE
+  JAPANESE_VOCABULARY
+  JAPANESE_KANJI
 }
 
 enum StudyDeckVisibility {
@@ -176,6 +218,14 @@ enum RefundStatus {
   PENDING_RECOVERY
 }
 
+enum PaymentRecoveryState {
+  QUEUED
+  PROCESSING
+  WAITING
+  NEEDS_ATTENTION
+  COMPLETE
+}
+
 enum TeacherPlatformTier {
   TIER_1
   TIER_2
@@ -215,9 +265,12 @@ model User {
   role          Role          @default(STUDENT)
   accountStatus AccountStatus @default(ACTIVE)
   locale        String        @default("ja")
+  /// Current intent; switching subjects never rewrites existing lessons or assessments.
+  learningLanguage LearningLanguage @default(ENGLISH)
 
   accounts                  Account[]
   sessions                  Session[]
+  adminAccessEvents         AdminAccountAccessEvent[]
   studentProfile            StudentProfile?
   teacherProfile            TeacherProfile?
   bookingsAsStudent         Booking[]                    @relation("StudentBookings")
@@ -238,6 +291,9 @@ model User {
   studyCardStates           UserStudyCardState[]
   studyAssessmentAttempts   UserStudyAssessmentAttempt[]
   studyQuickReviewDays      StudyQuickReviewDay[]
+  studyReviewPrompts        StudyReviewPrompt[]
+  japanesePlacementAttempts JapanesePlacementAttempt[]
+  englishPlacementAttempts  EnglishPlacementAttempt[]
   googleIntegrationAccount  GoogleIntegrationAccount?
   googleIntegrationSettings GoogleIntegrationSettings?
   organizationMemberships   OrganizationMembership[]
@@ -246,6 +302,120 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AdminAccountAccessEvent {
+  id         Int           @id @default(autoincrement())
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actorId    String
+  fromStatus AccountStatus
+  toStatus   AccountStatus
+  reason     String        @db.VarChar(1000)
+  createdAt  DateTime      @default(now())
+
+  @@index([userId, id])
+}
+
+/// An invitation to teach, issued and shared by a platform administrator.
+model TeacherInvitation {
+  id                String             @id @default(cuid())
+  tokenHash         String             @unique @db.VarChar(43)
+  label             String?            @db.VarChar(80)
+  recipientEmail    String?            @db.VarChar(254)
+  teachingLanguages LearningLanguage[]
+  createdById       String
+  createdAt         DateTime           @default(now())
+  expiresAt         DateTime
+  redeemedAt        DateTime?
+  redeemedById      String?
+  revokedAt         DateTime?
+
+  @@index([expiresAt])
+}
+
+/// Content-addressed English evidence, retained independently of later bank edits.
+model EnglishPlacementBankSnapshot {
+  id        String @id @default(cuid())
+  digest    String @unique
+  content   Json
+  createdAt DateTime @default(now())
+  attempts  EnglishPlacementAttempt[]
+}
+
+model EnglishPlacementAttempt {
+  id              String @id @default(uuid())
+  learnerId       String
+  learner         User @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  activeLearnerId String? @unique
+  bankSnapshotId  String
+  bankSnapshot    EnglishPlacementBankSnapshot @relation(fields: [bankSnapshotId], references: [id], onDelete: Restrict)
+  schemaVersion   Int
+  scoringVersion  Int
+  routingRevision String
+  status          EnglishPlacementAttemptStatus @default(IN_PROGRESS)
+  revision        Int @default(0)
+  /// Accepted answers are append-only; adaptive state and next question are server-owned.
+  state           Json
+  startedAt       DateTime @default(now())
+  expiresAt       DateTime
+  finishedAt      DateTime?
+  result          Json?
+
+  @@index([learnerId, startedAt])
+}
+
+/// Published Japanese content snapshots are immutable; revocation stops future delivery.
+model JapanesePlacementBankSnapshot {
+  id          String   @id @default(cuid())
+  bankKey     String
+  version     Int
+  digest      String   @unique
+  itemCount   Int
+  content     Json
+  publishedAt DateTime @default(now())
+  revokedAt   DateTime?
+  attempts    JapanesePlacementAttempt[]
+
+  @@unique([bankKey, version])
+  @@index([revokedAt, publishedAt])
+}
+
+model JapanesePlacementAttempt {
+  id              String @id @default(cuid())
+  learnerId       String
+  learner         User @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  bankSnapshotId  String
+  bankSnapshot    JapanesePlacementBankSnapshot @relation(fields: [bankSnapshotId], references: [id], onDelete: Restrict)
+  requestId       String @db.Uuid
+  /// Set only while active; the unique constraint permits one active attempt per learner.
+  activeLearnerId String? @unique
+  schemaVersion   Int
+  scoringRevision String
+  status          JapanesePlacementAttemptStatus @default(IN_PROGRESS)
+  startedAt       DateTime @default(now())
+  expiresAt       DateTime?
+  policyRevision  String?
+  questionLimit   Int?
+  finishedAt      DateTime?
+  result          Json?
+  responses       JapanesePlacementResponse[]
+
+  @@unique([learnerId, requestId])
+  @@index([learnerId, startedAt])
+}
+
+model JapanesePlacementResponse {
+  id        String @id @default(cuid())
+  attemptId String
+  attempt   JapanesePlacementAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  itemId    String
+  position  Int
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@unique([attemptId, itemId])
+  @@unique([attemptId, position])
 }
 
 enum GoogleIntegrationFeature {
@@ -347,7 +517,6 @@ model StudentProfile {
   placementReport        Json?
   placementWritingSample String?     @db.Text
 
-
   /// Onboarding data
   learningGoals          String[]  @default([])
   notifyLessonReminders  Boolean   @default(true)
@@ -384,11 +553,15 @@ model TeacherProfile {
   countryOfOrigin            String?
   credentials                String?   @db.Text
   instructionLanguages       String[]  @default(["EN"])
+  /// Subjects an admin permits this teacher to teach; instructionLanguages is the explanation language.
+  teachingLanguages          LearningLanguage[] @default([ENGLISH])
   specialties                String[]  @default([])
   rateYen                    Int?
   offersFreeTrial            Boolean   @default(true)
-  /// When true, profile is hidden from /book marketplace; only rostered students may book via direct link.
+  /// English marketplace visibility. True limits booking to rostered students.
   marketplaceHidden          Boolean   @default(false)
+  /// Japanese marketplace visibility, independent of the English setting.
+  japaneseMarketplaceHidden  Boolean   @default(false)
   /// 適格請求書発行事業者登録番号 (T + 13 digits). Teachers invoice their own
   /// students, so the registration number is theirs. Null when a teacher is not
   /// a registered issuer, in which case their documents omit the line.
@@ -605,6 +778,8 @@ model TeacherLessonOffering {
   id          String         @id @default(cuid())
   teacherId   String
   teacher     TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  /// Immutable subject of this class. Teachers can offer either or both subjects.
+  learningLanguage LearningLanguage @default(ENGLISH)
   durationMin Int
   /// What ONE student pays, tax-included. Same meaning for a group class as for
   /// a private one, which is why no pricing, invoice, payment or refund path
@@ -648,6 +823,7 @@ model TeacherLessonOffering {
   updatedAt DateTime @updatedAt
 
   @@index([teacherId, isGroup, active])
+  @@index([teacherId, learningLanguage, active])
   @@index([classLevelId])
   @@index([classTypeId])
 }
@@ -691,7 +867,6 @@ model AvailabilitySlot {
   groupLessonSessions GroupLessonSession[]
 
   @@index([assignedStudentId])
-
   @@index([classLevelId])
   @@index([classTypeId])
   @@index([teacherLessonOfferingId])
@@ -803,6 +978,7 @@ model LessonProduct {
 }
 
 model Booking {
+  cancelledFromStatus BookingStatus?
   id              String         @id @default(cuid())
   studentId       String
   student         User           @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
@@ -810,6 +986,8 @@ model Booking {
   teacher         TeacherProfile @relation("TeacherBookings", fields: [teacherId], references: [id], onDelete: Cascade)
   lessonProductId String
   lessonProduct   LessonProduct  @relation(fields: [lessonProductId], references: [id])
+  /// Snapshot at booking time, independent of the learner's later selection.
+  learningLanguage LearningLanguage @default(ENGLISH)
 
   /// The group class this booking is a seat in. Null for a private lesson.
   groupLessonSessionId  String?
@@ -822,6 +1000,10 @@ model Booking {
   /// How many times this lesson has been moved. Caps student reschedules so a
   /// paid booking cannot be moved indefinitely.
   rescheduleCount       Int           @default(0)
+  /// A late student cancellation releases the old slot and keeps a replacement request.
+  privateRescheduleStatus PrivateRescheduleStatus?
+  rescheduleRequestedAt DateTime?
+  rescheduleResolvedAt  DateTime?
   manualOverrideUsed    Boolean       @default(false)
   manualOverrideReason  String?       @db.Text
   manualOverrideByRole  Role?
@@ -852,6 +1034,8 @@ model Booking {
   @@index([teacherId, startsAt])
   @@index([status, holdExpiresAt])
   @@index([groupLessonSessionId])
+  @@index([privateRescheduleStatus, teacherId])
+  @@index([privateRescheduleStatus, studentId])
 }
 
 model Invoice {
@@ -887,11 +1071,15 @@ model Payment {
   checkoutUrl                String?
   metadataJson               Json?
   paidAt                     DateTime?
+  fulfillmentCompletedAt    DateTime?
+  fulfillmentLeaseToken     String?
+  fulfillmentLeaseExpiresAt DateTime?
   createdAt                  DateTime                 @default(now())
   updatedAt                  DateTime                 @updatedAt
 
   ledgerEntries PaymentLedgerEntry[]
   refunds       Refund[]
+  recovery      PaymentRecovery?
 
   @@index([studentId, createdAt])
   @@index([teacherId, createdAt])
@@ -919,6 +1107,8 @@ model Refund {
   payment          Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
   provider         PaymentProvider
   providerRefundId String?
+  providerAccountId String?
+  requestKey        String?          @unique
   amountYen        Int
   status           RefundStatus  @default(PENDING)
   actor            String
@@ -930,10 +1120,45 @@ model Refund {
   creditNoteNo     String?       @unique
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+  recovery          PaymentRecovery?
 
+  @@unique([provider, providerAccountId, providerRefundId])
   @@index([bookingId, createdAt])
   @@index([paymentId, createdAt])
   @@index([provider, providerRefundId])
+}
+
+/// One durable full-refund obligation (or read-only reconciliation) per payment.
+/// Claims expire; provider request identity and original account never change on retry.
+model PaymentRecovery {
+  paymentId          String               @id
+  payment            Payment              @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  refundId           String?              @unique
+  refund             Refund?              @relation(fields: [refundId], references: [id], onDelete: SetNull)
+  requestedAmountYen Int?
+  actor              String               @default("STRIPE")
+  policyJson         Json?
+  connectedAccountId String?
+  paymentIntentId    String?
+  state              PaymentRecoveryState @default(QUEUED)
+  leaseToken         String?
+  leaseExpiresAt     DateTime?
+  attempts           Int                  @default(0)
+  revision           Int                  @default(0)
+  nextAttemptAt      DateTime             @default(now())
+  requestKey         String?
+  requestAmountYen   Int?
+  requestStartedAt   DateTime?
+  requestSequence    Int                  @default(0)
+  applicationFeeId   String?
+  feeRecoveryPending Boolean              @default(false)
+  lastError          String?
+  completedAt        DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  @@index([state, nextAttemptAt])
+  @@index([applicationFeeId])
 }
 
 model PaymentWebhookEvent {
@@ -943,8 +1168,16 @@ model PaymentWebhookEvent {
   eventType       String
   processedAt     DateTime        @default(now())
   payloadJson     Json?
+  state           PaymentRecoveryState @default(QUEUED)
+  completedAt     DateTime?
+  leaseToken      String?
+  leaseExpiresAt  DateTime?
+  attempts        Int                  @default(0)
+  nextAttemptAt   DateTime             @default(now())
+  lastError       String?
 
   @@unique([provider, providerEventId])
+  @@index([state, nextAttemptAt])
 }
 
 // --- Phase 2: Learning ---
@@ -1059,8 +1292,41 @@ model StudyTrack {
   titleJa   String
   titleEn   String
   sortOrder Int    @default(0)
+  learningLanguage LearningLanguage @default(ENGLISH)
+  publicationStatus StudyPublicationStatus @default(PUBLISHED)
+  catalogSnapshotId String?
+  catalogSnapshot StudyCatalogSnapshot? @relation(fields: [catalogSnapshotId], references: [id], onDelete: Restrict)
 
   levels StudyLevel[]
+
+  @@index([learningLanguage, publicationStatus])
+}
+
+/// Immutable import provenance and the preceding revision, when a draft is refreshed.
+model StudyCatalogSnapshot {
+  id String @id
+  studyCatalogSha256 String @unique
+  sourceCatalogSha256 String
+  sourceLockSha256 String
+  policySha256 String
+  provenanceJson Json
+  createdAt DateTime @default(now())
+  previousSnapshotId String?
+  previousSnapshot StudyCatalogSnapshot? @relation("StudyCatalogHistory", fields: [previousSnapshotId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  nextSnapshots StudyCatalogSnapshot[] @relation("StudyCatalogHistory")
+  cards StudyCatalogCardSnapshot[]
+  tracks StudyTrack[]
+  reviewPrompts StudyReviewPrompt[]
+}
+
+/// Complete immutable card revisions, independent of active cards and learner state.
+model StudyCatalogCardSnapshot {
+  snapshotId String
+  snapshot StudyCatalogSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  cardId String
+  cardJson Json
+
+  @@id([snapshotId, cardId])
 }
 
 model StudyLevel {
@@ -1098,7 +1364,7 @@ model StudyDeck {
   @@index([levelId, sortOrder])
 }
 
-/// Front = learner-facing prompt (`frontJa` DB column): Japanese-heavy at Beginner 1, trending to English at higher levels (see `prompt-locale-policy.ts`). Back = English answer.
+/// Legacy front/back/exercise fields serve English exercises only. Japanese cards use contentJson.
 model StudyCard {
   id           String    @id @default(cuid())
   deckId       String
@@ -1108,8 +1374,12 @@ model StudyCard {
   /// Optional structured exercise (reorder tokens, multi-step prompts). Null = classic MCQ from `frontJa` + `backEn`.
   exerciseJson Json?
   sortOrder    Int       @default(0)
+  kind         StudyCardKind @default(ENGLISH_EXERCISE)
+  /// Canonical unit plus original member records; never a flattened union of accepted answers.
+  contentJson  Json?
 
   userStates UserStudyCardState[]
+  reviewPrompts StudyReviewPrompt[]
 
   @@index([deckId, sortOrder])
 }
@@ -1156,20 +1426,46 @@ model UserStudyCardState {
   @@index([userId, dueAt])
 }
 
-/// Fixed set of up to 5 review cards chosen once per UTC calendar day per user (dashboard quick review).
+/// Fixed set of up to 5 review cards per subject, user and UTC calendar day.
 model StudyQuickReviewDay {
   id           String   @id @default(cuid())
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   dayKey       String
+  learningLanguage LearningLanguage @default(ENGLISH)
   /// JSON string[] of StudyCard ids
   cardIds      Json
   /// JSON [{ cardId, outcome: "learned" | "not_yet", at: ISO string }]
   interactions Json     @default("[]")
   createdAt    DateTime @default(now())
 
-  @@unique([userId, dayKey])
+  @@unique([userId, learningLanguage, dayKey])
   @@index([userId])
+}
+
+/// Server-owned practice question and immutable, retry-safe result; never returned wholesale.
+model StudyReviewPrompt {
+  id String @id
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId String
+  card StudyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  catalogSnapshotId String
+  catalogSnapshot StudyCatalogSnapshot @relation(fields: [catalogSnapshotId], references: [id], onDelete: Restrict)
+  contentSha256 String
+  baseReps Int
+  studyBand StudyLevelCode
+  questionJson Json
+  answerJson Json
+  activeKey String? @unique
+  issuedAt DateTime @default(now())
+  expiresAt DateTime
+  answeredAt DateTime?
+  choiceId String?
+  resultJson Json?
+
+  @@index([userId, expiresAt])
+  @@index([userId, cardId, issuedAt])
 }
 
 model StudyAssessment {

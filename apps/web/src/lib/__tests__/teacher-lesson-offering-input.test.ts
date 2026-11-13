@@ -64,6 +64,12 @@ describe("lessonOfferingRateError", () => {
 });
 
 describe("lessonOfferingCreateData", () => {
+  test("new classes explicitly store the subject, with English compatibility for old clients", () => {
+    expect(lessonOfferingCreateData(normalizeLessonOfferingInput(privateClass), "tp-1")).toMatchObject({ learningLanguage: "ENGLISH" });
+    const parsed = lessonOfferingInputSchema.parse({ ...privateClass, learningLanguage: "JAPANESE" });
+    expect(lessonOfferingCreateData(normalizeLessonOfferingInput(parsed), "tp-1")).toMatchObject({ learningLanguage: "JAPANESE" });
+    expect(lessonOfferingInputSchema.safeParse({ ...privateClass, learningLanguage: "ja" }).success).toBe(false);
+  });
   test("writes a private lesson with no group fields", () => {
     expect(
       lessonOfferingCreateData(normalizeLessonOfferingInput(privateClass), "tp-1"),

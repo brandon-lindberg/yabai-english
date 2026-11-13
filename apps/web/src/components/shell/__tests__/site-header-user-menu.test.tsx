@@ -22,6 +22,7 @@ vi.mock("@/i18n/navigation", () => ({
 
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
 vi.mock("next-auth/react", () => ({ signOut: vi.fn() }));
+vi.mock("@/components/theme-toggle", () => ({ ThemeToggle: () => <button aria-label="Switch to dark theme" /> }));
 
 /*
   The account menu is for the things with nowhere else to live — language, the

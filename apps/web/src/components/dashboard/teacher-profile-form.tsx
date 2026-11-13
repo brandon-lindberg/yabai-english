@@ -13,6 +13,8 @@ import { Status } from "@/components/ui/status";
 import { ProfileSurface } from "@/components/dashboard/profile-surface";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import { CopyLinkField } from "@/components/ui/copy-link-field";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { teacherMarketplaceRosterOnly, teacherMarketplaceVisibilityKey } from "@/lib/teacher-marketplace-booking-access";
 
 /**
  * A teacher's public profile — shown as a profile, edited on request.
@@ -41,6 +43,9 @@ type Props = {
   initialInstructionLanguages: string[];
   initialSpecialties: string[];
   initialMarketplaceHidden?: boolean;
+  initialJapaneseMarketplaceHidden?: boolean;
+  teachingLanguages?: LearningLanguage[];
+  activeLearningLanguage?: LearningLanguage;
   postSaveRedirect?: string | null;
   /** See ProfileSurface: `trigger` renders the button and its dialog only. */
   presentation?: "page" | "trigger";
@@ -61,6 +66,9 @@ export function TeacherProfileForm({
   initialInstructionLanguages,
   initialSpecialties,
   initialMarketplaceHidden = false,
+  initialJapaneseMarketplaceHidden = false,
+  teachingLanguages = ["ENGLISH"],
+  activeLearningLanguage = "ENGLISH",
   postSaveRedirect,
   presentation,
 }: Props) {
@@ -69,6 +77,7 @@ export function TeacherProfileForm({
   // "Specialties (comma separated)", the profile just says "Specialties".
   const tb = useTranslations("booking");
   const tc = useTranslations("common");
+  const language = useTranslations("admin.teachingLanguages");
   const router = useRouter();
 
   const [teacherProfileId, setTeacherProfileId] = useState(initialTeacherProfileId);
@@ -81,6 +90,7 @@ export function TeacherProfileForm({
   );
   const [saved, setSaved] = useState({
     marketplaceHidden: initialMarketplaceHidden,
+    japaneseMarketplaceHidden: initialJapaneseMarketplaceHidden,
     displayName: initialDisplayName ?? "",
     bio: initialBio ?? "",
     countryOfOrigin: initialCountryOfOrigin ?? "",
@@ -92,6 +102,8 @@ export function TeacherProfileForm({
   const [status, setStatus] = useState<SaveState>("idle");
 
   const isEmpty = !saved.displayName && !saved.bio && !saved.credentials;
+  const inMarketplace = teachingLanguages.includes(activeLearningLanguage);
+  const rosterOnly = teacherMarketplaceRosterOnly(saved, activeLearningLanguage);
 
   const set = (key: keyof typeof draft, value: string | boolean) =>
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -116,7 +128,8 @@ export function TeacherProfileForm({
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-        marketplaceHidden: draft.marketplaceHidden,
+        ...(draft.marketplaceHidden !== saved.marketplaceHidden ? { marketplaceHidden: draft.marketplaceHidden } : {}),
+        ...(draft.japaneseMarketplaceHidden !== saved.japaneseMarketplaceHidden ? { japaneseMarketplaceHidden: draft.japaneseMarketplaceHidden } : {}),
       }),
     });
 
@@ -147,13 +160,13 @@ export function TeacherProfileForm({
 
   // Unprefixed by locale on purpose: the student lands in their own language,
   // not the teacher's.
-  const bookingPath = teacherProfileId ? `/book/teachers/${teacherProfileId}` : null;
+  const bookingPath = teacherProfileId && inMarketplace ? `/book/teachers/${teacherProfileId}` : null;
   const publicLink = bookingPath ? (
     <div className="space-y-2">
       {/* A hidden teacher's page exists only to be passed on, so the sentence
           introduces the link to copy rather than being a link itself —
           following it would only bounce a teacher back to their dashboard. */}
-      {saved.marketplaceHidden ? (
+      {rosterOnly ? (
         <p className="text-sm text-foreground">{t("teacherPreviewWhenHidden")}</p>
       ) : (
         <p>
@@ -177,9 +190,9 @@ export function TeacherProfileForm({
       name={saved.displayName}
       subtitle={subtitle || null}
       headerStatus={
-        <Status tone={saved.marketplaceHidden ? "spent" : "settled"}>
-          {saved.marketplaceHidden ? t("profileHidden") : t("profileVisible")}
-        </Status>
+        inMarketplace ? <Status tone={rosterOnly ? "spent" : "settled"}>
+          {rosterOnly ? t("profileHidden") : t("profileVisible")}
+        </Status> : null
       }
       avatarHelp={t("avatarHelp")}
       emptyHint={t("emptyProfileHint")}
@@ -227,14 +240,16 @@ export function TeacherProfileForm({
         setStatus("idle");
       }}
     >
-      <CheckRow
-        checked={draft.marketplaceHidden}
-        onChange={(next) => set("marketplaceHidden", next)}
-        className="border-y border-border py-4"
-        description={t("teacherMarketplaceHiddenHelp")}
-      >
-        <span className="font-medium text-foreground">{t("teacherMarketplaceHiddenLabel")}</span>
-      </CheckRow>
+      <fieldset className="border-y border-border py-4">
+        <legend className="text-sm font-semibold">{t("teacherMarketplaceTitle")}</legend>
+        <p className="mb-2 text-sm text-muted">{t("teacherMarketplaceHiddenHelp")}</p>
+        {teachingLanguages.map((subject) => (
+          <CheckRow key={subject} checked={teacherMarketplaceRosterOnly(draft, subject)}
+            onChange={(next) => set(teacherMarketplaceVisibilityKey(subject), next)}>
+            <span className="font-medium text-foreground">{t("teacherMarketplaceSubject", { language: language(subject) })}</span>
+          </CheckRow>
+        ))}
+      </fieldset>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field

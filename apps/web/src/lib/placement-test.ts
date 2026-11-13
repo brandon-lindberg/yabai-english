@@ -7,6 +7,7 @@ import {
   PLACEMENT_QUESTIONS_PER_BAND_SECTION,
 } from "@/lib/placement-bank/constants";
 import type { LoadedPlacementQuestion } from "@/lib/placement-bank/load-placement-bank";
+import { ENGLISH_PLACEMENT_POLICY_V2, englishPlacementEvidence, type PlacementAssessment, type PlacementScoringOptions } from "@/lib/placement-policy";
 
 export type PlacementQuestion = LoadedPlacementQuestion;
 
@@ -125,6 +126,7 @@ export type SectionScore = {
 export function scorePlacementAnswers(
   answers: number[],
   questions: PlacementQuestion[],
+  options?: PlacementScoringOptions,
 ): {
   level: PlacedLevel;
   subLevel: 1 | 2 | 3;
@@ -135,7 +137,15 @@ export function scorePlacementAnswers(
   improvements: string[];
   needsManualReview: boolean;
   manualReviewReasons: string[];
+  assessment?: PlacementAssessment;
 } {
+  const evidence = options ? englishPlacementEvidence(answers, questions) : null;
+  if (options) {
+    if (options.version !== ENGLISH_PLACEMENT_POLICY_V2.version) throw new Error("Unsupported English scoring version");
+    if (!evidence?.valid) throw new Error("Invalid English placement evidence");
+    if (options.completionReason === "completed" && !evidence.complete) throw new Error("Incomplete English objective section");
+    if (!evidence.sufficient) throw new Error("Insufficient English placement evidence");
+  }
   const objectiveMax = questions.reduce((s, q) => s + q.weight, 0);
   let earned = 0;
   const sectionScores: Record<PlacementQuestion["section"], SectionScore> = {
@@ -164,14 +174,14 @@ export function scorePlacementAnswers(
   const totalEarned = earned;
   const ratio = max > 0 ? totalEarned / max : 0;
 
-  let level: PlacedLevel;
-  if (
+  let level: PlacedLevel = PlacedLevel.BEGINNER;
+  if (!options &&
     ratio >= 0.78 &&
     sectionScores.grammar.ratio >= 0.6 &&
     sectionScores.reading.ratio >= 0.6
   ) {
     level = PlacedLevel.ADVANCED;
-  } else if (
+  } else if (!options &&
     ratio >= 0.45 &&
     sectionScores.grammar.ratio >= 0.35 &&
     sectionScores.reading.ratio >= 0.3
@@ -182,15 +192,38 @@ export function scorePlacementAnswers(
   }
 
   let subLevel: 1 | 2 | 3 = 1;
-  if (level === PlacedLevel.BEGINNER) {
+  if (!options && level === PlacedLevel.BEGINNER) {
     if (ratio >= 0.32) subLevel = 3;
     else if (ratio >= 0.2) subLevel = 2;
-  } else if (level === PlacedLevel.INTERMEDIATE) {
+  } else if (!options && level === PlacedLevel.INTERMEDIATE) {
     if (ratio >= 0.68) subLevel = 3;
     else if (ratio >= 0.57) subLevel = 2;
-  } else {
+  } else if (!options) {
     if (ratio >= 0.93) subLevel = 3;
     else if (ratio >= 0.86) subLevel = 2;
+  }
+
+  let assessment: PlacementAssessment | undefined;
+  if (options && evidence) {
+    const policy = ENGLISH_PLACEMENT_POLICY_V2;
+    const levels = [PlacedLevel.BEGINNER, PlacedLevel.INTERMEDIATE, PlacedLevel.ADVANCED];
+    const baseIndex = evidence.placementIndex;
+    const completionReason = evidence.complete ? "completed" : options.completionReason;
+    const timeoutPenaltyPoints = completionReason === "timeout"
+      ? policy.maximumTimeoutPenaltyPoints * (policy.maxQuestions - questions.length) /
+        (policy.maxQuestions - policy.minimumAnswers) : 0;
+    const unadjustedScore = baseIndex / 8 * 100;
+    const adjustedScore = Math.max(0, unadjustedScore - timeoutPenaltyPoints);
+    const adjustedIndex = Math.max(0, Math.floor(adjustedScore / 100 * 8 + 1e-9));
+    assessment = {
+      policyVersion: policy.version, completionReason, answered: questions.length,
+      total: policy.maxQuestions, minimumAnswers: policy.minimumAnswers,
+      countsBySection: evidence.countsBySection, confirmedCefrBand: evidence.confirmedCefrBand,
+      unadjustedLevel: levels[Math.floor(baseIndex / 3)]!, unadjustedSubLevel: (baseIndex % 3 + 1) as 1 | 2 | 3,
+      unadjustedScore, adjustedScore, timeoutPenaltyPoints,
+    };
+    level = levels[Math.floor(adjustedIndex / 3)]!;
+    subLevel = (adjustedIndex % 3 + 1) as 1 | 2 | 3;
   }
 
   const strengths: string[] = [];
@@ -211,10 +244,10 @@ export function scorePlacementAnswers(
 
   const beginnerCut = 0.45;
   const advancedCut = 0.78;
-  if (Math.abs(ratio - beginnerCut) <= 0.03) {
+  if (!options && Math.abs(ratio - beginnerCut) <= 0.03) {
     manualReviewReasons.push("nearBeginnerIntermediateBoundary");
   }
-  if (Math.abs(ratio - advancedCut) <= 0.03) {
+  if (!options && Math.abs(ratio - advancedCut) <= 0.03) {
     manualReviewReasons.push("nearIntermediateAdvancedBoundary");
   }
   const maxSectionRatio = Math.max(
@@ -229,7 +262,7 @@ export function scorePlacementAnswers(
     sectionScores.reading.ratio,
     sectionScores.functional.ratio,
   );
-  if (maxSectionRatio - minSectionRatio >= 0.45) {
+  if (!options && maxSectionRatio - minSectionRatio >= 0.45) {
     manualReviewReasons.push("highSectionVariance");
   }
 
@@ -245,5 +278,6 @@ export function scorePlacementAnswers(
     improvements,
     needsManualReview,
     manualReviewReasons,
+    ...(assessment ? { assessment } : {}),
   };
 }

@@ -34,10 +34,9 @@ export async function ensureCreditNoteNumber(refundId: string): Promise<string |
   if (refund.creditNoteNo) return refund.creditNoteNo;
   if (refund.status !== "SUCCEEDED") return null;
 
-  const updated = await prisma.refund.update({
-    where: { id: refund.id },
+  await prisma.refund.updateMany({
+    where: { id: refund.id, creditNoteNo: null, status: "SUCCEEDED" },
     data: { creditNoteNo: buildCreditNoteNumber(new Date()) },
-    select: { creditNoteNo: true },
   });
-  return updated.creditNoteNo;
+  return (await prisma.refund.findUnique({ where: { id: refund.id }, select: { creditNoteNo: true } }))?.creditNoteNo ?? null;
 }

@@ -40,6 +40,15 @@ function post(body: unknown) {
 }
 
 describe("POST /api/admin/users", () => {
+  test("assigning the teacher role requires an explicit teaching language", async () => {
+    expect((await post({ email: "new@example.com", role: "TEACHER" })).status).toBe(400);
+    expect(createMock).not.toHaveBeenCalled();
+  });
+  test("Japanese teacher creation passes its assignment into the shared role provisioner", async () => {
+    const response = await post({ email: "new@example.com", role: "TEACHER", teachingLanguages: ["JAPANESE"] });
+    expect(response.status).toBe(201);
+    expect(provisionMock).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ teachingLanguages: ["JAPANESE"] }));
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "a-1", role: "SUPER_ADMIN" } });
@@ -48,7 +57,7 @@ describe("POST /api/admin/users", () => {
   });
 
   test("creates a teacher who has never signed in", async () => {
-    const res = await post({ email: "t@example.com", name: "Mika", role: "TEACHER" });
+    const res = await post({ email: "t@example.com", name: "Mika", role: "TEACHER", teachingLanguages: ["ENGLISH"] });
 
     expect(res.status).toBe(201);
     expect(createMock).toHaveBeenCalledWith(
@@ -59,7 +68,7 @@ describe("POST /api/admin/users", () => {
   });
 
   test("gives them the profile the role needs", async () => {
-    await post({ email: "t@example.com", role: "TEACHER" });
+    await post({ email: "t@example.com", role: "TEACHER", teachingLanguages: ["ENGLISH"] });
 
     expect(provisionMock).toHaveBeenCalledWith(
       expect.anything(),
@@ -70,7 +79,7 @@ describe("POST /api/admin/users", () => {
   test("stores the address the way sign-in will look it up", async () => {
     // Auth.js matches on the address Google returns. A stored `T@Example.com `
     // would never be found, and the invitee would get a fresh student account.
-    await post({ email: "  T@Example.COM  ", role: "TEACHER" });
+    await post({ email: "  T@Example.COM  ", role: "TEACHER", teachingLanguages: ["ENGLISH"] });
 
     expect(createMock).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ email: "t@example.com" }) }),
@@ -80,7 +89,7 @@ describe("POST /api/admin/users", () => {
   test("refuses an address that already exists", async () => {
     findFirstMock.mockResolvedValue({ id: "u-1" });
 
-    const res = await post({ email: "t@example.com", role: "TEACHER" });
+    const res = await post({ email: "t@example.com", role: "TEACHER", teachingLanguages: ["ENGLISH"] });
 
     expect(res.status).toBe(409);
     expect(createMock).not.toHaveBeenCalled();

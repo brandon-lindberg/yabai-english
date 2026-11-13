@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
 
-export async function LandingPillars() {
-  const t = await getTranslations("landing");
+export async function LandingPillars({ learningLanguage = "ENGLISH" }: { learningLanguage?: LearningLanguage } = {}) {
+  const t = await getTranslations(LEARNING_JOURNEYS[learningLanguage].landingNamespace);
 
   const pillars = [
     { title: t("pillarScheduleTitle"), body: t("pillarScheduleBody") },

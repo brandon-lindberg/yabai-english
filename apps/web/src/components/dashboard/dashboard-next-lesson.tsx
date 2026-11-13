@@ -9,6 +9,8 @@ import { Status } from "@/components/ui/status";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { PendingReservationActions } from "@/components/booking/pending-reservation-actions";
 import { buttonClasses } from "@/components/ui/button";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
 
 /**
  * The dashboard's focal moment, for whoever is looking at it.
@@ -25,6 +27,7 @@ import { buttonClasses } from "@/components/ui/button";
  */
 
 export type NextLessonView = {
+  learningLanguage?: LearningLanguage;
   id: string;
   startsAt: Date;
   endsAt: Date;
@@ -57,6 +60,7 @@ export async function DashboardNextLesson({
   const locale = await getLocale();
   const t = await getTranslations("dashboard");
   const th = await getTranslations("dashboard.highlights");
+  const j = await getTranslations("learningJourney");
 
   /*
     An unpaid booking is a reservation, not a lesson. Shown under "Next lesson"
@@ -98,6 +102,7 @@ export async function DashboardNextLesson({
         {awaitingPayment ? th("reservationTitle") : th("nextLessonTitle")}
       </h2>
 
+      <p className="mt-3 text-sm font-semibold">{j(`${LEARNING_JOURNEYS[next.learningLanguage ?? "ENGLISH"].key}.name`)}</p>
       <NextLessonWhen
         className="mt-3"
         locale={locale}

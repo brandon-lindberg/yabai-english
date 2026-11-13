@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
 import { TEACHER_BIO_MAX_CHARS, TEACHER_CREDENTIALS_MAX_CHARS } from "@/lib/markdown/limits";
+import { teacherMarketplaceVisibilityPatch } from "@/lib/teacher-marketplace-booking-access";
 
 const patchSchema = z.object({
   displayName: z.string().min(1).max(100).trim().optional(),
@@ -18,9 +19,7 @@ const patchSchema = z.object({
   /** Shown on the book-a-lesson teacher list and public booking page */
   rateYen: z.number().int().min(0).max(9_999_999).nullable().optional(),
   offersFreeTrial: z.boolean().optional(),
-  /** When true, teacher is hidden from /book and only rostered students may book via direct link. */
-  marketplaceHidden: z.boolean().optional(),
-  /** When true, the 10% refund processing fee is deducted from the student's refund instead of covered by the teacher. */
+  ...teacherMarketplaceVisibilityPatch,
 });
 
 export async function PATCH(req: Request) {
@@ -37,6 +36,10 @@ export async function PATCH(req: Request) {
 
   const userId = session.user.id;
   const data = parsed.data;
+  const visibility = {
+    marketplaceHidden: data.marketplaceHidden,
+    japaneseMarketplaceHidden: data.japaneseMarketplaceHidden,
+  };
   const fallbackRateCheck = validatePublicLessonRateYen(data.rateYen);
   if (!fallbackRateCheck.ok) {
     return NextResponse.json({ error: fallbackRateCheck.error }, { status: 400 });
@@ -56,7 +59,7 @@ export async function PATCH(req: Request) {
         specialties: data.specialties ?? [],
         rateYen: data.rateYen === undefined ? null : data.rateYen,
         offersFreeTrial: data.offersFreeTrial ?? true,
-        marketplaceHidden: data.marketplaceHidden ?? false,
+        ...visibility,
       },
       update: {
         ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
@@ -69,9 +72,7 @@ export async function PATCH(req: Request) {
         ...(data.specialties !== undefined ? { specialties: data.specialties } : {}),
         ...(data.rateYen !== undefined ? { rateYen: data.rateYen } : {}),
         ...(data.offersFreeTrial !== undefined ? { offersFreeTrial: data.offersFreeTrial } : {}),
-        ...(data.marketplaceHidden !== undefined
-          ? { marketplaceHidden: data.marketplaceHidden }
-          : {}),
+        ...visibility,
       },
     });
 

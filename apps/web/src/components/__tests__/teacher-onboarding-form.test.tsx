@@ -13,6 +13,19 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 describe("TeacherOnboardingForm onboarding links", () => {
+  test("Google setup opens the Google tab and chat opens the chat panel", () => {
+    render(<NextIntlClientProvider locale="en" messages={en}><TeacherOnboardingForm /></NextIntlClientProvider>);
+    expect(screen.getByTestId("step-card-integrations").querySelector("a")?.getAttribute("href")).toContain("tab=google");
+    expect(screen.getByTestId("step-card-chat").querySelector("a")?.getAttribute("href")).toContain("openChat=1");
+  });
+
+  test("Japanese-only teachers are not sent to the English student study area", () => {
+    render(<NextIntlClientProvider locale="en" messages={en}><TeacherOnboardingForm materialsAvailable={false} /></NextIntlClientProvider>);
+    const materials = screen.getByTestId("step-card-materials");
+    expect(materials.querySelector("a")).toBeNull();
+    expect(materials.textContent).toContain(en.onboarding.teacherMaterialsUnavailable);
+  });
+
   test("profile step includes onboardingNext return URL", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>

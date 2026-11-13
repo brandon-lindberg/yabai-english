@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const { authMock, prismaMock, createConnectAccountMock, createAccountLinkMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
@@ -20,7 +20,28 @@ vi.mock("@/lib/stripe/stripe-connect", () => ({
 
 import { POST } from "@/app/api/teacher/payment-accounts/stripe/connect/route";
 
+afterEach(() => vi.unstubAllEnvs());
 describe("POST /api/teacher/payment-accounts/stripe/connect", () => {
+  test("Japanese domain keeps Stripe onboarding on that domain and reuses the account", async () => {
+    vi.stubEnv("LEARNING_SITES_ENABLED", "true");
+    vi.stubEnv("ENGLISH_SITE_URL", "https://englishstudiojapan.com");
+    vi.stubEnv("JAPANESE_SITE_URL", "https://japanesestudio.love");
+    prismaMock.teacherProfile.findUnique.mockResolvedValue({ id: "teacher-profile-1", paymentAccounts: [{ providerAccountId: "acct_existing" }] });
+    expect((await POST(new Request("https://japanesestudio.love/api/teacher/payment-accounts/stripe/connect"))).status).toBe(200);
+    expect(createConnectAccountMock).not.toHaveBeenCalled();
+    expect(createAccountLinkMock).toHaveBeenCalledWith(expect.objectContaining({
+      accountId: "acct_existing", returnUrl: "https://japanesestudio.love/dashboard/settings?tab=payments&stripe=return",
+      refreshUrl: "https://japanesestudio.love/dashboard/settings?tab=payments&stripe=refresh",
+    }));
+  });
+  test.each(["ENGLISH", "JAPANESE"])("%s reuses the teacher's existing connected account", async learningLanguage => {
+    authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER", learningLanguage } });
+    prismaMock.teacherProfile.findUnique.mockResolvedValue({ id: "teacher-profile-1", paymentAccounts: [{ providerAccountId: "acct_existing" }] });
+    expect((await POST()).status).toBe(200);
+    expect(createConnectAccountMock).not.toHaveBeenCalled();
+    expect(createAccountLinkMock).toHaveBeenCalledWith(expect.objectContaining({ accountId: "acct_existing" }));
+    expect(prismaMock.teacherPaymentAccount.upsert.mock.calls[0][0].where).toEqual({ teacherId_provider: { teacherId: "teacher-profile-1", provider: "STRIPE" } });
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";

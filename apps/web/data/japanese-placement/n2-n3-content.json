@@ -1,0 +1,3817 @@
+{
+  "schemaVersion": 1,
+  "id": "japanese-n2-n3-content",
+  "revision": 2,
+  "status": "draft",
+  "sources": [
+    {
+      "id": "japaneseness",
+      "origin": "adapted",
+      "title": "Japaneseness N3 reading worksheets",
+      "location": "https://japaneseness.com/reading-n3/",
+      "revision": "2026-10-22; per-page SHA-256 in source-excerpts.json",
+      "license": "CC-BY-SA-4.0",
+      "attribution": "Japaneseness — N3 reading worksheets; https://japaneseness.com/reading-n3/; https://creativecommons.org/licenses/by-sa/4.0/. Passage text retained; furigana, glosses and free responses removed; selected questions edited as recorded. These adaptations remain CC BY-SA 4.0.",
+      "permissionEvidence": "https://japaneseness.com/about/ (site-wide CC BY-SA 4.0); https://japaneseness.com/embed/"
+    },
+    {
+      "id": "kotonoha",
+      "origin": "adapted",
+      "title": "Kotonoha original reading passages",
+      "location": "https://github.com/AdvaySanketi/Kotonoha/blob/e93b20b3e9b8fd31da5e79c24cd7eb94daec82e5/src/data/content.js",
+      "revision": "e93b20b3e9b8fd31da5e79c24cd7eb94daec82e5",
+      "license": "MIT",
+      "attribution": "Copyright (c) 2026 Advay Sanketi. Original reading only. Full MIT notice in licences/kotonoha-MIT.txt.",
+      "permissionEvidence": "Pinned README identifies reading passages as hand-written; pinned LICENSE grants MIT. No grammar/dictionary imports."
+    },
+    {
+      "id": "nihongo-mono",
+      "origin": "adapted",
+      "title": "nihongo mono original grammar examples",
+      "location": "https://github.com/stndaru/nihongo-mono/tree/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar",
+      "revision": "ec0ba4a0ce1611c568b0e4f8a223eb8029249a25",
+      "license": "MIT",
+      "attribution": "Copyright (c) 2026 Stefanus Ndaru Wedhatama. Original grammar examples, adapted into sentence assemblies and choice questions as recorded. Full notices in licences/nihongo-mono-MIT.txt and licences/nihongo-mono-DATA.md.",
+      "permissionEvidence": "https://github.com/stndaru/nihongo-mono/blob/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/LICENSE-DATA.md explicitly assigns MIT to original grammar examples, distinct from dictionary data."
+    },
+    {
+      "id": "original-n2",
+      "origin": "original",
+      "title": "English Platform N2 passage drafts",
+      "location": "data/japanese-placement/n2-n3-content.json",
+      "revision": "1; 2026-10-22",
+      "license": "CC-BY-SA-4.0",
+      "attribution": "English Platform contributors, 2026. Original AI-assisted fictional passages and questions. CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/.",
+      "permissionEvidence": "Newly authored for this project; not copied from official JLPT questions. Difficulty tags are provisional."
+    }
+  ],
+  "passages": [
+    {
+      "id": "late-train",
+      "band": "N3",
+      "genre": "narrative",
+      "sourceId": "japaneseness",
+      "sourceRecord": "late-train",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "おくれた朝",
+      "text": "昨日の朝、いつもの電車がじこで止まってしまいました。ホームには人があふれていて、次の電車を待っても乗れそうにありません。会議は十時からです。わたしはしばらく考えてから、バスで行くことにしました。\nバスていまで歩いていると、同じ会社の田中さんに会いました。田中さんも困っていたので、一緒にバスに乗りました。バスは道がこんでいてなかなか進みませんでしたが、窓から見える景色はいつもと違っていて、少しおもしろかったです。\n会社に着いたのは十時五分前でした。ぶちょうは「れんらくをくれたおかげで、予定を変えずにすんだよ」と言ってくれました。電車が止まったら、まずれんらくをする。それだけで相手は安心するのだと気がつきました。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "なぜいつもの電車に乗れませんでしたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "時間におくれたから"
+            },
+            {
+              "id": "b",
+              "text": "じこで止まっていたから"
+            },
+            {
+              "id": "c",
+              "text": "きっぷをなくしたから"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "いつもの電車がじこで止まってしまいました。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "ぶちょうが予定を変えずにすんだのは、なぜですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "田中さんが早く来たから"
+            },
+            {
+              "id": "b",
+              "text": "わたしがれんらくをしたから"
+            },
+            {
+              "id": "c",
+              "text": "会議が中止になったから"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "れんらくをくれたおかげで、予定を変えずにすんだよ",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "morning-habit",
+      "band": "N3",
+      "genre": "narrative",
+      "sourceId": "japaneseness",
+      "sourceRecord": "morning-habit",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved. Editorial correction 2026-10-23: Ask about last-minute waking rather than inability to wake; retain the phone-exclusion premise as additional evidence.",
+      "title": "朝のしゅうかん",
+      "text": "去年まで、わたしは朝が苦手でした。夜おそくまでスマホを見ているせいで、朝はいつもぎりぎりに起きて、朝ごはんも食べずに家を出ていました。\nある日、友だちに「三十分早く寝てみたら」と言われました。早く起きろではなく、早く寝ろというのがおもしろいと思って、その日からスマホをふとんに持っていかないことにしました。\nにしゅうかんほど続けると、目覚まし時計が鳴る前に目がさめるようになりました。朝に時間があると、パンをやいて、窓を開けて、その日にすることを紙に書くことができます。一日のはじめが静かだと、ひるのいそがしさにも慣れていくような気がします。\n早く起きられるようになったのは、いしが強くなったからではありません。ただ、寝る時間を先に決めただけです。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "去年まで、朝いつもぎりぎりに起きていたのはなぜですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "仕事がいそがしかったから"
+            },
+            {
+              "id": "b",
+              "text": "家が遠かったから"
+            },
+            {
+              "id": "c",
+              "text": "夜おそくまでスマホを見ていたから"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "夜おそくまでスマホを見ているせいで、朝はいつもぎりぎりに起きて",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "この人が朝のしゅうかんを変えるためにしたことは何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "朝は何も食べず、いそいで家を出ること"
+            },
+            {
+              "id": "b",
+              "text": "強いいしを持って、ねる時間を短くすること"
+            },
+            {
+              "id": "c",
+              "text": "ねる時間を先に決め、スマホをふとんに持っていかないこと"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "ただ、寝る時間を先に決めただけです。",
+          "skill": "main_idea",
+          "supportingQuotes": [
+            "スマホをふとんに持っていかないことにしました。"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bicycle-repair",
+      "band": "N3",
+      "genre": "narrative",
+      "sourceId": "japaneseness",
+      "sourceRecord": "bicycle-repair",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "自転車のしゅうり",
+      "text": "えきまでの道で自転車のタイヤがパンクしました。近くの自転車やに持っていくと、店主のおじいさんが「十五分まってね」と言って、すぐに直してくれました。\n待っているあいだ、店の中を見ていました。古い道具がかべにきれいにならべてあって、どれも使いこまれています。「五十年使っている道具もあるよ」とおじいさんは笑いました。「新しいものをかうより、手入れをしたほうがながく使えるからね」\n料金は千五百円でした。高いか安いかは分かりませんが、新しい自転車をかえば何万円もかかります。それに、直してもらった自転車は、前よりも大切に思えました。ものをながく使うというのは、こういうことなのかもしれません。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "自転車はどこでこわれましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "えきまでの道で"
+            },
+            {
+              "id": "b",
+              "text": "会社の前で"
+            },
+            {
+              "id": "c",
+              "text": "家の中で"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "えきまでの道で自転車のタイヤがパンクしました。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "この人がしゅうりのあとで考えたことは何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "直して使うと、そのものを前より大切に感じることもある"
+            },
+            {
+              "id": "b",
+              "text": "新しいものは、古いものより必ず安い"
+            },
+            {
+              "id": "c",
+              "text": "古い道具は、すぐにすてたほうがよい"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "直してもらった自転車は、前よりも大切に思えました。",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "cooking-class",
+      "band": "N3",
+      "genre": "narrative",
+      "sourceId": "japaneseness",
+      "sourceRecord": "cooking-class",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "料理きょうしつ",
+      "text": "月に一度、こうみんかんの料理きょうしつに通っています。参加するのは十人ほどで、年も仕事もばらばらです。先生は近くのそばやの方で、いつも「味付けは最後に決めればいい」とおっしゃいます。\n先月は魚をやきました。わたしは強火でやいてしまい、外側だけこげて中まで火が通りませんでした。先生は怒らずに、「もう一度、弱火でやってごらん」と言ってくださいました。二度目はうまくできて、となりの方にもほめられました。\n料理そのものより、知らない人と台所に立つことが楽しいのだと思います。手を動かしながら話していると、初めて会った人とも自然に話せるからです。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "料理きょうしつにはどのくらい通っていますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "月に一度"
+            },
+            {
+              "id": "b",
+              "text": "しゅうに一度"
+            },
+            {
+              "id": "c",
+              "text": "年に一度"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "月に一度、こうみんかんの料理きょうしつに通っています。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "この人が料理きょうしつを楽しいと感じる、主な理由は何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "ほかの人より料理が上手になれるから"
+            },
+            {
+              "id": "b",
+              "text": "一緒に料理をすると、初めて会う人とも話しやすいから"
+            },
+            {
+              "id": "c",
+              "text": "先生が毎回同じ料理を作るから"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "知らない人と台所に立つことが楽しいのだと思います。",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "choosing-a-present",
+      "band": "N3",
+      "genre": "narrative",
+      "sourceId": "japaneseness",
+      "sourceRecord": "choosing-a-present",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "プレゼントを選ぶ",
+      "text": "らいしゅう、いもうとのたんじょうびです。何をあげようかといっしゅうかんほどなやんでいました。いもうとは去年から一人でくらしはじめ、仕事もいそがしそうです。\nはじめは服にしようと思いましたが、好みが分からないのでやめました。次におかしを考えましたが、あまいものは苦手だと言っていた気がします。母に相談すると、「自分ではかわないけれど、あるとうれしいものがいいんじゃない」と言われました。\nそれで、少し高いタオルをにまい選びました。毎日使うのに、自分のためには安いものですませてしまうものだからです。店員さんにつつんでもらい、みじかい手紙をつけました。気に入ってくれるかどうかは分かりませんが、いもうとのことをいっしゅうかん考えていたということは伝わるはずです。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "なぜ服をあげるのをやめましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "もう持っているから"
+            },
+            {
+              "id": "b",
+              "text": "高すぎたから"
+            },
+            {
+              "id": "c",
+              "text": "好みが分からないから"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "好みが分からないのでやめました。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "この人は、プレゼントについてどう思っていますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "気に入るかは分からないが、考えて選んだ気持ちは伝わる"
+            },
+            {
+              "id": "b",
+              "text": "高いものなら、必ず気に入ってもらえる"
+            },
+            {
+              "id": "c",
+              "text": "手紙さえあれば、何を選んでも同じだ"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "いもうとのことをいっしゅうかん考えていたということは伝わるはずです。",
+          "skill": "inference"
+        }
+      ]
+    },
+    {
+      "id": "water-notice",
+      "band": "N3",
+      "genre": "notice",
+      "sourceId": "japaneseness",
+      "sourceRecord": "water-notice",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "だんすいのお知らせ",
+      "text": "ひまわりマンションにお住まいのみなさまへ\nいつもかんりにごきょうりょくいただき、ありがとうございます。水道のくだの工事のため、下記のとおり水が出なくなりますので、お知らせいたします。\n日時 十月十四日（火） ごぜん九時〜ごご三時\n場所 全てのへや（いっかいの店をふくむ）\nご注意\n・工事のあいだ、トイレも使えません。朝のうちに水をためておいてください。\n・洗たくきやしょっきあらいきは、前日までにお使いください。\n・工事が早く終わった場合は、放送でお知らせします。\n・天気がわるい場合は、よくしゅうの同じようびにのばします。\nご不便をおかけしますが、ご理解をお願いいたします。\nひまわりマンションかんり事務所",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "水が出ない時間はいつですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "十五日のごぜん中"
+            },
+            {
+              "id": "b",
+              "text": "十四日の一日中"
+            },
+            {
+              "id": "c",
+              "text": "十四日のごぜん九時からごご三時まで"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "日時 十月十四日（火） ごぜん九時〜ごご三時",
+          "skill": "information_retrieval"
+        },
+        {
+          "id": "q2",
+          "prompt": "工事が予定より早く終わった場合、どうやって分かりますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "放送で知らせてもらう"
+            },
+            {
+              "id": "b",
+              "text": "店の人に毎時間聞きに行く"
+            },
+            {
+              "id": "c",
+              "text": "かんり事務所から手紙が届く"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "工事が早く終わった場合は、放送でお知らせします。",
+          "skill": "information_retrieval"
+        }
+      ]
+    },
+    {
+      "id": "meeting-email",
+      "band": "N3",
+      "genre": "email",
+      "sourceId": "japaneseness",
+      "sourceRecord": "meeting-email",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "会議のへんこうのメール",
+      "text": "えいぎょう部 山田様\nいつもお世話になっております。開発部の中村です。\n明日の打ち合わせについて、ごれんらくいたします。予定しておりましただい一会議しつが使えなくなりましたので、場所をさんがいの小さい方のへやに変えさせていただきます。時間は変わりません。\nそれから、資料についてお願いがあります。せんしゅういただいた数字のうち、九月分がまだ入っていないようです。当日の朝までにお送りいただけますと助かります。もし間に合わないようでしたら、会議の中で口頭でご説明いただくかたちでもかまいません。\nなお、今回から他の部の方も二名参加されます。資料は十部ご用意ください。\nお忙しいところ申しわけありませんが、よろしくお願いいたします。\n中村",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "何が変わりましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "会議の日"
+            },
+            {
+              "id": "b",
+              "text": "会議の場所"
+            },
+            {
+              "id": "c",
+              "text": "会議の時間"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "場所をさんがいの小さい方のへやに変えさせていただきます。時間は変わりません。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "会議の朝までに資料を送れない場合、どうすればよいですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "会議への参加を取り消す"
+            },
+            {
+              "id": "b",
+              "text": "会議の中で口頭で説明する"
+            },
+            {
+              "id": "c",
+              "text": "会議を次のしゅうに変えてもらう"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "会議の中で口頭でご説明いただくかたちでもかまいません。",
+          "skill": "information_retrieval"
+        }
+      ]
+    },
+    {
+      "id": "city-marathon",
+      "band": "N3",
+      "genre": "notice",
+      "sourceId": "japaneseness",
+      "sourceRecord": "city-marathon",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "しみんマラソンのごあんない",
+      "text": "だい二十回 みどり市しみんマラソン 参加される方へ\n日時は十一月三日、雨でも行います。かぜが強い場合のみ中止とし、その時はごぜん六時までにホームページでお知らせします。\n種目は十キロ、五キロ、親子二キロの三つです。十キロに申しこめるのは十六歳以上の方に限ります。親子の部は小学生とその家族がたいしょうです。\n参加費は十キロが三千円、五キロが二千円、親子の部は一組千円です。申しこみは九月三十日までにインターネットからお願いします。お金をお支払いいただいた後の取り消しはできませんので、ご注意ください。\n当日は受付がこみますので、スタートの一時間前までにお越しください。にもつはたいいくかんでおあずかりします。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "どんなとき中止になりますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "雨のとき"
+            },
+            {
+              "id": "b",
+              "text": "かぜが強いとき"
+            },
+            {
+              "id": "c",
+              "text": "寒いとき"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "かぜが強い場合のみ中止",
+          "skill": "information_retrieval"
+        },
+        {
+          "id": "q2",
+          "prompt": "十五歳の人が十キロの部に申しこもうとしています。本文に合う説明はどれですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "十六歳以上ではないので、十キロの部には申しこめない"
+            },
+            {
+              "id": "b",
+              "text": "親と一緒なら、十キロの部に出られる"
+            },
+            {
+              "id": "c",
+              "text": "参加費を払えば、年れいに関係なく出られる"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "十キロに申しこめるのは十六歳以上の方に限ります。",
+          "skill": "inference"
+        }
+      ]
+    },
+    {
+      "id": "greetings-essay",
+      "band": "N3",
+      "genre": "opinion",
+      "sourceId": "japaneseness",
+      "sourceRecord": "greetings-essay",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "あいさつの力",
+      "text": "引っ越してきたばかりのころ、わたしはとなりのへやの方の顔も知りませんでした。同じ建物に住んでいるのに、エレベーターで一緒になっても目を合わせない。それが都会というものだと思っていました。\nある朝、ごみを出しに行くと、年を取った男の方が「おはようございます」と声をかけてくださいました。わたしはおどろきながらも、同じように返しました。それだけのことですが、その日は一日気分がよかったのを覚えています。\n次の日から、わたしのほうから声をかけるようにしました。はじめは返事をしてくれない人もいましたが、半年もすると、建物の中のふんいきが少し変わったように感じました。たいふうの夜には、上のかいの方が「窓はだいじょうぶですか」と聞きに来てくださいました。\nあいさつは相手を変えるためのものではないと思います。ただ、「あなたがそこにいるのを知っています」と伝えるだけです。それでも、困ったときに助け合えるかどうかは、そこから始まるのではないでしょうか。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "引っ越してきたころ、この人はどう思っていましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "となりの人と友だちになりたい"
+            },
+            {
+              "id": "b",
+              "text": "都会では目を合わせないのがふつうだ"
+            },
+            {
+              "id": "c",
+              "text": "建物が古くてこわい"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "それが都会というものだと思っていました。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "この文章で、あいさつにはどんな意味があると考えられていますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "建物の人全員と、すぐに友だちになれる"
+            },
+            {
+              "id": "b",
+              "text": "相手の存在に気付いていると伝え、助け合うきっかけになる"
+            },
+            {
+              "id": "c",
+              "text": "相手を自分と同じ考えに変えられる"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "「あなたがそこにいるのを知っています」と伝えるだけです。",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "volunteer-japanese-class",
+      "band": "N3",
+      "genre": "notice",
+      "sourceId": "japaneseness",
+      "sourceRecord": "volunteer-japanese-class",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved. Editorial correction 2026-10-23: Retain both experience and listening-attitude premises alongside the monthly participation condition.",
+      "title": "日本語きょうしつのぼしゅう",
+      "text": "さくら町こうみんかんでは、外国から来た方のための日本語きょうしつを開いています。現在、十カ国、五十名ほどの方が学んでいますが、教える人が足りません。そこで、いっしょに活動してくださる方をぼしゅうします。\n資格はいりません。日本語を教えた経験がなくてもかまいません。必要なのは、相手の話をゆっくり聞く気持ちだけです。活動はまいしゅうどようびのごご二時から四時まで、月に一回からでもけっこうです。\n内容は、会話の相手になること、役所の書類の書き方を手伝うこと、子どもの宿題を見ることなどです。教えるというより、一緒に考えるという形に近いかもしれません。\n説明会は今月二十日のごご七時から、こうみんかんのわしつで行います。申しこみはいりませんので、ちょくせつお越しください。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "このきょうしつで今こまっていることは何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "へやがせまい"
+            },
+            {
+              "id": "b",
+              "text": "教える人が足りない"
+            },
+            {
+              "id": "c",
+              "text": "お金がない"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "教える人が足りません。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "毎月一回しか参加できず、教えた経験もない人は手伝えますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "話をゆっくり聞く気持ちがあれば、手伝える"
+            },
+            {
+              "id": "b",
+              "text": "経験がないので手伝えない"
+            },
+            {
+              "id": "c",
+              "text": "毎週来られないので手伝えない"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "月に一回からでもけっこうです。",
+          "skill": "inference",
+          "supportingQuotes": [
+            "日本語を教えた経験がなくてもかまいません。",
+            "必要なのは、相手の話をゆっくり聞く気持ちだけです。"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "summer-at-grandmothers",
+      "band": "N3",
+      "genre": "narrative",
+      "sourceId": "japaneseness",
+      "sourceRecord": "summer-at-grandmothers",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "そぼの家のなつ",
+      "text": "子どものころ、なつやすみになると必ずそぼの家にとまりに行きました。電車を二回のりかえて、さいごはバスで山の方へ三十分。バスをおりると、空気のにおいが町とはまるで違いました。\nそぼの家にはクーラーがなく、ひるは暑くてたまりませんでした。それでも、朝早く起きて庭の草を取り、いどのつめたい水でトマトを冷やしておく。ゆうがたになるとかぜが入ってきて、そぼが「ほら、一日のごほうびだよ」と言う。その言葉を、わたしはいまでも覚えています。\nそぼは昔のことをあまり話しませんでした。戦争のことも、祖父のことも、聞けばひとことふたこと答えるだけで、すぐに「おなかすいたでしょう」と台所へ立ってしまう。あのころは子どもだったので、それをふしぎだとも思いませんでした。\nそぼが亡くなって十年になります。家はもうありませんが、つめたい水にトマトが浮かんでいるのを見ると、あのなつのゆうがたのかぜを思い出します。人は言葉よりも、こういうものでだれかを覚えているのかもしれません。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "そぼの家へはどうやって行きましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "電車を二回のりかえて、バスで三十分"
+            },
+            {
+              "id": "b",
+              "text": "車で三時間"
+            },
+            {
+              "id": "c",
+              "text": "歩いて山を登った"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "電車を二回のりかえて、さいごはバスで山の方へ三十分。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "今のこの人に、そぼとのなつを思い出させるものは何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "つめたい水に浮かんでいるトマト"
+            },
+            {
+              "id": "b",
+              "text": "今も残っている、そぼの家"
+            },
+            {
+              "id": "c",
+              "text": "そぼが残した、長い戦争の話"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "つめたい水にトマトが浮かんでいるのを見ると、あのなつのゆうがたのかぜを思い出します。",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "working-from-home",
+      "band": "N3",
+      "genre": "opinion",
+      "sourceId": "japaneseness",
+      "sourceRecord": "working-from-home",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "家で働くということ",
+      "text": "会社に行かずに家で働く人が増えました。わたしの会社でも、しゅうの半分は家で仕事をしてもよいことになっています。朝の電車に乗らなくてよくなっただけで、一日が一時間ながくなったように感じます。\nよい点はほかにもあります。ひるに洗たくができ、ゆうがたには家族と食事ができる。集中したい仕事は、だれにも話しかけられない家のほうが早く進みます。じっさい、報告書を書く時間は半分ほどになりました。\nしかし、困ることもあります。一番大きいのは、相談のしにくさです。会社なら「ちょっといいですか」の一言ですむことが、家では電話をかけるかメールを書くかになり、それだけで気が重くなります。新しく入った人が仕事を覚えにくいという声も聞きます。仕事は教わるものだけでなく、となりの席の会話から自然にみにつくものも多いからです。\n家で働くのがよいかわるいかという問い方は、あまり意味がないのかもしれません。大切なのは、どの仕事を一人でやり、どの仕事をみんなでやるかを決めることではないでしょうか。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "この人の会社では、家で働けるのはどのくらいですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "月に一日"
+            },
+            {
+              "id": "b",
+              "text": "毎日"
+            },
+            {
+              "id": "c",
+              "text": "しゅうの半分"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "しゅうの半分は家で仕事をしてもよいことになっています。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "この人が大切だと考えていることは何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "会社では仕事の相談をしないこと"
+            },
+            {
+              "id": "b",
+              "text": "仕事の内容に合わせて、一人でするか、みんなでするか決めること"
+            },
+            {
+              "id": "c",
+              "text": "すべての仕事を家ですること"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "どの仕事を一人でやり、どの仕事をみんなでやるかを決めること",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "lost-abroad",
+      "band": "N3",
+      "genre": "narrative",
+      "sourceId": "japaneseness",
+      "sourceRecord": "lost-abroad",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "道に まよった 話",
+      "text": "二年前、はじめて一人で外国へりょこうに行きました。ちずのアプリがあればだいじょうぶだと思っていたのですが、三日目の夜、スマホのでんちが切れてしまいました。\nえきの名前も、とまっているホテルの通りの名前も覚えていません。ちずは紙で持っていませんでした。暗い道を歩きながら、これはまずいと思いました。言葉もほとんど通じません。\nけっきょく、まだ開いていたパンやに入り、店の方にホテルの名前だけを見せました。その方は首をふりましたが、店のおくから息子さんらしい若い人を呼んでくれました。若い人は英語が少し話せて、自分のスマホでホテルを探し、紙に道をかいてくれたのです。しかも、店の外まで出て、最初のかどまで一緒に歩いてくれました。\nホテルに着いたのは夜の十一時すぎでした。おれいを言うこともできないまま別れてしまい、いまでも心に残っています。それからりょこうのときは、紙のちずをいちまい、かばんに入れるようにしています。あの夜に助けてもらった分を、いつかどこかで返したいと思っています。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "なぜ道が分からなくなりましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "雨がふったから"
+            },
+            {
+              "id": "b",
+              "text": "ちずをなくしたから"
+            },
+            {
+              "id": "c",
+              "text": "スマホのでんちが切れたから"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "スマホのでんちが切れてしまいました。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "「助けてもらった分を、いつかどこかで返したい」とは、どんな気持ちですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "パンやにホテルの料金を払いたい"
+            },
+            {
+              "id": "b",
+              "text": "若い人に道を聞き直したい"
+            },
+            {
+              "id": "c",
+              "text": "今度は自分も、こまっているだれかを助けたい"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "あの夜に助けてもらった分を、いつかどこかで返したいと思っています。",
+          "skill": "inference"
+        }
+      ]
+    },
+    {
+      "id": "recycling-in-town",
+      "band": "N3",
+      "genre": "opinion",
+      "sourceId": "japaneseness",
+      "sourceRecord": "recycling-in-town",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "町の リサイクル",
+      "text": "みどり市では、五年前からごみのぶんべつのしかたが変わりました。以前は「もえるごみ」と「もえないごみ」の二つだけでしたが、今はプラスチック、紙、びん、かん、ペットボトルなど、全部で八つに分けなければなりません。\n始まったころは、住民から「めんどうだ」という声が多く出ました。朝のごみ置き場では、出し方をめぐって言い争いになることもあったそうです。市はかくちくで説明会を開き、絵の入った表を全せたいにくばりました。外国語の表も五か国語用意されました。\nけっかとして、もえるごみのりょうは五年で三割へりました。へった分、ごみをもやす費用も安くなり、その分が公園のせいびに使われているといいます。一方で、こうれいの方にとっては、重いびんを遠くの置き場まで運ぶのがふたんになっているという問題も残っています。\n市のたんとうの方は「正しく分けてもらうことよりも、まず続けてもらうことが大切です」と話しています。来年からは、きぼうする家を回って集めるサービスも始まる予定です。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "今、ごみはいくつに分けますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "二つ"
+            },
+            {
+              "id": "b",
+              "text": "八つ"
+            },
+            {
+              "id": "c",
+              "text": "五つ"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "全部で八つに分けなければなりません。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "新しく家を回ってごみを集めるサービスが始まるのは、なぜだと考えられますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "ごみを遠くまで運ぶふたんのある人を助けるため"
+            },
+            {
+              "id": "b",
+              "text": "もえるごみが前より増えたから"
+            },
+            {
+              "id": "c",
+              "text": "分けるものを二つに戻したいから"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "重いびんを遠くの置き場まで運ぶのがふたんになっている",
+          "skill": "inference"
+        }
+      ]
+    },
+    {
+      "id": "changing-jobs",
+      "band": "N3",
+      "genre": "narrative",
+      "sourceId": "japaneseness",
+      "sourceRecord": "changing-jobs",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "仕事を 変えた 日",
+      "text": "大学を出て入った会社に、わたしは八年勤めました。給料はわるくなく、どうりょうにもめぐまれていました。それでも、三十歳をすぎたころから、このままでいいのだろうかと考えるようになりました。\nきっかけは、後はいの一言でした。「せんぱいはどうして今の仕事を選んだんですか」と聞かれ、わたしはうまく答えられなかったのです。入れる会社に入り、与えられた仕事をしてきただけだと気がつきました。\n転職を決めるまでには一年かかりました。家族には反対されましたし、今より給料が下がることも分かっていました。それでも、夜に求人のページを見ている自分が、会議に出ているときよりも生き生きしていることに気がついてしまったのです。\n新しい職場は小さく、覚えることばかりで毎日くたくたです。以前のように、何も考えずにできる仕事はひとつもありません。それでも、自分で選んだという一点が、つらい日のささえになっています。正しい選び方だったかどうかは、まだ分かりません。十年後に答えを出せばよいと思っています。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "前の会社に何年いましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "十年"
+            },
+            {
+              "id": "b",
+              "text": "三年"
+            },
+            {
+              "id": "c",
+              "text": "八年"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "わたしは八年勤めました。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "新しい職場でつらい日に、この人のささえになっていることは何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "自分でその仕事を選んだこと"
+            },
+            {
+              "id": "b",
+              "text": "覚えることが何もないこと"
+            },
+            {
+              "id": "c",
+              "text": "前より給料が高いこと"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "自分で選んだという一点が、つらい日のささえになっています。",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "baker-interview",
+      "band": "N3",
+      "genre": "interview",
+      "sourceId": "japaneseness",
+      "sourceRecord": "baker-interview",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "パンやの店主に聞く",
+      "text": "——お店を始めて何年になりますか。\n二十二年です。もともとは別の仕事をしていました。三十を前にして会社を辞め、一年だけと決めてパンやで働かせてもらったんです。それが、いつのまにか今まで続いてしまいました。\n——苦労されたことは。\n最初の五年は、正直に言って毎日やめたいと思っていました。朝二時起きの生活にからだが慣れませんし、作っても売れずにすててしまう日が続きます。近くに大きなスーパーができたときは、本当に店を閉じることまで考えました。\n——それでも続けられたのは。\nお客さんに助けられたからです。ある朝、年を取ったお客さんが「ここのパンでないと、夫が食べないのよ」とおっしゃった。それを聞いて、自分のパンを待っている人が確かにいるのだと分かりました。売り上げの数字よりも、その一言のほうがずっと力になりましたね。\n——これからのもくひょうは。\n大きくするつもりはありません。今の広さで、顔の分かるお客さんに売る。ただ、若い人に教えることは増やしたいです。ぎじゅつは自分のものではなく、あずかっているものだと思っていますから。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "この人はパンやを始める前、何をしていましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "別の会社で働いていた"
+            },
+            {
+              "id": "b",
+              "text": "外国に住んでいた"
+            },
+            {
+              "id": "c",
+              "text": "学生だった"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "もともとは別の仕事をしていました。三十を前にして会社を辞め",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "店主が若い人に教えることを増やしたいのは、なぜですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "大きな店に変えることだけが目標だから"
+            },
+            {
+              "id": "b",
+              "text": "ぎじゅつは自分だけのものではなく、次に伝えるものだと思うから"
+            },
+            {
+              "id": "c",
+              "text": "自分のパンを待つお客さんがいなくなったから"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "ぎじゅつは自分のものではなく、あずかっているものだと思っています",
+          "skill": "inference"
+        }
+      ]
+    },
+    {
+      "id": "earthquake-guide",
+      "band": "N3",
+      "genre": "guide",
+      "sourceId": "japaneseness",
+      "sourceRecord": "earthquake-guide",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "地しんの ときは",
+      "text": "日本にくらす以上、地しんから完全にのがれることはできません。ここでは、ゆれを感じたときにどう行動すればよいかをまとめます。\nまず、ゆれているあいだは動かないことです。あわてて外に飛び出すと、落ちてくるものに当たる危険があります。つくえの下に入り、頭を守ってください。つくえがない場合は、かばんや本で頭をおおうだけでも違います。\nゆれがおさまったら、火を確認します。台所のガスは、今の多くのききが自動で止まりますが、念のため自分の目で見ておきましょう。次に、げんかんのとびらを開けて出口をつくります。建物がゆがむと、あとで開かなくなることがあるからです。\n外へ出るときは、必ずくつをはいてください。ゆかにガラスが落ちていることが多いためです。ひなん場所は近くの学校や公園に決められています。家族とは、その場で会う約束を前もってしておくとよいでしょう。電話は地しんの直後にはつながりにくくなります。\n水と食べ物は、三日分を目安に用意しておきます。特別なものをかう必要はありません。ふだん食べているものを少し多めに置き、古いものから使っていけば、それが一番続く方法です。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "ゆれているあいだはどうしますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "すぐ外に出る"
+            },
+            {
+              "id": "b",
+              "text": "電話をかける"
+            },
+            {
+              "id": "c",
+              "text": "動かずにつくえの下で頭を守る"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "つくえの下に入り、頭を守ってください。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "ゆれがおさまってから、げんかんのとびらを開けておくのはなぜですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "電話をつながりやすくするため"
+            },
+            {
+              "id": "b",
+              "text": "外の空気を入れるため"
+            },
+            {
+              "id": "c",
+              "text": "建物がゆがみ、あとで開かなくなることがあるため"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "建物がゆがむと、あとで開かなくなることがあるからです。",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "ageing-town",
+      "band": "N3",
+      "genre": "opinion",
+      "sourceId": "japaneseness",
+      "sourceRecord": "ageing-town",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "助け合いの しくみ",
+      "text": "かえで町では、住民の三人に一人が六十五歳以上です。子どもがへり、店が閉まり、バスの本数も少なくなりました。車を運転できなくなったこうれいの方にとって、かい物や病院へ行くことが大きな問題になっています。\nそこで三年前、町の人たちが「助け合いの車」というしくみを作りました。運転ができる住民がとうろくし、必要な人を病院やスーパーまで送るというものです。お金のやり取りはありません。かわりに、送ってもらった人は「ありがとうカード」をいちまいわたします。カードを集めた人は、町のまつりでやさいとこうかんすることができます。\n始めた方の一人は、こう話します。「お金にすると、頼むほうも頼まれるほうも気が重くなるんです。カードなら、助けてもらうことがわるいことに感じられない。それが一番大事でした」\n現在、とうろくしている運転者は四十二名、利用する方は百名をこえます。もちろん、問題がないわけではありません。じこが起きたときの責任をどうするか、運転する人じしんも年を取っていくという心配もあります。それでも、町の方は口をそろえて言います。だれかに頼ることを恥ずかしいと思わなくなったのが、一番の変化だと。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "かえで町の住民のうち、六十五歳以上はどのくらいですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "三人に一人"
+            },
+            {
+              "id": "b",
+              "text": "十人に一人"
+            },
+            {
+              "id": "c",
+              "text": "半分"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "住民の三人に一人が六十五歳以上です。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "お金ではなく「ありがとうカード」にしたのは、なぜですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "助けを頼むほうも、頼まれるほうも、気が重くならないようにするため"
+            },
+            {
+              "id": "b",
+              "text": "運転する人の数をへらすため"
+            },
+            {
+              "id": "c",
+              "text": "カードで病院の料金を払うため"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "お金にすると、頼むほうも頼まれるほうも気が重くなるんです。",
+          "skill": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "inn-review",
+      "band": "N3",
+      "genre": "narrative",
+      "sourceId": "japaneseness",
+      "sourceRecord": "inn-review",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "おんせんの 宿で 一ぱく",
+      "text": "家族四人で、山の中の古い宿にいっぱくしてきました。予約のときから気になっていたのは、「食事はへやではなくしょくどうで」「夜十時にはおふろを閉めます」など、ホームページに書かれた注意の多さでした。正直に言うと、きびしい宿なのだろうかと少し心配していました。\nところが、着いてみるとまったくいんしょうが違いました。年を取ったご夫婦と息子さんの三人だけでやっている宿で、できることが限られているから先に正直に書いているのだと分かったのです。へやは新しくありませんが、よくそうじされていて、窓からたにが見えました。\nゆうしょくは山のやさいと川の魚が中心で、りょうはけっして多くありません。子どもには足りないかと思いましたが、ごはんをおかわりさせてもらい、けっきょくよく食べていました。おふろは小さいものが二つ、男女が時間で交代する方式です。十時に閉まるのは、朝のそうじを一人でされているからだそうです。\n値段は一人一万円ほど。ごうかな宿をお求めの方にはすすめません。ただ、朝、たににきりがかかるのを窓からだまって見ていた十分間は、値段ではくらべられないものでした。注意書きの多い宿が、かならずしもきびしい宿だとは限らないようです。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "予約のとき、何が気になりましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "場所が遠いこと"
+            },
+            {
+              "id": "b",
+              "text": "値段が高いこと"
+            },
+            {
+              "id": "c",
+              "text": "ホームページの注意が多いこと"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "ホームページに書かれた注意の多さ",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "宿にとまったあと、この人の考えはどう変わりましたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "注意書きのある宿では、だれも親切にしてくれないと分かった"
+            },
+            {
+              "id": "b",
+              "text": "注意書きが多くても、できることを正直に知らせている場合があると分かった"
+            },
+            {
+              "id": "c",
+              "text": "注意書きが多い宿は、やはり必ずきびしいと思った"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "できることが限られているから先に正直に書いているのだと分かった",
+          "skill": "inference"
+        }
+      ]
+    },
+    {
+      "id": "time-to-read",
+      "band": "N3",
+      "genre": "opinion",
+      "sourceId": "japaneseness",
+      "sourceRecord": "time-to-read",
+      "changes": "Passage retained as plain text; removed furigana, glosses, translation, copy tasks and free response. Retained source q1 (spacing normalized); replaced the second selected question with a keyed comprehension adaptation. Source q2 is not imported. See source-excerpts.json for all three original MCQs. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "本を 読む 時間",
+      "text": "「最近、本を読まなくなった」と言う人が増えています。あるちょうさでは、一か月に一さつも読まない大人が半分近くにのぼるといいます。理由として一番多くあげられるのは「時間がない」ことです。\nしかし、本当に時間がないのでしょうか。同じちょうさによれば、スマホを見ている時間は一日へいきんで三時間以上でした。つまり、時間がないのではなく、時間の使い方が変わったと言うほうが正しいのかもしれません。\nわたしじしんも、数年前まではほとんど読めていませんでした。そこで、寝る前の十五分だけと決め、スマホを別のへやに置くようにしました。すると、一か月に二さつほどは読めるようになったのです。一日十五分は一年で九十時間になります。時間は作るものだという言い方を、以前はきれいごとだと思っていましたが、そうでもないようです。\nもちろん、本を読めば必ず何かが分かるわけではありません。読んだ内容の多くは、一か月もすれば忘れてしまいます。それでも、他人の考えを最後まで聞くという経験は、みじかいぶんしょうをいくつも読むのとは別のものです。意見の違う相手の話を最後まで聞ける人がへっていると言われる今、本を読む時間には、知識を得る以外の意味もあるように思います。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "一か月に一さつも読まない大人はどのくらいいますか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "ほとんどいない"
+            },
+            {
+              "id": "b",
+              "text": "十人に一人"
+            },
+            {
+              "id": "c",
+              "text": "半分近く"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "一か月に一さつも読まない大人が半分近くにのぼる",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "筆者が考える、知識を得ること以外の読書の意味は何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "スマホより必ず短い時間で読めること"
+            },
+            {
+              "id": "b",
+              "text": "読んだことを全部忘れずにいられること"
+            },
+            {
+              "id": "c",
+              "text": "他人の考えを最後まで聞く経験ができること"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "他人の考えを最後まで聞くという経験",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "kotonoha-r4",
+      "band": "N2",
+      "genre": "opinion",
+      "sourceId": "kotonoha",
+      "sourceRecord": "r4",
+      "changes": "Original passage and both source MCQs retained; vocabulary glosses and English title removed. Evidence quotes added. Source level is a provisional anchor. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "科学技術の発展と社会",
+      "text": "科学技術の急速な発展は、現代社会に多大な恩恵をもたらす一方で、新たな課題も生み出しています。人工知能の普及により、これまで人間が行っていた多くの作業が自動化されつつあります。これは生産性の向上に寄与する反面、雇用問題という深刻な社会的課題を引き起こす可能性があります。また、インターネットの発達に伴い、情報へのアクセスが容易になった反面、偽情報や個人情報の流出といった問題も浮上しています。こうした課題に対処するためには、技術の恩恵を最大限に活かしつつも、倫理的な観点から適切な規制や教育を推進することが不可欠です。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "人工知能の普及による問題として挙げられているのは何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "交通渋滞"
+            },
+            {
+              "id": "b",
+              "text": "環境破壊"
+            },
+            {
+              "id": "c",
+              "text": "食料不足"
+            },
+            {
+              "id": "d",
+              "text": "雇用問題"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "雇用問題という深刻な社会的課題を引き起こす可能性があります。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "筆者が不可欠だと述べているのは何ですか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "技術の禁止"
+            },
+            {
+              "id": "b",
+              "text": "インターネットの制限"
+            },
+            {
+              "id": "c",
+              "text": "人工知能の廃止"
+            },
+            {
+              "id": "d",
+              "text": "規制と教育の推進"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "倫理的な観点から適切な規制や教育を推進することが不可欠です。",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "kotonoha-r11",
+      "band": "N2",
+      "genre": "opinion",
+      "sourceId": "kotonoha",
+      "sourceRecord": "r11",
+      "changes": "Original passage and both source MCQs retained; vocabulary glosses and English title removed. Evidence quotes added. Source level is a provisional anchor. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "SNSと人間関係の変化",
+      "text": "ソーシャルメディアの普及により、人々のコミュニケーションのあり方は大きく変化した。かつては直接会って話すことが中心であったが、現在では画面を通じたやり取りが日常の一部となっている。この変化は、遠く離れた人と気軽に連絡が取れるようになったという利点をもたらす一方で、表情や声のトーンといった非言語情報が伝わりにくいという弊害も指摘されている。さらに、他人の投稿と自分を比較してしまうことで、精神的な負担を感じる人も少なくない。便利さの裏にあるこうした側面にも目を向ける必要があるだろう。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "SNSの普及によってもたらされた利点は何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "直接会う機会が増えた"
+            },
+            {
+              "id": "b",
+              "text": "遠くの人と気軽に連絡が取れる"
+            },
+            {
+              "id": "c",
+              "text": "精神的負担が減った"
+            },
+            {
+              "id": "d",
+              "text": "表情が伝わりやすくなった"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "遠く離れた人と気軽に連絡が取れるようになった",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "SNSの弊害として挙げられているのは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "非言語情報が伝わりにくいこと"
+            },
+            {
+              "id": "b",
+              "text": "個人情報が多すぎること"
+            },
+            {
+              "id": "c",
+              "text": "インターネットが遅くなること"
+            },
+            {
+              "id": "d",
+              "text": "通信費が高くなること"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "表情や声のトーンといった非言語情報が伝わりにくい",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "kotonoha-r12",
+      "band": "N2",
+      "genre": "opinion",
+      "sourceId": "kotonoha",
+      "sourceRecord": "r12",
+      "changes": "Original passage and both source MCQs retained; vocabulary glosses and English title removed. Evidence quotes added. Source level is a provisional anchor. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "働き方改革と日本社会",
+      "text": "近年、日本では「働き方改革」という言葉がよく聞かれるようになった。長時間労働が当たり前とされてきた従来の働き方を見直し、労働者一人ひとりがより柔軟に、そして健康的に働ける環境を整えようという動きである。具体的には、残業時間の上限規制や有給休暇取得の義務化、テレワークの導入などが進められている。こうした取り組みの背景には、少子高齢化による労働力不足や、仕事と家庭生活の両立を望む人が増えていることがある。制度が整えられつつある一方、企業文化や意識の変化にはまだ時間がかかると言われている。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "働き方改革の具体的な取り組みに含まれないものはどれか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "テレワークの導入"
+            },
+            {
+              "id": "b",
+              "text": "定年退職年齢の引き下げ"
+            },
+            {
+              "id": "c",
+              "text": "残業時間の上限規制"
+            },
+            {
+              "id": "d",
+              "text": "有給休暇取得の義務化"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "残業時間の上限規制や有給休暇取得の義務化、テレワークの導入",
+          "skill": "information_retrieval"
+        },
+        {
+          "id": "q2",
+          "prompt": "働き方改革が進められている背景として挙げられているのは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "企業の利益拡大"
+            },
+            {
+              "id": "b",
+              "text": "物価の上昇"
+            },
+            {
+              "id": "c",
+              "text": "海外からの圧力"
+            },
+            {
+              "id": "d",
+              "text": "少子高齢化による労働力不足"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "少子高齢化による労働力不足",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "library-room",
+      "band": "N2",
+      "genre": "notice",
+      "sourceId": "original-n2",
+      "sourceRecord": "library-room",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "図書館の学習室をご利用の方へ",
+      "text": "来月から、学習室の予約方法を変更します。これまでは来館した順に席を確保していましたが、開館前から並ぶ利用者が増えたため、前日までの予約制を試験的に導入します。予約できるのは一人につき一日一回、二時間までです。\nただし、予約開始から三十分を過ぎても来館されない場合は、その席を当日の希望者に開放します。遅れることが分かっていても、電話での取り置きはできません。予約のない方は、入口の画面に空席が表示されている場合に限り利用できます。\nこの方法を三か月間試した後、利用状況とご意見を踏まえて継続するかを決めます。席を使わなくなった方は、他の方が利用できるよう、時間が残っていても退室の手続きをお願いします。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "予約時刻から四十分遅れて到着した人について、本文から分かることは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "残りの時間に関係なく二時間利用できる"
+            },
+            {
+              "id": "b",
+              "text": "予約した席が他の人に使われている可能性がある"
+            },
+            {
+              "id": "c",
+              "text": "その日は空席があっても利用できない"
+            },
+            {
+              "id": "d",
+              "text": "電話で連絡していれば席は必ず確保される"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "予約開始から三十分を過ぎても来館されない場合は、その席を当日の希望者に開放します。",
+          "skill": "inference"
+        },
+        {
+          "id": "q2",
+          "prompt": "この予約方法について、図書館はどのように考えているか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "試行した結果を見て継続を判断する"
+            },
+            {
+              "id": "b",
+              "text": "三か月後には利用時間を延長する"
+            },
+            {
+              "id": "c",
+              "text": "並ぶ人数が減ればすぐに廃止する"
+            },
+            {
+              "id": "d",
+              "text": "利用者の意見にかかわらず続ける"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "利用状況とご意見を踏まえて継続するかを決めます。",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "replacement-email",
+      "band": "N2",
+      "genre": "email",
+      "sourceId": "original-n2",
+      "sourceRecord": "replacement-email",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "交換品の発送について",
+      "text": "田村様\n先日お届けした照明器具の部品が不足していた件につきまして、ご不便をおかけし申し訳ございません。ご希望いただいた部品のみの発送を検討しましたが、同じ型の部品は現在入荷待ちとなっております。そのため、今回は本体ごと新しいものに交換させていただきたく存じます。\n交換品は金曜日に発送する予定です。不足のある商品は、交換品を受け取った後、その箱に入れてご返送ください。返送用の伝票を同封しますので、送料をご負担いただく必要はありません。商品を先に返送していただくと、交換品が届くまでお使いいただけなくなるため、到着をお待ちください。\nなお、新しい商品でも同様の問題がございましたら、返送前に写真を添えてこのメールにご返信ください。状況を確認し、別の対応をご案内いたします。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "部品だけでなく本体を交換するのはなぜか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "返送用の箱が用意できないから"
+            },
+            {
+              "id": "b",
+              "text": "田村さんが別の型を希望したから"
+            },
+            {
+              "id": "c",
+              "text": "必要な部品をすぐには送れないから"
+            },
+            {
+              "id": "d",
+              "text": "田村さんが本体を壊してしまったから"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "同じ型の部品は現在入荷待ちとなっております。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "田村さんが、まずするべきことは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "不足のある商品をすぐ返送する"
+            },
+            {
+              "id": "b",
+              "text": "交換品の到着を待つ"
+            },
+            {
+              "id": "c",
+              "text": "新しい本体を自分で注文する"
+            },
+            {
+              "id": "d",
+              "text": "返送料を振り込む"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "到着をお待ちください。",
+          "skill": "information_retrieval"
+        }
+      ]
+    },
+    {
+      "id": "museum-volunteers",
+      "band": "N2",
+      "genre": "notice",
+      "sourceId": "original-n2",
+      "sourceRecord": "museum-volunteers",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "展示案内サポーター募集",
+      "text": "みなと資料館では、秋の特別展で来館者をご案内するサポーターを募集します。活動日は九月の毎週土曜日で、一日だけの参加も歓迎します。専門知識よりも、相手の疑問を丁寧に聞く姿勢を重視しますので、展示の内容を今すべて理解している必要はありません。\nただし、参加する方には八月二十五日の説明会に出席していただきます。説明会では実際に展示室を歩き、案内中に答えられない質問を受けた場合の対応も確認します。説明会だけに参加して活動の申込みを判断することも可能です。\n申込みは八月二十日までに、希望する活動日を添えてメールでお送りください。希望者が多い日は調整をお願いすることがあります。説明会への参加が難しい場合、今回は活動していただけませんが、冬にも同様の募集を予定しています。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "今回、実際にサポーターとして活動できるのは誰か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "展示をすべて理解していて説明会を欠席する人"
+            },
+            {
+              "id": "b",
+              "text": "説明会に出られないが専門知識のある人"
+            },
+            {
+              "id": "c",
+              "text": "八月二十五日以降に初めて申込みをする人"
+            },
+            {
+              "id": "d",
+              "text": "説明会に出席し、九月の土曜日一日だけ活動する人"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "参加する方には八月二十五日の説明会に出席していただきます。",
+          "skill": "information_retrieval"
+        },
+        {
+          "id": "q2",
+          "prompt": "資料館が専門知識より重視しているものは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "質問にその場ですべて答えられること"
+            },
+            {
+              "id": "b",
+              "text": "毎週必ず参加できること"
+            },
+            {
+              "id": "c",
+              "text": "冬の募集にも申し込むこと"
+            },
+            {
+              "id": "d",
+              "text": "相手の疑問を丁寧に聞くこと"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "相手の疑問を丁寧に聞く姿勢を重視します",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "repair-choice",
+      "band": "N2",
+      "genre": "opinion",
+      "sourceId": "original-n2",
+      "sourceRecord": "repair-choice",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "直すという選択",
+      "text": "古い椅子の修理を頼んだところ、新品を買うのとほとんど変わらない金額を提示された。値段だけを比べれば、買い替えるほうが合理的だろう。しかし、見積書を読んでいるうちに、私は修理を依頼することにした。\nこの椅子は祖父が使っていたもので、背もたれには小さな傷が残っている。傷そのものに価値があるというより、それを見るたびに祖父の仕事部屋を思い出せることが、私には大切なのだ。職人は安全に関わる部分を直したうえで、その傷は残せると言ってくれた。\nもちろん、何でも修理すべきだとは思わない。使い続けることで危険が生じたり、生活の負担が大きくなったりするなら、手放す判断も必要だ。修理か買い替えかを考えるとき、価格以外に自分が何を残したいのか、一度立ち止まってみてもよいのではないか。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "筆者が椅子の傷を残したいのはなぜか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "その傷があると販売価格が上がるから"
+            },
+            {
+              "id": "b",
+              "text": "祖父のいた場所の記憶につながるから"
+            },
+            {
+              "id": "c",
+              "text": "新品には同じ傷を付けられないから"
+            },
+            {
+              "id": "d",
+              "text": "修理の費用を安くできるから"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "それを見るたびに祖父の仕事部屋を思い出せることが、私には大切なのだ。",
+          "skill": "inference"
+        },
+        {
+          "id": "q2",
+          "prompt": "筆者の考えに最も近いものはどれか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "価格に加えて残したいものを考え、判断すればよい"
+            },
+            {
+              "id": "b",
+              "text": "思い出があれば危険な家具も使い続けるべきだ"
+            },
+            {
+              "id": "c",
+              "text": "古い物の傷は安全性に関係なくすべて残すべきだ"
+            },
+            {
+              "id": "d",
+              "text": "新品より修理の費用が高ければ必ず手放すべきだ"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "価格以外に自分が何を残したいのか、一度立ち止まってみてもよいのではないか。",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "course-options",
+      "band": "N2",
+      "genre": "guide",
+      "sourceId": "original-n2",
+      "sourceRecord": "course-options",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "写真講座の選び方",
+      "text": "さくら写真教室では、初めての方に二種類の講座を用意しています。基礎講座は全四回で、撮影した写真を毎回持ち寄り、講師から助言を受けながら次の課題に取り組みます。欠席した回の振替はありませんが、説明部分の動画は後から視聴できます。受講料は八千円です。\n単発講座は一回三千円で、夜景や人物など、その日のテーマだけを学びます。過去の作品を提出する必要はなく、空きがあれば前日まで申し込めます。ただし、講座後に作品への個別の助言を受ける時間は設けていません。\nどちらもカメラの貸出しが可能です。貸出しは予約順ではなく申込み時の希望に基づいて調整するため、必ず用意できるとは限りません。ご自身の機材を持たず、貸出しが受講の条件となる方は、受講料を支払う前に空き状況をお問い合わせください。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "自分の写真に継続して助言をもらいたい人に合うのはどちらか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "単発講座。講座後の個別指導があるから"
+            },
+            {
+              "id": "b",
+              "text": "基礎講座。毎回作品への助言を次の課題に生かせるから"
+            },
+            {
+              "id": "c",
+              "text": "基礎講座。欠席しても必ず別の日に指導を受けられるから"
+            },
+            {
+              "id": "d",
+              "text": "単発講座。過去の作品を出さなくてよいから"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "撮影した写真を毎回持ち寄り、講師から助言を受けながら次の課題に取り組みます。",
+          "skill": "inference"
+        },
+        {
+          "id": "q2",
+          "prompt": "カメラを借りられなければ受講できない人は、いつ問い合わせる必要があるか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "受講日の前日だけ"
+            },
+            {
+              "id": "b",
+              "text": "受講料を支払う前"
+            },
+            {
+              "id": "c",
+              "text": "申込み後に教材が届いた時"
+            },
+            {
+              "id": "d",
+              "text": "第一回の講座が終わった後"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "受講料を支払う前に空き状況をお問い合わせください。",
+          "skill": "information_retrieval"
+        }
+      ]
+    },
+    {
+      "id": "parcel-lockers",
+      "band": "N2",
+      "genre": "notice",
+      "sourceId": "original-n2",
+      "sourceRecord": "parcel-lockers",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "宅配ロッカーの試験運用について",
+      "text": "入居者の皆様へ\n不在時の荷物の受取りを便利にするため、一階に宅配ロッカーを設置しました。来週から一か月間、試験的に運用します。利用料はかかりませんが、生鮮食品と、ロッカーに収まらない荷物は対象外となります。\n荷物が届いた際は、各戸の郵便受けに受取り番号を書いた通知を入れます。通知から二日以内にお受取りください。出張などで期限内に戻れない場合は、管理室へ連絡していただければ、ロッカーから取り出し、管理室で三日間保管します。連絡がなく期限を過ぎた荷物は、配送業者に引取りを依頼します。\n利用状況によっては、正式導入の際に保管期限を短くすることも検討します。試験期間中に困ったことがございましたら、管理室の用紙にご記入ください。荷物が届く予定のない方からもご意見をお待ちしています。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "通知を受けたが二日以内に帰宅できない人は、どうすれば保管期間を延ばせるか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "受取り番号を郵便受けに戻す"
+            },
+            {
+              "id": "b",
+              "text": "ロッカーに入れたまま一週間待つ"
+            },
+            {
+              "id": "c",
+              "text": "管理室に連絡し、管理室での保管を依頼する"
+            },
+            {
+              "id": "d",
+              "text": "配送業者に何も言わず待ってもらう"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "管理室へ連絡していただければ、ロッカーから取り出し、管理室で三日間保管します。",
+          "skill": "information_retrieval"
+        },
+        {
+          "id": "q2",
+          "prompt": "正式導入後の保管期限について、正しいものはどれか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "意見の数にかかわらず一週間になる"
+            },
+            {
+              "id": "b",
+              "text": "利用状況を見て短くする可能性がある"
+            },
+            {
+              "id": "c",
+              "text": "必ず二日から三日に延びる"
+            },
+            {
+              "id": "d",
+              "text": "配送業者だけが自由に決める"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "利用状況によっては、正式導入の際に保管期限を短くすることも検討します。",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "theatre-interview",
+      "band": "N2",
+      "genre": "interview",
+      "sourceId": "original-n2",
+      "sourceRecord": "theatre-interview",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "地域劇団の演出家に聞く",
+      "text": "――公演の回数を減らしたそうですね。\n以前は毎月、新しい作品を発表していました。ところが、準備に追われ、団員同士で感想を話し合う時間さえ取れなくなったんです。観客数は安定していたので、外から見れば順調だったと思います。\n――減らしてみて、どうでしたか。\n最初は、見に来る人が離れるのではと心配しました。でも、一つの台本を読み直す余裕ができ、同じ場面でも違う解釈を試せるようになりました。団員から意見が出ることも増えましたね。\n――今後、回数を元に戻しますか。\n作品を届ける機会は大切です。ただ、回数を増やすこと自体が目的になってはいけません。今のペースなら、仕事や家庭の事情が変わった団員も参加を続けられます。続けられる仕組みの中で、毎回違う発見を持ち帰ってもらえる公演を目指したいです。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "公演の回数を減らした直接の理由は何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "準備が忙しく話し合う余裕がなくなったから"
+            },
+            {
+              "id": "b",
+              "text": "団員全員の仕事が変わったから"
+            },
+            {
+              "id": "c",
+              "text": "使っていた会場が閉鎖されたから"
+            },
+            {
+              "id": "d",
+              "text": "観客数が減り続けていたから"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "準備に追われ、団員同士で感想を話し合う時間さえ取れなくなった",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "演出家が今後重視したいことは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "団員が続けられるペースで、内容を充実させること"
+            },
+            {
+              "id": "b",
+              "text": "観客の意見より公演回数の多さを優先すること"
+            },
+            {
+              "id": "c",
+              "text": "以前と同じ回数に直ちに戻すこと"
+            },
+            {
+              "id": "d",
+              "text": "団員を仕事のない人だけに限定すること"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "続けられる仕組みの中で、毎回違う発見を持ち帰ってもらえる公演を目指したい",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "digital-archive",
+      "band": "N2",
+      "genre": "opinion",
+      "sourceId": "original-n2",
+      "sourceRecord": "digital-archive",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "記録を残すために",
+      "text": "町の古い写真をデータにする活動に参加している。始めたころは、一枚でも多く読み取れば、その分だけ記憶を残せると思っていた。だが、撮影場所も写っている人も分からない写真が、次々と集まってきた。\nそこで、作業の一部を止め、写真を持ち寄った人に話を聞く会を開いた。すると、同じ写真を見ても、覚えている出来事が人によって異なることが分かった。どちらかを正しい記録として採用するのではなく、誰がどう語ったかを添えて、両方を残すことにした。\n作業の速度は遅くなった。しかし、写真の枚数が増えるだけでは見えてこなかった町の姿が、少しずつ浮かび上がってきた。保存するとは、物を壊れない形に変えることだけではない。後から見る人が、その意味を考える手がかりも一緒に渡すことなのだと思う。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "話を聞く会を開いたのはなぜか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "写真を撮った人の順位を決めるため"
+            },
+            {
+              "id": "b",
+              "text": "写真だけでは分からない背景を集めるため"
+            },
+            {
+              "id": "c",
+              "text": "写真の持ち主を一人に決めるため"
+            },
+            {
+              "id": "d",
+              "text": "読み取り機の使い方を教えるため"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "撮影場所も写っている人も分からない写真が、次々と集まってきた。",
+          "skill": "inference"
+        },
+        {
+          "id": "q2",
+          "prompt": "筆者のいう保存に最も近いものはどれか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "画像とともに、その意味を考えられる情報も残すこと"
+            },
+            {
+              "id": "b",
+              "text": "多くの人が同意した記憶だけを記録すること"
+            },
+            {
+              "id": "c",
+              "text": "古い写真を現在の町の写真に置き換えること"
+            },
+            {
+              "id": "d",
+              "text": "速度を優先して写真を読み取り続けること"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "その意味を考える手がかりも一緒に渡すこと",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "shop-survey",
+      "band": "N2",
+      "genre": "guide",
+      "sourceId": "original-n2",
+      "sourceRecord": "shop-survey",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "商店街アンケートの読み方",
+      "text": "商店街の利用者百人に、買い物をする際に最も重視する点を一つ選んでもらった。結果は、価格が四十人、品ぞろえが三十五人、店員の対応が二十五人だった。これを見て、会議では「値下げをすれば利用者は増えるはずだ」という意見が出た。\nしかし、この調査の対象は、すでに商店街で買い物をしている人に限られている。普段利用しない人が何を求めているかは分からない。また、価格を選んだ人が、現在の価格に不満を感じているとは限らない。安さに満足しているから選んだ可能性もある。\n今回の数字は、今いる利用者の関心を知る手がかりにはなる。ただし、値下げの効果を判断するには、利用しない人への調査や、今の価格への満足度の確認も必要だ。結果を使う前に、何を尋ね、誰が答えた数字なのかを確かめたい。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "価格を選んだ四十人について、本文から確実に言えることは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "全員が現在の価格に不満を持っている"
+            },
+            {
+              "id": "b",
+              "text": "買い物で最も重視する点として価格を選んだ"
+            },
+            {
+              "id": "c",
+              "text": "全員が商店街を普段利用しない人である"
+            },
+            {
+              "id": "d",
+              "text": "値下げすれば全員が買い物の回数を増やす"
+            }
+          ],
+          "correctChoiceId": "b",
+          "evidenceQuote": "買い物をする際に最も重視する点を一つ選んでもらった。",
+          "skill": "inference"
+        },
+        {
+          "id": "q2",
+          "prompt": "筆者が値下げの効果を判断する前に必要だとしていることは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "価格を選んだ人数だけで結論を出すこと"
+            },
+            {
+              "id": "b",
+              "text": "店員の対応を選んだ回答を除くこと"
+            },
+            {
+              "id": "c",
+              "text": "未利用者の希望や現在の価格への満足度を調べること"
+            },
+            {
+              "id": "d",
+              "text": "品ぞろえに関する質問だけを繰り返すこと"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "利用しない人への調査や、今の価格への満足度の確認も必要だ。",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "observation-notes",
+      "band": "N2",
+      "genre": "narrative",
+      "sourceId": "original-n2",
+      "sourceRecord": "observation-notes",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "見たことと考えたこと",
+      "text": "野鳥の観察会で、私は「池の鳥は人を怖がっていない」と記録した。すると、案内役の人に「そう考えたのは、何を見たからですか」と聞かれた。人が近づいても鳥が飛び立たなかったからだと答えると、「飛び立たなかったことと、怖くなかったことは同じでしょうか」と問い返された。\nそれまで私は、分かりやすい言葉でまとめれば、よい記録になると思っていた。しかし、気持ちまで判断してしまうと、後から読む人は、実際に何が起きたのか確かめられない。私は記録を「人が三メートルほどの所まで近づいても、鳥は同じ場所にいた」と書き直した。\n考えたことを書くなと言われたわけではない。見た事実と、自分の解釈を分けておけば、別の見方をする人とも話し合える。短い一文を直しただけだったが、観察の仕方そのものが変わった気がした。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "案内役の質問は、筆者に何を気付かせたか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "鳥の種類を先に調べなければ記録できないこと"
+            },
+            {
+              "id": "b",
+              "text": "鳥には感情が全くないこと"
+            },
+            {
+              "id": "c",
+              "text": "鳥の行動から気持ちを断定していたこと"
+            },
+            {
+              "id": "d",
+              "text": "短い文章では観察を記録できないこと"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "気持ちまで判断してしまうと、後から読む人は、実際に何が起きたのか確かめられない。",
+          "skill": "inference"
+        },
+        {
+          "id": "q2",
+          "prompt": "筆者が観察記録で大切だと考えるようになったことは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "誰でも同じ結論になる言葉を探すこと"
+            },
+            {
+              "id": "b",
+              "text": "できるだけ専門用語でまとめること"
+            },
+            {
+              "id": "c",
+              "text": "事実と解釈を区別して書くこと"
+            },
+            {
+              "id": "d",
+              "text": "自分の考えを一切書かないこと"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "見た事実と、自分の解釈を分けておけば、別の見方をする人とも話し合える。",
+          "skill": "main_idea"
+        }
+      ]
+    },
+    {
+      "id": "garden-views",
+      "band": "N2",
+      "genre": "paired_texts",
+      "sourceId": "original-n2",
+      "sourceRecord": "garden-views",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved. Editorial correction 2026-10-23: Shared-claim evidence now includes the distinct statements of both A and B.",
+      "title": "共同菜園についての二つの意見",
+      "text": "【意見Ａ】\n共同菜園では、参加できる日に作業する方式を続けたい。仕事などで毎週は来られない人にも、関わる機会があるからだ。ただ、いつも同じ人が水やりをしているという不満は理解できる。来られない人も、道具の修理や会計など、別の役割を選べるようにしてはどうか。\n【意見Ｂ】\n自由に参加する仕組みには賛成だが、今は誰が何を担っているか見えにくい。作物を受け取るだけの人がいるように感じて、不満が出るのだと思う。全員に同じ回数の作業を求めるより、担当した仕事を記録し、互いに分かるようにすることから始めたい。水やり以外の仕事も記録に含めるべきだ。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "ＡとＢに共通する考えはどれか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "水やり以外の関わり方も認めるべきだ"
+            },
+            {
+              "id": "b",
+              "text": "収穫物の配布をすべて中止すべきだ"
+            },
+            {
+              "id": "c",
+              "text": "毎週来られない人は参加をやめるべきだ"
+            },
+            {
+              "id": "d",
+              "text": "全員が毎週同じ回数だけ水やりをすべきだ"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "来られない人も、道具の修理や会計など、別の役割を選べるようにしてはどうか。",
+          "skill": "inference",
+          "supportingQuotes": [
+            "水やり以外の仕事も記録に含めるべきだ。"
+          ]
+        },
+        {
+          "id": "q2",
+          "prompt": "Ｂがまず行いたいと考えていることは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "会計の役割をなくして水やりに集中すること"
+            },
+            {
+              "id": "b",
+              "text": "全員の参加曜日を一つに固定すること"
+            },
+            {
+              "id": "c",
+              "text": "収穫物を作業時間だけで分けること"
+            },
+            {
+              "id": "d",
+              "text": "各自が担当した仕事を見えるようにすること"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "担当した仕事を記録し、互いに分かるようにすることから始めたい。",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "handover-email",
+      "band": "N2",
+      "genre": "email",
+      "sourceId": "original-n2",
+      "sourceRecord": "handover-email",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "担当交代に向けた資料整理のお願い",
+      "text": "企画部の皆様\n来月の担当交代に向け、共有フォルダーの資料を整理します。古い資料をすべて削除するという意味ではありません。過去に検討して採用しなかった案にも、同じ議論を繰り返さずに済むという価値があります。\n各担当者は、今週中に資料を「現在使用中」「参考として保存」「確認が必要」の三つに分けてください。判断に迷う場合は削除せず、「確認が必要」に入れ、分からない点を一行添えてください。来週の打合せで、関係者と扱いを決めます。\n引継ぎの説明資料は、完成版を一つ残せば十分です。ただし、採用しなかった案については、案の内容だけでなく、見送った理由も記録してください。次の担当者が、状況が変わったときにもう一度検討すべきか判断できる形にしたいと考えています。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "扱いを判断できない資料は、今週中にどうすればよいか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "削除して関係者に後から報告する"
+            },
+            {
+              "id": "b",
+              "text": "完成版の説明資料にすべて写す"
+            },
+            {
+              "id": "c",
+              "text": "参考資料として理由を付けず保存する"
+            },
+            {
+              "id": "d",
+              "text": "確認が必要な資料に分け、不明点を添える"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "「確認が必要」に入れ、分からない点を一行添えてください。",
+          "skill": "information_retrieval"
+        },
+        {
+          "id": "q2",
+          "prompt": "採用しなかった案の理由も残す目的は何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "すべての資料を同じ長さにそろえるため"
+            },
+            {
+              "id": "b",
+              "text": "今後はその案を一切検討しないと約束するため"
+            },
+            {
+              "id": "c",
+              "text": "以前の担当者の失敗を数えるため"
+            },
+            {
+              "id": "d",
+              "text": "次の担当者が状況に応じて再検討できるようにするため"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "状況が変わったときにもう一度検討すべきか判断できる形にしたい",
+          "skill": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "ticket-change",
+      "band": "N2",
+      "genre": "guide",
+      "sourceId": "original-n2",
+      "sourceRecord": "ticket-change",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "星川ホール・前売券の変更手続き",
+      "text": "星川ホールの同一公演に昼の部と夜の部がある場合、空席があれば前売券の時間帯を一度だけ変更できます。変更の申込みは、公演前日の午後五時までに窓口または専用フォームで受け付けます。電話では空席の確認はできますが、変更手続きは完了しません。\n窓口を利用する方は券をお持ちください。フォームを利用する方は、予約番号と変更希望を送信し、受付完了のメールをお待ちください。送信しただけでは変更は確定せず、満席の場合は元の券が有効なままとなります。\n料金に差がある場合、差額は変更後の券を受け取る際に精算します。変更後に元の時間帯へ戻すことはできません。やむを得ず公演自体を中止する場合の返金については、時間帯変更とは別に、ホールからご案内します。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "フォームを送信したが、受付完了のメールはまだ届いていない。この時点で正しいものはどれか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "変更は確定しておらず、メールを待つ必要がある"
+            },
+            {
+              "id": "b",
+              "text": "元の券はすでに無効になっている"
+            },
+            {
+              "id": "c",
+              "text": "電話で差額を払えば変更が確定する"
+            },
+            {
+              "id": "d",
+              "text": "希望した時間帯への変更は必ず完了している"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "送信しただけでは変更は確定せず",
+          "skill": "inference"
+        },
+        {
+          "id": "q2",
+          "prompt": "一度変更した券について、本文に合うものはどれか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "元の時間帯へ戻す場合だけ差額が不要になる"
+            },
+            {
+              "id": "b",
+              "text": "公演中止の場合も返金は一切ない"
+            },
+            {
+              "id": "c",
+              "text": "空席があれば何度でも変更できる"
+            },
+            {
+              "id": "d",
+              "text": "元の時間帯への再変更はできない"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "変更後に元の時間帯へ戻すことはできません。",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "translation-views",
+      "band": "N2",
+      "genre": "paired_texts",
+      "sourceId": "original-n2",
+      "sourceRecord": "translation-views",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved. Editorial correction 2026-10-23: Shared-claim evidence now includes both A and B rather than B alone.",
+      "title": "町のお知らせを分かりやすくするには",
+      "text": "【担当者Ａ】\n町のお知らせを外国語に訳すとき、まず日本語の原稿を見直したい。担当部署の中だけで通じる略語や、一文の長さが、翻訳を難しくしている。何をいつまでにすればよいかが分かる原稿なら、外国語にしても要点が伝わりやすいはずだ。\n【担当者Ｂ】\n原稿の見直しは必要だと思う。ただ、分かりやすくするために、申込みの条件まで省いては困る。読みやすい短い案内で要点を示し、詳しい条件を確認できる資料も用意したい。外国語版を作った後には、想定する読者に読んでもらい、実際に手続きが分かるか確かめることも必要だ。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "日本語の原稿の見直しについて、ＡとＢの関係はどれか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "二人ともすべての説明を一文にまとめたいと考えている"
+            },
+            {
+              "id": "b",
+              "text": "Ａは略語を増やし、Ｂは条件を省くことを求めている"
+            },
+            {
+              "id": "c",
+              "text": "Ａは必要だと考え、Ｂは翻訳後だけ直せばよいと考えている"
+            },
+            {
+              "id": "d",
+              "text": "二人とも必要だと考え、Ｂは条件を残す点にも注意を求めている"
+            }
+          ],
+          "correctChoiceId": "d",
+          "evidenceQuote": "町のお知らせを外国語に訳すとき、まず日本語の原稿を見直したい。",
+          "skill": "inference",
+          "supportingQuotes": [
+            "原稿の見直しは必要だと思う。ただ、分かりやすくするために、申込みの条件まで省いては困る。"
+          ]
+        },
+        {
+          "id": "q2",
+          "prompt": "Ｂが外国語版の作成後に提案していることは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "詳しい条件の資料を読者に見せないこと"
+            },
+            {
+              "id": "b",
+              "text": "担当部署の略語をさらに追加すること"
+            },
+            {
+              "id": "c",
+              "text": "想定する読者が手続きを理解できるか確認すること"
+            },
+            {
+              "id": "d",
+              "text": "日本語の原稿をすべて廃棄すること"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "想定する読者に読んでもらい、実際に手続きが分かるか確かめる",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "book-margins",
+      "band": "N2",
+      "genre": "narrative",
+      "sourceId": "original-n2",
+      "sourceRecord": "book-margins",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "余白の書き込み",
+      "text": "友人から借りた本に、鉛筆で短い線が引いてあった。以前の私なら、そこが大切な箇所なのだろうと、線のある部分を先に読んだと思う。今回は、まず自分で一度読んでから、友人の印に戻ってみた。\nすると、私には何気ない一文が、友人には強く響いていたことが分かった。同じ内容を理解していても、立ち止まる場所は違う。返すときに尋ねると、その一文が転職前の自分の迷いに重なったのだという。私が読んだときには想像もしなかった背景だった。\nそれ以来、読書会でも、作品全体への評価を急いで聞くのをやめた。代わりに、気になった一文を一つ持ち寄ってもらう。同じ結論にまとめなくても、それぞれが何に目を向けたかを聞くことで、自分だけでは気付かなかった読み方に出会えるからだ。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "今回、筆者が以前とは変えた読み方は何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "友人の線がある部分だけを読んだ"
+            },
+            {
+              "id": "b",
+              "text": "友人の転職の話を聞いてから読み始めた"
+            },
+            {
+              "id": "c",
+              "text": "自分で一度読んだ後で友人の印を見直した"
+            },
+            {
+              "id": "d",
+              "text": "線が引かれた理由をすべて消して読んだ"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "まず自分で一度読んでから、友人の印に戻ってみた。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "読書会で一文を持ち寄ってもらうようにしたのはなぜか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "人によって異なる注目点から読み方を広げるため"
+            },
+            {
+              "id": "b",
+              "text": "本全体を読まなくてもよくするため"
+            },
+            {
+              "id": "c",
+              "text": "作品の評価を全員で一致させるため"
+            },
+            {
+              "id": "d",
+              "text": "最も重要な一文を投票で決めるため"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "それぞれが何に目を向けたかを聞くことで、自分だけでは気付かなかった読み方に出会える",
+          "skill": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "store-renovation",
+      "band": "N2",
+      "genre": "notice",
+      "sourceId": "original-n2",
+      "sourceRecord": "store-renovation",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "店舗改装中の受取りについて",
+      "text": "当店は六月十日から二十日まで改装のため休業します。この期間、店頭での商品販売は行いませんが、予約済みの商品の受取りには対応いたします。ただし、通常の入口は工事中のため使えません。建物の西側にある臨時窓口へお越しください。\n臨時窓口の受付は午後一時から五時までです。予約時に午前の受取りを指定された方も、この期間に限り午後に変更をお願いいたします。午後の来店が難しい方は、九日までにご連絡いただければ、休業前の受取りか配送に変更できます。配送の場合は、商品の代金とは別に送料がかかります。\nオンラインでの新規注文は休業中も可能ですが、発送は二十一日以降となります。予約済みの商品と一緒に受け取ることはできません。営業再開の時刻に変更が生じた場合は、当店のウェブサイトでお知らせします。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "六月十五日の午前に受取りを予約した人が、午後は来店できない場合、どうすればよいか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "休業中にオンラインで同じ商品を注文する"
+            },
+            {
+              "id": "b",
+              "text": "二十一日に送料を振り込むだけでよい"
+            },
+            {
+              "id": "c",
+              "text": "九日までに連絡し、受取り方法の変更を相談する"
+            },
+            {
+              "id": "d",
+              "text": "十五日の午前に通常の入口で待つ"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "九日までにご連絡いただければ、休業前の受取りか配送に変更できます。",
+          "skill": "information_retrieval"
+        },
+        {
+          "id": "q2",
+          "prompt": "休業中のオンライン新規注文について正しいものはどれか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "注文はできるが、発送は営業再開日以降になる"
+            },
+            {
+              "id": "b",
+              "text": "商品の代金を払っても注文できない"
+            },
+            {
+              "id": "c",
+              "text": "予約済みの商品と必ず同時に受け取れる"
+            },
+            {
+              "id": "d",
+              "text": "臨時窓口で当日の午前中に受け取れる"
+            }
+          ],
+          "correctChoiceId": "a",
+          "evidenceQuote": "オンラインでの新規注文は休業中も可能ですが、発送は二十一日以降となります。",
+          "skill": "detail"
+        }
+      ]
+    },
+    {
+      "id": "study-records",
+      "band": "N2",
+      "genre": "opinion",
+      "sourceId": "original-n2",
+      "sourceRecord": "study-records",
+      "changes": "Original AI-assisted fictional passage and two keyed questions. Provisional N2 authoring target; not an official question or learner-calibrated difficulty. Choice positions rebalanced; keyed answer text preserved.",
+      "title": "学習時間を記録して分かったこと",
+      "text": "資格の勉強を始めたとき、私は毎日の学習時間を記録した。数字が増えるのがうれしくて、疲れていても机に向かった。しかし、一か月後に問題を解いてみると、時間をかけた項目ほど理解できているとは限らなかった。\n記録を見直すと、得意な問題を繰り返す日が多かった。難しい問題に取り組むより、長く勉強したという数字を残すほうが簡単だったのだ。そこで、時間に加え、その日に分からなかったことを一つ書くようにした。翌日は、まずそれを説明できるか確かめてから先へ進むことにした。\n学習時間の記録が無意味だったわけではない。勉強を習慣にする助けにはなった。ただ、目的は記録をきれいに埋めることではなく、できなかったことができるようになることだ。数字を目標にするときほど、その数字が何を表しているのか、ときどき確かめる必要があると思う。",
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "筆者が学習方法を変えた後、翌日の最初に行うことは何か。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "学習時間の記録をすべて消すこと"
+            },
+            {
+              "id": "b",
+              "text": "前日より長く机に向かうと決めること"
+            },
+            {
+              "id": "c",
+              "text": "前日に分からなかったことを説明できるか確かめること"
+            },
+            {
+              "id": "d",
+              "text": "得意な問題だけを時間を計って解くこと"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "翌日は、まずそれを説明できるか確かめてから先へ進むことにした。",
+          "skill": "detail"
+        },
+        {
+          "id": "q2",
+          "prompt": "学習時間の記録について、筆者はどう考えているか。",
+          "choices": [
+            {
+              "id": "a",
+              "text": "得意な問題を繰り返すためだけに使うべきだ"
+            },
+            {
+              "id": "b",
+              "text": "時間が長ければ理解度も必ず高くなる"
+            },
+            {
+              "id": "c",
+              "text": "習慣づくりに役立つが、理解を直接示すとは限らない"
+            },
+            {
+              "id": "d",
+              "text": "数字を記録すること自体に意味は全くない"
+            }
+          ],
+          "correctChoiceId": "c",
+          "evidenceQuote": "勉強を習慣にする助けにはなった。ただ、目的は記録をきれいに埋めることではなく",
+          "skill": "main_idea"
+        }
+      ]
+    }
+  ],
+  "assemblies": [
+    {
+      "id": "assembly-ue-de",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/ue-de/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order. Also accepts the recorded natural adverb/adjunct order variant.",
+      "focus": "上で",
+      "original": "家族とよく相談した上で、お返事します。",
+      "stimulus": "＿＿、お返事します。",
+      "tiles": [
+        {
+          "id": "t591436610d",
+          "text": "上で"
+        },
+        {
+          "id": "t0f6a22faa6",
+          "text": "家族と"
+        },
+        {
+          "id": "tacd074f170",
+          "text": "相談した"
+        },
+        {
+          "id": "t8e02b4f768",
+          "text": "よく"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t0f6a22faa6",
+          "t8e02b4f768",
+          "tacd074f170",
+          "t591436610d"
+        ],
+        [
+          "t8e02b4f768",
+          "t0f6a22faa6",
+          "tacd074f170",
+          "t591436610d"
+        ]
+      ],
+      "rationale": "上で：家族とよく相談した上で、お返事します。\nI'll give you my answer after discussing it thoroughly with my family."
+    },
+    {
+      "id": "assembly-ue-ni",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/ue-ni/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "上に",
+      "original": "この部屋は駅から近い上に、家賃も安いです。",
+      "stimulus": "この部屋は＿＿、家賃も安いです。",
+      "tiles": [
+        {
+          "id": "t307a8aa997",
+          "text": "上"
+        },
+        {
+          "id": "tf3e37334a6",
+          "text": "駅から"
+        },
+        {
+          "id": "t386be135b0",
+          "text": "に"
+        },
+        {
+          "id": "t5cd96e715a",
+          "text": "近い"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "tf3e37334a6",
+          "t5cd96e715a",
+          "t307a8aa997",
+          "t386be135b0"
+        ]
+      ],
+      "rationale": "上に：この部屋は駅から近い上に、家賃も安いです。\nThis room is close to the station, and on top of that the rent is cheap."
+    },
+    {
+      "id": "assembly-uchi-ni",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/uchi-ni/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "うちに",
+      "original": "熱いうちに、どうぞ召し上がってください。",
+      "stimulus": "＿＿、どうぞ召し上がってください。",
+      "tiles": [
+        {
+          "id": "t06c7e2eedb",
+          "text": "うち"
+        },
+        {
+          "id": "t6477f05f54",
+          "text": "に"
+        },
+        {
+          "id": "t084b265bd3",
+          "text": "熱い"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t084b265bd3",
+          "t06c7e2eedb",
+          "t6477f05f54"
+        ]
+      ],
+      "rationale": "うちに：熱いうちに、どうぞ召し上がってください。\nPlease eat it while it's still hot."
+    },
+    {
+      "id": "assembly-okage-de",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/okage-de/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "おかげで",
+      "original": "先生のおかげで、試験に合格できました。",
+      "stimulus": "＿＿、試験に合格できました。",
+      "tiles": [
+        {
+          "id": "t1fb2dd22ef",
+          "text": "先生"
+        },
+        {
+          "id": "t6c21d74de2",
+          "text": "おかげ"
+        },
+        {
+          "id": "t22aedd4e9e",
+          "text": "の"
+        },
+        {
+          "id": "t8d1712d189",
+          "text": "で"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t1fb2dd22ef",
+          "t22aedd4e9e",
+          "t6c21d74de2",
+          "t8d1712d189"
+        ]
+      ],
+      "rationale": "おかげで：先生のおかげで、試験に合格できました。\nThanks to my teacher, I was able to pass the exam."
+    },
+    {
+      "id": "assembly-kanarazushimo",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/kanarazushimo/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "必ずしも",
+      "original": "高いものが、必ずしもいいとは限らない。",
+      "stimulus": "高いものが、＿＿。",
+      "tiles": [
+        {
+          "id": "t7a1640e562",
+          "text": "限らない"
+        },
+        {
+          "id": "tdeca24049f",
+          "text": "いい"
+        },
+        {
+          "id": "teb9646bc05",
+          "text": "必ずしも"
+        },
+        {
+          "id": "t1b9f4f94c0",
+          "text": "とは"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "teb9646bc05",
+          "tdeca24049f",
+          "t1b9f4f94c0",
+          "t7a1640e562"
+        ]
+      ],
+      "rationale": "必ずしも：高いものが、必ずしもいいとは限らない。\nExpensive things aren't necessarily good."
+    },
+    {
+      "id": "assembly-kara-ni-kakete",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/kara-ni-kakete/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "から〜にかけて",
+      "original": "この地方では、夏から秋にかけて雨が多い。",
+      "stimulus": "この地方では、＿＿雨が多い。",
+      "tiles": [
+        {
+          "id": "t33a186d014",
+          "text": "て"
+        },
+        {
+          "id": "t9cd9a0e0a6",
+          "text": "夏から"
+        },
+        {
+          "id": "t0a9e3a6012",
+          "text": "秋に"
+        },
+        {
+          "id": "te604eafd0f",
+          "text": "かけ"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t9cd9a0e0a6",
+          "t0a9e3a6012",
+          "te604eafd0f",
+          "t33a186d014"
+        ]
+      ],
+      "rationale": "から〜にかけて：この地方では、夏から秋にかけて雨が多い。\nIn this region there is a lot of rain from summer through autumn."
+    },
+    {
+      "id": "assembly-kara-koso",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/kara-koso/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "からこそ",
+      "original": "家族がいるからこそ、毎日がんばれる。",
+      "stimulus": "＿＿、毎日がんばれる。",
+      "tiles": [
+        {
+          "id": "t99e696efc5",
+          "text": "から"
+        },
+        {
+          "id": "t1cd9940147",
+          "text": "いる"
+        },
+        {
+          "id": "te8023220c5",
+          "text": "家族が"
+        },
+        {
+          "id": "t8edd42818a",
+          "text": "こそ"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "te8023220c5",
+          "t1cd9940147",
+          "t99e696efc5",
+          "t8edd42818a"
+        ]
+      ],
+      "rationale": "からこそ：家族がいるからこそ、毎日がんばれる。\nIt's precisely because I have a family that I can give it my all every day."
+    },
+    {
+      "id": "assembly-kiri",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/kiri/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "きり",
+      "original": "彼とは一度会ったきり、その後会っていない。",
+      "stimulus": "彼とは＿＿、その後会っていない。",
+      "tiles": [
+        {
+          "id": "t98ae39ccc8",
+          "text": "会った"
+        },
+        {
+          "id": "t6bf38db552",
+          "text": "一度"
+        },
+        {
+          "id": "t3713a000c0",
+          "text": "きり"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t6bf38db552",
+          "t98ae39ccc8",
+          "t3713a000c0"
+        ]
+      ],
+      "rationale": "きり：彼とは一度会ったきり、その後会っていない。\nI met him just once, and I haven't seen him since."
+    },
+    {
+      "id": "assembly-kirenai",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/kirenai/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "切れない",
+      "original": "料理が多すぎて、とても食べ切れない。",
+      "stimulus": "料理が多すぎて、＿＿。",
+      "tiles": [
+        {
+          "id": "t2fd59211fb",
+          "text": "とても"
+        },
+        {
+          "id": "t3a58e49465",
+          "text": "切れ"
+        },
+        {
+          "id": "tb492e0214f",
+          "text": "ない"
+        },
+        {
+          "id": "te77e83e20f",
+          "text": "食べ"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t2fd59211fb",
+          "te77e83e20f",
+          "t3a58e49465",
+          "tb492e0214f"
+        ]
+      ],
+      "rationale": "切れない：料理が多すぎて、とても食べ切れない。\nThere's too much food; there's no way I can finish it all."
+    },
+    {
+      "id": "assembly-kekka",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/kekka/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "結果",
+      "original": "よく考えた結果、留学することに決めた。",
+      "stimulus": "＿＿、留学することに決めた。",
+      "tiles": [
+        {
+          "id": "t04dbef6ee7",
+          "text": "よく"
+        },
+        {
+          "id": "te3ae7332d4",
+          "text": "結果"
+        },
+        {
+          "id": "tfff87afb0c",
+          "text": "考えた"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t04dbef6ee7",
+          "tfff87afb0c",
+          "te3ae7332d4"
+        ]
+      ],
+      "rationale": "結果：よく考えた結果、留学することに決めた。\nAfter thinking it over carefully, I decided to study abroad."
+    },
+    {
+      "id": "assembly-koto-kara",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/koto-kara/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "ことから",
+      "original": "窓が割れていたことから、どろぼうが入ったことが分かった。",
+      "stimulus": "窓が＿＿、どろぼうが入ったことが分かった。",
+      "tiles": [
+        {
+          "id": "tcfb1e895b4",
+          "text": "から"
+        },
+        {
+          "id": "tef390bbcf5",
+          "text": "こと"
+        },
+        {
+          "id": "t2a82b782c7",
+          "text": "割れていた"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t2a82b782c7",
+          "tef390bbcf5",
+          "tcfb1e895b4"
+        ]
+      ],
+      "rationale": "ことから：窓が割れていたことから、どろぼうが入ったことが分かった。\nFrom the fact that the window was broken, we knew a burglar had gotten in."
+    },
+    {
+      "id": "assembly-koto-ni-natteiru",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/koto-ni-natteiru/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "ことになっている",
+      "original": "この学校では、教室で物を食べてはいけないことになっている。",
+      "stimulus": "この学校では、教室で物を＿＿。",
+      "tiles": [
+        {
+          "id": "taa128d7c52",
+          "text": "ことに"
+        },
+        {
+          "id": "tacddb84dcd",
+          "text": "なっている"
+        },
+        {
+          "id": "t3e87d46ff5",
+          "text": "食べては"
+        },
+        {
+          "id": "tbdb620228e",
+          "text": "いけない"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t3e87d46ff5",
+          "tbdb620228e",
+          "taa128d7c52",
+          "tacddb84dcd"
+        ]
+      ],
+      "rationale": "ことになっている：この学校では、教室で物を食べてはいけないことになっている。\nAt this school, the rule is that you may not eat in the classroom."
+    },
+    {
+      "id": "assembly-koto-wa-ga",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/koto-wa-ga/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "ことは〜が",
+      "original": "日本語が話せることは話せるが、まだ上手ではない。",
+      "stimulus": "日本語が＿＿、まだ上手ではない。",
+      "tiles": [
+        {
+          "id": "t134cb92cc1",
+          "text": "ことは"
+        },
+        {
+          "id": "tbd26689a55",
+          "text": "話せるが"
+        },
+        {
+          "id": "t91d89f1790",
+          "text": "話せる"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t91d89f1790",
+          "t134cb92cc1",
+          "tbd26689a55"
+        ]
+      ],
+      "rationale": "ことは〜が：日本語が話せることは話せるが、まだ上手ではない。\nIt's true I can speak Japanese, but I'm still not good at it."
+    },
+    {
+      "id": "assembly-sae-ba",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/sae-ba/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "さえ〜ば",
+      "original": "お金さえあれば、何でも買えるというわけではない。",
+      "stimulus": "お金＿＿、何でも買えるというわけではない。",
+      "tiles": [
+        {
+          "id": "t8e50fa5020",
+          "text": "あれ"
+        },
+        {
+          "id": "td816344af2",
+          "text": "ば"
+        },
+        {
+          "id": "t72fb3f7601",
+          "text": "さえ"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t72fb3f7601",
+          "t8e50fa5020",
+          "td816344af2"
+        ]
+      ],
+      "rationale": "さえ〜ば：お金さえあれば、何でも買えるというわけではない。\nIt's not as if you can buy anything just as long as you have money."
+    },
+    {
+      "id": "assembly-shikanai-no-choice",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/shikanai-no-choice/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "しかない",
+      "original": "終電がもうないから、歩いて帰るしかない。",
+      "stimulus": "終電がもうないから、＿＿。",
+      "tiles": [
+        {
+          "id": "t67dca76d16",
+          "text": "歩いて"
+        },
+        {
+          "id": "t995a706460",
+          "text": "しか"
+        },
+        {
+          "id": "tce808e1a90",
+          "text": "帰る"
+        },
+        {
+          "id": "t5aad26c073",
+          "text": "ない"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t67dca76d16",
+          "tce808e1a90",
+          "t995a706460",
+          "t5aad26c073"
+        ]
+      ],
+      "rationale": "しかない：終電がもうないから、歩いて帰るしかない。\nThe last train's already gone, so I have no choice but to walk home."
+    },
+    {
+      "id": "assembly-shidai",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/shidai/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "次第",
+      "original": "準備ができ次第、出発します。",
+      "stimulus": "＿＿、出発します。",
+      "tiles": [
+        {
+          "id": "t5256442cf6",
+          "text": "が"
+        },
+        {
+          "id": "t5a5c5461ec",
+          "text": "でき"
+        },
+        {
+          "id": "t4ccbeb603f",
+          "text": "次第"
+        },
+        {
+          "id": "t2b8a28622a",
+          "text": "準備"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t2b8a28622a",
+          "t5256442cf6",
+          "t5a5c5461ec",
+          "t4ccbeb603f"
+        ]
+      ],
+      "rationale": "次第：準備ができ次第、出発します。\nWe'll set off as soon as the preparations are ready."
+    },
+    {
+      "id": "assembly-zuni",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/zuni/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "ずに",
+      "original": "傘を持たずに家を出て、雨に降られてしまった。",
+      "stimulus": "傘を＿＿、雨に降られてしまった。",
+      "tiles": [
+        {
+          "id": "taf991333d1",
+          "text": "家を"
+        },
+        {
+          "id": "ta4ce20c1ec",
+          "text": "持た"
+        },
+        {
+          "id": "t6ba71d5538",
+          "text": "出て"
+        },
+        {
+          "id": "t7cec7b93b1",
+          "text": "ずに"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "ta4ce20c1ec",
+          "t7cec7b93b1",
+          "taf991333d1",
+          "t6ba71d5538"
+        ]
+      ],
+      "rationale": "ずに：傘を持たずに家を出て、雨に降られてしまった。\nI left home without taking an umbrella and got caught in the rain."
+    },
+    {
+      "id": "assembly-sei-de",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/sei-de/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "せいで",
+      "original": "昨日夜ふかしをしたせいで、今朝は頭が痛い。",
+      "stimulus": "昨日＿＿、今朝は頭が痛い。",
+      "tiles": [
+        {
+          "id": "tdcba7c2729",
+          "text": "せい"
+        },
+        {
+          "id": "tea2cb9bd51",
+          "text": "夜ふかしを"
+        },
+        {
+          "id": "tdcd84fc80f",
+          "text": "で"
+        },
+        {
+          "id": "t88b435815e",
+          "text": "した"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "tea2cb9bd51",
+          "t88b435815e",
+          "tdcba7c2729",
+          "tdcd84fc80f"
+        ]
+      ],
+      "rationale": "せいで：昨日夜ふかしをしたせいで、今朝は頭が痛い。\nBecause I stayed up late last night, my head hurts this morning."
+    },
+    {
+      "id": "assembly-sou-mo-nai",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/sou-mo-nai/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "そうもない・そうにない",
+      "original": "仕事が多くて、今日じゅうに終わりそうにない。",
+      "stimulus": "仕事が多くて、今日じゅうに＿＿。",
+      "tiles": [
+        {
+          "id": "t2247a8c3c9",
+          "text": "終わり"
+        },
+        {
+          "id": "tc74d43e5f6",
+          "text": "に"
+        },
+        {
+          "id": "tfa133b54cb",
+          "text": "ない"
+        },
+        {
+          "id": "t6015971f8e",
+          "text": "そう"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t2247a8c3c9",
+          "t6015971f8e",
+          "tc74d43e5f6",
+          "tfa133b54cb"
+        ]
+      ],
+      "rationale": "そうもない・そうにない：仕事が多くて、今日じゅうに終わりそうにない。\nThere's so much work that it doesn't look like it'll get finished today."
+    },
+    {
+      "id": "assembly-dake-de-nakute-mo",
+      "band": "N3",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/dake-de-nakute-mo/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "だけでなく(て)〜も",
+      "original": "彼は英語だけでなく、中国語も話せる。",
+      "stimulus": "彼は＿＿、中国語も話せる。",
+      "tiles": [
+        {
+          "id": "te45ea66da9",
+          "text": "だけ"
+        },
+        {
+          "id": "tdeddab56d6",
+          "text": "で"
+        },
+        {
+          "id": "t7beef69d51",
+          "text": "英語"
+        },
+        {
+          "id": "tb0c4014fd4",
+          "text": "なく"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t7beef69d51",
+          "te45ea66da9",
+          "tdeddab56d6",
+          "tb0c4014fd4"
+        ]
+      ],
+      "rationale": "だけでなく(て)〜も：彼は英語だけでなく、中国語も話せる。\nHe can speak not only English but also Chinese."
+    },
+    {
+      "id": "assembly-ijou-wa",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/ijou-wa/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order. Also accepts the recorded natural adverb/adjunct order variant.",
+      "focus": "以上は",
+      "original": "一度引き受けた以上は、最後まで責任を持ってやります。",
+      "stimulus": "一度引き受けた＿＿。",
+      "tiles": [
+        {
+          "id": "t5ae042bf52",
+          "text": "責任を持って"
+        },
+        {
+          "id": "t435c67d4df",
+          "text": "以上は、"
+        },
+        {
+          "id": "t338444d251",
+          "text": "やります"
+        },
+        {
+          "id": "t26e0dd5d55",
+          "text": "最後まで"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t435c67d4df",
+          "t26e0dd5d55",
+          "t5ae042bf52",
+          "t338444d251"
+        ],
+        [
+          "t435c67d4df",
+          "t5ae042bf52",
+          "t26e0dd5d55",
+          "t338444d251"
+        ]
+      ],
+      "rationale": "以上は：一度引き受けた以上は、最後まで責任を持ってやります。\nNow that I've taken it on, I'll see it through to the end with full responsibility."
+    },
+    {
+      "id": "assembly-ue-wa",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/ue-wa/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "上は",
+      "original": "会社を辞めると決めた上は、迷わず前に進むだけだ。",
+      "stimulus": "会社を＿＿、迷わず前に進むだけだ。",
+      "tiles": [
+        {
+          "id": "t9cef5bcee0",
+          "text": "は"
+        },
+        {
+          "id": "t2f27ac0baa",
+          "text": "上"
+        },
+        {
+          "id": "t93fa8d0a2d",
+          "text": "決めた"
+        },
+        {
+          "id": "t6064c1f643",
+          "text": "辞めると"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t6064c1f643",
+          "t93fa8d0a2d",
+          "t2f27ac0baa",
+          "t9cef5bcee0"
+        ]
+      ],
+      "rationale": "上は：会社を辞めると決めた上は、迷わず前に進むだけだ。\nNow that I've decided to leave the company, all that's left is to move forward without hesitation."
+    },
+    {
+      "id": "assembly-osore-ga-aru",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/osore-ga-aru/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "恐れがある",
+      "original": "台風の影響で、明日は電車が止まる恐れがあります。",
+      "stimulus": "台風の影響で、明日は電車が＿＿。",
+      "tiles": [
+        {
+          "id": "t97fa3f80eb",
+          "text": "止まる"
+        },
+        {
+          "id": "tb7ca3ae583",
+          "text": "恐れ"
+        },
+        {
+          "id": "t3e8ecb5459",
+          "text": "あります"
+        },
+        {
+          "id": "t89310709aa",
+          "text": "が"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t97fa3f80eb",
+          "tb7ca3ae583",
+          "t89310709aa",
+          "t3e8ecb5459"
+        ]
+      ],
+      "rationale": "恐れがある：台風の影響で、明日は電車が止まる恐れがあります。\nBecause of the typhoon, there is a risk the trains will stop tomorrow."
+    },
+    {
+      "id": "assembly-ka-nai-ka-no-uchi-ni",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/ka-nai-ka-no-uchi-ni/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "か〜ないかのうちに",
+      "original": "ベルが鳴るか鳴らないかのうちに、生徒たちは教室を飛び出した。",
+      "stimulus": "ベルが＿＿、生徒たちは教室を飛び出した。",
+      "tiles": [
+        {
+          "id": "te4b3cd7ed7",
+          "text": "鳴らないか"
+        },
+        {
+          "id": "t8279b4c073",
+          "text": "のうち"
+        },
+        {
+          "id": "t8739206883",
+          "text": "に"
+        },
+        {
+          "id": "t04ff95fcb2",
+          "text": "鳴るか"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t04ff95fcb2",
+          "te4b3cd7ed7",
+          "t8279b4c073",
+          "t8739206883"
+        ]
+      ],
+      "rationale": "か〜ないかのうちに：ベルが鳴るか鳴らないかのうちに、生徒たちは教室を飛び出した。\nThe bell had barely rung when the students dashed out of the classroom."
+    },
+    {
+      "id": "assembly-kai-ga-aru",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/kai-ga-aru/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "甲斐がある",
+      "original": "毎日練習した甲斐があって、大会で優勝できた。",
+      "stimulus": "毎日＿＿、大会で優勝できた。",
+      "tiles": [
+        {
+          "id": "tfd41c0d632",
+          "text": "甲斐"
+        },
+        {
+          "id": "t116abd3ebd",
+          "text": "練習した"
+        },
+        {
+          "id": "t2e3b63f262",
+          "text": "あって"
+        },
+        {
+          "id": "t8040a0073d",
+          "text": "が"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t116abd3ebd",
+          "tfd41c0d632",
+          "t8040a0073d",
+          "t2e3b63f262"
+        ]
+      ],
+      "rationale": "甲斐がある：毎日練習した甲斐があって、大会で優勝できた。\nPracticing every day paid off, and I was able to win the tournament."
+    },
+    {
+      "id": "assembly-kagiri",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/kagiri/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "限り",
+      "original": "私が知る限り、彼はそんなことをする人ではない。",
+      "stimulus": "私が＿＿、彼はそんなことをする人ではない。",
+      "tiles": [
+        {
+          "id": "tfb2faa237e",
+          "text": "限り"
+        },
+        {
+          "id": "tc62a1d3a76",
+          "text": "知る"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "tc62a1d3a76",
+          "tfb2faa237e"
+        ]
+      ],
+      "rationale": "限り：私が知る限り、彼はそんなことをする人ではない。\nAs far as I know, he is not the kind of person who would do such a thing."
+    },
+    {
+      "id": "assembly-kanenai",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/kanenai/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "かねない",
+      "original": "そんな無理な計画では、失敗しかねない。",
+      "stimulus": "そんな無理な計画では、＿＿。",
+      "tiles": [
+        {
+          "id": "t29905f5a13",
+          "text": "ない"
+        },
+        {
+          "id": "t776754e2da",
+          "text": "し"
+        },
+        {
+          "id": "t8994a6453d",
+          "text": "かね"
+        },
+        {
+          "id": "tfd227c398a",
+          "text": "失敗"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "tfd227c398a",
+          "t776754e2da",
+          "t8994a6453d",
+          "t29905f5a13"
+        ]
+      ],
+      "rationale": "かねない：そんな無理な計画では、失敗しかねない。\nWith such an unreasonable plan, it could well end in failure."
+    },
+    {
+      "id": "assembly-kaneru",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/kaneru/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "かねる",
+      "original": "申し訳ありませんが、その件についてはお答えしかねます。",
+      "stimulus": "申し訳ありませんが、その件については＿＿。",
+      "tiles": [
+        {
+          "id": "t35ef1509f2",
+          "text": "お答え"
+        },
+        {
+          "id": "tf6a10d0127",
+          "text": "かね"
+        },
+        {
+          "id": "t4bd0f71259",
+          "text": "し"
+        },
+        {
+          "id": "t48f54b4eea",
+          "text": "ます"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t35ef1509f2",
+          "t4bd0f71259",
+          "tf6a10d0127",
+          "t48f54b4eea"
+        ]
+      ],
+      "rationale": "かねる：申し訳ありませんが、その件についてはお答えしかねます。\nI'm very sorry, but I am unable to answer regarding that matter."
+    },
+    {
+      "id": "assembly-ka-no-you-ni",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/ka-no-you-ni/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "かのように・かのようだ",
+      "original": "彼は何も知らなかったかのように、平然としていた。",
+      "stimulus": "彼は何も＿＿、平然としていた。",
+      "tiles": [
+        {
+          "id": "tb2e43d73eb",
+          "text": "知らなかった"
+        },
+        {
+          "id": "t622be99249",
+          "text": "に"
+        },
+        {
+          "id": "tfa3ed5341a",
+          "text": "か"
+        },
+        {
+          "id": "t7501f76556",
+          "text": "のよう"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "tb2e43d73eb",
+          "tfa3ed5341a",
+          "t7501f76556",
+          "t622be99249"
+        ]
+      ],
+      "rationale": "かのように・かのようだ：彼は何も知らなかったかのように、平然としていた。\nHe stayed perfectly calm, as if he had known nothing at all."
+    },
+    {
+      "id": "assembly-kara-to-itte",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/kara-to-itte/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "からといって",
+      "original": "都会に住んでいるからといって、みんなが生活に満足しているわけではない。",
+      "stimulus": "都会に＿＿、みんなが生活に満足しているわけではない。",
+      "tiles": [
+        {
+          "id": "t82cf187d68",
+          "text": "いって"
+        },
+        {
+          "id": "te836a48c3f",
+          "text": "住んでいる"
+        },
+        {
+          "id": "t2b8f4c5a4d",
+          "text": "と"
+        },
+        {
+          "id": "tbf00e9b373",
+          "text": "から"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "te836a48c3f",
+          "tbf00e9b373",
+          "t2b8f4c5a4d",
+          "t82cf187d68"
+        ]
+      ],
+      "rationale": "からといって：都会に住んでいるからといって、みんなが生活に満足しているわけではない。\nJust because someone lives in the city doesn't mean everyone is satisfied with their life."
+    },
+    {
+      "id": "assembly-kara-niwa",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/kara-niwa/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "からには",
+      "original": "引き受けたからには、最後まで責任を持ってやり遂げます。",
+      "stimulus": "＿＿、最後まで責任を持ってやり遂げます。",
+      "tiles": [
+        {
+          "id": "t62feea0c5a",
+          "text": "には"
+        },
+        {
+          "id": "t352bb24315",
+          "text": "引き受けた"
+        },
+        {
+          "id": "tf8103fd818",
+          "text": "から"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t352bb24315",
+          "tf8103fd818",
+          "t62feea0c5a"
+        ]
+      ],
+      "rationale": "からには：引き受けたからには、最後まで責任を持ってやり遂げます。\nNow that I've taken it on, I will see it through to the end and take full responsibility."
+    },
+    {
+      "id": "assembly-koto-naku",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/koto-naku/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "ことなく",
+      "original": "彼は最後まで諦めることなく、走り続けた。",
+      "stimulus": "彼は最後まで＿＿、走り続けた。",
+      "tiles": [
+        {
+          "id": "t770cd1c1d4",
+          "text": "諦める"
+        },
+        {
+          "id": "t7eb87c7ca1",
+          "text": "なく"
+        },
+        {
+          "id": "tb1bfc428f1",
+          "text": "こと"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t770cd1c1d4",
+          "tb1bfc428f1",
+          "t7eb87c7ca1"
+        ]
+      ],
+      "rationale": "ことなく：彼は最後まで諦めることなく、走り続けた。\nHe kept running to the very end without ever giving up."
+    },
+    {
+      "id": "assembly-koto-niwa-naranai",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/koto-niwa-naranai/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "ことにはならない",
+      "original": "謝ったからといって、すべてが許されることにはならない。",
+      "stimulus": "謝ったからといって、すべてが＿＿。",
+      "tiles": [
+        {
+          "id": "t1cfc2b01bd",
+          "text": "には"
+        },
+        {
+          "id": "ta52fca4392",
+          "text": "許される"
+        },
+        {
+          "id": "t6a36d4289a",
+          "text": "ならない"
+        },
+        {
+          "id": "t4f1fd5e193",
+          "text": "こと"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "ta52fca4392",
+          "t4f1fd5e193",
+          "t1cfc2b01bd",
+          "t6a36d4289a"
+        ]
+      ],
+      "rationale": "ことにはならない：謝ったからといって、すべてが許されることにはならない。\nJust because you apologized doesn't mean everything is forgiven."
+    },
+    {
+      "id": "assembly-zaru-o-enai",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/zaru-o-enai/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "ざるを得ない",
+      "original": "台風で、旅行を中止せざるを得なかった。",
+      "stimulus": "台風で、旅行を＿＿。",
+      "tiles": [
+        {
+          "id": "t6457920c54",
+          "text": "ざる"
+        },
+        {
+          "id": "tcf3a5dba67",
+          "text": "を"
+        },
+        {
+          "id": "te5cd7987fd",
+          "text": "中止せ"
+        },
+        {
+          "id": "tc2db02f7b1",
+          "text": "得なかった"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "te5cd7987fd",
+          "t6457920c54",
+          "tcf3a5dba67",
+          "tc2db02f7b1"
+        ]
+      ],
+      "rationale": "ざるを得ない：台風で、旅行を中止せざるを得なかった。\nBecause of the typhoon, we had no choice but to cancel the trip."
+    },
+    {
+      "id": "assembly-shidai-de",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/shidai-de/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "次第だ・次第で",
+      "original": "明日出かけるかどうかは、天気次第だ。",
+      "stimulus": "明日＿＿。",
+      "tiles": [
+        {
+          "id": "t41d0a6defe",
+          "text": "次第"
+        },
+        {
+          "id": "t2312c58d8b",
+          "text": "出かけるかどうかは、"
+        },
+        {
+          "id": "tf36c0fccf0",
+          "text": "だ"
+        },
+        {
+          "id": "t8cdb55a95d",
+          "text": "天気"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t2312c58d8b",
+          "t8cdb55a95d",
+          "t41d0a6defe",
+          "tf36c0fccf0"
+        ]
+      ],
+      "rationale": "次第だ・次第で：明日出かけるかどうかは、天気次第だ。\nWhether we go out tomorrow depends on the weather."
+    },
+    {
+      "id": "assembly-zu-ni-sumu",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/zu-ni-sumu/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "ずに済む",
+      "original": "友達がお金を貸してくれたので、親に頼まずに済んだ。",
+      "stimulus": "友達がお金を貸してくれたので、親に＿＿。",
+      "tiles": [
+        {
+          "id": "te0d236d099",
+          "text": "ずに"
+        },
+        {
+          "id": "t28e1208328",
+          "text": "頼ま"
+        },
+        {
+          "id": "t06d70c1ab0",
+          "text": "済んだ"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t28e1208328",
+          "te0d236d099",
+          "t06d70c1ab0"
+        ]
+      ],
+      "rationale": "ずに済む：友達がお金を貸してくれたので、親に頼まずに済んだ。\nA friend lent me money, so I got by without having to ask my parents."
+    },
+    {
+      "id": "assembly-dake-atte",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/dake-atte/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "だけあって",
+      "original": "さすが有名なホテルだけあって、サービスがすばらしい。",
+      "stimulus": "さすが＿＿、サービスがすばらしい。",
+      "tiles": [
+        {
+          "id": "t3d6ef7f08e",
+          "text": "あって"
+        },
+        {
+          "id": "t7fb33ae999",
+          "text": "有名な"
+        },
+        {
+          "id": "t59cf726752",
+          "text": "だけ"
+        },
+        {
+          "id": "t141f2f343f",
+          "text": "ホテル"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t7fb33ae999",
+          "t141f2f343f",
+          "t59cf726752",
+          "t3d6ef7f08e"
+        ]
+      ],
+      "rationale": "だけあって：さすが有名なホテルだけあって、サービスがすばらしい。\nAs you'd expect of a famous hotel, the service is wonderful."
+    },
+    {
+      "id": "assembly-sue-ni",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/sue-ni/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "た末に・の末に",
+      "original": "さんざん迷った末に、留学することを決めた。",
+      "stimulus": "さんざん＿＿、留学することを決めた。",
+      "tiles": [
+        {
+          "id": "ta31ba85b64",
+          "text": "迷った"
+        },
+        {
+          "id": "t22b76af8cd",
+          "text": "に"
+        },
+        {
+          "id": "t386f667a2b",
+          "text": "末"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "ta31ba85b64",
+          "t386f667a2b",
+          "t22b76af8cd"
+        ]
+      ],
+      "rationale": "た末に・の末に：さんざん迷った末に、留学することを決めた。\nAfter endless hesitation, I finally decided to study abroad."
+    },
+    {
+      "id": "assembly-tsutsu",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/tsutsu/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "〜つつ・〜つつも",
+      "original": "資料を確認しつつ、会議の準備を進めた。",
+      "stimulus": "＿＿、会議の準備を進めた。",
+      "tiles": [
+        {
+          "id": "tc6e326ddee",
+          "text": "を"
+        },
+        {
+          "id": "t784396ad95",
+          "text": "つつ"
+        },
+        {
+          "id": "t30e5d53260",
+          "text": "資料"
+        },
+        {
+          "id": "tc9c7286caf",
+          "text": "確認し"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t30e5d53260",
+          "tc6e326ddee",
+          "tc9c7286caf",
+          "t784396ad95"
+        ]
+      ],
+      "rationale": "〜つつ・〜つつも：資料を確認しつつ、会議の準備を進めた。\nI moved ahead with preparing for the meeting while checking the materials."
+    },
+    {
+      "id": "assembly-tsutsu-aru",
+      "band": "N2",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/tsutsu-aru/examples/0",
+      "changes": "Original Japanese example retained exactly; authored one-blank context and full tile key. Fixed surroundings constrain scope. No source translation is included in the learner prompt. Tile ids are opaque and displayed out of answer order.",
+      "focus": "つつある",
+      "original": "この町の人口は、年々減りつつある。",
+      "stimulus": "この町の人口は、＿＿。",
+      "tiles": [
+        {
+          "id": "t7258b0346c",
+          "text": "年々"
+        },
+        {
+          "id": "tef3d6271be",
+          "text": "ある"
+        },
+        {
+          "id": "t7260f39c92",
+          "text": "減り"
+        },
+        {
+          "id": "t246c7a2569",
+          "text": "つつ"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "t7258b0346c",
+          "t7260f39c92",
+          "t246c7a2569",
+          "tef3d6271be"
+        ]
+      ],
+      "rationale": "つつある：この町の人口は、年々減りつつある。\nThe population of this town is steadily declining year by year."
+    }
+  ]
+}

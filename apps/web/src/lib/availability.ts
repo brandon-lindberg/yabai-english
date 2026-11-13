@@ -107,7 +107,7 @@ export function buildUpcomingSlotOptions({
       const endViewer = endUtc.setZone(viewerTimezone);
       const timeLabel = `${startViewer.toFormat("ccc, LLL d HH:mm")} - ${endViewer.toFormat(
         "HH:mm",
-      )} (${viewerTimezone})`;
+      )}`;
       const meta = formatLessonMeta?.(slot);
       const label = meta ? `${timeLabel} · ${meta}` : timeLabel;
 

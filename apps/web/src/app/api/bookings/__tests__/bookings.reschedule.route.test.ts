@@ -1,3 +1,6 @@
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
+vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn() }));
+vi.mock("@/lib/booking-calendar-recovery", () => ({ ensureBookingCalendar: vi.fn().mockResolvedValue({ ok: true }) }));
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
@@ -20,6 +23,8 @@ const {
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    schoolScheduleSlot: { findMany: vi.fn().mockResolvedValue([]) },
+    schoolBooking: { findFirst: vi.fn().mockResolvedValue(null), findMany: vi.fn().mockResolvedValue([]) },
     booking: {
       findUnique: findUniqueMock,
       update: updateMock,
@@ -109,6 +114,31 @@ function request(body: Record<string, unknown>) {
 const params = { params: Promise.resolve({ bookingId: "booking-1" }) };
 
 describe("POST /api/bookings/[bookingId]/reschedule", () => {
+  test("a pending late cancellation can restore its paid booking after the original start has passed", async () => {
+    findUniqueMock.mockResolvedValue(booking({ status: "CANCELLED", privateRescheduleStatus: "PENDING", startsAt: new Date("2020-01-01"), googleEventId: null }));
+    const response = await POST(request({ startsAt: NEW_START.toISOString() }), params);
+    expect(response.status).toBe(200);
+    expect(updateMock.mock.calls[0][0].data).toMatchObject({ status: "CONFIRMED", privateRescheduleStatus: "RESCHEDULED", rescheduleCount: 1 });
+  });
+  test("a conflicting write returns a recoverable conflict and never confirms a move", async () => {
+    updateMock.mockRejectedValueOnce({ code: "P2025" });
+    const response = await POST(request({ startsAt: NEW_START.toISOString() }), params);
+    expect(response.status).toBe(409);
+    expect(notifyPrivateBookingEvent).not.toHaveBeenCalled();
+    expect(patchMeetMock).not.toHaveBeenCalled();
+  });
+  test("an immediate private move sends only its confirmed outcome", async () => {
+    const response = await POST(request({ startsAt: NEW_START.toISOString() }), params);
+    expect(response.status).toBe(200);
+    expect(vi.mocked(notifyPrivateBookingEvent).mock.calls.map(([arg]) => arg.event)).toEqual(["rescheduled"]);
+  });
+
+  test("retrying an unchanged time does not consume a move or notify either participant again", async () => {
+    findUniqueMock.mockResolvedValue(booking({ startsAt: NEW_START, endsAt: new Date(NEW_START.getTime() + 30 * 60_000), rescheduleCount: 1 }));
+    expect((await POST(request({ startsAt: NEW_START.toISOString() }), params)).status).toBe(200);
+    expect(updateMock).not.toHaveBeenCalled();
+    expect(notifyPrivateBookingEvent).not.toHaveBeenCalled();
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT" } });
@@ -126,11 +156,25 @@ describe("POST /api/bookings/[bookingId]/reschedule", () => {
 
     expect(res.status).toBe(200);
     const call = updateMock.mock.calls[0][0];
-    expect(call.where).toEqual({ id: "booking-1" });
+    expect(call.where).toEqual({ id: "booking-1", status: "CONFIRMED", startsAt: CURRENT_START, rescheduleCount: 0, privateRescheduleStatus: null });
     expect(call.data.startsAt).toEqual(NEW_START);
     // The whole point: no refund, no re-charge, same booking row.
     expect(Object.keys(call.data)).not.toContain("quotedPriceYen");
     expect(Object.keys(call.data)).not.toContain("status");
+  });
+
+  test("a Japanese booking cannot be moved to legacy English availability", async () => {
+    findUniqueMock.mockResolvedValue(booking({ learningLanguage: "JAPANESE" }));
+    const res = await POST(request({ startsAt: NEW_START.toISOString() }), params);
+    expect(res.status).toBe(409);
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  test("switching the student's current subject does not relabel an English booking", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT", learningLanguage: "JAPANESE" } });
+    findUniqueMock.mockResolvedValue(booking({ learningLanguage: "ENGLISH" }));
+    expect((await POST(request({ startsAt: NEW_START.toISOString() }), params)).status).toBe(200);
+    expect(updateMock.mock.calls[0][0].data).not.toHaveProperty("learningLanguage");
   });
 
   test("counts the move so the cap can be enforced next time", async () => {

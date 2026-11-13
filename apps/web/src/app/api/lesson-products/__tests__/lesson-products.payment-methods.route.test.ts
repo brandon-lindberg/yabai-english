@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { LessonTier } from "@/generated/prisma/client";
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }) }));
+vi.mock("@/auth", () => ({ auth: async () => null }));
 
 const { prismaMock } = vi.hoisted(() => ({
   prismaMock: {

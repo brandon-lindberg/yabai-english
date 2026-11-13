@@ -1,0 +1,1186 @@
+{
+  "schemaVersion": 1,
+  "purpose": "review-inventory",
+  "publicationChanged": false,
+  "sourceCatalogSha256": "39fe0ff9f5355a3559055797779b4f99aabb9a57f7ff75d816c8d73e1e1a295a",
+  "studyCatalogSha256": "d9a72223da0534a2bbec995f8e26a508f1dd678c3c39f9d958607484207457b2",
+  "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
+  "usageLabelsSha256": "3d6ed4020be51cfa301a9f5fce05cf78415b28c0ad30cf6598f71711cdba593f",
+  "rowsSha256": "e5a2a9a9b56816ae126e8fba2c2848b83ede5a281cfde1be0ead17f7aa7b669e",
+  "counts": {
+    "units": 10291,
+    "sourceRecords": 10307,
+    "vocabulary": 7924,
+    "kanji": 2383,
+    "meanings": 17218,
+    "meaningsWithExactEvidence": 14686,
+    "reviewedEquivalentMeanings": 2526,
+    "meaningsToReview": 6,
+    "correctedMeaningRecords": 1146,
+    "retainedMeaningRecords": 6336,
+    "selectedReviewExamples": 10832,
+    "omittedReviewExamples": 2880,
+    "reviewedPhraseExampleRecords": 2,
+    "selectedPhraseExamples": 1,
+    "omittedPhraseExamples": 1,
+    "constructionMeanings": 0,
+    "phraseAttestedMeanings": 6,
+    "sourceExamples": 10833,
+    "recordsWithoutExamples": 1380,
+    "duplicateExamples": 0,
+    "examplesWithoutLiteralTarget": 1846,
+    "exampleSourceIdVariants": 0,
+    "usageValues": 82,
+    "translatedUsageValues": 82
+  },
+  "usageInventory": [
+    {
+      "value": "Buddh",
+      "records": 1,
+      "en": {
+        "text": "Buddhism",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "仏教",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "abbr",
+      "records": 2,
+      "en": {
+        "text": "Abbreviation",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "略語",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adj-f",
+      "records": 13,
+      "en": {
+        "text": "Noun or verb used before a noun",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "名詞の前で修飾する名詞・動詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adj-i",
+      "records": 230,
+      "en": {
+        "text": "I-adjective",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "イ形容詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adj-ix",
+      "records": 1,
+      "en": {
+        "text": "I-adjective (いい・よい type)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "イ形容詞（いい・よい型）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adj-na",
+      "records": 487,
+      "en": {
+        "text": "Na-adjective",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "ナ形容詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adj-nari",
+      "records": 1,
+      "en": {
+        "text": "Nari adjective (classical)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "ナリ活用形容動詞（古語）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adj-no",
+      "records": 587,
+      "en": {
+        "text": "Noun used with の",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "「の」で名詞を修飾",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adj-pn",
+      "records": 21,
+      "en": {
+        "text": "Prenoun modifier",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "連体詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adj-t",
+      "records": 14,
+      "en": {
+        "text": "Taru adjective",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "タル形容詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adv",
+      "records": 538,
+      "en": {
+        "text": "Adverb",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "副詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "adv-to",
+      "records": 78,
+      "en": {
+        "text": "Adverb used with と",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "「と」を伴う副詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "after an author's name",
+      "records": 1,
+      "en": {
+        "text": "after an author's name",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "著者名の後に付く",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "after the name of a male of equal or lower status",
+      "records": 1,
+      "en": {
+        "text": "after the name of a male of equal or lower status",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "同等または目下の男性の名前の後に付く",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "arch",
+      "records": 2,
+      "en": {
+        "text": "Archaic usage",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "古語",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "ateji",
+      "records": 2,
+      "en": {
+        "text": "Phonetic kanji spelling (ateji)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "当て字",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "aux",
+      "records": 2,
+      "en": {
+        "text": "Auxiliary",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "補助語",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "aux-adj",
+      "records": 1,
+      "en": {
+        "text": "Auxiliary adjective",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "補助形容詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "aux-v",
+      "records": 4,
+      "en": {
+        "text": "Auxiliary verb",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "補助動詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "concerning the actions of the listener or concerning the ideas expressed or understood by the listener; with a neg. sentence, implies that something isn't as much as one might think",
+      "records": 1,
+      "en": {
+        "text": "concerning the actions of the listener or concerning the ideas expressed or understood by the listener; with a negative sentence, implies that something isn't as much as one might think",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "聞き手の行動や、聞き手が述べたり理解したりする考えについて使う。否定文では、思うほどではないという意味を表す",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "conj",
+      "records": 45,
+      "en": {
+        "text": "Conjunction",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "接続詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "ctr",
+      "records": 40,
+      "en": {
+        "text": "Counter",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "助数詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "derog",
+      "records": 1,
+      "en": {
+        "text": "Derogatory usage",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "侮蔑的な用法",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "esp. たち",
+      "records": 1,
+      "en": {
+        "text": "especially when read たち",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "特に「たち」と読む場合",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "esp. 一人, １人",
+      "records": 1,
+      "en": {
+        "text": "especially the spellings 一人 and １人",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "特に「一人」「１人」の表記",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "exp",
+      "records": 78,
+      "en": {
+        "text": "Expression",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "表現",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "finc",
+      "records": 1,
+      "en": {
+        "text": "Finance",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "金融",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "form",
+      "records": 1,
+      "en": {
+        "text": "Formal usage",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "改まった用法",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "gikun",
+      "records": 2,
+      "en": {
+        "text": "Special kanji reading (gikun or jukujikun)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "義訓・熟字訓",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "int",
+      "records": 45,
+      "en": {
+        "text": "Interjection",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "感動詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "io",
+      "records": 3,
+      "en": {
+        "text": "Irregular okurigana",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "不規則な送り仮名",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "n",
+      "records": 5563,
+      "en": {
+        "text": "Noun",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "名詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "n-pref",
+      "records": 9,
+      "en": {
+        "text": "Noun used as a prefix",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "接頭語的に使う名詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "n-suf",
+      "records": 157,
+      "en": {
+        "text": "Noun used as a suffix",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "接尾語的に使う名詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "num",
+      "records": 28,
+      "en": {
+        "text": "Number",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "数詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "ok",
+      "records": 5,
+      "en": {
+        "text": "Outdated kana spelling",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "古い仮名表記",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "on-mim",
+      "records": 2,
+      "en": {
+        "text": "Onomatopoeic or mimetic word",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "擬音語・擬態語",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "pn",
+      "records": 46,
+      "en": {
+        "text": "Pronoun",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "代名詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "poet",
+      "records": 1,
+      "en": {
+        "text": "Poetic usage",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "詩的な用法",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "precedes the thing being counted; e.g. ３か月, ５か所; also written as ヶ or ケ",
+      "records": 1,
+      "en": {
+        "text": "before the thing being counted, e.g. ３か月 or ５か所; also written ヶ or ケ",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "数える対象の前に置く（例：３か月、５か所）。「ヶ」「ケ」とも表記",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "pref",
+      "records": 32,
+      "en": {
+        "text": "Prefix",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "接頭語",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "prt",
+      "records": 10,
+      "en": {
+        "text": "Particle",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "助詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "rK",
+      "records": 5,
+      "en": {
+        "text": "Rare kanji spelling",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "まれな漢字表記",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "rare",
+      "records": 2,
+      "en": {
+        "text": "Rare usage",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "まれな用法",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "rk",
+      "records": 1,
+      "en": {
+        "text": "Rare kana spelling",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "まれな仮名表記",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "sK",
+      "records": 1,
+      "en": {
+        "text": "Kanji form for dictionary lookup only",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "辞書検索用の漢字表記",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "shogi",
+      "records": 1,
+      "en": {
+        "text": "Shogi",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "将棋",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "slightly formal or feminine",
+      "records": 1,
+      "en": {
+        "text": "slightly formal or feminine",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "やや改まった表現、または女性的な表現",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "sometimes pronounced ぴん",
+      "records": 1,
+      "en": {
+        "text": "sometimes pronounced ぴん",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "「ぴん」と発音することもある",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "suf",
+      "records": 37,
+      "en": {
+        "text": "Suffix",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "接尾語",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "uk",
+      "records": 17,
+      "en": {
+        "text": "Usually written in kana",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "通常は仮名で表記",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "used after a noun or na-adjective; also ったれ",
+      "records": 1,
+      "en": {
+        "text": "after a noun or na-adjective; also ったれ",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "名詞・ナ形容詞の後に付く。「ったれ」の形も使う",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "used to express agreement with something said",
+      "records": 1,
+      "en": {
+        "text": "expresses agreement with something said",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "相手の発言への同意を表す",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "used to indicate an incorrect answer, etc.",
+      "records": 1,
+      "en": {
+        "text": "indicates an incorrect answer, etc.",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "不正解などを示す",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "usu. 〜と",
+      "records": 1,
+      "en": {
+        "text": "usually used as 〜と",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "通常は「〜と」の形で使う",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "usu. 翔る",
+      "records": 1,
+      "en": {
+        "text": "usually written 翔る",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "通常は「翔る」と表記",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v1",
+      "records": 426,
+      "en": {
+        "text": "Ichidan verb",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "一段動詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v1-s",
+      "records": 1,
+      "en": {
+        "text": "Ichidan verb (くれる type)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "一段動詞（くれる型）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v2a-s",
+      "records": 1,
+      "en": {
+        "text": "Nidan verb ending in う (classical)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "二段動詞（う・古語）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5aru",
+      "records": 4,
+      "en": {
+        "text": "Godan verb (special ある type)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（ある特殊型）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5b",
+      "records": 15,
+      "en": {
+        "text": "Godan verb (ぶ ending)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（ぶ）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5g",
+      "records": 26,
+      "en": {
+        "text": "Godan verb (ぐ ending)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（ぐ）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5k",
+      "records": 105,
+      "en": {
+        "text": "Godan verb (く ending)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（く）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5k-s",
+      "records": 2,
+      "en": {
+        "text": "Godan verb (行く type)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（行く型）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5m",
+      "records": 97,
+      "en": {
+        "text": "Godan verb (む ending)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（む）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5n",
+      "records": 1,
+      "en": {
+        "text": "Godan verb (ぬ ending)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（ぬ）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5r",
+      "records": 306,
+      "en": {
+        "text": "Godan verb (る ending)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（る）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5r-i",
+      "records": 1,
+      "en": {
+        "text": "Godan verb (irregular る type)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（る・不規則型）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5s",
+      "records": 179,
+      "en": {
+        "text": "Godan verb (す ending)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（す）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5t",
+      "records": 19,
+      "en": {
+        "text": "Godan verb (つ ending)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（つ）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5u",
+      "records": 96,
+      "en": {
+        "text": "Godan verb (う ending)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（う）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "v5u-s",
+      "records": 2,
+      "en": {
+        "text": "Godan verb (special う type)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "五段動詞（う特殊型）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "vi",
+      "records": 1228,
+      "en": {
+        "text": "Intransitive verb",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "自動詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "vk",
+      "records": 1,
+      "en": {
+        "text": "Kuru verb",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "カ行変格動詞（来る）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "vs",
+      "records": 1431,
+      "en": {
+        "text": "Noun used with する",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "「する」を伴う名詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "vs-i",
+      "records": 3,
+      "en": {
+        "text": "Suru verb (included)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "サ行変格動詞（するを含む）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "vs-s",
+      "records": 22,
+      "en": {
+        "text": "Suru verb (special form)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "サ行変格動詞（特殊型）",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "vt",
+      "records": 1653,
+      "en": {
+        "text": "Transitive verb",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "他動詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "vz",
+      "records": 13,
+      "en": {
+        "text": "Zuru verb",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "「ずる」で終わる動詞",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "with neg. sentence",
+      "records": 1,
+      "en": {
+        "text": "used in negative sentences",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "否定文で使う",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "余 is ateji",
+      "records": 1,
+      "en": {
+        "text": "余 is a phonetic kanji spelling (ateji)",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "「余」は当て字",
+        "lang": "ja",
+        "translated": true
+      }
+    },
+    {
+      "value": "陸 is used in legal documents",
+      "records": 1,
+      "en": {
+        "text": "陸 is used in legal documents",
+        "lang": "en",
+        "translated": true
+      },
+      "ja": {
+        "text": "「陸」は法的文書で使う",
+        "lang": "ja",
+        "translated": true
+      }
+    }
+  ]
+}

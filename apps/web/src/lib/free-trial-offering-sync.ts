@@ -3,16 +3,18 @@ import {
   FREE_TRIAL_DEFAULT_TYPE_CODE,
   FREE_TRIAL_DURATION_MIN,
 } from "@/lib/free-trial-offering";
+import type { LearningLanguage } from "@/generated/prisma/enums";
 
 type EnsureTrialPrisma = {
   teacherLessonOffering: {
     findFirst: (args: {
-      where: { teacherId: string; isFreeTrial: true };
+      where: { teacherId: string; isFreeTrial: true; learningLanguage?: LearningLanguage };
       select: { id: true; active: true };
     }) => Promise<{ id: string; active?: boolean } | null>;
     create: (args: {
       data: {
         teacherId: string;
+        learningLanguage?: LearningLanguage;
         durationMin: number;
         rateYen: number;
         isGroup: boolean;
@@ -53,12 +55,12 @@ type EnsureTrialPrisma = {
  */
 export async function ensureFreeTrialOffering(
   prisma: EnsureTrialPrisma,
-  { teacherId, offersFreeTrial }: { teacherId: string; offersFreeTrial: boolean },
+  { teacherId, offersFreeTrial, learningLanguage }: { teacherId: string; offersFreeTrial: boolean; learningLanguage?: LearningLanguage },
 ): Promise<void> {
   if (!offersFreeTrial) return;
 
   const existing = await prisma.teacherLessonOffering.findFirst({
-    where: { teacherId, isFreeTrial: true },
+    where: { teacherId, isFreeTrial: true, ...(learningLanguage ? { learningLanguage } : {}) },
     select: { id: true, active: true },
   });
   if (existing) {
@@ -90,6 +92,7 @@ export async function ensureFreeTrialOffering(
   await prisma.teacherLessonOffering.create({
     data: {
       teacherId,
+      ...(learningLanguage ? { learningLanguage } : {}),
       durationMin: FREE_TRIAL_DURATION_MIN,
       rateYen: 0,
       isGroup: false,

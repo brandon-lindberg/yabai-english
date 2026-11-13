@@ -1,63 +1,47 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { Adapter } from "next-auth/adapters";
 import { prisma } from "@/lib/prisma";
-import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
+import { placementRetakeStatus } from "@/lib/placement-cooldown";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
+import { lockActiveAccounts } from "@/lib/active-account-lock";
 import { getSessionMaxAgeSeconds } from "@/lib/session-timeout";
 import { claimPendingMemberships } from "@/lib/claim-pending-memberships";
 import { claimTeacherRosterInvites } from "@/lib/claim-teacher-roster-invites";
 import { pickOidcProfilePicture, syncUserImageIfChanged } from "@/lib/oauth-profile-picture";
 import { AccountStatus, Role, type OrgRole } from "@/generated/prisma/client";
 import { cookies, headers } from "next/headers";
+import { resolveLearningLanguage } from "@/lib/learning-language";
+import type { LearningLanguage } from "@/generated/prisma/client";
+import { learningLanguageForRequest } from "@/lib/learning-site-request";
+import { isGoogleSignInConfigured } from "@/lib/auth-mode";
+import { recordTeacherInvitationGoogleSignIn } from "@/lib/teacher-invitation-google-sign-in";
 
 const prismaAdapter = PrismaAdapter(prisma) as Adapter;
+const accountAccessAdapter: Adapter = {
+  ...prismaAdapter,
+  async createSession(data) {
+    return prisma.$transaction(async (tx) => {
+      if (!await lockActiveAccounts(tx, data.userId)) throw new Error("Account access changed during sign-in");
+      return tx.session.create({ data });
+    });
+  },
+  async getSessionAndUser(token) {
+    const record = await prismaAdapter.getSessionAndUser!(token);
+    const user = record?.user as { accountStatus?: AccountStatus } | undefined;
+    return user && isLoginAllowedForAccountStatus(user.accountStatus) ? record : null;
+  },
+};
 
-const hasGoogleOAuth = Boolean(
-  process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
-);
-const useDevCredentialsOnly =
-  process.env.NODE_ENV !== "production" &&
-  process.env.DEV_AUTH_BYPASS === "true" &&
-  !hasGoogleOAuth;
-
-const providers = [];
-if (hasGoogleOAuth) {
-  const googleOptions = {
-    clientId: process.env.AUTH_GOOGLE_ID ?? "missing-client-id",
-    clientSecret: process.env.AUTH_GOOGLE_SECRET ?? "missing-secret",
-    allowDangerousEmailAccountLinking: true,
-    // Google often omits `picture` from the ID token; Auth.js then only passes those
-    // claims into `callbacks.signIn` as `profile`. Fetch userinfo so `picture` exists
-    // and new/existing users get `User.image` populated and kept in sync.
-    idToken: false,
-  };
-  // `OAuthUserConfig` is typed from a union that omits OIDC-only `idToken`; runtime supports it.
-  providers.push(Google(googleOptions as Parameters<typeof Google>[0]));
-}
-if (useDevCredentialsOnly) {
-  providers.push(
-    Credentials({
-      name: "Email (dev bypass)",
-      credentials: {
-        email: { label: "Email", type: "email" },
-      },
-      async authorize(credentials) {
-        const email = String(credentials?.email ?? "").trim().toLowerCase();
-        if (!email) return null;
-        const user = await prisma.user.findUnique({ where: { email } });
-        if (!user || !isLoginAllowedForAccountStatus(user.accountStatus)) {
-          return null;
-        }
-        return user;
-      },
-    }),
-  );
-}
-
-// Apple, LINE: add providers here when AUTH_APPLE_* / LINE OAuth env vars are ready
+const googleOptions = {
+  clientId: process.env.AUTH_GOOGLE_ID,
+  clientSecret: process.env.AUTH_GOOGLE_SECRET,
+  authorization: "https://accounts.google.com/o/oauth2/v2/auth",
+  allowDangerousEmailAccountLinking: true,
+  // Fetch userinfo so Google profile pictures are available on sign-in.
+  idToken: false,
+};
 
 /**
  * Auth.js funnels every error whose type is not on its 8-entry client-safe allowlist
@@ -102,24 +86,23 @@ async function logAuthError(error: Error) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: hasGoogleOAuth ? prismaAdapter : undefined,
+  adapter: accountAccessAdapter,
   session: {
-    strategy: hasGoogleOAuth ? "database" : "jwt",
+    strategy: "database",
     maxAge: getSessionMaxAgeSeconds(),
     updateAge: Math.min(300, getSessionMaxAgeSeconds()),
   },
   trustHost: true,
   // Auth.js's built-in error page renders `Configuration` with a hardcoded HTTP 500.
   // The condition behind it is usually user-recoverable — a replayed OAuth callback,
-  // or a PKCE cookie past its 15-minute TTL — so route it back to our own sign-in
-  // page, where the retry button already lives, instead of a dead-end server error.
-  pages: { error: "/auth/signin" },
+  // or an expired PKCE cookie — so route it to the Google recovery screen.
+  pages: { signIn: "/auth/signin", error: "/auth/error" },
   logger: {
     error(error) {
       void logAuthError(error);
     },
   },
-  providers,
+  providers: isGoogleSignInConfigured() ? [Google(googleOptions as Parameters<typeof Google>[0])] : [],
   callbacks: {
     async signIn({ user, account, profile }) {
       if (!user.id && !user.email) return true;
@@ -173,56 +156,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       });
       return true;
     },
-    async jwt({ token, user }) {
-      if (useDevCredentialsOnly && user?.id) {
-        const row = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { role: true, locale: true, accountStatus: true },
-        });
-        if (row) {
-          token.role = row.role;
-          token.locale = row.locale;
-          (token as { accountStatus?: AccountStatus }).accountStatus = row.accountStatus;
-        }
-      } else if (useDevCredentialsOnly && token.sub) {
-        const row = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { role: true, locale: true, accountStatus: true },
-        });
-        if (row) {
-          token.role = row.role;
-          token.locale = row.locale;
-          (token as { accountStatus?: AccountStatus }).accountStatus = row.accountStatus;
-        }
-      }
-      return token;
-    },
-    async session({ session, user, token }) {
+    async session({ session, user }) {
       if (!session.user) return session;
       if (user) {
         session.user.id = user.id;
         const full = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { role: true, locale: true, accountStatus: true },
+          select: { role: true, locale: true, accountStatus: true, learningLanguage: true },
         });
         session.user.role = full?.role ?? Role.STUDENT;
         session.user.locale = full?.locale ?? "ja";
+        session.user.learningLanguage = resolveLearningLanguage(full?.learningLanguage);
         session.user.accountStatus = full?.accountStatus ?? AccountStatus.ACTIVE;
-      } else if (useDevCredentialsOnly && token?.sub) {
-        session.user.id = token.sub;
-        session.user.role = (token.role as Role) ?? Role.STUDENT;
-        session.user.locale = (token.locale as string) ?? "ja";
-        const t = token as { accountStatus?: AccountStatus };
-        session.user.accountStatus = t.accountStatus ?? AccountStatus.ACTIVE;
       }
 
+      session.user.learningLanguage = await learningLanguageForRequest(session.user.learningLanguage);
       const userId = session.user.id;
-      if (session.user.role === Role.STUDENT && userId) {
+      if (session.user.role === Role.STUDENT && session.user.learningLanguage === "JAPANESE") {
+        // English cooldown/results do not describe Japanese proficiency.
+        session.user.canStartPlacement = false;
+      } else if (session.user.role === Role.STUDENT && userId) {
         const row = await prisma.studentProfile.findUnique({
           where: { userId },
-          select: { placementCompletedAt: true },
+          select: { placementCompletedAt: true, timezone: true },
         });
-        session.user.canStartPlacement = isPlacementRetakeAllowed(row?.placementCompletedAt ?? null);
+        session.user.canStartPlacement = placementRetakeStatus(row?.placementCompletedAt, row?.timezone).allowed;
       } else {
         session.user.canStartPlacement = true;
       }
@@ -283,6 +241,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
+    async signIn({ user, account, profile }) {
+      if (user.id && account?.provider === "google") await recordTeacherInvitationGoogleSignIn(user.id, profile);
+    },
     // `signIn` claims invites by looking the user up, but on a first Google
     // sign-in it runs before the adapter has created the row, finds nobody, and
     // claims nothing. Without this a student invited by email would be turned
@@ -304,6 +265,7 @@ declare module "next-auth" {
       image?: string | null;
       role: Role;
       locale: string;
+      learningLanguage: LearningLanguage;
       accountStatus: AccountStatus;
       /** Students: whether `/placement` and retake CTAs should show (false during post-test cooldown). */
       canStartPlacement: boolean;

@@ -50,7 +50,7 @@ export default async function AdminOrgPage({
           schoolId: true,
           userId: true,
           inviteEmail: true,
-          user: { select: { id: true, name: true, email: true } },
+          user: { select: { id: true, name: true, email: true, role: true, accountStatus: true } },
         },
       },
     },

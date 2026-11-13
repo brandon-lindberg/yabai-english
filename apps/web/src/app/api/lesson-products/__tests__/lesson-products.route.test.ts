@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { LessonTier } from "@/generated/prisma/client";
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }) }));
 
-const { findManyMock, findUniqueMock } = vi.hoisted(() => ({
+const { findManyMock, findUniqueMock, authMock } = vi.hoisted(() => ({
   findManyMock: vi.fn(),
   findUniqueMock: vi.fn(),
+  authMock: vi.fn(),
 }));
+vi.mock("@/auth", () => ({ auth: authMock }));
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -22,11 +25,26 @@ import { GET } from "@/app/api/lesson-products/route";
 describe("GET /api/lesson-products", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    authMock.mockResolvedValue(null);
     findManyMock.mockResolvedValue([
       { id: "trial", tier: LessonTier.FREE_TRIAL, active: true, durationMin: 20 },
       { id: "std30", tier: LessonTier.STANDARD, active: true, durationMin: 30 },
       { id: "std60", tier: LessonTier.STANDARD, active: true, durationMin: 60 },
     ]);
+  });
+
+  test("a URL subject cannot override persisted Japanese intent when requesting prices", async () => {
+    authMock.mockResolvedValue({ user: { id: "s1", learningLanguage: "JAPANESE", locale: "ja" } });
+    findUniqueMock.mockResolvedValue(null);
+    const res = await GET(new Request("http://localhost/api/lesson-products?teacherProfileId=english-only&learningLanguage=ENGLISH"));
+    await expect(res.json()).resolves.toEqual([]);
+    expect(findUniqueMock.mock.calls[0][0]).toMatchObject({
+      where: { id: "english-only", AND: [{
+        japaneseMarketplaceHidden: false,
+        AND: [{ lessonOfferings: { some: { active: true, learningLanguage: "JAPANESE" } } }],
+      }] },
+      select: { lessonOfferings: { where: { active: true, learningLanguage: "JAPANESE" } } },
+    });
   });
 
   test("returns all active products without teacher context", async () => {

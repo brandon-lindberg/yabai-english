@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getHeaderPrimaryNavLinks } from "../header-nav-links";
+import en from "../../../../messages/en.json";
+import ja from "../../../../messages/ja.json";
 
 describe("getHeaderPrimaryNavLinks", () => {
   it("returns book link for guests", () => {
@@ -82,3 +84,20 @@ describe("becoming a teacher", () => {
   });
 });
 
+
+
+it("links Japanese students to their independent assessment regardless of the English cooldown flag", () => {
+  const links = getHeaderPrimaryNavLinks({ signedIn: true, role: "STUDENT", learningLanguage: "JAPANESE", canStartPlacement: false });
+  expect(links).toContainEqual({ id: "japanese-placement", href: "/japanese-placement", labelKey: "placement" });
+  expect(links.some((link) => link.href === "/placement")).toBe(false);
+});
+
+it("offers Japanese students the shared flashcard navigator", () => {
+  expect(getHeaderPrimaryNavLinks({ signedIn: true, role: "STUDENT", learningLanguage: "JAPANESE" }))
+    .toContainEqual({ id: "learn", href: "/learn/study", labelKey: "learn" });
+});
+
+it("names the flashcard destination clearly in both interface languages", () => {
+  expect(en.common.learn).toBe("Flashcards");
+  expect(ja.common.learn).toBe("フラッシュカード");
+});

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { retrieveStripeCheckoutSession, stripeConnectConfigured } from "@/lib/stripe/stripe-connect";
 import { confirmBookingFromStripeCheckoutSession } from "@/lib/stripe/confirm-booking-from-stripe-checkout";
+import { stripeAccountForPayment } from "./payment-account";
 
 export async function finalizeStripeCheckoutReturn({
   bookingId,
@@ -22,14 +23,7 @@ export async function finalizeStripeCheckoutReturn({
       metadataJson: true,
     },
   });
-  const connectedAccountId =
-    payment?.metadataJson &&
-    typeof payment.metadataJson === "object" &&
-    payment.metadataJson !== null &&
-    "connectedAccountId" in payment.metadataJson &&
-    typeof (payment.metadataJson as { connectedAccountId?: unknown }).connectedAccountId === "string"
-      ? (payment.metadataJson as { connectedAccountId: string }).connectedAccountId
-      : null;
+  const connectedAccountId = payment ? stripeAccountForPayment(payment) : null;
 
   if (!connectedAccountId) {
     return { ok: false as const, reason: "PAYMENT_NOT_FOUND" as const };
@@ -46,8 +40,10 @@ export async function finalizeStripeCheckoutReturn({
       payment_status: checkoutSession.payment_status,
       metadata: checkoutSession.metadata,
       payment_intent: checkoutSession.payment_intent,
+      amount_total: checkoutSession.amount_total,
+      currency: checkoutSession.currency,
     },
-    { revalidateRoster },
+    { revalidateRoster, connectedAccountId },
   );
 
   return result.ok

@@ -122,7 +122,7 @@ function stateFromRow(row: {
 
 /** Per-level flashcard practice analytics for a track (one query). */
 export async function getFlashcardPracticeRollupsByLevelId(
-  prisma: PrismaClient,
+  prisma: Pick<PrismaClient, "studyCard" | "userStudyCardState">,
   userId: string,
   levelIds: readonly string[],
 ): Promise<Map<string, FlashcardLevelPracticeRollup>> {

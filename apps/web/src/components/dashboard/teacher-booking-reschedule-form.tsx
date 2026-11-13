@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { buttonClasses } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { Status } from "@/components/ui/status";
+import { useHydrated } from "@/hooks/use-hydrated";
 
 type Props = {
   bookingId: string;
@@ -21,6 +22,7 @@ export function TeacherBookingRescheduleForm({
 }: Props) {
   const t = useTranslations("dashboard.lessonDetail");
   const router = useRouter();
+  const ready = useHydrated();
   const initialLocal = DateTime.fromISO(initialStartsAtIso, { zone: "utc" }).setZone(
     teacherTimezone,
   );
@@ -31,6 +33,7 @@ export function TeacherBookingRescheduleForm({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!ready || loading) return;
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -94,14 +97,14 @@ export function TeacherBookingRescheduleForm({
               type="datetime-local"
               value={value}
               onChange={(ev) => setValue(ev.target.value)}
-              disabled={loading}
+              disabled={loading || !ready}
               required
             />
           )}
         </Field>
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !ready}
           className={buttonClasses()}
         >
           {loading ? t("rescheduleWorking") : t("rescheduleSubmit")}

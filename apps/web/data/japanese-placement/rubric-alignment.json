@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "bankDigest": "33ed9d52018f5a2d4cd615fbe2cfa3472fc303112eb6c2076c37516c52e40037",
+  "referenceSources": [
+    "https://www.jlpt.jp/e/about/levelsummary.html",
+    "https://www.jlpt.jp/e/guideline/testsections.html"
+  ],
+  "anchors": [
+    {
+      "itemId": "n5.jlptsuccess-read-001.q2",
+      "itemRevision": 2,
+      "rationale": "Identify a familiar current activity and location in a short basic self-introduction."
+    },
+    {
+      "itemId": "n5.jlptsuccess-read-002.q2",
+      "itemRevision": 2,
+      "rationale": "Retrieve working hours from a short daily-routine text using basic expressions."
+    },
+    {
+      "itemId": "n5.jlptsuccess-read-007.q2",
+      "itemRevision": 2,
+      "rationale": "Retrieve a borrowing-period rule from a short familiar library notice."
+    },
+    {
+      "itemId": "n5.jlptsuccess-read-008.q1",
+      "itemRevision": 2,
+      "rationale": "Combine stated travel durations in a short everyday journey description."
+    },
+    {
+      "itemId": "n5.jlptsuccess-read-017.q1",
+      "itemRevision": 2,
+      "rationale": "Retrieve and combine two explicitly stated prices from a basic menu."
+    },
+    {
+      "itemId": "n4.japaneseness-moving-house.q2",
+      "itemRevision": 2,
+      "rationale": "Understand a stated reason within a familiar moving-house narrative."
+    },
+    {
+      "itemId": "n4.japaneseness-email-to-a-teacher.q2",
+      "itemRevision": 2,
+      "rationale": "Understand the planned handling of homework in an everyday absence email."
+    },
+    {
+      "itemId": "n4.japaneseness-japanese-trains.q2",
+      "itemRevision": 2,
+      "rationale": "Understand the practical benefit described in a basic familiar-topic account."
+    },
+    {
+      "itemId": "n4.japaneseness-sports-day.q2",
+      "itemRevision": 2,
+      "rationale": "Link the circumstances of a school event to the reason for a conversation."
+    },
+    {
+      "itemId": "n4.japaneseness-planning-a-trip.q1",
+      "itemRevision": 2,
+      "rationale": "Understand the stated reason behind a travel decision in a familiar-topic narrative."
+    },
+    {
+      "itemId": "n3.morning-habit.q2",
+      "itemRevision": 2,
+      "rationale": "Summarize linked changes in an everyday habit account rather than locate an isolated word."
+    },
+    {
+      "itemId": "n3.choosing-a-present.q2",
+      "itemRevision": 2,
+      "rationale": "Infer the narrator’s view from a sequence of everyday decisions about a gift."
+    },
+    {
+      "itemId": "n3.greetings-essay.q2",
+      "itemRevision": 2,
+      "rationale": "Understand the main point of an everyday-topic opinion text."
+    },
+    {
+      "itemId": "n3.meeting-email.q2",
+      "itemRevision": 2,
+      "rationale": "Apply an exception and its required action in a workplace scheduling email."
+    },
+    {
+      "itemId": "n3.volunteer-japanese-class.q2",
+      "itemRevision": 2,
+      "rationale": "Combine participation conditions and the attitude/experience explanation in an everyday notice."
+    },
+    {
+      "itemId": "n2.library-room.q1",
+      "itemRevision": 2,
+      "rationale": "Apply a time condition and an exception to infer reservation eligibility."
+    },
+    {
+      "itemId": "n2.repair-choice.q2",
+      "itemRevision": 2,
+      "rationale": "Identify the writer’s overall position and values in a short argument."
+    },
+    {
+      "itemId": "n2.digital-archive.q2",
+      "itemRevision": 2,
+      "rationale": "Infer the writer’s intended meaning of preservation from the argument’s development."
+    },
+    {
+      "itemId": "n2.garden-views.q1",
+      "itemRevision": 2,
+      "rationale": "Integrate two viewpoints to identify the common position and different implications."
+    },
+    {
+      "itemId": "n2.translation-views.q1",
+      "itemRevision": 2,
+      "rationale": "Compare the relationship between two proposals about revising a source text."
+    },
+    {
+      "itemId": "n1.yomitaku-sim-chu1.q1",
+      "itemRevision": 2,
+      "rationale": "Interpret an abstract causal claim in an argument about note-taking and conceptual structure."
+    },
+    {
+      "itemId": "n1.yomitaku-sim-chu2.q1",
+      "itemRevision": 2,
+      "rationale": "Explain the writer’s reasoning about incentives replacing the purpose of an action."
+    },
+    {
+      "itemId": "n1.yomitaku-sim-chu7.q1",
+      "itemRevision": 2,
+      "rationale": "Interpret an abstract claim about rules by following the argument’s logic."
+    },
+    {
+      "itemId": "n1.yomitaku-sim-togo2.q1",
+      "itemRevision": 2,
+      "rationale": "Integrate positions across two arguments about library digitization."
+    },
+    {
+      "itemId": "n1.yomitaku-sim-togo4.q2",
+      "itemRevision": 2,
+      "rationale": "Distinguish the precise parent–child interaction supported by the second author’s argument."
+    },
+    {
+      "itemId": "n5.jlptsuccess-q-0037",
+      "itemRevision": 2,
+      "rationale": "Compose a basic possessive interrogative noun phrase and copula question."
+    },
+    {
+      "itemId": "n5.jlptsuccess-q-0040",
+      "itemRevision": 2,
+      "rationale": "Compose a modified noun phrase with its object particle and predicate."
+    },
+    {
+      "itemId": "n5.jlptsuccess-q-0441",
+      "itemRevision": 2,
+      "rationale": "Compose a contextual permission request with the supplied particles and verb form."
+    },
+    {
+      "itemId": "n5.jlptsuccess-q-0445",
+      "itemRevision": 2,
+      "rationale": "Compose a prohibition with its location, object and grammatical completion."
+    },
+    {
+      "itemId": "n5.assembly-nakute-mo-ii",
+      "itemRevision": 2,
+      "rationale": "Complete a contextual lack-of-obligation construction in grammatical order."
+    },
+    {
+      "itemId": "n4.assembly-ato-de",
+      "itemRevision": 2,
+      "rationale": "Order a completed-action modifier and the temporal relation to the following action."
+    },
+    {
+      "itemId": "n4.assembly-amari-nai",
+      "itemRevision": 2,
+      "rationale": "Compose the degree adverb and correctly inflected negative adjective predicate."
+    },
+    {
+      "itemId": "n4.assembly-o-ni-naru",
+      "itemRevision": 2,
+      "rationale": "Compose the contextual honorific verb construction with its required particles and inflection."
+    },
+    {
+      "itemId": "n4.assembly-koto-ga-dekiru",
+      "itemRevision": 2,
+      "rationale": "Compose an ability construction from a verb phrase, nominalizer and predicate."
+    },
+    {
+      "itemId": "n4.assembly-saserareru",
+      "itemRevision": 2,
+      "rationale": "Complete the contextual causative-passive predicate in a grammatical sequence."
+    },
+    {
+      "itemId": "n3.assembly-ue-de",
+      "itemRevision": 2,
+      "rationale": "Compose the completed-action prerequisite and its contextual modifier."
+    },
+    {
+      "itemId": "n3.assembly-kanarazushimo",
+      "itemRevision": 2,
+      "rationale": "Compose a contextual non-universal claim with the required negative conclusion."
+    },
+    {
+      "itemId": "n3.assembly-koto-ni-natteiru",
+      "itemRevision": 2,
+      "rationale": "Compose an established-rule predicate with the prohibition it governs."
+    },
+    {
+      "itemId": "n3.assembly-shikanai-no-choice",
+      "itemRevision": 2,
+      "rationale": "Compose an unavoidable-choice construction around the supplied action phrase."
+    },
+    {
+      "itemId": "n3.assembly-zuni",
+      "itemRevision": 2,
+      "rationale": "Link omission of an action to the following event using the supplied context."
+    },
+    {
+      "itemId": "n2.assembly-ijou-wa",
+      "itemRevision": 2,
+      "rationale": "Compose a commitment/consequence construction and its manner and extent modifiers."
+    },
+    {
+      "itemId": "n2.assembly-ka-nai-ka-no-uchi-ni",
+      "itemRevision": 2,
+      "rationale": "Compose the paired affirmative/negative temporal construction in context."
+    },
+    {
+      "itemId": "n2.assembly-koto-niwa-naranai",
+      "itemRevision": 2,
+      "rationale": "Compose a contextual rejected-conclusion construction with its required nominalizer and particles."
+    },
+    {
+      "itemId": "n2.assembly-zaru-o-enai",
+      "itemRevision": 2,
+      "rationale": "Compose an unavoidable-action predicate with its nonstandard negative stem and inflected conclusion."
+    },
+    {
+      "itemId": "n2.assembly-shidai-de",
+      "itemRevision": 2,
+      "rationale": "Compose a dependency relation between an embedded decision and the determining condition."
+    },
+    {
+      "itemId": "n1.assembly-ikanaru",
+      "itemRevision": 2,
+      "rationale": "Compose a formal concessive condition with its nominal subject and predicate."
+    },
+    {
+      "itemId": "n1.assembly-ga-hayai-ka",
+      "itemRevision": 2,
+      "rationale": "Compose the contextual immediate-sequence construction with its verb and grammatical markers."
+    },
+    {
+      "itemId": "n1.assembly-zu-jimai",
+      "itemRevision": 2,
+      "rationale": "Compose an unrealized-action conclusion with its negative stem and past predicate."
+    },
+    {
+      "itemId": "n1.assembly-zu-niwa-okanai",
+      "itemRevision": 2,
+      "rationale": "Compose an emphatic inevitable-effect predicate with its causative stem and negative construction."
+    },
+    {
+      "itemId": "n1.assembly-tari-tomo",
+      "itemRevision": 2,
+      "rationale": "Compose a contextual emphatic minimum-quantity statement and its negative conclusion."
+    }
+  ]
+}

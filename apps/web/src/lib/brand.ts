@@ -1,3 +1,5 @@
+import type { LearningLanguage } from "@/generated/prisma/enums";
+
 /**
  * The product name, in one place.
  *
@@ -8,6 +10,12 @@
  * — reads it from here.
  */
 export const APP_NAME = "English Studio Japan";
+export const JAPANESE_APP_NAME = "Japanese Studio";
+export const LEARNING_APP_NAMES: Record<LearningLanguage, string> = {
+  ENGLISH: APP_NAME,
+  JAPANESE: JAPANESE_APP_NAME,
+};
+export const OPERATOR_NAME = "Yabai Studios";
 
 /**
  * Where a visitor reaches a human.

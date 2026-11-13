@@ -1,14 +1,21 @@
 "use client";
 
+import { TeachingLanguagesField } from "@/components/admin/teaching-languages-field";
+import type { LearningLanguage } from "@/generated/prisma/enums";
 import { AccountStatus, PlacedLevel, Role } from "@/generated/prisma/browser";
-import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { AdminTeacherProfileDto } from "@/lib/admin-user-dto";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClasses } from "@/components/ui/button";
+import { adminPersonScheduleHref } from "@/lib/admin/lesson-calendar";
 import { CheckRow } from "@/components/ui/check-row";
 import { ConfirmDelete } from "@/components/ui/confirm-delete";
-import { Field, Input, Select } from "@/components/ui/field";
+import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Modal } from "@/components/ui/modal";
+import { PageHeader } from "@/components/ui/page-header";
+import { LocalDateTime } from "@/components/local-datetime";
+import { actionLinkClass } from "@/components/ui/inline-link";
 import { MarkdownField } from "@/components/ui/markdown-field";
 import {
   PLACEMENT_NOTE_MAX_CHARS,
@@ -20,10 +27,16 @@ import { Section } from "@/components/ui/section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Status } from "@/components/ui/status";
 import { AdminTeacherRateGrants } from "@/components/admin/admin-teacher-rate-grants";
+import { AdminStudentHistory } from "@/components/admin/admin-student-history";
+import { AdminTeacherOverview } from "@/components/admin/admin-teacher-overview";
+import { AdminStudentRateOverride } from "@/components/admin/admin-student-rate-override";
+import type { AdminStudentOverview } from "@/lib/admin/student-overview";
+import type { AdminTeacherOverview as TeacherOverview } from "@/lib/admin/teacher-overview";
+import { teacherMarketplaceVisibilityKey } from "@/lib/teacher-marketplace-booking-access";
 
 const LOCALES = ["ja", "en"] as const;
 const ROLES = [Role.STUDENT, Role.TEACHER, Role.SUPER_ADMIN] as const;
-const ACCOUNT_STATUSES = [AccountStatus.ACTIVE, AccountStatus.HIDDEN] as const;
+type AccessAction = "suspend" | "reinstate" | "hide" | "unhide" | "changeRole";
 const PLACED_LEVELS = [
   PlacedLevel.UNSET,
   PlacedLevel.BEGINNER,
@@ -46,16 +59,26 @@ type UserDetailJson = {
   name: string | null;
   email: string | null;
   locale: string;
+  learningLanguage: LearningLanguage;
   role: Role;
   accountStatus: AccountStatus;
   studentProfile: StudentProfileDto | null;
   teacherProfile: AdminTeacherProfileDto | null;
+  adminAccessEvents?: Array<{ id: number; actorId: string; actorName?: string; fromStatus: AccountStatus; toStatus: AccountStatus; reason: string; createdAt: string }>;
+  followUp?: { upcomingLessons: number; unresolvedPayments: number } | null;
+  studentOverview?: AdminStudentOverview | null;
+  teacherOverview?: TeacherOverview | null;
 };
 
-export function AdminUserDetailForm({ userId }: { userId: string }) {
+export function AdminUserDetailForm({ userId, backHref = "/admin/users" }: { userId: string; backHref?: string }) {
   const t = useTranslations("admin.userDetail");
+  const tCalendar = useTranslations("admin.lessonCalendar");
   const tg = useTranslations("admin.grid");
   const tGrants = useTranslations("admin.teacherRateGrants");
+  const overviewCopy = useTranslations("admin.profileOverview");
+  const tierCopy = useTranslations("admin.teacherTiersPage");
+  const languageCopy = useTranslations("admin.teachingLanguages");
+  const viewerLocale = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -63,13 +86,23 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [teacherProfileId, setTeacherProfileId] = useState<string | null>(null);
-  const [calendarConnected, setCalendarConnected] = useState(false);
+  const [overview, setOverview] = useState<{
+    student?: AdminStudentOverview | null; teacher?: TeacherOverview | null; language: LearningLanguage; locale: string;
+  }>({ language: "ENGLISH", locale: "ja" });
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [locale, setLocale] = useState("ja");
   const [role, setRole] = useState<Role>(Role.STUDENT);
   const [accountStatus, setAccountStatus] = useState<AccountStatus>(AccountStatus.ACTIVE);
+  const [accessEvents, setAccessEvents] = useState<NonNullable<UserDetailJson["adminAccessEvents"]>>([]);
+  const [followUp, setFollowUp] = useState<UserDetailJson["followUp"]>(null);
+  const [accessAction, setAccessAction] = useState<AccessAction | null>(null);
+  const [accessError, setAccessError] = useState<string | null>(null);
+  const [reason, setReason] = useState("");
+  const [targetRole, setTargetRole] = useState<Role>(Role.STUDENT);
+  const [promotionLanguages, setPromotionLanguages] = useState<LearningLanguage[]>([]);
+  const [identity, setIdentity] = useState<{ name: string | null; email: string | null }>({ name: null, email: null });
 
   const [stuTz, setStuTz] = useState("");
   const [stuBio, setStuBio] = useState("");
@@ -85,25 +118,31 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
   const [rateYen, setRateYen] = useState("");
   const [offersTrial, setOffersTrial] = useState(true);
   const [specialties, setSpecialties] = useState("");
+  const [teachingLanguages, setTeachingLanguages] = useState<LearningLanguage[]>([]);
   const [instrLangs, setInstrLangs] = useState("");
+
+  const fetchUser = useCallback(async () => {
+    const res = await fetch(`/api/admin/users/${userId}`);
+    const data = (await res.json()) as UserDetailJson & { error?: string };
+    if (!res.ok) throw new Error(data.error ?? t("loadError"));
+    return data;
+  }, [t, userId]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setLoadError(false);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/users/${userId}`);
-      const data = (await res.json()) as UserDetailJson & { error?: string };
-      if (!res.ok) {
-        setLoadError(true);
-        setError(data.error ?? t("loadError"));
-        return;
-      }
+      const data = await fetchUser();
       setName(data.name ?? "");
       setEmail(data.email ?? "");
       setLocale(data.locale);
       setRole(data.role);
       setAccountStatus(data.accountStatus);
+      setAccessEvents(data.adminAccessEvents ?? []);
+      setFollowUp(data.followUp);
+      setOverview({ student: data.studentOverview, teacher: data.teacherOverview, language: data.learningLanguage, locale: data.locale });
+      setIdentity({ name: data.name, email: data.email });
       if (data.studentProfile) {
         setStuTz(data.studentProfile.timezone);
         setStuBio(data.studentProfile.shortBio ?? "");
@@ -116,7 +155,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
       }
       if (data.teacherProfile) {
         setTeacherProfileId(data.teacherProfile.id);
-        setCalendarConnected(data.teacherProfile.calendarConnected);
+        setTeachingLanguages(data.teacherProfile.teachingLanguages ?? ["ENGLISH"]);
         setDisplayName(data.teacherProfile.displayName ?? "");
         setBio(data.teacherProfile.bio ?? "");
         setCountry(data.teacherProfile.countryOfOrigin ?? "");
@@ -128,16 +167,25 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
         setSpecialties(data.teacherProfile.specialties.join(", "));
         setInstrLangs(data.teacherProfile.instructionLanguages.join(", "));
       } else {
-        setCalendarConnected(false);
+        setTeacherProfileId(null);
       }
+    } catch (error) {
+      setLoadError(true);
+      setError(error instanceof Error ? error.message : t("loadError"));
     } finally {
       setLoading(false);
     }
-  }, [t, userId]);
+  }, [fetchUser, t]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (!loading && teacherProfileId && window.location.hash === "#pricing") {
+      document.getElementById("pricing")?.scrollIntoView();
+    }
+  }, [loading, teacherProfileId]);
 
   async function save() {
     setSaving(true);
@@ -146,10 +194,8 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
     try {
       const body: Record<string, unknown> = {
         name: name.trim() || null,
-        email: email.trim() || null,
+        ...(accountStatus === AccountStatus.SUSPENDED ? {} : { email: email.trim() || null }),
         locale: locale.trim(),
-        role,
-        accountStatus,
       };
       if (role === Role.STUDENT) {
         body.studentProfile = {
@@ -168,6 +214,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
           .filter(Boolean);
         const rateNum = rateYen.trim() === "" ? null : Number(rateYen);
         body.teacherProfile = {
+          teachingLanguages,
           displayName: displayName.trim() || undefined,
           bio: bio.trim() || null,
           countryOfOrigin: country.trim() || null,
@@ -182,39 +229,71 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
         };
       }
 
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = (await res.json()) as { error?: string };
-      if (!res.ok) {
-        setError(data.error ?? "Error");
-        return;
-      }
+      await writeUser(body);
       setStatusMsg(t("saved"));
       await load();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : t("saveError"));
     } finally {
       setSaving(false);
     }
   }
 
-  async function setHidden(next: AccountStatus) {
+  async function writeUser(body: Record<string, unknown>, access = false) {
+    const res = await fetch(`/api/admin/users/${userId}${access ? "/access" : ""}`, {
+      method: access ? "POST" : "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) return;
+    const data = await res.json().catch(() => null) as { error?: string } | null;
+    throw new Error(access
+      ? t(data?.error === "ACCOUNT_ACCESS_CHANGED" ? "accessStale" : "saveError")
+      : data?.error ?? t("saveError"));
+  }
+
+  async function saveVisibility(language: LearningLanguage, rosterOnly: boolean) {
     setSaving(true);
-    setError(null);
+    setStatusMsg(null);
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accountStatus: next }),
-      });
-      const data = (await res.json()) as { error?: string };
-      if (!res.ok) {
-        setError(data.error ?? "Error");
-        return;
+      await writeUser({ teacherProfile: { [teacherMarketplaceVisibilityKey(language)]: rosterOnly } });
+      await refreshTeacherOverview();
+      setStatusMsg(t("saved"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function refreshTeacherOverview() {
+    const { teacherOverview } = await fetchUser();
+    setOverview((previous) => ({ ...previous, teacher: teacherOverview }));
+  }
+
+  function openAccess(action: AccessAction) {
+    setAccessError(null);
+    setReason("");
+    setTargetRole(role);
+    setPromotionLanguages(teachingLanguages);
+    setAccessAction(action);
+  }
+
+  async function confirmAccess() {
+    if (!accessAction) return;
+    setSaving(true);
+    setAccessError(null);
+    try {
+      if (accessAction === "suspend" || accessAction === "reinstate") {
+        await writeUser({ action: accessAction, reason, expectedEventId: accessEvents[0]?.id ?? null }, true);
+      } else if (accessAction === "changeRole") {
+        await writeUser({ role: targetRole, ...(targetRole === Role.TEACHER ? { teacherProfile: { teachingLanguages: promotionLanguages } } : {}) });
+      } else {
+        await writeUser({ accountStatus: accessAction === "hide" ? AccountStatus.HIDDEN : AccountStatus.ACTIVE });
       }
-      setAccountStatus(next);
+      setAccessAction(null);
+      setStatusMsg(t("saved"));
       await load();
+    } catch (error) {
+      setAccessError(error instanceof Error ? error.message : t("saveError"));
     } finally {
       setSaving(false);
     }
@@ -222,13 +301,21 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
 
   /** `ConfirmDelete` owns the typed-confirmation guard; this only performs it. */
   async function remove() {
-    const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
-    const data = (await res.json()) as { error?: string };
-    if (!res.ok) {
-      setError(data.error ?? "Error");
-      return;
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null) as { error?: string } | null;
+        setError(data?.error ?? t("saveError"));
+        return;
+      }
+      router.push(backHref);
+    } catch {
+      setError(t("saveError"));
+    } finally {
+      setSaving(false);
     }
-    router.push("/admin/users");
   }
 
   if (loading) {
@@ -277,8 +364,21 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
     );
   }
 
+  const suspended = accountStatus === AccountStatus.SUSPENDED;
+  const needsReason = accessAction === "suspend" || accessAction === "reinstate";
+  const hiddenAction = accountStatus === AccountStatus.ACTIVE ? "hide" : "unhide";
+  const pricingTeacherId = role === Role.TEACHER ? teacherProfileId : null;
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 md:space-y-10">
+      <div className="break-words">
+        <PageHeader title={identity.name ?? identity.email ?? t("title")} description={identity.name ? identity.email : undefined}
+          actions={<>
+            {(role === Role.STUDENT || role === Role.TEACHER || teacherProfileId) &&
+              <Link href={adminPersonScheduleHref(userId)} className={buttonClasses({ variant: "secondary" })}>{tCalendar("open")}</Link>}
+            {pricingTeacherId && <a href="#pricing" className={buttonClasses({ variant: "secondary" })}>{overviewCopy("pricing")}</a>}
+          </>} />
+      </div>
       {error ? (
         <p role="alert">
           <Status tone="error">{error}</Status>
@@ -290,8 +390,84 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
         </p>
       ) : null}
 
+      <Section title={t("accessTitle")} ruled={false} actions={<Status tone={suspended ? "error" : accountStatus === "ACTIVE" ? "settled" : "open"}>{tg(`accessStatus.${accountStatus}`)}</Status>}>
+        <p className="text-sm text-muted">{tg(`roles.${role}`)}</p>
+        {followUp && (
+          <div className="my-4 space-y-2 border-y border-border py-3">
+            <p className="text-sm font-semibold">{t("followUp")}</p>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+              <Link className={actionLinkClass} href={`/admin/lessons?view=upcoming&person=${encodeURIComponent(userId)}`}>{t("upcoming", { count: followUp.upcomingLessons })}</Link>
+              <Link className={actionLinkClass} href={`/admin/payments?person=${encodeURIComponent(userId)}`}>{t("payments", { count: followUp.unresolvedPayments })}</Link>
+            </div>
+          </div>
+        )}
+        <div className="mt-4 flex flex-wrap items-start gap-2">
+          {role !== Role.SUPER_ADMIN && <Button variant="secondary" disabled={saving} onClick={() => openAccess(suspended ? "reinstate" : "suspend")}>{t(suspended ? "reinstate" : "suspend")}</Button>}
+          {!suspended && <>
+            <Button variant="ghost" disabled={saving} onClick={() => openAccess("changeRole")}>{t("changeRole")}</Button>
+            <Button variant="ghost" disabled={saving} onClick={() => openAccess(hiddenAction)}>{t(hiddenAction)}</Button>
+            <ConfirmDelete
+              triggerLabel={t("delete")}
+              prompt={t("deleteConfirm")}
+              expected={identity.email ?? ""}
+              confirmLabel={t("delete")}
+              cancelLabel={t("cancel")}
+              busy={saving}
+              busyLabel={t("saving")}
+              onConfirm={() => void remove()}
+            />
+          </>}
+        </div>
+        {accessEvents.length > 0 && (
+          <details className="mt-4 border-t border-border pt-3 text-sm">
+            <summary className="cursor-pointer font-medium">{t("accessHistory")}</summary>
+            <ol className="mt-2 divide-y divide-border">
+              {accessEvents.map((event) => (
+                <li key={event.id} className="space-y-1 break-words py-2">
+                  <p className="font-medium">{tg(`accessStatus.${event.fromStatus}`)} → {tg(`accessStatus.${event.toStatus}`)}</p>
+                  <p>{event.reason}</p>
+                  <p className="text-muted"><LocalDateTime iso={event.createdAt} locale={viewerLocale} /> · {event.actorName ?? event.actorId}</p>
+                </li>
+              ))}
+            </ol>
+          </details>
+        )}
+      </Section>
+
+      {accessAction && (
+        <Modal open onClose={() => { if (!saving) setAccessAction(null); }} title={t(accessAction)}
+          description={t(`${accessAction}Effect`)} dismissOnBackdrop={false}
+          actions={<>
+            <Button variant="secondary" disabled={saving} onClick={() => setAccessAction(null)}>{t("cancel")}</Button>
+            <Button loading={saving} disabled={(needsReason && !reason.trim()) ||
+              (accessAction === "changeRole" && (targetRole === role || (targetRole === Role.TEACHER && !promotionLanguages.length)))}
+              onClick={() => void confirmAccess()}>{t(accessAction)}</Button>
+          </>}>
+          <p className="break-words text-sm font-medium">{[identity.name, identity.email].filter(Boolean).join(" · ") || userId} · {tg(`roles.${role}`)}</p>
+          {needsReason && (
+            <Field label={t("privateReason")}>
+              {(field) => <Textarea {...field} rows={3} maxLength={1000} value={reason} onChange={(e) => setReason(e.target.value)} />}
+            </Field>
+          )}
+          {accessAction === "changeRole" && (
+            <>
+              <Field label={t("role")}>
+                {(field) => <Select {...field} value={targetRole} onChange={(e) => setTargetRole(e.target.value as Role)}>
+                  {ROLES.map((item) => <option key={item} value={item}>{tg(`roles.${item}`)}</option>)}
+                </Select>}
+              </Field>
+              {targetRole === Role.TEACHER && <TeachingLanguagesField value={promotionLanguages} onChange={setPromotionLanguages} />}
+            </>
+          )}
+          {accessError && <p role="alert" className="text-sm text-destructive">{accessError}</p>}
+        </Modal>
+      )}
+
+      {overview.student && <AdminStudentHistory overview={overview.student} studentId={userId} learningLanguage={overview.language} interfaceLocale={overview.locale} />}
+      {overview.teacher && <AdminTeacherOverview overview={overview.teacher} saving={saving} onVisibility={saveVisibility} />}
+
       <Section title={t("sectionUser")}>
-        <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t("name")}>
             {(field) => (
               <Input {...field} value={name} onChange={(e) => setName(e.target.value)} />
@@ -302,12 +478,13 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
               <Input
                 {...field}
                 type="email"
+                disabled={suspended}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             )}
           </Field>
-          <Field label={t("locale")}>
+          <Field label={overviewCopy("interfaceLanguage")}>
             {(field) => (
               <Select
                 {...field}
@@ -316,37 +493,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
               >
                 {LOCALES.map((l) => (
                   <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Field>
-          <Field label={t("role")}>
-            {(field) => (
-              <Select
-                {...field}
-                value={role}
-                onChange={(e) => setRole(e.target.value as Role)}
-              >
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Field>
-          <Field label={t("accountStatus")}>
-            {(field) => (
-              <Select
-                {...field}
-                value={accountStatus}
-                onChange={(e) => setAccountStatus(e.target.value as AccountStatus)}
-              >
-                {ACCOUNT_STATUSES.map((a) => (
-                  <option key={a} value={a}>
-                    {a}
+                    {languageCopy(l === "ja" ? "JAPANESE" : "ENGLISH")}
                   </option>
                 ))}
               </Select>
@@ -369,6 +516,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
               maxChars={STUDENT_SHORT_BIO_MAX_CHARS}
               onChange={setStuBio}
             />
+            <h3 className="font-semibold">{overviewCopy("englishPlacement")}</h3>
             <Field label={t("placedLevel")}>
               {(field) => (
                 <Select
@@ -410,6 +558,7 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
       {role === Role.TEACHER ? (
         <Section title={t("sectionTeacher")}>
           <div className="space-y-4">
+            <TeachingLanguagesField value={teachingLanguages} onChange={setTeachingLanguages} />
             <Field label={t("displayName")}>
               {(field) => (
                 <Input
@@ -471,54 +620,34 @@ export function AdminUserDetailForm({ userId }: { userId: string }) {
                 />
               )}
             </Field>
-            <p className="text-sm text-muted">
-              {t("calendarConnected")}: {calendarConnected ? tg("yes") : tg("no")}
-            </p>
           </div>
         </Section>
       ) : null}
 
-      {/* Its own section, and its own endpoint: granting a below-minimum class
-          is a concession recorded against an admin, not a profile field. */}
-      {role === Role.TEACHER && teacherProfileId ? (
-        <Section title={tGrants("title")}>
-          <AdminTeacherRateGrants teacherProfileId={teacherProfileId} />
-        </Section>
-      ) : null}
-
       <div className="flex flex-wrap items-start gap-3 border-t border-border pt-6">
-        <Button loading={saving} onClick={() => void save()}>
+        <Button loading={saving} disabled={role === Role.TEACHER && teachingLanguages.length === 0} onClick={() => void save()}>
           {saving ? t("saving") : t("save")}
         </Button>
-        <Button
-          variant="secondary"
-          disabled={saving}
-          onClick={() =>
-            void setHidden(
-              accountStatus === AccountStatus.ACTIVE
-                ? AccountStatus.HIDDEN
-                : AccountStatus.ACTIVE,
-            )
-          }
-        >
-          {accountStatus === AccountStatus.ACTIVE ? t("hide") : t("unhide")}
-        </Button>
-        {/*
-          Deleting a user was styled amber, the colour this world reserves for
-          attention — the same weight as "calendar not connected". It is the one
-          irreversible control on the page.
-        */}
-        <ConfirmDelete
-          triggerLabel={t("delete")}
-          prompt={t("deleteConfirm")}
-          expected={email}
-          confirmLabel={t("delete")}
-          cancelLabel={t("cancel")}
-          busy={saving}
-          busyLabel={t("saving")}
-          onConfirm={() => void remove()}
-        />
       </div>
+
+      {pricingTeacherId ? (
+        <div id="pricing" className="scroll-mt-6">
+          <Section title={overviewCopy("pricing")}>
+            <div className="space-y-6">
+              <Section as="h3" size="sm" title={tGrants("title")} ruled={false}>
+                <AdminTeacherRateGrants teacherProfileId={pricingTeacherId} onChange={() => {
+                  void refreshTeacherOverview().catch(() => setError(t("loadError")));
+                }} />
+              </Section>
+              {overview.teacher && <Section as="h3" size="sm" title={tierCopy("legacyTitle")}>
+                <AdminStudentRateOverride teacherId={pricingTeacherId} offerings={overview.teacher.offerings}
+                  permittedLanguages={overview.teacher.subjects.filter((subject) => subject.permitted).map((subject) => subject.learningLanguage)} />
+              </Section>}
+            </div>
+          </Section>
+        </div>
+      ) : null}
+
     </div>
   );
 }

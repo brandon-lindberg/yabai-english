@@ -1,3 +1,6 @@
+vi.mock("@/lib/payment-recovery", () => ({ prepareBookingRefund: vi.fn().mockResolvedValue(null) }));
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
+vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn().mockResolvedValue(undefined) }));
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
@@ -26,6 +29,7 @@ vi.mock("@/auth", () => ({
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    $transaction: async (run: (tx: unknown) => unknown) => run({ booking: { update: updateMock } }),
     freeTrialRedemption: { findUnique: vi.fn(), create: vi.fn() },
     booking: {
       findUnique: findUniqueMock,
@@ -50,7 +54,7 @@ vi.mock("@/lib/refund-notifications", () => ({
   notifySuperAdminsOfStuckRefund: notifyStuckRefundMock,
 }));
 
-import { POST } from "@/app/api/bookings/[bookingId]/cancel/route";
+import { GET, POST } from "@/app/api/bookings/[bookingId]/cancel/route";
 
 const t0 = new Date("2026-04-10T12:00:00.000Z");
 
@@ -75,6 +79,53 @@ function baseBooking(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 describe("POST /api/bookings/[bookingId]/cancel", () => {
+  test("a refund confirmation that crosses the cutoff requires a new choice before cancelling without refund", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT" } });
+    findUniqueMock.mockResolvedValue(baseBooking({ startsAt: new Date("2026-04-11T12:00:00.000Z") }));
+    const response = await POST(new Request("http://localhost", { method: "POST", body: JSON.stringify({ intent: "refund" }) }), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ code: "REFUND_WINDOW_CHANGED" });
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+  test("previewing the choice reports the owning student's refund policy without changing the booking", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT" } });
+    findUniqueMock.mockResolvedValue(baseBooking({ rescheduleCount: 0, payments: [{ amountYen: 5000 }] }));
+    const response = await GET(new Request("http://localhost"), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(await response.json()).toMatchObject({ studentPrivate: true, policy: { allowed: true, refundEligible: true }, refundAmountYen: 5000, reschedule: { allowed: true } });
+    expect(updateMock).not.toHaveBeenCalled();
+    expect(issueRefundMock).not.toHaveBeenCalled();
+    expect(notifyPrivateBookingEvent).not.toHaveBeenCalled();
+  });
+
+  test("previewing someone else's choice does not reveal their policy", async () => {
+    authMock.mockResolvedValue({ user: { id: "someone-else", role: "STUDENT" } });
+    findUniqueMock.mockResolvedValue(baseBooking());
+    expect((await GET(new Request("http://localhost"), { params: Promise.resolve({ bookingId: "booking-1" }) })).status).toBe(404);
+  });
+
+  test("late cancellation releases the original lesson and records a pending replacement without refunding", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT" } });
+    findUniqueMock.mockResolvedValue(baseBooking({ startsAt: new Date("2026-04-11T12:00:00.000Z") }));
+    updateMock.mockImplementation(async ({ data }: { data: object }) => ({ ...baseBooking(), ...data }));
+    const response = await POST(new Request("http://localhost", { method: "POST" }), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ booking: { status: "CANCELLED", privateRescheduleStatus: "PENDING" }, policy: { allowed: true, refundEligible: false, rescheduleOffered: true } });
+    expect(updateMock.mock.calls[0][0].data).toMatchObject({ status: "CANCELLED", privateRescheduleStatus: "PENDING", rescheduleRequestedAt: expect.any(Date), googleEventId: null });
+    expect(deleteMeetLessonEventMock).not.toHaveBeenCalled();
+    expect(issueRefundMock).not.toHaveBeenCalled();
+    expect(vi.mocked(notifyPrivateBookingEvent).mock.calls.map(([input]) => input.event)).toEqual(["cancelled", "reschedule_requested"]);
+  });
+
+  test("cancellation records a notification for both participants before refund processing", async () => {
+    authMock.mockResolvedValue({ user: { id: "student-user-1", role: "STUDENT" } });
+    findUniqueMock.mockResolvedValue(baseBooking());
+    updateMock.mockResolvedValue({ ...baseBooking(), status: "CANCELLED" });
+    const response = await POST(new Request("http://localhost", { method: "POST" }), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(response.status).toBe(200);
+    expect(notifyPrivateBookingEvent).toHaveBeenCalledWith({ bookingId: "booking-1", event: "cancelled" });
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
@@ -175,8 +226,8 @@ describe("POST /api/bookings/[bookingId]/cancel", () => {
     });
     expect(updateMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: "booking-1" },
-        data: { status: BookingStatus.CANCELLED },
+        where: { id: "booking-1", status: "CONFIRMED", startsAt: booking.startsAt },
+        data: { status: BookingStatus.CANCELLED, cancelledFromStatus: BookingStatus.CONFIRMED },
       }),
     );
     expect(revalidatePathMock).toHaveBeenCalledWith("/ja/dashboard");

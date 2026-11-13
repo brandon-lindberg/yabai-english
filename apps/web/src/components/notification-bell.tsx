@@ -7,6 +7,8 @@ import { subscribeRealtime } from "@/lib/realtime-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { actionLinkClass } from "@/components/ui/inline-link";
 import { Link } from "@/i18n/navigation";
+import { useHydrated } from "@/hooks/use-hydrated";
+import { stripLegacyBookingTimeZone } from "@/lib/booking-notifications";
 
 type NotificationItem = {
   id: string;
@@ -20,6 +22,7 @@ type NotificationItem = {
 };
 
 export function NotificationBell() {
+  const ready = useHydrated();
   const t = useTranslations("common");
   const locale = useLocale();
   const { data: session } = useVerifiedSession();
@@ -45,7 +48,7 @@ export function NotificationBell() {
   async function refresh() {
     let res: Response;
     try {
-      res = await fetch("/api/notifications");
+      res = await fetch("/api/notifications", { cache: "no-store" });
     } catch {
       setHasLoadedOnce(true);
       return;
@@ -116,11 +119,12 @@ export function NotificationBell() {
     <div ref={rootRef} className="sm:relative">
       <button
         type="button"
+        disabled={!ready}
         aria-label={
           unreadCount > 0 ? t("notificationsWithCount", { count: unreadCount }) : t("notifications")
         }
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => { if (!open) void refresh(); setOpen((v) => !v); }}
         /* `min-h-11` clears the 44px comfortable touch target the emoji-sized
            button did not. The count is `aria-hidden` because the button's own
            label already states it — otherwise it is read twice. */
@@ -185,7 +189,9 @@ export function NotificationBell() {
             ) : (
               items.map((item) => {
                 const title = locale.startsWith("ja") ? item.titleJa : item.titleEn;
-                const body = locale.startsWith("ja") ? item.bodyJa : item.bodyEn;
+                const storedBody = locale.startsWith("ja") ? item.bodyJa : item.bodyEn;
+                const bookingNotice = item.href?.startsWith("/dashboard/schedule") || item.titleEn.startsWith("New booking from ");
+                const body = storedBody && bookingNotice ? stripLegacyBookingTimeZone(storedBody) : storedBody;
                 return (
                   <li
                     key={item.id}

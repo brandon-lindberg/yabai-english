@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 2,
+  "files": [
+    {
+      "role": "content",
+      "filename": "remaining-levels-content.json",
+      "sha256": "f8e36345d19be2a3138d3de936e227f1ec3a053a30dcffce33ed2c41e5fb7a5d"
+    },
+    {
+      "role": "excerpts",
+      "filename": "source-excerpts.json",
+      "sha256": "76aec48baf50754d04c519518beb8f236d7f6e78ce8c105e635e6139d110a093"
+    }
+  ]
+}

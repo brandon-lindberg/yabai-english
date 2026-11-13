@@ -19,7 +19,7 @@ export default async function DashboardMyTeachersPage() {
   const t = await getTranslations("dashboard.myTeachersPage");
 
   await reconcileTeacherRosterFromBookings(prisma, { studentUserId });
-  const teachers = await getStudentRosterTeachers(prisma, studentUserId);
+  const teachers = await getStudentRosterTeachers(prisma, studentUserId, session!.user.learningLanguage);
 
   return (
     <div className="space-y-6">

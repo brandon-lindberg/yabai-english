@@ -3,10 +3,9 @@ import { redirect } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/onboarding-gate";
 import { getStudentPostOnboardingRoute } from "@/lib/onboarding-routing";
-import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
+import { readStudentOnboardingState } from "@/lib/student-onboarding-state";
 import {
   buildStudentOnboardingChecklist,
-  computeStudentOnboardingCompletion,
   summarizeStudentOnboardingProgress,
 } from "@/lib/student-onboarding-next-links";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
@@ -17,6 +16,7 @@ export default async function OnboardingNextPage() {
   const locale = await getLocale();
   const t = await getTranslations("onboarding");
   const user = await requireAuth(locale);
+  const isEnglish = user.learningLanguage === "ENGLISH";
 
   if (user.role === "TEACHER") {
     redirect({ href: "/onboarding/teacher", locale });
@@ -25,33 +25,8 @@ export default async function OnboardingNextPage() {
     redirect({ href: "/dashboard", locale });
   }
 
-  const [profile, userRecord, googleSettings, bookingCount, threadCount, studiedLevel] =
-    await Promise.all([
-      prisma.studentProfile.findUnique({
-        where: { userId: user.id },
-        select: {
-          onboardingCompletedAt: true,
-          placedLevel: true,
-          placementCompletedAt: true,
-          shortBio: true,
-          skippedOnboardingSteps: true,
-        },
-      }),
-      prisma.user.findUnique({
-        where: { id: user.id },
-        select: { name: true, image: true },
-      }),
-      prisma.googleIntegrationSettings.findUnique({
-        where: { userId: user.id },
-        select: { calendarConnected: true, driveConnected: true },
-      }),
-      prisma.booking.count({ where: { studentId: user.id } }),
-      prisma.chatThread.count({ where: { studentId: user.id } }),
-      prisma.userStudyLevelProgress.findFirst({
-        where: { userId: user.id, lastStudiedAt: { not: null } },
-        select: { id: true },
-      }),
-    ]);
+  const { profile, canStartPlacement, completion, materialsAvailable } =
+    await readStudentOnboardingState(prisma, user.id, user.learningLanguage);
 
   if (!profile?.onboardingCompletedAt) {
     redirect({ href: "/onboarding", locale });
@@ -59,29 +34,16 @@ export default async function OnboardingNextPage() {
 
   const placedLevel = profile?.placedLevel ?? "UNSET";
 
-  if (placedLevel !== "UNSET") {
+  if (isEnglish && placedLevel !== "UNSET") {
     redirect({ href: getStudentPostOnboardingRoute(placedLevel), locale });
   }
 
-  const canStartPlacement = isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null);
-  const completion = computeStudentOnboardingCompletion(
-    {
-      profileShortBio: profile?.shortBio ?? null,
-      userName: userRecord?.name ?? null,
-      userImage: userRecord?.image ?? null,
-      googleCalendarConnected: googleSettings?.calendarConnected ?? false,
-      googleDriveConnected: googleSettings?.driveConnected ?? false,
-      hasAnyBooking: bookingCount > 0,
-      hasAnyChatThread: threadCount > 0,
-      placementCompletedAt: profile?.placementCompletedAt ?? null,
-      hasStudiedAny: Boolean(studiedLevel),
-    },
-    { skippedSteps: profile?.skippedOnboardingSteps ?? [] },
-  );
   const studentChecklist = buildStudentOnboardingChecklist({
     locale,
     canStartPlacement,
     completion,
+    learningLanguage: user.learningLanguage,
+    materialsAvailable,
   });
   const progress = summarizeStudentOnboardingProgress(studentChecklist);
 
@@ -100,8 +62,8 @@ export default async function OnboardingNextPage() {
           items={studentChecklist.map((item) => ({
             key: item.key,
             title: t(`studentSteps.${item.key}.title`),
-            body: t(`studentSteps.${item.key}.body`),
-            // Placement inside its retake cooldown: shown, but not openable.
+            body: t(item.key === "materials" && !materialsAvailable
+              ? "materialsUnavailable" : `studentSteps.${item.key}.body`),
             href: item.disabled ? null : item.href,
             completed: item.completed,
           }))}

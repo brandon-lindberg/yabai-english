@@ -26,6 +26,7 @@ import {
   isWithinAvailabilityWindow,
 } from "@/lib/availability-window";
 import { canTeacherPublishAvailability, resolveTeacherPublishAvailabilityOptions } from "@/lib/payment-methods";
+import { teacherCanTeach, resolveLearningLanguage } from "@/lib/learning-language";
 
 export async function GET() {
   const session = await auth();
@@ -135,6 +136,7 @@ export async function PATCH(req: Request) {
       id: true,
       rateYen: true,
       offersFreeTrial: true,
+      teachingLanguages: true,
       paymentPolicyAcceptedAt: true,
       paymentAccounts: {
         select: {
@@ -149,6 +151,7 @@ export async function PATCH(req: Request) {
       },
       lessonOfferings: {
         select: {
+          learningLanguage: true,
           classTypeId: true,
           classLevelId: true,
           id: true,
@@ -198,6 +201,7 @@ export async function PATCH(req: Request) {
       where: { id: { in: refOfferIds }, teacherId: profileSnapshot.id, active: true },
       select: {
         id: true,
+        learningLanguage: true,
         classLevelId: true,
         classTypeId: true,
         durationMin: true,
@@ -227,6 +231,9 @@ export async function PATCH(req: Request) {
       { error: "teacherLessonOfferingId does not belong to this teacher" },
       { status: 400 },
     );
+  }
+  if (foundOfferings.some((offering) => !teacherCanTeach(profileSnapshot, resolveLearningLanguage(offering.learningLanguage)))) {
+    return NextResponse.json({ error: "Availability requires a class in an assigned teaching language." }, { status: 403 });
   }
   const codeByTypeId = new Map(foundTypes.map((t) => [t.id, t.code]));
   const offeringById = new Map(foundOfferings.map((offering) => [offering.id, offering]));
@@ -287,11 +294,15 @@ export async function PATCH(req: Request) {
       select: { id: true },
     }),
   ]);
-  const trialOffering = deriveFreeTrialOffering({
+  const trialOfferings = (profileSnapshot.teachingLanguages ?? ["ENGLISH" as const]).flatMap((learningLanguage) => {
+    const offering = deriveFreeTrialOffering({
     existing: profileSnapshot.lessonOfferings,
     offersFreeTrial: profileSnapshot.offersFreeTrial,
     classLevelId: trialLevel?.id ?? null,
     classTypeId: trialType?.id ?? null,
+    learningLanguage,
+    });
+    return offering ? [offering] : [];
   });
 
   const newOfferings = deriveMissingOfferingsFromSchedule({
@@ -363,10 +374,11 @@ export async function PATCH(req: Request) {
         })),
       });
     }
-    if (trialOffering) {
+    for (const trialOffering of trialOfferings) {
       await tx.teacherLessonOffering.create({
         data: {
           teacherId: profileSnapshot.id,
+          learningLanguage: trialOffering.learningLanguage,
           durationMin: trialOffering.durationMin,
           rateYen: trialOffering.rateYen,
           isGroup: trialOffering.isGroup,

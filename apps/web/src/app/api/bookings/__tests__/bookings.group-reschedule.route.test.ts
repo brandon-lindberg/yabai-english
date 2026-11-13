@@ -1,3 +1,4 @@
+vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn() }));
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
@@ -19,6 +20,8 @@ const {
   return {
     authMock: vi.fn(),
     prismaMock: {
+      schoolScheduleSlot: { findMany: vi.fn().mockResolvedValue([]) },
+      schoolBooking: { findFirst: vi.fn().mockResolvedValue(null) },
       booking: { findUnique: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
       groupLessonSession: { findUnique: vi.fn() },
       $transaction: vi.fn(),
@@ -63,7 +66,7 @@ const teacherSlot = {
   classTypeId: "ty-conv",
   assignedStudentId: null,
   teacherLessonOfferingId: "offer-group",
-  teacherLessonOffering: { id: "offer-group", isGroup: true, groupSize: 4 },
+  teacherLessonOffering: { id: "offer-group", isGroup: true, groupSize: 4, active: true, learningLanguage: "ENGLISH" },
 };
 
 function seatBooking(overrides: Record<string, unknown> = {}) {

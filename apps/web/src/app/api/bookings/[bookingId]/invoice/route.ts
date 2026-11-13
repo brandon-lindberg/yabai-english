@@ -1,3 +1,4 @@
+import { bookingLearningSiteResponse } from "@/lib/booking-learning-site";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -27,7 +28,7 @@ export async function GET(
   const { bookingId } = await params;
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    select: { id: true, studentId: true, teacher: { select: { userId: true } } },
+    select: { id: true, learningLanguage: true, studentId: true, teacher: { select: { userId: true } } },
   });
 
   const isStudent = booking?.studentId === session.user.id;
@@ -35,6 +36,9 @@ export async function GET(
   if (!booking || (!isStudent && !isOwningTeacher)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  const wrongSite = await bookingLearningSiteResponse(booking, session.user.role);
+  if (wrongSite) return wrongSite;
 
   // Issues nothing where no money was taken, so an unpaid booking still 404s
   // rather than producing a document asserting a payment that never happened.

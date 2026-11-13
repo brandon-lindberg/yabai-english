@@ -66,6 +66,18 @@ describe("POST /api/teacher/lesson-offerings", () => {
     );
   });
 
+  test("refuses a subject the admin has not assigned", async () => {
+    prismaMock.teacherProfile.findUnique.mockResolvedValue({ id: "tp-1", teachingLanguages: ["JAPANESE"] });
+    expect((await post({ ...privateClass, learningLanguage: "ENGLISH" })).status).toBe(403);
+    expect(prismaMock.teacherLessonOffering.create).not.toHaveBeenCalled();
+  });
+
+  test("allows the assigned Japanese subject", async () => {
+    prismaMock.teacherProfile.findUnique.mockResolvedValue({ id: "tp-1", teachingLanguages: ["JAPANESE"] });
+    expect((await post({ ...privateClass, learningLanguage: "JAPANESE" })).status).toBe(200);
+    expect(created()).toMatchObject({ learningLanguage: "JAPANESE" });
+  });
+
   // The point of the endpoint: the class is saved when the dialog closes, with
   // no second Save further down the page to miss.
   test("saves the class and hands it back", async () => {

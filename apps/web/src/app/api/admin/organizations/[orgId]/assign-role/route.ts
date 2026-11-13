@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { OrgRole } from "@/generated/prisma/enums";
+import { isOrgWideRole } from "@/lib/org-authorization";
 
 const assignRoleSchema = z.object({
   email: z.string().trim().email(),
-  orgRole: z.enum(["OWNER", "ORG_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"]),
+  orgRole: z.nativeEnum(OrgRole),
   schoolId: z.string().trim().min(1).optional().nullable(),
 });
 
@@ -39,7 +41,7 @@ export async function POST(req: Request, ctx: RouteContext) {
 
   const { email, orgRole, schoolId: rawSchoolId } = parsed.data;
 
-  const orgWideRole = orgRole === "OWNER" || orgRole === "ORG_ADMIN";
+  const orgWideRole = isOrgWideRole(orgRole);
   const schoolId = orgWideRole ? null : rawSchoolId ?? null;
 
   if (!orgWideRole && !schoolId) {

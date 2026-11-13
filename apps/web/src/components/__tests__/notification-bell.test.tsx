@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
+import { renderToString } from "react-dom/server";
 
 vi.mock("next-auth/react", () => ({
   useSession: () => ({
@@ -46,6 +47,11 @@ function jsonResponse(body: unknown) {
 }
 
 describe("NotificationBell", () => {
+  test("the server-rendered bell waits for its click handler before accepting input", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<NextIntlClientProvider locale="en" messages={en}><NotificationBell /></NextIntlClientProvider>);
+    expect(container.querySelector("button")).toBeDisabled();
+  });
   const fetchMock = vi.fn();
 
   beforeEach(() => {
@@ -56,6 +62,15 @@ describe("NotificationBell", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  test("opening the bell refreshes persisted alerts even without a live event", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ items: [], unreadCount: 0 })).mockResolvedValue(jsonResponse({ items: [{ id: "cancel", titleEn: "Lesson cancelled", titleJa: "中止", bodyEn: "Your lesson on Dec 1, 2026 11:00 (GMT+9) was cancelled.", bodyJa: null, href: "/dashboard/schedule", readAt: null, createdAt: new Date().toISOString() }], unreadCount: 1 }));
+    render(<NextIntlClientProvider locale="en" messages={en}><NotificationBell /></NextIntlClientProvider>);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole("button", { name: en.common.notifications }));
+    expect(await screen.findByText("Lesson cancelled")).toBeVisible();
+    expect(screen.getByText("Your lesson on Dec 1, 2026 11:00 was cancelled.")).toBeVisible();
   });
 
   test("refreshes when a realtime notifications:update event fires", async () => {

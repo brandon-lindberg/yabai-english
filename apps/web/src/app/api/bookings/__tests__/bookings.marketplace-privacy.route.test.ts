@@ -28,6 +28,7 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/teacher-booking-lock", () => ({ lockTeacherBookingAccess: vi.fn().mockResolvedValue(true) }));
 import { POST } from "@/app/api/bookings/route";
 
 const BOOKING_NOW = new Date("2026-05-10T00:00:00.000Z");

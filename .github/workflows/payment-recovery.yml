@@ -1,0 +1,49 @@
+name: Payment recovery
+
+on:
+  schedule:
+    # Fifteen-minute intervals, offset from the busiest start-of-hour window.
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+# This job calls the existing endpoint without checking out code or accessing GitHub's API.
+permissions: {}
+
+concurrency:
+  group: payment-recovery-production
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    # Automatic calls stay off until the owner enables them after deployment.
+    # An explicit manual run on master can verify the deployed endpoint first.
+    if: >-
+      github.repository == 'brandon-lindberg/yabai-english' &&
+      github.ref == 'refs/heads/master' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'schedule' && vars.PAYMENT_RECOVERY_ENABLED == 'true'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - name: Process saved payment recovery work
+        shell: bash
+        env:
+          PAYMENT_RECOVERY_SECRET: ${{ secrets.PAYMENT_RECOVERY_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "$PAYMENT_RECOVERY_SECRET" ]; then
+            echo '::error::Configure the PAYMENT_RECOVERY_SECRET Actions secret before running recovery.'
+            exit 1
+          fi
+          status="$(curl --silent --show-error \
+            --proto '=https' \
+            --connect-timeout 10 --max-time 310 \
+            --request POST \
+            --header "Authorization: Bearer $PAYMENT_RECOVERY_SECRET" \
+            --output /dev/null --write-out '%{http_code}' \
+            --url 'https://www.englishstudiojapan.com/api/internal/payments/recover')"
+          if [ "$status" != '200' ]; then
+            printf '::error::Payment recovery endpoint returned HTTP %s.\n' "$status"
+            exit 1
+          fi
+          echo 'Recovery pass completed. Pending or attention-required payments remain visible in Admin → Payments.'

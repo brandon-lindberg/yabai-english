@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { redirect } from "@/i18n/navigation";
 import { requireAuth, requireStudentOnboardingComplete } from "@/lib/onboarding-gate";
-import { isPlacementRetakeAllowed } from "@/lib/placement-cooldown";
+import { placementRetakeStatus } from "@/lib/placement-cooldown";
 import { prisma } from "@/lib/prisma";
 import { getLocale } from "next-intl/server";
+import { requireEnglishLearningPage } from "@/lib/english-learning-page-access";
 
 export default async function PlacementLayout({
   children,
@@ -15,13 +16,14 @@ export default async function PlacementLayout({
   if (user.role !== "STUDENT") {
     redirect({ href: "/dashboard", locale });
   }
+  requireEnglishLearningPage(user.learningLanguage, locale);
   await requireStudentOnboardingComplete(locale, user);
 
   const profile = await prisma.studentProfile.findUnique({
     where: { userId: user.id },
-    select: { placementCompletedAt: true },
+    select: { placementCompletedAt: true, timezone: true },
   });
-  if (!isPlacementRetakeAllowed(profile?.placementCompletedAt ?? null)) {
+  if (!placementRetakeStatus(profile?.placementCompletedAt, profile?.timezone).allowed) {
     redirect({ href: "/dashboard", locale });
   }
 

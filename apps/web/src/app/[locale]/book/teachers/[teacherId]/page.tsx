@@ -19,8 +19,9 @@ import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { buildLocalizedTeacherProfilePath } from "@/lib/teacher-card-href";
 import { resolveSafeCallbackUrl } from "@/lib/auth-callback-url";
 import { GuestBookLessonCta } from "@/components/booking/guest-book-lesson-cta";
-import { studentMayAccessTeacherBookingFlow } from "@/lib/teacher-marketplace-booking-access";
+import { studentMayAccessTeacherBookingFlow, teacherMarketplaceRosterOnly, teacherMarketplaceVisibilityFields } from "@/lib/teacher-marketplace-booking-access";
 import { dateOnlyInZone } from "@/lib/date-only-in-zone";
+import { resolveViewerTimeZone } from "@/lib/viewer-time-zone";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { Status } from "@/components/ui/status";
 import { teacherHasBookableFreeTrial } from "@/lib/free-trial-offering";
@@ -28,6 +29,8 @@ import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
 import { PendingReservationNotice } from "@/components/booking/pending-reservation-notice";
 import { BookingStatus } from "@/generated/prisma/client";
 import { visibleAvailabilityWhere } from "@/lib/assigned-availability";
+import { learningLanguageAvailabilityWhere, learningLanguageOfferingWhere, learningLanguageTeacherWhere } from "@/lib/learning-language";
+import { getRequestLearningLanguage } from "@/lib/learning-language-request";
 
 type Props = {
   params: Promise<{ teacherId: string }>;
@@ -54,6 +57,7 @@ export default async function TeacherProfileBookingPage({
   const { onboardingNext, onboardingStep } = await searchParams;
   const onboardingHref = normalizeOnboardingNextHref(onboardingNext ?? null);
   const session = await auth();
+  const learningLanguage = await getRequestLearningLanguage(session);
   const viewerStudentIdForSlots =
     session?.user?.role === "STUDENT" ? session.user.id : null;
 
@@ -83,7 +87,7 @@ export default async function TeacherProfileBookingPage({
     the teacher's email and account status into the page's data as well.
   */
   const teacher = await prisma.teacherProfile.findUnique({
-    where: { id: teacherId },
+    where: { id: teacherId, AND: [learningLanguageTeacherWhere(learningLanguage)] },
     select: {
       id: true,
       userId: true,
@@ -94,7 +98,7 @@ export default async function TeacherProfileBookingPage({
       specialties: true,
       instructionLanguages: true,
       rateYen: true,
-      marketplaceHidden: true,
+      ...teacherMarketplaceVisibilityFields,
       user: {
         select: {
           name: true,
@@ -109,7 +113,7 @@ export default async function TeacherProfileBookingPage({
       availabilitySlots: {
         // Another student's reserved time is absent here, not marked taken:
         // these lessons are private and its existence is not theirs to see.
-        where: { active: true, ...visibleAvailabilityWhere(viewerStudentIdForSlots) },
+        where: { active: true, AND: [visibleAvailabilityWhere(viewerStudentIdForSlots), learningLanguageAvailabilityWhere(learningLanguage)] },
         orderBy: [{ dayOfWeek: "asc" }, { startMin: "asc" }],
         select: {
           id: true,
@@ -134,7 +138,7 @@ export default async function TeacherProfileBookingPage({
       },
       offersFreeTrial: true,
       lessonOfferings: {
-        where: { active: true },
+        where: learningLanguageOfferingWhere(learningLanguage),
         select: { active: true, rateYen: true, isGroup: true },
       },
     },
@@ -145,7 +149,7 @@ export default async function TeacherProfileBookingPage({
 
   const viewerStudentId =
     session?.user?.role === "STUDENT" ? session.user.id : null;
-  if (teacher.marketplaceHidden) {
+  if (teacherMarketplaceRosterOnly(teacher, learningLanguage)) {
     // A hidden teacher's page is reached through the link they share, usually
     // by a student not yet signed in. Who may see it depends on who they are,
     // so ask them to sign in and come straight back — a 404 here was a dead end
@@ -272,7 +276,7 @@ export default async function TeacherProfileBookingPage({
         select: { timezone: true },
       })
     : null;
-  const viewerTimezone = studentProfile?.timezone ?? "Asia/Tokyo";
+  const viewerTimezone = resolveViewerTimeZone(studentProfile?.timezone);
   const skippedOccurrences = buildOccurrenceSkipIndex(
     teacher.availabilityOccurrenceSkips,
   );
@@ -371,7 +375,7 @@ export default async function TeacherProfileBookingPage({
       {session?.user ? (
         <Section title={t("availability")} size="lg" className="mt-10">
           <p className="mb-4 text-sm text-muted">
-            {t("selectSlot")} · {t("timezoneShownAs")}: {viewerTimezone}
+            {t("selectSlot")}
           </p>
           {ownPendingBookings.map((pending) => (
             <PendingReservationNotice

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
+import { AdminPeopleNav } from "@/components/admin/admin-people-nav";
 import { prisma } from "@/lib/prisma";
 import { resolveEffectiveTeacherTier } from "@/lib/platform-fees";
 import {
@@ -15,6 +16,7 @@ export default async function AdminTeacherTiersPage() {
     orderBy: { userId: "asc" },
     select: {
       id: true,
+      userId: true,
       displayName: true,
       user: { select: { name: true, email: true } },
       tierState: true,
@@ -31,6 +33,7 @@ export default async function AdminTeacherTiersPage() {
     const effective = resolveEffectiveTeacherTier(teacher.tierState, new Date());
     return {
       teacherId: teacher.id,
+      userId: teacher.userId,
       name: teacher.displayName ?? teacher.user.name ?? teacher.user.email ?? "Teacher",
       email: teacher.user.email,
       calculatedTier: teacher.tierState?.calculatedTier ?? "TIER_1",
@@ -45,9 +48,8 @@ export default async function AdminTeacherTiersPage() {
   return (
     <main>
       <PageHeader title={t("title")} description={t("subtitle")} />
-      <div className="mt-8">
-        <AdminTeacherTiersView rows={rows} />
-      </div>
+      <AdminPeopleNav active="tiers" />
+      <AdminTeacherTiersView rows={rows} />
     </main>
   );
 }

@@ -1,3 +1,5 @@
+vi.mock("@/lib/payment-recovery", () => ({ prepareBookingRefund: vi.fn().mockResolvedValue(null) }));
+vi.mock("@/lib/private-booking-notifications", () => ({ notifyPrivateBookingEvent: vi.fn().mockResolvedValue(undefined) }));
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
 
@@ -20,6 +22,7 @@ const {
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    $transaction: async (run: (tx: unknown) => unknown) => run({ booking: { update: updateMock } }),
     freeTrialRedemption: { findUnique: vi.fn(), create: vi.fn() },
     booking: { findUnique: findUniqueMock, update: updateMock },
   },
@@ -139,7 +142,7 @@ describe("POST /api/bookings/[bookingId]/cancel — a seat in a group class", ()
     // nothing else to update.
     expect(updateMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: { status: BookingStatus.CANCELLED },
+        data: { status: BookingStatus.CANCELLED, cancelledFromStatus: BookingStatus.CONFIRMED },
       }),
     );
   });

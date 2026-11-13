@@ -4,84 +4,29 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { HeaderNavLink } from "@/lib/shell/header-nav-links";
 
-type Props = {
-  links: HeaderNavLink[];
-};
+type Props = { links: HeaderNavLink[]; bookAction?: () => Promise<void>; layout?: "rail" | "menu" };
 
-function isActive(pathname: string, href: string): boolean {
-  if (href === "/dashboard") {
-    return pathname === "/dashboard" || pathname.endsWith("/dashboard");
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-/**
- * Primary navigation, set as type rather than as filled pills.
- *
- * The pill version gave the active item its own rounded container, so the
- * header carried a small box on every screen. Weight and ink do that job here:
- * the current section is bold and full-contrast, the rest are muted. It also
- * gains `aria-current="page"`, which the colour-only version never exposed.
- */
-export function SiteHeaderPrimaryNav({ links }: Props) {
+function NavItems({ links, bookAction, mobile = false, layout = "rail" }: Props & { mobile?: boolean }) {
   const pathname = usePathname();
   const t = useTranslations("common");
-
-  if (links.length === 0) return null;
-
-  return (
-    <nav
-      className="hidden min-w-0 items-center gap-6 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] md:flex md:flex-1 md:justify-center lg:justify-start [&::-webkit-scrollbar]:hidden"
-      aria-label={t("primaryNavAria")}
-    >
-      {links.map((item) => {
-        const active = isActive(pathname, item.href);
-        return (
-          <Link
-            key={item.id}
-            href={item.href}
-            aria-current={active ? "page" : undefined}
-            className={`whitespace-nowrap text-sm transition-colors ${
-              active
-                ? "font-bold text-foreground"
-                : "font-medium text-muted hover:text-foreground"
-            }`}
-          >
-            {t(item.labelKey)}
-          </Link>
-        );
-      })}
-    </nav>
-  );
+  return links.map((item) => {
+    const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const className = `${layout === "menu" ? "flex min-h-11 w-full rounded-lg px-3 hover:bg-[var(--app-hover)]" : "inline-flex min-h-9 shrink-0 whitespace-nowrap"} items-center transition-colors ${mobile && layout !== "menu" ? "text-xs" : "text-sm"} ${active ? "font-bold text-foreground" : "font-medium text-muted hover:text-foreground"}`;
+    if (item.id === "book" && bookAction) {
+      return <form key={item.id} action={bookAction}><button type="submit" className={className}>{t(item.labelKey)}</button></form>;
+    }
+    return <Link key={item.id} href={item.href} aria-current={active ? "page" : undefined} className={className}>{t(item.labelKey)}</Link>;
+  });
 }
 
-/** Horizontal-scrolling nav shown below the header row on mobile only. */
-export function SiteHeaderMobileNav({ links }: Props) {
-  const pathname = usePathname();
+export function SiteHeaderPrimaryNav(props: Props) {
   const t = useTranslations("common");
+  if (props.links.length === 0) return null;
+  return <nav className="hidden min-w-0 items-center gap-6 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] md:flex md:flex-1 md:justify-center lg:justify-start [&::-webkit-scrollbar]:hidden" aria-label={t("primaryNavAria")}><NavItems {...props} /></nav>;
+}
 
-  if (links.length === 0) return null;
-
-  return (
-    <nav
-      className="flex items-center gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
-      aria-label={t("primaryNavAria")}
-    >
-      {links.map((item) => {
-        const active = isActive(pathname, item.href);
-        return (
-          <Link
-            key={item.id}
-            href={item.href}
-            aria-current={active ? "page" : undefined}
-            className={`shrink-0 whitespace-nowrap text-xs transition-colors ${
-              active ? "font-bold text-foreground" : "font-medium text-muted hover:text-foreground"
-            }`}
-          >
-            {t(item.labelKey)}
-          </Link>
-        );
-      })}
-    </nav>
-  );
+export function SiteHeaderMobileNav(props: Props) {
+  const t = useTranslations("common");
+  if (props.links.length === 0) return null;
+  return <nav className={props.layout === "menu" ? "flex flex-col items-stretch gap-1" : "flex items-center gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"} aria-label={t("primaryNavAria")}><NavItems {...props} mobile /></nav>;
 }

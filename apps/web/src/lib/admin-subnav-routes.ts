@@ -1,15 +1,15 @@
-/**
- * Admin area tabs (same paths as {@link AdminSubnav} under `/admin`).
- * Kept in lib so the dashboard shell can mirror links for super-admins.
- */
 export const ADMIN_SUBNAV_ROUTES = [
   ["/admin", "overview"],
-  ["/admin/schools", "schools"],
   ["/admin/users", "users"],
-  ["/admin/invite", "invite"],
-  ["/admin/teachers", "teachers"],
-  ["/admin/teacher-tiers", "teacherTiers"],
-  ["/admin/students", "students"],
+  ["/admin/lessons", "lessons"],
   ["/admin/payments", "payments"],
+  ["/admin/schools", "schools"],
   ["/admin/reports", "reports"],
 ] as const;
+
+const peopleRoutes = ["/admin/invite", "/admin/teacher-tiers", "/admin/teachers", "/admin/students"];
+
+export function adminNavIsCurrent(pathname: string, href: string) {
+  return pathname === href || (href !== "/admin" && pathname.startsWith(`${href}/`))
+    || (href === "/admin/users" && peopleRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`)));
+}

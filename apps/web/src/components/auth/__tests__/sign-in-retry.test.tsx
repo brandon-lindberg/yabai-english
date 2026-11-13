@@ -1,84 +1,73 @@
 // @vitest-environment jsdom
 
-import { render, screen, waitFor } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
-import { SignInForm } from "../sign-in-form";
+import SignInErrorPage from "@/app/[locale]/auth/error/page";
 
-const signIn = vi.fn();
-vi.mock("next-auth/react", () => ({ signIn: (...args: unknown[]) => signIn(...args) }));
+const { recover, start } = vi.hoisted(() => ({ recover: vi.fn(), start: vi.fn() }));
+vi.mock("@/lib/learning-sign-in", () => ({ recoverLearningSignInIntent: recover }));
+vi.mock("@/lib/learning-journey-actions", () => ({ startGoogleSignIn: start }));
+vi.mock("../google-sign-in-form", () => ({
+  GoogleSignInForm: ({ action, autoRetry }: { action: () => Promise<void>; autoRetry: boolean }) =>
+    <button data-auto-retry={String(autoRetry)} onClick={() => void action()}>{en.auth.continueWithGoogle}</button>,
+}));
+vi.mock("next-intl/server", () => ({
+  getLocale: async () => "en",
+  getTranslations: async ({ namespace }: { namespace: "auth" | "learningJourney" }) => (key: string) => (en[namespace] as Record<string, string>)[key],
+}));
+vi.mock("@/i18n/navigation", () => ({ Link: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a> }));
 
-/*
-  An expired PKCE cookie is recoverable without the user doing anything: they
-  are already authenticated with Google, so restarting the flow lands them
-  straight through. The risk is the opposite failure — a browser that can never
-  hold the cookie would bounce forever — so the one-attempt guard is the part
-  these tests exist to hold down.
-*/
-function renderForm(authError: "retry" | "denied" | null) {
-  return render(
-    <NextIntlClientProvider locale="en" messages={en}>
-      <SignInForm
-        hasGoogleOAuth
-        devEmailSignIn={false}
-        safePostLoginPath="/dashboard"
-        authError={authError}
-      />
-    </NextIntlClientProvider>,
-  );
-}
+const intent = { learningLanguage: "JAPANESE", locale: "en", callbackUrl: "/en/book" };
+const page = (error: string) => SignInErrorPage({ searchParams: Promise.resolve({ error }) });
 
 beforeEach(() => {
-  signIn.mockReset();
-  sessionStorage.clear();
+  vi.clearAllMocks();
+  vi.stubEnv("AUTH_GOOGLE_ID", "test-id");
+  vi.stubEnv("AUTH_GOOGLE_SECRET", "test-secret");
+  recover.mockResolvedValue(intent);
 });
-afterEach(() => {
-  sessionStorage.clear();
+afterEach(() => { cleanup(); vi.unstubAllEnvs(); });
+
+test("the first recoverable Google error retries with the original subject and callback", async () => {
+  render(await page("Configuration"));
+  const button = screen.getByRole("button", { name: en.auth.continueWithGoogle });
+  expect(button).toHaveAttribute("data-auto-retry", "true");
+  fireEvent.click(button);
+  expect(start).toHaveBeenCalledWith({ ...intent, retried: true });
 });
 
-describe("SignInForm expired sign-in recovery", () => {
-  test("restarts the flow once so an expired cookie costs no second login", async () => {
-    renderForm("retry");
+test("a repeated failure offers a manual Google retry", async () => {
+  recover.mockResolvedValue({ ...intent, retried: true });
+  render(await page("Configuration"));
+  expect(screen.getByRole("alert")).toHaveTextContent(en.auth.signInRetry);
+  expect(screen.getByRole("button", { name: en.auth.continueWithGoogle })).toHaveAttribute("data-auto-retry", "false");
+  expect(screen.queryByRole("link", { name: "Create a Google Account" })).toBeNull();
+});
 
-    await waitFor(() => expect(signIn).toHaveBeenCalledTimes(1));
-    expect(signIn).toHaveBeenCalledWith("google", { redirectTo: "/dashboard" });
-    expect(screen.getByText(en.auth.signInRetrying)).toBeInTheDocument();
-  });
+test("a failed signup shows Google account creation help and waits for a manual retry", async () => {
+  recover.mockResolvedValue({ ...intent, signup: true });
+  render(await page("OAuthCallbackError"));
+  expect(screen.getByRole("heading", { name: "Sign-up incomplete" })).toBeVisible();
+  expect(screen.getByText(/including Yahoo/i)).toBeVisible();
+  expect(screen.getByRole("link", { name: "Create a Google Account" })).toHaveAttribute("href", "https://accounts.google.com/signup?hl=en");
+  const button = screen.getByRole("button", { name: en.auth.continueWithGoogle });
+  expect(button).toHaveAttribute("data-auto-retry", "false");
+  fireEvent.click(button);
+  expect(start).toHaveBeenCalledWith({ ...intent, signup: true, retried: false });
+});
 
-  test("does not retry a second time, so an unsettable cookie cannot loop", async () => {
-    const first = renderForm("retry");
-    await waitFor(() => expect(signIn).toHaveBeenCalledTimes(1));
-    first.unmount();
+test("a denied account sees the reason and a way home", async () => {
+  recover.mockResolvedValue({ ...intent, signup: true });
+  render(await page("AccessDenied"));
+  expect(screen.getByRole("alert")).toHaveTextContent(en.auth.signInDenied);
+  expect(screen.getByRole("link", { name: en.auth.backToHome })).toBeVisible();
+  expect(screen.queryByRole("button", { name: en.auth.continueWithGoogle })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Create a Google Account" })).toBeNull();
+});
 
-    renderForm("retry");
-
-    await waitFor(() => expect(screen.getByText(en.auth.signInRetry)).toBeInTheDocument());
-    expect(signIn).toHaveBeenCalledTimes(1);
-  });
-
-  test("a clean visit clears the guard, so the next expiry gets its own retry", async () => {
-    const first = renderForm("retry");
-    await waitFor(() => expect(signIn).toHaveBeenCalledTimes(1));
-    first.unmount();
-
-    renderForm(null).unmount();
-    renderForm("retry");
-
-    await waitFor(() => expect(signIn).toHaveBeenCalledTimes(2));
-  });
-
-  test("never retries a rejected account", async () => {
-    renderForm("denied");
-
-    await waitFor(() => expect(screen.getByText(en.auth.signInDenied)).toBeInTheDocument());
-    expect(signIn).not.toHaveBeenCalled();
-  });
-
-  test("shows nothing and does not retry on a normal visit", async () => {
-    renderForm(null);
-
-    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
-    expect(signIn).not.toHaveBeenCalled();
-  });
+test("opening the error page without an attempted signup shows no signup help", async () => {
+  recover.mockResolvedValue(null);
+  render(await page("Configuration"));
+  expect(screen.queryByRole("link", { name: "Create a Google Account" })).toBeNull();
 });

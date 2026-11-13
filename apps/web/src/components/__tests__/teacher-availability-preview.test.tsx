@@ -91,7 +91,7 @@ describe("TeacherAvailabilityPreview", () => {
     // morning it means.
     renderPreview();
 
-    expect(screen.getByText(/Asia\/Tokyo/)).toBeInTheDocument();
+    expect(screen.queryByText(/Asia\/Tokyo/)).toBeNull();
   });
 
   test("offers the way through to the real calendar", () => {

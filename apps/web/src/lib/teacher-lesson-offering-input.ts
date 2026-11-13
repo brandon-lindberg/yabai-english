@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { perStudentRateYen } from "@/lib/group-lesson-pricing";
 import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
+import { learningLanguageSchema } from "@/lib/learning-language";
 
 /**
  * One class as a teacher submits it, and the rules every write path holds it to.
@@ -12,6 +13,7 @@ import { validatePublicLessonRateYen } from "@/lib/lesson-rate-policy";
  */
 
 export const lessonOfferingInputSchema = z.object({
+  learningLanguage: learningLanguageSchema.optional(),
   durationMin: z.number().int().min(15).max(180),
   /** What ONE student pays. Recomputed below for a group class. */
   rateYen: z.number().int().min(1).max(9_999_999),
@@ -68,6 +70,7 @@ export function lessonOfferingCreateData(
 ) {
   return {
     teacherId,
+    learningLanguage: offering.learningLanguage ?? "ENGLISH",
     durationMin: offering.durationMin,
     rateYen: offering.rateYen,
     groupTotalRateYen: offering.isGroup ? offering.groupTotalRateYen ?? null : null,

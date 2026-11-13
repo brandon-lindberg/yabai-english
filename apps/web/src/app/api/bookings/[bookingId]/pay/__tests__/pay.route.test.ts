@@ -1,9 +1,11 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { BookingStatus } from "@/generated/prisma/client";
+import { conversationProduct, lessonSubjectCases } from "../../../../../../../test/lesson-subject-fixture";
 
-const { authMock, prismaMock, createCheckoutMock, calculateFeeMock } = vi.hoisted(
+const { authMock, prismaMock, createCheckoutMock, calculateFeeMock, requestSiteMock } = vi.hoisted(
   () => ({
     authMock: vi.fn(),
+    requestSiteMock: vi.fn(),
     prismaMock: {
       $transaction: vi.fn(),
       booking: { findUnique: vi.fn(), update: vi.fn() },
@@ -16,6 +18,7 @@ const { authMock, prismaMock, createCheckoutMock, calculateFeeMock } = vi.hoiste
   }),
 );
 
+vi.mock("@/lib/learning-site-request", () => ({ getRequestLearningSite: requestSiteMock }));
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/stripe/stripe-connect", () => ({
@@ -82,9 +85,40 @@ function baseBooking(overrides: Partial<Record<string, unknown>> = {}) {
   };
 }
 
+afterEach(() => vi.unstubAllEnvs());
 describe("POST /api/bookings/[bookingId]/pay", () => {
+  test("Japanese checkout keeps the same account, fee and amount while returning to its domain", async () => {
+    vi.stubEnv("LEARNING_SITES_ENABLED", "true");
+    vi.stubEnv("ENGLISH_SITE_URL", "https://englishstudiojapan.com");
+    vi.stubEnv("JAPANESE_SITE_URL", "https://japanesestudio.love");
+    requestSiteMock.mockResolvedValue({ learningLanguage: "JAPANESE" });
+    prismaMock.booking.findUnique.mockResolvedValue(baseBooking({ learningLanguage: "JAPANESE" }));
+    const response = await POST(new Request("https://japanesestudio.love/api/bookings/booking-1/pay", { method: "POST", body: JSON.stringify({ acceptedMarketplaceTerms: true }) }), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(response.status).toBe(200);
+    expect(createCheckoutMock).toHaveBeenCalledWith(expect.objectContaining({
+      connectedAccountId: "acct_123", amountYen: 3500, applicationFeeAmountYen: 525,
+      successUrl: "https://japanesestudio.love/book/checkout/booking-1/success?session_id={CHECKOUT_SESSION_ID}",
+      cancelUrl: "https://japanesestudio.love/book/checkout/booking-1?stripe=cancelled",
+    }));
+  });
+  test("wrong-domain booking cannot call Stripe or calculate a new fee", async () => {
+    requestSiteMock.mockResolvedValue({ learningLanguage: "JAPANESE" });
+    prismaMock.booking.findUnique.mockResolvedValue(baseBooking({ learningLanguage: "ENGLISH" }));
+    const response = await POST(new Request("https://japanesestudio.love/api/bookings/booking-1/pay", { method: "POST", body: JSON.stringify({ acceptedMarketplaceTerms: true }) }), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(response.status).toBe(403);
+    expect(createCheckoutMock).not.toHaveBeenCalled();
+    expect(calculateFeeMock).not.toHaveBeenCalled();
+  });
+  test.each(lessonSubjectCases)("checkout labels its $learningLanguage booking using the stored subject after the student switches", async ({ learningLanguage, otherLanguage, nameEn }) => {
+    authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT", learningLanguage: otherLanguage } });
+    prismaMock.booking.findUnique.mockResolvedValue(baseBooking({ learningLanguage, lessonProduct: conversationProduct }));
+    const res = await POST(new Request("http://localhost/api/bookings/booking-1/pay", { method: "POST", body: JSON.stringify({ acceptedMarketplaceTerms: true }) }), { params: Promise.resolve({ bookingId: "booking-1" }) });
+    expect(res.status).toBe(200);
+    expect(createCheckoutMock).toHaveBeenCalledWith(expect.objectContaining({ productName: nameEn, connectedAccountId: "acct_123", amountYen: 3500, bookingId: "booking-1" }));
+  });
   beforeEach(() => {
     vi.clearAllMocks();
+    requestSiteMock.mockResolvedValue(null);
     authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT" } });
     const booking = baseBooking();
     prismaMock.booking.findUnique.mockResolvedValue(booking);

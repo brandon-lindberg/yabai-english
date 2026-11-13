@@ -107,6 +107,8 @@ type Props = {
   monthViewReplacement?: ReactElement | null;
   /** Calendar timezone for day grouping, navigation, and labels. Defaults to the browser timezone. */
   timeZone?: string;
+  /** Fit a date-only month in a narrow dialog; choosing a date opens its times. */
+  compactMonth?: boolean;
 };
 
 export function SlotSelectionCalendar({
@@ -130,6 +132,7 @@ export function SlotSelectionCalendar({
   dayViewReplacement = null,
   monthViewReplacement = null,
   timeZone,
+  compactMonth = false,
 }: Props) {
   // Students and teachers read the same slot vocabulary: an open slot is a
   // dashed outline, the one you picked is ringed in ink. See ui/slot-state.
@@ -234,6 +237,7 @@ export function SlotSelectionCalendar({
                     <button
                       key={`${slot.startsAtIso}:${slot.groupKey ?? idx}`}
                       type="button"
+                      data-starts-at={slot.startsAtIso}
                       onClick={() => onSelectSlot(slot.startsAtIso, slot.groupKey)}
                       className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm tabular-nums ${slotClasses(
                         { kind: "open", selected },
@@ -341,6 +345,7 @@ export function SlotSelectionCalendar({
       {calendarView === "month" &&
         (monthViewReplacement ?? (
           <CalendarMonthGrid
+            compact={compactMonth}
             testId="slot-calendar-month-grid"
             cells={monthCells}
             weekdayHeaders={monthWeekdayHeaders}

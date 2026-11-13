@@ -6,6 +6,11 @@ import {
   filterLessonProductsForTeacher,
 } from "@/lib/lesson-products";
 import { getEnabledTeacherPaymentMethods } from "@/lib/payment-methods";
+import { auth } from "@/auth";
+import { learningLanguageOfferingWhere } from "@/lib/learning-language";
+import { marketplaceTeacherWhere } from "@/lib/marketplace-teacher-filter";
+import { getRequestLearningLanguage } from "@/lib/learning-language-request";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -19,14 +24,16 @@ export async function GET(req: Request) {
   if (!teacherProfileId) {
     return NextResponse.json(products);
   }
+  const session = await auth();
+  const learningLanguage = await getRequestLearningLanguage(session);
 
   const teacher = await prisma.teacherProfile.findUnique({
-    where: { id: teacherProfileId },
+    where: { id: teacherProfileId, AND: [marketplaceTeacherWhere(session?.user.role === "STUDENT" ? session.user.id : null, learningLanguage)] },
     select: {
       offersFreeTrial: true,
       paymentPolicyAcceptedAt: true,
       lessonOfferings: {
-        where: { active: true },
+        where: learningLanguageOfferingWhere(learningLanguage),
         orderBy: [{ durationMin: "asc" }, { id: "asc" }],
         select: {
           id: true,
@@ -59,11 +66,11 @@ export async function GET(req: Request) {
     },
   });
   if (!teacher) {
-    return NextResponse.json(products.filter((p) => p.tier !== LessonTier.FREE_TRIAL));
+    return NextResponse.json([]);
   }
 
   const trialFiltered = filterLessonProductsForTeacher(products, teacher.offersFreeTrial);
-  const freeTrial = trialFiltered.filter((p) => p.tier === LessonTier.FREE_TRIAL);
+  const freeTrial = trialFiltered.filter((p) => p.tier === LessonTier.FREE_TRIAL).map((p) => ({ ...p, ...lessonProductNames(p, learningLanguage) }));
   const hasPaymentAccountsProp = Array.isArray(
     (teacher as { paymentAccounts?: unknown }).paymentAccounts,
   );
@@ -94,6 +101,7 @@ export async function GET(req: Request) {
       .filter((p) => catalogProductMatchesOffering(p, offering))
       .map((p) => ({
         ...p,
+        ...lessonProductNames(p, learningLanguage),
         teacherLessonOfferingId: offering.id,
         teacherClassTypeId: offering.classTypeId ?? null,
         teacherClassTypeCode: offering.classType?.code ?? null,

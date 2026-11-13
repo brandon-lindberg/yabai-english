@@ -30,6 +30,14 @@ const refundRow = {
 };
 
 describe("GET /api/admin/payments/refunds", () => {
+  test("a succeeded student refund with outstanding fee recovery remains in the attention query", async () => {
+    await GET(new Request("http://localhost/api/admin/payments/refunds"));
+    expect(findManyMock).toHaveBeenCalledWith(expect.objectContaining({ where: { AND: expect.arrayContaining([{ OR: expect.arrayContaining([
+      { status: { in: ["PENDING_RECOVERY", "FAILED", "PENDING"] } },
+      { status: "SUCCEEDED", recoveryNote: { not: null } },
+      { payment: { recovery: { feeRecoveryPending: true } } },
+    ]) }]) } }));
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     findManyMock.mockResolvedValue([refundRow]);
@@ -56,7 +64,7 @@ describe("GET /api/admin/payments/refunds", () => {
     expect(res.status).toBe(200);
     expect(findManyMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { status: { in: ["PENDING_RECOVERY", "FAILED", "PENDING"] } },
+        where: { AND: expect.arrayContaining([{ OR: expect.arrayContaining([{ status: { in: ["PENDING_RECOVERY", "FAILED", "PENDING"] } }]) }]) },
         orderBy: { createdAt: "desc" },
       }),
     );
@@ -76,7 +84,7 @@ describe("GET /api/admin/payments/refunds", () => {
     await GET(new Request("http://localhost/api/admin/payments/refunds?status=FAILED"));
 
     expect(findManyMock).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { status: { in: ["FAILED"] } } }),
+      expect.objectContaining({ where: { AND: expect.arrayContaining([{ status: { in: ["FAILED"] } }]) } }),
     );
   });
 
@@ -85,7 +93,7 @@ describe("GET /api/admin/payments/refunds", () => {
 
     expect(findManyMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { status: { in: ["PENDING_RECOVERY", "FAILED", "PENDING"] } },
+        where: { AND: expect.arrayContaining([{ OR: expect.arrayContaining([{ status: { in: ["PENDING_RECOVERY", "FAILED", "PENDING"] } }]) }]) },
       }),
     );
   });

@@ -2,6 +2,15 @@
 
 import { useCallback, useState } from "react";
 
+export function clearSessionDraft(key: string, legacyKey?: string) {
+  try {
+    window.sessionStorage.removeItem(key);
+    if (legacyKey) window.sessionStorage.removeItem(legacyKey);
+  } catch {
+    // Storage may be blocked; the form must still work.
+  }
+}
+
 /**
  * Form state that survives the component being torn down and rebuilt.
  *
@@ -22,10 +31,11 @@ import { useCallback, useState } from "react";
 export function useSessionDraft<T>(
   key: string,
   initial: T,
+  legacyKey?: string,
 ): [T, (next: T) => void, () => void] {
   const [draft, setDraftState] = useState<T>(() => {
     try {
-      const stored = window.sessionStorage.getItem(key);
+      const stored = window.sessionStorage.getItem(key) ?? (legacyKey ? window.sessionStorage.getItem(legacyKey) : null);
       if (!stored) return initial;
       // A shape written by an older version of the form parses fine and then
       // reads as nonsense, so callers get the defaults merged underneath.
@@ -48,12 +58,8 @@ export function useSessionDraft<T>(
   );
 
   const clear = useCallback(() => {
-    try {
-      window.sessionStorage.removeItem(key);
-    } catch {
-      // As above.
-    }
-  }, [key]);
+    clearSessionDraft(key, legacyKey);
+  }, [key, legacyKey]);
 
   return [draft, setDraft, clear];
 }

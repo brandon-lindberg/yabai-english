@@ -5,6 +5,9 @@ import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
 import type { TeacherPaymentMethodType } from "@/generated/prisma/client";
 import { calculateTaxIncludedInvoiceTotals } from "@/lib/invoice-totals";
 import { paymentMethodLabel } from "@/lib/payment-method-label";
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { resolveLearningLanguage } from "@/lib/learning-language";
+import { LEARNING_APP_NAMES, OPERATOR_NAME } from "@/lib/brand";
 
 export type InvoicePdfLanguage = "en" | "ja";
 
@@ -41,7 +44,8 @@ const invoiceCopy = {
       "This document records a return of consideration for the lesson below. The amounts are negative.",
     dateLabel: "Invoice Date:",
     paymentMethodLabel: "Payment Method:",
-    issuerRole: "English Instructor",
+    issuerRole: { ENGLISH: "English Instructor", JAPANESE: "Japanese Instructor" },
+    operatedBy: (operator: string) => `Operated by ${operator}`,
     thankYou: (teacherName: string) => `Thank you for learning with ${teacherName}!`,
     item: "Item",
     className: "Class",
@@ -66,7 +70,8 @@ const invoiceCopy = {
       "本書は下記レッスンに係る対価の返還等を記録するものです。金額はマイナス表示です。",
     dateLabel: "請求日:",
     paymentMethodLabel: "お支払い方法:",
-    issuerRole: "英語講師",
+    issuerRole: { ENGLISH: "英語講師", JAPANESE: "日本語講師" },
+    operatedBy: (operator: string) => `運営: ${operator}`,
     thankYou: (teacherName: string) =>
       `${teacherName}のレッスンをご利用いただきありがとうございます。`,
     item: "項目",
@@ -93,7 +98,8 @@ const invoiceCopy = {
     creditNoteNote: string;
     dateLabel: string;
     paymentMethodLabel: string;
-    issuerRole: string;
+    issuerRole: Record<LearningLanguage, string>;
+    operatedBy: (operator: string) => string;
     thankYou: (teacherName: string) => string;
     item: string;
     className: string;
@@ -117,6 +123,8 @@ export async function buildInvoicePdf(input: {
   durationMin: number;
   lessonDate: string;
   language?: InvoicePdfLanguage;
+  /** The booking's immutable subject; omitted historical callers remain English. */
+  learningLanguage?: LearningLanguage;
   /** The independent teacher who issues this invoice. */
   teacherName: string;
   /** Omitted when the booking has no recorded payment. */
@@ -138,7 +146,11 @@ export async function buildInvoicePdf(input: {
   const page = doc.addPage([595, 842]); // A4
   const language = input.language ?? "en";
   const copy = invoiceCopy[language];
-  const { font, fontBold, latinFont } = await loadInvoiceFonts(doc, language);
+  const learningLanguage = resolveLearningLanguage(input.learningLanguage);
+  const { font, fontBold, latinFont, fontForText } = await loadInvoiceFonts(doc, language, [
+    input.teacherName, input.studentName, input.className, input.paidAt, input.lessonDate,
+    input.creditNote?.refundedAt ?? "",
+  ].join(""));
 
   const { width, height } = page.getSize();
   const margin = 50;
@@ -192,8 +204,9 @@ export async function buildInvoicePdf(input: {
   const titleText = isCreditNote ? copy.creditNoteTitle : copy.title;
   const titleBaselineY = y - 4;
   const issuerNameSize = 20;
+  const issuerFont = fontForText(input.teacherName, true);
   const issuerRightX =
-    margin + fontBold.widthOfTextAtSize(input.teacherName, issuerNameSize);
+    margin + issuerFont.widthOfTextAtSize(input.teacherName, issuerNameSize);
   /*
     Sized to fit what is left beside the issuer's name rather than always 30.
     "REFUNDED INVOICE" is half again as wide as "CREDIT NOTE", and being
@@ -214,10 +227,10 @@ export async function buildInvoicePdf(input: {
     x: margin,
     y: issuerNameY,
     size: issuerNameSize,
-    font: fontBold,
+    font: issuerFont,
     color: navy,
   });
-  page.drawText(copy.issuerRole, {
+  page.drawText(copy.issuerRole[learningLanguage], {
     x: margin,
     y: issuerNameY - 18,
     size: 10,
@@ -275,7 +288,7 @@ export async function buildInvoicePdf(input: {
     arrangement where neither can happen.
   */
   const metaRows: Array<[string, string, PDFFont]> = [];
-  const drawMetaRow = (label: string, value: string, textFont = font) => {
+  const drawMetaRow = (label: string, value: string, textFont = fontForText(value)) => {
     metaRows.push([label, value, textFont]);
   };
   const flushMetaRows = () => {
@@ -315,7 +328,7 @@ export async function buildInvoicePdf(input: {
     x: margin,
     y,
     size: 16,
-    font: fontBold,
+    font: fontForText(input.studentName, true),
     color: navy,
   });
   y -= 20;
@@ -329,13 +342,14 @@ export async function buildInvoicePdf(input: {
     break mid-word would be worse than none.
   */
   const noteText = isCreditNote ? copy.creditNoteNote : copy.thankYou(input.teacherName);
+  const noteFont = fontForText(noteText);
   const noteMaxWidth = width - margin * 2;
   const noteWords = noteText.split(" ");
   const noteLines: string[] = [];
   let line = "";
   for (const word of noteWords) {
     const candidate = line ? `${line} ${word}` : word;
-    if (line && font.widthOfTextAtSize(candidate, 10) > noteMaxWidth) {
+    if (line && noteFont.widthOfTextAtSize(candidate, 10) > noteMaxWidth) {
       noteLines.push(line);
       line = word;
     } else {
@@ -344,7 +358,7 @@ export async function buildInvoicePdf(input: {
   }
   if (line) noteLines.push(line);
   for (const noteLine of noteLines) {
-    page.drawText(noteLine, { x: margin, y, size: 10, font, color: black });
+    page.drawText(noteLine, { x: margin, y, size: 10, font: noteFont, color: black });
     y -= 14;
   }
   y += 14;
@@ -417,7 +431,7 @@ export async function buildInvoicePdf(input: {
     x: columns.className + 18,
     y: rowTextY,
     size: 10,
-    font,
+    font: fontForText(input.className),
     color: black,
   });
   page.drawText(copy.durationValue(input.durationMin), {
@@ -492,11 +506,11 @@ export async function buildInvoicePdf(input: {
     color: black,
   });
   if (!isCreditNote) {
-    page.drawText(copy.thankYou(input.teacherName), {
+    page.drawText(noteText, {
       x: margin + 40,
       y: y + 20,
       size: 10,
-      font,
+      font: noteFont,
       color: black,
     });
   }
@@ -517,15 +531,17 @@ export async function buildInvoicePdf(input: {
     });
   };
 
-  // Measured rather than nudged: a teacher's name is any length.
-  drawCenteredText(input.teacherName, margin, 10, fontBold, navy);
-  drawCenteredText(copy.issuerRole, margin - 16, 9, font, gray);
+  // Platform identity stays separate from the teacher issuing the document.
+  // The stored booking subject governs both an invoice and its return document.
+  drawCenteredText(LEARNING_APP_NAMES[learningLanguage], margin, 10, fontBold, navy);
+  drawCenteredText(copy.operatedBy(OPERATOR_NAME), margin - 16, 9, font, gray);
 
-  page.drawText(copy.lessonDate(input.lessonDate), {
+  const lessonDate = copy.lessonDate(input.lessonDate);
+  page.drawText(lessonDate, {
     x: margin,
     y: margin - 16,
     size: 8,
-    font,
+    font: fontForText(lessonDate),
     color: gray,
   });
 
@@ -535,25 +551,32 @@ export async function buildInvoicePdf(input: {
 async function loadInvoiceFonts(
   doc: PDFDocument,
   language: InvoicePdfLanguage,
-): Promise<{ font: PDFFont; fontBold: PDFFont; latinFont: PDFFont; latinFontBold: PDFFont }> {
+  content: string,
+) {
   const latinFont = await doc.embedFont(StandardFonts.Helvetica);
   const latinFontBold = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  if (language === "en") {
-    return { font: latinFont, fontBold: latinFontBold, latinFont, latinFontBold };
+  const latinCharacters = new Set(latinFont.getCharacterSet());
+  const needsJapaneseFont = (value: string) => language === "ja" ||
+    [...value].some(character => !latinCharacters.has(character.codePointAt(0)!));
+  let japaneseFont = latinFont;
+  let japaneseFontBold = latinFontBold;
+  if (needsJapaneseFont(content)) {
+    doc.registerFontkit(fontkit);
+    japaneseRegularFontBytes ??= readFile(japaneseRegularFontPath);
+    japaneseBoldFontBytes ??= readFile(japaneseBoldFontPath);
+    const [regularBytes, boldBytes] = await Promise.all([
+      japaneseRegularFontBytes,
+      japaneseBoldFontBytes,
+    ]);
+    japaneseFont = await doc.embedFont(regularBytes, { subset: false });
+    japaneseFontBold = await doc.embedFont(boldBytes, { subset: false });
   }
 
-  doc.registerFontkit(fontkit);
-  japaneseRegularFontBytes ??= readFile(japaneseRegularFontPath);
-  japaneseBoldFontBytes ??= readFile(japaneseBoldFontPath);
-
-  const [regularBytes, boldBytes] = await Promise.all([
-    japaneseRegularFontBytes,
-    japaneseBoldFontBytes,
-  ]);
-
-  const font = await doc.embedFont(regularBytes, { subset: false });
-  const fontBold = await doc.embedFont(boldBytes, { subset: false });
-
-  return { font, fontBold, latinFont, latinFontBold };
+  // Keep English labels and dates in their usual font when names need Noto Sans JP.
+  const fontForText = (value: string, bold = false) => {
+    if (needsJapaneseFont(value)) return bold ? japaneseFontBold : japaneseFont;
+    return bold ? latinFontBold : latinFont;
+  };
+  return { font: fontForText(""), fontBold: fontForText("", true), latinFont, fontForText };
 }

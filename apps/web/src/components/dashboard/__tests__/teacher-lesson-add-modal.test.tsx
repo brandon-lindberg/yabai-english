@@ -15,7 +15,7 @@ const classTypes = [
 
 const p = en.dashboard.profilePage;
 
-function renderModal(kind: "individual" | "group", onAdded = vi.fn(), onClose = vi.fn()) {
+function renderModal(kind: "individual" | "group", onAdded = vi.fn(), onClose = vi.fn(), chooseLanguage = true) {
   render(
     <NextIntlClientProvider locale="en" messages={en}>
       <TeacherLessonAddModal
@@ -29,6 +29,7 @@ function renderModal(kind: "individual" | "group", onAdded = vi.fn(), onClose = 
       />
     </NextIntlClientProvider>,
   );
+  if (chooseLanguage) fireEvent.change(screen.getByLabelText(en.learningJourney.languageTaught), { target: { value: "ENGLISH" } });
   return { onAdded, onClose };
 }
 
@@ -59,6 +60,13 @@ beforeEach(() => {
 });
 
 describe("TeacherLessonAddModal", () => {
+  test("language taught must be chosen explicitly before a class can be saved", () => {
+    renderModal("individual", vi.fn(), vi.fn(), false);
+    fireEvent.change(priceField(p.teacherRateYenLabelTaxIncluded), { target: { value: "5000" } });
+    expect(confirmButton()).toBeDisabled();
+    fireEvent.change(screen.getByLabelText(en.learningJourney.languageTaught), { target: { value: "JAPANESE" } });
+    expect(confirmButton()).toBeEnabled();
+  });
   test("asks for what an individual class needs", () => {
     renderModal("individual");
 

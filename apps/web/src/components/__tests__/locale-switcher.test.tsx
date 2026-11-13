@@ -43,6 +43,8 @@ describe("LocaleSwitcher", () => {
   test("switches language", () => {
     renderSwitcher();
 
+    fireEvent.click(screen.getByRole("button", { name: "Language" }));
+
     fireEvent.click(screen.getByRole("button", { name: "日本語" }));
 
     expect(replaceMock).toHaveBeenCalledWith(
@@ -57,11 +59,26 @@ describe("LocaleSwitcher", () => {
     searchMock.mockReturnValue(new URLSearchParams("step=3&onboardingStep=payments"));
     renderSwitcher();
 
+    fireEvent.click(screen.getByRole("button", { name: "Language" }));
+
     fireEvent.click(screen.getByRole("button", { name: "日本語" }));
 
     expect(replaceMock).toHaveBeenCalledWith(
       { pathname: "/onboarding", query: { step: "3", onboardingStep: "payments" } },
       { locale: "ja" },
     );
+  });
+
+  test("discloses its choices and closes on Escape or an outside press", () => {
+    const { container } = renderSwitcher();
+    const trigger = screen.getByRole("button", { name: "Language" });
+    fireEvent.click(trigger);
+    expect(container.querySelector("details")).toHaveAttribute("open");
+    fireEvent.keyDown(screen.getByRole("button", { name: "日本語" }), { key: "Escape" });
+    expect(container.querySelector("details")).not.toHaveAttribute("open");
+    expect(trigger).toHaveFocus();
+    fireEvent.click(trigger);
+    fireEvent.pointerDown(document.body);
+    expect(container.querySelector("details")).not.toHaveAttribute("open");
   });
 });

@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { TeacherPlatformTier } from "@/generated/prisma/browser";
 import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
-import { Button, buttonClasses } from "@/components/ui/button";
-import { Field, Input, Select } from "@/components/ui/field";
+import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
+import { actionLinkClass } from "@/components/ui/inline-link";
 
 export type AdminTeacherTierRow = {
   teacherId: string;
+  userId: string;
   name: string;
   email: string | null;
   calculatedTier: TeacherPlatformTier;
@@ -32,6 +34,7 @@ type Props = {
 export function AdminTeacherTiersView({ rows }: Props) {
   const t = useTranslations("admin.teacherTiersPage");
   const locale = useLocale();
+  const profile = useTranslations("admin.profileOverview");
   const tierLabel = (tier: TeacherPlatformTier) =>
     t("tierName", { number: tier.replace("TIER_", "") });
   /*
@@ -48,11 +51,6 @@ export function AdminTeacherTiersView({ rows }: Props) {
     return new Date(iso).toLocaleDateString(locale, { dateStyle: "medium", timeZone });
   };
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [legacyTeacherId, setLegacyTeacherId] = useState(rows[0]?.teacherId ?? "");
-  const [legacyStudentId, setLegacyStudentId] = useState("");
-  const [legacyOfferingId, setLegacyOfferingId] = useState("");
-  const [legacyRateYen, setLegacyRateYen] = useState("2500");
-
   async function evaluate(teacherId: string) {
     setBusyId(teacherId);
     await fetch("/api/admin/teacher-tiers/evaluate", {
@@ -85,98 +83,15 @@ export function AdminTeacherTiersView({ rows }: Props) {
     window.location.reload();
   }
 
-  async function saveLegacyRate() {
-    setBusyId("legacy-rate");
-    await fetch("/api/admin/teacher-student-rates", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        teacherId: legacyTeacherId,
-        studentId: legacyStudentId,
-        teacherLessonOfferingId: legacyOfferingId,
-        rateYen: Number(legacyRateYen),
-        active: true,
-      }),
-    });
-    setBusyId(null);
-  }
-
   return (
     <div className="space-y-3">
-      <section className="border-t border-border pt-6">
-        <h2 className="font-semibold text-foreground">{t("legacyTitle")}</h2>
-        <p className="mt-1 text-sm text-muted">{t("legacyIntro")}</p>
-        {/*
-          NOTE: every string on this screen is hardcoded English — the component
-          never calls `useTranslations`. Converting the controls does not change
-          that; the screen still needs translating, tracked in AUDIT.md.
-        */}
-        <div className="mt-4 grid gap-4 sm:grid-cols-4">
-          <Field label={t("fieldTeacher")}>
-            {(field) => (
-              <Select
-                {...field}
-                value={legacyTeacherId}
-                onChange={(e) => setLegacyTeacherId(e.target.value)}
-              >
-                {rows.map((row) => (
-                  <option key={row.teacherId} value={row.teacherId}>
-                    {row.name}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Field>
-          <Field label={t("fieldStudentId")}>
-            {(field) => (
-              <Input
-                {...field}
-                value={legacyStudentId}
-                onChange={(e) => setLegacyStudentId(e.target.value)}
-              />
-            )}
-          </Field>
-          <Field label={t("fieldOfferingId")}>
-            {(field) => (
-              <Input
-                {...field}
-                value={legacyOfferingId}
-                onChange={(e) => setLegacyOfferingId(e.target.value)}
-              />
-            )}
-          </Field>
-          <Field label={t("fieldRateYen")}>
-            {(field) => (
-              <Input
-                {...field}
-                inputMode="numeric"
-                value={legacyRateYen}
-                onChange={(e) => setLegacyRateYen(e.target.value.replace(/\D/g, ""))}
-              />
-            )}
-          </Field>
-        </div>
-        <button
-          type="button"
-          disabled={
-            busyId === "legacy-rate" ||
-            !legacyTeacherId ||
-            !legacyStudentId ||
-            !legacyOfferingId ||
-            !legacyRateYen
-          }
-          onClick={() => void saveLegacyRate()}
-          className={buttonClasses({ variant: "secondary", className: "mt-4" })}
-        >
-          {t("saveLegacyRate")}
-        </button>
-      </section>
       {rows.map((row) => (
         <section key={row.teacherId} className="border-t border-border pt-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="font-semibold text-foreground">{row.name}</h2>
               <p className="text-sm text-muted">{row.email ?? t("noEmail")}</p>
+              <Link className={`${actionLinkClass} mt-2 text-sm`} href={`/admin/users/${row.userId}#pricing`}>{profile("pricing")}</Link>
               <p className="mt-2 text-sm text-muted">
                 {t("tierSummary", {
                   calculated: tierLabel(row.calculatedTier),

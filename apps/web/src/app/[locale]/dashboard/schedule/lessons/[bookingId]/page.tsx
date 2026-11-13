@@ -13,6 +13,7 @@ import { actionLinkClass } from "@/components/ui/inline-link";
 import { PageHeader } from "@/components/ui/page-header";
 import { StudentProfilePanel } from "@/components/dashboard/student-profile-panel";
 import { lessonCalendarLocation, lessonCalendarUid } from "@/lib/brand";
+import { withBookingLessonProductNames } from "@/lib/lesson-product-catalog";
 
 export default async function LessonDetailPage({
   params,
@@ -27,7 +28,7 @@ export default async function LessonDetailPage({
   const t = await getTranslations("dashboard");
   const tLesson = await getTranslations("dashboard.lessonDetail");
 
-  const booking = await prisma.booking.findUnique({
+  const storedBooking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
       lessonProduct: true,
@@ -59,7 +60,8 @@ export default async function LessonDetailPage({
     },
   });
 
-  if (!booking) notFound();
+  if (!storedBooking) notFound();
+  const booking = withBookingLessonProductNames(storedBooking);
 
   // Only the teacher who owns this booking (or an admin) can view this page.
   const isTeacher = booking.teacher.userId === session.user.id;
@@ -178,7 +180,7 @@ export default async function LessonDetailPage({
         )}
       </section>
 
-      <StudentProfilePanel student={student} profile={profile} />
+      <StudentProfilePanel student={student} profile={profile} learningLanguage={booking.learningLanguage} />
     </div>
   );
 }

@@ -26,7 +26,7 @@ describe("getStudentRosterTeachers", () => {
     ]);
     expect(findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { studentId: "stu-1" },
+        where: { studentId: "stu-1", teacher: { user: { accountStatus: "ACTIVE" } } },
       }),
     );
   });

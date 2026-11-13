@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import en from "../../../../messages/en.json";
@@ -16,6 +16,7 @@ function renderTable() {
 
 const stuckRefund = {
   id: "refund-1",
+  paymentId: "payment-1",
   status: "PENDING_RECOVERY",
   amountYen: 5000,
   actor: "STUDENT",
@@ -30,15 +31,27 @@ const stuckRefund = {
 };
 
 afterEach(() => {
+  cleanup();
   vi.unstubAllGlobals();
 });
 
+function mockQueue(queue: "student" | "fees", items: unknown[]) {
+  vi.stubGlobal("fetch", vi.fn().mockImplementation(async (url: string) => ({
+    ok: true, json: async () => ({ items: new URL(url, "http://localhost").searchParams.get("queue") === queue ? items : [] }),
+  })));
+}
+
 describe("AdminRefundsTable", () => {
+  test("distinguishes a refunded student from the outstanding fee and exposes a recovery action", async () => {
+    mockQueue("fees", [{ ...stuckRefund, status: "SUCCEEDED", amountYen: null, canRetry: true }]);
+    const { container } = renderTable();
+    await waitFor(() => expect(screen.getByText("Student refunded; fee recovery pending")).toBeTruthy());
+    expect(within(container.querySelector("#platform-fee-returns")!).getByRole("button", { name: "Reconcile / retry" })).toBeTruthy();
+    expect(within(container.querySelector("#student-reimbursements")!).queryByText("Student refunded; fee recovery pending")).toBeNull();
+    expect(screen.queryByText("¥5,000")).toBeNull();
+  });
   test("shows the people, the amount and why it is stuck", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ items: [stuckRefund] }) }),
-    );
+    mockQueue("student", [stuckRefund]);
 
     renderTable();
 
@@ -62,7 +75,8 @@ describe("AdminRefundsTable", () => {
     renderTable();
 
     await waitFor(() => {
-      expect(screen.getByText(en.admin.refundsPage.empty)).toBeTruthy();
+      expect(screen.getByText(en.admin.refundsPage.reimbursementsEmpty)).toBeTruthy();
+      expect(screen.getByText(en.admin.refundsPage.platformFeesEmpty)).toBeTruthy();
     });
   });
 
@@ -75,7 +89,7 @@ describe("AdminRefundsTable", () => {
     renderTable();
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toBeTruthy();
+      expect(screen.getAllByRole("alert")).toHaveLength(2);
     });
   });
 });

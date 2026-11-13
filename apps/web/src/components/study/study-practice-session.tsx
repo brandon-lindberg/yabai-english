@@ -2,14 +2,13 @@
 
 import { StudyMultiStepExercise } from "@/components/study/study-multi-step-exercise";
 import { StudyReorderExercise } from "@/components/study/study-reorder-exercise";
-import { StudyRpgXpBar } from "@/components/study/study-rpg-xp-bar";
+import { StudyPracticeLoading, StudySessionProgress, StudyPromptCard } from "./study-practice-parts";
 import type { StudyRpgSnapshot } from "@/lib/study/rpg-xp";
 import type { StudyQueueCard } from "@/lib/study/practice-queue-card";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { StudyLevelCode } from "@/generated/prisma/browser";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Choice, ChoiceList } from "@/components/ui/choice";
 import { Outcome } from "@/components/ui/outcome";
@@ -155,53 +154,7 @@ export function StudyPracticeSession({
 
   const submitMultiStep = (multiStepAnswers: string[]) => void postReview({ multiStepAnswers });
 
-  if (loading) {
-    return (
-      <div
-        className="space-y-6"
-        role="status"
-        aria-busy="true"
-        aria-label="Loading practice"
-        data-testid="study-practice-loading"
-      >
-        {/* XP bar */}
-        <div className="border-y border-border py-4">
-          <Skeleton height="4" width="1/2" />
-          <div className="mt-3">
-            <Skeleton height="3" width="full" rounded="full" />
-          </div>
-          <div className="mt-2">
-            <Skeleton height="3" width="2/3" />
-          </div>
-        </div>
-        {/* Progress + score */}
-        <div className="flex flex-wrap justify-between gap-2">
-          <Skeleton height="3" width="1/4" className="!w-12" />
-          <Skeleton height="3" width="1/3" className="!w-36" />
-        </div>
-        {/* Flashcard */}
-        <div className="rounded-2xl border border-border bg-surface p-4 sm:p-8">
-          <div className="min-h-[6rem] sm:min-h-[8rem]">
-            <Skeleton height="8" width="3/4" />
-            <div className="mt-3">
-              <Skeleton height="6" width="1/2" />
-            </div>
-          </div>
-          <div className="mt-4 sm:mt-6">
-            <Skeleton height="4" width="2/3" />
-          </div>
-        </div>
-        {/* Answer options */}
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-border px-4 py-3">
-              <Skeleton height="4" width="3/4" />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <StudyPracticeLoading label="Loading practice" />;
 
   if (error) {
     return (
@@ -267,27 +220,9 @@ export function StudyPracticeSession({
         <p className="text-xs text-muted">{t("practiceFocusHint")}</p>
       ) : null}
 
-      <StudyRpgXpBar
-        title={t("rpgRankTitle", { rank: rpg.rank })}
-        fractionLabel={t("rpgXpLine", { into: rpg.xpIntoRank, total: rpg.xpForNextRank })}
-        nextHint={t("rpgNextHint", {
-          remaining: Math.max(0, rpg.xpForNextRank - rpg.xpIntoRank),
-          nextRank: rpg.rank + 1,
-        })}
-        progressPercent={rpg.progressPercent}
-      />
+      <StudySessionProgress rpg={rpg} index={index} total={cards.length} xp={sessionXp} correct={sessionCorrect} wrong={sessionWrong} />
 
-      <div className="flex flex-wrap justify-between gap-2 text-sm text-muted">
-        <span className="font-medium tabular-nums">
-          {index + 1} / {cards.length}
-        </span>
-        <span className="tabular-nums">
-          {t("sessionXp", { xp: sessionXp })} ·{" "}
-          {t("sessionScore", { correct: sessionCorrect, wrong: sessionWrong })}
-        </span>
-      </div>
-
-      <div className="rounded-2xl border border-border bg-surface p-4 sm:p-8">
+      <StudyPromptCard label={promptLabel}>
         {/*
           The Japanese prompt is the content of this screen, not a caption, so it
           is set at display scale. The uppercase tracked label that used to sit
@@ -319,7 +254,7 @@ export function StudyPracticeSession({
             />
           </div>
         ) : null}
-      </div>
+      </StudyPromptCard>
 
       {/* Feedback is a live region: it appears and is gone in 900ms, so a screen
           reader has to be told rather than left to find it. */}

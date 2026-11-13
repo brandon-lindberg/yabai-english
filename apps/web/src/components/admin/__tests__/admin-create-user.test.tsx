@@ -30,8 +30,26 @@ describe("AdminCreateUser", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 201 })));
   });
 
+  test("requires an explicit teaching language before creating a teacher", () => {
+    renderForm();
+    fireEvent.change(screen.getByLabelText(en.admin.createUser.email), { target: { value: "teacher@example.com" } });
+    expect(screen.getByRole("button", { name: en.admin.createUser.submit })).toBeDisabled();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Japanese" }));
+    expect(screen.getByRole("button", { name: en.admin.createUser.submit })).toBeEnabled();
+  });
+
+  test("persists the Japanese teaching assignment", async () => {
+    renderForm();
+    fireEvent.change(screen.getByLabelText(en.admin.createUser.email), { target: { value: "teacher@example.com" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Japanese" }));
+    fireEvent.click(screen.getByRole("button", { name: en.admin.createUser.submit }));
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    expect(JSON.parse(String(vi.mocked(fetch).mock.calls[0][1]?.body))).toMatchObject({ teachingLanguages: ["JAPANESE"] });
+  });
+
   test("creates a teacher from an email address", async () => {
     renderForm();
+    fireEvent.click(screen.getByRole("checkbox", { name: "English" }));
     fireEvent.change(screen.getByLabelText(en.admin.createUser.email), {
       target: { value: "mika@example.com" },
     });
@@ -50,6 +68,7 @@ describe("AdminCreateUser", () => {
 
   test("defaults to teacher, which is the reason this exists", () => {
     renderForm();
+    fireEvent.click(screen.getByRole("checkbox", { name: "English" }));
 
     expect(screen.getByLabelText(en.admin.createUser.role)).toHaveValue("TEACHER");
   });
@@ -57,6 +76,7 @@ describe("AdminCreateUser", () => {
   test("offers no way to mint an administrator", () => {
     // The endpoint refuses it; the form should not suggest it either.
     renderForm();
+    fireEvent.click(screen.getByRole("checkbox", { name: "English" }));
 
     const roles = Array.from(
       screen.getByLabelText(en.admin.createUser.role).querySelectorAll("option"),
@@ -74,6 +94,7 @@ describe("AdminCreateUser", () => {
       ),
     );
     renderForm();
+    fireEvent.click(screen.getByRole("checkbox", { name: "English" }));
     fireEvent.change(screen.getByLabelText(en.admin.createUser.email), {
       target: { value: "taken@example.com" },
     });
@@ -87,6 +108,7 @@ describe("AdminCreateUser", () => {
     // Nothing is emailed, so the admin has to be told it worked and given the
     // address to pass on.
     renderForm();
+    fireEvent.click(screen.getByRole("checkbox", { name: "English" }));
     fireEvent.change(screen.getByLabelText(en.admin.createUser.email), {
       target: { value: "Mika@Example.com" },
     });

@@ -1,59 +1,28 @@
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
-import {
-  AdminBookingsPanel,
-  type AdminBookingRow,
-} from "@/components/admin/admin-bookings-panel";
 import { AdminPlacementReviewForm } from "@/components/admin/admin-placement-review-form";
-import { buttonClasses } from "@/components/ui/button";
+import { actionLinkClass } from "@/components/ui/inline-link";
 import { DataList, DataRow } from "@/components/ui/data-row";
 import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
-import { StatLedger } from "@/components/ui/stat-ledger";
+import { LearningLanguage } from "@/generated/prisma/enums";
+import { pendingPrivateReschedules, upcomingAdminLessonsWhere } from "@/lib/admin/lesson-filters";
+import { adminPaymentRecoveryWhere, adminWebhookRecoveryWhere } from "@/lib/refund-recovery";
 
-/**
- * The admin overview.
- *
- * Was three stacked lists with no controls: fifty bookings in one column, the
- * placement review queue, and then *every student again* with an inline level
- * form on each row — a third place to edit a placement, after the students grid
- * and the user detail page, and the worst of the three.
- *
- * Now it answers the two questions an overview should: what is happening, and
- * what is waiting on me. Browsing and editing students belongs to the students
- * screen, which already searches, sorts and paginates.
- */
 export default async function AdminPage() {
-  const locale = await getLocale();
   const t = await getTranslations("admin");
+  const language = await getTranslations("admin.teachingLanguages");
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "SUPER_ADMIN") return null;
 
   const now = new Date();
 
-  const [bookings, reviewQueue, studentCount, upcomingCount] = await Promise.all([
-    prisma.booking.findMany({
-      orderBy: { startsAt: "desc" },
-      take: 200,
-      /*
-        `select`, not `include`. `include: { student: true }` returned every
-        column of the user record — including whatever secret the model gains
-        next — to render a name on a list.
-      */
-      select: {
-        id: true,
-        startsAt: true,
-        status: true,
-        meetUrl: true,
-        lessonProduct: { select: { nameEn: true } },
-        student: { select: { name: true, email: true } },
-        teacher: { select: { user: { select: { name: true, email: true } } } },
-      },
-    }),
+  const reviewWhere = { placementNeedsReview: true };
+  const [reviewQueue, reviewCount, reschedules, refunds, deliveries, upcoming] = await Promise.all([
     prisma.studentProfile.findMany({
-      where: { placementNeedsReview: true },
+      where: reviewWhere,
       // Freshest placement first. `StudentProfile` carries no row timestamp, and
       // nulls sort first under Postgres DESC, which would head the queue with
       // students who never sat the placement at all.
@@ -66,37 +35,50 @@ export default async function AdminPage() {
         user: { select: { name: true, email: true } },
       },
     }),
-    prisma.user.count({ where: { role: "STUDENT" } }),
-    prisma.booking.count({
-      where: { startsAt: { gte: now }, status: { in: ["CONFIRMED", "PENDING_PAYMENT"] } },
+    prisma.studentProfile.count({ where: reviewWhere }),
+    prisma.booking.count({ where: pendingPrivateReschedules }),
+    prisma.payment.count({ where: adminPaymentRecoveryWhere() }),
+    prisma.paymentWebhookEvent.count({ where: adminWebhookRecoveryWhere }),
+    prisma.booking.groupBy({
+      by: ["learningLanguage"],
+      where: upcomingAdminLessonsWhere(now),
+      _count: { _all: true },
     }),
   ]);
 
-  const rows: AdminBookingRow[] = bookings.map((b) => ({
-    id: b.id,
-    startsAtIso: b.startsAt.toISOString(),
-    lessonName: b.lessonProduct.nameEn,
-    studentName: b.student.name ?? b.student.email ?? "—",
-    teacherName: b.teacher.user.name ?? b.teacher.user.email ?? "—",
-    status: b.status,
-    meetUrl: b.meetUrl,
-  }));
+  const overviewSections = [
+    { title: t("overview.attention"), rows: [
+      { label: t("overview.reschedules"), count: reschedules, href: "/admin/lessons?view=reschedules" },
+      { label: t("overview.payments"), count: refunds + deliveries, href: "/admin/payments" },
+      { label: t("overview.englishReviews"), count: reviewCount, href: "#placement-reviews" },
+    ] },
+    { title: t("overview.upcomingSubjects"), rows: Object.values(LearningLanguage).map((subject) => ({
+      label: language(subject),
+      count: upcoming.find((row) => row.learningLanguage === subject)?._count._all ?? 0,
+      href: `/admin/lessons?view=upcoming&subject=${subject}`,
+    })) },
+  ];
 
   return (
     <main className="space-y-10">
       <PageHeader title={t("title")} />
 
-      <StatLedger
-        stats={[
-          { label: t("overview.statUpcoming"), value: upcomingCount },
-          { label: t("overview.statNeedsReview"), value: reviewQueue.length },
-          { label: t("overview.statStudents"), value: studentCount },
-        ]}
-      />
+      {overviewSections.map(({ title, rows }, index) => (
+        <Section key={title} title={title} ruled={index !== 0}>
+          <DataList>
+            {rows.map(({ label, count, href }) => (
+              <DataRow key={href} className="py-0!" interactive>
+                <Link className={`${actionLinkClass} flex min-h-12 items-center justify-between gap-4 py-2`} href={href}>
+                  {label}<span className="shrink-0 text-lg font-semibold tabular-nums">{count}</span>
+                </Link>
+              </DataRow>
+            ))}
+          </DataList>
+        </Section>
+      ))}
 
-      {/* The queue comes first: it is the only thing on this page waiting on
-          someone. The booking list is for looking things up. */}
-      <Section title={t("reviewQueue")} ruled={false}>
+      <div id="placement-reviews" className="scroll-mt-6">
+      <Section title={t("overview.englishReviews")}>
         {reviewQueue.length === 0 ? (
           <p className="border-y border-border py-6 text-sm text-muted">
             {t("noReviewItems")}
@@ -124,20 +106,7 @@ export default async function AdminPage() {
           </DataList>
         )}
       </Section>
-
-      <Section title={t("bookings")}>
-        <AdminBookingsPanel
-          bookings={rows}
-          locale={locale}
-          nowIso={now.toISOString()}
-        />
-      </Section>
-
-      <Section title={t("students")} description={t("overview.studentsHint")}>
-        <Link href="/admin/students" className={buttonClasses({ variant: "secondary" })}>
-          {t("bookingsPanel.allStudentsCta")}
-        </Link>
-      </Section>
+      </div>
     </main>
   );
 }

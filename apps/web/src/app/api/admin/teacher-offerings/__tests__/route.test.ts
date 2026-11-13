@@ -71,6 +71,12 @@ describe("POST /api/admin/teacher-offerings", () => {
     createMock.mockResolvedValue({ id: "offer-1" });
   });
 
+  test("does not grant a class in an unassigned subject", async () => {
+    teacherFindFirstMock.mockResolvedValue({ id: "tp-1", teachingLanguages: ["JAPANESE"] });
+    expect((await POST(request({ ...validBody, learningLanguage: "ENGLISH" }))).status).toBe(403);
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
   test("grants a below-minimum class and records who allowed it", async () => {
     const res = await POST(request(validBody));
 
@@ -89,6 +95,12 @@ describe("POST /api/admin/teacher-offerings", () => {
         adminRateOverrideByUserId: "admin-1",
       }),
     });
+  });
+
+  test.each(["ENGLISH", "JAPANESE"])("a granted %s class preserves its explicit subject", async (learningLanguage) => {
+    teacherFindFirstMock.mockResolvedValue({ id: "tp-1", teachingLanguages: [learningLanguage] });
+    expect((await POST(request({ ...validBody, learningLanguage }))).status).toBe(200);
+    expect(createMock).toHaveBeenCalledWith({ data: expect.objectContaining({ learningLanguage }) });
   });
 
   test.each([

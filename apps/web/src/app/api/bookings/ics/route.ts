@@ -1,8 +1,10 @@
+import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildIcs } from "@/lib/calendar";
 import { lessonCalendarLocation, lessonCalendarUid } from "@/lib/brand";
+import { withBookingLessonProductNames } from "@/lib/lesson-product-catalog";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -13,9 +15,11 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const bookingId = searchParams.get("bookingId");
   const now = new Date();
+  const site = await getRequestLearningSite();
   const bookings = await prisma.booking.findMany({
     where: {
       studentId: session.user.id,
+      ...(site?.learningLanguage ? { learningLanguage: site.learningLanguage } : {}),
       ...(bookingId ? { id: bookingId } : { endsAt: { gte: now } }),
       status: { in: ["CONFIRMED", "PENDING_PAYMENT", "COMPLETED"] },
     },
@@ -26,7 +30,7 @@ export async function GET(request: Request) {
     orderBy: { startsAt: "asc" },
   });
 
-  const events = bookings.map((booking) => ({
+  const events = bookings.map(withBookingLessonProductNames).map((booking) => ({
     uid: lessonCalendarUid(booking.id),
     title: `${booking.lessonProduct.nameEn} (${booking.lessonProduct.nameJa})`,
     description: `Teacher: ${booking.teacher.user.name ?? booking.teacher.user.email}`,

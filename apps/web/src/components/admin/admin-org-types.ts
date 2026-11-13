@@ -1,4 +1,4 @@
-export type OrgRole = "OWNER" | "ORG_ADMIN" | "SCHOOL_ADMIN" | "TEACHER" | "STUDENT";
+import type { AccountStatus, OrgRole, Role } from "@/generated/prisma/enums";
 
 export type AdminSchool = {
   id: string;
@@ -16,7 +16,7 @@ export type AdminMembership = {
   userId: string | null;
   /** Set until the invitee first signs in; with `userId`, it identifies a person. */
   inviteEmail: string | null;
-  user: { id: string; name: string | null; email: string | null } | null;
+  user: { id: string; name: string | null; email: string | null; role: Role; accountStatus: AccountStatus } | null;
 };
 
 /** The list page needs only the counts; the detail page loads the rest. */

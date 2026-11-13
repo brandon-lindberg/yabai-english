@@ -1,4 +1,4 @@
-import { Role } from "@/generated/prisma/enums";
+import { Role, type LearningLanguage } from "@/generated/prisma/enums";
 import { seedDefaultTeacherTaxonomy } from "@/lib/teacher-default-taxonomy";
 
 /**
@@ -20,7 +20,7 @@ type ProfileTx = {
   studentProfile: { create: (args: { data: { userId: string } }) => Promise<unknown> };
   teacherProfile: {
     create: (args: {
-      data: { userId: string };
+      data: { userId: string; teachingLanguages?: LearningLanguage[] };
       select: { id: true };
     }) => Promise<{ id: string }>;
   };
@@ -32,11 +32,13 @@ export async function provisionRoleProfile(
     userId,
     role,
     hasProfile = false,
+    teachingLanguages,
   }: {
     userId: string;
     role: Role;
     /** Already has the profile for this role; nothing to do. */
     hasProfile?: boolean;
+    teachingLanguages?: LearningLanguage[];
   },
 ): Promise<void> {
   if (hasProfile) return;
@@ -48,7 +50,7 @@ export async function provisionRoleProfile(
 
   if (role === Role.TEACHER) {
     const created = await tx.teacherProfile.create({
-      data: { userId },
+      data: { userId, ...(teachingLanguages ? { teachingLanguages } : {}) },
       select: { id: true },
     });
     await seedDefaultTeacherTaxonomy(tx as never, created.id);

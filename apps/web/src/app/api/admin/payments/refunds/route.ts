@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { REFUND_RECOVERY_STATUSES, type RefundRecoveryStatus } from "@/lib/refund-recovery";
-
-function requestedStatuses(url: string): RefundRecoveryStatus[] {
-  const requested = new URL(url).searchParams.get("status");
-  const match = REFUND_RECOVERY_STATUSES.find((status) => status === requested);
-  return match ? [match] : [...REFUND_RECOVERY_STATUSES];
-}
+import { adminRefundRecoveryWhere, REFUND_RECOVERY_STATUSES } from "@/lib/refund-recovery";
+import { adminLessonsForPerson } from "@/lib/admin/lesson-filters";
 
 export async function GET(req: Request) {
   const session = await auth();
@@ -18,8 +13,15 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const query = new URL(req.url).searchParams;
+  const requested = query.get("status");
+  const person = query.get("person");
+  if (person && person.length > 200) return NextResponse.json({ error: "Invalid account filter" }, { status: 400 });
   const refunds = await prisma.refund.findMany({
-    where: { status: { in: requestedStatuses(req.url) } },
+    where: {
+      ...adminRefundRecoveryWhere(REFUND_RECOVERY_STATUSES.find((status) => status === requested)),
+      ...(person ? { booking: adminLessonsForPerson(person) } : {}),
+    },
     orderBy: { createdAt: "desc" },
     take: 200,
     select: {
@@ -30,6 +32,8 @@ export async function GET(req: Request) {
       reason: true,
       recoveryNote: true,
       providerRefundId: true,
+      paymentId: true,
+      payment: { select: { recovery: { select: { feeRecoveryPending: true, lastError: true, state: true } } } },
       createdAt: true,
       booking: {
         select: {
@@ -46,10 +50,12 @@ export async function GET(req: Request) {
     items: refunds.map((refund) => ({
       id: refund.id,
       status: refund.status,
+      paymentId: refund.paymentId,
+      feeRecoveryPending: refund.payment?.recovery?.feeRecoveryPending ?? (refund.status === "SUCCEEDED" && Boolean(refund.recoveryNote)),
       amountYen: refund.amountYen,
       actor: refund.actor,
       reason: refund.reason,
-      recoveryNote: refund.recoveryNote,
+      recoveryNote: refund.payment?.recovery?.lastError ?? refund.recoveryNote,
       providerRefundId: refund.providerRefundId,
       createdAt: refund.createdAt,
       bookingId: refund.booking.id,

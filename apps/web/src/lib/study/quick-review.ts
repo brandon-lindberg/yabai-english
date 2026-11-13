@@ -1,108 +1,58 @@
-// Type-only: `Prisma` appears here solely as a cast target, and the client is
-// passed in rather than imported. A value import would pull the Prisma runtime
-// into every bundle that reaches this module — including the browser, since the
-// dashboard's quick-review panel is a client component.
-import type { Prisma, PrismaClient } from "@/generated/prisma/client";
+import "server-only";
+import { Prisma, type LearningLanguage, type PrismaClient } from "@/generated/prisma/client";
 import {
   countQuickReviewOutcomeStats,
   eligibleReplacementCandidates,
   learnedDismissedIds,
   parseQuickReviewInteractions,
-  pickRandomId,
   replaceSlotCardId,
   type QuickReviewOutcome,
 } from "./quick-review-actions";
 
-/** Max flashcards shown in the dashboard “quick review” panel per UTC day. */
-export const QUICK_REVIEW_DAILY_MAX = 5;
+import { isQuickReviewCardFrontEligible, utcCalendarDayKey, QUICK_REVIEW_DAILY_MAX, parseQuickReviewCardIds, type QuickReviewCard, type QuickReviewPanelData } from "./quick-review-day";
+export { isQuickReviewCardFrontEligible, utcCalendarDayKey, formatQuickReviewDayDisplay, QUICK_REVIEW_DAILY_MAX, type QuickReviewCard, type QuickReviewPanelData } from "./quick-review-day";
+import { attemptedQuickReviewState, quickReviewStateFields, selectQuickReviewCardIds } from "./quick-review-selection";
 
-/** UTC `YYYY-MM-DD` — one review set per user per calendar day in UTC. */
-export function utcCalendarDayKey(d = new Date()): string {
-  return d.toISOString().slice(0, 10);
+function quickReviewCardScope(learningLanguage: LearningLanguage) {
+  return { kind: "ENGLISH_EXERCISE" as const, deck: { level: { track: { learningLanguage, publicationStatus: "PUBLISHED" as const } } } };
 }
 
-const DAY_KEY_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
-
-/**
- * Human-readable label for a quick-review `dayKey` (always the UTC calendar date of the bucket).
- * `locale` should be the next-intl locale (`en`, `ja`, …): English uses American formatting; Japanese uses ja-JP long style.
- */
-export function formatQuickReviewDayDisplay(dayKey: string, locale: string): string {
-  const match = DAY_KEY_RE.exec(dayKey);
-  if (!match) return dayKey;
-  const y = Number(match[1]);
-  const mo = Number(match[2]);
-  const d = Number(match[3]);
-  const utcNoon = new Date(Date.UTC(y, mo - 1, d, 12, 0, 0));
-
-  if (locale.startsWith("ja")) {
-    return new Intl.DateTimeFormat("ja-JP", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "UTC",
-    }).format(utcNoon);
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeZone: "UTC",
-  }).format(utcNoon);
-}
-
-export type QuickReviewCard = { id: string; frontJa: string; backEn: string };
-
-export type QuickReviewPanelData = {
-  cards: QuickReviewCard[];
-  dayKey: string;
-  learnedToday: number;
-  notYetToday: number;
-};
-
-export function isQuickReviewCardFrontEligible(frontJa: string): boolean {
-  return !frontJa.includes("___");
-}
-
-function parseCardIdList(raw: unknown): string[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter((x): x is string => typeof x === "string" && x.length > 0);
-}
-
-async function queryEligibleQuickReviewPoolIds(prisma: PrismaClient, userId: string): Promise<string[]> {
-  const rows = await prisma.$queryRaw<{ id: string }[]>`
-    SELECT c."id"
-    FROM "UserStudyCardState" s
-    INNER JOIN "StudyCard" c ON c."id" = s."cardId"
-    WHERE s."userId" = ${userId}
-      AND s."correctCount" >= 1
-      AND c."exerciseJson" IS NULL
-      AND c."frontJa" NOT LIKE ${"%___%"}
-  `;
-  return rows.map((r) => r.id);
+async function queryEligibleQuickReviewPool(prisma: PrismaClient, userId: string, learningLanguage: LearningLanguage) {
+  return prisma.userStudyCardState.findMany({
+    where: {
+      userId,
+      ...attemptedQuickReviewState,
+      card: { ...quickReviewCardScope(learningLanguage), exerciseJson: { equals: Prisma.DbNull }, frontJa: { not: { contains: "___" } } },
+    },
+    select: quickReviewStateFields,
+  });
 }
 
 /**
- * Returns up to five cards the learner has answered correctly at least once.
+ * Returns up to five previously attempted cards, prioritizing difficulty.
  * The initial set is chosen once per `dayKey` and stored; “Learned” can swap in new cards the same day.
  */
 export async function getOrCreateQuickReviewCards(
   prisma: PrismaClient,
   userId: string,
+  learningLanguage: LearningLanguage = "ENGLISH",
 ): Promise<QuickReviewPanelData> {
   const dayKey = utcCalendarDayKey();
+  // Japanese needs its own structured prompt adapter before it can enter this panel.
+  if (learningLanguage !== "ENGLISH") return { cards: [], dayKey, learnedToday: 0, notYetToday: 0 };
 
   const existing = await prisma.studyQuickReviewDay.findUnique({
-    where: { userId_dayKey: { userId, dayKey } },
+    where: { userId_learningLanguage_dayKey: { userId, learningLanguage, dayKey } },
   });
   if (existing) {
-    const list = parseCardIdList(existing.cardIds);
+    const list = parseQuickReviewCardIds(existing.cardIds);
     const interactions = parseQuickReviewInteractions(existing.interactions);
     const stats = countQuickReviewOutcomeStats(interactions);
     if (list.length === 0) {
       return { cards: [], dayKey, ...stats };
     }
     const cards = await prisma.studyCard.findMany({
-      where: { id: { in: list } },
+      where: { id: { in: list }, ...quickReviewCardScope(learningLanguage) },
       select: { id: true, frontJa: true, backEn: true },
     });
     const filteredCards = cards.filter((c) => isQuickReviewCardFrontEligible(c.frontJa));
@@ -110,38 +60,27 @@ export async function getOrCreateQuickReviewCards(
     return { cards: filteredCards, dayKey, ...stats };
   }
 
-  const sampled = await prisma.$queryRaw<{ id: string }[]>`
-    SELECT c."id"
-    FROM "UserStudyCardState" s
-    INNER JOIN "StudyCard" c ON c."id" = s."cardId"
-    WHERE s."userId" = ${userId}
-      AND s."correctCount" >= 1
-      AND c."exerciseJson" IS NULL
-      AND c."frontJa" NOT LIKE ${"%___%"}
-    ORDER BY RANDOM()
-    LIMIT ${QUICK_REVIEW_DAILY_MAX}
-  `;
-
-  const ids = sampled.map((r) => r.id);
+  const pool = await queryEligibleQuickReviewPool(prisma, userId, learningLanguage);
+  const ids = selectQuickReviewCardIds(pool, QUICK_REVIEW_DAILY_MAX);
   if (ids.length === 0) {
     return { cards: [], dayKey, learnedToday: 0, notYetToday: 0 };
   }
 
-  await prisma.studyQuickReviewDay.create({
-    data: {
-      userId,
-      dayKey,
-      cardIds: ids as unknown as Prisma.InputJsonValue,
-    },
+  // Concurrent dashboard requests share the winner's stable daily selection.
+  const day = await prisma.studyQuickReviewDay.upsert({
+    where: { userId_learningLanguage_dayKey: { userId, learningLanguage, dayKey } },
+    create: { userId, learningLanguage, dayKey, cardIds: ids as unknown as Prisma.InputJsonValue },
+    update: {},
   });
+  const savedIds = parseQuickReviewCardIds(day.cardIds);
 
   const cards = await prisma.studyCard.findMany({
-    where: { id: { in: ids } },
+    where: { id: { in: savedIds }, ...quickReviewCardScope(learningLanguage) },
     select: { id: true, frontJa: true, backEn: true },
   });
   const filteredCards = cards.filter((c) => isQuickReviewCardFrontEligible(c.frontJa));
-  sortByIdOrder(filteredCards, ids);
-  return { cards: filteredCards, dayKey, learnedToday: 0, notYetToday: 0 };
+  sortByIdOrder(filteredCards, savedIds);
+  return { cards: filteredCards, dayKey, ...countQuickReviewOutcomeStats(parseQuickReviewInteractions(day.interactions)) };
 }
 
 export type ApplyQuickReviewResult =
@@ -155,20 +94,27 @@ export async function applyQuickReviewOutcome(
   prisma: PrismaClient,
   userId: string,
   input: { dayKey: string; cardId: string; outcome: QuickReviewOutcome },
+  learningLanguage: LearningLanguage = "ENGLISH",
 ): Promise<ApplyQuickReviewResult> {
+  if (learningLanguage !== "ENGLISH") return { ok: false, error: "not_found" };
   const today = utcCalendarDayKey();
   if (input.dayKey !== today) {
     return { ok: false, error: "day_mismatch" };
   }
 
   const row = await prisma.studyQuickReviewDay.findUnique({
-    where: { userId_dayKey: { userId, dayKey: input.dayKey } },
+    where: { userId_learningLanguage_dayKey: { userId, learningLanguage, dayKey: input.dayKey } },
   });
   if (!row) {
     return { ok: false, error: "not_found" };
   }
 
-  const slotIds = parseCardIdList(row.cardIds);
+  const slotCards = await prisma.studyCard.findMany({
+    where: { id: { in: parseQuickReviewCardIds(row.cardIds) }, ...quickReviewCardScope(learningLanguage) },
+    select: { id: true, frontJa: true },
+  });
+  const allowedIds = new Set(slotCards.filter(c => isQuickReviewCardFrontEligible(c.frontJa)).map(c => c.id));
+  const slotIds = parseQuickReviewCardIds(row.cardIds).filter(id => allowedIds.has(id));
   if (!slotIds.includes(input.cardId)) {
     return { ok: false, error: "card_not_in_review" };
   }
@@ -183,15 +129,15 @@ export async function applyQuickReviewOutcome(
   let nextSlotIds = [...slotIds];
   if (input.outcome === "learned") {
     const dismissed = learnedDismissedIds(interactions);
-    const pool = await queryEligibleQuickReviewPoolIds(prisma, userId);
+    const pool = await queryEligibleQuickReviewPool(prisma, userId, learningLanguage);
     const candidates = eligibleReplacementCandidates(
       pool,
       nextSlotIds,
       dismissed,
       input.cardId,
     );
-    const replacement = pickRandomId(candidates, Math.random);
-    nextSlotIds = replaceSlotCardId(nextSlotIds, input.cardId, replacement);
+    const [replacement] = selectQuickReviewCardIds(candidates, 1);
+    nextSlotIds = replaceSlotCardId(nextSlotIds, input.cardId, replacement ?? null);
   }
 
   await prisma.studyQuickReviewDay.update({
@@ -208,7 +154,7 @@ export async function applyQuickReviewOutcome(
   }
 
   const cards = await prisma.studyCard.findMany({
-    where: { id: { in: nextSlotIds } },
+    where: { id: { in: nextSlotIds }, ...quickReviewCardScope(learningLanguage) },
     select: { id: true, frontJa: true, backEn: true },
   });
   const filteredCards = cards.filter((c) => isQuickReviewCardFrontEligible(c.frontJa));

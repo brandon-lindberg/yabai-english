@@ -55,6 +55,7 @@ vi.mock("pdf-lib", () => ({
         const widthFactor = fontName.startsWith("Helvetica") ? 0.5 : 1.2;
         return {
           fontName,
+          getCharacterSet: () => Array.from({ length: 256 }, (_, index) => index),
           widthOfTextAtSize: (text: string, size: number) =>
             text.length * size * widthFactor,
         };
@@ -106,6 +107,52 @@ describe("buildInvoicePdf", () => {
         "Final Total",
       ]),
     );
+  });
+
+  test.each([
+    { subject: "ENGLISH", brand: "English Studio Japan", enRole: "English Instructor", jaRole: "英語講師" },
+    { subject: "JAPANESE", brand: "Japanese Studio", enRole: "Japanese Instructor", jaRole: "日本語講師" },
+  ] as const)("$subject invoice and credit note identify the platform separately from the teacher in either locale", async ({ subject, brand, enRole, jaRole }) => {
+    for (const language of ["en", "ja"] as const) {
+      for (const refunded of [false, true]) {
+        drawnTexts.length = 0;
+        drawnTextCalls.length = 0;
+        await buildInvoicePdf({
+          invoiceNo: "INV-BRANDING-001", amountYen: 3300,
+          paidAt: "November 5, 2026", studentName: "Alex Rivera", teacherName: "Aki Tanaka",
+          className: "Conversation", durationMin: 60, lessonDate: "November 8, 2026",
+          language, learningLanguage: subject, paymentMethod: "CARD", registrationNumber: "T1234567890123",
+          ...(refunded ? { creditNote: { creditNoteNo: "CRN-BRANDING-001", refundedAt: "November 6, 2026" } } : {}),
+        });
+        expect(drawnTexts).toContain(brand);
+        expect(drawnTexts).not.toContain(subject === "JAPANESE" ? "English Studio Japan" : "Japanese Studio");
+        expect(drawnTexts).toContain(language === "ja" ? "運営: Yabai Studios" : "Operated by Yabai Studios");
+        expect(drawnTexts).toContain(language === "ja" ? jaRole : enRole);
+        expect(drawnTextCalls.find(call => call.text === "Aki Tanaka")!.y).toBeGreaterThan(700);
+        const footer = drawnTextCalls.find(call => call.text === brand)!;
+        expect(footer.y).toBeLessThan(70);
+        expect(footer.x).toBeGreaterThanOrEqual(50);
+        expect(footer.x + footer.width).toBeLessThanOrEqual(545);
+        expect(drawnTexts).toEqual(expect.arrayContaining([
+          "INV-BRANDING-001", "November 5, 2026", "Alex Rivera", "Conversation",
+          `${refunded ? "- " : ""}¥3,300`, `${refunded ? "- " : ""}¥3,000`, `${refunded ? "- " : ""}¥300`,
+          `${language === "ja" ? "登録番号:" : "Registration No.:"} T1234567890123`,
+        ]));
+        if (refunded) expect(drawnTexts).toEqual(expect.arrayContaining(["CRN-BRANDING-001", "November 6, 2026"]));
+      }
+    }
+  });
+
+  test("uses the Japanese font for names while preserving English date and number layout", async () => {
+    await buildInvoicePdf({
+      invoiceNo: "INV-MIXED-FONT-001", amountYen: 3300, paidAt: "November 5, 2026",
+      studentName: "田中 ゆき", teacherName: "佐藤 美香", className: "Japanese conversation",
+      durationMin: 60, lessonDate: "November 8, 2026", language: "en", learningLanguage: "JAPANESE",
+    });
+    expect(drawnTextCalls.find(call => call.text === "佐藤 美香")?.fontName).toBe("Japanese");
+    expect(drawnTextCalls.find(call => call.text === "田中 ゆき")?.fontName).toBe("Japanese");
+    expect(drawnTextCalls.find(call => call.text === "November 5, 2026")?.fontName).toBe("Helvetica");
+    expect(drawnTextCalls.find(call => call.text === "60 min")?.fontName).toBe("Helvetica");
   });
 
   test("keeps the price column header inside the table edge", async () => {
@@ -199,10 +246,12 @@ describe("buildInvoicePdf", () => {
       paymentMethod: "CARD",
     });
 
-    // Teachers invoice their own students independently, so the platform must
-    // not appear as the issuer anywhere on the document.
+    // The teacher stays the prominent issuer. The platform is identified separately
+    // in the footer, with English as the historical default.
     expect(drawnTexts).toContain("Mika Sato");
-    expect(drawnTexts.join(" ")).not.toContain("English Studio Japan");
+    expect(drawnTextCalls.find((call) => call.text === "Mika Sato")!.y).toBeGreaterThan(700);
+    expect(drawnTextCalls.find((call) => call.text === "English Studio Japan")?.y).toBeLessThan(70);
+    expect(drawnTexts).toContain("Operated by Yabai Studios");
     expect(drawnTexts).toContain("Thank you for learning with Mika Sato!");
   });
 

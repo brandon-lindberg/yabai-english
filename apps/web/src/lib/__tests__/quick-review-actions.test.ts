@@ -4,7 +4,6 @@ import {
   eligibleReplacementCandidates,
   learnedDismissedIds,
   parseQuickReviewInteractions,
-  pickRandomId,
   replaceSlotCardId,
   type QuickReviewInteraction,
 } from "../study/quick-review-actions";
@@ -38,22 +37,22 @@ describe("learnedDismissedIds", () => {
 });
 
 describe("eligibleReplacementCandidates", () => {
-  const pool = ["p1", "p2", "p3", "p4", "p5", "p6"];
+  const pool = ["p1", "p2", "p3", "p4", "p5", "p6"].map(cardId => ({ cardId }));
 
   it("excludes other current slots and learned-dismissed ids", () => {
     const current = ["p1", "p2", "p3"];
     const dismissed = new Set<string>(["p4"]);
     const leaving = "p2";
     const c = eligibleReplacementCandidates(pool, current, dismissed, leaving);
-    expect(c.sort()).toEqual(["p5", "p6"]);
+    expect(c.map(card => card.cardId).sort()).toEqual(["p5", "p6"]);
   });
 
   it("excludes the leaving slot id from candidates", () => {
     const current = ["p1", "p2"];
     const dismissed = new Set<string>();
     const c = eligibleReplacementCandidates(pool, current, dismissed, "p1");
-    expect(c).not.toContain("p1");
-    expect(c).toContain("p3");
+    expect(c).not.toContainEqual({ cardId: "p1" });
+    expect(c).toContainEqual({ cardId: "p3" });
   });
 
   it("returns empty when nothing is available", () => {
@@ -85,16 +84,5 @@ describe("countQuickReviewOutcomeStats", () => {
       { cardId: "c", outcome: "learned", at: "t" },
     ];
     expect(countQuickReviewOutcomeStats(xs)).toEqual({ learnedToday: 2, notYetToday: 1 });
-  });
-});
-
-describe("pickRandomId", () => {
-  it("returns null for empty candidates", () => {
-    expect(pickRandomId([], () => 0.5)).toBeNull();
-  });
-
-  it("uses rng to index candidates", () => {
-    expect(pickRandomId(["only"], () => 0.99)).toBe("only");
-    expect(pickRandomId(["a", "b"], () => 0)).toBe("a");
   });
 });

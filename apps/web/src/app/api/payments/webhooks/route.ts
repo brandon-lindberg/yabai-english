@@ -52,6 +52,9 @@ export async function POST(req: Request) {
       provider: data.provider,
       providerEventId: data.eventId,
       eventType: data.eventType,
+      // Simulator receipts are not verified Stripe deliveries and never enter real recovery.
+      state: "COMPLETE",
+      completedAt: new Date(),
       payloadJson: data.payload == null ? undefined : data.payload as never,
     }],
     skipDuplicates: true,

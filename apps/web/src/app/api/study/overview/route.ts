@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { englishLearningAccessError } from "@/lib/english-learning-access";
 import { prisma } from "@/lib/prisma";
 import { getStudyTrackOverview } from "@/lib/study/get-overview";
 import { z } from "zod";
@@ -13,6 +14,8 @@ export async function GET(req: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const languageError = englishLearningAccessError(session.user.learningLanguage);
+  if (languageError) return languageError;
 
   const url = new URL(req.url);
   const parsed = querySchema.safeParse({ trackSlug: url.searchParams.get("trackSlug") ?? undefined });

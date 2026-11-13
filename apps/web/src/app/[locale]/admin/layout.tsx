@@ -17,9 +17,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     return null;
   }
   return (
-    <div className="mx-auto max-w-6xl flex-1 px-4 py-8 sm:px-6">
+    <div className="admin-workspace mx-auto grid w-full min-w-0 max-w-7xl flex-1 content-start gap-6 px-4 py-6 sm:px-6 md:grid-cols-[10rem_minmax(0,1fr)] md:gap-8 md:py-8">
       <AdminSubnav />
-      {children}
+      <div className="min-w-0">{children}</div>
     </div>
   );
 }

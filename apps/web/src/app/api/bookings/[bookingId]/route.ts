@@ -1,16 +1,17 @@
+import { bookingLearningSiteResponse } from "@/lib/booking-learning-site";
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { routing } from "@/i18n/routing";
+import { revalidateBookingPaths } from "@/lib/revalidate-booking-paths";
+import { hasPendingPrivateReschedule, privateRescheduleRestoredData } from "@/lib/private-reschedule";
+import { ensureBookingCalendar } from "@/lib/booking-calendar-recovery";
 import { evaluateBookingRescheduleTimes } from "@/lib/booking-reschedule-policy";
 import { patchMeetLessonEvent } from "@/lib/google-calendar";
-import { createUserNotification } from "@/lib/notifications";
-import { marketplaceBookingRescheduledNotification } from "@/lib/reschedule-notification-copy";
+import { notifyPrivateBookingEvent } from "@/lib/private-booking-notifications";
 import { findOccurrenceConflict } from "@/lib/school-scheduling";
-import { dateOnlyInZone } from "@/lib/date-only-in-zone";
-import { teacherBookingOverlapWhere } from "@/lib/booking-conflict";
+import { readTeacherSchoolSlots } from "@/lib/booking-reschedule-availability";
+import { teacherBookingOverlapWhere, isStaleBookingMutation, STALE_BOOKING_MESSAGE } from "@/lib/booking-conflict";
 
 const patchBodySchema = z.object({
   startsAt: z.string().datetime(),
@@ -33,12 +34,15 @@ export async function GET(_req: Request, { params }: Props) {
       id: true,
       status: true,
       studentId: true,
+      learningLanguage: true,
     },
   });
 
   if (!booking || booking.studentId !== session.user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  const wrongSite = await bookingLearningSiteResponse(booking, session.user.role);
+  if (wrongSite) return wrongSite;
 
   return NextResponse.json({
     ok: true,
@@ -104,6 +108,7 @@ export async function PATCH(req: Request, { params }: Props) {
     bookingStatus: booking.status,
     previousStartsAt: booking.startsAt,
     newStartsAt: newStart,
+    pendingPrivateReschedule: hasPendingPrivateReschedule(booking),
   });
   if (!timeCheck.ok) {
     const message =
@@ -143,34 +148,10 @@ export async function PATCH(req: Request, { params }: Props) {
     );
   }
 
-  const teacherSchoolSlots = await prisma.schoolScheduleSlot.findMany({
-    where: {
-      active: true,
-      assignedTeacher: {
-        userId: booking.teacher.userId,
-        status: "ACTIVE",
-      },
-    },
-    select: {
-      dayOfWeek: true,
-      startMin: true,
-      endMin: true,
-      timezone: true,
-      recurrence: true,
-      daysOfWeek: true,
-      startsOn: true,
-      endsOn: true,
-      skips: { select: { startsAtIso: true } },
-    },
-  });
+  const teacherSchoolSlots = await readTeacherSchoolSlots(prisma, booking.teacher.userId);
   if (teacherSchoolSlots.length > 0) {
-    const slotsForConflict = teacherSchoolSlots.map((s) => ({
-      ...s,
-      startsOn: dateOnlyInZone(s.startsOn, s.timezone),
-      endsOn: dateOnlyInZone(s.endsOn, s.timezone),
-    }));
     const schoolConflict = findOccurrenceConflict(
-      slotsForConflict,
+      teacherSchoolSlots,
       newStart,
       newEnd,
     );
@@ -182,9 +163,13 @@ export async function PATCH(req: Request, { params }: Props) {
     }
   }
 
-  const updated = await prisma.booking.update({
-    where: { id: booking.id },
-    data: { startsAt: newStart, endsAt: newEnd },
+  const event = { bookingId: booking.id, previousStartsAt: booking.startsAt, startsAt: newStart, transitionId: booking.updatedAt?.toISOString() };
+  let updated;
+  try {
+    updated = await prisma.booking.update({
+    where: { id: booking.id, status: booking.status, startsAt: booking.startsAt, privateRescheduleStatus: booking.privateRescheduleStatus ?? null },
+    data: { startsAt: newStart, endsAt: newEnd, ...(hasPendingPrivateReschedule(booking)
+      ? { ...privateRescheduleRestoredData(), rescheduleCount: booking.rescheduleCount + 1 } : {}) },
     select: {
       id: true,
       startsAt: true,
@@ -196,6 +181,11 @@ export async function PATCH(req: Request, { params }: Props) {
       studentId: true,
     },
   });
+  } catch (error) {
+    if (isStaleBookingMutation(error)) return NextResponse.json({ error: STALE_BOOKING_MESSAGE }, { status: 409 });
+    throw error;
+  }
+  await notifyPrivateBookingEvent({ ...event, event: "rescheduled" });
 
   const calId = updated.googleCalendarId ?? booking.teacher.calendarId ?? "primary";
 
@@ -221,25 +211,15 @@ export async function PATCH(req: Request, { params }: Props) {
       : Promise.resolve(true),
   ]);
 
-  const notify = marketplaceBookingRescheduledNotification({
-    lessonNameJa: booking.lessonProduct.nameJa,
-    lessonNameEn: booking.lessonProduct.nameEn,
-  });
-  await createUserNotification({
-    userId: booking.studentId,
-    ...notify,
-  });
-
-  for (const locale of routing.locales) {
-    revalidatePath(`/${locale}/dashboard`);
-    revalidatePath(`/${locale}/dashboard/schedule`);
-  }
+  const calendarUpdated = hasPendingPrivateReschedule(booking)
+    ? (await ensureBookingCalendar(booking.id, { restoreStudentMirror: true })).ok : teacherPatchOk && studentPatchOk;
+  revalidateBookingPaths();
 
   return NextResponse.json({
     id: updated.id,
     startsAt: updated.startsAt.toISOString(),
     endsAt: updated.endsAt.toISOString(),
     status: updated.status,
-    calendarUpdated: teacherPatchOk && studentPatchOk,
+    calendarUpdated,
   });
 }

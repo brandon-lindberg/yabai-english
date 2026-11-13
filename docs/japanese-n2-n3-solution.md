@@ -1,0 +1,50 @@
+# N2/N3 assessment content solution
+
+Research follow-up, 2026-10-22. The recommendation below was accepted and its initial authoring targets are now implemented as a private draft pack: twenty passages with forty reading questions, plus twenty sentence assemblies per level (120 items total). See [the content handoff](japanese-placement-content.md) for files, curation decisions, validation and remaining work. The pack is not published or calibrated. This proposal follows the [repository audit](japanese-assessment-research.md) and section 4e of [the mirror plan](../MIRROR_PLAN.md).
+
+## Recommended combination
+
+Use an existing licensed N3 reading collection, a small original N2 reading seed, and licensed grammar/example data for authored sentence-construction items. Expand the N2 passages deliberately. The main remaining task is writing and checking a bounded collection of questions, rather than finding another assessment engine.
+
+| Need | Concrete source | Ready material and required work |
+| --- | --- | --- |
+| N3 passage comprehension | [Japaneseness N3 reading](https://japaneseness.com/reading-n3/) | Twenty original passages with answer sheets. The worksheet format has three multiple-choice questions and a fourth free-response question. Use only the automatically markable choices. Check every imported key and omit instructional aids that reveal answers. |
+| N2 passage comprehension | [Kotonoha's reading data](https://github.com/AdvaySanketi/Kotonoha/blob/e93b20b3e9b8fd31da5e79c24cd7eb94daec82e5/src/data/content.js) | Three N2-labelled passages, two keyed multiple-choice questions each: six questions total. Use as a seed and author additional N2 passages/questions for variety and appropriate comprehension demands. |
+| N3 sentence assembly | [nihongo-mono N3 grammar](https://github.com/stndaru/nihongo-mono/blob/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n3.json) | 248 entries and 496 examples. Select examples, create meaningful phrase tiles and context, and register complete accepted orders. These are new assessment adaptations, not an existing keyed construction bank. |
+| N2 sentence assembly | [nihongo-mono N2 grammar](https://github.com/stndaru/nihongo-mono/blob/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar/n2.json) | 208 entries and 416 examples. Apply the same shared authoring/import contract with N2 patterns and vocabulary. No relabelling of an N1 question solely to fill an N2 slot. |
+
+Japaneseness explicitly [permits commercial adaptation and redistribution under CC BY-SA 4.0](https://japaneseness.com/about/) and documents integration on its [embed page](https://japaneseness.com/embed/). Its linked GitHub repository returned 404 in this pass, but the public worksheets and their content terms are available. A sampled [N3 worksheet and answer key](https://japaneseness.com/worksheets/reading_n3/late-train/) confirm the three-choice format and separate free-response task. The twenty-page index establishes the available passage count; the full set has not been linguistically audited. Sixty possible choice questions follows from the worksheet format, not from an item-by-item accepted import count. An N2 reading collection was not found on this site: `/reading-n2/` was unavailable, and its current public manifest exposes grammar/kanji categories rather than N2 reading data.
+
+Kotonoha's [README](https://github.com/AdvaySanketi/Kotonoha/blob/e93b20b3e9b8fd31da5e79c24cd7eb94daec82e5/README.md) identifies the reading passages as hand-written and its [licence is MIT](https://github.com/AdvaySanketi/Kotonoha/blob/e93b20b3e9b8fd31da5e79c24cd7eb94daec82e5/LICENSE). Direct data inspection confirms N2 records `r4`, `r11` and `r12`, each with two question keys. Topics are technology and society, social media and relationships, and work-style reform. Those labels and authorship statements are the publisher's claims; reading difficulty and key quality have not been independently validated. The three passages are a starting set, not complete N2 coverage. Import only original reading content from this source; its grammar/dictionary material has separate provenance and should not inherit a blanket MIT assumption.
+
+nihongo-mono's [content-specific licence](https://github.com/stndaru/nihongo-mono/blob/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/LICENSE-DATA.md) expressly assigns MIT to its original grammar explanations/examples. Dictionary/kanji data retains separate terms. Keep every source's attribution and applicable content terms with the derived records.
+
+## Accepted initial content target
+
+The accepted authoring targets below are met in the draft pack. They do not establish validated test length or difficulty:
+
+- **N3:** curate the twenty available passages, choosing a balanced set of automatically markable comprehension questions; author twenty sentence-assembly items from distinct grammar/example targets.
+- **N2:** build a twenty-passage pool, beginning with the three available seed passages if they pass inspection, and authoring seventeen additional originals; target two comprehension questions per passage and twenty sentence-assembly items.
+- Retain the existing timed adaptive format and one Japanese engine. The pool is larger than a single attempt; an attempt does not ask all these questions. Other domains still use the source/coverage work described in the main assessment report.
+
+The N2 reading additions should include short arguments, notices/emails, main-point and implication questions, and information retrieval across supplied details. For N3, use everyday and workplace accounts, notices, sequence/cause and the writer's intended message. The official [test-item composition](https://www.jlpt.jp/e/guideline/testsections.html) and its level-purpose PDFs provide task references without importing official question wording. These are study-level anchors for provisional lesson guidance, not an official JLPT result or evidence that one grammar pattern alone determines a learner's level.
+
+For sentence building, preserve grammar-bearing phrase boundaries, supply sufficient context and score the complete construction. Fix a prefix/suffix where it is needed to make the intended structure clear; otherwise include every valid equivalent order. An upstream sample sentence supplies an accepted construction, not proof it is the only acceptable ordering. Avoid arbitrary word order, translation guessing and punctuation tricks as the main source of difficulty.
+
+## Other sources checked in this follow-up
+
+- **[JLPT Open Catalogue](https://jlptopencatalogue.com/):** actual N2/N3 questions and sentence-building categories, but its [terms](https://jlptopencatalogue.com/terms) grant personal study access, prohibit scale scraping and supply no general content reuse grant. A possible licensing lead only; no contact or bulk extraction performed.
+- **[iamcheyan/jlpt-drill](https://github.com/iamcheyan/jlpt-drill/tree/d3e58db85a3496c5b13966028b6233565cbe7e57/data):** N2 has 152 grammar-order records; N3 has 105. However, the sampled first N2 item is single-blank selection with redundant fragments, not a full assembly. The N3 short-reading file contains ten numbered generic practice-text placeholders, carrying `verified: true`. Do not treat counts or verification flags as usable assessment evidence. Correction to the earlier audit: its README does declare MIT; no standalone licence or content-specific terms were found. Content defects are the more immediate reason to reject this as a direct import.
+- **[OlSeb/JLPT-N3](https://github.com/OlSeb/JLPT-N3):** current README explicitly says personal use; no reusable commercial content licence established.
+- **[rbnhd/jlpt-n2-reading](https://github.com/rbnhd/jlpt-n2-reading):** contains an N2 reading collection, but its [licence](https://github.com/rbnhd/jlpt-n2-reading/blob/main/LICENSE) restricts it to personal/non-commercial use and prohibits commercial redistribution without permission. Not selected.
+- **[maitodesu/jlpt-grammar-enhanced](https://github.com/maitodesu/jlpt-grammar-enhanced/tree/a4254e0addbc5d7820f06d63d3ea2561f538f72b/src/n3):** N3 grammar pages with original examples and explained practice under [CC BY-SA 4.0](https://github.com/maitodesu/jlpt-grammar-enhanced/blob/a4254e0addbc5d7820f06d63d3ea2561f538f72b/LICENSE). A useful supplementary source. Sampled practice includes translation and explanation tasks rather than ready-made full-order keys.
+- **[Ralphbupt/japanese-grammar](https://github.com/Ralphbupt/japanese-grammar/tree/e2744a50ee74e99bd1cbdd169958710cc8e5375c/grammar/N2):** CC BY 4.0 notes with N2 examples and practice. Sampled exercises include cloze and translation, so this is another adaptation source rather than a ready reading/assembly bank.
+- **[J-nihongo](https://j-nihongo.com/reading/):** N2/N3 passages and classroom-use permissions exist. Its classroom/LMS terms do not establish a general right to republish its questions inside our assessment; not selected as a direct import.
+
+## Work required before student delivery
+
+Normalize selected content with source IDs/hashes, demonstrate red/green tests for any importer/adapter, and keep one implementation of validation and scoring. Audit duplicates, grammatical alternatives, choice ambiguity, source terms, answer leakage and level coverage. Adaptations and original additions must be identified honestly. Verify real-bank browser completion and teacher result display after the question set is ready. Model calibration remains distinct from checking whether a source item is correctly labelled.
+
+This is one-time content preparation for a bank revision. Each student still completes a reading/sentence-building assessment and receives the result automatically. There is no recording, free-text submission or per-student teacher marking/review.
+
+The research pass changed no application code or database rows and contacted no maintainer. The subsequent accepted implementation adds the draft pack and importer documented in [the content handoff](japanese-placement-content.md); it performs no database writes or student publication.

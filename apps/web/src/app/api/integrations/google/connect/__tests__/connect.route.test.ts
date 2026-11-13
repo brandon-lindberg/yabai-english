@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const { authMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
@@ -10,17 +10,27 @@ vi.mock("@/auth", () => ({
 
 import { GET } from "@/app/api/integrations/google/connect/route";
 import { ALL_GOOGLE_SCOPES } from "@/lib/google/integration";
+import { readGoogleConnectState } from "@/lib/google/connect-state";
 
 describe("GET /api/integrations/google/connect", () => {
-  const oldClientId = process.env.AUTH_GOOGLE_ID;
-  const oldClientSecret = process.env.AUTH_GOOGLE_SECRET;
-  const oldNextAuthUrl = process.env.NEXTAUTH_URL;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.AUTH_GOOGLE_ID = "test-google-id";
-    process.env.AUTH_GOOGLE_SECRET = "test-google-secret";
-    process.env.NEXTAUTH_URL = "http://localhost:3000";
+    vi.stubEnv("AUTH_GOOGLE_ID", "test-google-id");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "test-google-secret");
+    vi.stubEnv("AUTH_SECRET", "test-only-connect-state-secret");
+    vi.stubEnv("NEXTAUTH_URL", "http://localhost:3000");
+  });
+
+  test("Google uses the Japanese domain callback with the existing client and scopes", async () => {
+    vi.stubEnv("LEARNING_SITES_ENABLED", "true");
+    vi.stubEnv("ENGLISH_SITE_URL", "https://englishstudiojapan.com");
+    vi.stubEnv("JAPANESE_SITE_URL", "https://japanesestudio.love");
+    authMock.mockResolvedValue({ user: { id: "u_1" } });
+    const response = await GET(new Request("https://japanesestudio.love/api/integrations/google/connect"));
+    const target = new URL(response.headers.get("location")!);
+    expect(target.searchParams.get("redirect_uri")).toBe("https://japanesestudio.love/api/integrations/google/callback");
+    expect(target.searchParams.get("client_id")).toBe("test-google-id");
+    expect(target.searchParams.get("scope")?.split(" ")).toEqual(ALL_GOOGLE_SCOPES);
   });
 
   test("returns 401 when unauthenticated", async () => {
@@ -29,11 +39,17 @@ describe("GET /api/integrations/google/connect", () => {
     expect(res.status).toBe(401);
   });
 
-  test("one connect request asks for every scope", async () => {
-    authMock.mockResolvedValue({ user: { id: "u_1" } });
+  test.each(["ENGLISH", "JAPANESE"])("%s reuses the same Google connection and scopes", async learningLanguage => {
+    authMock.mockResolvedValue({ user: { id: "u_1", learningLanguage } });
     const res = await GET(new Request("http://localhost/api/integrations/google/connect"));
     expect(res.status).toBe(307);
     const location = decodeURIComponent(res.headers.get("location") ?? "");
+    const target = new URL(res.headers.get("location")!);
+    expect(target.searchParams.get("client_id")).toBe("test-google-id");
+    const cookie = res.cookies.get("google-connect-state")!;
+    expect(await readGoogleConnectState(new Request("http://localhost:3000/api/integrations/google/callback", {
+      headers: { cookie: `${cookie.name}=${cookie.value}` },
+    }), target.searchParams.get("state")!, "u_1")).toEqual({ userId: "u_1", returnTo: "/dashboard/settings" });
     expect(location).toContain("https://accounts.google.com/o/oauth2/v2/auth");
     for (const scope of ALL_GOOGLE_SCOPES) {
       expect(location).toContain(scope);
@@ -54,9 +70,5 @@ describe("GET /api/integrations/google/connect", () => {
     }
   });
 
-  afterAll(() => {
-    process.env.AUTH_GOOGLE_ID = oldClientId;
-    process.env.AUTH_GOOGLE_SECRET = oldClientSecret;
-    process.env.NEXTAUTH_URL = oldNextAuthUrl;
-  });
+  afterEach(() => vi.unstubAllEnvs());
 });

@@ -10,6 +10,7 @@ import { issueAutomaticRefundForBooking } from "@/lib/payment-refunds";
 import { notifySuperAdminsOfStuckRefund } from "@/lib/refund-notifications";
 import { createUserNotification } from "@/lib/notifications";
 import { slotHoldingBookingWhere } from "@/lib/pending-booking-hold";
+import { prepareBookingRefund } from "@/lib/payment-recovery";
 
 type Props = { params: Promise<{ sessionId: string }> };
 
@@ -56,6 +57,7 @@ export async function POST(_req: Request, { params }: Props) {
               amountYen: true,
               status: true,
               providerPaymentId: true,
+              metadataJson: true,
               teacherPaymentAccount: { select: { providerAccountId: true } },
             },
           },
@@ -84,22 +86,23 @@ export async function POST(_req: Request, { params }: Props) {
   }
 
   // Closed first, so a student cannot take one of the seats being emptied.
-  await prisma.groupLessonSession.update({
-    where: { id: groupSession.id },
-    data: { cancelledAt: new Date() },
+  await prisma.$transaction(async tx => {
+    const changed = await tx.groupLessonSession.updateMany({
+      where: { id: groupSession.id, cancelledAt: null }, data: { cancelledAt: new Date() },
+    });
+    if (!changed.count) throw new Error("This class was already cancelled.");
+    for (const booking of groupSession.bookings) {
+      const policy = evaluateBookingCancellationPolicy({ actor: "TEACHER", bookingStatus: booking.status, lessonStartsAt: booking.startsAt });
+      await tx.booking.update({ where: { id: booking.id, status: booking.status, startsAt: booking.startsAt }, data: { status: BookingStatus.CANCELLED, cancelledFromStatus: booking.status } });
+      await prepareBookingRefund(tx, { booking, policy, actor: "TEACHER" });
+    }
   });
-
   const refunds = [];
   for (const booking of groupSession.bookings) {
     const policy = evaluateBookingCancellationPolicy({
       actor: "TEACHER",
       bookingStatus: booking.status,
       lessonStartsAt: booking.startsAt,
-    });
-
-    await prisma.booking.update({
-      where: { id: booking.id },
-      data: { status: BookingStatus.CANCELLED },
     });
 
     let refund = null;

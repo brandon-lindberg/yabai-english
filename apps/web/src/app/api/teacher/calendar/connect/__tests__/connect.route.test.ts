@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const { authMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
@@ -11,15 +11,12 @@ vi.mock("@/auth", () => ({
 import { GET } from "@/app/api/teacher/calendar/connect/route";
 
 describe("GET /api/teacher/calendar/connect", () => {
-  const oldClientId = process.env.AUTH_GOOGLE_ID;
-  const oldClientSecret = process.env.AUTH_GOOGLE_SECRET;
-  const oldNextAuthUrl = process.env.NEXTAUTH_URL;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.AUTH_GOOGLE_ID = "test-google-id";
-    process.env.AUTH_GOOGLE_SECRET = "test-google-secret";
-    process.env.NEXTAUTH_URL = "http://localhost:3000";
+    vi.stubEnv("AUTH_GOOGLE_ID", "test-google-id");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "test-google-secret");
+    vi.stubEnv("AUTH_SECRET", "test-only-teacher-connect-secret");
+    vi.stubEnv("NEXTAUTH_URL", "http://localhost:3000");
   });
 
   test("rejects non-teacher users", async () => {
@@ -35,9 +32,5 @@ describe("GET /api/teacher/calendar/connect", () => {
     expect(res.headers.get("location")).toContain("https://accounts.google.com/o/oauth2/v2/auth");
   });
 
-  afterAll(() => {
-    process.env.AUTH_GOOGLE_ID = oldClientId;
-    process.env.AUTH_GOOGLE_SECRET = oldClientSecret;
-    process.env.NEXTAUTH_URL = oldNextAuthUrl;
-  });
+  afterEach(() => vi.unstubAllEnvs());
 });

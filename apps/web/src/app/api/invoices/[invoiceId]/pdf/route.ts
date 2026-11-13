@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildInvoicePdf, type InvoicePdfLanguage } from "@/lib/invoice-pdf";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 type Props = {
   params: Promise<{ invoiceId: string }>;
@@ -53,15 +54,17 @@ export async function GET(req: Request, { params }: Props) {
   // separately in the footer.
   const invoiceDate = formatInvoiceDisplayDate(invoice.paidAt, dateLocale);
 
+  const names = lessonProductNames(invoice.booking.lessonProduct, invoice.booking.learningLanguage);
   const pdfBytes = await buildInvoicePdf({
+    learningLanguage: invoice.booking.learningLanguage,
     invoiceNo: invoice.invoiceNo,
     amountYen: invoice.amountYen,
     paidAt: invoiceDate,
     studentName,
     className:
       language === "ja"
-        ? invoice.booking.lessonProduct.nameJa
-        : invoice.booking.lessonProduct.nameEn,
+        ? names.nameJa
+        : names.nameEn,
     durationMin: invoice.booking.lessonProduct.durationMin,
     lessonDate,
     language,

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { conversationProduct, lessonSubjectCases } from "../../../test/lesson-subject-fixture";
 
 const { revalidatePathMock, syncRosterMock } = vi.hoisted(() => ({
   revalidatePathMock: vi.fn(),
@@ -71,6 +72,20 @@ const booking = {
 };
 
 describe("confirmPaidBookingFromPayment", () => {
+  test.each(lessonSubjectCases)("the existing paid $learningLanguage confirmation uses one teacher Meet and a correctly named student mirror", async ({ learningLanguage, otherLanguage, nameEn }) => {
+    const source = { ...booking, learningLanguage, lessonProduct: conversationProduct, student: { ...booking.student, learningLanguage: otherLanguage } };
+    vi.mocked(prisma.booking.findUnique).mockResolvedValue(source as never);
+    vi.mocked(prisma.booking.update).mockResolvedValue({ ...source, status: "CONFIRMED" } as never);
+    vi.mocked(prisma.googleIntegrationSettings.findUnique).mockResolvedValue({ calendarConnected: true } as never);
+    vi.mocked(prisma.googleIntegrationAccount.findUnique).mockResolvedValue({ refreshToken: "test-token", revoked: false } as never);
+    vi.mocked(createMeetLessonEvent).mockResolvedValueOnce({ meetUrl: "https://meet.google.com/test-room", googleEventId: "teacher-event" }).mockResolvedValueOnce({ meetUrl: null, googleEventId: "student-event" });
+    const result = await confirmPaidBookingFromPayment(booking.id);
+    expect(result.ok).toBe(true);
+    expect(createMeetLessonEvent).toHaveBeenNthCalledWith(1, expect.objectContaining({ organizerUserId: "teacher-user-1", summary: `Lesson — ${nameEn}`, attendeeEmails: ["student@example.com", "teacher@example.com"] }));
+    expect(createMeetLessonEvent).toHaveBeenNthCalledWith(2, expect.objectContaining({ organizerUserId: "student-1", summary: `Lesson — ${nameEn}`, createMeetLink: false }));
+    expect(prisma.invoice.upsert).toHaveBeenCalledWith(expect.objectContaining({ create: expect.objectContaining({ bookingId: booking.id, amountYen: 5000 }) }));
+    expect(prisma.booking.update).not.toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ learningLanguage: expect.anything() }) }));
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     syncRosterMock.mockResolvedValue(undefined);

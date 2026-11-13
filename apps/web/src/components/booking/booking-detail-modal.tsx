@@ -182,8 +182,8 @@ function BookingDetailDialog({
           ) : null}
           {viewer === "student" && awaitingPayment ? (
             <PendingReservationActions bookingId={booking.id} />
-          ) : canCancel ? (
-            <BookingCancelButton bookingId={booking.id} />
+          ) : viewer === "teacher" && canCancel ? (
+            <BookingCancelButton bookingId={booking.id} withinDialog onCompleted={onClose} />
           ) : null}
         </>
       }
@@ -237,6 +237,9 @@ function BookingDetailDialog({
           </DetailRow>
         ) : null}
       </dl>
+      {viewer === "student" && canCancel && !awaitingPayment ? (
+        <div className="mt-5"><BookingCancelButton bookingId={booking.id} withinDialog onCompleted={onClose} /></div>
+      ) : null}
 
       {/*
         The same record the completed history keeps: the teacher writes it, the

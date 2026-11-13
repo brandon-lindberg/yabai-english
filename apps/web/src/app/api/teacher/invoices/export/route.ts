@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
+import { withBookingLessonProductNames } from "@/lib/lesson-product-catalog";
 import { prisma } from "@/lib/prisma";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { buildTeacherInvoicesCsv, type TeacherInvoiceCsvRowInput } from "@/lib/teacher-invoice-csv";
@@ -85,7 +86,7 @@ export async function GET(req: Request) {
     }
   }
 
-  const rows: TeacherInvoiceCsvRowInput[] = invoices.map((inv) => ({
+  const rows: TeacherInvoiceCsvRowInput[] = invoices.map(inv => ({ ...inv, booking: withBookingLessonProductNames(inv.booking) })).map((inv) => ({
     invoiceNo: inv.invoiceNo,
     teacherDisplay: inv.booking.teacher.user.name ?? inv.booking.teacher.user.email ?? "—",
     studentDisplay: inv.student.name ?? inv.student.email ?? "—",

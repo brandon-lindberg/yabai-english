@@ -11,6 +11,9 @@
  * on it unchanged.
  */
 
+import type { LearningLanguage } from "@/generated/prisma/enums";
+import { resolveLearningLanguage } from "@/lib/learning-language";
+
 export const FREE_TRIAL_DURATION_MIN = 20;
 
 /**
@@ -22,11 +25,13 @@ export const FREE_TRIAL_DEFAULT_LEVEL_CODE = "beginner";
 export const FREE_TRIAL_DEFAULT_TYPE_CODE = "conversation";
 
 export type ExistingOfferingForTrial = {
+  learningLanguage?: LearningLanguage;
   isFreeTrial?: boolean | null;
   active: boolean;
 };
 
 export type DerivedFreeTrialOffering = {
+  learningLanguage?: LearningLanguage;
   durationMin: typeof FREE_TRIAL_DURATION_MIN;
   rateYen: 0;
   isGroup: false;
@@ -42,19 +47,22 @@ export function deriveFreeTrialOffering({
   offersFreeTrial,
   classLevelId,
   classTypeId,
+  learningLanguage,
 }: {
   existing: ExistingOfferingForTrial[];
   offersFreeTrial: boolean;
   classLevelId: string | null;
   classTypeId: string | null;
+  learningLanguage?: LearningLanguage;
 }): DerivedFreeTrialOffering | null {
   if (!offersFreeTrial) return null;
   // A slot must match its offering on level and type, so the trial needs a
   // taxonomy to hang on. Without one there is nothing valid to create.
   if (!classLevelId || !classTypeId) return null;
-  if (existing.some((offering) => offering.isFreeTrial)) return null;
+  if (existing.some((offering) => offering.isFreeTrial && (!learningLanguage || resolveLearningLanguage(offering.learningLanguage) === learningLanguage))) return null;
 
   return {
+    ...(learningLanguage ? { learningLanguage } : {}),
     durationMin: FREE_TRIAL_DURATION_MIN,
     rateYen: 0,
     isGroup: false,

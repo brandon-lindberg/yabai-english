@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { englishLearningAccessError } from "@/lib/english-learning-access";
 import { prisma } from "@/lib/prisma";
 import { isStudyLevelUnlocked } from "@/lib/study/access";
 import {
@@ -12,13 +13,12 @@ import { parseStudyCardExercise, shuffleTokensForQueue } from "@/lib/study/card-
 import type { StudyQueueCard } from "@/lib/study/practice-queue-card";
 import {
   buildFourOptions,
-  cardQuizWeight,
   extractFillBlankAnswer,
   MCQ_SHORT_FALLBACK_PHRASES,
   mcqCanonicalAnswer,
   mcqPoolPhraseWhenFragmentMode,
-  weightedSampleWithoutReplacement,
 } from "@/lib/study/quiz";
+import { buildWeightedSessionQueue } from "@/lib/study/scheduler";
 import { StudyLevelCode } from "@/generated/prisma/client";
 import { z } from "zod";
 
@@ -40,50 +40,6 @@ type StateRow = {
   latencySampleCount: number;
 };
 
-function buildWeightedSessionQueue(
-  cards: CardRow[],
-  stateByCard: Map<string, StateRow>,
-  limit: number,
-  now: Date,
-  rng: () => number,
-): CardRow[] {
-  if (cards.length === 0) return [];
-
-  const weightFn = (c: CardRow) => {
-    const st = stateByCard.get(c.id);
-    return cardQuizWeight(
-      st
-        ? {
-            correctCount: st.correctCount,
-            wrongCount: st.wrongCount,
-            streakCorrect: st.streakCorrect,
-            averageAnswerMs: st.averageAnswerMs,
-            latencySampleCount: st.latencySampleCount,
-          }
-        : null,
-    );
-  };
-
-  const due = cards.filter((c) => {
-    const st = stateByCard.get(c.id);
-    return st?.dueAt != null && st.dueAt <= now;
-  });
-
-  const primaryPool = due.length > 0 ? due : cards;
-  const firstBatch = weightedSampleWithoutReplacement(primaryPool, weightFn, Math.min(limit, primaryPool.length), rng);
-
-  const queue: CardRow[] = [...firstBatch];
-
-  while (queue.length < limit) {
-    const extra = weightedSampleWithoutReplacement(cards, weightFn, 1, rng)[0];
-    if (!extra) break;
-    queue.push(extra);
-    if (queue.length > limit * 3) break;
-  }
-
-  return queue.slice(0, limit);
-}
-
 function toPerformanceSlice(st: StateRow | undefined): StudyCardPerformanceSlice | undefined {
   if (!st) return undefined;
   return {
@@ -100,6 +56,8 @@ export async function GET(req: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const languageError = englishLearningAccessError(session.user.learningLanguage);
+  if (languageError) return languageError;
 
   const url = new URL(req.url);
   const parsed = querySchema.safeParse({
@@ -113,7 +71,7 @@ export async function GET(req: Request) {
   }
 
   const track = await prisma.studyTrack.findUnique({
-    where: { slug: parsed.data.trackSlug },
+    where: { slug: parsed.data.trackSlug, learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" },
   });
   if (!track) {
     return NextResponse.json({ error: "Track not found" }, { status: 404 });
@@ -138,7 +96,7 @@ export async function GET(req: Request) {
   });
 
   const cards: CardRow[] = await prisma.studyCard.findMany({
-    where: { deck: { levelId: level.id } },
+    where: { kind: "ENGLISH_EXERCISE", deck: { levelId: level.id } },
     orderBy: [{ deck: { sortOrder: "asc" } }, { sortOrder: "asc" }],
     select: { id: true, frontJa: true, backEn: true, deckId: true, exerciseJson: true },
   });

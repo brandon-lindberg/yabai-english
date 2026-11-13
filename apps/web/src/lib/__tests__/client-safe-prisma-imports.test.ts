@@ -35,28 +35,30 @@ const rel = (full: string) => path.relative(process.cwd(), full).replace(/\\/g, 
  * type` edges are erased at build time and cannot pull anything into a bundle,
  * so following them would flag modules that are perfectly safe.
  */
-function localImports(text: string): string[] {
+function localImports(text: string, sources = files): string[] {
   const valueImports = [...text.matchAll(/^\s*import\s+(?!type\b)[^;]*?from\s+["'](@\/[^"']+)["']/gm)];
   return valueImports.flatMap((m) => {
     const base = path.join(SRC, m[1]!.slice(2));
     for (const candidate of [`${base}.ts`, `${base}.tsx`, path.join(base, "index.ts")]) {
-      if (files.has(candidate)) return [candidate];
+      if (sources.has(candidate)) return [candidate];
     }
     return [];
   });
 }
 
-function reachesPrismaClientValue(entry: string): string[] | null {
+function reachesPrismaClientValue(entry: string, sources = files): string[] | null {
   const seen = new Set<string>();
   const stack: Array<{ file: string; trail: string[] }> = [{ file: entry, trail: [entry] }];
   while (stack.length > 0) {
     const { file, trail } = stack.pop()!;
     if (seen.has(file)) continue;
     seen.add(file);
-    const text = files.get(file);
+    const text = sources.get(file);
     if (!text) continue;
+    // Next.js replaces imports of module-level Server Actions with client references.
+    if (/^\s*["']use server["']/.test(text)) continue;
     if (VALUE_IMPORT.test(text)) return trail;
-    for (const next of localImports(text)) {
+    for (const next of localImports(text, sources)) {
       stack.push({ file: next, trail: [...trail, next] });
     }
   }
@@ -64,6 +66,23 @@ function reachesPrismaClientValue(entry: string): string[] | null {
 }
 
 describe("client components never pull in the Prisma runtime", () => {
+  test.each([
+    ['"use server";', false],
+    ['// "use server"', true],
+    ['export async function action() { "use server"; }', true],
+    ["", true],
+  ] as const)("honors only a module-level Server Action boundary (%s)", (directive, shouldReachPrisma) => {
+    const client = path.join(SRC, "boundary-client.tsx");
+    const action = path.join(SRC, "boundary-action.ts");
+    const server = path.join(SRC, "boundary-server.ts");
+    const sources = new Map([
+      [client, '"use client";\nimport { action } from "@/boundary-action";'],
+      [action, `${directive}\nimport { prisma } from "@/boundary-server";`],
+      [server, 'import { PrismaClient } from "@/generated/prisma/client";'],
+    ]);
+    expect(reachesPrismaClientValue(client, sources)).toEqual(shouldReachPrisma ? [client, action, server] : null);
+  });
+
   const clientComponents = [...files].filter(([, text]) =>
     /^\s*["']use client["']/.test(text),
   );

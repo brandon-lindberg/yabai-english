@@ -9,6 +9,7 @@ import { buildTeacherBookingConfirmedNotification } from "@/lib/booking-notifica
 import { syncTeacherRosterAfterStudentBooking } from "@/lib/sync-teacher-roster-after-student-booking";
 import { revalidateDashboardStudentRosterPaths } from "@/lib/revalidate-dashboard-roster";
 import { initializeTeacherTierStateFromHistory } from "@/lib/teacher-tiers";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 type MirrorLessonEventParams = {
   studentUserId: string;
@@ -58,7 +59,7 @@ export async function maybeCreateStudentMirrorLessonEvent({
 
 export async function confirmPaidBookingFromPayment(
   bookingId: string,
-  options: { revalidateRoster?: boolean } = {},
+  options: { revalidateRoster?: boolean; resumeFulfillment?: boolean } = {},
 ) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
@@ -81,15 +82,15 @@ export async function confirmPaidBookingFromPayment(
   if (!booking) {
     return { ok: false as const, reason: "NOT_FOUND" as const };
   }
-  if (booking.status === BookingStatus.CONFIRMED) {
+  if (booking.status === BookingStatus.CONFIRMED && !options.resumeFulfillment) {
     return { ok: true as const, booking };
   }
-  if (booking.status !== BookingStatus.PENDING_PAYMENT) {
+  if (booking.status !== BookingStatus.PENDING_PAYMENT && booking.status !== BookingStatus.CONFIRMED) {
     return { ok: false as const, reason: "INVALID_STATUS" as const };
   }
 
   const updated = await prisma.booking.update({
-    where: { id: booking.id },
+    where: { id: booking.id, status: booking.status },
     data: { status: BookingStatus.CONFIRMED },
     include: {
       lessonProduct: true,
@@ -118,10 +119,11 @@ export async function confirmPaidBookingFromPayment(
   const attendeeEmails = [updated.student.email, updated.teacher.user.email].filter(
     Boolean,
   ) as string[];
-  const summary = `Lesson — ${updated.lessonProduct.nameEn}`;
+  const summary = `Lesson — ${lessonProductNames(updated.lessonProduct, updated.learningLanguage).nameEn}`;
   // A group class meets once. Seats after the first join the event that exists
   // instead of opening a second room for the same lesson.
-  const meet = updated.groupLessonSessionId
+  const meet = updated.googleEventId ? { meetUrl: updated.meetUrl, googleEventId: updated.googleEventId, googleCalendarId: updated.googleCalendarId }
+    : updated.groupLessonSessionId
     ? await ensureGroupSessionMeetEvent(prisma, {
         sessionId: updated.groupLessonSessionId,
         teacher: {
@@ -166,7 +168,7 @@ export async function confirmPaidBookingFromPayment(
     },
   });
 
-  const studentMirrorEvent = await maybeCreateStudentMirrorLessonEvent({
+  const studentMirrorEvent = updated.studentGoogleEventId ? { googleEventId: updated.studentGoogleEventId } : await maybeCreateStudentMirrorLessonEvent({
     studentUserId: booking.studentId,
     summary,
     startsAt: updated.startsAt,
@@ -190,10 +192,7 @@ export async function confirmPaidBookingFromPayment(
       invoiceNo: buildInvoiceNumber(now),
       paidAt: now,
     },
-    update: {
-      amountYen: finalBooking.quotedPriceYen,
-      paidAt: now,
-    },
+    update: {},
   });
 
   if ("teacherTierState" in prisma) {
@@ -206,6 +205,7 @@ export async function confirmPaidBookingFromPayment(
   await ensureStudentTeacherThread(booking.studentId, updated.teacher.userId);
   await createUserNotification({
     userId: booking.studentId,
+    deduplicationKey: `payment-confirmed:${booking.id}`,
     titleJa: "支払いが完了しました",
     titleEn: "Payment completed",
     bodyJa: "予約が確定されました。",
@@ -221,6 +221,7 @@ export async function confirmPaidBookingFromPayment(
   });
   await createUserNotification({
     userId: updated.teacher.userId,
+    deduplicationKey: `payment-confirmed:${booking.id}`,
     ...teacherNotification,
   });
 

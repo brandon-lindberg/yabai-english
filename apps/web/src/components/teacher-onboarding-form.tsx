@@ -45,9 +45,11 @@ const STEP_HREF: Record<TeacherOnboardingStep, "/dashboard/profile" | "/dashboar
 export function TeacherOnboardingForm({
   completedParam,
   skippedSteps = [],
+  materialsAvailable = true,
 }: {
   completedParam?: string | null;
   skippedSteps?: ReadonlyArray<string>;
+  materialsAvailable?: boolean;
 }) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -78,7 +80,10 @@ export function TeacherOnboardingForm({
       step as TeacherOnboardingStep,
     );
     const separator = base.includes("?") ? "&" : "?";
-    return `${base}${separator}onboardingStep=${encodeURIComponent(step)}`;
+    const query = new URLSearchParams({ onboardingStep: step });
+    if (step === "integrations") query.set("tab", "google");
+    if (step === "chat") query.set("openChat", "1");
+    return `${base}${separator}${query}`;
   }
 
   /**
@@ -109,12 +114,13 @@ export function TeacherOnboardingForm({
   const items: OnboardingChecklistItem[] = TEACHER_ONBOARDING_STEPS.map((step) => ({
     key: step,
     title: t(`teacherSteps.${step}.title`),
-    body: t(`teacherSteps.${step}.body`),
-    href: buildStepHref(step),
+    body: t(step === "materials" && !materialsAvailable
+      ? "teacherMaterialsUnavailable" : `teacherSteps.${step}.body`),
+    href: step === "materials" && !materialsAvailable ? null : buildStepHref(step),
     completed: checked[step],
     onToggle: (next) => recordStep(step, next),
     action:
-      isTeacherOnboardingOptionalStep(step) && !checked[step] ? (
+      (isTeacherOnboardingOptionalStep(step) || (step === "materials" && !materialsAvailable)) && !checked[step] ? (
         <button
           type="button"
           className={actionLinkClass}

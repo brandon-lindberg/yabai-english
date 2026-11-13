@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useBrowserTimezone } from "@/hooks/use-browser-timezone";
+import { DEFAULT_VIEWER_TIME_ZONE, resolveViewerTimeZone, validViewerTimeZone } from "@/lib/viewer-time-zone";
 import { useOnboardingSubmit } from "@/hooks/use-onboarding-submit";
 import { useSessionDraft } from "@/hooks/use-session-draft";
 import { buttonClasses } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { Field, Select } from "@/components/ui/field";
 import { inlineLinkClass } from "@/components/ui/inline-link";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Status } from "@/components/ui/status";
+import type { LearningLanguage } from "@/generated/prisma/enums";
 
 const STEP_COUNT = 4;
 
@@ -29,6 +31,7 @@ function WizardStep({ legend, children }: { legend: string; children: ReactNode 
 
 type Props = {
   initialTimezone: string;
+  learningLanguage?: LearningLanguage;
 };
 
 /**
@@ -68,11 +71,12 @@ const EMPTY_DRAFT: WizardDraft = {
   notifyPayments: true,
 };
 
-export function OnboardingForm({ initialTimezone }: Props) {
+export function OnboardingForm({ initialTimezone, learningLanguage = "ENGLISH" }: Props) {
   const t = useTranslations("onboarding");
   const [draft, setDraft, clearDraft] = useSessionDraft<WizardDraft>(
-    "onboarding-wizard",
+    `onboarding-wizard:${learningLanguage}`,
     EMPTY_DRAFT,
+    learningLanguage === "ENGLISH" ? "onboarding-wizard" : undefined,
   );
   const {
     step,
@@ -107,7 +111,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
       // Fall through to minimal fallback list.
     }
     return [
-      "Asia/Tokyo",
+      DEFAULT_VIEWER_TIME_ZONE,
       "Asia/Seoul",
       "Asia/Singapore",
       "Europe/London",
@@ -127,13 +131,10 @@ export function OnboardingForm({ initialTimezone }: Props) {
     whatever their browser reported.
   */
   const browserTimezone = useBrowserTimezone();
-  const detectedTimezone =
-    initialTimezone === "Asia/Tokyo" || initialTimezone.length === 0
-      ? browserTimezone && timezoneOptions.includes(browserTimezone)
-        ? browserTimezone
-        : initialTimezone
-      : initialTimezone;
-  const timezone = chosenTimezone ?? detectedTimezone;
+  const savedZone = validViewerTimeZone(initialTimezone);
+  const detectedTimezone = savedZone && savedZone !== DEFAULT_VIEWER_TIME_ZONE ? savedZone : browserTimezone;
+  const timezone = resolveViewerTimeZone(chosenTimezone ?? detectedTimezone);
+  const availableZones = timezoneOptions.includes(timezone) ? timezoneOptions : [timezone, ...timezoneOptions];
 
   function canAdvanceFromStep(s: number): boolean {
     if (s === 0) return Boolean(timezone);
@@ -197,7 +198,7 @@ export function OnboardingForm({ initialTimezone }: Props) {
                 onChange={(e) => setChosenTimezone(e.target.value)}
                 required
               >
-                {timezoneOptions.map((tz) => (
+                {availableZones.map((tz) => (
                   <option key={tz} value={tz}>
                     {tz}
                   </option>

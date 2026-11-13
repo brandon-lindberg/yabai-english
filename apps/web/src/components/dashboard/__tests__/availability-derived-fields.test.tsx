@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
 
 import { describe, expect, test, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../../messages/en.json";
+import ja from "../../../../messages/ja.json";
 import { TeacherAvailabilityAddModal } from "../teacher-availability-add-modal";
 
 /*
@@ -47,10 +49,11 @@ const props = {
   ],
 };
 
-function renderModal() {
+function renderModal(overrides: Partial<ComponentProps<typeof TeacherAvailabilityAddModal>> = {}) {
+  const locale = overrides.locale ?? props.locale;
   return render(
-    <NextIntlClientProvider locale="en" messages={en}>
-      <TeacherAvailabilityAddModal {...props} />
+    <NextIntlClientProvider locale={locale} messages={locale === "ja" ? ja : en}>
+      <TeacherAvailabilityAddModal {...props} {...overrides} />
     </NextIntlClientProvider>,
   );
 }
@@ -82,4 +85,31 @@ describe("the level and type that follow from the chosen class", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(en.dashboard.teacherAvailability.lessonType)).toBeInTheDocument();
   });
+});
+
+
+test.each([
+  { locale: "en", messages: en },
+  { locale: "ja", messages: ja },
+])("groups the same class taxonomy by teaching language in the $locale interface", ({ locale, messages }) => {
+  const confirm = vi.fn();
+  const englishClass = props.lessonOfferings[0];
+  const japaneseClass = { ...englishClass, id: "japanese-conversation", learningLanguage: "JAPANESE" as const };
+  const japaneseTrial = { ...japaneseClass, id: "japanese-trial", durationMin: 30, rateYen: 0, isFreeTrial: true };
+  renderModal({ locale, onConfirm: confirm, lessonOfferings: [japaneseTrial, englishClass, japaneseClass] });
+
+  const picker = screen.getByRole("combobox", { name: messages.dashboard.teacherAvailability.classOffer });
+  const english = within(picker).getByRole("group", { name: messages.learningJourney.english.name });
+  const japanese = within(picker).getByRole("group", { name: messages.learningJourney.japanese.name });
+  expect(within(english).getAllByRole<HTMLOptionElement>("option").map(option => option.value)).toEqual([englishClass.id]);
+  expect(within(japanese).getAllByRole<HTMLOptionElement>("option").map(option => option.value)).toEqual([japaneseTrial.id, japaneseClass.id]);
+
+  fireEvent.change(picker, { target: { value: japaneseClass.id } });
+  fireEvent.click(screen.getByRole("button", { name: props.confirmLabel }));
+  expect(confirm).toHaveBeenCalledWith(expect.objectContaining({
+    teacherLessonOfferingId: japaneseClass.id,
+    classLevelId: japaneseClass.classLevelId,
+    classTypeId: japaneseClass.classTypeId,
+    endMin: 9 * 60 + japaneseClass.durationMin,
+  }));
 });

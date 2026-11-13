@@ -7,6 +7,8 @@ import { buttonClasses } from "@/components/ui/button";
 import { groupMeetAdvisory } from "@/lib/group-lesson-meet-limits";
 import { collectedWhenFullYen } from "@/lib/group-lesson-pricing";
 import type { AddedOffering, TaxonomyOption } from "@/components/dashboard/teacher-lesson-add-modal";
+import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
+import { resolveLearningLanguage } from "@/lib/learning-language";
 
 /**
  * One class, as a line in a list.
@@ -35,6 +37,7 @@ export function TeacherLessonSummaryRow({
   removing?: boolean;
 }) {
   const t = useTranslations("dashboard.profilePage");
+  const j = useTranslations("learningJourney");
 
   function pickLabel(options: TaxonomyOption[], id: string | null) {
     const option = options.find((o) => o.id === id);
@@ -52,6 +55,7 @@ export function TeacherLessonSummaryRow({
     : null;
 
   const heading = [
+    j(`${LEARNING_JOURNEYS[resolveLearningLanguage(offering.learningLanguage)].key}.name`),
     pickLabel(classLevels, offering.classLevelId),
     pickLabel(classTypes, offering.classTypeId),
     `${offering.durationMin} min`,

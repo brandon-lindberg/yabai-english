@@ -1,0 +1,3894 @@
+{
+  "schemaVersion": 1,
+  "id": "japanese-study-groups-v1",
+  "levelPolicy": "earliest-matching-community-evidence-v1",
+  "sourceCatalogSha256": "39fe0ff9f5355a3559055797779b4f99aabb9a57f7ff75d816c8d73e1e1a295a",
+  "sourceLockSha256": "d8a2d2f4a544bc1c53f61e5f0f42567c43c5c8d91b45ddd3789f712c4a222684",
+  "overlaps": [
+    {
+      "entryId": "1004500",
+      "memberIds": [
+        "ja-vocabulary:be9b8bcb5e",
+        "ja-vocabulary:e9e492c68a"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:be9b8bcb5e",
+          "memberIds": [
+            "ja-vocabulary:be9b8bcb5e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:e9e492c68a",
+          "memberIds": [
+            "ja-vocabulary:e9e492c68a"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1005900",
+      "memberIds": [
+        "ja-vocabulary:091c8c0e07",
+        "ja-vocabulary:823b048f98"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:091c8c0e07",
+          "memberIds": [
+            "ja-vocabulary:091c8c0e07"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:823b048f98",
+          "memberIds": [
+            "ja-vocabulary:823b048f98"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1006380",
+      "memberIds": [
+        "ja-vocabulary:2125719689",
+        "ja-vocabulary:d41d1a3e3a"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:2125719689",
+          "memberIds": [
+            "ja-vocabulary:2125719689"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:d41d1a3e3a",
+          "memberIds": [
+            "ja-vocabulary:d41d1a3e3a"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1006730",
+      "memberIds": [
+        "ja-vocabulary:1655402893",
+        "ja-vocabulary:e75777d218"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1655402893",
+          "memberIds": [
+            "ja-vocabulary:1655402893"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:e75777d218",
+          "memberIds": [
+            "ja-vocabulary:e75777d218"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1006780",
+      "memberIds": [
+        "ja-vocabulary:105df79571",
+        "ja-vocabulary:80981fa136"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:105df79571",
+          "memberIds": [
+            "ja-vocabulary:105df79571"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:80981fa136",
+          "memberIds": [
+            "ja-vocabulary:80981fa136"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1006810",
+      "memberIds": [
+        "ja-vocabulary:07f0baa471",
+        "ja-vocabulary:5cf06f835b"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:07f0baa471",
+          "memberIds": [
+            "ja-vocabulary:07f0baa471"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:5cf06f835b",
+          "memberIds": [
+            "ja-vocabulary:5cf06f835b"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1007010",
+      "memberIds": [
+        "ja-vocabulary:b13a18ea0f",
+        "ja-vocabulary:b2fea90627"
+      ],
+      "reason": "それとも and 其れとも are kana/kanji variants of the same or/or-else conjunction, with identical reading and meanings.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:b13a18ea0f",
+          "memberIds": [
+            "ja-vocabulary:b13a18ea0f",
+            "ja-vocabulary:b2fea90627"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1010900",
+      "memberIds": [
+        "ja-vocabulary:1bd65d97c5",
+        "ja-vocabulary:63bf0178ca"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1bd65d97c5",
+          "memberIds": [
+            "ja-vocabulary:1bd65d97c5"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:63bf0178ca",
+          "memberIds": [
+            "ja-vocabulary:63bf0178ca"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1012810",
+      "memberIds": [
+        "ja-vocabulary:7a0b48d3e5",
+        "ja-vocabulary:ead095a7d5"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:7a0b48d3e5",
+          "memberIds": [
+            "ja-vocabulary:7a0b48d3e5"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ead095a7d5",
+          "memberIds": [
+            "ja-vocabulary:ead095a7d5"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1013050",
+      "memberIds": [
+        "ja-vocabulary:ccd27b3d04",
+        "ja-vocabulary:d980cb1531"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:ccd27b3d04",
+          "memberIds": [
+            "ja-vocabulary:ccd27b3d04"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:d980cb1531",
+          "memberIds": [
+            "ja-vocabulary:d980cb1531"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1025690",
+      "memberIds": [
+        "ja-vocabulary:104005ac4b",
+        "ja-vocabulary:d2573d60e7"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:104005ac4b",
+          "memberIds": [
+            "ja-vocabulary:104005ac4b"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:d2573d60e7",
+          "memberIds": [
+            "ja-vocabulary:d2573d60e7"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1050590",
+      "memberIds": [
+        "ja-vocabulary:4aef785a50",
+        "ja-vocabulary:f586d7d023"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:4aef785a50",
+          "memberIds": [
+            "ja-vocabulary:4aef785a50"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:f586d7d023",
+          "memberIds": [
+            "ja-vocabulary:f586d7d023"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1053350",
+      "memberIds": [
+        "ja-vocabulary:5044be2999",
+        "ja-vocabulary:918e096f88"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5044be2999",
+          "memberIds": [
+            "ja-vocabulary:5044be2999"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:918e096f88",
+          "memberIds": [
+            "ja-vocabulary:918e096f88"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1076120",
+      "memberIds": [
+        "ja-vocabulary:8d0e3e599c",
+        "ja-vocabulary:eda767b81b"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:8d0e3e599c",
+          "memberIds": [
+            "ja-vocabulary:8d0e3e599c"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:eda767b81b",
+          "memberIds": [
+            "ja-vocabulary:eda767b81b"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1077550",
+      "memberIds": [
+        "ja-vocabulary:83a456da88",
+        "ja-vocabulary:reference-a95e02e34ec3920938f30c5e"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:83a456da88",
+          "memberIds": [
+            "ja-vocabulary:83a456da88"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-a95e02e34ec3920938f30c5e",
+          "memberIds": [
+            "ja-vocabulary:reference-a95e02e34ec3920938f30c5e"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1144860",
+      "memberIds": [
+        "ja-vocabulary:669651e81b",
+        "ja-vocabulary:6d746d9525"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:669651e81b",
+          "memberIds": [
+            "ja-vocabulary:669651e81b"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:6d746d9525",
+          "memberIds": [
+            "ja-vocabulary:6d746d9525"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1145990",
+      "memberIds": [
+        "ja-vocabulary:326d5d92a7",
+        "ja-vocabulary:d9f9f17224"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:326d5d92a7",
+          "memberIds": [
+            "ja-vocabulary:326d5d92a7"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:d9f9f17224",
+          "memberIds": [
+            "ja-vocabulary:d9f9f17224"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1151120",
+      "memberIds": [
+        "ja-vocabulary:c3c3ac9f48",
+        "ja-vocabulary:d2ac37bee3"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:c3c3ac9f48",
+          "memberIds": [
+            "ja-vocabulary:c3c3ac9f48"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:d2ac37bee3",
+          "memberIds": [
+            "ja-vocabulary:d2ac37bee3"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1164690",
+      "memberIds": [
+        "ja-vocabulary:28ba375980",
+        "ja-vocabulary:reference-4109a57a2cb71ff5ba513699"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:28ba375980",
+          "memberIds": [
+            "ja-vocabulary:28ba375980"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-4109a57a2cb71ff5ba513699",
+          "memberIds": [
+            "ja-vocabulary:reference-4109a57a2cb71ff5ba513699"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1175300",
+      "memberIds": [
+        "ja-vocabulary:1a796e4b69",
+        "ja-vocabulary:fa011c8770"
+      ],
+      "reason": "The records represent different crossing/passing and other usages; the dictionary notes 超す for surpassing.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1a796e4b69",
+          "memberIds": [
+            "ja-vocabulary:1a796e4b69"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:fa011c8770",
+          "memberIds": [
+            "ja-vocabulary:fa011c8770"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1178960",
+      "memberIds": [
+        "ja-vocabulary:87db0f1329",
+        "ja-vocabulary:fc259785af"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:87db0f1329",
+          "memberIds": [
+            "ja-vocabulary:87db0f1329"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:fc259785af",
+          "memberIds": [
+            "ja-vocabulary:fc259785af"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1189360",
+      "memberIds": [
+        "ja-vocabulary:5480c153dc",
+        "ja-vocabulary:e8a4843059"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5480c153dc",
+          "memberIds": [
+            "ja-vocabulary:5480c153dc"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:e8a4843059",
+          "memberIds": [
+            "ja-vocabulary:e8a4843059"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1191990",
+      "memberIds": [
+        "ja-vocabulary:7b3793ce89",
+        "ja-vocabulary:reference-cb52629bed24f97a21ccc14c"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:7b3793ce89",
+          "memberIds": [
+            "ja-vocabulary:7b3793ce89"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-cb52629bed24f97a21ccc14c",
+          "memberIds": [
+            "ja-vocabulary:reference-cb52629bed24f97a21ccc14c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1198180",
+      "memberIds": [
+        "ja-vocabulary:5b1dbc60e6",
+        "ja-vocabulary:ada066edfd"
+      ],
+      "reason": "The dictionary notes undesirable nuance for 遭う and an associated accident/bad-experience sense. Preserve this context.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5b1dbc60e6",
+          "memberIds": [
+            "ja-vocabulary:5b1dbc60e6"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ada066edfd",
+          "memberIds": [
+            "ja-vocabulary:ada066edfd"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1200220",
+      "memberIds": [
+        "ja-vocabulary:1f3f0c4bb0",
+        "ja-vocabulary:8fb005254a"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1f3f0c4bb0",
+          "memberIds": [
+            "ja-vocabulary:1f3f0c4bb0"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:8fb005254a",
+          "memberIds": [
+            "ja-vocabulary:8fb005254a"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1202150",
+      "memberIds": [
+        "ja-vocabulary:2676514561",
+        "ja-vocabulary:eb7247f404"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:2676514561",
+          "memberIds": [
+            "ja-vocabulary:2676514561"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:eb7247f404",
+          "memberIds": [
+            "ja-vocabulary:eb7247f404"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1202450",
+      "memberIds": [
+        "ja-vocabulary:321963ed35",
+        "ja-vocabulary:5b9f9fdc86"
+      ],
+      "reason": "Opening is restricted to 開ける while dawn/period-ending usages are associated with 明ける. These are distinct represented senses.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:321963ed35",
+          "memberIds": [
+            "ja-vocabulary:321963ed35"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:5b9f9fdc86",
+          "memberIds": [
+            "ja-vocabulary:5b9f9fdc86"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1212650",
+      "memberIds": [
+        "ja-vocabulary:c35361ecb7",
+        "ja-vocabulary:c4be7bde99"
+      ],
+      "reason": "The dictionary associates 慣らす with accustoming and 馴らす with taming an animal. Preserve the represented sense distinction.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:c35361ecb7",
+          "memberIds": [
+            "ja-vocabulary:c35361ecb7"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:c4be7bde99",
+          "memberIds": [
+            "ja-vocabulary:c4be7bde99"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1212670",
+      "memberIds": [
+        "ja-vocabulary:ce2f134cda",
+        "ja-vocabulary:dc2f465cad"
+      ],
+      "reason": "The dictionary associates 慣れる with getting used to something and 馴れる with becoming tame. Keep those senses distinct.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:ce2f134cda",
+          "memberIds": [
+            "ja-vocabulary:ce2f134cda"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:dc2f465cad",
+          "memberIds": [
+            "ja-vocabulary:dc2f465cad"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1220810",
+      "memberIds": [
+        "ja-vocabulary:086990d912",
+        "ja-vocabulary:e0f08f770f"
+      ],
+      "reason": "機械 is represented by machine/mechanism and 器械 by instrument. The dictionary notes 器械 for the instrument sense.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:086990d912",
+          "memberIds": [
+            "ja-vocabulary:086990d912"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:e0f08f770f",
+          "memberIds": [
+            "ja-vocabulary:e0f08f770f"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1222510",
+      "memberIds": [
+        "ja-vocabulary:c4db898159",
+        "ja-vocabulary:reference-727112059d0400db0b49b001"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:c4db898159",
+          "memberIds": [
+            "ja-vocabulary:c4db898159"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-727112059d0400db0b49b001",
+          "memberIds": [
+            "ja-vocabulary:reference-727112059d0400db0b49b001"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1226360",
+      "memberIds": [
+        "ja-vocabulary:44862c8e57",
+        "ja-vocabulary:ab4a88a2c0"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:44862c8e57",
+          "memberIds": [
+            "ja-vocabulary:44862c8e57"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ab4a88a2c0",
+          "memberIds": [
+            "ja-vocabulary:ab4a88a2c0"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1240530",
+      "memberIds": [
+        "ja-vocabulary:42fbc7ed06",
+        "ja-vocabulary:5ac33a4880"
+      ],
+      "reason": "玉 represents ball/sphere and 弾 bullet/shot. Keep the ball and projectile senses separate.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:42fbc7ed06",
+          "memberIds": [
+            "ja-vocabulary:42fbc7ed06"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:5ac33a4880",
+          "memberIds": [
+            "ja-vocabulary:5ac33a4880"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1240810",
+      "memberIds": [
+        "ja-vocabulary:b30544a54e",
+        "ja-vocabulary:b30b244443"
+      ],
+      "reason": "The source records have different service/duty/business scope; preserve 務め and 勤め as context-sensitive spellings in this policy.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:b30544a54e",
+          "memberIds": [
+            "ja-vocabulary:b30544a54e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:b30b244443",
+          "memberIds": [
+            "ja-vocabulary:b30b244443"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1242970",
+      "memberIds": [
+        "ja-vocabulary:06381dbe4c",
+        "ja-vocabulary:a58874b751"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:06381dbe4c",
+          "memberIds": [
+            "ja-vocabulary:06381dbe4c"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:a58874b751",
+          "memberIds": [
+            "ja-vocabulary:a58874b751"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1257040",
+      "memberIds": [
+        "ja-vocabulary:063c94089d",
+        "ja-vocabulary:c9366999ee"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:063c94089d",
+          "memberIds": [
+            "ja-vocabulary:063c94089d"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:c9366999ee",
+          "memberIds": [
+            "ja-vocabulary:c9366999ee"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1257110",
+      "memberIds": [
+        "ja-vocabulary:8fbe6ab329",
+        "ja-vocabulary:cae9ac1779",
+        "ja-vocabulary:d0e700807a"
+      ],
+      "reason": "The dictionary notes material/context differences across 固い, 硬い and 堅い, with additional spelling-restricted senses. Keep all three.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:8fbe6ab329",
+          "memberIds": [
+            "ja-vocabulary:8fbe6ab329"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:cae9ac1779",
+          "memberIds": [
+            "ja-vocabulary:cae9ac1779"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:d0e700807a",
+          "memberIds": [
+            "ja-vocabulary:d0e700807a"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1260670",
+      "memberIds": [
+        "ja-vocabulary:0f4b2590f6",
+        "ja-vocabulary:aa6e296421",
+        "ja-vocabulary:f5b7534060"
+      ],
+      "reason": "The dictionary associates 元 with origin, 基 with basis and 素 with material; these are different represented senses/usages.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:0f4b2590f6",
+          "memberIds": [
+            "ja-vocabulary:0f4b2590f6"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:aa6e296421",
+          "memberIds": [
+            "ja-vocabulary:aa6e296421"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:f5b7534060",
+          "memberIds": [
+            "ja-vocabulary:f5b7534060"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1263490",
+      "memberIds": [
+        "ja-vocabulary:474e600ef2",
+        "ja-vocabulary:94e6dfb59c"
+      ],
+      "reason": "The dictionary associates expression with 表す and revealing/display with 現す. Preserve those source usages.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:474e600ef2",
+          "memberIds": [
+            "ja-vocabulary:474e600ef2"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:94e6dfb59c",
+          "memberIds": [
+            "ja-vocabulary:94e6dfb59c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1263760",
+      "memberIds": [
+        "ja-vocabulary:6a886bb014",
+        "ja-vocabulary:reference-ff3e56f790c1a1f2eb117010"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:6a886bb014",
+          "memberIds": [
+            "ja-vocabulary:6a886bb014"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-ff3e56f790c1a1f2eb117010",
+          "memberIds": [
+            "ja-vocabulary:reference-ff3e56f790c1a1f2eb117010"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1286320",
+      "memberIds": [
+        "ja-vocabulary:1337b1b9ec",
+        "ja-vocabulary:reference-3aec2289e4ae70be1a8321dd"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1337b1b9ec",
+          "memberIds": [
+            "ja-vocabulary:1337b1b9ec"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-3aec2289e4ae70be1a8321dd",
+          "memberIds": [
+            "ja-vocabulary:reference-3aec2289e4ae70be1a8321dd"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1290310",
+      "memberIds": [
+        "ja-vocabulary:1bef1a1d14",
+        "ja-vocabulary:bfe15d1832"
+      ],
+      "reason": "Keep the mix/stir and blended-with source presentations distinct for later context-specific prompts rather than flattening their source wording.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1bef1a1d14",
+          "memberIds": [
+            "ja-vocabulary:1bef1a1d14"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:bfe15d1832",
+          "memberIds": [
+            "ja-vocabulary:bfe15d1832"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1297250",
+      "memberIds": [
+        "ja-vocabulary:5b0c727913",
+        "ja-vocabulary:617364b915"
+      ],
+      "reason": "The source records represent different construction/appearance/sashimi meaning ranges. Keep their represented senses distinct.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5b0c727913",
+          "memberIds": [
+            "ja-vocabulary:5b0c727913"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:617364b915",
+          "memberIds": [
+            "ja-vocabulary:617364b915"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1307520",
+      "memberIds": [
+        "ja-vocabulary:7e3cceed04",
+        "ja-vocabulary:9b9b6c1212"
+      ],
+      "reason": "始めに and 初めに share the first/to-begin-with sense and pronunciation. Preserve the original source meanings without automatically adding a book-section-heading sense.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:9b9b6c1212",
+          "memberIds": [
+            "ja-vocabulary:7e3cceed04",
+            "ja-vocabulary:9b9b6c1212"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1307770",
+      "memberIds": [
+        "ja-vocabulary:013f46c118",
+        "ja-vocabulary:f17fa2d7e1"
+      ],
+      "reason": "児 includes a young-animal sense while 子 is represented as child. Preserve the different source sense ranges.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:013f46c118",
+          "memberIds": [
+            "ja-vocabulary:013f46c118"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:f17fa2d7e1",
+          "memberIds": [
+            "ja-vocabulary:f17fa2d7e1"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1310670",
+      "memberIds": [
+        "ja-vocabulary:3aadcbc234",
+        "ja-vocabulary:4591eb1d00"
+      ],
+      "reason": "The dictionary associates stopping/turning off with 止める and fastening/detention with 留める. Preserve context-specific answers.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:3aadcbc234",
+          "memberIds": [
+            "ja-vocabulary:3aadcbc234"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:4591eb1d00",
+          "memberIds": [
+            "ja-vocabulary:4591eb1d00"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1320410",
+      "memberIds": [
+        "ja-vocabulary:b8aa097506",
+        "ja-vocabulary:reference-f300b4953902dbfed32db52a"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:b8aa097506",
+          "memberIds": [
+            "ja-vocabulary:b8aa097506"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-f300b4953902dbfed32db52a",
+          "memberIds": [
+            "ja-vocabulary:reference-f300b4953902dbfed32db52a"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1330490",
+      "memberIds": [
+        "ja-vocabulary:6ebf36ca63",
+        "ja-vocabulary:ade60dd5fd"
+      ],
+      "reason": "The dictionary has spelling-restricted delivery/payment and settlement senses for 納まる and 収まる. Keep them separate.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:6ebf36ca63",
+          "memberIds": [
+            "ja-vocabulary:6ebf36ca63"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ade60dd5fd",
+          "memberIds": [
+            "ja-vocabulary:ade60dd5fd"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1336770",
+      "memberIds": [
+        "ja-vocabulary:f8ca233853",
+        "ja-vocabulary:reference-cf0bfabb6cd850d17b4f86d7"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:f8ca233853",
+          "memberIds": [
+            "ja-vocabulary:f8ca233853"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-cf0bfabb6cd850d17b4f86d7",
+          "memberIds": [
+            "ja-vocabulary:reference-cf0bfabb6cd850d17b4f86d7"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1338400",
+      "memberIds": [
+        "ja-vocabulary:56092bf6de",
+        "ja-vocabulary:a3aeb9c735"
+      ],
+      "reason": "The source scope differs, and confluence is associated with 出合い. Preserve the noun/spelling presentations separately.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:56092bf6de",
+          "memberIds": [
+            "ja-vocabulary:56092bf6de"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:a3aeb9c735",
+          "memberIds": [
+            "ja-vocabulary:a3aeb9c735"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1342540",
+      "memberIds": [
+        "ja-vocabulary:47d9978eab",
+        "ja-vocabulary:e5b36d7b24"
+      ],
+      "reason": "The source records differ in scope, and dictionary notes associate origin with 始め and first-in-line with 初め. Keep them separate.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:47d9978eab",
+          "memberIds": [
+            "ja-vocabulary:47d9978eab"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:e5b36d7b24",
+          "memberIds": [
+            "ja-vocabulary:e5b36d7b24"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1352570",
+      "memberIds": [
+        "ja-vocabulary:7817fc9d64",
+        "ja-vocabulary:9df259e377",
+        "ja-vocabulary:ca7d4e8426"
+      ],
+      "reason": "The dictionary restricts climbing, natural rising, promotion and other senses across 登る, 昇る and 上る. Keep the source contexts distinct.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:7817fc9d64",
+          "memberIds": [
+            "ja-vocabulary:7817fc9d64"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:9df259e377",
+          "memberIds": [
+            "ja-vocabulary:9df259e377"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ca7d4e8426",
+          "memberIds": [
+            "ja-vocabulary:ca7d4e8426"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1358870",
+      "memberIds": [
+        "ja-vocabulary:3eb9301644",
+        "ja-vocabulary:d5c6b153f1"
+      ],
+      "reason": "The dictionary restricts progress/growth uses to 伸びる and prolonging/postponement to 延びる. Preserve the represented senses.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:3eb9301644",
+          "memberIds": [
+            "ja-vocabulary:3eb9301644"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:d5c6b153f1",
+          "memberIds": [
+            "ja-vocabulary:d5c6b153f1"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1360040",
+      "memberIds": [
+        "ja-vocabulary:198574a71b",
+        "ja-vocabulary:2d3eb89598"
+      ],
+      "reason": "寝巻 and 寝間着 are orthographic variants for nightwear with the same reading and source meanings.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:2d3eb89598",
+          "memberIds": [
+            "ja-vocabulary:198574a71b",
+            "ja-vocabulary:2d3eb89598"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1360410",
+      "memberIds": [
+        "ja-vocabulary:f805c3046f",
+        "ja-vocabulary:reference-1b7d6662c03a1ab22b5e91ba"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:f805c3046f",
+          "memberIds": [
+            "ja-vocabulary:f805c3046f"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-1b7d6662c03a1ab22b5e91ba",
+          "memberIds": [
+            "ja-vocabulary:reference-1b7d6662c03a1ab22b5e91ba"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1373680",
+      "memberIds": [
+        "ja-vocabulary:aac375dbab",
+        "ja-vocabulary:d56c12fa19"
+      ],
+      "reason": "清む and 澄む share the becoming-clear/transparent sense and reading すむ. Retain each original context and do not add other unselected senses.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:d56c12fa19",
+          "memberIds": [
+            "ja-vocabulary:aac375dbab",
+            "ja-vocabulary:d56c12fa19"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1390020",
+      "memberIds": [
+        "ja-vocabulary:5c1b91aae6",
+        "ja-vocabulary:bcf12e002d"
+      ],
+      "reason": "河 and 川 share the river/stream sense and the reading かわ. Anchor the unit on 川; retain 河 and its source level as a form variant, without adding the separate river-name suffix sense.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:bcf12e002d",
+          "memberIds": [
+            "ja-vocabulary:5c1b91aae6",
+            "ja-vocabulary:bcf12e002d"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1391500",
+      "memberIds": [
+        "ja-vocabulary:228ab529ea",
+        "ja-vocabulary:82a3b17d15"
+      ],
+      "reason": "Keep the represented roast/boil-down and parch/fry source ranges distinct; no universal spelling equivalence is asserted.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:228ab529ea",
+          "memberIds": [
+            "ja-vocabulary:228ab529ea"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:82a3b17d15",
+          "memberIds": [
+            "ja-vocabulary:82a3b17d15"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1403390",
+      "memberIds": [
+        "ja-vocabulary:2e8753951c",
+        "ja-vocabulary:54d18abf59"
+      ],
+      "reason": "Keep the context-sensitive 憎い and unusual 悪い spelling records distinct in this conservative policy; dictionary co-membership alone does not merge them.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:2e8753951c",
+          "memberIds": [
+            "ja-vocabulary:2e8753951c"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:54d18abf59",
+          "memberIds": [
+            "ja-vocabulary:54d18abf59"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1404975",
+      "memberIds": [
+        "ja-vocabulary:406d15f6e9",
+        "ja-vocabulary:4db42e0181"
+      ],
+      "reason": "速い represents quickness and 早い earliness. Identical pronunciation does not make them synonyms in every context.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:406d15f6e9",
+          "memberIds": [
+            "ja-vocabulary:406d15f6e9"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:4db42e0181",
+          "memberIds": [
+            "ja-vocabulary:4db42e0181"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1414920",
+      "memberIds": [
+        "ja-vocabulary:b442490fff",
+        "ja-vocabulary:c76123f3f7"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:b442490fff",
+          "memberIds": [
+            "ja-vocabulary:b442490fff"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:c76123f3f7",
+          "memberIds": [
+            "ja-vocabulary:c76123f3f7"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1427900",
+      "memberIds": [
+        "ja-vocabulary:c5af695d0b",
+        "ja-vocabulary:f47c4aee42"
+      ],
+      "reason": "貼る is represented by sticking/affixing while 張る has a broader source presentation and dictionary range. Preserve their context-specific spelling records.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:c5af695d0b",
+          "memberIds": [
+            "ja-vocabulary:c5af695d0b"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:f47c4aee42",
+          "memberIds": [
+            "ja-vocabulary:f47c4aee42"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1429700",
+      "memberIds": [
+        "ja-vocabulary:397b682fa7",
+        "ja-vocabulary:fd0dc5e667"
+      ],
+      "reason": "The dictionary associates 飛ぶ with flying and 跳ぶ with jumping. Preserve the represented sense distinction.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:397b682fa7",
+          "memberIds": [
+            "ja-vocabulary:397b682fa7"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:fd0dc5e667",
+          "memberIds": [
+            "ja-vocabulary:fd0dc5e667"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1429750",
+      "memberIds": [
+        "ja-vocabulary:7137e5312a",
+        "ja-vocabulary:fcea29f192"
+      ],
+      "reason": "The distance/length sense is restricted to 長い while 永い is represented by prolonged time. Preserve that distinction.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:7137e5312a",
+          "memberIds": [
+            "ja-vocabulary:7137e5312a"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:fcea29f192",
+          "memberIds": [
+            "ja-vocabulary:fcea29f192"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1433680",
+      "memberIds": [
+        "ja-vocabulary:2d88041a40",
+        "ja-vocabulary:c206b05b9d"
+      ],
+      "reason": "The pickle/preserve sense is restricted to 漬ける, while 浸ける is represented by soaking/dipping.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:2d88041a40",
+          "memberIds": [
+            "ja-vocabulary:2d88041a40"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:c206b05b9d",
+          "memberIds": [
+            "ja-vocabulary:c206b05b9d"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1437290",
+      "memberIds": [
+        "ja-vocabulary:04bfe8ab7f",
+        "ja-vocabulary:3ed7b4fc1a"
+      ],
+      "reason": "的確 and 適確 share the precise/accurate sense and pronunciation. Retain both spellings in one anchored study unit.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:04bfe8ab7f",
+          "memberIds": [
+            "ja-vocabulary:04bfe8ab7f",
+            "ja-vocabulary:3ed7b4fc1a"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1448820",
+      "memberIds": [
+        "ja-vocabulary:23f01f9d4e",
+        "ja-vocabulary:3862e77007"
+      ],
+      "reason": "当て is represented by aim/expectation and 宛 by addressed-to. The addressed-to sense is spelling-restricted.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:23f01f9d4e",
+          "memberIds": [
+            "ja-vocabulary:23f01f9d4e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:3862e77007",
+          "memberIds": [
+            "ja-vocabulary:3862e77007"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1472860",
+      "memberIds": [
+        "ja-vocabulary:5e3dfc6ff1",
+        "ja-vocabulary:reference-759000be904d35611ea4b4bb"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5e3dfc6ff1",
+          "memberIds": [
+            "ja-vocabulary:5e3dfc6ff1"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-759000be904d35611ea4b4bb",
+          "memberIds": [
+            "ja-vocabulary:reference-759000be904d35611ea4b4bb"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1478010",
+      "memberIds": [
+        "ja-vocabulary:1abb6e796a",
+        "ja-vocabulary:215cb207d4"
+      ],
+      "reason": "The source records represent attack/avenge versus attack/defeat/destroy. Keep the context-sensitive verb spellings separate.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1abb6e796a",
+          "memberIds": [
+            "ja-vocabulary:1abb6e796a"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:215cb207d4",
+          "memberIds": [
+            "ja-vocabulary:215cb207d4"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1478440",
+      "memberIds": [
+        "ja-vocabulary:6c1de07dfd",
+        "ja-vocabulary:reference-ba53fbe11166724be1efda23"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:6c1de07dfd",
+          "memberIds": [
+            "ja-vocabulary:6c1de07dfd"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-ba53fbe11166724be1efda23",
+          "memberIds": [
+            "ja-vocabulary:reference-ba53fbe11166724be1efda23"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1481920",
+      "memberIds": [
+        "ja-vocabulary:7ecfe0d248",
+        "ja-vocabulary:cca92e4195"
+      ],
+      "reason": "The source definitions emphasize different noisy/annoying/fussy senses. Keep the unusual spelling and its context separate.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:7ecfe0d248",
+          "memberIds": [
+            "ja-vocabulary:7ecfe0d248"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:cca92e4195",
+          "memberIds": [
+            "ja-vocabulary:cca92e4195"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1483185",
+      "memberIds": [
+        "ja-vocabulary:34e6f7d220",
+        "ja-vocabulary:60dd63379e"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:34e6f7d220",
+          "memberIds": [
+            "ja-vocabulary:34e6f7d220"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:60dd63379e",
+          "memberIds": [
+            "ja-vocabulary:60dd63379e"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1495770",
+      "memberIds": [
+        "ja-vocabulary:1122e34144",
+        "ja-vocabulary:af699ddbb2"
+      ],
+      "reason": "付ける and 着ける have context-sensitive orthographic use across attaching and wearing. Identical broad source glosses do not authorize interchangeability.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1122e34144",
+          "memberIds": [
+            "ja-vocabulary:1122e34144"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:af699ddbb2",
+          "memberIds": [
+            "ja-vocabulary:af699ddbb2"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1497690",
+      "memberIds": [
+        "ja-vocabulary:92ef35557d",
+        "ja-vocabulary:reference-68a8caf8bf50b2838969ba9e"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:92ef35557d",
+          "memberIds": [
+            "ja-vocabulary:92ef35557d"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-68a8caf8bf50b2838969ba9e",
+          "memberIds": [
+            "ja-vocabulary:reference-68a8caf8bf50b2838969ba9e"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1505390",
+      "memberIds": [
+        "ja-vocabulary:2ec7e341be",
+        "ja-vocabulary:reference-8d01008b8c17f80e04c4edf9"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:2ec7e341be",
+          "memberIds": [
+            "ja-vocabulary:2ec7e341be"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-8d01008b8c17f80e04c4edf9",
+          "memberIds": [
+            "ja-vocabulary:reference-8d01008b8c17f80e04c4edf9"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1522060",
+      "memberIds": [
+        "ja-vocabulary:1151601f8e",
+        "ja-vocabulary:1a3e85188c"
+      ],
+      "reason": "The records have different represented sense ranges: moat versus moat/canal. Keep them distinct rather than widen the narrower card.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1151601f8e",
+          "memberIds": [
+            "ja-vocabulary:1151601f8e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:1a3e85188c",
+          "memberIds": [
+            "ja-vocabulary:1a3e85188c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1523060",
+      "memberIds": [
+        "ja-vocabulary:849baaf2c3",
+        "ja-vocabulary:reference-53c2bf7d4fdaf8a641df07cd"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:849baaf2c3",
+          "memberIds": [
+            "ja-vocabulary:849baaf2c3"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-53c2bf7d4fdaf8a641df07cd",
+          "memberIds": [
+            "ja-vocabulary:reference-53c2bf7d4fdaf8a641df07cd"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1527110",
+      "memberIds": [
+        "ja-vocabulary:30935266bc",
+        "ja-vocabulary:6a7163f5f7"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:30935266bc",
+          "memberIds": [
+            "ja-vocabulary:30935266bc"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:6a7163f5f7",
+          "memberIds": [
+            "ja-vocabulary:6a7163f5f7"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1534870",
+      "memberIds": [
+        "ja-vocabulary:96e10e7209",
+        "ja-vocabulary:reference-6ebcec3d00fab683e6c4ea5c"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:96e10e7209",
+          "memberIds": [
+            "ja-vocabulary:96e10e7209"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-6ebcec3d00fab683e6c4ea5c",
+          "memberIds": [
+            "ja-vocabulary:reference-6ebcec3d00fab683e6c4ea5c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1536350",
+      "memberIds": [
+        "ja-vocabulary:1a0aec6793",
+        "ja-vocabulary:reference-ebbcc1819ec2f36b227e469c"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1a0aec6793",
+          "memberIds": [
+            "ja-vocabulary:1a0aec6793"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-ebbcc1819ec2f36b227e469c",
+          "memberIds": [
+            "ja-vocabulary:reference-ebbcc1819ec2f36b227e469c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1537780",
+      "memberIds": [
+        "ja-vocabulary:251266e6d5",
+        "ja-vocabulary:bd3e76856f",
+        "ja-vocabulary:reference-39a0926d8afbb9589b3bb66b",
+        "ja-vocabulary:reference-afefd69c0387a0d94430187b"
+      ],
+      "reason": "Group kana/kanji spellings within the base adverb sense and separately within the evidenced に construction. Do not merge the construction with its base.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:reference-39a0926d8afbb9589b3bb66b",
+          "memberIds": [
+            "ja-vocabulary:reference-39a0926d8afbb9589b3bb66b",
+            "ja-vocabulary:reference-afefd69c0387a0d94430187b"
+          ],
+          "senses": [
+            1
+          ]
+        },
+        {
+          "anchorId": "ja-vocabulary:251266e6d5",
+          "memberIds": [
+            "ja-vocabulary:251266e6d5",
+            "ja-vocabulary:bd3e76856f"
+          ],
+          "senses": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1569020",
+      "memberIds": [
+        "ja-vocabulary:24113c7b64",
+        "ja-vocabulary:reference-c4f50ac3c4adba2b45aa8819"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:24113c7b64",
+          "memberIds": [
+            "ja-vocabulary:24113c7b64"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-c4f50ac3c4adba2b45aa8819",
+          "memberIds": [
+            "ja-vocabulary:reference-c4f50ac3c4adba2b45aa8819"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1575990",
+      "memberIds": [
+        "ja-vocabulary:df6f68109a",
+        "ja-vocabulary:reference-d7e436bdd9202f8e1cff4d93"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:df6f68109a",
+          "memberIds": [
+            "ja-vocabulary:df6f68109a"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-d7e436bdd9202f8e1cff4d93",
+          "memberIds": [
+            "ja-vocabulary:reference-d7e436bdd9202f8e1cff4d93"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1576050",
+      "memberIds": [
+        "ja-vocabulary:f0f3826045",
+        "ja-vocabulary:reference-6a1719a840877dd7b706ba29"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:f0f3826045",
+          "memberIds": [
+            "ja-vocabulary:f0f3826045"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-6a1719a840877dd7b706ba29",
+          "memberIds": [
+            "ja-vocabulary:reference-6a1719a840877dd7b706ba29"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1576060",
+      "memberIds": [
+        "ja-vocabulary:84ce1b3469",
+        "ja-vocabulary:b75778f0ce"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:84ce1b3469",
+          "memberIds": [
+            "ja-vocabulary:84ce1b3469"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:b75778f0ce",
+          "memberIds": [
+            "ja-vocabulary:b75778f0ce"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1576150",
+      "memberIds": [
+        "ja-vocabulary:3fb1b70809",
+        "ja-vocabulary:5cc54de84b",
+        "ja-vocabulary:reference-f04ff8f7ae0c4a1df8550c9e"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:3fb1b70809",
+          "memberIds": [
+            "ja-vocabulary:3fb1b70809"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:5cc54de84b",
+          "memberIds": [
+            "ja-vocabulary:5cc54de84b"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-f04ff8f7ae0c4a1df8550c9e",
+          "memberIds": [
+            "ja-vocabulary:reference-f04ff8f7ae0c4a1df8550c9e"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1576260",
+      "memberIds": [
+        "ja-vocabulary:1cfccd0cdd",
+        "ja-vocabulary:reference-5d8799538f7fc7d5c1452550"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1cfccd0cdd",
+          "memberIds": [
+            "ja-vocabulary:1cfccd0cdd"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-5d8799538f7fc7d5c1452550",
+          "memberIds": [
+            "ja-vocabulary:reference-5d8799538f7fc7d5c1452550"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1576760",
+      "memberIds": [
+        "ja-vocabulary:5d679a1af2",
+        "ja-vocabulary:reference-20487758c18c333c0d1cfa29"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5d679a1af2",
+          "memberIds": [
+            "ja-vocabulary:5d679a1af2"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-20487758c18c333c0d1cfa29",
+          "memberIds": [
+            "ja-vocabulary:reference-20487758c18c333c0d1cfa29"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1577100",
+      "memberIds": [
+        "ja-vocabulary:558866ef86",
+        "ja-vocabulary:9d47958486"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:558866ef86",
+          "memberIds": [
+            "ja-vocabulary:558866ef86"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:9d47958486",
+          "memberIds": [
+            "ja-vocabulary:9d47958486"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1577620",
+      "memberIds": [
+        "ja-vocabulary:0221781ce9",
+        "ja-vocabulary:reference-28493e2f19af2ee401337718"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:0221781ce9",
+          "memberIds": [
+            "ja-vocabulary:0221781ce9"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-28493e2f19af2ee401337718",
+          "memberIds": [
+            "ja-vocabulary:reference-28493e2f19af2ee401337718"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1578010",
+      "memberIds": [
+        "ja-vocabulary:dbd7cd319c",
+        "ja-vocabulary:reference-0ee157072118a5acf0a4bf9a"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:dbd7cd319c",
+          "memberIds": [
+            "ja-vocabulary:dbd7cd319c"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-0ee157072118a5acf0a4bf9a",
+          "memberIds": [
+            "ja-vocabulary:reference-0ee157072118a5acf0a4bf9a"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1578110",
+      "memberIds": [
+        "ja-vocabulary:6861c0645a",
+        "ja-vocabulary:reference-ee8c9557888d33d58b1fc110"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:6861c0645a",
+          "memberIds": [
+            "ja-vocabulary:6861c0645a"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-ee8c9557888d33d58b1fc110",
+          "memberIds": [
+            "ja-vocabulary:reference-ee8c9557888d33d58b1fc110"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1578210",
+      "memberIds": [
+        "ja-vocabulary:e085d2162c",
+        "ja-vocabulary:reference-5396373caf59aa8a6add43eb"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:e085d2162c",
+          "memberIds": [
+            "ja-vocabulary:e085d2162c"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-5396373caf59aa8a6add43eb",
+          "memberIds": [
+            "ja-vocabulary:reference-5396373caf59aa8a6add43eb"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1578700",
+      "memberIds": [
+        "ja-vocabulary:8b7434e649",
+        "ja-vocabulary:9adc22cc25"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:8b7434e649",
+          "memberIds": [
+            "ja-vocabulary:8b7434e649"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:9adc22cc25",
+          "memberIds": [
+            "ja-vocabulary:9adc22cc25"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1578790",
+      "memberIds": [
+        "ja-vocabulary:2c62d0aba0",
+        "ja-vocabulary:reference-0c5871310c832b9ea49fdd37"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:2c62d0aba0",
+          "memberIds": [
+            "ja-vocabulary:2c62d0aba0"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-0c5871310c832b9ea49fdd37",
+          "memberIds": [
+            "ja-vocabulary:reference-0c5871310c832b9ea49fdd37"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1578850",
+      "memberIds": [
+        "ja-vocabulary:66e4692df7",
+        "ja-vocabulary:reference-30a51a1ad9c261949f6131cf"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:66e4692df7",
+          "memberIds": [
+            "ja-vocabulary:66e4692df7"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-30a51a1ad9c261949f6131cf",
+          "memberIds": [
+            "ja-vocabulary:reference-30a51a1ad9c261949f6131cf"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1579110",
+      "memberIds": [
+        "ja-vocabulary:0400a204bd",
+        "ja-vocabulary:380bf1226c"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:0400a204bd",
+          "memberIds": [
+            "ja-vocabulary:0400a204bd"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:380bf1226c",
+          "memberIds": [
+            "ja-vocabulary:380bf1226c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1579350",
+      "memberIds": [
+        "ja-vocabulary:5cb07674a3",
+        "ja-vocabulary:68e9c896bf"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5cb07674a3",
+          "memberIds": [
+            "ja-vocabulary:5cb07674a3"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:68e9c896bf",
+          "memberIds": [
+            "ja-vocabulary:68e9c896bf"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1579490",
+      "memberIds": [
+        "ja-vocabulary:5e5a5dfee9",
+        "ja-vocabulary:reference-bec5bea88ce2c51c81274a26"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5e5a5dfee9",
+          "memberIds": [
+            "ja-vocabulary:5e5a5dfee9"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-bec5bea88ce2c51c81274a26",
+          "memberIds": [
+            "ja-vocabulary:reference-bec5bea88ce2c51c81274a26"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1579630",
+      "memberIds": [
+        "ja-vocabulary:75ed3c3b2b",
+        "ja-vocabulary:reference-3cd8319de5488ae7d5df1354"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:75ed3c3b2b",
+          "memberIds": [
+            "ja-vocabulary:75ed3c3b2b"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-3cd8319de5488ae7d5df1354",
+          "memberIds": [
+            "ja-vocabulary:reference-3cd8319de5488ae7d5df1354"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1580270",
+      "memberIds": [
+        "ja-vocabulary:b1baf28297",
+        "ja-vocabulary:reference-ee22cf67c5a1ac404104cdab"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:b1baf28297",
+          "memberIds": [
+            "ja-vocabulary:b1baf28297"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-ee22cf67c5a1ac404104cdab",
+          "memberIds": [
+            "ja-vocabulary:reference-ee22cf67c5a1ac404104cdab"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1580310",
+      "memberIds": [
+        "ja-vocabulary:7a39116c89",
+        "ja-vocabulary:reference-07ae0b6d823c0296ff895668"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:7a39116c89",
+          "memberIds": [
+            "ja-vocabulary:7a39116c89"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-07ae0b6d823c0296ff895668",
+          "memberIds": [
+            "ja-vocabulary:reference-07ae0b6d823c0296ff895668"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1580490",
+      "memberIds": [
+        "ja-vocabulary:fb2679c1c0",
+        "ja-vocabulary:reference-662775107b19d96d0e13930c"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:fb2679c1c0",
+          "memberIds": [
+            "ja-vocabulary:fb2679c1c0"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-662775107b19d96d0e13930c",
+          "memberIds": [
+            "ja-vocabulary:reference-662775107b19d96d0e13930c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1581400",
+      "memberIds": [
+        "ja-vocabulary:b3c2007820",
+        "ja-vocabulary:reference-422971ce6bdaf4068ead7578"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:b3c2007820",
+          "memberIds": [
+            "ja-vocabulary:b3c2007820"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-422971ce6bdaf4068ead7578",
+          "memberIds": [
+            "ja-vocabulary:reference-422971ce6bdaf4068ead7578"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1581690",
+      "memberIds": [
+        "ja-vocabulary:9195f94e8f",
+        "ja-vocabulary:reference-b15d1a07983c35872a33c85f"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:9195f94e8f",
+          "memberIds": [
+            "ja-vocabulary:9195f94e8f"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-b15d1a07983c35872a33c85f",
+          "memberIds": [
+            "ja-vocabulary:reference-b15d1a07983c35872a33c85f"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1581710",
+      "memberIds": [
+        "ja-vocabulary:ee0c991348",
+        "ja-vocabulary:reference-bd547535595ed43f8c4a8204"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:ee0c991348",
+          "memberIds": [
+            "ja-vocabulary:ee0c991348"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-bd547535595ed43f8c4a8204",
+          "memberIds": [
+            "ja-vocabulary:reference-bd547535595ed43f8c4a8204"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1581900",
+      "memberIds": [
+        "ja-vocabulary:31df50f399",
+        "ja-vocabulary:reference-6bd1f68bccb53c21e8354b60"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:31df50f399",
+          "memberIds": [
+            "ja-vocabulary:31df50f399"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-6bd1f68bccb53c21e8354b60",
+          "memberIds": [
+            "ja-vocabulary:reference-6bd1f68bccb53c21e8354b60"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1582390",
+      "memberIds": [
+        "ja-vocabulary:085d6d93b2",
+        "ja-vocabulary:reference-0ab991abf7dbf860bd366fc3"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:085d6d93b2",
+          "memberIds": [
+            "ja-vocabulary:085d6d93b2"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-0ab991abf7dbf860bd366fc3",
+          "memberIds": [
+            "ja-vocabulary:reference-0ab991abf7dbf860bd366fc3"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1582670",
+      "memberIds": [
+        "ja-vocabulary:94c2076821",
+        "ja-vocabulary:reference-d7dcc859528086b51a712609"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:94c2076821",
+          "memberIds": [
+            "ja-vocabulary:94c2076821"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-d7dcc859528086b51a712609",
+          "memberIds": [
+            "ja-vocabulary:reference-d7dcc859528086b51a712609"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1582710",
+      "memberIds": [
+        "ja-vocabulary:831bd5addd",
+        "ja-vocabulary:reference-9752b818f9f88b6d264b70ce"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:831bd5addd",
+          "memberIds": [
+            "ja-vocabulary:831bd5addd"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-9752b818f9f88b6d264b70ce",
+          "memberIds": [
+            "ja-vocabulary:reference-9752b818f9f88b6d264b70ce"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1582820",
+      "memberIds": [
+        "ja-vocabulary:1ff0529d03",
+        "ja-vocabulary:reference-c71f0e34843a241ad42914ed"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1ff0529d03",
+          "memberIds": [
+            "ja-vocabulary:1ff0529d03"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-c71f0e34843a241ad42914ed",
+          "memberIds": [
+            "ja-vocabulary:reference-c71f0e34843a241ad42914ed"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1582870",
+      "memberIds": [
+        "ja-vocabulary:54e840405e",
+        "ja-vocabulary:reference-2bc6b74db1f55e8c4d74e02f"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:54e840405e",
+          "memberIds": [
+            "ja-vocabulary:54e840405e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-2bc6b74db1f55e8c4d74e02f",
+          "memberIds": [
+            "ja-vocabulary:reference-2bc6b74db1f55e8c4d74e02f"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1582960",
+      "memberIds": [
+        "ja-vocabulary:33f0992c39",
+        "ja-vocabulary:reference-653a7bc79088a96093c8ee85"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:33f0992c39",
+          "memberIds": [
+            "ja-vocabulary:33f0992c39"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-653a7bc79088a96093c8ee85",
+          "memberIds": [
+            "ja-vocabulary:reference-653a7bc79088a96093c8ee85"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1583250",
+      "memberIds": [
+        "ja-vocabulary:6d4596ae46",
+        "ja-vocabulary:85d0866116"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:6d4596ae46",
+          "memberIds": [
+            "ja-vocabulary:6d4596ae46"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:85d0866116",
+          "memberIds": [
+            "ja-vocabulary:85d0866116"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1583460",
+      "memberIds": [
+        "ja-vocabulary:a359eccfaf",
+        "ja-vocabulary:reference-802b867125085a84738124dd"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:a359eccfaf",
+          "memberIds": [
+            "ja-vocabulary:a359eccfaf"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-802b867125085a84738124dd",
+          "memberIds": [
+            "ja-vocabulary:reference-802b867125085a84738124dd"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1584160",
+      "memberIds": [
+        "ja-vocabulary:867e9165fc",
+        "ja-vocabulary:reference-f35fc01f5b818834d6da697f"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:867e9165fc",
+          "memberIds": [
+            "ja-vocabulary:867e9165fc"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-f35fc01f5b818834d6da697f",
+          "memberIds": [
+            "ja-vocabulary:reference-f35fc01f5b818834d6da697f"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1584640",
+      "memberIds": [
+        "ja-vocabulary:1938fb6bcb",
+        "ja-vocabulary:b3b4041c52"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1938fb6bcb",
+          "memberIds": [
+            "ja-vocabulary:1938fb6bcb"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:b3b4041c52",
+          "memberIds": [
+            "ja-vocabulary:b3b4041c52"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1584660",
+      "memberIds": [
+        "ja-vocabulary:115ec83476",
+        "ja-vocabulary:4c3461199c"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:115ec83476",
+          "memberIds": [
+            "ja-vocabulary:115ec83476"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:4c3461199c",
+          "memberIds": [
+            "ja-vocabulary:4c3461199c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1584820",
+      "memberIds": [
+        "ja-vocabulary:fc3802c19c",
+        "ja-vocabulary:reference-77e75432f84a8c26909a7869"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:fc3802c19c",
+          "memberIds": [
+            "ja-vocabulary:fc3802c19c"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-77e75432f84a8c26909a7869",
+          "memberIds": [
+            "ja-vocabulary:reference-77e75432f84a8c26909a7869"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1584930",
+      "memberIds": [
+        "ja-vocabulary:3f1fbec85e",
+        "ja-vocabulary:eac90e8e98"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:3f1fbec85e",
+          "memberIds": [
+            "ja-vocabulary:3f1fbec85e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:eac90e8e98",
+          "memberIds": [
+            "ja-vocabulary:eac90e8e98"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1585310",
+      "memberIds": [
+        "ja-vocabulary:f9ccc7bfdf",
+        "ja-vocabulary:reference-18bf73af83858106b6d6b03c"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:f9ccc7bfdf",
+          "memberIds": [
+            "ja-vocabulary:f9ccc7bfdf"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-18bf73af83858106b6d6b03c",
+          "memberIds": [
+            "ja-vocabulary:reference-18bf73af83858106b6d6b03c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1586270",
+      "memberIds": [
+        "ja-vocabulary:91f0d5ac9e",
+        "ja-vocabulary:fc3bc1e6f1"
+      ],
+      "reason": "The dictionary associates 開く with opening and 空く with vacancy/emptiness. Preserve that semantic/spelling distinction.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:91f0d5ac9e",
+          "memberIds": [
+            "ja-vocabulary:91f0d5ac9e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:fc3bc1e6f1",
+          "memberIds": [
+            "ja-vocabulary:fc3bc1e6f1"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1587040",
+      "memberIds": [
+        "ja-vocabulary:0f54df5fc1",
+        "ja-vocabulary:ae0cc00f94"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:0f54df5fc1",
+          "memberIds": [
+            "ja-vocabulary:0f54df5fc1"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ae0cc00f94",
+          "memberIds": [
+            "ja-vocabulary:ae0cc00f94"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1587140",
+      "memberIds": [
+        "ja-vocabulary:cb3d7cda2e",
+        "ja-vocabulary:d5373e6a45"
+      ],
+      "reason": "軍 and 戦 with reading いくさ share the war/battle sense and the same source meaning range. This group does not combine other readings or add the troops sense.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:d5373e6a45",
+          "memberIds": [
+            "ja-vocabulary:cb3d7cda2e",
+            "ja-vocabulary:d5373e6a45"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1589090",
+      "memberIds": [
+        "ja-vocabulary:1be15a39e4",
+        "ja-vocabulary:e5d795cde2"
+      ],
+      "reason": "Dictionary sense restrictions separate 収める for obtaining/results and 納める for paying/delivering. Broad source gloss equality is not a merge.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1be15a39e4",
+          "memberIds": [
+            "ja-vocabulary:1be15a39e4"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:e5d795cde2",
+          "memberIds": [
+            "ja-vocabulary:e5d795cde2"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1589500",
+      "memberIds": [
+        "ja-vocabulary:4806278f5b",
+        "ja-vocabulary:ae00442122"
+      ],
+      "reason": "The dictionary associates descending with 下りる and alighting with 降りる. Preserve context-specific spelling choices.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:4806278f5b",
+          "memberIds": [
+            "ja-vocabulary:4806278f5b"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ae00442122",
+          "memberIds": [
+            "ja-vocabulary:ae00442122"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1589780",
+      "memberIds": [
+        "ja-vocabulary:2f3ce71d72",
+        "ja-vocabulary:33a3172689",
+        "ja-vocabulary:8355396ec5"
+      ],
+      "reason": "The dictionary notes 替える for replacing, 換える for exchanging and 代える for substituting people. Preserve those contexts.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:2f3ce71d72",
+          "memberIds": [
+            "ja-vocabulary:2f3ce71d72"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:33a3172689",
+          "memberIds": [
+            "ja-vocabulary:33a3172689"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:8355396ec5",
+          "memberIds": [
+            "ja-vocabulary:8355396ec5"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1590250",
+      "memberIds": [
+        "ja-vocabulary:4641b96f3b",
+        "ja-vocabulary:79fcbe33ae"
+      ],
+      "reason": "箇所 and 個所 are permitted variants for the place/part and counter senses, with identical pronunciation and source meaning ranges.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:4641b96f3b",
+          "memberIds": [
+            "ja-vocabulary:4641b96f3b",
+            "ja-vocabulary:79fcbe33ae"
+          ],
+          "senses": [
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1590420",
+      "memberIds": [
+        "ja-vocabulary:09ed6cd566",
+        "ja-vocabulary:68470c06d5"
+      ],
+      "reason": "The source definitions have different scope, including physical leaning and prejudice. Keep these spelling/context records distinct in this policy.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:09ed6cd566",
+          "memberIds": [
+            "ja-vocabulary:09ed6cd566"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:68470c06d5",
+          "memberIds": [
+            "ja-vocabulary:68470c06d5"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1591210",
+      "memberIds": [
+        "ja-vocabulary:47b2831015",
+        "ja-vocabulary:ad05abb348"
+      ],
+      "reason": "Keep the context-sensitive standard/criterion spellings distinct rather than treating the broad shared English definitions as universal aliases.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:47b2831015",
+          "memberIds": [
+            "ja-vocabulary:47b2831015"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ad05abb348",
+          "memberIds": [
+            "ja-vocabulary:ad05abb348"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1593070",
+      "memberIds": [
+        "ja-vocabulary:5dbb5639ea",
+        "ja-vocabulary:c730681c17"
+      ],
+      "reason": "The dictionary associates 越える with crossing and 超える with exceeding. Preserve the context-sensitive spellings.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5dbb5639ea",
+          "memberIds": [
+            "ja-vocabulary:5dbb5639ea"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:c730681c17",
+          "memberIds": [
+            "ja-vocabulary:c730681c17"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1593190",
+      "memberIds": [
+        "ja-vocabulary:1cd105911f",
+        "ja-vocabulary:f167fd3a76"
+      ],
+      "reason": "個々 and 箇箇 share the individual/each sense and reading. Keep the spelling metadata rather than scheduling duplicate source translations.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1cd105911f",
+          "memberIds": [
+            "ja-vocabulary:1cd105911f",
+            "ja-vocabulary:f167fd3a76"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1593670",
+      "memberIds": [
+        "ja-vocabulary:0f4440571e",
+        "ja-vocabulary:c3429126c5"
+      ],
+      "reason": "The dictionary distinguishes 探す for something desired and 捜す for something lost. Keep the context-sensitive spellings separate.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:0f4440571e",
+          "memberIds": [
+            "ja-vocabulary:0f4440571e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:c3429126c5",
+          "memberIds": [
+            "ja-vocabulary:c3429126c5"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1597890",
+      "memberIds": [
+        "ja-vocabulary:6686f635d7",
+        "ja-vocabulary:6e922a750e"
+      ],
+      "reason": "The dictionary notes 造る for large-scale building/manufacturing. Preserve this spelling context alongside 作る.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:6686f635d7",
+          "memberIds": [
+            "ja-vocabulary:6686f635d7"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:6e922a750e",
+          "memberIds": [
+            "ja-vocabulary:6e922a750e"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1598530",
+      "memberIds": [
+        "ja-vocabulary:21fc5b6373",
+        "ja-vocabulary:efa915fbef"
+      ],
+      "reason": "The source scope differs, including a rendezvous/date; dictionary notes also distinguish confluence uses. Preserve the spelling/context records.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:21fc5b6373",
+          "memberIds": [
+            "ja-vocabulary:21fc5b6373"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:efa915fbef",
+          "memberIds": [
+            "ja-vocabulary:efa915fbef"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1598620",
+      "memberIds": [
+        "ja-vocabulary:589a614801",
+        "ja-vocabulary:effb9aa394"
+      ],
+      "reason": "尊い and 貴い with the source reading たっとい share the precious and noble senses represented by both source records; retain the spelling variants and full meaning records.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:589a614801",
+          "memberIds": [
+            "ja-vocabulary:589a614801",
+            "ja-vocabulary:effb9aa394"
+          ],
+          "senses": [
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1598730",
+      "memberIds": [
+        "ja-vocabulary:c14d253e1f",
+        "ja-vocabulary:reference-5197cddbaf76113adf89d9ba"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:c14d253e1f",
+          "memberIds": [
+            "ja-vocabulary:c14d253e1f"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-5197cddbaf76113adf89d9ba",
+          "memberIds": [
+            "ja-vocabulary:reference-5197cddbaf76113adf89d9ba"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1598820",
+      "memberIds": [
+        "ja-vocabulary:7515db0cfd",
+        "ja-vocabulary:d067bdf300"
+      ],
+      "reason": "止める and 留める with reading とどめる have the same source stop/cease meaning. Group that shared sense while keeping the とめる and やめる entries separate.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:7515db0cfd",
+          "memberIds": [
+            "ja-vocabulary:7515db0cfd",
+            "ja-vocabulary:d067bdf300"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1599430",
+      "memberIds": [
+        "ja-vocabulary:4100983d28",
+        "ja-vocabulary:9f7b77e398"
+      ],
+      "reason": "中身 and 中味 have the same source meaning range and reading; all three selected senses permit both spellings.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:9f7b77e398",
+          "memberIds": [
+            "ja-vocabulary:4100983d28",
+            "ja-vocabulary:9f7b77e398"
+          ],
+          "senses": [
+            1,
+            2,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1600270",
+      "memberIds": [
+        "ja-vocabulary:31f735aed4",
+        "ja-vocabulary:b495f06d59"
+      ],
+      "reason": "The dictionary notes 乗せる for giving a ride, 載せる for loading, and restricts publishing to 載せる. Keep the spelling usages distinct.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:31f735aed4",
+          "memberIds": [
+            "ja-vocabulary:31f735aed4"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:b495f06d59",
+          "memberIds": [
+            "ja-vocabulary:b495f06d59"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1600290",
+      "memberIds": [
+        "ja-vocabulary:ad88f57a3e",
+        "ja-vocabulary:f7a5a8fcab"
+      ],
+      "reason": "The dictionary associates 伸ばす with growth/reaching and 延ばす with postponement. Preserve the context-specific spellings.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:ad88f57a3e",
+          "memberIds": [
+            "ja-vocabulary:ad88f57a3e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:f7a5a8fcab",
+          "memberIds": [
+            "ja-vocabulary:f7a5a8fcab"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1600650",
+      "memberIds": [
+        "ja-vocabulary:6b741662df",
+        "ja-vocabulary:854c82b3ff",
+        "ja-vocabulary:ae280779f0"
+      ],
+      "reason": "Keep 計る, 量る and 測る as context-sensitive measurement spelling records; the shared broad English gloss does not select a spelling for a prompt.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:6b741662df",
+          "memberIds": [
+            "ja-vocabulary:6b741662df"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:854c82b3ff",
+          "memberIds": [
+            "ja-vocabulary:854c82b3ff"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ae280779f0",
+          "memberIds": [
+            "ja-vocabulary:ae280779f0"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1602440",
+      "memberIds": [
+        "ja-vocabulary:59bc2e87aa",
+        "ja-vocabulary:c3c21a7396"
+      ],
+      "reason": "The dictionary notes 殖える for population growth or capital appreciation. Preserve that context rather than widening the increase card.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:59bc2e87aa",
+          "memberIds": [
+            "ja-vocabulary:59bc2e87aa"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:c3c21a7396",
+          "memberIds": [
+            "ja-vocabulary:c3c21a7396"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1602700",
+      "memberIds": [
+        "ja-vocabulary:6f8b6b1121",
+        "ja-vocabulary:c377958d2d"
+      ],
+      "reason": "付属 and 附属 share the attached/affiliated sense and reading. Group this common sense without importing the unselected attached-school sense.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:6f8b6b1121",
+          "memberIds": [
+            "ja-vocabulary:6f8b6b1121",
+            "ja-vocabulary:c377958d2d"
+          ],
+          "senses": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1602800",
+      "memberIds": [
+        "ja-vocabulary:144ace6a3f",
+        "ja-vocabulary:45d920815a"
+      ],
+      "reason": "The dictionary notes that 舟 is often small and hand-propelled. Preserve this boat/spelling usage distinction.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:144ace6a3f",
+          "memberIds": [
+            "ja-vocabulary:144ace6a3f"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:45d920815a",
+          "memberIds": [
+            "ja-vocabulary:45d920815a"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1603500",
+      "memberIds": [
+        "ja-vocabulary:33602d086e",
+        "ja-vocabulary:65fc20eed5"
+      ],
+      "reason": "Keep guarantee/protection spelling usages distinct; the warranty sense is restricted to 保証 and has been removed from 保障.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:33602d086e",
+          "memberIds": [
+            "ja-vocabulary:33602d086e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:65fc20eed5",
+          "memberIds": [
+            "ja-vocabulary:65fc20eed5"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1603920",
+      "memberIds": [
+        "ja-vocabulary:948ad087df",
+        "ja-vocabulary:eadadef662"
+      ],
+      "reason": "Keep the context-sensitive 交ざる and 混ざる spellings separate; a shared broad translation does not authorize every spelling in a context.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:948ad087df",
+          "memberIds": [
+            "ja-vocabulary:948ad087df"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:eadadef662",
+          "memberIds": [
+            "ja-vocabulary:eadadef662"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1603930",
+      "memberIds": [
+        "ja-vocabulary:8a0cc52e6c",
+        "ja-vocabulary:983c20ed4c"
+      ],
+      "reason": "The dictionary associates 混じる with mixture and 交じる with association/mingling. Preserve those contexts.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:8a0cc52e6c",
+          "memberIds": [
+            "ja-vocabulary:8a0cc52e6c"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:983c20ed4c",
+          "memberIds": [
+            "ja-vocabulary:983c20ed4c"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1603990",
+      "memberIds": [
+        "ja-vocabulary:4d76d06d84",
+        "ja-vocabulary:f91eb72b15"
+      ],
+      "reason": "町 is represented by town/city and 街 by town/street/road; the dictionary restricts downtown/main-street to 街.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:4d76d06d84",
+          "memberIds": [
+            "ja-vocabulary:4d76d06d84"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:f91eb72b15",
+          "memberIds": [
+            "ja-vocabulary:f91eb72b15"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1604230",
+      "memberIds": [
+        "ja-vocabulary:1a7c32fbcb",
+        "ja-vocabulary:ab36109960"
+      ],
+      "reason": "The dictionary notes 丸い for ball-shaped objects and 円い for disc-shaped objects. Preserve the orthographic/context distinction.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:1a7c32fbcb",
+          "memberIds": [
+            "ja-vocabulary:1a7c32fbcb"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ab36109960",
+          "memberIds": [
+            "ja-vocabulary:ab36109960"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1605630",
+      "memberIds": [
+        "ja-vocabulary:3ccc927e4b",
+        "ja-vocabulary:83501678de"
+      ],
+      "reason": "The source scope differs between soft and soft/tender/limp. Keep the orthographic/context records distinct in this policy.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:3ccc927e4b",
+          "memberIds": [
+            "ja-vocabulary:3ccc927e4b"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:83501678de",
+          "memberIds": [
+            "ja-vocabulary:83501678de"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1605820",
+      "memberIds": [
+        "ja-vocabulary:ae7eaba50f",
+        "ja-vocabulary:e37a087c0f"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:ae7eaba50f",
+          "memberIds": [
+            "ja-vocabulary:ae7eaba50f"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:e37a087c0f",
+          "memberIds": [
+            "ja-vocabulary:e37a087c0f"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1609010",
+      "memberIds": [
+        "ja-vocabulary:03e5958da6",
+        "ja-vocabulary:b286c3e278"
+      ],
+      "reason": "空き and 明き have the same source reading and room/emptiness/free-time meanings. Group the orthographic variants under the space and free-time senses, retaining each form and its provenance.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:03e5958da6",
+          "memberIds": [
+            "ja-vocabulary:03e5958da6",
+            "ja-vocabulary:b286c3e278"
+          ],
+          "senses": [
+            1,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "entryId": "1612620",
+      "memberIds": [
+        "ja-vocabulary:18818a506e",
+        "ja-vocabulary:66c159592d"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:18818a506e",
+          "memberIds": [
+            "ja-vocabulary:18818a506e"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:66c159592d",
+          "memberIds": [
+            "ja-vocabulary:66c159592d"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "1631970",
+      "memberIds": [
+        "ja-vocabulary:d374033b31",
+        "ja-vocabulary:reference-eaa1e7ec29f16f42b31ccbc2",
+        "ja-vocabulary:reference-fd8bfa4b33fb473f97774d67"
+      ],
+      "reason": "Keep the explicitly evidenced construction separate from its base or other forms. Dictionary entry sharing is not identical grammatical behavior or a universal answer set.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:d374033b31",
+          "memberIds": [
+            "ja-vocabulary:d374033b31"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-eaa1e7ec29f16f42b31ccbc2",
+          "memberIds": [
+            "ja-vocabulary:reference-eaa1e7ec29f16f42b31ccbc2"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-fd8bfa4b33fb473f97774d67",
+          "memberIds": [
+            "ja-vocabulary:reference-fd8bfa4b33fb473f97774d67"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "2261490",
+      "memberIds": [
+        "ja-vocabulary:997f2be694",
+        "ja-vocabulary:b6e9e55b54",
+        "ja-vocabulary:ea45ce4bc8"
+      ],
+      "reason": "Keep 伯父さん (older uncle), 叔父さん (younger uncle), and 小父さん (familiar address) separate, as documented by the dictionary notes and reference coverage.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:997f2be694",
+          "memberIds": [
+            "ja-vocabulary:997f2be694"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:b6e9e55b54",
+          "memberIds": [
+            "ja-vocabulary:b6e9e55b54"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ea45ce4bc8",
+          "memberIds": [
+            "ja-vocabulary:ea45ce4bc8"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "2261500",
+      "memberIds": [
+        "ja-vocabulary:03d7b15720",
+        "ja-vocabulary:ab742a2e6a"
+      ],
+      "reason": "伯母さん denotes an aunt older than a parent and 叔母さん an aunt younger than a parent. Keep the kinship spelling distinction despite identical English glosses.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:03d7b15720",
+          "memberIds": [
+            "ja-vocabulary:03d7b15720"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:ab742a2e6a",
+          "memberIds": [
+            "ja-vocabulary:ab742a2e6a"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "2394370",
+      "memberIds": [
+        "ja-vocabulary:4fff6d0441",
+        "ja-vocabulary:e8c795d3e8"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:4fff6d0441",
+          "memberIds": [
+            "ja-vocabulary:4fff6d0441"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:e8c795d3e8",
+          "memberIds": [
+            "ja-vocabulary:e8c795d3e8"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "2423740",
+      "memberIds": [
+        "ja-vocabulary:reference-98e6ef04426f735a168befb1",
+        "ja-vocabulary:reference-e4334e117c6e21709f5c15f7"
+      ],
+      "reason": "Keep 不/ぶ and 無/ぶ as context-dependent negative-prefix spellings rather than universally interchangeable answers.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:reference-98e6ef04426f735a168befb1",
+          "memberIds": [
+            "ja-vocabulary:reference-98e6ef04426f735a168befb1"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:reference-e4334e117c6e21709f5c15f7",
+          "memberIds": [
+            "ja-vocabulary:reference-e4334e117c6e21709f5c15f7"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "2657130",
+      "memberIds": [
+        "ja-vocabulary:257afc27f7",
+        "ja-vocabulary:e9f0941d9e"
+      ],
+      "reason": "Staying/remain and being limited-to are different represented senses; keep these records distinct.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:257afc27f7",
+          "memberIds": [
+            "ja-vocabulary:257afc27f7"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:e9f0941d9e",
+          "memberIds": [
+            "ja-vocabulary:e9f0941d9e"
+          ],
+          "senses": []
+        }
+      ]
+    },
+    {
+      "entryId": "2827352",
+      "memberIds": [
+        "ja-vocabulary:5253a3aed7",
+        "ja-vocabulary:708be70d5e"
+      ],
+      "reason": "Keep the distinct primary readings/register or pronunciation presentations as separate study identities. Record shared dictionary membership without copying the easier form level to the other reading.",
+      "groups": [
+        {
+          "anchorId": "ja-vocabulary:5253a3aed7",
+          "memberIds": [
+            "ja-vocabulary:5253a3aed7"
+          ],
+          "senses": []
+        },
+        {
+          "anchorId": "ja-vocabulary:708be70d5e",
+          "memberIds": [
+            "ja-vocabulary:708be70d5e"
+          ],
+          "senses": []
+        }
+      ]
+    }
+  ]
+}

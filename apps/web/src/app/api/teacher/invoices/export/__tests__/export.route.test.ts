@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { conversationProduct, lessonSubjectCases } from "../../../../../../../test/lesson-subject-fixture";
 
 const { authMock, prismaMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
@@ -16,6 +17,12 @@ vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 import { GET } from "@/app/api/teacher/invoices/export/route";
 
 describe("GET /api/teacher/invoices/export", () => {
+  test.each(lessonSubjectCases)("the shared CSV names a $learningLanguage transaction using its booking snapshot", async ({ learningLanguage, nameEn, nameJa }) => {
+    prismaMock.invoice.findMany.mockResolvedValue([{ invoiceNo: "INV-1", bookingId: "booking-1", amountYen: 3300, paidAt: new Date("2026-04-28T02:00:00Z"),
+      student: { name: "Student", learningLanguage: "ENGLISH" }, booking: { learningLanguage, startsAt: new Date("2026-05-10T15:00:00Z"), lessonProduct: conversationProduct, teacher: { user: { name: "Teacher" } } } }]);
+    const res = await GET(new Request("http://localhost/api/teacher/invoices/export"));
+    expect(res.status).toBe(200); expect(await res.text()).toContain(`${nameJa} / ${nameEn}`);
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "teacher-user-1", role: "TEACHER" } });

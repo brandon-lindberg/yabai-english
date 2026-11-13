@@ -2,6 +2,9 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { LocalBookingDateTimeRange } from "@/components/dashboard/local-booking-datetime-range";
 import { Status, type StatusTone } from "@/components/ui/status";
 import { formatYen } from "@/lib/format-money";
+import type { LearningLanguage, LessonTier } from "@/generated/prisma/enums";
+import { LEARNING_JOURNEYS } from "@/lib/learning-journey";
+import { lessonProductNames } from "@/lib/lesson-product-catalog";
 
 /**
  * The lesson / when / with whom / how much block, shared by checkout and the
@@ -12,6 +15,9 @@ import { formatYen } from "@/lib/format-money";
  * asking for — on checkout it is the decision, on success it is the receipt.
  */
 type Props = {
+  learningLanguage?: LearningLanguage;
+  lessonTier?: LessonTier;
+  durationMin?: number;
   lessonNameJa: string;
   lessonNameEn: string;
   startsAtIso: string;
@@ -34,9 +40,14 @@ export async function BookingSummary({
   statusTone,
   statusLabel,
   emphasis = "primary",
+  learningLanguage = "ENGLISH",
+  lessonTier,
+  durationMin = 0,
 }: Props) {
   const locale = await getLocale();
   const td = await getTranslations("dashboard");
+  const j = await getTranslations("learningJourney");
+  const names = lessonProductNames({ nameJa: lessonNameJa, nameEn: lessonNameEn, tier: lessonTier, durationMin }, learningLanguage);
 
   const amountClass =
     emphasis === "primary"
@@ -47,7 +58,7 @@ export async function BookingSummary({
     <>
       <section className="mt-8 border-t border-border pt-6">
         <p className="text-lg font-bold tracking-[-0.02em] text-foreground">
-          {lessonNameJa} / {lessonNameEn}
+          {j(`${LEARNING_JOURNEYS[learningLanguage].key}.name`)} · {names.nameJa} / {names.nameEn}
         </p>
 
         {/*

@@ -1,0 +1,16 @@
+{
+  "kind": "owner_authorized_ai_assisted",
+  "authorizedBy": "Brandon (project owner, current conversation)",
+  "authorizedOn": "2026-10-23",
+  "authorization": "The project owner explicitly authorized publication of this bank: 'this is fine, you can publish this'. This accepts the documented AI-assisted editorial checks and source-aligned placement policy; it does not assert an independent Japanese-teacher review, legal certification, empirical calibration or official JLPT equivalence.",
+  "bankDigest": "43832badc0f39b039b2d0ffda31481f99774bd6f9035b5b42e65195bb8b9d203",
+  "checks": {
+    "content": "docs/japanese-placement-quality.md and docs/japanese-placement-release.md: AI-assisted screen of all 470 items and 110 accepted construction orders, recorded corrections, retained source excerpts, duplicate/key/dictionary/content-lock checks. Fifty explicit reading/construction anchors selected in rubric-alignment.json. No independent human teacher signoff is claimed.",
+    "rights": "docs/japanese-placement-content.md and docs/japanese-placement-release.md: nine source records with retained MIT/data-specific and CC BY-SA notices, linked originals/pins and disclosed adaptations. Public versioned credits include full MIT notices, CC BY-SA terms and EDRDG/JMdict attribution. Source terms checked, not legal certification.",
+    "policy": "docs/japanese-placement-rubric.md and docs/japanese-placement-release.md: twenty-minute adaptive 24-question Japanese reading/construction assessment; source-aligned rules with repeated independent evidence, automatic provisional study band or insufficient-evidence result. No fitted likelihoods, pilot prerequisite, recordings or individual teacher marking. Legacy and database guards remain enforced."
+  },
+  "notices": {
+    "path": "/japanese-placement/v3/NOTICE.txt",
+    "sha256": "da96a65c8599b31ba0739e73ca84d95bc23c123fa70a2ddf0d45339fa4f98c42"
+  }
+}

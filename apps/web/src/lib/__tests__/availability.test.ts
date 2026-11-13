@@ -25,6 +25,14 @@ describe("buildUpcomingSlotOptions", () => {
     expect(slots[0]?.endsAtIso).toBe("2026-04-13T02:00:00.000Z");
   });
 
+  test("labels a booking slot with the viewer's local day and time, without a zone suffix", () => {
+    const [slot] = buildUpcomingSlotOptions({
+      availabilitySlots: [baseSlot], viewerTimezone: "America/Los_Angeles",
+      now: "2026-04-10T00:00:00.000Z", horizonDays: 7,
+    });
+    expect(slot).toMatchObject({ startsAtIso: "2026-04-13T01:00:00.000Z", label: "Sun, Apr 12 18:00 - 19:00" });
+  });
+
   test("builds only the selected date for one-off availability", () => {
     const slots = buildUpcomingSlotOptions({
       availabilitySlots: [

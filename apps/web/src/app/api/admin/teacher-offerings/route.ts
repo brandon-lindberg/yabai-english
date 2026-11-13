@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSuperAdmin } from "@/lib/require-super-admin";
 import { prisma } from "@/lib/prisma";
 import { MIN_PUBLIC_LESSON_RATE_YEN } from "@/lib/lesson-rate-policy";
+import { learningLanguageSchema, teacherCanTeach } from "@/lib/learning-language";
 
 /**
  * Grants a teacher a class priced below the public minimum.
@@ -15,6 +16,7 @@ import { MIN_PUBLIC_LESSON_RATE_YEN } from "@/lib/lesson-rate-policy";
  * class themselves, and should, so it stays theirs to edit.
  */
 const grantSchema = z.object({
+  learningLanguage: learningLanguageSchema.optional(),
   teacherId: z.string().min(1),
   durationMin: z.number().int().min(15).max(180),
   rateYen: z.number().int().min(1).max(9_999_999),
@@ -40,7 +42,7 @@ export async function GET(req: Request) {
 
   const teacher = await prisma.teacherProfile.findFirst({
     where: { id: teacherId },
-    select: { id: true },
+    select: { id: true, teachingLanguages: true },
   });
   if (!teacher) {
     return NextResponse.json({ error: "Teacher not found" }, { status: 404 });
@@ -67,6 +69,7 @@ export async function GET(req: Request) {
       orderBy: [{ durationMin: "asc" }],
       select: {
         id: true,
+        learningLanguage: true,
         durationMin: true,
         rateYen: true,
         isGroup: true,
@@ -79,7 +82,7 @@ export async function GET(req: Request) {
     }),
   ]);
 
-  return NextResponse.json({ classLevels, classTypes, grants });
+  return NextResponse.json({ teachingLanguages: teacher.teachingLanguages, classLevels, classTypes, grants });
 }
 
 export async function POST(req: Request) {
@@ -104,10 +107,13 @@ export async function POST(req: Request) {
 
   const teacher = await prisma.teacherProfile.findFirst({
     where: { id: data.teacherId },
-    select: { id: true },
+    select: { id: true, teachingLanguages: true },
   });
   if (!teacher) {
     return NextResponse.json({ error: "Teacher not found" }, { status: 404 });
+  }
+  if (!teacherCanTeach(teacher, data.learningLanguage ?? "ENGLISH")) {
+    return NextResponse.json({ error: "Assign this teaching language to the teacher before granting a class." }, { status: 403 });
   }
 
   // The class hangs off the teacher's own taxonomy, so an availability slot can
@@ -132,6 +138,7 @@ export async function POST(req: Request) {
   const offering = await prisma.teacherLessonOffering.create({
     data: {
       teacherId: teacher.id,
+      learningLanguage: data.learningLanguage ?? "ENGLISH",
       durationMin: data.durationMin,
       rateYen: data.rateYen,
       isGroup: data.isGroup ?? false,

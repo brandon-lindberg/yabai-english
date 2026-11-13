@@ -18,7 +18,7 @@ export async function getStudyResumeInfo(
   userId: string,
 ): Promise<StudyResumeInfo | null> {
   const track = await prisma.studyTrack.findUnique({
-    where: { slug: TRACK_SLUG },
+    where: { slug: TRACK_SLUG, learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" },
     select: { id: true },
   });
   if (!track) return null;

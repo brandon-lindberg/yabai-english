@@ -2,16 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { buttonClasses } from "@/components/ui/button";
+import { InterfaceIcon } from "@/components/ui/interface-icon";
 
 const STORAGE_KEY = "english-platform-theme";
+const CHANGE_EVENT = "english-platform-theme-change";
 
 type Theme = "light" | "dark";
 
 function readTheme(): Theme {
   if (typeof window === "undefined") return "light";
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "light" || stored === "dark") return stored;
-  return "light";
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "light" || stored === "dark") return stored;
+  } catch { /* The theme still works when browser storage is unavailable. */ }
+  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
 }
 
 export function ThemeToggle() {
@@ -19,56 +24,26 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
+    const sync = () => setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
     queueMicrotask(() => {
       setTheme(readTheme());
     });
+    window.addEventListener(CHANGE_EVENT, sync);
+    return () => window.removeEventListener(CHANGE_EVENT, sync);
   }, []);
 
   function setMode(next: Theme) {
-    localStorage.setItem(STORAGE_KEY, next);
+    try { localStorage.setItem(STORAGE_KEY, next); } catch { /* Keep this visit usable without storage. */ }
     document.documentElement.dataset.theme = next;
-    setTheme(next);
+    window.dispatchEvent(new Event(CHANGE_EVENT));
   }
 
-  if (theme === null) {
-    return (
-      <span
-        className="inline-block h-9 w-full rounded-full bg-border"
-        aria-hidden
-      />
-    );
-  }
-
+  const next = theme === "dark" ? "light" : "dark";
+  const label = theme === null ? t("themeToggle") : t(next === "dark" ? "switchToDark" : "switchToLight");
   return (
-    <div
-      className="grid w-full grid-cols-2 items-center rounded-full border border-border bg-surface p-0.5"
-      role="group"
-      aria-label={t("themeToggle")}
-    >
-      <button
-        type="button"
-        onClick={() => setMode("light")}
-        aria-pressed={theme === "light"}
-        className={`rounded-full px-3 py-1 text-center text-xs font-semibold transition ${
-          theme === "light"
-            ? "bg-primary text-primary-foreground"
-            : "text-muted hover:text-foreground"
-        }`}
-      >
-        {t("themeLight")}
-      </button>
-      <button
-        type="button"
-        onClick={() => setMode("dark")}
-        aria-pressed={theme === "dark"}
-        className={`rounded-full px-3 py-1 text-center text-xs font-semibold transition ${
-          theme === "dark"
-            ? "bg-primary text-primary-foreground"
-            : "text-muted hover:text-foreground"
-        }`}
-      >
-        {t("themeDark")}
-      </button>
-    </div>
+    <button type="button" aria-label={label} title={label} disabled={theme === null} onClick={() => setMode(next)}
+      className={buttonClasses({ variant: "ghost", size: "icon", className: "text-muted hover:text-foreground" })}>
+      <InterfaceIcon name={theme === "dark" ? "moon" : "sun"} />
+    </button>
   );
 }

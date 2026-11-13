@@ -21,7 +21,10 @@ export default async function TeacherOnboardingPage({
 
   const profile = await prisma.teacherProfile.findUnique({
     where: { userId: user.id },
-    select: { onboardingCompletedAt: true, skippedOnboardingSteps: true },
+    select: {
+      onboardingCompletedAt: true, skippedOnboardingSteps: true,
+      lessonOfferings: { where: { active: true }, select: { learningLanguage: true } },
+    },
   });
   if (profile?.onboardingCompletedAt) {
     redirect({ href: "/dashboard", locale });
@@ -34,6 +37,7 @@ export default async function TeacherOnboardingPage({
         <TeacherOnboardingForm
           completedParam={completed ?? null}
           skippedSteps={profile?.skippedOnboardingSteps ?? []}
+          materialsAvailable={user.learningLanguage === "ENGLISH" && Boolean(profile?.lessonOfferings.some(offer => offer.learningLanguage === "ENGLISH"))}
         />
       </div>
     </main>

@@ -1,4 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
+import { LearningLanguage } from "@/generated/prisma/enums";
+import { learningLanguageTeacherWhere } from "@/lib/learning-language";
+import { teacherMarketplaceVisibilityKey } from "@/lib/teacher-marketplace-booking-access";
 
 /**
  * Where clause for marketplace teacher discovery.
@@ -17,6 +20,18 @@ import type { Prisma } from "@/generated/prisma/client";
  */
 export function marketplaceTeacherWhere(
   viewerStudentId: string | null,
+  learningLanguage: LearningLanguage = LearningLanguage.ENGLISH,
+): Prisma.TeacherProfileWhereInput {
+  const eligibility = marketplaceTeacherEligibilityWhere(learningLanguage, viewerStudentId);
+  const publicVisibility = { [teacherMarketplaceVisibilityKey(learningLanguage)]: false };
+  return viewerStudentId
+    ? { ...eligibility, OR: [publicVisibility, { rosterEntries: { some: { studentId: viewerStudentId } } }] }
+    : { ...eligibility, ...publicVisibility };
+}
+
+export function marketplaceTeacherEligibilityWhere(
+  learningLanguage: LearningLanguage,
+  viewerStudentId: string | null = null,
 ): Prisma.TeacherProfileWhereInput {
   const userWhere: Prisma.UserWhereInput = {
     organizationMemberships: { none: { status: "ACTIVE" } },
@@ -31,15 +46,5 @@ export function marketplaceTeacherWhere(
     };
   }
 
-  if (!viewerStudentId) {
-    return { marketplaceHidden: false, user: userWhere };
-  }
-
-  return {
-    OR: [
-      { marketplaceHidden: false },
-      { rosterEntries: { some: { studentId: viewerStudentId } } },
-    ],
-    user: userWhere,
-  };
+  return { user: userWhere, AND: [learningLanguageTeacherWhere(learningLanguage)] };
 }

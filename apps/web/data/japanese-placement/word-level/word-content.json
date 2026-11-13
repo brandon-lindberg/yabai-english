@@ -1,0 +1,6102 @@
+{
+  "schemaVersion": 1,
+  "id": "japanese-word-content",
+  "revision": 2,
+  "status": "draft",
+  "sources": [
+    {
+      "id": "original-kana",
+      "origin": "original",
+      "title": "Kana script recognition drafts",
+      "location": "data/japanese-placement/word-level/word-content.json",
+      "revision": "1; 2026-10-23",
+      "license": "CC-BY-SA-4.0",
+      "attribution": "English Platform contributors, 2026. Original AI-assisted kana prompts and distractors. CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/.",
+      "permissionEvidence": "Newly authored script-conversion exercises. N5 literacy floor only; no advanced level claim."
+    },
+    {
+      "id": "openjlpt-jmdict",
+      "origin": "adapted",
+      "title": "Selected OpenJLPT vocabulary with JMdict and Waller evidence",
+      "location": "https://github.com/evanclan/OpenJLPT/tree/0d1d3410bec90bd4098a7c72de820543cb4f707c",
+      "revision": "OpenJLPT 0d1d3410bec90bd4098a7c72de820543cb4f707c; reference b062d4e38c4bdd0950ae1d4ec55f04b176182e03; JMdict 3.6.2+20261019180022",
+      "license": "CC-BY-SA-4.0; Waller CC-BY attribution",
+      "attribution": "OpenJLPT contributors; Jonathan Waller (tanos.co.uk/jlpt/); stephenmk/yomitan-jlpt-vocab; Jim Breen and the Electronic Dictionary Research and Development Group (edrdg.org); scriptin/jmdict-simplified JSON conversion. Selected words, readings, glosses and community level tags retained; contexts and distractors newly authored. Derivatives CC BY-SA 4.0. Full notices and change details: licences/openjlpt-LICENSE, licences/openjlpt-NOTICE.md, licences/waller-LICENSE.txt and word-level/ATTRIBUTION.md. No upstream example sentences imported.",
+      "permissionEvidence": "Pinned OpenJLPT notices and reference licence; https://www.edrdg.org/edrdg/licence.html; https://creativecommons.org/licenses/by-sa/4.0/. Selected spellings/readings checked against full pinned JMdict; same-band matched Waller reference retained. These community lists share ancestry and are not independent difficulty validation."
+    },
+    {
+      "id": "jlptsuccess",
+      "origin": "adapted",
+      "title": "JLPTSuccess original N5 educational content",
+      "location": "https://github.com/gauravhq/JLPTSuccess/tree/708a995691dcd0983e2ede47db423281b1cd343a/N5/data",
+      "revision": "708a995691dcd0983e2ede47db423281b1cd343a",
+      "license": "CC-BY-SA-4.0",
+      "attribution": "JLPTSuccess contributors, 2026. Selected original N5 readings, construction tasks and grammar choices, adapted as recorded; CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/. Notices: licences/jlptsuccess-LICENSE.txt and licences/jlptsuccess-CONTENT.md. The upstream native-review labels describe an AI persona, not a human teacher.",
+      "permissionEvidence": "Pinned root LICENSE expressly separates CC BY-SA 4.0 educational content from MIT software; N5/CONTENT-LICENSE.md claims original questions and discloses AI review."
+    },
+    {
+      "id": "nihongo-mono",
+      "origin": "adapted",
+      "title": "nihongo mono original grammar examples",
+      "location": "https://github.com/stndaru/nihongo-mono/tree/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/src/data/grammar",
+      "revision": "ec0ba4a0ce1611c568b0e4f8a223eb8029249a25",
+      "license": "MIT",
+      "attribution": "Copyright (c) 2026 Stefanus Ndaru Wedhatama. Original grammar examples, adapted into sentence assemblies and choice questions as recorded. Full notices in licences/nihongo-mono-MIT.txt and licences/nihongo-mono-DATA.md.",
+      "permissionEvidence": "https://github.com/stndaru/nihongo-mono/blob/ec0ba4a0ce1611c568b0e4f8a223eb8029249a25/LICENSE-DATA.md explicitly assigns MIT to original grammar examples, distinct from dictionary data."
+    }
+  ],
+  "passages": [],
+  "assemblies": [],
+  "wordItems": [
+    {
+      "id": "kanji-reading-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/814bdc2cec",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "先生",
+      "original": "先生",
+      "prompt": {
+        "en": "Choose the reading of 「先生」.",
+        "ja": "「先生」の読み方を選んでください。"
+      },
+      "stimulus": "先生に日本語を習います。",
+      "rationale": "先生（せんせい）：teacher; doctor。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "せんせい"
+        },
+        {
+          "id": "c2",
+          "text": "せんぜい"
+        },
+        {
+          "id": "c3",
+          "text": "せんせ"
+        },
+        {
+          "id": "c4",
+          "text": "せいせい"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/218ea67735",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "手紙",
+      "original": "手紙",
+      "prompt": {
+        "en": "Choose the reading of 「手紙」.",
+        "ja": "「手紙」の読み方を選んでください。"
+      },
+      "stimulus": "友達に手紙を書きました。",
+      "rationale": "手紙（てがみ）：letter。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "てかみ"
+        },
+        {
+          "id": "c2",
+          "text": "てがみ"
+        },
+        {
+          "id": "c3",
+          "text": "しゅがみ"
+        },
+        {
+          "id": "c4",
+          "text": "てがめ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/de5a452667",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "図書館",
+      "original": "図書館",
+      "prompt": {
+        "en": "Choose the reading of 「図書館」.",
+        "ja": "「図書館」の読み方を選んでください。"
+      },
+      "stimulus": "図書館で本を借ります。",
+      "rationale": "図書館（としょかん）：library。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "としょうかん"
+        },
+        {
+          "id": "c2",
+          "text": "としょけん"
+        },
+        {
+          "id": "c3",
+          "text": "としょかん"
+        },
+        {
+          "id": "c4",
+          "text": "としょがん"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/04e80a2ba1",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "月曜日",
+      "original": "月曜日",
+      "prompt": {
+        "en": "Choose the reading of 「月曜日」.",
+        "ja": "「月曜日」の読み方を選んでください。"
+      },
+      "stimulus": "次の授業は月曜日です。",
+      "rationale": "月曜日（げつようび）：Monday。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "げつようひ"
+        },
+        {
+          "id": "c2",
+          "text": "がつようび"
+        },
+        {
+          "id": "c3",
+          "text": "げちようび"
+        },
+        {
+          "id": "c4",
+          "text": "げつようび"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/797ae8d562",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "牛乳",
+      "original": "牛乳",
+      "prompt": {
+        "en": "Choose the reading of 「牛乳」.",
+        "ja": "「牛乳」の読み方を選んでください。"
+      },
+      "stimulus": "毎朝、牛乳を飲みます。",
+      "rationale": "牛乳（ぎゅうにゅう）：milk。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ぎゅうにゅう"
+        },
+        {
+          "id": "c2",
+          "text": "ぎゅにゅう"
+        },
+        {
+          "id": "c3",
+          "text": "ぎゅうにゅ"
+        },
+        {
+          "id": "c4",
+          "text": "ごにゅう"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/3134199c25",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "地下鉄",
+      "original": "地下鉄",
+      "prompt": {
+        "en": "Choose the reading of 「地下鉄」.",
+        "ja": "「地下鉄」の読み方を選んでください。"
+      },
+      "stimulus": "地下鉄で駅へ行きます。",
+      "rationale": "地下鉄（ちかてつ）：underground train。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ちかでつ"
+        },
+        {
+          "id": "c2",
+          "text": "ちかてつ"
+        },
+        {
+          "id": "c3",
+          "text": "じかてつ"
+        },
+        {
+          "id": "c4",
+          "text": "ちげてつ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/0020b9ee4e",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "今年",
+      "original": "今年",
+      "prompt": {
+        "en": "Choose the reading of 「今年」.",
+        "ja": "「今年」の読み方を選んでください。"
+      },
+      "stimulus": "今年、日本へ来ました。",
+      "rationale": "今年（ことし）：this year。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "こどし"
+        },
+        {
+          "id": "c2",
+          "text": "こんとし"
+        },
+        {
+          "id": "c3",
+          "text": "ことし"
+        },
+        {
+          "id": "c4",
+          "text": "ことせ"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/8a88cfbcb8",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "映画館",
+      "original": "映画館",
+      "prompt": {
+        "en": "Choose the reading of 「映画館」.",
+        "ja": "「映画館」の読み方を選んでください。"
+      },
+      "stimulus": "映画館で映画を見ました。",
+      "rationale": "映画館（えいがかん）：cinema。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "えいががん"
+        },
+        {
+          "id": "c2",
+          "text": "えがかん"
+        },
+        {
+          "id": "c3",
+          "text": "えいかかん"
+        },
+        {
+          "id": "c4",
+          "text": "えいがかん"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/4f8e83945d",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "八日",
+      "original": "八日",
+      "prompt": {
+        "en": "Choose the reading of 「八日」.",
+        "ja": "「八日」の読み方を選んでください。"
+      },
+      "stimulus": "来月の八日に会いましょう。",
+      "rationale": "八日（ようか）：eight days; eighth day of the month。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ようか"
+        },
+        {
+          "id": "c2",
+          "text": "よっか"
+        },
+        {
+          "id": "c3",
+          "text": "はつか"
+        },
+        {
+          "id": "c4",
+          "text": "やっか"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/ee85169acd",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "料理",
+      "original": "料理",
+      "prompt": {
+        "en": "Choose the reading of 「料理」.",
+        "ja": "「料理」の読み方を選んでください。"
+      },
+      "stimulus": "母は料理が上手です。",
+      "rationale": "料理（りょうり）：cuisine。辞書の表記・読みの対応を保持。",
+      "band": "N5",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "りょり"
+        },
+        {
+          "id": "c2",
+          "text": "りょうり"
+        },
+        {
+          "id": "c3",
+          "text": "りようり"
+        },
+        {
+          "id": "c4",
+          "text": "りょうに"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/0df89f5010",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "犬",
+      "original": "犬",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "「ワンワン」と鳴く動物は＿＿です。",
+      "completion": "「ワンワン」と鳴く動物は犬です。",
+      "rationale": "犬（いぬ）：dog。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "犬"
+        },
+        {
+          "id": "c2",
+          "text": "猫"
+        },
+        {
+          "id": "c3",
+          "text": "鳥"
+        },
+        {
+          "id": "c4",
+          "text": "魚"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/cd08f9cdc2",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "紙",
+      "original": "紙",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "手紙を書きたいです。白い＿＿を一枚ください。",
+      "completion": "手紙を書きたいです。白い紙を一枚ください。",
+      "rationale": "紙（かみ）：paper。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "水"
+        },
+        {
+          "id": "c2",
+          "text": "紙"
+        },
+        {
+          "id": "c3",
+          "text": "塩"
+        },
+        {
+          "id": "c4",
+          "text": "肉"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/2c5c99977c",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "質問",
+      "original": "質問",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "分からないことがあります。先生に＿＿をします。",
+      "completion": "分からないことがあります。先生に質問をします。",
+      "rationale": "質問（しつもん）：question。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "掃除"
+        },
+        {
+          "id": "c2",
+          "text": "散歩"
+        },
+        {
+          "id": "c3",
+          "text": "質問"
+        },
+        {
+          "id": "c4",
+          "text": "料理"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/658b912df8",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "箱",
+      "original": "箱",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "プレゼントを入れる、小さくて四角い＿＿を買いました。",
+      "completion": "プレゼントを入れる、小さくて四角い箱を買いました。",
+      "rationale": "箱（はこ）：box。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "橋"
+        },
+        {
+          "id": "c2",
+          "text": "駅"
+        },
+        {
+          "id": "c3",
+          "text": "歌"
+        },
+        {
+          "id": "c4",
+          "text": "箱"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/2e6c7d2d9d",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "荷物",
+      "original": "荷物",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "旅行に行きます。服や本をかばんに入れて、＿＿を用意します。",
+      "completion": "旅行に行きます。服や本をかばんに入れて、荷物を用意します。",
+      "rationale": "荷物（にもつ）：luggage。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "荷物"
+        },
+        {
+          "id": "c2",
+          "text": "天気"
+        },
+        {
+          "id": "c3",
+          "text": "名前"
+        },
+        {
+          "id": "c4",
+          "text": "声"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/5e8fc8669c",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "飲み物",
+      "original": "飲み物",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "水やお茶などの＿＿を買いましょう。",
+      "completion": "水やお茶などの飲み物を買いましょう。",
+      "rationale": "飲み物（のみもの）：a drink。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "野菜"
+        },
+        {
+          "id": "c2",
+          "text": "飲み物"
+        },
+        {
+          "id": "c3",
+          "text": "建物"
+        },
+        {
+          "id": "c4",
+          "text": "動物"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/9ea671262d",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "働く",
+      "original": "働く",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "兄は毎日、会社で＿＿。",
+      "completion": "兄は毎日、会社で働く。",
+      "rationale": "働く（はたらく）：to work。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "泳ぐ"
+        },
+        {
+          "id": "c2",
+          "text": "鳴く"
+        },
+        {
+          "id": "c3",
+          "text": "働く"
+        },
+        {
+          "id": "c4",
+          "text": "咲く"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/7a9ce8e2df",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "暇",
+      "original": "暇",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "日曜日は仕事も予定もありません。とても＿＿です。",
+      "completion": "日曜日は仕事も予定もありません。とても暇です。",
+      "rationale": "暇（ひま）：free time。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "大切"
+        },
+        {
+          "id": "c2",
+          "text": "有名"
+        },
+        {
+          "id": "c3",
+          "text": "危険"
+        },
+        {
+          "id": "c4",
+          "text": "暇"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/3839786bac",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "本棚",
+      "original": "本棚",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "読み終わった本は、いつも＿＿に並べます。",
+      "completion": "読み終わった本は、いつも本棚に並べます。",
+      "rationale": "本棚（ほんだな）：bookshelves。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "本棚"
+        },
+        {
+          "id": "c2",
+          "text": "冷蔵庫"
+        },
+        {
+          "id": "c3",
+          "text": "浴室"
+        },
+        {
+          "id": "c4",
+          "text": "玄関"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n5/72eb77e07a",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "眼鏡",
+      "original": "眼鏡",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "小さい字がよく見えません。＿＿をかけて読みます。",
+      "completion": "小さい字がよく見えません。眼鏡をかけて読みます。",
+      "rationale": "眼鏡（めがね）：glasses。この文脈ではこの意味の語を使う。",
+      "band": "N5",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "靴下"
+        },
+        {
+          "id": "c2",
+          "text": "眼鏡"
+        },
+        {
+          "id": "c3",
+          "text": "帽子"
+        },
+        {
+          "id": "c4",
+          "text": "手袋"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/52a79a5d69",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "案内",
+      "original": "案内",
+      "prompt": {
+        "en": "Choose the reading of 「案内」.",
+        "ja": "「案内」の読み方を選んでください。"
+      },
+      "stimulus": "駅まで案内します。",
+      "rationale": "案内（あんない）：to guide。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "あんない"
+        },
+        {
+          "id": "c2",
+          "text": "あんねい"
+        },
+        {
+          "id": "c3",
+          "text": "あんね"
+        },
+        {
+          "id": "c4",
+          "text": "あんな"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/9f6e25d5e2",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "運転手",
+      "original": "運転手",
+      "prompt": {
+        "en": "Choose the reading of 「運転手」.",
+        "ja": "「運転手」の読み方を選んでください。"
+      },
+      "stimulus": "バスの運転手に道を聞きました。",
+      "rationale": "運転手（うんてんしゅ）：driver。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "うんでんしゅ"
+        },
+        {
+          "id": "c2",
+          "text": "うんてんしゅ"
+        },
+        {
+          "id": "c3",
+          "text": "うんてんしゅう"
+        },
+        {
+          "id": "c4",
+          "text": "うんてしゅ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/1065d7145c",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "屋上",
+      "original": "屋上",
+      "prompt": {
+        "en": "Choose the reading of 「屋上」.",
+        "ja": "「屋上」の読み方を選んでください。"
+      },
+      "stimulus": "屋上から町が見えます。",
+      "rationale": "屋上（おくじょう）：rooftop。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "おくしょう"
+        },
+        {
+          "id": "c2",
+          "text": "やじょう"
+        },
+        {
+          "id": "c3",
+          "text": "おくじょう"
+        },
+        {
+          "id": "c4",
+          "text": "おじょう"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/11d4a3118b",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "田舎",
+      "original": "田舎",
+      "prompt": {
+        "en": "Choose the reading of 「田舎」.",
+        "ja": "「田舎」の読み方を選んでください。"
+      },
+      "stimulus": "祖父は田舎に住んでいます。",
+      "rationale": "田舎（いなか）：countryside。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "たしゃ"
+        },
+        {
+          "id": "c2",
+          "text": "いなこ"
+        },
+        {
+          "id": "c3",
+          "text": "いねか"
+        },
+        {
+          "id": "c4",
+          "text": "いなか"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/fcca18b129",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "規則",
+      "original": "規則",
+      "prompt": {
+        "en": "Choose the reading of 「規則」.",
+        "ja": "「規則」の読み方を選んでください。"
+      },
+      "stimulus": "学校の規則を守りましょう。",
+      "rationale": "規則（きそく）：regulations。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "きそく"
+        },
+        {
+          "id": "c2",
+          "text": "きぞく"
+        },
+        {
+          "id": "c3",
+          "text": "ぎそく"
+        },
+        {
+          "id": "c4",
+          "text": "きしょく"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/5079fc5daf",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "経済",
+      "original": "経済",
+      "prompt": {
+        "en": "Choose the reading of 「経済」.",
+        "ja": "「経済」の読み方を選んでください。"
+      },
+      "stimulus": "大学で経済を勉強しています。",
+      "rationale": "経済（けいざい）：finance; economy。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "けいさい"
+        },
+        {
+          "id": "c2",
+          "text": "けいざい"
+        },
+        {
+          "id": "c3",
+          "text": "きょうざい"
+        },
+        {
+          "id": "c4",
+          "text": "けざい"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/c614552d23",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "出発",
+      "original": "出発",
+      "prompt": {
+        "en": "Choose the reading of 「出発」.",
+        "ja": "「出発」の読み方を選んでください。"
+      },
+      "stimulus": "出発は明日の朝です。",
+      "rationale": "出発（しゅっぱつ）：to depart。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "しゅぱつ"
+        },
+        {
+          "id": "c2",
+          "text": "しゅっばつ"
+        },
+        {
+          "id": "c3",
+          "text": "しゅっぱつ"
+        },
+        {
+          "id": "c4",
+          "text": "でっぱつ"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/80eba2fabb",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "展覧会",
+      "original": "展覧会",
+      "prompt": {
+        "en": "Choose the reading of 「展覧会」.",
+        "ja": "「展覧会」の読み方を選んでください。"
+      },
+      "stimulus": "美術館の展覧会へ行きました。",
+      "rationale": "展覧会（てんらんかい）：exhibition。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "てんらんがい"
+        },
+        {
+          "id": "c2",
+          "text": "てんなんかい"
+        },
+        {
+          "id": "c3",
+          "text": "でんらんかい"
+        },
+        {
+          "id": "c4",
+          "text": "てんらんかい"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/c00788993b",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "復習",
+      "original": "復習",
+      "prompt": {
+        "en": "Choose the reading of 「復習」.",
+        "ja": "「復習」の読み方を選んでください。"
+      },
+      "stimulus": "授業の後で復習します。",
+      "rationale": "復習（ふくしゅう）：revision。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ふくしゅう"
+        },
+        {
+          "id": "c2",
+          "text": "ふくじゅう"
+        },
+        {
+          "id": "c3",
+          "text": "ふくしゅ"
+        },
+        {
+          "id": "c4",
+          "text": "ふっしゅう"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/cd95253850",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "旅館",
+      "original": "旅館",
+      "prompt": {
+        "en": "Choose the reading of 「旅館」.",
+        "ja": "「旅館」の読み方を選んでください。"
+      },
+      "stimulus": "温泉のある旅館に泊まりました。",
+      "rationale": "旅館（りょかん）：Japanese hotel。辞書の表記・読みの対応を保持。",
+      "band": "N4",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "りょうかん"
+        },
+        {
+          "id": "c2",
+          "text": "りょかん"
+        },
+        {
+          "id": "c3",
+          "text": "たびかん"
+        },
+        {
+          "id": "c4",
+          "text": "りょがん"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/aa663833e4",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "相談",
+      "original": "相談",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "一人では決められないので、先生に＿＿します。",
+      "completion": "一人では決められないので、先生に相談します。",
+      "rationale": "相談（そうだん）：to discuss。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "相談"
+        },
+        {
+          "id": "c2",
+          "text": "輸出"
+        },
+        {
+          "id": "c3",
+          "text": "入学"
+        },
+        {
+          "id": "c4",
+          "text": "卒業"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/a9fe0e98c1",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "予定",
+      "original": "予定",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "来週、何をするかはもう決めました。来週の＿＿を教えます。",
+      "completion": "来週、何をするかはもう決めました。来週の予定を教えます。",
+      "rationale": "予定（よてい）：arrangement。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "景色"
+        },
+        {
+          "id": "c2",
+          "text": "予定"
+        },
+        {
+          "id": "c3",
+          "text": "住所"
+        },
+        {
+          "id": "c4",
+          "text": "材料"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/a89d2853ea",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "失敗",
+      "original": "失敗",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "ケーキを焼きすぎて、食べられなくなりました。今回は＿＿でした。",
+      "completion": "ケーキを焼きすぎて、食べられなくなりました。今回は失敗でした。",
+      "rationale": "失敗（しっぱい）：failure; mistake。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "成功"
+        },
+        {
+          "id": "c2",
+          "text": "賛成"
+        },
+        {
+          "id": "c3",
+          "text": "失敗"
+        },
+        {
+          "id": "c4",
+          "text": "安心"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/d11d9a6207",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "席",
+      "original": "席",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "電車で立っていたら、お年寄りに空いている＿＿を教えてもらいました。",
+      "completion": "電車で立っていたら、お年寄りに空いている席を教えてもらいました。",
+      "rationale": "席（せき）：seat。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "雲"
+        },
+        {
+          "id": "c2",
+          "text": "池"
+        },
+        {
+          "id": "c3",
+          "text": "坂"
+        },
+        {
+          "id": "c4",
+          "text": "席"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/4fbc32438d",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "熱",
+      "original": "熱",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "体温を測ると三十八度ありました。＿＿があります。",
+      "completion": "体温を測ると三十八度ありました。熱があります。",
+      "rationale": "熱（ねつ）：fever。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "熱"
+        },
+        {
+          "id": "c2",
+          "text": "用事"
+        },
+        {
+          "id": "c3",
+          "text": "都合"
+        },
+        {
+          "id": "c4",
+          "text": "興味"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/d48ed47f5e",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "反対",
+      "original": "反対",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "私はその計画に賛成できません。＿＿です。",
+      "completion": "私はその計画に賛成できません。反対です。",
+      "rationale": "反対（はんたい）：opposition。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "必要"
+        },
+        {
+          "id": "c2",
+          "text": "反対"
+        },
+        {
+          "id": "c3",
+          "text": "自由"
+        },
+        {
+          "id": "c4",
+          "text": "特別"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/79e62e3c87",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "夢",
+      "original": "夢",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "寝ている間に、空を飛ぶ＿＿を見ました。",
+      "completion": "寝ている間に、空を飛ぶ夢を見ました。",
+      "rationale": "夢（ゆめ）：dream。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "規則"
+        },
+        {
+          "id": "c2",
+          "text": "予約"
+        },
+        {
+          "id": "c3",
+          "text": "夢"
+        },
+        {
+          "id": "c4",
+          "text": "試合"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/ff9e385277",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "返事",
+      "original": "返事",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "友達から質問のメールが来ました。すぐに＿＿を書きます。",
+      "completion": "友達から質問のメールが来ました。すぐに返事を書きます。",
+      "rationale": "返事（へんじ）：reply。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "日記"
+        },
+        {
+          "id": "c2",
+          "text": "住所"
+        },
+        {
+          "id": "c3",
+          "text": "地図"
+        },
+        {
+          "id": "c4",
+          "text": "返事"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/221e63cb1e",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "港",
+      "original": "港",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "船がたくさん止まっている＿＿へ行きました。",
+      "completion": "船がたくさん止まっている港へ行きました。",
+      "rationale": "港（みなと）：harbour。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "港"
+        },
+        {
+          "id": "c2",
+          "text": "空港"
+        },
+        {
+          "id": "c3",
+          "text": "美術館"
+        },
+        {
+          "id": "c4",
+          "text": "工場"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n4/be7c090b8e",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "手袋",
+      "original": "手袋",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "雪の日は手が冷たくなるので、＿＿をはめます。",
+      "completion": "雪の日は手が冷たくなるので、手袋をはめます。",
+      "rationale": "手袋（てぶくろ）：glove。この文脈ではこの意味の語を使う。",
+      "band": "N4",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "靴"
+        },
+        {
+          "id": "c2",
+          "text": "手袋"
+        },
+        {
+          "id": "c3",
+          "text": "指輪"
+        },
+        {
+          "id": "c4",
+          "text": "帯"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/9654422570",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "依頼",
+      "original": "依頼",
+      "prompt": {
+        "en": "Choose the reading of 「依頼」.",
+        "ja": "「依頼」の読み方を選んでください。"
+      },
+      "stimulus": "翻訳の依頼を受けました。",
+      "rationale": "依頼（いらい）：request; commission; dispatch; dependence; trust。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "いらい"
+        },
+        {
+          "id": "c2",
+          "text": "いれい"
+        },
+        {
+          "id": "c3",
+          "text": "えらい"
+        },
+        {
+          "id": "c4",
+          "text": "いら"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/9453cb20ca",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "教授",
+      "original": "教授",
+      "prompt": {
+        "en": "Choose the reading of 「教授」.",
+        "ja": "「教授」の読み方を選んでください。"
+      },
+      "stimulus": "大学の教授に相談しました。",
+      "rationale": "教授（きょうじゅ）：teaching; instruction; professor。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "きょうしゅ"
+        },
+        {
+          "id": "c2",
+          "text": "きょうじゅ"
+        },
+        {
+          "id": "c3",
+          "text": "きょじゅ"
+        },
+        {
+          "id": "c4",
+          "text": "きょうじゅう"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/793da2875f",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "傾向",
+      "original": "傾向",
+      "prompt": {
+        "en": "Choose the reading of 「傾向」.",
+        "ja": "「傾向」の読み方を選んでください。"
+      },
+      "stimulus": "最近の売り上げには同じ傾向が見られます。",
+      "rationale": "傾向（けいこう）：tendency; trend; inclination。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "けいごう"
+        },
+        {
+          "id": "c2",
+          "text": "けこう"
+        },
+        {
+          "id": "c3",
+          "text": "けいこう"
+        },
+        {
+          "id": "c4",
+          "text": "きょうこう"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/a873a6e522",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "困難",
+      "original": "困難",
+      "prompt": {
+        "en": "Choose the reading of 「困難」.",
+        "ja": "「困難」の読み方を選んでください。"
+      },
+      "stimulus": "この問題を一人で解決するのは困難です。",
+      "rationale": "困難（こんなん）：difficulty; distress。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "こうなん"
+        },
+        {
+          "id": "c2",
+          "text": "こんねん"
+        },
+        {
+          "id": "c3",
+          "text": "こなん"
+        },
+        {
+          "id": "c4",
+          "text": "こんなん"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/4886c70b26",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "首相",
+      "original": "首相",
+      "prompt": {
+        "en": "Choose the reading of 「首相」.",
+        "ja": "「首相」の読み方を選んでください。"
+      },
+      "stimulus": "首相が記者会見を開きました。",
+      "rationale": "首相（しゅしょう）：Prime Minister。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "しゅしょう"
+        },
+        {
+          "id": "c2",
+          "text": "しゅそう"
+        },
+        {
+          "id": "c3",
+          "text": "しゅしょうう"
+        },
+        {
+          "id": "c4",
+          "text": "しゅしょ"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/9d02c51185",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "消防",
+      "original": "消防",
+      "prompt": {
+        "en": "Choose the reading of 「消防」.",
+        "ja": "「消防」の読み方を選んでください。"
+      },
+      "stimulus": "消防の訓練に参加しました。",
+      "rationale": "消防（しょうぼう）：fire fighting; fire department。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "しょうほう"
+        },
+        {
+          "id": "c2",
+          "text": "しょうぼう"
+        },
+        {
+          "id": "c3",
+          "text": "しょぼう"
+        },
+        {
+          "id": "c4",
+          "text": "しょうぼ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/2a534a4917",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "書類",
+      "original": "書類",
+      "prompt": {
+        "en": "Choose the reading of 「書類」.",
+        "ja": "「書類」の読み方を選んでください。"
+      },
+      "stimulus": "必要な書類を提出してください。",
+      "rationale": "書類（しょるい）：documents; official papers。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "しょろい"
+        },
+        {
+          "id": "c2",
+          "text": "しょうるい"
+        },
+        {
+          "id": "c3",
+          "text": "しょるい"
+        },
+        {
+          "id": "c4",
+          "text": "しょれい"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/70e6480c13",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "徹夜",
+      "original": "徹夜",
+      "prompt": {
+        "en": "Choose the reading of 「徹夜」.",
+        "ja": "「徹夜」の読み方を選んでください。"
+      },
+      "stimulus": "試験の前に徹夜しました。",
+      "rationale": "徹夜（てつや）：all night; all night vigil; sleepless night。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "てっや"
+        },
+        {
+          "id": "c2",
+          "text": "てつよ"
+        },
+        {
+          "id": "c3",
+          "text": "てちや"
+        },
+        {
+          "id": "c4",
+          "text": "てつや"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/66d7ecadb1",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "俳優",
+      "original": "俳優",
+      "prompt": {
+        "en": "Choose the reading of 「俳優」.",
+        "ja": "「俳優」の読み方を選んでください。"
+      },
+      "stimulus": "彼女は有名な俳優です。",
+      "rationale": "俳優（はいゆう）：actor; actress; player; performer。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "はいゆう"
+        },
+        {
+          "id": "c2",
+          "text": "はいゆ"
+        },
+        {
+          "id": "c3",
+          "text": "ばいゆう"
+        },
+        {
+          "id": "c4",
+          "text": "はゆう"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/7e01f30eaa",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "予防",
+      "original": "予防",
+      "prompt": {
+        "en": "Choose the reading of 「予防」.",
+        "ja": "「予防」の読み方を選んでください。"
+      },
+      "stimulus": "病気の予防のために手を洗います。",
+      "rationale": "予防（よぼう）：prevention; precaution; protection against。辞書の表記・読みの対応を保持。",
+      "band": "N3",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "よほう"
+        },
+        {
+          "id": "c2",
+          "text": "よぼう"
+        },
+        {
+          "id": "c3",
+          "text": "ようぼう"
+        },
+        {
+          "id": "c4",
+          "text": "よぼ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/b550808b0f",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "快適",
+      "original": "快適",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "この部屋は夏でも涼しく、静かで、とても＿＿だ。",
+      "completion": "この部屋は夏でも涼しく、静かで、とても快適だ。",
+      "rationale": "快適（かいてき）：pleasant; agreeable; comfortable。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "快適"
+        },
+        {
+          "id": "c2",
+          "text": "不便"
+        },
+        {
+          "id": "c3",
+          "text": "不公平"
+        },
+        {
+          "id": "c4",
+          "text": "危険"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/a9c92c47c3",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "濃い",
+      "original": "濃い",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "このコーヒーは水が少なく、味が＿＿。",
+      "completion": "このコーヒーは水が少なく、味が濃い。",
+      "rationale": "濃い（こい）：thick (as of color, liquid); dense; strong。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "丸い"
+        },
+        {
+          "id": "c2",
+          "text": "濃い"
+        },
+        {
+          "id": "c3",
+          "text": "浅い"
+        },
+        {
+          "id": "c4",
+          "text": "細い"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/bd59d43a89",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "無料",
+      "original": "無料",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "この美術館は入場料がかからない。今日は＿＿だ。",
+      "completion": "この美術館は入場料がかからない。今日は無料だ。",
+      "rationale": "無料（むりょう）：free; no charge。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "有料"
+        },
+        {
+          "id": "c2",
+          "text": "満員"
+        },
+        {
+          "id": "c3",
+          "text": "無料"
+        },
+        {
+          "id": "c4",
+          "text": "半額"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/b806544195",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "不安",
+      "original": "不安",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "試験に受かるかどうか心配で、＿＿な気持ちになった。",
+      "completion": "試験に受かるかどうか心配で、不安な気持ちになった。",
+      "rationale": "不安（ふあん）：anxiety; uneasiness; insecurity; suspense。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "平等"
+        },
+        {
+          "id": "c2",
+          "text": "無事"
+        },
+        {
+          "id": "c3",
+          "text": "新鮮"
+        },
+        {
+          "id": "c4",
+          "text": "不安"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/01dda94e77",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "範囲",
+      "original": "範囲",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "試験には教科書の十ページから三十ページまで出る。試験の＿＿を確認しよう。",
+      "completion": "試験には教科書の十ページから三十ページまで出る。試験の範囲を確認しよう。",
+      "rationale": "範囲（はんい）：extent; scope; sphere; range。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "範囲"
+        },
+        {
+          "id": "c2",
+          "text": "温度"
+        },
+        {
+          "id": "c3",
+          "text": "方向"
+        },
+        {
+          "id": "c4",
+          "text": "年齢"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/b9a7186462",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "雇う",
+      "original": "雇う",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "店が忙しくなったので、来月から新しい店員を二人＿＿。",
+      "completion": "店が忙しくなったので、来月から新しい店員を二人雇う。",
+      "rationale": "雇う（やとう）：to employ; to hire。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "修理する"
+        },
+        {
+          "id": "c2",
+          "text": "雇う"
+        },
+        {
+          "id": "c3",
+          "text": "両替する"
+        },
+        {
+          "id": "c4",
+          "text": "収穫する"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/8906b928b2",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "日常",
+      "original": "日常",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "朝起きて、食事をして、仕事へ行く。これは私の＿＿の生活だ。",
+      "completion": "朝起きて、食事をして、仕事へ行く。これは私の日常の生活だ。",
+      "rationale": "日常（にちじょう）：ordinary; regular; everyday; usual。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "非常"
+        },
+        {
+          "id": "c2",
+          "text": "架空"
+        },
+        {
+          "id": "c3",
+          "text": "日常"
+        },
+        {
+          "id": "c4",
+          "text": "臨時"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/402b531dd3",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "眺める",
+      "original": "眺める",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "休日には何もせず、窓から遠くの山をゆっくり＿＿。",
+      "completion": "休日には何もせず、窓から遠くの山をゆっくり眺める。",
+      "rationale": "眺める（ながめる）：to view; to gaze at。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "運ぶ"
+        },
+        {
+          "id": "c2",
+          "text": "隠す"
+        },
+        {
+          "id": "c3",
+          "text": "割る"
+        },
+        {
+          "id": "c4",
+          "text": "眺める"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/4caf52bf1b",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "礼儀",
+      "original": "礼儀",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "あいさつや言葉遣いなど、人と接するときの＿＿を身に付ける。",
+      "completion": "あいさつや言葉遣いなど、人と接するときの礼儀を身に付ける。",
+      "rationale": "礼儀（れいぎ）：manners; courtesy; etiquette。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "礼儀"
+        },
+        {
+          "id": "c2",
+          "text": "気温"
+        },
+        {
+          "id": "c3",
+          "text": "速度"
+        },
+        {
+          "id": "c4",
+          "text": "面積"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n3/8597a13b30",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "想像",
+      "original": "想像",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "行ったことのない百年後の世界を、頭の中に自由に思い浮かべて＿＿する。",
+      "completion": "行ったことのない百年後の世界を、頭の中に自由に思い浮かべて想像する。",
+      "rationale": "想像（そうぞう）：imagination; guess。この文脈ではこの意味の語を使う。",
+      "band": "N3",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "測定"
+        },
+        {
+          "id": "c2",
+          "text": "想像"
+        },
+        {
+          "id": "c3",
+          "text": "録音"
+        },
+        {
+          "id": "c4",
+          "text": "両替"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/05292c6357",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "衣食住",
+      "original": "衣食住",
+      "prompt": {
+        "en": "Choose the reading of 「衣食住」.",
+        "ja": "「衣食住」の読み方を選んでください。"
+      },
+      "stimulus": "衣食住は生活の基本です。",
+      "rationale": "衣食住（いしょくじゅう）：necessities of life (food, clothing, etc.)。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "いしょくじゅう"
+        },
+        {
+          "id": "c2",
+          "text": "いしょくしゅう"
+        },
+        {
+          "id": "c3",
+          "text": "えしょくじゅう"
+        },
+        {
+          "id": "c4",
+          "text": "いしょくじゅ"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/ad1e1c4b93",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "乾燥",
+      "original": "乾燥",
+      "prompt": {
+        "en": "Choose the reading of 「乾燥」.",
+        "ja": "「乾燥」の読み方を選んでください。"
+      },
+      "stimulus": "冬は空気の乾燥に注意が必要です。",
+      "rationale": "乾燥（かんそう）：dry; arid; insipid; dehydrated。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "かんぞう"
+        },
+        {
+          "id": "c2",
+          "text": "かんそう"
+        },
+        {
+          "id": "c3",
+          "text": "けんそう"
+        },
+        {
+          "id": "c4",
+          "text": "かんそ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/88cf21661c",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "記号",
+      "original": "記号",
+      "prompt": {
+        "en": "Choose the reading of 「記号」.",
+        "ja": "「記号」の読み方を選んでください。"
+      },
+      "stimulus": "地図の記号を確認してください。",
+      "rationale": "記号（きごう）：symbol; code。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "きこう"
+        },
+        {
+          "id": "c2",
+          "text": "きご"
+        },
+        {
+          "id": "c3",
+          "text": "きごう"
+        },
+        {
+          "id": "c4",
+          "text": "きごうう"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/36c872b693",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "毛糸",
+      "original": "毛糸",
+      "prompt": {
+        "en": "Choose the reading of 「毛糸」.",
+        "ja": "「毛糸」の読み方を選んでください。"
+      },
+      "stimulus": "毛糸でセーターを編みます。",
+      "rationale": "毛糸（けいと）：knitting wool。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "もういと"
+        },
+        {
+          "id": "c2",
+          "text": "けいど"
+        },
+        {
+          "id": "c3",
+          "text": "けと"
+        },
+        {
+          "id": "c4",
+          "text": "けいと"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/ea79d21fe4",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "交通機関",
+      "original": "交通機関",
+      "prompt": {
+        "en": "Choose the reading of 「交通機関」.",
+        "ja": "「交通機関」の読み方を選んでください。"
+      },
+      "stimulus": "公共の交通機関を利用してください。",
+      "rationale": "交通機関（こうつうきかん）：transportation facilities。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "こうつうきかん"
+        },
+        {
+          "id": "c2",
+          "text": "こうつきかん"
+        },
+        {
+          "id": "c3",
+          "text": "こうつうぎかん"
+        },
+        {
+          "id": "c4",
+          "text": "こつうきかん"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/855762ebcc",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "四捨五入",
+      "original": "四捨五入",
+      "prompt": {
+        "en": "Choose the reading of 「四捨五入」.",
+        "ja": "「四捨五入」の読み方を選んでください。"
+      },
+      "stimulus": "小数第一位を四捨五入してください。",
+      "rationale": "四捨五入（ししゃごにゅう）：rounding up (fractions)。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ししゃこにゅう"
+        },
+        {
+          "id": "c2",
+          "text": "ししゃごにゅう"
+        },
+        {
+          "id": "c3",
+          "text": "ししゃごにゅ"
+        },
+        {
+          "id": "c4",
+          "text": "しすてごにゅう"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/e76bcb6926",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "初旬",
+      "original": "初旬",
+      "prompt": {
+        "en": "Choose the reading of 「初旬」.",
+        "ja": "「初旬」の読み方を選んでください。"
+      },
+      "stimulus": "来月の初旬に完成する予定です。",
+      "rationale": "初旬（しょじゅん）：first 10 days of the month。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "しょしゅん"
+        },
+        {
+          "id": "c2",
+          "text": "はつじゅん"
+        },
+        {
+          "id": "c3",
+          "text": "しょじゅん"
+        },
+        {
+          "id": "c4",
+          "text": "しょじゅ"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/4ec440ca2b",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "性質",
+      "original": "性質",
+      "prompt": {
+        "en": "Choose the reading of 「性質」.",
+        "ja": "「性質」の読み方を選んでください。"
+      },
+      "stimulus": "この薬品の性質を調べました。",
+      "rationale": "性質（せいしつ）：nature; property; disposition。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "せいじつ"
+        },
+        {
+          "id": "c2",
+          "text": "しょうしつ"
+        },
+        {
+          "id": "c3",
+          "text": "せしつ"
+        },
+        {
+          "id": "c4",
+          "text": "せいしつ"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/524faf9ea5",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "通勤",
+      "original": "通勤",
+      "prompt": {
+        "en": "Choose the reading of 「通勤」.",
+        "ja": "「通勤」の読み方を選んでください。"
+      },
+      "stimulus": "通勤には電車を使っています。",
+      "rationale": "通勤（つうきん）：commuting to work。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "つうきん"
+        },
+        {
+          "id": "c2",
+          "text": "つきん"
+        },
+        {
+          "id": "c3",
+          "text": "つうぎん"
+        },
+        {
+          "id": "c4",
+          "text": "つうこん"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/660ecbecc6",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "踏切",
+      "original": "踏切",
+      "prompt": {
+        "en": "Choose the reading of 「踏切」.",
+        "ja": "「踏切」の読み方を選んでください。"
+      },
+      "stimulus": "踏切の手前で止まってください。",
+      "rationale": "踏切（ふみきり）：railway crossing; level crossing; starting line; scratch; crossover。辞書の表記・読みの対応を保持。",
+      "band": "N2",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ふみぎり"
+        },
+        {
+          "id": "c2",
+          "text": "ふみきり"
+        },
+        {
+          "id": "c3",
+          "text": "とうきり"
+        },
+        {
+          "id": "c4",
+          "text": "ふむきり"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/343bc443c8",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "羨む",
+      "original": "羨む",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "自分にはない才能や幸運を持つ人を、いいなと思って＿＿。",
+      "completion": "自分にはない才能や幸運を持つ人を、いいなと思って羨む。",
+      "rationale": "羨む（うらやむ）：to envy。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "羨む"
+        },
+        {
+          "id": "c2",
+          "text": "償う"
+        },
+        {
+          "id": "c3",
+          "text": "疑う"
+        },
+        {
+          "id": "c4",
+          "text": "拒む"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/b618cff56c",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "凍える",
+      "original": "凍える",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "暖房のない部屋で一晩過ごしたら、寒さで体が＿＿。",
+      "completion": "暖房のない部屋で一晩過ごしたら、寒さで体が凍える。",
+      "rationale": "凍える（こごえる）：to freeze; to be chilled; to be frozen。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "焦げる"
+        },
+        {
+          "id": "c2",
+          "text": "凍える"
+        },
+        {
+          "id": "c3",
+          "text": "乾く"
+        },
+        {
+          "id": "c4",
+          "text": "緩む"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/e9eff104ec",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "冷める",
+      "original": "冷める",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "熱いお茶も、そのまま置いておけば＿＿。",
+      "completion": "熱いお茶も、そのまま置いておけば冷める。",
+      "rationale": "冷める（さめる）：to become cool; to wear off; to abate; to subside。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "沸く"
+        },
+        {
+          "id": "c2",
+          "text": "凍る"
+        },
+        {
+          "id": "c3",
+          "text": "冷める"
+        },
+        {
+          "id": "c4",
+          "text": "燃える"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/d153412251",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "頼もしい",
+      "original": "頼もしい",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "困ったときに必ず助けてくれる兄は、とても＿＿存在だ。",
+      "completion": "困ったときに必ず助けてくれる兄は、とても頼もしい存在だ。",
+      "rationale": "頼もしい（たのもしい）：reliable; trustworthy; hopeful; promising。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "あやしい"
+        },
+        {
+          "id": "c2",
+          "text": "みにくい"
+        },
+        {
+          "id": "c3",
+          "text": "ずうずうしい"
+        },
+        {
+          "id": "c4",
+          "text": "頼もしい"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/45ba6efa0f",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "調整",
+      "original": "調整",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "会議の時間が重ならないように、各部署と日程を＿＿する。",
+      "completion": "会議の時間が重ならないように、各部署と日程を調整する。",
+      "rationale": "調整（ちょうせい）：regulation; adjustment; tuning。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "調整"
+        },
+        {
+          "id": "c2",
+          "text": "貯蔵"
+        },
+        {
+          "id": "c3",
+          "text": "撮影"
+        },
+        {
+          "id": "c4",
+          "text": "分解"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/47aa3660ee",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "増減",
+      "original": "増減",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "利用者の数は、増えたり減ったりしている。その＿＿を表にした。",
+      "completion": "利用者の数は、増えたり減ったりしている。その増減を表にした。",
+      "rationale": "増減（ぞうげん）：increase and decrease; fluctuation。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "停滞"
+        },
+        {
+          "id": "c2",
+          "text": "増減"
+        },
+        {
+          "id": "c3",
+          "text": "分裂"
+        },
+        {
+          "id": "c4",
+          "text": "一致"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/a82d4898b1",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "防犯",
+      "original": "防犯",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "泥棒が入らないように、家の＿＿対策を強化する。",
+      "completion": "泥棒が入らないように、家の防犯対策を強化する。",
+      "rationale": "防犯（ぼうはん）：prevention of crime。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "防災"
+        },
+        {
+          "id": "c2",
+          "text": "防寒"
+        },
+        {
+          "id": "c3",
+          "text": "防犯"
+        },
+        {
+          "id": "c4",
+          "text": "防水"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/ba4e559c36",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "発想",
+      "original": "発想",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "誰も考えつかなかった新しいアイデアだ。自由な＿＿から生まれた。",
+      "completion": "誰も考えつかなかった新しいアイデアだ。自由な発想から生まれた。",
+      "rationale": "発想（はっそう）：expression (music); conceptualization。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "姿勢"
+        },
+        {
+          "id": "c2",
+          "text": "手順"
+        },
+        {
+          "id": "c3",
+          "text": "実績"
+        },
+        {
+          "id": "c4",
+          "text": "発想"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/718a562886",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "名字",
+      "original": "名字",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "「山田太郎」の「山田」は、名前のうち＿＿に当たる。",
+      "completion": "「山田太郎」の「山田」は、名前のうち名字に当たる。",
+      "rationale": "名字（みょうじ）：surname; family name。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "名字"
+        },
+        {
+          "id": "c2",
+          "text": "あだ名"
+        },
+        {
+          "id": "c3",
+          "text": "肩書き"
+        },
+        {
+          "id": "c4",
+          "text": "国籍"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n2/5ff53bdd4b",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "容積",
+      "original": "容積",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "この箱の内部に入る量を知るために、縦・横・高さを掛けて＿＿を求める。",
+      "completion": "この箱の内部に入る量を知るために、縦・横・高さを掛けて容積を求める。",
+      "rationale": "容積（ようせき）：capacity; volume。この文脈ではこの意味の語を使う。",
+      "band": "N2",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "面積"
+        },
+        {
+          "id": "c2",
+          "text": "容積"
+        },
+        {
+          "id": "c3",
+          "text": "直径"
+        },
+        {
+          "id": "c4",
+          "text": "重量"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/e190e9818a",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "一律",
+      "original": "一律",
+      "prompt": {
+        "en": "Choose the reading of 「一律」.",
+        "ja": "「一律」の読み方を選んでください。"
+      },
+      "stimulus": "手数料は全国一律です。",
+      "rationale": "一律（いちりつ）：evenness; uniformity; monotony; equality。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "いちりつ"
+        },
+        {
+          "id": "c2",
+          "text": "いちりち"
+        },
+        {
+          "id": "c3",
+          "text": "いっりつ"
+        },
+        {
+          "id": "c4",
+          "text": "いちれつ"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/7e99520775",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "運搬",
+      "original": "運搬",
+      "prompt": {
+        "en": "Choose the reading of 「運搬」.",
+        "ja": "「運搬」の読み方を選んでください。"
+      },
+      "stimulus": "精密機器の運搬には注意が必要だ。",
+      "rationale": "運搬（うんぱん）：transport; carriage。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "うんはん"
+        },
+        {
+          "id": "c2",
+          "text": "うんぱん"
+        },
+        {
+          "id": "c3",
+          "text": "うんばん"
+        },
+        {
+          "id": "c4",
+          "text": "うぱん"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/b84686d05e",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "過密",
+      "original": "過密",
+      "prompt": {
+        "en": "Choose the reading of 「過密」.",
+        "ja": "「過密」の読み方を選んでください。"
+      },
+      "stimulus": "過密な日程を見直す必要がある。",
+      "rationale": "過密（かみつ）：crowded。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "かびつ"
+        },
+        {
+          "id": "c2",
+          "text": "かみち"
+        },
+        {
+          "id": "c3",
+          "text": "かみつ"
+        },
+        {
+          "id": "c4",
+          "text": "かんみつ"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/400423303a",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "起源",
+      "original": "起源",
+      "prompt": {
+        "en": "Choose the reading of 「起源」.",
+        "ja": "「起源」の読み方を選んでください。"
+      },
+      "stimulus": "この習慣の起源を調査している。",
+      "rationale": "起源（きげん）：origin; beginning; rise。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "きけん"
+        },
+        {
+          "id": "c2",
+          "text": "きがん"
+        },
+        {
+          "id": "c3",
+          "text": "きげ"
+        },
+        {
+          "id": "c4",
+          "text": "きげん"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/3a40a73925",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "脚色",
+      "original": "脚色",
+      "prompt": {
+        "en": "Choose the reading of 「脚色」.",
+        "ja": "「脚色」の読み方を選んでください。"
+      },
+      "stimulus": "実話を映画向けに脚色した。",
+      "rationale": "脚色（きゃくしょく）：dramatization (e.g. film)。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "きゃくしょく"
+        },
+        {
+          "id": "c2",
+          "text": "きゃくしき"
+        },
+        {
+          "id": "c3",
+          "text": "きゃくそく"
+        },
+        {
+          "id": "c4",
+          "text": "きゃしょく"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/7706bb62ac",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "共存",
+      "original": "共存",
+      "prompt": {
+        "en": "Choose the reading of 「共存」.",
+        "ja": "「共存」の読み方を選んでください。"
+      },
+      "stimulus": "異なる文化の共存を目指している。",
+      "rationale": "共存（きょうぞん）：coexistence。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "きょうそんう"
+        },
+        {
+          "id": "c2",
+          "text": "きょうぞん"
+        },
+        {
+          "id": "c3",
+          "text": "きょぞん"
+        },
+        {
+          "id": "c4",
+          "text": "きょうじょん"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kanji-reading-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/7113165c32",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "拘束",
+      "original": "拘束",
+      "prompt": {
+        "en": "Choose the reading of 「拘束」.",
+        "ja": "「拘束」の読み方を選んでください。"
+      },
+      "stimulus": "長時間の拘束が問題になっている。",
+      "rationale": "拘束（こうそく）：restriction; restraint。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "こそく"
+        },
+        {
+          "id": "c2",
+          "text": "こうぞく"
+        },
+        {
+          "id": "c3",
+          "text": "こうそく"
+        },
+        {
+          "id": "c4",
+          "text": "くうそく"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kanji-reading-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/a5af05c18b",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "祝賀",
+      "original": "祝賀",
+      "prompt": {
+        "en": "Choose the reading of 「祝賀」.",
+        "ja": "「祝賀」の読み方を選んでください。"
+      },
+      "stimulus": "記念式典の後に祝賀の宴を開いた。",
+      "rationale": "祝賀（しゅくが）：celebration; congratulations。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "しゅくか"
+        },
+        {
+          "id": "c2",
+          "text": "しゅが"
+        },
+        {
+          "id": "c3",
+          "text": "しゅうが"
+        },
+        {
+          "id": "c4",
+          "text": "しゅくが"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kanji-reading-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/f6810ec488",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "普遍",
+      "original": "普遍",
+      "prompt": {
+        "en": "Choose the reading of 「普遍」.",
+        "ja": "「普遍」の読み方を選んでください。"
+      },
+      "stimulus": "その作品は普遍的な価値を持つ。",
+      "rationale": "普遍（ふへん）：universality; ubiquity; omnipresence。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ふへん"
+        },
+        {
+          "id": "c2",
+          "text": "ふべん"
+        },
+        {
+          "id": "c3",
+          "text": "ぶへん"
+        },
+        {
+          "id": "c4",
+          "text": "ふうへん"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kanji-reading-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/3e37fcff5a",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "領域",
+      "original": "領域",
+      "prompt": {
+        "en": "Choose the reading of 「領域」.",
+        "ja": "「領域」の読み方を選んでください。"
+      },
+      "stimulus": "従来の研究領域を越える試みだ。",
+      "rationale": "領域（りょういき）：area; domain; territory; field; region; regime。辞書の表記・読みの対応を保持。",
+      "band": "N1",
+      "domain": "kanji_reading",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "りょうえき"
+        },
+        {
+          "id": "c2",
+          "text": "りょういき"
+        },
+        {
+          "id": "c3",
+          "text": "りょいき"
+        },
+        {
+          "id": "c4",
+          "text": "りょうぎき"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-01",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/df698ae04e",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "衰える",
+      "original": "衰える",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "運動を全くしない生活が続くと、筋力は次第に＿＿。",
+      "completion": "運動を全くしない生活が続くと、筋力は次第に衰える。",
+      "rationale": "衰える（おとろえる）：to become weak; to decline; to wear; to abate; to decay; to wither; to waste away。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "衰える"
+        },
+        {
+          "id": "c2",
+          "text": "潤う"
+        },
+        {
+          "id": "c3",
+          "text": "栄える"
+        },
+        {
+          "id": "c4",
+          "text": "弾む"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-02",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/2031fc3753",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "断言",
+      "original": "断言",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "証拠を十分に確認せずに「絶対に正しい」と＿＿するのは危険だ。",
+      "completion": "証拠を十分に確認せずに「絶対に正しい」と断言するのは危険だ。",
+      "rationale": "断言（だんげん）：declaration; affirmation。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "懇願"
+        },
+        {
+          "id": "c2",
+          "text": "断言"
+        },
+        {
+          "id": "c3",
+          "text": "黙認"
+        },
+        {
+          "id": "c4",
+          "text": "撤回"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-03",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/89c0b0d65d",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "中断",
+      "original": "中断",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "停電で作業は一時＿＿したが、電気が戻ると再開できた。",
+      "completion": "停電で作業は一時中断したが、電気が戻ると再開できた。",
+      "rationale": "中断（ちゅうだん）：interruption; suspension; break。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "継続"
+        },
+        {
+          "id": "c2",
+          "text": "完結"
+        },
+        {
+          "id": "c3",
+          "text": "中断"
+        },
+        {
+          "id": "c4",
+          "text": "進展"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-04",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/4786dd1bfd",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "貫く",
+      "original": "貫く",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "周囲に何を言われても、自分の信念を最後まで＿＿。",
+      "completion": "周囲に何を言われても、自分の信念を最後まで貫く。",
+      "rationale": "貫く（つらぬく）：to go through。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "覆す"
+        },
+        {
+          "id": "c2",
+          "text": "曲げる"
+        },
+        {
+          "id": "c3",
+          "text": "捨てる"
+        },
+        {
+          "id": "c4",
+          "text": "貫く"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-05",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/cfcf176af8",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "嘆く",
+      "original": "嘆く",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "失われた機会を取り戻せず、悔しく悲しい思いでその不運を＿＿。",
+      "completion": "失われた機会を取り戻せず、悔しく悲しい思いでその不運を嘆く。",
+      "rationale": "嘆く（なげく）：to sigh; to lament; to grieve。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "嘆く"
+        },
+        {
+          "id": "c2",
+          "text": "誇る"
+        },
+        {
+          "id": "c3",
+          "text": "祝う"
+        },
+        {
+          "id": "c4",
+          "text": "喜ぶ"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-06",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/e52ae45f67",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "配置",
+      "original": "配置",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "各部署に必要な人数を考え、人員の＿＿を決める。",
+      "completion": "各部署に必要な人数を考え、人員の配置を決める。",
+      "rationale": "配置（はいち）：arrangement (of resources); disposition。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "収益"
+        },
+        {
+          "id": "c2",
+          "text": "配置"
+        },
+        {
+          "id": "c3",
+          "text": "寿命"
+        },
+        {
+          "id": "c4",
+          "text": "消耗"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "vocabulary-07",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/b6ee1dd14e",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "半端",
+      "original": "半端",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "最後まで仕上げずにやめたので、仕事が中途＿＿なままだ。",
+      "completion": "最後まで仕上げずにやめたので、仕事が中途半端なままだ。",
+      "rationale": "半端（はんぱ）：remnant; fragment; incomplete set; fraction; odd sum; incompleteness。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "円満"
+        },
+        {
+          "id": "c2",
+          "text": "巧妙"
+        },
+        {
+          "id": "c3",
+          "text": "半端"
+        },
+        {
+          "id": "c4",
+          "text": "明白"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "vocabulary-08",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/1cd603aec5",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "優越",
+      "original": "優越",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "他者より自分の方が優れていると思い、＿＿感に浸っている。",
+      "completion": "他者より自分の方が優れていると思い、優越感に浸っている。",
+      "rationale": "優越（ゆうえつ）：supremacy; predominance; being superior to。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "劣等"
+        },
+        {
+          "id": "c2",
+          "text": "罪悪"
+        },
+        {
+          "id": "c3",
+          "text": "焦燥"
+        },
+        {
+          "id": "c4",
+          "text": "優越"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "vocabulary-09",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/8abbf74882",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "滅びる",
+      "original": "滅びる",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "国が長い戦乱の末に完全に消滅することを、国が＿＿という。",
+      "completion": "国が長い戦乱の末に完全に消滅することを、国が滅びるという。",
+      "rationale": "滅びる（ほろびる）：to be ruined; to go under; to perish; to be destroyed。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "滅びる"
+        },
+        {
+          "id": "c2",
+          "text": "栄える"
+        },
+        {
+          "id": "c3",
+          "text": "潤う"
+        },
+        {
+          "id": "c4",
+          "text": "賑わう"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "vocabulary-10",
+      "sourceId": "openjlpt-jmdict",
+      "sourceRecord": "n1/64374f31d6",
+      "changes": "Selected source word, reading and community level; context and three distractors newly authored. JMdict restrictions and same-band Waller match retained. No source example sentence copied.",
+      "focus": "密集",
+      "original": "密集",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "狭い地域に住宅がすき間なく＿＿している。",
+      "completion": "狭い地域に住宅がすき間なく密集している。",
+      "rationale": "密集（みっしゅう）：crowd; close formation; dense。この文脈ではこの意味の語を使う。",
+      "band": "N1",
+      "domain": "vocabulary",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "分散"
+        },
+        {
+          "id": "c2",
+          "text": "密集"
+        },
+        {
+          "id": "c3",
+          "text": "移転"
+        },
+        {
+          "id": "c4",
+          "text": "孤立"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kana-01",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-1",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "アイス",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "アイス",
+      "rationale": "アイス ↔ あいす。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "あいす"
+        },
+        {
+          "id": "c2",
+          "text": "あすい"
+        },
+        {
+          "id": "c3",
+          "text": "あいし"
+        },
+        {
+          "id": "c4",
+          "text": "おいす"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kana-02",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-2",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "カメラ",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "カメラ",
+      "rationale": "カメラ ↔ かめら。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "かねら"
+        },
+        {
+          "id": "c2",
+          "text": "かめら"
+        },
+        {
+          "id": "c3",
+          "text": "かめろ"
+        },
+        {
+          "id": "c4",
+          "text": "こめら"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kana-03",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-3",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "バス",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "バス",
+      "rationale": "バス ↔ ばす。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "はす"
+        },
+        {
+          "id": "c2",
+          "text": "ぱす"
+        },
+        {
+          "id": "c3",
+          "text": "ばす"
+        },
+        {
+          "id": "c4",
+          "text": "ばつ"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kana-04",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-4",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "ペン",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "ペン",
+      "rationale": "ペン ↔ ぺん。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "へん"
+        },
+        {
+          "id": "c2",
+          "text": "べん"
+        },
+        {
+          "id": "c3",
+          "text": "ぺそ"
+        },
+        {
+          "id": "c4",
+          "text": "ぺん"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kana-05",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-5",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "キャベツ",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "キャベツ",
+      "rationale": "キャベツ ↔ きゃべつ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "きゃべつ"
+        },
+        {
+          "id": "c2",
+          "text": "きやべつ"
+        },
+        {
+          "id": "c3",
+          "text": "きゃぺつ"
+        },
+        {
+          "id": "c4",
+          "text": "きゃべっ"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kana-06",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-6",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "ジャム",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "ジャム",
+      "rationale": "ジャム ↔ じゃむ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "じやむ"
+        },
+        {
+          "id": "c2",
+          "text": "じゃむ"
+        },
+        {
+          "id": "c3",
+          "text": "ちゃむ"
+        },
+        {
+          "id": "c4",
+          "text": "しゃむ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kana-07",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-7",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "チーズ",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "チーズ",
+      "rationale": "チーズ ↔ ちーず。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ちーす"
+        },
+        {
+          "id": "c2",
+          "text": "しーず"
+        },
+        {
+          "id": "c3",
+          "text": "ちーず"
+        },
+        {
+          "id": "c4",
+          "text": "ちずー"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kana-08",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-8",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "コップ",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "コップ",
+      "rationale": "コップ ↔ こっぷ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "こつぷ"
+        },
+        {
+          "id": "c2",
+          "text": "こっぶ"
+        },
+        {
+          "id": "c3",
+          "text": "こっふ"
+        },
+        {
+          "id": "c4",
+          "text": "こっぷ"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kana-09",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-9",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "チケット",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "チケット",
+      "rationale": "チケット ↔ ちけっと。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ちけっと"
+        },
+        {
+          "id": "c2",
+          "text": "ちけつと"
+        },
+        {
+          "id": "c3",
+          "text": "ちきっと"
+        },
+        {
+          "id": "c4",
+          "text": "ちけっど"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kana-10",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-10",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Katakana to hiragana",
+      "original": "シャツ",
+      "prompt": {
+        "en": "Choose the hiragana with the same reading.",
+        "ja": "同じ音を表すひらがなを選んでください。"
+      },
+      "stimulus": "シャツ",
+      "rationale": "シャツ ↔ しゃつ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "しやつ"
+        },
+        {
+          "id": "c2",
+          "text": "しゃつ"
+        },
+        {
+          "id": "c3",
+          "text": "じゃつ"
+        },
+        {
+          "id": "c4",
+          "text": "しゃっ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kana-11",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-11",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "そ",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "そ",
+      "rationale": "そ ↔ ソ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ン"
+        },
+        {
+          "id": "c2",
+          "text": "シ"
+        },
+        {
+          "id": "c3",
+          "text": "ソ"
+        },
+        {
+          "id": "c4",
+          "text": "ツ"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kana-12",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-12",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "つ",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "つ",
+      "rationale": "つ ↔ ツ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "シ"
+        },
+        {
+          "id": "c2",
+          "text": "ソ"
+        },
+        {
+          "id": "c3",
+          "text": "ン"
+        },
+        {
+          "id": "c4",
+          "text": "ツ"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kana-13",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-13",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "し",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "し",
+      "rationale": "し ↔ シ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "シ"
+        },
+        {
+          "id": "c2",
+          "text": "ツ"
+        },
+        {
+          "id": "c3",
+          "text": "ソ"
+        },
+        {
+          "id": "c4",
+          "text": "ン"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kana-14",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-14",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "ん",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "ん",
+      "rationale": "ん ↔ ン。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ソ"
+        },
+        {
+          "id": "c2",
+          "text": "ン"
+        },
+        {
+          "id": "c3",
+          "text": "シ"
+        },
+        {
+          "id": "c4",
+          "text": "ツ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kana-15",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-15",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "ぬ",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "ぬ",
+      "rationale": "ぬ ↔ ヌ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "メ"
+        },
+        {
+          "id": "c2",
+          "text": "ネ"
+        },
+        {
+          "id": "c3",
+          "text": "ヌ"
+        },
+        {
+          "id": "c4",
+          "text": "ス"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kana-16",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-16",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "め",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "め",
+      "rationale": "め ↔ メ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ヌ"
+        },
+        {
+          "id": "c2",
+          "text": "ネ"
+        },
+        {
+          "id": "c3",
+          "text": "ス"
+        },
+        {
+          "id": "c4",
+          "text": "メ"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "kana-17",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-17",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "わ",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "わ",
+      "rationale": "わ ↔ ワ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ワ"
+        },
+        {
+          "id": "c2",
+          "text": "ウ"
+        },
+        {
+          "id": "c3",
+          "text": "フ"
+        },
+        {
+          "id": "c4",
+          "text": "ラ"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "kana-18",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-18",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "れ",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "れ",
+      "rationale": "れ ↔ レ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ル"
+        },
+        {
+          "id": "c2",
+          "text": "レ"
+        },
+        {
+          "id": "c3",
+          "text": "ロ"
+        },
+        {
+          "id": "c4",
+          "text": "ク"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "kana-19",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-19",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "ぱ",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "ぱ",
+      "rationale": "ぱ ↔ パ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "バ"
+        },
+        {
+          "id": "c2",
+          "text": "ハ"
+        },
+        {
+          "id": "c3",
+          "text": "パ"
+        },
+        {
+          "id": "c4",
+          "text": "ポ"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "kana-20",
+      "sourceId": "original-kana",
+      "sourceRecord": "script-20",
+      "changes": "Original script conversion; dakuten, handakuten, small kana and long-vowel marks retained. N5 literacy floor only.",
+      "focus": "Hiragana to katakana",
+      "original": "ぴょ",
+      "prompt": {
+        "en": "Choose the katakana with the same reading.",
+        "ja": "同じ音を表すカタカナを選んでください。"
+      },
+      "stimulus": "ぴょ",
+      "rationale": "ぴょ ↔ ピョ。文字の形と濁点・半濁点、小さい仮名を確認する。",
+      "band": "N5",
+      "domain": "kana",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ピヨ"
+        },
+        {
+          "id": "c2",
+          "text": "ビョ"
+        },
+        {
+          "id": "c3",
+          "text": "ヒョ"
+        },
+        {
+          "id": "c4",
+          "text": "ピョ"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-owaru",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/owaru/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜終わる",
+      "original": "手紙を書き終わって、ポストに入れました。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "手紙を書き＿＿、ポストに入れました。",
+      "completion": "手紙を書き終わって、ポストに入れました。",
+      "rationale": "動詞のます形の語幹＋終わる。ここでは後の動作につなぐ「終わって」。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "終わって"
+        },
+        {
+          "id": "c2",
+          "text": "終わる"
+        },
+        {
+          "id": "c3",
+          "text": "終わりの"
+        },
+        {
+          "id": "c4",
+          "text": "終わったの"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-zurai",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/zurai/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜づらい",
+      "original": "本当のことは、ちょっと言いづらいです。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "本当のことは、ちょっと言い＿＿です。",
+      "completion": "本当のことは、ちょっと言いづらいです。",
+      "rationale": "言い＋づらい。「です」の前に形容詞の終止形を置く。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "づらく"
+        },
+        {
+          "id": "c2",
+          "text": "づらい"
+        },
+        {
+          "id": "c3",
+          "text": "づらさ"
+        },
+        {
+          "id": "c4",
+          "text": "づらがる"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-naosu",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/naosu/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜直す",
+      "original": "もう一度考え直したほうがいいですよ。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "もう一度考え＿＿ほうがいいですよ。",
+      "completion": "もう一度考え直したほうがいいですよ。",
+      "rationale": "考え直した＋ほうがいい：もう一度考えることを勧める。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "直すの"
+        },
+        {
+          "id": "c2",
+          "text": "直しの"
+        },
+        {
+          "id": "c3",
+          "text": "直した"
+        },
+        {
+          "id": "c4",
+          "text": "直して"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-yasui",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/yasui/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜やすい",
+      "original": "白いシャツは汚れやすいです。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "白いシャツは汚れ＿＿です。",
+      "completion": "白いシャツは汚れやすいです。",
+      "rationale": "汚れ＋やすい：汚れる可能性が高い。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "やすく"
+        },
+        {
+          "id": "c2",
+          "text": "やすさ"
+        },
+        {
+          "id": "c3",
+          "text": "やすがる"
+        },
+        {
+          "id": "c4",
+          "text": "やすい"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-itasu",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/itasu/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Japanese context added to disambiguate the intended meaning.",
+      "focus": "いたす",
+      "original": "書類は明日お送りいたします。",
+      "prompt": {
+        "en": "お客様に、担当者である私が書類を送ります。\nChoose the expression that best completes the sentence.",
+        "ja": "お客様に、担当者である私が書類を送ります。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "書類は明日お送り＿＿。",
+      "completion": "書類は明日お送りいたします。",
+      "rationale": "お送りいたします：自分の行為を相手にへりくだって述べる。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "いたします"
+        },
+        {
+          "id": "c2",
+          "text": "いらっしゃいます"
+        },
+        {
+          "id": "c3",
+          "text": "なさいます"
+        },
+        {
+          "id": "c4",
+          "text": "おっしゃいます"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-o-kudasai-honorific",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/o-kudasai-honorific/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "お～ください",
+      "original": "エレベーターをご利用ください。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "エレベーターを＿＿ください。",
+      "completion": "エレベーターをご利用ください。",
+      "rationale": "ご＋利用＋ください：相手に丁寧に利用を勧める。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ご利用し"
+        },
+        {
+          "id": "c2",
+          "text": "ご利用"
+        },
+        {
+          "id": "c3",
+          "text": "ご利用する"
+        },
+        {
+          "id": "c4",
+          "text": "ご利用して"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-gimonshi-ka",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/gimonshi-ka/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "疑問詞＋か",
+      "original": "何を買うか、まだ決めていません。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "何を買う＿＿、まだ決めていません。",
+      "completion": "何を買うか、まだ決めていません。",
+      "rationale": "何を買うか：疑問を含む節を「か」で受ける。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "を"
+        },
+        {
+          "id": "c2",
+          "text": "で"
+        },
+        {
+          "id": "c3",
+          "text": "か"
+        },
+        {
+          "id": "c4",
+          "text": "と"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-koto",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/koto/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "こと",
+      "original": "毎日運動することは体にいいです。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "毎日運動する＿＿は体にいいです。",
+      "completion": "毎日運動することは体にいいです。",
+      "rationale": "運動すること：動作を名詞化して主題にする。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "そう"
+        },
+        {
+          "id": "c2",
+          "text": "ような"
+        },
+        {
+          "id": "c3",
+          "text": "ための"
+        },
+        {
+          "id": "c4",
+          "text": "こと"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-ika",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/ika/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Japanese context added to disambiguate the intended meaning.",
+      "focus": "以下",
+      "original": "12歳以下のお子さんは半額です。",
+      "prompt": {
+        "en": "半額になるのは12歳の子と、12歳より小さい子です。13歳からは全額です。\nChoose the expression that best completes the sentence.",
+        "ja": "半額になるのは12歳の子と、12歳より小さい子です。13歳からは全額です。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "12歳＿＿のお子さんは半額です。",
+      "completion": "12歳以下のお子さんは半額です。",
+      "rationale": "以下は基準を含めて、それより少ない数量を表す。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "以下"
+        },
+        {
+          "id": "c2",
+          "text": "以上"
+        },
+        {
+          "id": "c3",
+          "text": "未満"
+        },
+        {
+          "id": "c4",
+          "text": "以外"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-ijou",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n4/ijou/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Japanese context added to disambiguate the intended meaning.",
+      "focus": "以上",
+      "original": "きのうのパーティーには20人以上来ました。",
+      "prompt": {
+        "en": "来た人数は正確には分かりませんが、20人か、20人より多いことは確かです。\nChoose the expression that best completes the sentence.",
+        "ja": "来た人数は正確には分かりませんが、20人か、20人より多いことは確かです。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "きのうのパーティーには20人＿＿来ました。",
+      "completion": "きのうのパーティーには20人以上来ました。",
+      "rationale": "以上は基準を含めて、それより多い数量を表す。",
+      "band": "N4",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "以下"
+        },
+        {
+          "id": "c2",
+          "text": "以上"
+        },
+        {
+          "id": "c3",
+          "text": "未満"
+        },
+        {
+          "id": "c4",
+          "text": "以外"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-au",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/au/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "合う",
+      "original": "困ったときは、友達と助け合うことが大切です。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "困ったときは、友達と助け＿＿ことが大切です。",
+      "completion": "困ったときは、友達と助け合うことが大切です。",
+      "rationale": "助け合うこと：互いに助ける動作を名詞化する。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "合う"
+        },
+        {
+          "id": "c2",
+          "text": "合いの"
+        },
+        {
+          "id": "c3",
+          "text": "合うの"
+        },
+        {
+          "id": "c4",
+          "text": "合わせの"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-atari",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/atari/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜当たり",
+      "original": "パーティーの参加費は、ひとり当たり三千円です。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "パーティーの参加費は、ひとり＿＿三千円です。",
+      "completion": "パーティーの参加費は、ひとり当たり三千円です。",
+      "rationale": "ひとり当たり：一人を単位として金額を示す。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ついで"
+        },
+        {
+          "id": "c2",
+          "text": "当たり"
+        },
+        {
+          "id": "c3",
+          "text": "抜き"
+        },
+        {
+          "id": "c4",
+          "text": "まま"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-amari",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/amari/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "あまり",
+      "original": "緊張のあまり、自分の名前を言い間違えました。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "緊張の＿＿、自分の名前を言い間違えました。",
+      "completion": "緊張のあまり、自分の名前を言い間違えました。",
+      "rationale": "緊張のあまり：強い緊張が原因で失敗した。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "わりに"
+        },
+        {
+          "id": "c2",
+          "text": "ついでに"
+        },
+        {
+          "id": "c3",
+          "text": "あまり"
+        },
+        {
+          "id": "c4",
+          "text": "ままに"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-ikura-temo",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/ikura-temo/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "いくら〜ても・いくら〜でも",
+      "original": "いくら安くても、要らない物は買いません。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "いくら安く＿＿、要らない物は買いません。",
+      "completion": "いくら安くても、要らない物は買いません。",
+      "rationale": "いくら安くても：値段にかかわらず不要な物は買わない。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "たら"
+        },
+        {
+          "id": "c2",
+          "text": "ながら"
+        },
+        {
+          "id": "c3",
+          "text": "たり"
+        },
+        {
+          "id": "c4",
+          "text": "ても"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-gatai",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/gatai/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "がたい",
+      "original": "あの日の景色は、今でも忘れがたい。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "あの日の景色は、今でも忘れ＿＿。",
+      "completion": "あの日の景色は、今でも忘れがたい。",
+      "rationale": "忘れがたい：簡単には忘れられない。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "がたい"
+        },
+        {
+          "id": "c2",
+          "text": "がちの"
+        },
+        {
+          "id": "c3",
+          "text": "気味の"
+        },
+        {
+          "id": "c4",
+          "text": "っぽさ"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-gachi",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/gachi/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Japanese context added to disambiguate the intended meaning.",
+      "focus": "がち",
+      "original": "最近、曇りがちの天気が続いている。",
+      "prompt": {
+        "en": "このところ、晴れる日より曇る日の方が多い。\nChoose the expression that best completes the sentence.",
+        "ja": "このところ、晴れる日より曇る日の方が多い。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "最近、曇り＿＿の天気が続いている。",
+      "completion": "最近、曇りがちの天気が続いている。",
+      "rationale": "曇りがち：曇る傾向が多い。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "かけ"
+        },
+        {
+          "id": "c2",
+          "text": "がち"
+        },
+        {
+          "id": "c3",
+          "text": "きり"
+        },
+        {
+          "id": "c4",
+          "text": "ぬき"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-koto-ni",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/koto-ni/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "ことに",
+      "original": "残念なことに、試合は雨で中止になった。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "残念な＿＿、試合は雨で中止になった。",
+      "completion": "残念なことに、試合は雨で中止になった。",
+      "rationale": "残念なことに：後の出来事に対する話し手の気持ちを示す。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "うちに"
+        },
+        {
+          "id": "c2",
+          "text": "ついでに"
+        },
+        {
+          "id": "c3",
+          "text": "ことに"
+        },
+        {
+          "id": "c4",
+          "text": "最中に"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-kesshite-nai",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/kesshite-nai/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Japanese context added to disambiguate the intended meaning.",
+      "focus": "決して〜ない",
+      "original": "彼は決してうそをつく人ではない。",
+      "prompt": {
+        "en": "彼は正直で、うそを一度もつかないと私は強く信じている。\nChoose the expression that best completes the sentence.",
+        "ja": "彼は正直で、うそを一度もつかないと私は強く信じている。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "彼は＿＿うそをつく人ではない。",
+      "completion": "彼は決してうそをつく人ではない。",
+      "rationale": "決して～ない：強い否定。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "必ず"
+        },
+        {
+          "id": "c2",
+          "text": "ついに"
+        },
+        {
+          "id": "c3",
+          "text": "すでに"
+        },
+        {
+          "id": "c4",
+          "text": "決して"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-saichuu-ni",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/saichuu-ni/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "最中に",
+      "original": "話している最中に、急に電気が消えた。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "話している＿＿、急に電気が消えた。",
+      "completion": "話している最中に、急に電気が消えた。",
+      "rationale": "話している最中に：進行中の動作に別の出来事が起こる。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "最中に"
+        },
+        {
+          "id": "c2",
+          "text": "最中を"
+        },
+        {
+          "id": "c3",
+          "text": "最中の"
+        },
+        {
+          "id": "c4",
+          "text": "最中な"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-sai-ni",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n3/sai-ni/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "際に",
+      "original": "東京へ出張した際に、旧友と会った。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "東京へ出張した＿＿、旧友と会った。",
+      "completion": "東京へ出張した際に、旧友と会った。",
+      "rationale": "出張した際に：出張という機会に。",
+      "band": "N3",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "際を"
+        },
+        {
+          "id": "c2",
+          "text": "際に"
+        },
+        {
+          "id": "c3",
+          "text": "際の"
+        },
+        {
+          "id": "c4",
+          "text": "際な"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-enai",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/enai/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜得ない",
+      "original": "想定し得ない事態が、次々と起こった。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "想定し＿＿事態が、次々と起こった。",
+      "completion": "想定し得ない事態が、次々と起こった。",
+      "rationale": "想定し得ない事態：想定することができない事態。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "得ない"
+        },
+        {
+          "id": "c2",
+          "text": "得るの"
+        },
+        {
+          "id": "c3",
+          "text": "得なくの"
+        },
+        {
+          "id": "c4",
+          "text": "得なさの"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-eru-uru",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/eru-uru/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜得る",
+      "original": "その計画は、理論上は十分にあり得る。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "その計画は、理論上は十分にあり＿＿。",
+      "completion": "その計画は、理論上は十分にあり得る。",
+      "rationale": "あり得る：理論上、可能性がある。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "得の"
+        },
+        {
+          "id": "c2",
+          "text": "得る"
+        },
+        {
+          "id": "c3",
+          "text": "得て"
+        },
+        {
+          "id": "c4",
+          "text": "得な"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-ge",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/ge/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜げ",
+      "original": "子供たちは自慢げに賞状を見せてくれた。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "子供たちは自慢＿＿に賞状を見せてくれた。",
+      "completion": "子供たちは自慢げに賞状を見せてくれた。",
+      "rationale": "自慢げに：自慢している様子で。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "がり"
+        },
+        {
+          "id": "c2",
+          "text": "っぽく"
+        },
+        {
+          "id": "c3",
+          "text": "げ"
+        },
+        {
+          "id": "c4",
+          "text": "がちに"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-koto-dakara",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/koto-dakara/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "ことだから",
+      "original": "約束を守る田中さんのことだから、きっと来てくれるはずだ。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "約束を守る田中さんの＿＿、きっと来てくれるはずだ。",
+      "completion": "約束を守る田中さんのことだから、きっと来てくれるはずだ。",
+      "rationale": "田中さんのことだから：よく知る性格を根拠に予測する。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ことにして"
+        },
+        {
+          "id": "c2",
+          "text": "ことをして"
+        },
+        {
+          "id": "c3",
+          "text": "こともなくて"
+        },
+        {
+          "id": "c4",
+          "text": "ことだから"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-zaru",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/zaru/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜ざる",
+      "original": "予期せざる事態が起きた。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "予期せ＿＿事態が起きた。",
+      "completion": "予期せざる事態が起きた。",
+      "rationale": "予期せざる＋名詞：予期しない、という意味の連体表現。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ざる"
+        },
+        {
+          "id": "c2",
+          "text": "ずに"
+        },
+        {
+          "id": "c3",
+          "text": "ぬに"
+        },
+        {
+          "id": "c4",
+          "text": "ないで"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-shitagatte",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/shitagatte/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "したがって",
+      "original": "会員以外は入れません。したがって、事前の登録が必要です。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "会員以外は入れません。＿＿、事前の登録が必要です。",
+      "completion": "会員以外は入れません。したがって、事前の登録が必要です。",
+      "rationale": "前文の入場条件から、登録が必要だという結論を述べる。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "それにもかかわらず"
+        },
+        {
+          "id": "c2",
+          "text": "したがって"
+        },
+        {
+          "id": "c3",
+          "text": "ところが"
+        },
+        {
+          "id": "c4",
+          "text": "それなのに"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-jaku",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/jaku/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Japanese context added to disambiguate the intended meaning.",
+      "focus": "〜弱",
+      "original": "会場には五百人弱が集まった。",
+      "prompt": {
+        "en": "参加者は492人だった。人数をおよそで述べます。\nChoose the expression that best completes the sentence.",
+        "ja": "参加者は492人だった。人数をおよそで述べます。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "会場には五百人＿＿が集まった。",
+      "completion": "会場には五百人弱が集まった。",
+      "rationale": "五百人弱：五百人に少し足りない人数。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "強"
+        },
+        {
+          "id": "c2",
+          "text": "余り"
+        },
+        {
+          "id": "c3",
+          "text": "弱"
+        },
+        {
+          "id": "c4",
+          "text": "超"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-oyobi",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/oyobi/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Japanese context added to disambiguate the intended meaning.",
+      "focus": "及び",
+      "original": "会議には、部長及び課長が出席する予定です。",
+      "prompt": {
+        "en": "部長と課長の両方が出席します。順序や条件ではなく、二人を対等に並べて述べます。\nChoose the expression that best completes the sentence.",
+        "ja": "部長と課長の両方が出席します。順序や条件ではなく、二人を対等に並べて述べます。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "会議には、部長＿＿課長が出席する予定です。",
+      "completion": "会議には、部長及び課長が出席する予定です。",
+      "rationale": "部長及び課長：二つの名詞を並列する。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "にもかかわらず"
+        },
+        {
+          "id": "c2",
+          "text": "に先立って"
+        },
+        {
+          "id": "c3",
+          "text": "に応じて"
+        },
+        {
+          "id": "c4",
+          "text": "及び"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-ageku",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/ageku/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Japanese context added to disambiguate the intended meaning.",
+      "focus": "あげく",
+      "original": "さんざん悩んだあげくの決断だったが、後悔はしていない。",
+      "prompt": {
+        "en": "長い間迷い続けた末に、最終的な判断を一度だけ下しました。\nChoose the expression that best completes the sentence.",
+        "ja": "長い間迷い続けた末に、最終的な判断を一度だけ下しました。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "さんざん悩んだ＿＿の決断だったが、後悔はしていない。",
+      "completion": "さんざん悩んだあげくの決断だったが、後悔はしていない。",
+      "rationale": "悩んだあげくの決断：いろいろ悩んだ末の決断。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "あげく"
+        },
+        {
+          "id": "c2",
+          "text": "ながら"
+        },
+        {
+          "id": "c3",
+          "text": "たび"
+        },
+        {
+          "id": "c4",
+          "text": "ついで"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-osore-ga-aru",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n2/osore-ga-aru/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "恐れがある",
+      "original": "誤った使い方をすると、事故につながる恐れがある。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "誤った使い方をすると、事故につながる＿＿。",
+      "completion": "誤った使い方をすると、事故につながる恐れがある。",
+      "rationale": "事故につながる恐れがある：望ましくない事態の可能性。",
+      "band": "N2",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "恐れがいる"
+        },
+        {
+          "id": "c2",
+          "text": "恐れがある"
+        },
+        {
+          "id": "c3",
+          "text": "恐れをある"
+        },
+        {
+          "id": "c4",
+          "text": "恐れなある"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-ikan-da",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/ikan-da/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜いかんだ・〜いかんでは・〜いかんによっては",
+      "original": "検査の結果いかんでは、手術が必要になるかもしれない。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "検査の結果＿＿、手術が必要になるかもしれない。",
+      "completion": "検査の結果いかんでは、手術が必要になるかもしれない。",
+      "rationale": "結果いかんでは：検査結果の内容によっては。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "いかんでは"
+        },
+        {
+          "id": "c2",
+          "text": "いかんを"
+        },
+        {
+          "id": "c3",
+          "text": "いかんならず"
+        },
+        {
+          "id": "c4",
+          "text": "いかんながら"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-ka-ina-ka",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/ka-ina-ka/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜か否か",
+      "original": "提出された証言が真実か否かを、慎重に見極める必要がある。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "提出された証言が真実＿＿を、慎重に見極める必要がある。",
+      "completion": "提出された証言が真実か否かを、慎重に見極める必要がある。",
+      "rationale": "真実か否かを：真実であるか、そうでないかを問う。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "かのよう"
+        },
+        {
+          "id": "c2",
+          "text": "か否か"
+        },
+        {
+          "id": "c3",
+          "text": "かどうの"
+        },
+        {
+          "id": "c4",
+          "text": "かだけに"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-kare-kare",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/kare-kare/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "かれ〜かれ",
+      "original": "人は誰でも、多かれ少なかれ何らかの欠点を抱えているものだ。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "人は誰でも、＿＿何らかの欠点を抱えているものだ。",
+      "completion": "人は誰でも、多かれ少なかれ何らかの欠点を抱えているものだ。",
+      "rationale": "多かれ少なかれ：程度に違いはあるが誰にでもある。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "多くて少なくて"
+        },
+        {
+          "id": "c2",
+          "text": "多くとも少なければ"
+        },
+        {
+          "id": "c3",
+          "text": "多かれ少なかれ"
+        },
+        {
+          "id": "c4",
+          "text": "多いか少ないか"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-koso-ga",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/koso-ga/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Japanese context added to disambiguate the intended meaning.",
+      "focus": "〜こそ〜が",
+      "original": "規模こそ小さいが、この工房の職人技は他の追随を許さない。",
+      "prompt": {
+        "en": "規模については小さいと認めたうえで、職人技を高く評価します。\nChoose the expression that best completes the sentence.",
+        "ja": "規模については小さいと認めたうえで、職人技を高く評価します。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "規模＿＿小さいが、この工房の職人技は他の追随を許さない。",
+      "completion": "規模こそ小さいが、この工房の職人技は他の追随を許さない。",
+      "rationale": "規模こそ小さいが：規模については譲歩し、後半で職人技を高く評価する。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "さえも"
+        },
+        {
+          "id": "c2",
+          "text": "だけに"
+        },
+        {
+          "id": "c3",
+          "text": "ばかりに"
+        },
+        {
+          "id": "c4",
+          "text": "こそ"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-kono-ue-nai",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/kono-ue-nai/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜ことこの上ない・この上ない",
+      "original": "長年の夢がかなって、今はこの上なく幸せだ。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "長年の夢がかなって、今は＿＿幸せだ。",
+      "completion": "長年の夢がかなって、今はこの上なく幸せだ。",
+      "rationale": "この上なく幸せだ：これ以上ないほど幸せだ。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "この上なく"
+        },
+        {
+          "id": "c2",
+          "text": "この上では"
+        },
+        {
+          "id": "c3",
+          "text": "この上だけ"
+        },
+        {
+          "id": "c4",
+          "text": "この上まで"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-koto-nashi-ni",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/koto-nashi-ni/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜ことなしに",
+      "original": "地道に努力することなしに、成功はあり得ない。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "地道に努力する＿＿、成功はあり得ない。",
+      "completion": "地道に努力することなしに、成功はあり得ない。",
+      "rationale": "努力することなしに：努力しなければ成功できない。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ことなさに"
+        },
+        {
+          "id": "c2",
+          "text": "ことなしに"
+        },
+        {
+          "id": "c3",
+          "text": "ことなくの"
+        },
+        {
+          "id": "c4",
+          "text": "ことなきに"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-zu-niwa-sumanai",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/zu-niwa-sumanai/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜ずには済まない・〜ないでは済まない",
+      "original": "これほどの損害を出したのだから、会社として補償せずには済まない。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "これほどの損害を出したのだから、会社として補償せ＿＿。",
+      "completion": "これほどの損害を出したのだから、会社として補償せずには済まない。",
+      "rationale": "補償せずには済まない：補償を避けて済ませられない。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ずには過ぎない"
+        },
+        {
+          "id": "c2",
+          "text": "ずでは済まない"
+        },
+        {
+          "id": "c3",
+          "text": "ずには済まない"
+        },
+        {
+          "id": "c4",
+          "text": "ずには限らない"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-sube-ga-nai",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/sube-ga-nai/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜術がない",
+      "original": "証拠が何一つ残っておらず、真相を知るすべもない。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "証拠が何一つ残っておらず、真相を知る＿＿。",
+      "completion": "証拠が何一つ残っておらず、真相を知るすべもない。",
+      "rationale": "知るすべもない：知る方法がない。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "すべくない"
+        },
+        {
+          "id": "c2",
+          "text": "すべきない"
+        },
+        {
+          "id": "c3",
+          "text": "すべしない"
+        },
+        {
+          "id": "c4",
+          "text": "すべもない"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-soba-kara",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/soba-kara/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored.",
+      "focus": "〜そばから",
+      "original": "子どもが片付けるそばから、また部屋を散らかす。",
+      "prompt": {
+        "en": "Choose the expression that best completes the sentence.",
+        "ja": "空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "子どもが片付ける＿＿、また部屋を散らかす。",
+      "completion": "子どもが片付けるそばから、また部屋を散らかす。",
+      "rationale": "片付けるそばから：片付けてもすぐ繰り返し散らかす。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "そばから"
+        },
+        {
+          "id": "c2",
+          "text": "そばまで"
+        },
+        {
+          "id": "c3",
+          "text": "そばへの"
+        },
+        {
+          "id": "c4",
+          "text": "そばしか"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-sobireru",
+      "sourceId": "nihongo-mono",
+      "sourceRecord": "n1/sobireru/examples/1",
+      "changes": "Original second example retained exactly as keyed completion. One span blanked; three distractors and rationale authored. Editorial correction 2026-10-23: Remove the grammatical casual alternative 食べそびれてたの and malformed inflections. Test whole-compound meaning with three grammatical past-tense alternatives and explicit missed-opportunity context; exact keyed source completion retained.",
+      "focus": "〜そびれる",
+      "original": "会議が長引いて、昼食を食べそびれた。",
+      "prompt": {
+        "en": "昼食をとるつもりでしたが、会議が午後まで続き、食べる機会を逃しました。\nChoose the expression that best completes the sentence.",
+        "ja": "昼食をとるつもりでしたが、会議が午後まで続き、食べる機会を逃しました。\n空欄に入る最も適切な表現を選んでください。"
+      },
+      "stimulus": "会議が長引いて、昼食を＿＿。",
+      "completion": "会議が長引いて、昼食を食べそびれた。",
+      "rationale": "食べそびれた：食べるつもりだったが機会を逃した。食べきった（全部食べた）、食べ始めた（食べる動作を始めた）、食べ直した（もう一度食べた）は、この文脈とは異なる。",
+      "band": "N1",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "食べきった"
+        },
+        {
+          "id": "c2",
+          "text": "食べそびれた"
+        },
+        {
+          "id": "c3",
+          "text": "食べ始めた"
+        },
+        {
+          "id": "c4",
+          "text": "食べ直した"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-q-0006",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0006",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-003",
+      "original": "だれ（　）きましたか。",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "だれ＿＿きましたか。",
+      "completion": "だれがきましたか。",
+      "rationale": "Question words like だれ / なに that ask for new information always take が, not は.",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "が"
+        },
+        {
+          "id": "c2",
+          "text": "は"
+        },
+        {
+          "id": "c3",
+          "text": "を"
+        },
+        {
+          "id": "c4",
+          "text": "に"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-q-0010",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0010",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-005",
+      "original": "7時（　）おきます。",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "7時＿＿おきます。",
+      "completion": "7時におきます。",
+      "rationale": "に marks a SPECIFIC clock or calendar time (7時に, げつようびに, 4月に).",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "へ"
+        },
+        {
+          "id": "c2",
+          "text": "に"
+        },
+        {
+          "id": "c3",
+          "text": "で"
+        },
+        {
+          "id": "c4",
+          "text": "と"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-q-0014",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0014",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-007",
+      "original": "としょかん（　）べんきょうします。",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "としょかん＿＿べんきょうします。",
+      "completion": "としょかんでべんきょうします。",
+      "rationale": "で marks the location where an ACTION takes place. べんきょうする is an action, so the library is marked with で.",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "に"
+        },
+        {
+          "id": "c2",
+          "text": "へ"
+        },
+        {
+          "id": "c3",
+          "text": "で"
+        },
+        {
+          "id": "c4",
+          "text": "を"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-q-0016",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0016",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-008",
+      "original": "ともだち（　）こうえんへ いきました。",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "ともだち＿＿こうえんへいきました。",
+      "completion": "ともだちとこうえんへいきました。",
+      "rationale": "と marks the companion / co-actor of the action. With an explicit destination (こうえんへ), the only natural reading for ともだち___ is 'with my friend'. Without the destination, ともだちに いきました 'went to my friend's place' is also valid -  that's why the destination clause is required to disambiguate.",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "で"
+        },
+        {
+          "id": "c2",
+          "text": "に"
+        },
+        {
+          "id": "c3",
+          "text": "を"
+        },
+        {
+          "id": "c4",
+          "text": "と"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-q-0019",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0019",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-009",
+      "original": "あつい（　）、まどを あけてください。",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "あつい＿＿、まどをあけてください。",
+      "completion": "あついから、まどをあけてください。",
+      "rationale": "から after a clause means 'because'. The reason comes first, then the result / request. い-adjectives attach から directly (あついから, not あついですから for plain style).",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "から"
+        },
+        {
+          "id": "c2",
+          "text": "で"
+        },
+        {
+          "id": "c3",
+          "text": "に"
+        },
+        {
+          "id": "c4",
+          "text": "と"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-q-0027",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0027",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-013",
+      "original": "だれ（　）きませんでした。",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "だれ＿＿きませんでした。",
+      "completion": "だれもきませんでした。",
+      "rationale": "Only も is the natural answer here. Replaced が (would yield \"Who didn't come?\" — also grammatically valid) with へ (direction particle, semantically wrong for subject-of-arrival).",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "を"
+        },
+        {
+          "id": "c2",
+          "text": "も"
+        },
+        {
+          "id": "c3",
+          "text": "に"
+        },
+        {
+          "id": "c4",
+          "text": "へ"
+        }
+      ],
+      "correctChoiceId": "c2"
+    },
+    {
+      "id": "grammar-q-0049",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0049",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-014",
+      "original": "（じぶんの ペンを みせて、それから 友だちの 手の 中の ペンを ゆびさして）　「これは わたしの ペンです。（　）は あなたのですか。」",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "（じぶんのペンをみせて、それから友だちの手の中のペンをゆびさして）「これはわたしのペンです。＿＿はあなたのですか。」",
+      "completion": "（じぶんのペンをみせて、それから友だちの手の中のペンをゆびさして）「これはわたしのペンです。それはあなたのですか。」",
+      "rationale": "Object near the LISTENER (the person you're talking to) is それ. これ is near the speaker; あれ is far from both.",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "これ"
+        },
+        {
+          "id": "c2",
+          "text": "あれ"
+        },
+        {
+          "id": "c3",
+          "text": "それ"
+        },
+        {
+          "id": "c4",
+          "text": "どれ"
+        }
+      ],
+      "correctChoiceId": "c3"
+    },
+    {
+      "id": "grammar-q-0050",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0050",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-017",
+      "original": "いま（　）じですか。",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "いま＿＿じですか。",
+      "completion": "いまなんじですか。",
+      "rationale": "Before counters (じ, にん, さい, etc.), 'what?' is なん. なんじ = 'what time?'. なんにん = 'how many people?'.",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "なに"
+        },
+        {
+          "id": "c2",
+          "text": "どれ"
+        },
+        {
+          "id": "c3",
+          "text": "どう"
+        },
+        {
+          "id": "c4",
+          "text": "なん"
+        }
+      ],
+      "correctChoiceId": "c4"
+    },
+    {
+      "id": "grammar-q-0221",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0221",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-058",
+      "original": "あした コーヒーを のみ（　）。",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "あしたコーヒーをのみ＿＿。",
+      "completion": "あしたコーヒーをのみます。",
+      "rationale": "Only ます is grammatically valid here. Replaced ますか (still valid as future-question) with でした (V-stem+でした ungrammatical).",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "ます"
+        },
+        {
+          "id": "c2",
+          "text": "ました"
+        },
+        {
+          "id": "c3",
+          "text": "でした"
+        },
+        {
+          "id": "c4",
+          "text": "ませんでした"
+        }
+      ],
+      "correctChoiceId": "c1"
+    },
+    {
+      "id": "grammar-q-0237",
+      "sourceId": "jlptsuccess",
+      "sourceRecord": "q-0237",
+      "changes": "Source stem/key and all four choices retained; spacing and blank normalized; answer order balanced. Source translations, AI-review labels and difficulty estimates omitted.",
+      "focus": "n5-067",
+      "original": "きのう、 がっこうへ（　）。",
+      "prompt": {
+        "en": "Choose the word that best completes the sentence.",
+        "ja": "空欄に入る最も適切な言葉を選んでください。"
+      },
+      "stimulus": "きのう、がっこうへ＿＿。",
+      "completion": "きのう、がっこうへいった。",
+      "rationale": "行く is the famous exception: いった (with っ), not いいた like other -く verbs. The diary-entry context forces plain form (not polite いきました).",
+      "band": "N5",
+      "domain": "grammar",
+      "choices": [
+        {
+          "id": "c1",
+          "text": "いた"
+        },
+        {
+          "id": "c2",
+          "text": "いった"
+        },
+        {
+          "id": "c3",
+          "text": "いきた"
+        },
+        {
+          "id": "c4",
+          "text": "いきって"
+        }
+      ],
+      "correctChoiceId": "c2"
+    }
+  ]
+}

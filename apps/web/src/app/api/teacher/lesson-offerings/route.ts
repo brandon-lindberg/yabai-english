@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { teacherCanTeach, resolveLearningLanguage } from "@/lib/learning-language";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -67,10 +68,13 @@ export async function POST(req: Request) {
 
   const profile = await prisma.teacherProfile.findUnique({
     where: { userId: session.user.id },
-    select: { id: true },
+    select: { id: true, teachingLanguages: true },
   });
   if (!profile) {
     return NextResponse.json({ error: "No teacher profile" }, { status: 404 });
+  }
+  if (!teacherCanTeach(profile, resolveLearningLanguage(offering.learningLanguage))) {
+    return NextResponse.json({ error: "This teaching language has not been assigned by an admin." }, { status: 403 });
   }
 
   // The level and type must be this teacher's own, or the id could name anyone's.
@@ -104,6 +108,7 @@ export async function POST(req: Request) {
       data: lessonOfferingCreateData(offering, profile.id),
       select: {
         id: true,
+        learningLanguage: true,
         durationMin: true,
         rateYen: true,
         groupTotalRateYen: true,

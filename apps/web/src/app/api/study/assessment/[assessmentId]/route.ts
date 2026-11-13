@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { englishLearningAccessError } from "@/lib/english-learning-access";
 import { prisma } from "@/lib/prisma";
 import { isStudyLevelUnlocked } from "@/lib/study/access";
 import { studyAssessmentItemsJsonSchema } from "@/lib/study/schemas";
@@ -11,6 +12,8 @@ export async function GET(_req: Request, context: RouteContext) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const languageError = englishLearningAccessError(session.user.learningLanguage);
+  if (languageError) return languageError;
 
   const { assessmentId } = await context.params;
   const assessment = await prisma.studyAssessment.findUnique({

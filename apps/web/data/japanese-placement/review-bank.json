@@ -1,0 +1,575 @@
+{
+  "schemaVersion": 3,
+  "id": "japanese-review-samples",
+  "version": 3,
+  "sources": [
+    {
+      "id": "project-draft",
+      "origin": "original",
+      "title": "Project-authored Japanese assessment samples, AI-assisted",
+      "location": "data/japanese-placement/review-bank.json",
+      "revision": "2",
+      "license": "Unreleased project draft; publication rights review pending",
+      "attribution": "English Platform mirror project; draft authored with AI assistance",
+      "permissionEvidence": "Original drafting record in this repository; human rights review pending. No external exam items imported."
+    }
+  ],
+  "items": [
+    {
+      "id": "kana-hiragana",
+      "revision": 1,
+      "domain": "kana",
+      "focus": "Recognizing a hiragana sequence",
+      "prompt": {
+        "en": "Which reading matches these hiragana?",
+        "ja": "このひらがなの読み方を選んでください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "おと"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "ato"
+        },
+        {
+          "id": "b",
+          "text": "oto"
+        },
+        {
+          "id": "c",
+          "text": "uta"
+        },
+        {
+          "id": "d",
+          "text": "ito"
+        }
+      ],
+      "correctChoiceId": "b",
+      "explanation": {
+        "en": "お is o and と is to. This checks recognition, not handwriting or speaking.",
+        "ja": "「お」は o、「と」は to です。文字の認識を確認する問題で、書く力や話す力は測りません。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "kana-katakana",
+      "revision": 1,
+      "domain": "kana",
+      "focus": "Recognizing katakana through hiragana",
+      "prompt": {
+        "en": "Which hiragana have the same reading as these katakana?",
+        "ja": "このカタカナと同じ読み方のひらがなを選んでください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "カメラ"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "かねら"
+        },
+        {
+          "id": "b",
+          "text": "ためら"
+        },
+        {
+          "id": "c",
+          "text": "かめら"
+        },
+        {
+          "id": "d",
+          "text": "かめろ"
+        }
+      ],
+      "correctChoiceId": "c",
+      "explanation": {
+        "en": "カメラ and かめら represent the same sequence of sounds. This also requires hiragana recognition.",
+        "ja": "「カメラ」と「かめら」は同じ音を表します。この形式では、ひらがなの認識も必要です。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "kanji-destination",
+      "revision": 1,
+      "domain": "kanji_reading",
+      "focus": "Reading an inflected verb in context",
+      "prompt": {
+        "en": "How is 行きます read in this sentence?",
+        "ja": "この文の「行きます」の読み方を選んでください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "明日は図書館へ行きます。"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "いきます"
+        },
+        {
+          "id": "b",
+          "text": "おきます"
+        },
+        {
+          "id": "c",
+          "text": "かきます"
+        },
+        {
+          "id": "d",
+          "text": "ひきます"
+        }
+      ],
+      "correctChoiceId": "a",
+      "explanation": {
+        "en": "The verb is 行く, read いく; its polite form here is いきます. The reading belongs to the word in this context.",
+        "ja": "動詞「行く（いく）」の丁寧な形なので、「いきます」と読みます。文の中の語として読み方を確認します。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "kanji-raw",
+      "revision": 1,
+      "domain": "kanji_reading",
+      "focus": "Distinguishing a contextual kanji reading",
+      "prompt": {
+        "en": "How is 生 read here?",
+        "ja": "この文の「生」の読み方を選んでください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "この魚は生で食べられます。"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "せい"
+        },
+        {
+          "id": "b",
+          "text": "しょう"
+        },
+        {
+          "id": "c",
+          "text": "いき"
+        },
+        {
+          "id": "d",
+          "text": "なま"
+        }
+      ],
+      "correctChoiceId": "d",
+      "explanation": {
+        "en": "生で means raw in this sentence and is read なまで. Other readings of 生 cannot be substituted indiscriminately.",
+        "ja": "ここでは、加熱しないという意味の「生（なま）」です。「生」のほかの読み方をそのまま当てはめることはできません。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "vocabulary-shoes",
+      "revision": 1,
+      "domain": "vocabulary",
+      "focus": "Choosing an everyday verb by its object",
+      "prompt": {
+        "en": "Choose the word that fits the sentence.",
+        "ja": "文に合う言葉を選んでください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "出かける前に、くつを（　）。"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "かぶります"
+        },
+        {
+          "id": "b",
+          "text": "はきます"
+        },
+        {
+          "id": "c",
+          "text": "かけます"
+        },
+        {
+          "id": "d",
+          "text": "しめます"
+        }
+      ],
+      "correctChoiceId": "b",
+      "explanation": {
+        "en": "はく is used for putting on shoes. This checks an everyday word combination.",
+        "ja": "くつを身につけるときは「はく」を使います。日常の語の組み合わせを確認します。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "vocabulary-error",
+      "revision": 1,
+      "domain": "vocabulary",
+      "focus": "Choosing a word in a workplace context",
+      "prompt": {
+        "en": "Choose the most natural word for the blank.",
+        "ja": "空欄に入る最も自然な言葉を選んでください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "会議で、同僚が資料の誤りを（　）してくれた。"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "指導"
+        },
+        {
+          "id": "b",
+          "text": "指定"
+        },
+        {
+          "id": "c",
+          "text": "指摘"
+        },
+        {
+          "id": "d",
+          "text": "指示"
+        }
+      ],
+      "correctChoiceId": "c",
+      "explanation": {
+        "en": "誤りを指摘する means to point out an error. Suitability and distractor ambiguity still need teacher review.",
+        "ja": "誤りがあることを示すので「指摘する」が合います。問題の適切さや選択肢の曖昧さは、教師による確認が必要です。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "grammar-location",
+      "revision": 1,
+      "domain": "grammar",
+      "focus": "Marking the location of an action",
+      "prompt": {
+        "en": "Choose the particle that fits.",
+        "ja": "文に合う助詞を選んでください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "図書館（　）本を読みます。"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "を"
+        },
+        {
+          "id": "b",
+          "text": "へ"
+        },
+        {
+          "id": "c",
+          "text": "に"
+        },
+        {
+          "id": "d",
+          "text": "で"
+        }
+      ],
+      "correctChoiceId": "d",
+      "explanation": {
+        "en": "で marks the place where reading happens in this sentence.",
+        "ja": "「で」は、この文で本を読む動作が行われる場所を表します。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "grammar-concession",
+      "revision": 1,
+      "domain": "grammar",
+      "focus": "Understanding a concessive connection",
+      "prompt": {
+        "en": "Choose the expression that fits the whole sentence.",
+        "ja": "文全体に合う表現を選んでください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "いくら準備した（　）、本番では緊張してしまう。"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "ところで"
+        },
+        {
+          "id": "b",
+          "text": "ために"
+        },
+        {
+          "id": "c",
+          "text": "とおりに"
+        },
+        {
+          "id": "d",
+          "text": "かわりに"
+        }
+      ],
+      "correctChoiceId": "a",
+      "explanation": {
+        "en": "いくら…たところで expresses that even considerable preparation does not prevent the result described here.",
+        "ja": "「いくら〜たところで」は、十分に準備しても、ここで述べる緊張という結果は変わらないことを表します。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "reading-hours",
+      "revision": 1,
+      "domain": "reading",
+      "focus": "Finding information in a short notice",
+      "prompt": {
+        "en": "On Wednesday, when does the library close?",
+        "ja": "水曜日、図書館は何時に閉まりますか。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "図書館のお知らせ\n月曜日から金曜日：午前9時〜午後7時\n土曜日：午前10時〜午後5時\n日曜日：休み"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "午後5時"
+        },
+        {
+          "id": "b",
+          "text": "午後7時"
+        },
+        {
+          "id": "c",
+          "text": "午前9時"
+        },
+        {
+          "id": "d",
+          "text": "午前10時"
+        }
+      ],
+      "correctChoiceId": "b",
+      "explanation": {
+        "en": "Wednesday follows the Monday-to-Friday hours, ending at 7 pm.",
+        "ja": "水曜日は月曜日から金曜日までの時間に当てはまるので、午後7時に閉まります。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "reading-policy",
+      "revision": 1,
+      "domain": "reading",
+      "focus": "Identifying the reason for a policy decision",
+      "prompt": {
+        "en": "Why will the office keep some paper forms?",
+        "ja": "この窓口が一部の紙の申請書を残す理由は何ですか。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "窓口では来月から申請のオンライン化を進める。ただし、紙の申請書も一部残すことにした。手続きの効率化は必要だが、端末の操作に慣れていない人が申請を諦めるようでは、窓口の役割を果たしたとは言えないからだ。"
+      },
+      "choices": [
+        {
+          "id": "a",
+          "text": "オンラインでの申請を来月から中止するため。"
+        },
+        {
+          "id": "b",
+          "text": "紙の申請書のほうが、すべての手続きを速く処理できるため。"
+        },
+        {
+          "id": "c",
+          "text": "端末に不慣れな人も申請できるようにするため。"
+        },
+        {
+          "id": "d",
+          "text": "端末の操作を窓口で教えることが禁止されているため。"
+        }
+      ],
+      "correctChoiceId": "c",
+      "explanation": {
+        "en": "The office wants efficiency without excluding people unfamiliar with the devices. No official proficiency level is inferred from this item.",
+        "ja": "効率化を進めながら、端末に不慣れな人も申請できるようにするためです。この1問から公的な能力レベルを判断することはできません。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "responseType": "choice",
+      "calibration": null
+    },
+    {
+      "id": "writing-routine",
+      "revision": 1,
+      "domain": "writing",
+      "responseType": "sentence_assembly",
+      "focus": "Building a simple Japanese sentence with particles",
+      "prompt": {
+        "en": "Arrange all the tiles to match the English sentence. Start with 私は.",
+        "ja": "次の英文に合うように、すべての語句を並べてください。「私は」で始めてください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "I read a book at the library."
+      },
+      "tiles": [
+        {
+          "id": "action",
+          "text": "読みます。"
+        },
+        {
+          "id": "object",
+          "text": "本を"
+        },
+        {
+          "id": "subject",
+          "text": "私は"
+        },
+        {
+          "id": "place",
+          "text": "図書館で"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "subject",
+          "place",
+          "object",
+          "action"
+        ],
+        [
+          "subject",
+          "object",
+          "place",
+          "action"
+        ]
+      ],
+      "explanation": {
+        "en": "The tiles form a sentence about reading a book at the library. The listed alternatives preserve the intended meaning.",
+        "ja": "図書館で本を読むという意味の文を作ります。意味を保つ語順の候補を正答として登録しています。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "calibration": null
+    },
+    {
+      "id": "writing-concession",
+      "revision": 1,
+      "domain": "writing",
+      "responseType": "sentence_assembly",
+      "focus": "Building a sentence with a concessive expression",
+      "prompt": {
+        "en": "Arrange all the tiles to match the English sentence. Start with どんなに.",
+        "ja": "次の英文に合うように、すべての語句を並べてください。「どんなに」で始めてください。"
+      },
+      "stimulus": {
+        "kind": "text",
+        "text": "However busy I am, I read a book every day."
+      },
+      "tiles": [
+        {
+          "id": "object",
+          "text": "本を"
+        },
+        {
+          "id": "action",
+          "text": "読みます。"
+        },
+        {
+          "id": "concession",
+          "text": "忙しくても、"
+        },
+        {
+          "id": "degree",
+          "text": "どんなに"
+        },
+        {
+          "id": "frequency",
+          "text": "毎日"
+        }
+      ],
+      "acceptedOrders": [
+        [
+          "degree",
+          "concession",
+          "frequency",
+          "object",
+          "action"
+        ],
+        [
+          "degree",
+          "concession",
+          "object",
+          "frequency",
+          "action"
+        ]
+      ],
+      "explanation": {
+        "en": "どんなに…ても expresses a concession. Every listed order must preserve the intended sentence meaning and pass question-bank content QA.",
+        "ja": "「どんなに〜ても」で譲歩を表します。登録する語順は、意図した意味を保っているか問題集の品質確認で検証します。"
+      },
+      "sourceIds": [
+        "project-draft"
+      ],
+      "calibration": null
+    }
+  ],
+  "sequence": [
+    "kana-hiragana",
+    "kana-katakana",
+    "kanji-destination",
+    "kanji-raw",
+    "vocabulary-shoes",
+    "vocabulary-error",
+    "grammar-location",
+    "grammar-concession",
+    "reading-hours",
+    "reading-policy",
+    "writing-routine",
+    "writing-concession"
+  ],
+  "reviews": {
+    "japaneseTeacher": null,
+    "rights": null,
+    "placement": null
+  },
+  "assessment": null
+}

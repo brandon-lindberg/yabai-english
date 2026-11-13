@@ -168,6 +168,7 @@ export function CalendarMonthGrid({
   isQuiet,
   dayAction,
   testId,
+  compact = false,
 }: {
   cells: CalendarMonthCell[];
   weekdayHeaders: string[];
@@ -179,10 +180,12 @@ export function CalendarMonthGrid({
   isQuiet?: (cell: CalendarMonthCell) => boolean;
   dayAction?: (cell: CalendarMonthCell) => ReactNode;
   testId?: string;
+  /** Date-only navigation for a narrow picker; times are shown after choosing a day. */
+  compact?: boolean;
 }) {
   return (
     <div className="overflow-x-auto pb-1" data-testid={testId}>
-      <div className="min-w-[720px]">
+      <div className={compact ? "min-w-0" : "min-w-[720px]"}>
         <div className="grid grid-cols-7 border-b border-border">
           {weekdayHeaders.map((day, index) => (
             <p
@@ -203,7 +206,8 @@ export function CalendarMonthGrid({
                 key={cell.dayKey}
                 data-month-day-cell={cell.dayKey}
                 className={[
-                  "flex min-h-[104px] min-w-0 flex-col border-b border-r border-border p-1.5 text-left text-xs",
+                  "flex min-w-0 flex-col border-b border-r border-border text-left text-xs",
+                  compact ? "min-h-11" : "min-h-[104px] p-1.5",
                   selected ? "ring-1 ring-inset ring-foreground" : "",
                   outside ? "opacity-40" : "",
                 ]
@@ -215,7 +219,7 @@ export function CalendarMonthGrid({
                     type="button"
                     data-day-key={cell.dayKey}
                     onClick={() => onDayClick(cell)}
-                    className={`min-w-0 rounded px-1 py-0.5 text-sm font-black tabular-nums transition-colors hover:bg-[var(--app-hover)] ${
+                    className={`${compact ? "min-h-11 w-full" : "min-w-0 rounded px-1 py-0.5"} text-sm font-black tabular-nums transition-colors hover:bg-[var(--app-hover)] ${
                       quiet ? "text-muted" : "text-foreground"
                     }`}
                   >
@@ -223,7 +227,7 @@ export function CalendarMonthGrid({
                   </button>
                   {dayAction ? dayAction(cell) : null}
                 </div>
-                <div className="mt-1 flex min-h-0 flex-1 flex-col gap-1">{renderCell(cell)}</div>
+                {compact ? null : <div className="mt-1 flex min-h-0 flex-1 flex-col gap-1">{renderCell(cell)}</div>}
               </div>
             );
           })}

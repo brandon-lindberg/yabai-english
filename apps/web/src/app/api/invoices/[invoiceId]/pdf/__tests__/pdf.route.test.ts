@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { conversationProduct, lessonSubjectCases } from "../../../../../../../test/lesson-subject-fixture";
 
 const { authMock, prismaMock, buildInvoicePdfMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
@@ -16,6 +17,15 @@ vi.mock("@/lib/invoice-pdf", () => ({ buildInvoicePdf: buildInvoicePdfMock }));
 import { GET } from "@/app/api/invoices/[invoiceId]/pdf/route";
 
 describe("GET /api/invoices/[invoiceId]/pdf", () => {
+  test.each(lessonSubjectCases)("the $learningLanguage invoice uses its booking subject in either document language", async ({ learningLanguage, otherLanguage, nameJa, nameEn }) => {
+    const invoice = await prismaMock.invoice.findUnique();
+    prismaMock.invoice.findUnique.mockResolvedValue({ ...invoice, booking: { ...invoice.booking, learningLanguage, lessonProduct: conversationProduct } });
+    authMock.mockResolvedValue({ user: { id: "student-1", learningLanguage: otherLanguage } });
+    for (const lang of ["en", "ja"]) {
+      expect((await GET(new Request(`https://${otherLanguage === "ENGLISH" ? "englishstudiojapan.com" : "japanesestudio.love"}/api/invoices/invoice-1/pdf?lang=${lang}&learningLanguage=${otherLanguage}`), { params: Promise.resolve({ invoiceId: "invoice-1" }) })).status).toBe(200);
+      expect(buildInvoicePdfMock).toHaveBeenLastCalledWith(expect.objectContaining({ learningLanguage, language: lang, className: lang === "ja" ? nameJa : nameEn, amountYen: 3300 }));
+    }
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ user: { id: "student-1" } });

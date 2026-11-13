@@ -1,0 +1,430 @@
+{
+  "provenance": {
+    "openjlptCommit": "0d1d3410bec90bd4098a7c72de820543cb4f707c",
+    "referenceCommit": "b062d4e38c4bdd0950ae1d4ec55f04b176182e03",
+    "dictionaryRelease": "3.6.2+20261019180022",
+    "sourceLock": "../source-lock.json"
+  },
+  "teacherReview": "pending",
+  "samples": [
+    {
+      "kind": "vocabulary",
+      "id": "0020b9ee4e",
+      "content": {
+        "id": "0020b9ee4e",
+        "word": "今年",
+        "reading": "ことし",
+        "meanings": [
+          "this year"
+        ],
+        "level": "N5",
+        "romaji": "kotoshi",
+        "pos": [
+          "n",
+          "adv"
+        ],
+        "jmdict_id": 1579130,
+        "other_forms": [],
+        "other_readings": [],
+        "examples": [
+          {
+            "ja": "今年もよい年でありますように。",
+            "en": "May the new year bring you happiness!",
+            "tatoeba_id": 171289,
+            "furigana": "{今年|ことし}もよい{年|とし}でありますように。"
+          },
+          {
+            "ja": "今年の六月はあまり雨の日がなかった。",
+            "en": "There were not many rainy days in June this year.",
+            "tatoeba_id": 171353,
+            "furigana": "{今年|ことし}の{六月|ろくがつ}はあまり{雨|あめ}の{日|ひ}がなかった。"
+          }
+        ]
+      },
+      "level": "N5",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    },
+    {
+      "kind": "kanji",
+      "id": "一",
+      "content": {
+        "character": "一",
+        "level": "N5",
+        "onyomi": [
+          "イチ",
+          "イツ"
+        ],
+        "kunyomi": [
+          "ひと-",
+          "ひと.つ"
+        ],
+        "meanings": [
+          "one",
+          "one radical (no.1)"
+        ],
+        "nanori": [
+          "かず",
+          "い",
+          "いっ",
+          "いる",
+          "かつ",
+          "かづ",
+          "てん",
+          "はじめ",
+          "ひ",
+          "ひとつ",
+          "まこと"
+        ],
+        "strokes": 1,
+        "grade": 1,
+        "freq": 2,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "一",
+          "一日",
+          "一緒",
+          "一つ",
+          "一月",
+          "一人",
+          "一昨日",
+          "一昨年"
+        ]
+      },
+      "level": "N5",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    },
+    {
+      "kind": "vocabulary",
+      "id": "0039e17a55",
+      "content": {
+        "id": "0039e17a55",
+        "word": "そろそろ",
+        "reading": "そろそろ",
+        "meanings": [
+          "gradually",
+          "soon"
+        ],
+        "level": "N4",
+        "romaji": "sorosoro",
+        "pos": [
+          "adv",
+          "adv-to"
+        ],
+        "jmdict_id": 1345605,
+        "other_forms": [],
+        "other_readings": [],
+        "examples": [
+          {
+            "ja": "そろそろ寝る時間だぞ。",
+            "en": "It's time you went to bed.",
+            "tatoeba_id": 204450,
+            "furigana": "そろそろ{寝|ね}る{時間|じかん}だぞ。"
+          },
+          {
+            "ja": "もうそろそろ出発の時間です。",
+            "en": "It's about time to start.",
+            "tatoeba_id": 194401,
+            "furigana": "もうそろそろ{出発|しゅっぱつ}の{時間|じかん}です。"
+          }
+        ]
+      },
+      "level": "N4",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    },
+    {
+      "kind": "kanji",
+      "id": "不",
+      "content": {
+        "character": "不",
+        "level": "N4",
+        "onyomi": [
+          "フ",
+          "ブ"
+        ],
+        "kunyomi": [],
+        "meanings": [
+          "negative",
+          "non-",
+          "bad",
+          "ugly",
+          "clumsy"
+        ],
+        "nanori": [],
+        "strokes": 4,
+        "grade": 4,
+        "freq": 101,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "不便",
+          "不",
+          "不安",
+          "不可",
+          "不幸",
+          "不正",
+          "不足",
+          "不平"
+        ]
+      },
+      "level": "N4",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    },
+    {
+      "kind": "vocabulary",
+      "id": "00077af4b5",
+      "content": {
+        "id": "00077af4b5",
+        "word": "気候",
+        "reading": "きこう",
+        "meanings": [
+          "climate"
+        ],
+        "level": "N3",
+        "romaji": "kikou",
+        "pos": [
+          "n"
+        ],
+        "jmdict_id": 1222170,
+        "other_forms": [],
+        "other_readings": [],
+        "examples": [
+          {
+            "ja": "その国は気候が温和だ。",
+            "en": "That country has a mild climate.",
+            "tatoeba_id": 210607,
+            "furigana": "その{国|くに}は{気候|きこう}が{温和|おんわ}だ。"
+          },
+          {
+            "ja": "当地の気候は英国と非常に似ている。",
+            "en": "The climate here is very similar to that of England.",
+            "tatoeba_id": 123986,
+            "furigana": "{当地|とうち}の{気候|きこう}は{英国|えいこく}と{非常|ひじょう}に{似|に}ている。"
+          }
+        ]
+      },
+      "level": "N3",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    },
+    {
+      "kind": "kanji",
+      "id": "与",
+      "content": {
+        "character": "与",
+        "level": "N3",
+        "onyomi": [
+          "ヨ"
+        ],
+        "kunyomi": [
+          "あた.える",
+          "あずか.る",
+          "くみ.する",
+          "ともに"
+        ],
+        "meanings": [
+          "bestow",
+          "participate in",
+          "give",
+          "award",
+          "impart",
+          "provide",
+          "cause",
+          "gift",
+          "godsend"
+        ],
+        "nanori": [
+          "とも",
+          "ゆ"
+        ],
+        "strokes": 3,
+        "grade": 8,
+        "freq": 308,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "与える",
+          "給与",
+          "関与",
+          "寄与",
+          "与党"
+        ]
+      },
+      "level": "N3",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    },
+    {
+      "kind": "vocabulary",
+      "id": "0011c40f28",
+      "content": {
+        "id": "0011c40f28",
+        "word": "せっせと",
+        "reading": "せっせと",
+        "meanings": [
+          "diligently",
+          "assiduously",
+          "industriously",
+          "beavering away"
+        ],
+        "level": "N2",
+        "romaji": "sesseto",
+        "pos": [
+          "adv"
+        ],
+        "jmdict_id": 2008620,
+        "other_forms": [],
+        "other_readings": [],
+        "examples": [
+          {
+            "ja": "彼女はせっせと編み物に精を出していた。",
+            "en": "She was busy with her knitting.",
+            "tatoeba_id": 92651,
+            "furigana": "{彼女|かのじょ}はせっせと{編|あ}み{物|もの}に{精|せい}を{出|だ}していた。"
+          },
+          {
+            "ja": "彼はせっせと試験準備をしている。",
+            "en": "He is busy preparing for the examination.",
+            "tatoeba_id": 113280,
+            "furigana": "{彼|かれ}はせっせと{試験|しけん}{準備|じゅんび}をしている。"
+          }
+        ]
+      },
+      "level": "N2",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    },
+    {
+      "kind": "kanji",
+      "id": "並",
+      "content": {
+        "character": "並",
+        "level": "N2",
+        "onyomi": [
+          "ヘイ",
+          "ホウ"
+        ],
+        "kunyomi": [
+          "な.み",
+          "なみ",
+          "なら.べる",
+          "なら.ぶ",
+          "なら.びに"
+        ],
+        "meanings": [
+          "row",
+          "and",
+          "besides",
+          "as well as",
+          "line up",
+          "rank with",
+          "rival",
+          "equal"
+        ],
+        "nanori": [
+          "なび"
+        ],
+        "strokes": 8,
+        "grade": 6,
+        "freq": 599,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "並ぶ",
+          "並べる",
+          "並木",
+          "並行",
+          "並み",
+          "並列",
+          "月並み",
+          "並びに"
+        ]
+      },
+      "level": "N2",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    },
+    {
+      "kind": "vocabulary",
+      "id": "000e220ab0",
+      "content": {
+        "id": "000e220ab0",
+        "word": "遅くとも",
+        "reading": "おそくとも",
+        "meanings": [
+          "at the latest"
+        ],
+        "level": "N1",
+        "romaji": "osokutomo",
+        "pos": [
+          "adv"
+        ],
+        "jmdict_id": 1421990,
+        "other_forms": [],
+        "other_readings": [],
+        "examples": [
+          {
+            "ja": "遅くとも午前０時までには家に帰る。",
+            "en": "I'll be home by midnight at the latest.",
+            "tatoeba_id": 126747,
+            "furigana": "{遅|おそ}くとも{午前|ごぜん}０{時|じ}までには{家|いえ}に{帰|かえ}る。"
+          },
+          {
+            "ja": "遅くともやらないよりはまし。",
+            "en": "Better late than never.",
+            "tatoeba_id": 126750,
+            "furigana": "{遅|おそ}くともやらないよりはまし。"
+          }
+        ]
+      },
+      "level": "N1",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    },
+    {
+      "kind": "kanji",
+      "id": "丁",
+      "content": {
+        "character": "丁",
+        "level": "N1",
+        "onyomi": [
+          "チョウ",
+          "テイ",
+          "チン",
+          "トウ",
+          "チ"
+        ],
+        "kunyomi": [
+          "ひのと"
+        ],
+        "meanings": [
+          "street",
+          "ward",
+          "town",
+          "counter for guns, tools, leaves or cakes of something",
+          "even number",
+          "4th calendar sign"
+        ],
+        "nanori": [],
+        "strokes": 2,
+        "grade": 3,
+        "freq": 1312,
+        "radical": "一",
+        "radical_number": 1,
+        "words": [
+          "丁寧",
+          "庖丁",
+          "丁目",
+          "丁々"
+        ]
+      },
+      "level": "N1",
+      "sourceVerification": "dictionary-form-and-reading",
+      "teacherReview": "pending"
+    }
+  ]
+}

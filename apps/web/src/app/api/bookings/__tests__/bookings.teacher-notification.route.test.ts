@@ -37,6 +37,7 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/teacher-booking-lock", () => ({ lockTeacherBookingAccess: vi.fn().mockResolvedValue(true) }));
 import { POST } from "@/app/api/bookings/route";
 
 describe("POST /api/bookings — teacher notification on confirmed booking", () => {
@@ -139,6 +140,15 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
     vi.useRealTimers();
   });
 
+  test.each(["ENGLISH", "JAPANESE"] as const)("immediate %s confirmation shares correctly named teacher/student calendar events", async learningLanguage => {
+    authMock.mockResolvedValue({ user: { id: "student-1", role: "STUDENT", learningLanguage } });
+    const teacher = await prismaMock.teacherProfile.findFirst();
+    prismaMock.teacherProfile.findFirst.mockResolvedValue({ ...teacher, availabilitySlots: teacher.availabilitySlots.map((slot: object) => ({ ...slot, teacherLessonOfferingId: "off-1", teacherLessonOffering: { active: true, learningLanguage } })), lessonOfferings: teacher.lessonOfferings.map((offering: object) => ({ ...offering, learningLanguage })) });
+    expect((await POST(new Request("http://localhost/api/bookings", { method: "POST", body: JSON.stringify({ lessonProductId: "lp-trial", teacherProfileId: "teacher-profile-1", startsAt: startsAt.toISOString() }) }))).status).toBe(200);
+    expect(createMeetMock).toHaveBeenCalledTimes(2);
+    for (const [call] of createMeetMock.mock.calls) expect(call.summary).toBe(learningLanguage === "JAPANESE" ? "Lesson — Free trial (20 min)" : "Lesson — Free trial");
+  });
+
   test("notifies the teacher with the student name and lesson time on a confirmed free-trial booking", async () => {
     const res = await POST(
       new Request("http://localhost/api/bookings", {
@@ -161,9 +171,9 @@ describe("POST /api/bookings — teacher notification on confirmed booking", () 
     const payload = teacherCalls[0];
     expect(payload.titleEn).toContain("Alice Student");
     expect(payload.bodyEn).toContain("Alice Student");
-    expect(payload.bodyEn).toContain("09:00");
+    expect(payload.bodyEn).toContain("9:00 AM");
     expect(payload.titleJa).toContain("Alice Student");
-    expect(payload.bodyJa).toContain("09:00");
+    expect(payload.bodyJa).toContain("9:00");
   });
 
   test("does NOT notify the teacher when the booking is still pending payment", async () => {

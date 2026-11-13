@@ -5,6 +5,7 @@ import { THEME_INIT_SCRIPT } from "@/lib/theme-init-script";
 import { SwRegister } from "@/components/sw-register";
 import "./globals.css";
 import { APP_NAME } from "@/lib/brand";
+import { getLocale } from "next-intl/server";
 
 /** Latin + display voice. Variable, so every weight step is one file. */
 const archivo = Archivo({
@@ -37,7 +38,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: APP_NAME,
-  description: "Online English lessons and practice for Japanese learners.",
+  description: "Private online English and Japanese lessons with a teacher.",
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -71,14 +72,15 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   return (
     <html
-      lang="ja"
+      lang={locale}
       className={`${archivo.variable} ${mplus1.variable} ${jetbrainsMono.variable} antialiased`}
       suppressHydrationWarning
     >

@@ -34,13 +34,17 @@ const STUDENT_CHECKLIST_BASE: Array<{
 export function buildStudentOnboardingChecklist(params: {
   locale: string;
   canStartPlacement: boolean;
+  materialsAvailable?: boolean;
+  learningLanguage?: "ENGLISH" | "JAPANESE";
   onboardingReturnHref?: string;
   completion?: StudentOnboardingCompletionFlags;
 }): StudentOnboardingNextItem[] {
   const { locale, canStartPlacement, completion } = params;
   const returnHref = params.onboardingReturnHref ?? "/onboarding/next";
   return STUDENT_CHECKLIST_BASE.map((item) => {
-    const localizedBase = `/${locale}${item.basePath}`;
+    const basePath = item.key === "placement" && params.learningLanguage === "JAPANESE"
+      ? "/japanese-placement" : item.basePath;
+    const localizedBase = `/${locale}${basePath}`;
     const qs = new URLSearchParams();
     if (item.extraQuery) {
       for (const [k, v] of Object.entries(item.extraQuery)) {
@@ -53,7 +57,8 @@ export function buildStudentOnboardingChecklist(params: {
     return {
       key: item.key,
       href,
-      disabled: item.key === "placement" ? !canStartPlacement : false,
+      disabled: (item.key === "placement" && !canStartPlacement)
+        || (item.key === "materials" && params.materialsAvailable === false),
       completed: Boolean(completion?.[item.key]),
     };
   });

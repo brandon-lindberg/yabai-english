@@ -37,7 +37,7 @@ self.addEventListener("fetch", (event) => {
   // Skip API routes and auth endpoints — always go to network
   const url = new URL(event.request.url);
   if (url.pathname.startsWith("/api/")) return;
-  if (url.pathname.startsWith("/auth/")) return;
+  if (/^\/(?:(?:en|ja)\/)?auth\//.test(url.pathname)) return;
 
   // Navigation requests: network-first with offline fallback
   if (event.request.mode === "navigate") {
