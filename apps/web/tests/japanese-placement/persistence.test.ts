@@ -8,6 +8,34 @@ import { startJapaneseAttempt, japaneseScoringRevision } from "../../src/lib/jap
 
 afterEach(() => vi.restoreAllMocks());
 
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("Japanese answers share immutable content while revocation remains fresh and results avoid bank loads", async () => {
+  await withIsolatedPostgres("20261027000000_japanese_placement_staircase", async ({ db, applyMigration }) => {
+    await applyMigration();
+    const service = await import("../../src/lib/japanese-placement/service");
+    const snapshot = await service.publishJapaneseBank(db, approvedBank());
+    for (const id of ["cache-one", "cache-two"]) await db.user.create({ data: { id, role: "STUDENT", learningLanguage: "JAPANESE" } });
+    const starts = await Promise.all(["cache-one", "cache-two"].map((id, index) => service.startStoredJapaneseAttempt(db, id, { requestId: `00000000-0000-4000-8000-00000000008${index}` })));
+    const queries: Array<{ model: string; args: unknown }> = [];
+    const observe = () => db.$extends({ query: { $allModels: { async $allOperations({ model, args, query }) {
+      queries.push({ model, args }); return query(args);
+    } } } }) as unknown as typeof db;
+    const observed = observe();
+    const views = await Promise.all(starts.map((view, index) => service.submitStoredJapaneseResponse(observed, index ? "cache-two" : "cache-one", view.attemptId, { kind: "answer", itemId: view.question!.id, choiceId: "a" })));
+    await service.getStoredJapaneseAttempt(observed, "cache-one", views[0].attemptId);
+    const contentLoads = () => queries.filter(query => query.model === "JapanesePlacementBankSnapshot" && JSON.stringify(query.args).includes('"content":true'));
+    expect(contentLoads()).toHaveLength(1);
+    expect(queries.filter(query => query.model === "JapanesePlacementAttempt").every(query => !JSON.stringify(query.args).includes('"bankSnapshot":true'))).toBe(true);
+    await db.japanesePlacementBankSnapshot.update({ where: { id: snapshot.id }, data: { revokedAt: new Date() } });
+    await expect(service.getStoredJapaneseAttempt(observed, "cache-one", views[0].attemptId)).rejects.toMatchObject({ code: "BANK_UNAVAILABLE" });
+    vi.spyOn(Date, "now").mockReturnValue(Date.parse(views[0].expiresAt!));
+    const completed = await service.getStoredJapaneseAttempt(observed, "cache-one", views[0].attemptId);
+    expect(completed.status).toBe("COMPLETED");
+    queries.length = 0;
+    expect((await service.getStoredJapaneseAttempt(observe(), "cache-one", views[0].attemptId)).result).toEqual(completed.result);
+    expect(contentLoads()).toHaveLength(0);
+  });
+}, 60_000);
+
 test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("adds the staircase runtime over the unchanged approved bank and preserves rubric history", async () => {
   await withIsolatedPostgres("20261027000000_japanese_placement_staircase", async ({ client, db, applyMigration, verifyDatamodel }) => {
     const service = await import("../../src/lib/japanese-placement/service");

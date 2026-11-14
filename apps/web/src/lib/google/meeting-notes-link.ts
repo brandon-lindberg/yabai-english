@@ -1,4 +1,4 @@
-import { google } from "googleapis";
+import { createGoogleCalendarClient, type GoogleCalendarClient } from "@/lib/google/clients";
 import { decryptIntegrationToken } from "@/lib/calendar-token";
 
 /**
@@ -63,7 +63,7 @@ export function pickNotesAttachment(
 async function calendarClientForUser(
   prisma: NotesLinkPrisma,
   userId: string,
-): Promise<ReturnType<typeof google.calendar> | null> {
+): Promise<GoogleCalendarClient | null> {
   const account = await prisma.googleIntegrationAccount.findUnique({
     where: { userId },
     select: { refreshToken: true, revoked: true },
@@ -74,9 +74,7 @@ async function calendarClientForUser(
   const clientSecret = process.env.AUTH_GOOGLE_SECRET;
   if (!clientId || !clientSecret) return null;
 
-  const oauth2 = new google.auth.OAuth2(clientId, clientSecret);
-  oauth2.setCredentials({ refresh_token: decryptIntegrationToken(account.refreshToken) });
-  return google.calendar({ version: "v3", auth: oauth2 });
+  return createGoogleCalendarClient({ clientId, clientSecret, refreshToken: decryptIntegrationToken(account.refreshToken) });
 }
 
 type NotesLinkPrisma = {

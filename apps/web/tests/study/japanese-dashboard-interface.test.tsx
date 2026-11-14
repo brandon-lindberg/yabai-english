@@ -23,7 +23,7 @@ const show = (...args: Parameters<typeof dashboard>) => render(dashboard(...args
 beforeEach(() => { vi.clearAllMocks(); fetchMock.mockReset(); vi.stubGlobal("fetch", fetchMock); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
-test.each(["en", "ja"])("starts only on request, uses the shared automatic practice view and refreshes summaries after saving (%s)", async locale => {
+test.each(["en", "ja"])("starts only on request and refreshes summaries when opening the completed recap (%s)", async locale => {
   fetchMock.mockResolvedValueOnce(reply(daily())).mockResolvedValueOnce(reply(studyResult()));
   const view = show(ready, locale);
   const copy = locale === "ja" ? ja : en;
@@ -35,12 +35,31 @@ test.each(["en", "ja"])("starts only on request, uses the shared automatic pract
   expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({});
   expect(fetchMock.mock.calls[1][0]).toBe("/api/japanese-study/reviews");
   expect(JSON.parse(fetchMock.mock.calls[1][1].body).dailyDayKey).toBe(ready.dayKey);
-  expect(mocks.refresh).toHaveBeenCalledTimes(1);
+  expect(mocks.refresh).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: copy.japaneseStudy.showDailyDeck }));
+  expect(mocks.refresh).toHaveBeenCalledTimes(1);
   view.rerender(dashboard({ ...ready, answered: 1, correct: 1, xp: 12, reviewedCards: reviewCards.slice(0, 1) }, locale));
   expect(await screen.findByRole("heading", { name: copy.japaneseStudy.dailyDone })).toHaveFocus();
   expect(screen.getByRole("list", { name: copy.japaneseStudy.dailyDeckLabel })).toBeVisible();
   expect(screen.queryByRole("button", { name: en.japaneseStudy.anotherSession })).toBeNull();
+  expect(mocks.refresh).toHaveBeenCalledTimes(1);
+});
+
+test("five answers update feedback and XP immediately with just one dashboard refresh at completion", async () => {
+  const questions = Array.from({ length: 5 }, (_, index) => ({ ...studyQuestion, id: `prompt-${index}`, unitId: `unit-${index}` }));
+  fetchMock.mockResolvedValueOnce(reply({ ...ready, total: 5, cards: studyQueue(questions).cards }));
+  for (const question of questions) fetchMock.mockResolvedValueOnce(reply(studyResult(question)));
+  show({ ...ready, total: 5 });
+  fireEvent.click(screen.getByRole("button", { name: en.japaneseStudy.quickStart }));
+  for (let index = 0; index < questions.length; index++) {
+    fireEvent.click(await screen.findByRole("button", { name: "cat" }));
+    const next = await screen.findByRole("button", { name: index === 4 ? en.japaneseStudy.showDailyDeck : en.study.nextCard });
+    expect(screen.getByText(new RegExp(`^\\+${(index + 1) * 12} XP today`))).toBeVisible();
+    expect(mocks.refresh).not.toHaveBeenCalled();
+    fireEvent.click(next);
+  }
+  expect(mocks.refresh).toHaveBeenCalledTimes(1);
+  expect(fetchMock).toHaveBeenCalledTimes(6);
 });
 
 test("a completed daily set restores all five flippable cards on the Dashboard", () => {
@@ -93,11 +112,15 @@ test("resume restores saved daily score and exact uncertain-answer retries", asy
   show(status);
   fireEvent.click(screen.getByRole("button", { name: "Resume today's review" }));
   fireEvent.click(await screen.findByRole("button", { name: "cat" }));
-  fireEvent.click(await screen.findByRole("button", { name: "Retry saving answer" }));
+  const retry = await screen.findByRole("button", { name: "Retry saving answer" });
+  expect(mocks.refresh).not.toHaveBeenCalled();
+  fireEvent.click(retry);
   await screen.findByRole("button", { name: en.japaneseStudy.showDailyDeck });
   expect(fetchMock.mock.calls[1][1].body).toBe(fetchMock.mock.calls[2][1].body);
-  expect(mocks.refresh).toHaveBeenCalledTimes(1);
+  expect(mocks.refresh).not.toHaveBeenCalled();
   expect(screen.getByText(/^\+24 XP today/)).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: en.japaneseStudy.showDailyDeck }));
+  expect(mocks.refresh).toHaveBeenCalledTimes(1);
 });
 
 test("no eligible cards renders no daily-review block and revoked publication stops answering", async () => {

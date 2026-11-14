@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
 }));
 vi.mock("@/auth", () => ({ auth: mocks.auth }));
-vi.mock("@/lib/prisma", () => ({ prisma: mocks.db }));
+vi.mock("@/lib/prisma", () => ({ get prisma() { return mocks.db; } }));
 vi.mock("next/headers", () => ({
   cookies: vi.fn(async () => ({ get: () => undefined, set: mocks.setCookie })),
 }));
@@ -59,7 +59,7 @@ function expectNoResultSaved() {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  fixture = englishPlacementFixture(); Object.assign(mocks.db, fixture.db);
+  fixture = englishPlacementFixture(); mocks.db = fixture.db;
   vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-10-27T00:00:00Z"));
   mocks.auth.mockResolvedValue({ user: { id: "english-student", learningLanguage: "ENGLISH" } });
   mocks.bank.mockResolvedValue(bank);
@@ -137,12 +137,14 @@ describe("English placement deadline and completion guards", () => {
     expect((await (await post({ action: "start" })).json()).question.cefrBand).toBe("A1");
   });
 
-  test("a corrupt frozen answer key cannot reinterpret accepted evidence", async () => {
+  test("a cold load of a corrupt frozen answer key cannot reinterpret accepted evidence", async () => {
     const attempt = await startAndAnswer(24);
     const payload = inspect(attempt);
     const first = payload.asked[0].id;
     const snapshot = fixture.banks.get(payload.bankSnapshotId)!;
     snapshot.content = snapshot.content.map((q: PlacementQuestion) => q.id === first ? { ...q, correctIndex: (q.correctIndex + 1) % 3 } : q);
+    // Simulate a process loading corrupt storage. Real DB tests separately forbid snapshot mutation.
+    mocks.db = { ...fixture.db };
     const response = await finish(attempt);
     expect(response.status).toBe(500);
     expect(await response.json()).toMatchObject({ error: "attempt_unavailable" });
@@ -256,12 +258,13 @@ describe("English placement deadline and completion guards", () => {
     expectNoResultSaved();
   });
 
-  test("a missing bank item cannot shift answer alignment or produce a saved result", async () => {
+  test("a cold snapshot with a missing bank item cannot shift answer alignment or produce a saved result", async () => {
     const attempt = await startAndAnswer(24);
     const payload = inspect(attempt);
     const missing = payload.asked[1]!.id;
     const snapshot = fixture.banks.get(payload.bankSnapshotId)!;
     snapshot.content = snapshot.content.filter((q: PlacementQuestion) => q.id !== missing);
+    mocks.db = { ...fixture.db };
     const response = await finish(attempt);
     expect(response.status).toBe(500);
     expect(await response.json()).toMatchObject({ error: "attempt_unavailable" });

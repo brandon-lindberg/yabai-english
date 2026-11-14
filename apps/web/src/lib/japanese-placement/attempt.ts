@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { freezeJson } from "../freeze-json";
 import {
   bankDigest, loadApprovedJapaneseBank, JAPANESE_PLACEMENT_DOMAINS, JAPANESE_STUDY_BANDS, JAPANESE_REFERENCE_BANDS, JAPANESE_POLICY_REVISION, JAPANESE_GROUPED_POLICY_REVISION, JAPANESE_RUBRIC_POLICY_REVISION, JAPANESE_MAX_QUESTIONS, japanesePolicyRevision, japaneseQuestionLimit, parseJapaneseBank,
   type JapanesePlacementItem,
@@ -57,65 +58,103 @@ function validateResponse(item: JapanesePlacementItem, response: JapaneseRespons
   validateJapaneseResponse(item, response);
 }
 
-/** Input must come from trusted server persistence, never from a learner's request body. */
-function context(bankValue: unknown, attemptValue: unknown) {
-  const bank = parseJapaneseBank(bankValue);
-  const attempt = parseJapaneseAttempt(attemptValue);
-  if (attempt.schemaVersion !== bank.schemaVersion || attempt.bankId !== bank.id || attempt.bankVersion !== bank.version || attempt.bankDigest !== bankDigest(bank)) {
-    throw new Error("Japanese attempt bank snapshot mismatch");
+type Bank = ReturnType<typeof parseJapaneseBank>;
+type Evidence = ReturnType<typeof initialJapaneseEvidence>;
+type ContextData = { bank: Bank; attempt: JapaneseAttempt; items: Map<string, JapanesePlacementItem>; earliest: string; evidence: Evidence };
+export type JapaneseAttemptContext = {
+  readonly attempt: JapaneseAttempt;
+  next(now?: string): JapaneseQuestion | null;
+  record(input: unknown): JapaneseAttemptContext;
+  summarize(now?: string): ReturnType<typeof summarizeContext>;
+};
+
+/** Only this immutable bank runtime is shared across requests; learner evidence is request-local. */
+export function createJapaneseAttemptRuntime(bankValue: unknown) {
+  const bank = freezeJson(parseJapaneseBank(bankValue));
+  const digest = bankDigest(bank);
+  const items = new Map(bank.items.map(item => [item.id, item]));
+  let approved = false;
+  function assertApproved() {
+    if (!approved) { loadApprovedJapaneseBank(bank); approved = true; }
   }
-  if (!bank.assessment || !japaneseAttemptPolicyMatchesBank(bank, attempt.schemaVersion, attempt.policyRevision)) throw new Error("Japanese policy mismatch");
-  if (Date.parse(attempt.expiresAt) !== Date.parse(attempt.startedAt) + bank.assessment.timeLimitSec * 1000) throw new Error("Japanese deadline mismatch");
-  if (attempt.responses.length > japaneseQuestionLimit(bank)) throw new Error("Too many Japanese responses");
-  const evidence = initialJapaneseEvidence(attempt.policyRevision);
-  const items = new Map(bank.items.map((item) => [item.id, item]));
-  let earliest = attempt.startedAt;
-  attempt.responses.forEach((response) => {
-    if (response.itemId !== selectJapaneseItem(bank, evidence)?.id) throw new Error("Stored Japanese responses are out of order");
-    validateResponse(items.get(response.itemId)!, response, earliest);
-    if (Date.parse(response.submittedAt) >= Date.parse(attempt.expiresAt)) throw new Error("Stored Japanese response expired");
-    updateJapaneseEvidence(evidence, items.get(response.itemId)!, response);
-    earliest = response.submittedAt;
-  });
-  return { bank, attempt, items, earliest, evidence };
+  function makeContext(attempt: JapaneseAttempt, evidence: Evidence, earliest: string): JapaneseAttemptContext {
+    freezeJson(attempt);
+    const context: JapaneseAttemptContext = {
+      attempt,
+      next(now) {
+        assertApproved();
+        if (now && Date.parse(timestamp.parse(now)) >= Date.parse(attempt.expiresAt)) return null;
+        const item = selectJapaneseItem(bank, evidence);
+        return item ? projectJapaneseQuestion(item) : null;
+      },
+      record(input) {
+        assertApproved();
+        const response = responseSchema.parse(input);
+        const previous = attempt.responses.find(entry => entry.itemId === response.itemId);
+        if (previous) {
+          if (!sameJapaneseResponse(previous, response)) throw new Error("Japanese response already recorded with a different answer");
+          return context;
+        }
+        if (Date.parse(response.submittedAt) >= Date.parse(attempt.expiresAt)) throw new Error("Japanese attempt expired");
+        if (response.itemId !== selectJapaneseItem(bank, evidence)?.id) throw new Error("Expected the current Japanese item");
+        const item = items.get(response.itemId)!;
+        validateResponse(item, response, earliest);
+        const nextEvidence = structuredClone(evidence);
+        updateJapaneseEvidence(nextEvidence, item, response);
+        return makeContext({ ...attempt, responses: [...attempt.responses, response] }, nextEvidence, response.submittedAt);
+      },
+      summarize(now) { return summarizeContext({ bank, attempt, items, earliest, evidence }, now); },
+    };
+    return context;
+  }
+  return {
+    bank, digest, assertApproved,
+    /** Callers supply server-generated identity and time after authorizing the Japanese learner. */
+    start(input: unknown, policyRevision?: typeof JAPANESE_STAIRCASE_POLICY_REVISION): JapaneseAttempt {
+      assertApproved();
+      const start = startSchema.parse(input);
+      if (policyRevision && !japaneseAttemptPolicyMatchesBank(bank, bank.schemaVersion, policyRevision)) throw new Error("Japanese policy mismatch");
+      return freezeJson(parseJapaneseAttempt({
+        ...start, expiresAt: new Date(Date.parse(start.startedAt) + bank.assessment!.timeLimitSec * 1000).toISOString(),
+        policyRevision: policyRevision ?? bank.assessment!.revision, schemaVersion: bank.schemaVersion,
+        bankId: bank.id, bankVersion: bank.version, bankDigest: digest, responses: [],
+      }));
+    },
+    /** Input must come from trusted persistence, never from a learner's request body. Replay once per request. */
+    context(attemptValue: unknown): JapaneseAttemptContext {
+      const attempt = parseJapaneseAttempt(attemptValue);
+      if (attempt.schemaVersion !== bank.schemaVersion || attempt.bankId !== bank.id || attempt.bankVersion !== bank.version || attempt.bankDigest !== digest) {
+        throw new Error("Japanese attempt bank snapshot mismatch");
+      }
+      if (!bank.assessment || !japaneseAttemptPolicyMatchesBank(bank, attempt.schemaVersion, attempt.policyRevision)) throw new Error("Japanese policy mismatch");
+      if (Date.parse(attempt.expiresAt) !== Date.parse(attempt.startedAt) + bank.assessment.timeLimitSec * 1000) throw new Error("Japanese deadline mismatch");
+      if (attempt.responses.length > japaneseQuestionLimit(bank)) throw new Error("Too many Japanese responses");
+      const evidence = initialJapaneseEvidence(attempt.policyRevision);
+      let earliest = attempt.startedAt;
+      for (const response of attempt.responses) {
+        if (response.itemId !== selectJapaneseItem(bank, evidence)?.id) throw new Error("Stored Japanese responses are out of order");
+        validateResponse(items.get(response.itemId)!, response, earliest);
+        if (Date.parse(response.submittedAt) >= Date.parse(attempt.expiresAt)) throw new Error("Stored Japanese response expired");
+        updateJapaneseEvidence(evidence, items.get(response.itemId)!, response);
+        earliest = response.submittedAt;
+      }
+      return makeContext(attempt, evidence, earliest);
+    },
+  };
 }
 
-/** Callers supply server-generated identity and time after authorizing the Japanese learner. */
 export function startJapaneseAttempt(bankValue: unknown, input: unknown, policyRevision?: typeof JAPANESE_STAIRCASE_POLICY_REVISION): JapaneseAttempt {
-  const bank = loadApprovedJapaneseBank(bankValue);
-  const start = startSchema.parse(input);
-  if (policyRevision && !japaneseAttemptPolicyMatchesBank(bank, bank.schemaVersion, policyRevision)) throw new Error("Japanese policy mismatch");
-  return parseJapaneseAttempt({
-    ...start, expiresAt: new Date(Date.parse(start.startedAt) + bank.assessment!.timeLimitSec * 1000).toISOString(),
-    policyRevision: policyRevision ?? bank.assessment!.revision, schemaVersion: bank.schemaVersion,
-    bankId: bank.id, bankVersion: bank.version, bankDigest: bankDigest(bank), responses: [],
-  });
+  return createJapaneseAttemptRuntime(bankValue).start(input, policyRevision);
 }
 
 /** Explicit projection: keys, accepted orders, explanations and content reviews stay on the server. */
 export function nextJapaneseQuestion(bankValue: unknown, attemptValue: unknown, now?: string): JapaneseQuestion | null {
-  const { bank, attempt, evidence } = context(bankValue, attemptValue);
-  loadApprovedJapaneseBank(bank);
-  if (now && Date.parse(timestamp.parse(now)) >= Date.parse(attempt.expiresAt)) return null;
-  const item = selectJapaneseItem(bank, evidence);
-  if (!item) return null;
-  return projectJapaneseQuestion(item);
+  return createJapaneseAttemptRuntime(bankValue).context(attemptValue).next(now);
 }
 
 /** A repository transaction must serialize concurrent submissions of this pure transition. */
 export function recordJapaneseResponse(bankValue: unknown, attemptValue: unknown, input: unknown): JapaneseAttempt {
-  const { bank, attempt, items, earliest, evidence } = context(bankValue, attemptValue);
-  loadApprovedJapaneseBank(bank);
-  const response = responseSchema.parse(input);
-  const previous = attempt.responses.find((entry) => entry.itemId === response.itemId);
-  if (previous) {
-    if (!sameJapaneseResponse(previous, response)) throw new Error("Japanese response already recorded with a different answer");
-    return attempt;
-  }
-  if (Date.parse(response.submittedAt) >= Date.parse(attempt.expiresAt)) throw new Error("Japanese attempt expired");
-  if (response.itemId !== selectJapaneseItem(bank, evidence)?.id) throw new Error("Expected the current Japanese item");
-  validateResponse(items.get(response.itemId)!, response, earliest);
-  return { ...attempt, responses: [...attempt.responses, response] };
+  return createJapaneseAttemptRuntime(bankValue).context(attemptValue).record(input).attempt;
 }
 
 export function sameJapaneseResponse(previous: JapaneseResponseInput, response: JapaneseResponseInput): boolean {
@@ -129,7 +168,10 @@ export function sameJapaneseResponse(previous: JapaneseResponseInput, response: 
 
 /** Completion and expiry produce a provisional study estimate, never an official JLPT score. */
 export function summarizeJapaneseAttempt(bankValue: unknown, attemptValue: unknown, now?: string) {
-  const { bank, attempt, items, earliest, evidence } = context(bankValue, attemptValue);
+  return createJapaneseAttemptRuntime(bankValue).context(attemptValue).summarize(now);
+}
+
+function summarizeContext({ bank, attempt, items, earliest, evidence }: ContextData, now?: string) {
   const total = japaneseQuestionLimit(bank);
   const complete = attempt.responses.length === total;
   const at = now ? timestamp.parse(now) : earliest;

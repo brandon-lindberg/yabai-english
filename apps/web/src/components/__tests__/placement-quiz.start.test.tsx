@@ -15,7 +15,7 @@ const active = () => ({ attemptToken: "existing-attempt", expiresAt: Date.now() 
   question: { id: "one", instructionEn: "Pick one", instructionJa: "選んでください", questionEn: "Choose a response.", optionsEn: ["Yes", "No", "Maybe"] },
   progress: { current: 1, total: 24 } });
 const show = (locale: "en" | "ja" = "en") => render(<NextIntlClientProvider locale={locale} messages={locale === "ja" ? ja : en}><PlacementQuiz /></NextIntlClientProvider>);
-beforeEach(() => { vi.clearAllMocks(); vi.stubGlobal("fetch", mocks.fetch); });
+beforeEach(() => { vi.clearAllMocks(); mocks.fetch.mockReset(); vi.stubGlobal("fetch", mocks.fetch); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 test.each(["en", "ja"] as const)("%s explains the check and waits for Start before requesting a question", async locale => {
@@ -75,4 +75,54 @@ test("an existing attempt resumes by reading its saved deadline", async () => {
   expect(screen.queryByRole("button", { name: "Start level check" })).toBeNull();
   expect(mocks.fetch).toHaveBeenCalledTimes(1);
   expect(mocks.fetch.mock.calls[0][1]?.method).not.toBe("POST");
+});
+
+test("focus and visibility events share one pending recovery, then allow a later recovery", async () => {
+  let resolveRecovery!: (value: ReturnType<typeof reply>) => void;
+  const recovered = active();
+  recovered.question.questionEn = "Recovered question";
+  mocks.fetch.mockResolvedValueOnce(reply(active()))
+    .mockImplementationOnce(() => new Promise(resolve => { resolveRecovery = resolve; }))
+    .mockResolvedValue(reply(recovered));
+  show();
+  await screen.findByRole("button", { name: "Yes" });
+  await act(async () => {
+    window.dispatchEvent(new Event("focus"));
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  expect(mocks.fetch).toHaveBeenCalledTimes(2);
+  await act(async () => { window.dispatchEvent(new Event("focus")); });
+  expect(mocks.fetch).toHaveBeenCalledTimes(2);
+  await act(async () => { resolveRecovery(reply(recovered)); });
+  expect(await screen.findByText("Recovered question")).toBeVisible();
+  await act(async () => { window.dispatchEvent(new Event("focus")); });
+  expect(mocks.fetch).toHaveBeenCalledTimes(3);
+});
+
+test("leaving cancels an in-flight read and ignores its late result", async () => {
+  let resolveRead!: (value: ReturnType<typeof reply>) => void;
+  mocks.fetch.mockImplementationOnce(() => new Promise(resolve => { resolveRead = resolve; }));
+  const view = show();
+  const signal = mocks.fetch.mock.calls[0][1]?.signal as AbortSignal | undefined;
+  view.unmount();
+  expect(signal?.aborted).toBe(true);
+  await act(async () => { resolveRead(reply({ level: "BEGINNER", subLevel: 1 })); });
+  expect(mocks.update).not.toHaveBeenCalled();
+});
+
+test("a focus event in the answer's render batch cannot reset a pending save", async () => {
+  let resolveAnswer!: (value: ReturnType<typeof reply>) => void;
+  mocks.fetch.mockResolvedValueOnce(reply(active()))
+    .mockImplementationOnce(() => new Promise(resolve => { resolveAnswer = resolve; }))
+    .mockResolvedValue(reply(active()));
+  show();
+  const answer = await screen.findByRole("button", { name: "Yes" });
+  await act(async () => {
+    fireEvent.click(answer);
+    window.dispatchEvent(new Event("focus"));
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  expect(mocks.fetch).toHaveBeenCalledTimes(2);
+  await act(async () => { resolveAnswer(reply(active())); });
+  expect(await screen.findByRole("button", { name: "Yes" })).toBeEnabled();
 });

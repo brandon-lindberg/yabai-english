@@ -6,8 +6,8 @@ import { Prisma, type PrismaClient } from "@/generated/prisma/client";
 import { isLoginAllowedForAccountStatus } from "../account-status";
 import { PrivateApiFailure } from "../private-api-error";
 import { lockLearnerTransaction } from "../learner-transaction-lock";
-import { placementBankDigest } from "../placement-bank/placement-bank-digest";
-import { placementBankFileSchema } from "../placement-bank/schema";
+import { createBoundedAsyncCache } from "../bounded-async-cache";
+import { prepareEnglishBank } from "./runtime-bank";
 import type { LoadedPlacementQuestion } from "../placement-bank/load-placement-bank";
 import { applyAdaptiveAnswer, buildInitialAdaptiveState, chooseNextAdaptiveQuestion, ENGLISH_STAIRCASE_ROUTING_REVISION, type PlacementAdaptiveState } from "../placement-adaptive";
 import { ENGLISH_PLACEMENT_POLICY_V2 as policy, englishPlacementEvidence } from "../placement-policy";
@@ -18,7 +18,9 @@ import type { EnglishPlacementActive, EnglishPlacementReply } from "./public";
 export class EnglishPlacementFailure extends PrivateApiFailure {
   constructor(status: number, code: string, public details: Record<string, unknown> = {}) { super(status, code); }
 }
-const include = { bankSnapshot: true } as const;
+const include = { bankSnapshot: { select: { id: true, digest: true } } } as const;
+type Bank = ReturnType<typeof prepareEnglishBank>;
+const cachedBank = createBoundedAsyncCache<Bank>(2);
 type Row = Prisma.EnglishPlacementAttemptGetPayload<{ include: typeof include }>;
 type Tx = Prisma.TransactionClient;
 export type EnglishPlacementState = {
@@ -60,14 +62,20 @@ function state(row: Row) {
   }
   return value;
 }
-function bank(row: Row) {
-  const parsed = z.array(placementBankFileSchema.extend({ stemId: z.string().min(1) })).safeParse(row.bankSnapshot.content);
-  if (!parsed.success || placementBankDigest(parsed.data) !== row.bankSnapshot.digest) throw new EnglishPlacementFailure(500, "attempt_unavailable");
-  return parsed.data;
+async function bank(db: PrismaClient, tx: Tx, row: Row) {
+  const snapshot = row.bankSnapshot;
+  return cachedBank(db, `${snapshot.id}:${snapshot.digest}`, async () => {
+    const stored = await tx.englishPlacementBankSnapshot.findUniqueOrThrow({ where: { id: snapshot.id }, select: { content: true } });
+    let ready: Bank;
+    try { ready = prepareEnglishBank(stored.content); }
+    catch { throw new EnglishPlacementFailure(500, "attempt_unavailable"); }
+    if (ready.digest !== snapshot.digest) throw new EnglishPlacementFailure(500, "attempt_unavailable");
+    return ready;
+  });
 }
-function view(row: Row, now: number): EnglishPlacementActive {
+async function view(db: PrismaClient, tx: Tx, row: Row, now: number, ready?: Bank): Promise<EnglishPlacementActive> {
   const current = state(row);
-  const question = current.currentQuestionId ? bank(row).find(q => q.id === current.currentQuestionId) : null;
+  const question = current.currentQuestionId ? (ready ?? await bank(db, tx, row)).question(current.currentQuestionId) : null;
   if (current.currentQuestionId && !question) throw new EnglishPlacementFailure(500, "attempt_unavailable");
   const { correctIndex, stemId, ...publicQuestion } = question ?? {};
   void correctIndex; void stemId;
@@ -83,15 +91,15 @@ function receipt(row: Row): Operation {
   return { body: row.result as unknown as EnglishPlacementReply };
 }
 
-async function finalize(tx: Tx, row: Row, now: number): Promise<Operation> {
+async function finalize(db: PrismaClient, tx: Tx, row: Row, now: number): Promise<Operation> {
   if (row.status !== "IN_PROGRESS") return receipt(row);
   if (!supported(row)) {
     const body = { status: "inconclusive", reason: "attempt_unavailable", answered: row.revision, required: policy.minimumAnswers } as const;
     await tx.englishPlacementAttempt.update({ where: { id: row.id }, data: { status: "ABANDONED", activeLearnerId: null, finishedAt: new Date(now), result: json(body) } });
     return { body };
   }
-  const current = state(row), questions = bank(row);
-  const selected = current.asked.map(answer => questions.find(q => q.id === answer.id)).filter((q): q is LoadedPlacementQuestion => Boolean(q));
+  const current = state(row), ready = await bank(db, tx, row);
+  const selected = current.asked.map(answer => ready.question(answer.id)).filter((q): q is LoadedPlacementQuestion => Boolean(q));
   const answers = current.asked.map(answer => answer.answer);
   const evidence = englishPlacementEvidence(answers, selected);
   if (!evidence.valid) throw new EnglishPlacementFailure(500, "attempt_unavailable");
@@ -118,7 +126,7 @@ async function finalize(tx: Tx, row: Row, now: number): Promise<Operation> {
 export async function getOrStartEnglishAttempt(db: PrismaClient, userId: string, loadBank?: () => Promise<LoadedPlacementQuestion[]>, recentIds: string[] = []): Promise<Operation> {
   return transaction(db, userId, async (tx, now) => {
     const active = await tx.englishPlacementAttempt.findUnique({ where: { activeLearnerId: userId }, include });
-    if (active) return !supported(active) || now >= active.expiresAt.getTime() ? finalize(tx, active, now) : { body: view(active, now) };
+    if (active) return !supported(active) || now >= active.expiresAt.getTime() ? finalize(db, tx, active, now) : { body: await view(db, tx, active, now) };
     const profile = await tx.studentProfile.findUnique({ where: { userId }, select: { placementCompletedAt: true, timezone: true } });
     const { allowed, eligibleAt, eligibleDate } = placementRetakeStatus(profile?.placementCompletedAt, profile?.timezone, now);
     if (!allowed) {
@@ -126,18 +134,22 @@ export async function getOrStartEnglishAttempt(db: PrismaClient, userId: string,
     }
     // Page reads omit the bank loader. Only an explicit start can create an attempt.
     if (!loadBank) return { body: { status: "ready" } };
-    const questions = await loadBank(), adaptiveState = buildInitialAdaptiveState();
+    const ready = prepareEnglishBank(await loadBank()), { questions, digest } = ready, adaptiveState = buildInitialAdaptiveState();
     const first = chooseNextAdaptiveQuestion(adaptiveState, questions, recentIds);
     if (!first) throw new EnglishPlacementFailure(503, "Question pool unavailable");
-    const digest = placementBankDigest(questions);
-    const snapshot = await tx.englishPlacementBankSnapshot.upsert({ where: { digest }, update: {}, create: { digest, content: json(questions) } });
+    // A read-then-create upsert races across learners. ON CONFLICT safely shares the immutable snapshot.
+    let snapshot = await tx.englishPlacementBankSnapshot.findUnique({ where: { digest }, select: { id: true } });
+    if (!snapshot) {
+      await tx.englishPlacementBankSnapshot.createMany({ data: [{ id: randomUUID(), digest, content: json(questions) }], skipDuplicates: true });
+      snapshot = await tx.englishPlacementBankSnapshot.findUniqueOrThrow({ where: { digest }, select: { id: true } });
+    }
     const row = await tx.englishPlacementAttempt.create({ data: {
       id: randomUUID(), learnerId: userId, activeLearnerId: userId, bankSnapshotId: snapshot.id,
       schemaVersion: 1, scoringVersion: policy.version, routingRevision: ENGLISH_STAIRCASE_ROUTING_REVISION,
       status: "IN_PROGRESS", revision: 0, startedAt: new Date(now), expiresAt: new Date(now + policy.timeLimitSec * 1000),
       state: json({ currentQuestionId: first.id, asked: [], adaptiveState }),
     }, include });
-    return { body: view(row, now) };
+    return { body: await view(db, tx, row, now, ready) };
   });
 }
 
@@ -148,15 +160,15 @@ export async function submitEnglishAttempt(db: PrismaClient, userId: string, inp
     const row = await tx.englishPlacementAttempt.findUnique({ where: { id: handle.id }, include });
     if (!row || row.learnerId !== userId) throw new EnglishPlacementFailure(404, "Attempt not found");
     if (handle.revision > row.revision) throw new EnglishPlacementFailure(409, "attempt_conflict");
-    if (input.action === "finish" || !supported(row)) return finalize(tx, row, now);
+    if (input.action === "finish" || !supported(row)) return finalize(db, tx, row, now);
     const current = state(row);
     if (handle.revision < row.revision) {
       if (current.asked[handle.revision]?.answer !== input.answer) throw new EnglishPlacementFailure(409, "attempt_conflict");
-      return row.status !== "IN_PROGRESS" ? receipt(row) : now >= row.expiresAt.getTime() ? finalize(tx, row, now) : { body: view(row, now) };
+      return row.status !== "IN_PROGRESS" ? receipt(row) : now >= row.expiresAt.getTime() ? finalize(db, tx, row, now) : { body: await view(db, tx, row, now) };
     }
     if (row.status !== "IN_PROGRESS") return receipt(row);
     if (now >= row.expiresAt.getTime()) throw new EnglishPlacementFailure(409, "attempt_expired", { expiresAt: row.expiresAt.getTime() });
-    const questions = bank(row), question = questions.find(q => q.id === current.currentQuestionId);
+    const ready = await bank(db, tx, row), { questions } = ready, question = ready.question(current.currentQuestionId!);
     if (!question) throw new EnglishPlacementFailure(409, "attempt_conflict");
     const adaptiveState = applyAdaptiveAnswer(current.adaptiveState, question, input.answer === question.correctIndex);
     const next = chooseNextAdaptiveQuestion(adaptiveState, questions, recentIds);
@@ -164,6 +176,6 @@ export async function submitEnglishAttempt(db: PrismaClient, userId: string, inp
       revision: row.revision + 1,
       state: json({ currentQuestionId: next?.id ?? null, asked: [...current.asked, { id: question.id, answer: input.answer, acceptedAt: now }], adaptiveState }),
     }, include });
-    return { body: view(updated, now) };
+    return { body: await view(db, tx, updated, now, ready) };
   });
 }

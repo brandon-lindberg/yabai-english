@@ -12,7 +12,7 @@ import { JapaneseStudyFeedbackDetails, StudyPracticeLoading, StudyPromptCard, St
 import { useJapaneseStudySession, type JapaneseStudySessionProps } from "./use-japanese-study-session";
 import { describeJapaneseUsage } from "@/lib/study/japanese-usage";
 
-export function JapaneseStudySession(props: JapaneseStudySessionProps & { quickReviewCompletion?: ReactNode }) {
+export function JapaneseStudySession(props: JapaneseStudySessionProps & { quickReviewCompletion?: ReactNode; onQuickReviewComplete?: () => void }) {
   const state = useJapaneseStudySession(props);
   const t = useTranslations("study");
   const jp = useTranslations("japaneseStudy");
@@ -25,17 +25,20 @@ export function JapaneseStudySession(props: JapaneseStudySessionProps & { quickR
   const loading = state.loading;
   const dailyQueue = state.queue && "answered" in state.queue ? state.queue : null;
   const alreadyCompleted = !!dailyQueue && dailyQueue.total > 0 && dailyQueue.answered === dailyQueue.total;
-  const refreshRecap = useEffectEvent(() => props.onReviewSaved?.());
+  const quickReviewComplete = !!props.quickReview && (state.finished || alreadyCompleted);
+  const refreshRecap = useEffectEvent(() => props.onQuickReviewComplete?.());
   useEffect(() => { if (questionId) heading.current?.focus(); }, [questionId, loading]);
   useEffect(() => { if (state.result) feedbackHeading.current?.focus(); }, [state.result]);
-  useEffect(() => { if (alreadyCompleted) refreshRecap(); }, [alreadyCompleted]);
+  // Each answer already updates local feedback and XP. Refresh the dashboard
+  // once when the completed deck opens, including completion in another tab.
+  useEffect(() => { if (quickReviewComplete) refreshRecap(); }, [quickReviewComplete]);
   const hub = <Link href="/learn/study" className={buttonClasses({ variant: "secondary" })}>{t("backToHub")}</Link>;
   if (state.loading) return <StudyPracticeLoading label={t("preparingCards")} progress={state.preparation} />;
   if (state.error === "unavailable") return <JapaneseStudyUnavailable />;
   if (state.error === "signedOut") return <Outcome title={jp("signedOut")} actions={<Link href="/auth/signin" className={buttonClasses()}>{jp("signIn")}</Link>} />;
   if (state.error === "access") return <Outcome title={jp("accessTitle")} description={jp("accessBody")} actions={hub} />;
   if (state.error === "queue") return <Outcome title={jp("loadError")} actions={<><Button onClick={() => void state.loadQueue()}>{jp("retry")}</Button>{hub}</>} />;
-  if (props.quickReview && (state.finished || alreadyCompleted)) return props.quickReviewCompletion ?? null;
+  if (quickReviewComplete) return props.quickReviewCompletion ?? null;
   if (state.finished) return <Outcome title={t("sessionDone")} figure={state.score.xp} figureLabel={t("sessionXp", { xp: state.score.xp })}
     description={t("sessionScore", { correct: state.score.correct, wrong: state.score.wrong })}
     actions={<><Button onClick={() => void state.loadQueue(true)}>{jp("anotherSession")}</Button>{hub}</>}>

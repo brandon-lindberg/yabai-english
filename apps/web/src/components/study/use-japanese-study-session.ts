@@ -6,7 +6,7 @@ import { studyRpgProgressFromTotalXp, type StudyRpgSnapshot } from "@/lib/study/
 import type { StudyQueueFocus } from "./study-practice-session";
 
 export type JapaneseStudySessionProps = {
-  levelCode?: string; quickReview?: boolean; onReviewSaved?: () => void; initialRpg: StudyRpgSnapshot; queueFocus?: StudyQueueFocus; kind?: "mixed" | "vocabulary" | "kanji";
+  levelCode?: string; quickReview?: boolean; initialRpg: StudyRpgSnapshot; queueFocus?: StudyQueueFocus; kind?: "mixed" | "vocabulary" | "kanji";
 };
 type ErrorState = "queue" | "save" | "refresh" | "unavailable" | "access" | "signedOut" | null;
 const requestError = (status: number, fallback: "queue" | "save"): ErrorState => {
@@ -18,7 +18,7 @@ const requestError = (status: number, fallback: "queue" | "save"): ErrorState =>
 };
 
 /** Japanese automatic practice: opaque issued choices and exact retries, never client grading. */
-export function useJapaneseStudySession({ levelCode, initialRpg, queueFocus = "mixed", kind = "mixed", quickReview = false, onReviewSaved }: JapaneseStudySessionProps) {
+export function useJapaneseStudySession({ levelCode, initialRpg, queueFocus = "mixed", kind = "mixed", quickReview = false }: JapaneseStudySessionProps) {
   const [queue, setQueue] = useState<JapaneseStudyQueue | JapaneseQuickReviewQueue | null>(null);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -92,7 +92,6 @@ export function useJapaneseStudySession({ levelCode, initialRpg, queueFocus = "m
       setUnlocked(data.unlocked);
       setRpg(studyRpgProgressFromTotalXp(data.totalStudyXp));
       setScore(previous => ({ xp: previous.xp + data.xpGained, correct: previous.correct + (data.correct ? 1 : 0), wrong: previous.wrong + (data.correct ? 0 : 1) }));
-      onReviewSaved?.();
     } catch {
       if (revision === generation.current) setError("save");
     } finally {

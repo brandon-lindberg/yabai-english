@@ -1,4 +1,5 @@
 import "server-only";
+import { createBoundedAsyncCache } from "../bounded-async-cache";
 import { PrivateApiFailure } from "../private-api-error";
 import { lockLearnerTransaction } from "../learner-transaction-lock";
 import { randomUUID } from "node:crypto";
@@ -6,11 +7,11 @@ import { z } from "zod";
 import { Prisma, type PrismaClient } from "@/generated/prisma/client";
 import { isLoginAllowedForAccountStatus } from "@/lib/account-status";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
-import { bankDigest, loadApprovedJapaneseBank, parseJapaneseBank, japaneseQuestionLimit } from "./bank";
+import { bankDigest, loadApprovedJapaneseBank, japaneseQuestionLimit } from "./bank";
 import {
   JAPANESE_SUPPORTED_ATTEMPT_SCHEMAS, japaneseScoringRevision, supportsJapaneseRuntime, japaneseResponseInputSchema,
-  nextJapaneseQuestion, parseJapaneseAttempt, recordJapaneseResponse, sameJapaneseResponse,
-  summarizeJapaneseAttempt, startJapaneseAttempt, parseStoredJapaneseResponse,
+  createJapaneseAttemptRuntime, type JapaneseAttemptContext, sameJapaneseResponse,
+  summarizeJapaneseAttempt, parseStoredJapaneseResponse,
   japaneseAttemptPolicyMatchesBank,
 } from "./attempt";
 import { JAPANESE_STAIRCASE_POLICY_REVISION } from "./staircase-policy";
@@ -19,7 +20,10 @@ import { learningLanguageForRequest } from "../learning-site-request";
 
 export class JapanesePlacementFailure extends PrivateApiFailure {}
 const startInput = z.object({ requestId: z.string().uuid() }).strict();
-const relations = { bankSnapshot: true, responses: { orderBy: { position: "asc" as const } } } as const;
+const snapshotSelect = { id: true, bankKey: true, version: true, digest: true, itemCount: true, revokedAt: true } as const;
+const relations = { bankSnapshot: { select: snapshotSelect }, responses: { select: { itemId: true, payload: true }, orderBy: { position: "asc" as const } } } as const;
+type Runtime = ReturnType<typeof createJapaneseAttemptRuntime>;
+const cachedBank = createBoundedAsyncCache<Runtime>(2);
 type StoredAttempt = Prisma.JapanesePlacementAttemptGetPayload<{ include: typeof relations }>;
 type Tx = Prisma.TransactionClient;
 const json = (value: unknown) => JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
@@ -52,31 +56,41 @@ async function studentTransaction<T>(db: PrismaClient, learnerId: string, run: (
 }
 
 function state(row: StoredAttempt) {
-  return parseJapaneseAttempt({
+  return {
     id: row.id, learnerId: row.learnerId, startedAt: row.startedAt.toISOString(), schemaVersion: row.schemaVersion,
     expiresAt: row.expiresAt?.toISOString(), policyRevision: row.policyRevision,
     bankId: row.bankSnapshot.bankKey, bankVersion: row.bankSnapshot.version, bankDigest: row.bankSnapshot.digest,
     responses: row.responses.map((response) => response.payload),
-  });
+  };
 }
 
-function runnableBank(row: StoredAttempt, forCompletion = false) {
+async function loadRuntime(db: PrismaClient, tx: Tx, snapshot: StoredAttempt["bankSnapshot"]) {
+  const runtime = await cachedBank(db, `${snapshot.id}:${snapshot.digest}`, async () => {
+    const stored = await tx.japanesePlacementBankSnapshot.findUniqueOrThrow({ where: { id: snapshot.id }, select: { content: true } });
+    const ready = createJapaneseAttemptRuntime(stored.content);
+    if (ready.digest !== snapshot.digest || ready.bank.id !== snapshot.bankKey
+      || ready.bank.version !== snapshot.version || ready.bank.items.length !== snapshot.itemCount) {
+      throw new JapanesePlacementFailure(500, "STORED_BANK_INVALID");
+    }
+    ready.assertApproved();
+    return ready;
+  });
+  return runtime;
+}
+
+async function runnableBank(db: PrismaClient, tx: Tx, row: StoredAttempt, forCompletion = false) {
+  // Revocation and attempt eligibility are always read from this transaction, never cached.
   if (!forCompletion && row.bankSnapshot.revokedAt) throw new JapanesePlacementFailure(503, "BANK_UNAVAILABLE");
   if (!supportsJapaneseRuntime(row.schemaVersion, row.scoringRevision, row.policyRevision)) {
     throw new JapanesePlacementFailure(409, "ATTEMPT_VERSION_UNSUPPORTED");
   }
-  const bank = parseJapaneseBank(row.bankSnapshot.content);
-  if (bankDigest(bank) !== row.bankSnapshot.digest || bank.id !== row.bankSnapshot.bankKey
-    || bank.version !== row.bankSnapshot.version || bank.items.length !== row.bankSnapshot.itemCount
-    || !japaneseAttemptPolicyMatchesBank(bank, row.schemaVersion, row.policyRevision)) {
-    throw new JapanesePlacementFailure(500, "STORED_BANK_INVALID");
-  }
-  const ready = loadApprovedJapaneseBank(bank);
-  if (japaneseQuestionLimit(ready) !== row.questionLimit) throw new JapanesePlacementFailure(500, "STORED_BANK_INVALID");
-  return ready;
+  const runtime = await loadRuntime(db, tx, row.bankSnapshot);
+  if (!japaneseAttemptPolicyMatchesBank(runtime.bank, row.schemaVersion, row.policyRevision)
+    || japaneseQuestionLimit(runtime.bank) !== row.questionLimit) throw new JapanesePlacementFailure(500, "STORED_BANK_INVALID");
+  return runtime;
 }
 
-async function view(tx: Tx, row: StoredAttempt, now: number) {
+async function view(db: PrismaClient, tx: Tx, row: StoredAttempt, now: number, context?: JapaneseAttemptContext) {
   const eligibility = await readJapanesePlacementRetake(tx, row.learnerId, now);
   return {
     canStartNewAttempt: row.status !== "IN_PROGRESS" && eligibility.canStartNewAttempt,
@@ -86,7 +100,7 @@ async function view(tx: Tx, row: StoredAttempt, now: number) {
     expiresAt: row.expiresAt?.toISOString() ?? null,
     timeLimitSec: row.expiresAt ? (row.expiresAt.getTime() - row.startedAt.getTime()) / 1000 : null,
     ...(row.status === "IN_PROGRESS" ? { serverNow: new Date(now).toISOString() } : {}),
-    question: row.status === "IN_PROGRESS" ? nextJapaneseQuestion(runnableBank(row), state(row), new Date(now).toISOString()) : null,
+    question: row.status === "IN_PROGRESS" ? (context ?? (await runnableBank(db, tx, row)).context(state(row))).next(new Date(now).toISOString()) : null,
     result: row.status === "COMPLETED" ? row.result : null,
   };
 }
@@ -98,9 +112,9 @@ async function completeAttempt(tx: Tx, row: StoredAttempt, result: ReturnType<ty
 }
 
 /** No worker is needed: reads, starts and submissions settle an expired attempt under the same lock. */
-async function settleExpired(tx: Tx, row: StoredAttempt, now: number): Promise<StoredAttempt> {
+async function settleExpired(db: PrismaClient, tx: Tx, row: StoredAttempt, now: number): Promise<StoredAttempt> {
   if (row.status !== "IN_PROGRESS" || !row.expiresAt || now < row.expiresAt.getTime()) return row;
-  return completeAttempt(tx, row, summarizeJapaneseAttempt(runnableBank(row, true), state(row), row.expiresAt.toISOString()));
+  return completeAttempt(tx, row, (await runnableBank(db, tx, row, true)).context(state(row)).summarize(row.expiresAt.toISOString()));
 }
 
 /** Explicit server-side publication only. No route or seed imports the draft review bank. */
@@ -120,23 +134,24 @@ export async function startStoredJapaneseAttempt(db: PrismaClient, learnerId: st
   const { requestId } = input(startInput, value);
   const outcome = await studentTransaction(db, learnerId, async (tx, now) => {
     const retry = await tx.japanesePlacementAttempt.findUnique({ where: { learnerId_requestId: { learnerId, requestId } }, include: relations });
-    if (retry) return view(tx, await settleExpired(tx, retry, now), now);
+    if (retry) return view(db, tx, await settleExpired(db, tx, retry, now), now);
     let active = await tx.japanesePlacementAttempt.findUnique({ where: { activeLearnerId: learnerId }, include: relations });
-    if (active) active = await settleExpired(tx, active, now);
+    if (active) active = await settleExpired(db, tx, active, now);
     const eligibility = await readJapanesePlacementRetake(tx, learnerId, now);
     // Commit any expired result before reporting refusal outside the transaction.
     if (!eligibility.canStartNewAttempt) return { cooldown: true } as const;
     if (active?.status !== "IN_PROGRESS") active = null;
     if (active && !active.bankSnapshot.revokedAt && supportsJapaneseRuntime(active.schemaVersion, active.scoringRevision, active.policyRevision)) throw new JapanesePlacementFailure(409, "ACTIVE_ATTEMPT_EXISTS");
     const snapshot = await tx.japanesePlacementBankSnapshot.findFirst({
+      select: snapshotSelect,
       where: { revokedAt: null, OR: JAPANESE_SUPPORTED_ATTEMPT_SCHEMAS.map((version) => ({ content: { path: ["schemaVersion"], equals: version } })) }, orderBy: [{ publishedAt: "desc" }, { version: "desc" }, { id: "desc" }],
     });
     if (!snapshot) throw new JapanesePlacementFailure(503, "BANK_UNAVAILABLE");
     if (active) await tx.japanesePlacementAttempt.update({
       where: { id: active.id }, data: { status: "ABANDONED", activeLearnerId: null, finishedAt: new Date(now) },
     });
-    const bank = loadApprovedJapaneseBank(snapshot.content);
-    const started = startJapaneseAttempt(bank, { id: randomUUID(), learnerId, startedAt: new Date(now).toISOString() },
+    const runtime = await loadRuntime(db, tx, snapshot), { bank } = runtime;
+    const started = runtime.start({ id: randomUUID(), learnerId, startedAt: new Date(now).toISOString() },
       bank.schemaVersion === 5 ? JAPANESE_STAIRCASE_POLICY_REVISION : undefined);
     const row = await tx.japanesePlacementAttempt.create({
       data: { id: started.id, startedAt: new Date(started.startedAt), expiresAt: new Date(started.expiresAt), policyRevision: started.policyRevision,
@@ -144,7 +159,7 @@ export async function startStoredJapaneseAttempt(db: PrismaClient, learnerId: st
         schemaVersion: started.schemaVersion, scoringRevision: japaneseScoringRevision(started.schemaVersion, started.policyRevision) },
       include: relations,
     });
-    return view(tx, row, now);
+    return view(db, tx, row, now, runtime.context(started));
   });
   if ("cooldown" in outcome) throw new JapanesePlacementFailure(403, "PLACEMENT_COOLDOWN");
   return outcome;
@@ -154,12 +169,12 @@ export async function getCurrentJapaneseAttempt(db: PrismaClient, learnerId: str
   return studentTransaction(db, learnerId, async (tx, now) => {
     let row = await tx.japanesePlacementAttempt.findFirst({ where: { learnerId }, orderBy: [{ startedAt: "desc" }, { id: "desc" }], include: relations });
     if (!row) return null;
-    row = await settleExpired(tx, row, now);
+    row = await settleExpired(db, tx, row, now);
     if (row.status !== "IN_PROGRESS") {
       const award = await readLatestJapanesePlacementAward(tx, learnerId);
       if (award && award.id !== row.id) row = await tx.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: award.id, learnerId }, include: relations });
     }
-    return view(tx, row, now);
+    return view(db, tx, row, now);
   });
 }
 
@@ -167,7 +182,7 @@ export async function getStoredJapaneseAttempt(db: PrismaClient, learnerId: stri
   return studentTransaction(db, learnerId, async (tx, now) => {
     const row = await tx.japanesePlacementAttempt.findFirst({ where: { id: attemptId, learnerId }, include: relations });
     if (!row) throw new JapanesePlacementFailure(404, "ATTEMPT_NOT_FOUND");
-    return view(tx, await settleExpired(tx, row, now), now);
+    return view(db, tx, await settleExpired(db, tx, row, now), now);
   });
 }
 
@@ -176,32 +191,33 @@ export async function submitStoredJapaneseResponse(db: PrismaClient, learnerId: 
   return studentTransaction(db, learnerId, async (tx, now) => {
     const row = await tx.japanesePlacementAttempt.findFirst({ where: { id: attemptId, learnerId }, include: relations });
     if (!row) throw new JapanesePlacementFailure(404, "ATTEMPT_NOT_FOUND");
-    const settled = await settleExpired(tx, row, now);
+    const settled = await settleExpired(db, tx, row, now);
     if (settled.status === "COMPLETED") {
       // An expired result is the outcome of any late submission, with no answer appended.
-      if (settled.result && typeof settled.result === "object" && !Array.isArray(settled.result) && settled.result.completionReason === "time_limit") return view(tx, settled, now);
+      if (settled.result && typeof settled.result === "object" && !Array.isArray(settled.result) && settled.result.completionReason === "time_limit") return view(db, tx, settled, now);
       const priorRow = settled.responses.find((entry) => entry.itemId === response.itemId);
       const prior = priorRow ? parseStoredJapaneseResponse(priorRow.payload) : null;
-      if (prior && sameJapaneseResponse(prior, response)) return view(tx, settled, now);
+      if (prior && sameJapaneseResponse(prior, response)) return view(db, tx, settled, now);
       throw new JapanesePlacementFailure(409, "ATTEMPT_COMPLETED");
     }
     if (row.status !== "IN_PROGRESS") throw new JapanesePlacementFailure(409, "ATTEMPT_CLOSED");
-    const bank = runnableBank(row);
-    const attempt = state(row);
+    const runtime = await runnableBank(db, tx, row);
+    const context = runtime.context(state(row)), { attempt } = context;
     const last = attempt.responses.at(-1)?.submittedAt ?? attempt.startedAt;
     const submittedAt = new Date(Math.max(now, Date.parse(last))).toISOString();
     let next;
-    try { next = recordJapaneseResponse(bank, attempt, { ...response, submittedAt }); }
+    try { next = context.record({ ...response, submittedAt }); }
     catch (error) {
       const conflict = error instanceof Error && /already recorded|Expected the current/.test(error.message);
       throw new JapanesePlacementFailure(conflict ? 409 : 400, conflict ? "RESPONSE_CONFLICT" : "INVALID_RESPONSE");
     }
-    if (next.responses.length === attempt.responses.length) return view(tx, row, now);
+    if (next.attempt.responses.length === attempt.responses.length) return view(db, tx, row, now, next);
     await tx.japanesePlacementResponse.create({ data: {
-      attemptId, itemId: response.itemId, position: attempt.responses.length, payload: json(next.responses.at(-1)),
+      attemptId, itemId: response.itemId, position: attempt.responses.length, payload: json(next.attempt.responses.at(-1)),
     } });
-    if (next.responses.length === japaneseQuestionLimit(bank)) await completeAttempt(tx, row, summarizeJapaneseAttempt(bank, next));
-    return view(tx, await tx.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: attemptId }, include: relations }), now);
+    if (next.attempt.responses.length === row.questionLimit) return view(db, tx, await completeAttempt(tx, row, next.summarize()), now);
+    const updated = await tx.japanesePlacementAttempt.findUniqueOrThrow({ where: { id: attemptId }, include: relations });
+    return view(db, tx, updated, now, next);
   });
 }
 
@@ -218,7 +234,7 @@ export async function getTeacherJapaneseResult(db: PrismaClient, teacherUserId: 
     if (!booking) throw new JapanesePlacementFailure(404, "RESULT_NOT_FOUND");
     await lockJapaneseLearner(tx, learnerId);
     const active = await tx.japanesePlacementAttempt.findUnique({ where: { activeLearnerId: learnerId }, include: relations });
-    if (active) await settleExpired(tx, active, Date.now());
+    if (active) await settleExpired(db, tx, active, Date.now());
     const award = await readLatestJapanesePlacementAward(tx, learnerId);
     if (award) return { result: award.result };
     const row = await tx.japanesePlacementAttempt.findFirst({

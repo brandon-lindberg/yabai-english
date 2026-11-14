@@ -51,6 +51,8 @@ export function PlacementQuiz() {
   const [inconclusive, setInconclusive] = useState<{ reason: InconclusiveReason; required: number } | null>(null);
   const [cooldownEligibleDate, setCooldownEligibleDate] = useState<string | null>(null);
   const lastLoadWasStart = useRef(false);
+  const loadController = useRef<AbortController | null>(null);
+  const mutationInFlight = useRef(false);
 
   const applyReply = useCallback((data: ApiReply) => {
     setReady(data.status === "ready");
@@ -81,6 +83,10 @@ export function PlacementQuiz() {
   }, [updateSessionRef]);
 
   const loadAttempt = useCallback(async (start = false) => {
+    // Focus and visibility can arrive before React commits the loading state.
+    if (loadController.current) return;
+    const controller = new AbortController();
+    loadController.current = controller;
     lastLoadWasStart.current = start;
     setLoading(true);
     setReady(false);
@@ -99,9 +105,11 @@ export function PlacementQuiz() {
     try {
       const r = await fetch(start ? "/api/placement" : `/api/placement?ts=${Date.now()}`, {
         cache: "no-store",
+        signal: controller.signal,
         ...(start ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "start" }) } : {}),
       });
       const data = (await r.json()) as ApiReply;
+      if (loadController.current !== controller) return;
       if (!r.ok) {
         if (data.error === "cooldown" && typeof data.eligibleDate === "string") {
           setCooldownEligibleDate(data.eligibleDate);
@@ -112,19 +120,26 @@ export function PlacementQuiz() {
       }
       applyReply(data);
     } catch {
-      setError(t("loadError"));
+      if (loadController.current === controller) setError(t("loadError"));
     } finally {
-      setLoading(false);
+      if (loadController.current === controller) {
+        loadController.current = null;
+        setLoading(false);
+      }
     }
   }, [t, applyReply]);
 
   useEffect(() => {
     void loadAttempt();
+    return () => {
+      loadController.current?.abort();
+      loadController.current = null;
+    };
   }, [loadAttempt]);
 
   useEffect(() => {
     if (loading || submitting || pendingAnswer || result || inconclusive || autoSubmitted || !attemptToken) return;
-    const recover = () => { if (document.visibilityState === "visible") void loadAttempt(); };
+    const recover = () => { if (!mutationInFlight.current && document.visibilityState === "visible") void loadAttempt(); };
     window.addEventListener("focus", recover);
     document.addEventListener("visibilitychange", recover);
     return () => {
@@ -152,6 +167,7 @@ export function PlacementQuiz() {
   const isJa = locale === "ja";
 
   async function onFinish(fromTimeout = false) {
+    mutationInFlight.current = true;
     setSubmitting(true);
     setError(null);
     try {
@@ -190,18 +206,20 @@ export function PlacementQuiz() {
     } catch {
       setError(t("finishError"));
     } finally {
+      mutationInFlight.current = false;
       setSubmitting(false);
     }
   }
 
   async function selectOption(idx: number) {
-    if (!q || submitting || pendingAnswer || autoSubmitted || remainingSec === 0) return;
+    if (!q || loadController.current || mutationInFlight.current || submitting || pendingAnswer || autoSubmitted || remainingSec === 0) return;
     const input = { attemptToken, answer: idx };
     setPendingAnswer(input);
     await saveAnswer(input);
   }
 
   async function saveAnswer(input: { attemptToken: string; answer: number }) {
+    mutationInFlight.current = true;
     setSubmitting(true);
     setError(null);
     try {
@@ -241,6 +259,7 @@ export function PlacementQuiz() {
     } catch {
       setError(t("answerSaveUncertain"));
     } finally {
+      mutationInFlight.current = false;
       setSubmitting(false);
     }
   }

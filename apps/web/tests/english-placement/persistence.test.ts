@@ -25,6 +25,47 @@ async function through(db: PrismaClient, id: string, count: number) {
 }
 const finish = (db: PrismaClient, id: string, current: EnglishPlacementActive) => submitEnglishAttempt(db, id, { action: "finish", attemptToken: current.attemptToken });
 
+dbTest("different learners atomically share the first English snapshot without a start failure", async () => {
+  await withIsolatedPostgres(migration, async ({ client, db, applyMigration }) => {
+    await applyMigration();
+    const learners = await Promise.all([learner(db), learner(db)]);
+    // Hold both INSERTs long enough to expose a read-then-create upsert race.
+    await client.query(`CREATE FUNCTION slow_snapshot_insert() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN PERFORM pg_sleep(0.15); RETURN NEW; END $$;
+      CREATE TRIGGER slow_snapshot_insert BEFORE INSERT ON "EnglishPlacementBankSnapshot" FOR EACH ROW EXECUTE FUNCTION slow_snapshot_insert();`);
+    const outcomes = await Promise.allSettled(learners.map(id => start(db, id)));
+    expect(outcomes.map(result => result.status)).toEqual(["fulfilled", "fulfilled"]);
+    expect(await db.englishPlacementBankSnapshot.count()).toBe(1);
+    expect(await db.englishPlacementAttempt.count()).toBe(2);
+    for (const result of outcomes) if (result.status === "fulfilled") expect(result.value.question?.cefrBand).toBe("A1");
+  });
+}, 60_000);
+
+dbTest("English answers share one immutable bank load and completed receipts read no bank content", async () => {
+  await withIsolatedPostgres(migration, async ({ db, applyMigration }) => {
+    await applyMigration();
+    const learners = await Promise.all([learner(db), learner(db)]);
+    const starts = [await start(db, learners[0]), await start(db, learners[1])];
+    const queries: Array<{ model: string; args: unknown }> = [];
+    const observe = () => db.$extends({ query: { $allModels: { async $allOperations({ model, args, query }) {
+      queries.push({ model, args }); return query(args);
+    } } } }) as unknown as PrismaClient;
+    const observed = observe();
+    const responses = await Promise.all(learners.map((id, index) => answer(observed, id, starts[index])));
+    await Promise.all(learners.map((id, index) => answer(observed, id, responses[index])));
+    const contentLoads = () => queries.filter(query => query.model === "EnglishPlacementBankSnapshot" && JSON.stringify(query.args).includes('"content":true'));
+    expect(contentLoads()).toHaveLength(1);
+    expect(queries.filter(query => query.model === "EnglishPlacementAttempt").every(query => !JSON.stringify(query.args).includes('"bankSnapshot":true'))).toBe(true);
+    vi.spyOn(Date, "now").mockReturnValue(starts[0].expiresAt);
+    try {
+      const completed = await finish(observed, learners[0], responses[0]);
+      queries.length = 0;
+      // A different owner has a cold cache: terminal receipts must not load the bank at all.
+      expect((await finish(observe(), learners[0], responses[0])).body).toEqual(completed.body);
+      expect(contentLoads()).toHaveLength(0);
+    } finally { vi.restoreAllMocks(); }
+  });
+}, 60_000);
+
 dbTest("the additive migration preserves existing English and Japanese history", async () => {
   await withIsolatedPostgres(migration, async ({ client, db, applyMigration, verifyDatamodel }) => {
     const id = await learner(db);

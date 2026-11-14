@@ -28,6 +28,6 @@ function createPrismaClient() {
 export const prisma =
   globalForPrismaObj.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrismaObj.prisma = prisma;
-}
+// Production page/API bundles also have separate module caches. Share the client
+// (and its pool) for the process lifetime, not just across development reloads.
+globalForPrismaObj.prisma = prisma;

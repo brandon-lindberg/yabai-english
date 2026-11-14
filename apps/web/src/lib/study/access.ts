@@ -28,8 +28,11 @@ export async function isStudyLevelUnlocked(
 ): Promise<boolean> {
   // English entry points must never expose a draft or another subject's data,
   // including to teachers. Japanese prompt/unlock policy is a separate increment.
-  const track = await prisma.studyTrack.findUnique({ where: { id: trackId } });
+  const track = await prisma.studyTrack.findUnique({
+    where: { id: trackId }, select: { learningLanguage: true, publicationStatus: true },
+  });
   if (!track || track.learningLanguage !== "ENGLISH" || track.publicationStatus !== "PUBLISHED" || !STUDY_LEVEL_ORDER.includes(levelCode)) return false;
+  if (levelCode === StudyLevelCode.BEGINNER_1) return true;
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -37,8 +40,6 @@ export async function isStudyLevelUnlocked(
   });
   // Teachers/Admins do not take placement; keep all flashcard levels reviewable.
   if (user?.role === "TEACHER" || user?.role === "SUPER_ADMIN") return true;
-
-  if (levelCode === StudyLevelCode.BEGINNER_1) return true;
 
   const profile = await prisma.studentProfile.findUnique({
     where: { userId },
@@ -52,11 +53,13 @@ export async function isStudyLevelUnlocked(
 
   const prevLevel = await prisma.studyLevel.findUnique({
     where: { trackId_levelCode: { trackId, levelCode: prev } },
+    select: { id: true },
   });
   if (!prevLevel) return false;
 
   const prevProgress = await prisma.userStudyLevelProgress.findUnique({
     where: { userId_levelId: { userId, levelId: prevLevel.id } },
+    select: { assessmentPassedAt: true },
   });
 
   return studyLevelAccess({ role: user?.role, levelCode, ...profile, previousPassed: Boolean(prevProgress?.assessmentPassedAt) });

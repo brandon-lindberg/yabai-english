@@ -39,7 +39,7 @@ export function DashboardJapaneseQuickReview({ initialStatus, initialRpg }: {
       <h2 id="japanese-daily-review-title" className="text-lg font-semibold text-foreground">{t("quickTitle")}</h2>
       <p className="text-xs text-muted">{formatQuickReviewDayDisplay(initialStatus.dayKey, locale)}</p>
     </div>
-    {started ? <div className="mt-5"><JapaneseStudySession quickReview quickReviewCompletion={recap} initialRpg={initialRpg} onReviewSaved={() => router.refresh()} /></div>
+    {started ? <div className="mt-5"><JapaneseStudySession quickReview quickReviewCompletion={recap} initialRpg={initialRpg} onQuickReviewComplete={() => router.refresh()} /></div>
       : complete ? <div className="mt-4">{recap}</div> : <>
       <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted">{t("quickIntro")}</p>
       <p className="mt-2 text-sm tabular-nums text-muted">{t("dailyProgress", { answered: initialStatus.answered, total: initialStatus.total })} · {t("dailyScore", { correct: initialStatus.correct, wrong: initialStatus.wrong })}</p>

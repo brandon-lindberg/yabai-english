@@ -1,5 +1,5 @@
 import { publicAppOrigin } from "@/lib/learning-sites";
-import { google } from "googleapis";
+import { createGoogleOAuthClient } from "@/lib/google/clients";
 import { prisma } from "@/lib/prisma";
 import { encryptIntegrationToken } from "@/lib/calendar-token";
 import {
@@ -51,7 +51,7 @@ export async function handleGoogleCallback(req: Request, code: string, owner: { 
   }
   const baseUrl = resolveBaseUrl(req);
   const redirectUri = `${baseUrl}/api/integrations/google/callback`;
-  const oauth2 = new google.auth.OAuth2(creds.clientId, creds.clientSecret, redirectUri);
+  const oauth2 = createGoogleOAuthClient({ ...creds, redirectUri });
   const tokenRes = await oauth2.getToken(code);
   const grantedScopes = (tokenRes.tokens.scope ?? "")
     .split(" ")

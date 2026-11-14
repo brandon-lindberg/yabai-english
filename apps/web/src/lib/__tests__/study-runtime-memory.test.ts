@@ -6,6 +6,11 @@ import { expect, test } from "vitest";
 const { load } = createRequire(import.meta.url)("js-yaml") as { load: (yaml: string) => { services: Array<{ name: string; buildCommand: string; envVars: Array<{ key: string }> }> } };
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
 
+test("production loads route modules when visited instead of preloading every feature", async () => {
+  const { default: config } = await import("../../../next.config");
+  expect(config.experimental?.preloadEntriesOnStart).toBe(false);
+});
+
 test("production start keeps its heap below the 512 MiB service even with a stale build-only NODE_OPTIONS", () => {
   const args = pkg.scripts.start.split(" ");
   expect(args.shift()).toBe("node");

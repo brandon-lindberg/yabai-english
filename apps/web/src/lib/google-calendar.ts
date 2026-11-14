@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { google, calendar_v3 } from "googleapis";
+import { createGoogleCalendarClient, type GoogleCalendarClient, type GoogleCalendarEvent } from "@/lib/google/clients";
 import { decryptRefreshToken } from "@/lib/calendar-token";
 import { prisma } from "@/lib/prisma";
 
@@ -66,7 +66,7 @@ async function resolveCalendarContext(params: {
   calendarId?: string | null;
   /** Additionally require `autoCreateMeetLink`, for event creation. */
   requireAutoCreate?: boolean;
-}): Promise<{ cal: calendar_v3.Calendar; calendarId: string } | null> {
+}): Promise<{ cal: GoogleCalendarClient; calendarId: string } | null> {
   let refreshTokenEncrypted = params.refreshTokenEncrypted;
   let calendarId = params.calendarId || "primary";
 
@@ -101,10 +101,7 @@ async function resolveCalendarContext(params: {
   const clientSecret = process.env.AUTH_GOOGLE_SECRET;
   if (!clientId || !clientSecret) return null;
 
-  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
-  oauth2Client.setCredentials({ refresh_token: decryptRefreshToken(refreshTokenEncrypted) });
-
-  return { cal: google.calendar({ version: "v3", auth: oauth2Client }), calendarId };
+  return { cal: createGoogleCalendarClient({ clientId, clientSecret, refreshToken: decryptRefreshToken(refreshTokenEncrypted) }), calendarId };
 }
 
 export async function createMeetLessonEvent(params: {
@@ -167,18 +164,11 @@ export async function createMeetLessonEvent(params: {
   }
 
   try {
-    const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
-    const refresh = decryptRefreshToken(refreshTokenEncrypted);
-    oauth2Client.setCredentials({ refresh_token: refresh });
-
-    const cal = google.calendar({
-      version: "v3",
-      auth: oauth2Client,
-    });
+    const cal = createGoogleCalendarClient({ clientId, clientSecret, refreshToken: decryptRefreshToken(refreshTokenEncrypted) });
 
     const requestId = randomUUID();
 
-    const event: calendar_v3.Schema$Event = {
+    const event: GoogleCalendarEvent = {
       summary: params.summary,
       start: { dateTime: params.start.toISOString() },
       end: { dateTime: params.end.toISOString() },

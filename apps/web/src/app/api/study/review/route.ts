@@ -61,7 +61,10 @@ export async function POST(req: Request) {
 
   const card = await prisma.studyCard.findUnique({
     where: { id: parsed.data.cardId },
-    include: { deck: { include: { level: { include: { track: true } } } } },
+    select: {
+      id: true, kind: true, frontJa: true, backEn: true, exerciseJson: true,
+      deck: { select: { level: { select: { id: true, trackId: true, levelCode: true } } } },
+    },
   });
   if (!card || card.kind !== "ENGLISH_EXERCISE") {
     return NextResponse.json({ error: "Card not found" }, { status: 404 });
@@ -85,30 +88,26 @@ export async function POST(req: Request) {
   );
   const now = new Date();
 
-  const previousTotalXp = await getTotalStudyXpForTrack(
-    prisma,
-    session.user.id,
-    level.trackId,
-  );
-
-  const { state, xpGained: xpGain, progress: result } = await prisma.$transaction(tx =>
-    saveStudyReviewProgress(tx, { userId: session.user.id, cardId: card.id, levelId: level.id,
-      correct, now, answerTimeMs: parsed.data.answerTimeMs }),
-  );
-  const { correctCount, wrongCount, streakCorrect, averageAnswerMs, latencySampleCount } = state;
-
-  const { masteryScore } = await computeLevelMastery(prisma, session.user.id, level.id);
-  await prisma.userStudyLevelProgress.update({
-    where: { userId_levelId: { userId: session.user.id, levelId: level.id } },
-    data: { masteryScore },
+  const { state, xpGained: xpGain, progress: result, masteryScore, totalStudyXp } = await prisma.$transaction(async tx => {
+    const saved = await saveStudyReviewProgress(tx, { userId: session.user.id, cardId: card.id, levelId: level.id,
+      correct, now, answerTimeMs: parsed.data.answerTimeMs });
+    // The shared saver holds the learner lock until commit. Read the resulting
+    // XP once and persist mastery in that same transaction, so concurrent answers
+    // cannot report each other's XP or leave a partially committed review.
+    const totalStudyXp = await getTotalStudyXpForTrack(tx, session.user.id, level.trackId);
+    const { masteryScore } = await computeLevelMastery(tx, session.user.id, level.id);
+    await tx.userStudyLevelProgress.update({
+      where: { userId_levelId: { userId: session.user.id, levelId: level.id } },
+      data: { masteryScore },
+    });
+    return { ...saved, masteryScore, totalStudyXp };
   });
-
-  const totalStudyXp = await getTotalStudyXpForTrack(prisma, session.user.id, level.trackId);
+  const { correctCount, wrongCount, streakCorrect, averageAnswerMs, latencySampleCount } = state;
   const rpg = studyRpgProgressFromTotalXp(totalStudyXp);
 
   await notifyStudyRankUpIfNeeded({
     userId: session.user.id,
-    previousTotalXp,
+    previousTotalXp: totalStudyXp - xpGain,
     newTotalXp: totalStudyXp,
   });
 

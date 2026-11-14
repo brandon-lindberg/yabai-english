@@ -1,4 +1,3 @@
-import type { PrismaClient } from "@/generated/prisma/client";
 import { getFlashcardStatisticsByLevelId } from "./study-flashcard-stats";
 
 export function studyMasteryPercent(total: number, completed: number) {
@@ -6,7 +5,7 @@ export function studyMasteryPercent(total: number, completed: number) {
 }
 
 export async function computeLevelMastery(
-  prisma: PrismaClient,
+  prisma: Parameters<typeof getFlashcardStatisticsByLevelId>[0],
   userId: string,
   levelId: string,
 ): Promise<{ masteryScore: number; cardsTotal: number; cardsTouched: number }> {
