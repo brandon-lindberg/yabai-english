@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import { auth } from "@/auth";
 import { DashboardSubNav } from "@/components/dashboard/dashboard-sub-nav";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
+import { FeatureMessages } from "@/components/i18n/feature-messages";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const locale = await getLocale();
@@ -19,11 +20,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const showTeacherTabs = isTeacherCabinetRole(session?.user?.role);
 
   return (
-    <main className="mx-auto max-w-4xl flex-1 px-4 py-6 sm:px-6">
+    <FeatureMessages scope="dashboard"><main className="mx-auto max-w-4xl flex-1 px-4 py-6 sm:px-6">
       {isStudent || showTeacherTabs ? (
         <DashboardSubNav isTeacher={showTeacherTabs} isStudent={isStudent} />
       ) : null}
       {children}
-    </main>
+    </main></FeatureMessages>
   );
 }

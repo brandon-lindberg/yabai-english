@@ -10,6 +10,8 @@ const intlMiddleware = createMiddleware(routing);
 // Next.js 16 renamed the `middleware` file convention to `proxy`.
 // https://nextjs.org/docs/messages/middleware-to-proxy
 export default function proxy(request: NextRequest) {
+  // Render may probe any verified domain or the internal service host.
+  if (request.nextUrl.pathname === "/api/health") return NextResponse.next();
   const sites = configuredLearningSites();
   if (sites) {
     const host = request.headers.get("host") ?? request.nextUrl.host;

@@ -15,6 +15,7 @@ import { SiteHeader } from "@/components/shell/site-header";
 import { SiteFooter } from "@/components/shell/site-footer";
 import { AppChatPanel } from "@/components/app-chat-panel";
 import { getGuestLearningLanguage } from "@/lib/learning-language-request";
+import { clientMessages } from "@/i18n/client-messages";
 
 type Props = {
   children: ReactNode;
@@ -49,7 +50,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const guestLearningLanguage = session?.user ? null : await getGuestLearningLanguage();
 
   return (
-    <NextIntlClientProvider messages={messages}>
+    <NextIntlClientProvider messages={clientMessages(messages, "shell")}>
       <AppProviders session={session}>
         <LearningSiteProvider site={site} sites={sites}>
         <div className="flex min-h-0 flex-1 flex-col overflow-x-clip">

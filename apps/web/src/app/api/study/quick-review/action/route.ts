@@ -1,3 +1,4 @@
+import { learningResponse } from "@/lib/learning-runtime";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { englishLearningAccessError } from "@/lib/english-learning-access";
@@ -11,7 +12,7 @@ const bodySchema = z.object({
   outcome: z.enum(["learned", "not_yet"]),
 });
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,4 +37,8 @@ export async function POST(req: Request) {
     learnedToday: result.learnedToday,
     notYetToday: result.notYetToday,
   });
+}
+
+export function POST(req: Request) {
+  return learningResponse(req, "study.review", () => handlePOST(req));
 }

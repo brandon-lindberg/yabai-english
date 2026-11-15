@@ -22,6 +22,10 @@ test("progress counts a large catalog in the database and reads only this learne
   expect(db.studyDeck.findMany).toHaveBeenCalledWith({ where: { levelId: { in: ["N5", "N4", "empty"] } }, select: { levelId: true, _count: { select: { cards: true } } } });
   expect(db.userStudyCardState.findMany).not.toHaveBeenCalled();
   expect(db.$queryRaw).toHaveBeenCalledTimes(1);
+  // Four FILTERs used to repeat all classification arithmetic for every card.
+  // Keep one evaluation before combining the bounded band groups per level.
+  const query = db.$queryRaw.mock.calls[0][0];
+  expect(query.sql.match(/\bCASE\b/g)).toHaveLength(1);
 });
 
 test("counted progress preserves new, learning, weak, mastered and weighted timing semantics", async () => {

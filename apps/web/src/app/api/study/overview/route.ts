@@ -1,3 +1,4 @@
+import { learningResponse } from "@/lib/learning-runtime";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { englishLearningAccessError } from "@/lib/english-learning-access";
@@ -9,7 +10,7 @@ const querySchema = z.object({
   trackSlug: z.string().min(1).default("english-flashcards"),
 });
 
-export async function GET(req: Request) {
+async function handleGET(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -37,4 +38,8 @@ export async function GET(req: Request) {
       completedAt: l.completedAt?.toISOString() ?? null,
     })),
   });
+}
+
+export function GET(req: Request) {
+  return learningResponse(req, "study.overview", () => handleGET(req));
 }

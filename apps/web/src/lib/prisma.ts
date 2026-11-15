@@ -1,5 +1,7 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+import { registerLearningPool } from "./learning-runtime";
 
 const globalForPrismaObj = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -7,11 +9,16 @@ const globalForPrismaObj = globalThis as unknown as {
 
 function createPrismaClient() {
   const schema = process.env.DATABASE_URL ? new URL(process.env.DATABASE_URL).searchParams.get("schema") ?? "public" : "public";
-  const adapter = new PrismaPg({
+  const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+    max: 10,
+    connectionTimeoutMillis: 3000,
+    idleTimeoutMillis: 10000,
     // Keep raw aggregates in the same schema as Prisma's qualified model reads.
     options: `-c search_path=${(`"${schema.replaceAll('"', '""')}"`).replace(/[\\\s]/g, "\\$&")}`,
-  }, { schema });
+  });
+  registerLearningPool(() => ({ total: pool.totalCount, idle: pool.idleCount, waiting: pool.waitingCount }));
+  const adapter = new PrismaPg(pool, { schema, disposeExternalPool: true });
   // Query logging is opt-in (PRISMA_LOG_QUERIES=true) because it floods the
   // dev terminal and the browser console via Next's server-log forwarding.
   return new PrismaClient({

@@ -45,3 +45,47 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("database summaries match JavaS
     expect((await getFlashcardStatisticsByLevelId(db, "other", ["level-N5"])).get("level-N5")!.practice).toMatchObject({ newCount: 9, totalAttempts: 0 });
   });
 }, 30000);
+
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("grouped summaries preserve both languages, sparse histories, empty levels and learner isolation", async () => {
+  await withIsolatedPostgres("20261113000000_study_runtime_references", async ({ db, applyMigration }) => {
+    await applyMigration(); await seedJapaneseStudy(db);
+    const { getFlashcardStatisticsByLevelId, rollupFlashcardPracticeForLevel } = await import("@/lib/study/study-flashcard-stats");
+    await db.studyTrack.create({ data: { id: "en", slug: "english-flashcards", titleEn: "English", titleJa: "英語",
+      levels: { create: { id: "en-level", levelCode: "BEGINNER_1", titleEn: "Beginner", titleJa: "初級", decks: { create: [
+        { id: "en-deck-a", titleEn: "A", titleJa: "A" }, { id: "en-deck-b", titleEn: "B", titleJa: "B" },
+      ] } } } } });
+    await db.studyCard.createMany({ data: Array.from({ length: 5 }, (_, i) => ({
+      id: `en-card-${i}`, deckId: i % 2 ? "en-deck-a" : "en-deck-b", frontJa: "猫", backEn: "cat",
+    })) });
+    await db.studyCard.create({ data: { id: "unseen", deckId: "deck-N3", frontJa: "", backEn: "" } });
+    const cards = await db.studyCard.findMany({ select: { id: true, deck: { select: { levelId: true } } }, orderBy: { id: "asc" } });
+    const counts = [[0,0,0], [0,1,0], [13,7,0], [131,69,4], [7,1,5], [699,101,5], [8,0,5], [1,4,0]];
+    const states = cards.filter(card => card.id !== "unseen").map((card, i) => {
+      const [correctCount, wrongCount, streakCorrect] = counts[i % counts.length];
+      return { cardId: card.id, correctCount, wrongCount, streakCorrect,
+        averageAnswerMs: i % 3 ? 300000 : null, latencySampleCount: i % 5 ? 100000 : 0 };
+    });
+    const learners = [
+      { id: "learner", states }, // Both subjects with every band and a large weighted latency sum.
+      { id: "other", states: states.slice(0, 1) },
+      { id: "english-user", states: states.filter(state => state.cardId.startsWith("en-")) },
+      { id: "teacher", states: [] },
+    ];
+    for (const learner of learners) await db.userStudyCardState.createMany({ data: learner.states.map(state => ({ ...state, userId: learner.id })) });
+    const scopes = [["en-level"], ["level-N5"], ["level-N5", "level-N4", "level-N3", "level-N2", "level-N1"],
+      ["en-level", "level-N5", "level-N3", "missing"], []];
+    await Promise.all(learners.map(async learner => {
+      for (const scope of scopes) {
+        const actual = await getFlashcardStatisticsByLevelId(db, learner.id, scope);
+        expect([...actual.keys()]).toEqual(scope);
+        for (const levelId of scope) {
+          const ids = cards.filter(card => card.deck.levelId === levelId).map(card => card.id);
+          expect(actual.get(levelId)).toEqual({ cardsTotal: ids.length,
+            cardsTouched: learner.states.filter(state => ids.includes(state.cardId) && state.correctCount > 0).length,
+            practice: rollupFlashcardPracticeForLevel(ids, new Map(learner.states.map(state => [state.cardId, state]))),
+          });
+        }
+      }
+    }));
+  });
+}, 30000);

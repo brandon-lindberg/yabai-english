@@ -1,3 +1,4 @@
+import { learningResponse } from "@/lib/learning-runtime";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { englishLearningAccessError } from "@/lib/english-learning-access";
@@ -7,7 +8,7 @@ import { studyAssessmentItemsJsonSchema } from "@/lib/study/schemas";
 
 type RouteContext = { params: Promise<{ assessmentId: string }> };
 
-export async function GET(_req: Request, context: RouteContext) {
+async function handleGET(_req: Request, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -53,4 +54,8 @@ export async function GET(_req: Request, context: RouteContext) {
     passingScore: assessment.passingScore,
     items,
   });
+}
+
+export function GET(req: Request, context: RouteContext) {
+  return learningResponse(req, "study.assessment", () => handleGET(req, context));
 }

@@ -1,24 +1,30 @@
 import "server-only";
 import { PrivateApiFailure } from "../private-api-error";
 import { QUEUE_STREAM_TYPE, type ReportQueuePreparation } from "./queue-preparation";
+import { learningBusyResponse, runLearningWork } from "../learning-runtime";
+import { LearningBusyError } from "../learning-work-gate";
 
 /** Opt-in feedback on the same authenticated request; no polling or extra queries. */
 export async function queuePreparationResponse<T>(req: Request, run: (report?: ReportQueuePreparation) => Promise<T>): Promise<T | Response> {
-  if (!req.headers.get("Accept")?.includes(QUEUE_STREAM_TYPE)) return run(undefined);
+  if (!req.headers.get("Accept")?.includes(QUEUE_STREAM_TYPE)) {
+    try { return await runLearningWork("study.prepare", () => run(undefined), req.signal); }
+    catch (error) { if (error instanceof LearningBusyError) return learningBusyResponse(); throw error; }
+  }
   let cancelled = false;
+  const preparation = new AbortController();
   const encoder = new TextEncoder();
   const body = new ReadableStream<Uint8Array>({
     start(controller) {
       const send = (event: unknown) => { if (!cancelled) controller.enqueue(encoder.encode(JSON.stringify(event) + "\n")); };
-      const abort = () => { if (!cancelled) { cancelled = true; controller.close(); } };
+      const abort = () => { preparation.abort(); if (!cancelled) { cancelled = true; controller.close(); } };
       req.signal.addEventListener("abort", abort, { once: true });
       if (req.signal.aborted) abort();
       void (async () => {
         try {
-          const data = await run(progress => {
+          const data = await runLearningWork("study.prepare", () => run(progress => {
             if (cancelled) throw new DOMException("Preparation cancelled", "AbortError");
             send({ type: "progress", ...progress });
-          });
+          }), preparation.signal);
           // A transaction-backed service resolves only after COMMIT succeeds.
           send({ type: "ready", data });
         } catch (error) {
@@ -33,7 +39,7 @@ export async function queuePreparationResponse<T>(req: Request, run: (report?: R
         }
       })();
     },
-    cancel() { cancelled = true; },
+    cancel() { cancelled = true; preparation.abort(); },
   });
   return new Response(body, { headers: { "Content-Type": `${QUEUE_STREAM_TYPE}; charset=utf-8`, "Cache-Control": "private, no-store", "X-Accel-Buffering": "no" } });
 }

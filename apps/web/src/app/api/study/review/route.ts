@@ -1,3 +1,4 @@
+import { learningResponse } from "@/lib/learning-runtime";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { englishLearningAccessError } from "@/lib/english-learning-access";
@@ -45,7 +46,7 @@ function buildReviewPayload(
   return { mode: "multi_step", multiStepAnswers: body.multiStepAnswers };
 }
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -133,4 +134,8 @@ export async function POST(req: Request) {
     accuracyPercent: studyAccuracyPercent(correctCount, wrongCount),
     averageAnswerMs,
   });
+}
+
+export function POST(req: Request) {
+  return learningResponse(req, "study.review", () => handlePOST(req));
 }

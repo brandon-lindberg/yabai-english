@@ -38,7 +38,7 @@ services:
     # so a migration failure won't take the old version down.
     preDeployCommand: yarn prisma migrate deploy
     startCommand: yarn start
-    healthCheckPath: /
+    healthCheckPath: /api/health
     autoDeploy: true
 
     envVars:

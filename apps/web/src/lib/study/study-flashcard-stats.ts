@@ -102,7 +102,7 @@ export function combineTrackPracticeRollups(
   return finishRollup(out);
 }
 
-type SummaryRow = { levelId: string; statesTotal: bigint; cardsTouched: bigint } & Record<"weakCount" | "masteredCount" | "learningCount" | "newCount" | "totalCorrect" | "totalAttempts" | "latencyWeightedSum" | "latencySamples", bigint | number>;
+type SummaryRow = { levelId: string } & Record<"statesTotal" | "cardsTouched" | "weakCount" | "masteredCount" | "learningCount" | "newCount" | "totalCorrect" | "totalAttempts" | "latencyWeightedSum" | "latencySamples", bigint | number | Prisma.Decimal>;
 type SummaryDb = Pick<PrismaClient, "studyDeck" | "$queryRaw">;
 
 /** Transfer one aggregate per level, never a learner's whole card history. */
@@ -120,18 +120,26 @@ export async function getFlashcardStatisticsByLevelId(
   const scope = { levelId: { in: [...levelIds] } };
   const [decks, states] = await Promise.all([
     prisma.studyDeck.findMany({ where: scope, select: { levelId: true, _count: { select: { cards: true } } } }),
+    // Classify once per saved card, then combine at most four bands per level.
+    // Keep the learner/level predicates inside so single-level saves stay narrow.
     prisma.$queryRaw<SummaryRow[]>(Prisma.sql`
-      SELECT d."levelId", COUNT(*) AS "statesTotal",
-        COUNT(*) FILTER (WHERE s."correctCount" >= 1) AS "cardsTouched",
-        COUNT(*) FILTER (WHERE ${practiceBandSql} = 'weak') AS "weakCount",
-        COUNT(*) FILTER (WHERE ${practiceBandSql} = 'mastered') AS "masteredCount",
-        COUNT(*) FILTER (WHERE ${practiceBandSql} = 'learning') AS "learningCount",
-        COUNT(*) FILTER (WHERE ${practiceBandSql} = 'new') AS "newCount",
-        SUM(s."correctCount"::bigint) AS "totalCorrect", SUM(s."correctCount"::bigint + s."wrongCount") AS "totalAttempts",
-        COALESCE(SUM(s."averageAnswerMs"::bigint * s."latencySampleCount") FILTER (WHERE s."latencySampleCount" > 0 AND s."averageAnswerMs" IS NOT NULL), 0) AS "latencyWeightedSum",
-        COALESCE(SUM(s."latencySampleCount"::bigint) FILTER (WHERE s."latencySampleCount" > 0 AND s."averageAnswerMs" IS NOT NULL), 0) AS "latencySamples"
-      FROM "UserStudyCardState" s JOIN "StudyCard" c ON c.id = s."cardId" JOIN "StudyDeck" d ON d.id = c."deckId"
-      WHERE s."userId" = ${userId} AND d."levelId" IN (${Prisma.join([...levelIds])}) GROUP BY d."levelId"`),
+      WITH bands AS (
+        SELECT d."levelId", ${practiceBandSql} AS band, COUNT(*) AS "statesTotal",
+          COUNT(*) FILTER (WHERE s."correctCount" >= 1) AS "cardsTouched",
+          SUM(s."correctCount"::bigint) AS "totalCorrect", SUM(s."correctCount"::bigint + s."wrongCount") AS "totalAttempts",
+          COALESCE(SUM(s."averageAnswerMs"::bigint * s."latencySampleCount") FILTER (WHERE s."latencySampleCount" > 0 AND s."averageAnswerMs" IS NOT NULL), 0) AS "latencyWeightedSum",
+          COALESCE(SUM(s."latencySampleCount"::bigint) FILTER (WHERE s."latencySampleCount" > 0 AND s."averageAnswerMs" IS NOT NULL), 0) AS "latencySamples"
+        FROM "UserStudyCardState" s JOIN "StudyCard" c ON c.id = s."cardId" JOIN "StudyDeck" d ON d.id = c."deckId"
+        WHERE s."userId" = ${userId} AND d."levelId" IN (${Prisma.join([...levelIds])}) GROUP BY d."levelId", band
+      )
+      SELECT "levelId", SUM("statesTotal") AS "statesTotal", SUM("cardsTouched") AS "cardsTouched",
+        COALESCE(SUM("statesTotal") FILTER (WHERE band = 'weak'), 0) AS "weakCount",
+        COALESCE(SUM("statesTotal") FILTER (WHERE band = 'mastered'), 0) AS "masteredCount",
+        COALESCE(SUM("statesTotal") FILTER (WHERE band = 'learning'), 0) AS "learningCount",
+        COALESCE(SUM("statesTotal") FILTER (WHERE band = 'new'), 0) AS "newCount",
+        SUM("totalCorrect") AS "totalCorrect", SUM("totalAttempts") AS "totalAttempts",
+        SUM("latencyWeightedSum") AS "latencyWeightedSum", SUM("latencySamples") AS "latencySamples"
+      FROM bands GROUP BY "levelId"`),
   ]);
   const totals = new Map<string, number>();
   for (const deck of decks) totals.set(deck.levelId, (totals.get(deck.levelId) ?? 0) + deck._count.cards);

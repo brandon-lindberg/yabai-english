@@ -1,3 +1,4 @@
+import { learningResponse } from "@/lib/learning-runtime";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
@@ -39,5 +40,5 @@ async function run(req?: Request) {
   }
 }
 
-export async function GET() { return run(); }
-export async function POST(req: Request) { return run(req); }
+export async function GET(req?: Request) { return learningResponse(req, "placement.english", () => run()); }
+export async function POST(req: Request) { return learningResponse(req, "placement.english", () => run(req)); }

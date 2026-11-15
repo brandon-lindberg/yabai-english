@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { OrgSubnav } from "@/components/org/org-subnav";
 import { requireOrgViewer } from "@/lib/org/require-org-viewer";
+import { FeatureMessages } from "@/components/i18n/feature-messages";
 
 type Props = {
   children: ReactNode;
@@ -17,9 +18,9 @@ export default async function OrgLayout({ children, params }: Props) {
   const { orgId } = await requireOrgViewer(params);
 
   return (
-    <div className="mx-auto max-w-6xl flex-1 px-4 py-8 sm:px-6">
+    <FeatureMessages scope="org"><div className="mx-auto max-w-6xl flex-1 px-4 py-8 sm:px-6">
       <OrgSubnav orgId={orgId} />
       {children}
-    </div>
+    </div></FeatureMessages>
   );
 }

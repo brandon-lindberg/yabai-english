@@ -5,6 +5,7 @@ import { placementRetakeStatus } from "@/lib/placement-cooldown";
 import { prisma } from "@/lib/prisma";
 import { getLocale } from "next-intl/server";
 import { requireEnglishLearningPage } from "@/lib/english-learning-page-access";
+import { FeatureMessages } from "@/components/i18n/feature-messages";
 
 export default async function PlacementLayout({
   children,
@@ -27,5 +28,5 @@ export default async function PlacementLayout({
     redirect({ href: "/dashboard", locale });
   }
 
-  return children;
+  return <FeatureMessages scope="placement">{children}</FeatureMessages>;
 }

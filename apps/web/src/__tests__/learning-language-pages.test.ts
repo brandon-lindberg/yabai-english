@@ -70,6 +70,6 @@ test("English learners retain the English placement and study pages", async () =
   prismaMock.user.findUnique.mockResolvedValue({ id: "s1", role: "STUDENT", learningLanguage: "ENGLISH", accountStatus: "ACTIVE" });
   const { default: PlacementLayout } = await import("@/app/[locale]/placement/layout");
   const { default: StudyLayout } = await import("@/app/[locale]/learn/study/layout");
-  expect(await PlacementLayout({ children: "English test" })).toBe("English test");
+  expect((await PlacementLayout({ children: "English test" })).props).toMatchObject({ scope: "placement", children: "English test" });
   expect(await StudyLayout({ children: "English cards" })).toBe("English cards");
 });

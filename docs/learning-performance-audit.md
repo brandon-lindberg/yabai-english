@@ -1,6 +1,6 @@
 # Learning performance audit — 13 November 2026
 
-Status: **initial memory/resource and flashcard batching fixes committed; server-footprint, placement-runtime/F13, dashboard/focus and English-save fixes implemented and verified locally. Shared-shell payload work, measured SQL follow-up and constrained deployment-capacity verification remain open.** See the [latest implementation results](#dashboard-recovery-and-english-saves--14-november-2026) for the current evidence and next section.
+Status: **shared-shell payloads, measured summary SQL, bounded learning admission, pool checkout and health/resource observations are implemented and verified locally. Ready for a controlled Render validation deployment after CI passes; constrained deployment capacity remains unverified.** See the [latest implementation results](#bounded-learning-work-and-render-test-readiness--15-november-2026) and [Render test steps](render-learning-capacity-test.md).
 
 The original findings and baseline measurements below describe the pre-6aj working tree. Dated follow-ups record later audits and implementation; they preserve the limitations of each experiment.
 
@@ -461,3 +461,97 @@ The red database tests reproduced duplicate concurrent XP totals and an answer r
 Validation: **69 focused UI tests**, **244 study tests**, and **28 isolated PostgreSQL study tests** pass. Counts are separate suites and overlap. TypeScript, focused ESLint, whitespace checks and a fresh isolated production build pass. At **390 px and 1280 px**, a Chromium harness renders the actual components with synthetic API replies: five saves/one dashboard refresh, one recovery read for paired resume events, successful answer advancement, recap focus, card flipping, no horizontal overflow and no page errors. These are component interaction/layout checks, not a mobile-network or production-server benchmark. The harness and screenshots are under ignored `apps/web/.impeccable/refresh-review/`; regression logs are under `.impeccable/study-runtime/refresh-*`. Temporary test schemas/connections, the preview server and task-owned browser are cleaned up.
 
 No new latency or RSS claim is made for this batch. The preceding **350 MiB** full-journey sample remains a local macOS observation, not Render-capacity certification. **Next:** finish shared-shell translation/chat payload work (F10), validate the learner-first SQL candidate across small/full histories and concurrent workloads, then complete health/pool observations and sustained Linux testing under the 512 MiB / 0.5 CPU constraint with a **<400 MiB** target. This batch needs a normal build/deploy, with no migration, content republication, dependency or environment-variable change. No production operation, staging, commit or push was performed.
+
+## Shared client payloads and chat — 15 November 2026
+
+Implemented the remaining shared-shell work in 6ai(4), addressing F10 with TDD red/green. The root client provider now receives only shared navigation, authentication, learning-path and chat messages. Feature layouts select their own namespaces through one shared server selector and client provider. Selection follows the route tree rather than a pathname guessed by a retained root layout, so client navigation brings the destination's messages. Server translations still have the full dictionary. Japanese placement selects only the three dashboard message branches its review cards need, avoiding the entire dashboard dictionary.
+
+The shared dictionary payload falls from **108,029 to 6,827 bytes in English** and **132,875 to 8,390 bytes in Japanese**, measured as uncompressed JSON. Feature pages add their own scoped messages; those shell figures are not total page sizes. The layout wiring includes learning, both placement flows, dashboards, booking, onboarding, admin, organizations and teacher invitations. English and Japanese dictionary tests verify selected namespaces, unchanged source dictionaries and inherited shared copy across scope/locale changes.
+
+Chat now loads dynamically after hydration only for a verified authenticated session outside placement and study exit assessments. Guests and assessment pages neither mount the chat panel nor request its threads. Authenticated ordinary pages retain the existing unread indicators, realtime behavior and open-chat handling; chat is deliberately not delayed until the first click. Session loss and navigation into an assessment unmount it.
+
+### Production-build browser comparison
+
+Before and after builds were exercised in fresh Chromium contexts at **390 px and 1280 px**, against a local production server and disposable PostgreSQL fixtures. The table records the 390 px run. HTML is the raw decoded HTTP response, including serialized React data, rather than the post-hydration DOM. JavaScript is the sum of decoded script resources observed after DOM readiness plus a fixed two-second settle window; it can include route-prefetch effects and is not a compressed transfer budget or a page-speed score.
+
+| Route | HTML before → after | Observed decoded script bytes before → after |
+| --- | ---: | ---: |
+| Guest English landing | 214,730 → **104,565** (51% smaller) | 732,296 → 702,705 |
+| English placement | 155,065 → **53,002** (66% smaller) | 752,318 → 723,445 |
+| Japanese placement | 149,193 → **60,661** (59% smaller) | 776,563 → 747,690 |
+| English flashcard hub | 200,637 → **100,784** (50% smaller) | 1,166,588 → 739,132 |
+
+Both viewport runs return HTTP 200 with no missing-message errors, page errors or horizontal document overflow. The after run confirms no chat chunk or thread requests on guest/placement pages, functional chat open/close on the flashcard hub, and actual client-link navigation from flashcards to English placement and back with correct translations and chat visibility. Screenshots preserve the existing layout, with the expected removal of chat from English placement. Font resource bytes are unchanged. These browser fixtures use the English interface; both interface languages are covered in message-selection/provider tests. Japanese placement is checked at its introduction, not a newly exercised full Japanese catalog/assessment journey.
+
+Validation: **3,511 tests passed across 468 files**, with 3 files skipped and 7 existing todo cases. The **166 focused tests** overlap that full suite and cover translation boundaries, chat, study, placement, access and onboarding. TypeScript, focused ESLint, whitespace checks and the production build pass. Ignored browser evidence is in `apps/web/.impeccable/shell-review/`, focused red/green and build logs in `apps/web/.impeccable/study-runtime/shell-*`, and the full-suite log in `.impeccable/ci-unit/shell.log`. The full-suite database, browser schemas/connections, task-owned server/browser processes and port 3192 are cleaned up.
+
+This batch makes no new server-RSS or mobile-device latency claim. **Next:** validate the learner-first SQL candidate against small/full histories and concurrent workloads, then complete pool/wait/health observations and sustained Linux testing under 512 MiB / 0.5 CPU with the **<400 MiB** peak target. This batch needs a normal build/deploy and no migration, content republication, dependency or environment-variable change. No staging, commit, push, deployment or production operation was performed.
+
+## Shared progress query optimization — 15 November 2026
+
+Completed the measured SQL follow-up with TDD red/green. The shared English/Japanese summary query previously evaluated the full practice-band policy in each of four aggregate filters. It now classifies each saved card once, groups by level and band, then combines at most four band groups into each level result. The existing shared policy compiler remains the only SQL classification implementation. Learner and requested-level predicates stay inside the first aggregation; no full-history rows cross into Node, and the separate deck counts still account for unseen cards. Parameter binding, transaction use, grading, XP, scheduling and retry behavior are unchanged.
+
+### Candidate selection
+
+The earlier learner-first `MATERIALIZED` candidate was tested against 13 scopes/history distributions, including empty, sparse, one-level, full Japanese, full English and mixed histories. It improved Japanese track summaries, but regressed single-level saves and English/mixed summaries; at `work_mem=1MB` some full-history cases also wrote temporary blocks. Materializing the requested catalog avoided some repeated index probes but slowed sparse histories. Neither candidate was adopted. PostgreSQL documents that materialization can prevent predicate pushdown, which is why validating restricted scopes matters here. [PostgreSQL CTE guidance](https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-CTE-MATERIALIZATION).
+
+Grouping by the existing practice band improved every tested scope's median without forcing materialization or a join order. It keeps narrow single-level reads available to the planner. No new index is justified by these results. Some Japanese full-track plans still perform 10,291 indexed state probes; this change removes redundant classification work, not every catalog lookup. Further join tuning would need a demonstrated benefit across distributions rather than a language-specific heuristic.
+
+### Final-query measurements
+
+The final application query and the committed baseline ran alternately in an isolated loopback PostgreSQL **17.5** schema on macOS. Fixtures contain the actual **10,291 Japanese / 3,258 English cards**, with seven synthetic users covering varied histories. Each scope has six timed `EXPLAIN (ANALYZE, BUFFERS)` runs at both 4 MB and 1 MB working memory. Every compared result matches after normalizing row/column order. These are warm database execution measurements, not end-to-end page/save timings or deployment SLAs.
+
+| Scope / history | Previous median, ms | New median, ms |
+| --- | ---: | ---: |
+| Japanese track, 24 saved cards | 0.075 | 0.064 |
+| Japanese track, only N5 saved | 9.265 | 9.067 |
+| Japanese track, full history | 22.880 | **15.708** |
+| English track, full history | 6.128 | **3.459** |
+| Japanese N5 only, full Japanese history | 1.805 | **1.234** |
+| English first level only, full English history | 1.261 | 1.207 |
+| English last level only, full English history | 2.351 | 1.940 |
+| Both tracks, full mixed history | 14.754 | **10.608** |
+
+At 4 MB working memory, ten alternating five-connection waves produce **50 query samples per variant/language cohort**: Japanese p95 is **25.64 → 18.01 ms**, and English p95 is **7.57 → 4.95 ms**. The English cohort includes full-track and single-level reads; the Japanese cohort includes empty through full/mixed histories. At 1 MB, p95 is **25.44 → 17.77 ms** and **7.48 → 5.00 ms** respectively. Final-query plans write no temporary blocks in either setting. Plan-node memory observations are not a whole-server memory measurement; PostgreSQL and Next were not subjected to Render's CPU/memory caps in this experiment.
+
+The red regression records four classification expressions where one is required; green records one. New actual-PostgreSQL coverage compares the SQL result with the existing JavaScript reference across both subjects, multiple decks, four learners, sparse/empty/missing levels, all practice bands, rounding boundaries, unseen cards, null/zero latency samples and weighted sums above 32-bit range. The existing suites also pass concurrent English saves, rollback, Japanese duplicate retries and single-card progress deltas.
+
+Validation: **244 study tests** and **29 isolated PostgreSQL tests** pass, along with TypeScript, focused ESLint and whitespace checks. The new database test is included by the existing CI database runner. Browser/UI behavior is unchanged; the previous batch's browser/build evidence is not a new measurement of this SQL change. Ignored evidence is under `apps/web/.impeccable/study-runtime/`: `progress-query-audit.json` (candidate comparison), `progress-query-final.json` (final application query), and `progress-red.log`, `progress-green.log`, `progress-db.log`, `progress-types.log`. Temporary schemas/connections and task-owned runners are cleaned up.
+
+**Next:** bounded pool/preparation waits, cheap health signaling and low-overhead request/resource observations, followed by sustained mixed-route Linux capacity testing under **512 MiB / 0.5 CPU**, retaining the **<400 MiB** peak target. This query improvement makes no new Next-process RSS or crash-prevention claim. No migration, index, dependency, content or environment change is needed; no staging, commit, push, deployment or production write was performed.
+
+## Bounded learning work and Render test readiness — 15 November 2026
+
+Implemented one process-shared admission gate for English/Japanese placement APIs, study overview/review/assessment APIs, and the common card-preparation helper. It allows **four active operations and eight waiters**, with a **two-second admission deadline**. Excess requests receive a safe retryable busy response before their handler starts. A queued disconnect removes the waiter. An active disconnect never releases its slot while the underlying transaction is still running, and the wrapper never retries a mutation automatically. Existing grading, learner locks, idempotency and transaction deadlines remain authoritative.
+
+The streaming path gates the actual preparation promise rather than the already-returned HTTP response. Capacity remains held until the service commits or fails. Stream cancellation removes queued work; active preparation retains its slot through completion/rollback. Ordinary overload responses use HTTP 503 with `Retry-After: 2`; an already-open NDJSON stream conveys status 503 in its error event. This distinction matters when inspecting browser request status alone.
+
+The global Prisma client now owns an explicit observable `pg.Pool`, still capped at the existing default of **10 connections**, with **3,000 ms connection/checkout timeout** and **10,000 ms idle eviction**. Prisma disposes the external pool when disconnected. Schema/search-path handling and production singleton reuse remain covered. This bounds acquisition, not active query execution; no global statement timeout is introduced. Page rendering/authentication and unrelated application work remain outside learning admission, and English queue access checks precede heavy preparation. This is a bounded-work safeguard, not a whole-service concurrency or memory ceiling.
+
+`/api/health` is a dynamic, uncached liveness endpoint that imports no authentication or database client, bypasses domain canonicalization for that exact path, and returns only `{"status":"ok"}`. `render.yaml` points the health check there. Throttled server records identify fixed operations and generated request IDs, durations/waits, RSS/heap/external memory, pool counts, admission counts/high-water marks and process-wide event-loop delay. No answers, account identifiers, SQL, credentials or URLs are logged. Logging failures cannot turn a successful save into an HTTP error. Resource logs are samples, not complete traces or latency percentiles.
+
+### Production-build local validation
+
+A fresh Node 22 production build uses the committed **256 MiB old / 2 MiB semi-space** startup limits and disposable local PostgreSQL fixtures. Five distinct learners use both subjects, actual released catalogs, sparse/full histories and all 24 placement answers. The 179-request initial journey includes ordinary pages and two intentional nonexistent-booking 404 probes; all expected operations succeed.
+
+An additional **38 rounds over about two minutes** exercise five streamed card queues, five answer saves and a session read per round. All **418 requests succeed**. This is local macOS with loopback PostgreSQL and no Render CPU/cgroup constraint:
+
+| Observation | Result |
+| --- | ---: |
+| Streamed card preparations, including final ready event | 190 requests, p95 **143 ms**, max **150 ms** |
+| Answer saves | 190 requests, p95 **41 ms**, max **46 ms** |
+| Whole-workload sampled Node RSS peak | **373 MiB** |
+| Idle resource sample | **318 MiB** RSS, zero active/queued learning work, zero pool connections |
+| Fresh overview after idle pool eviction | Successful; pool reconnects and has zero waiters |
+
+Separately, a **deliberately held 2.5-second transaction lock** on one disposable learner forces a 30-request preparation burst. Four admitted requests complete after the lock is released; **26 receive controlled busy errors**. Twelve concurrent health probes all succeed, maximum **12 ms**. Recorded high-water marks are exactly four active/eight queued. The subsequent normal five-learner rounds succeed without further busy responses. These injected errors test overload handling; they are not spontaneous failures in the normal learner workload.
+
+RSS is sampled from the Next process every 100 ms, with no sampling errors. It can miss brief peaks and excludes hosting/Yarn/container overhead. Diagnostic GC is requested only after the measured workload peak is recorded. The previous 350 MiB sample used a shorter workload, so 373 MiB is not a like-for-like before/after comparison. None of these local figures certifies Render's 512 MB limit or mobile-network latency.
+
+### Verification and deployment decision
+
+TDD red cases establish missing bounded-pool wiring, premature streamed-slot release, cancelled queued work still being admitted and diagnostics overriding a successful save. Green covers those cases, FIFO/queue deadlines, active cancellation, throttled metadata-only logs and health isolation. **20 focused tests**, **244 study tests**, and **47 isolated PostgreSQL tests** (29 study, 8 English placement, 10 Japanese placement) pass. The broader unit regression run passes **3,521 tests across 471 files**, with three files skipped and seven existing todo cases; the final cancellation/logging additions are covered by the focused run. TypeScript, focused ESLint, whitespace checks and the production build pass. Counts overlap and should not be added together.
+
+Ignored evidence is in `apps/web/.impeccable/study-runtime/capacity-*` (red/green, DB tests, build, request timings, memory and runtime records), with the full-unit log at `.impeccable/ci-unit/capacity.log`. Local servers, test runners, schemas and their connections are cleaned up.
+
+**Ready to deploy for a controlled Render capacity test once the pushed commit's CI passes.** Use [the Render test steps](render-learning-capacity-test.md): verify `/api/health` and the start command, increase from one to three to five distinct learners, and observe memory, CPU, errors and save times for 10–15 minutes plus idle/recovery. Keep the **<400 MiB** working target. The constrained-capacity gate remains open until that run succeeds. No new migration, dependency, environment variable or content publication is required. Brandon retains staging, commits, pushes and deployment; no production operation was performed.

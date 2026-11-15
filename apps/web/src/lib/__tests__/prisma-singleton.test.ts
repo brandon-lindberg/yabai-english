@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
-const { client, adapter } = vi.hoisted(() => ({
+const { client, adapter, pool } = vi.hoisted(() => ({
   client: vi.fn().mockImplementation(function () {}),
   adapter: vi.fn().mockImplementation(function () {}),
+  pool: vi.fn().mockImplementation(function () {}),
 }));
+vi.mock("pg", () => ({ Pool: pool }));
 vi.mock("@/generated/prisma/client", () => ({ PrismaClient: client }));
 vi.mock("@prisma/adapter-pg", () => ({ PrismaPg: adapter }));
 
@@ -32,7 +34,9 @@ test.each(["production", "development"])("%s module instances share one client a
   expect(second.prisma).toBe(first.prisma);
   expect(client).toHaveBeenCalledTimes(1);
   expect(adapter).toHaveBeenCalledTimes(1);
-  expect(adapter).toHaveBeenCalledWith(expect.objectContaining({ options: '-c search_path="isolated_test"' }), { schema: "isolated_test" });
+  expect(pool).toHaveBeenCalledTimes(1);
+  expect(pool).toHaveBeenCalledWith(expect.objectContaining({ options: '-c search_path="isolated_test"', max: 10, connectionTimeoutMillis: 3000, idleTimeoutMillis: 10000 }));
+  expect(adapter).toHaveBeenCalledWith(pool.mock.instances[0], { schema: "isolated_test", disposeExternalPool: true });
 });
 
 test("an explicitly supplied process client is reused without creating another pool", async () => {
@@ -42,5 +46,6 @@ test("an explicitly supplied process client is reused without creating another p
   expect((await import("../prisma")).prisma).toBe(supplied);
   expect(client).not.toHaveBeenCalled();
   expect(adapter).not.toHaveBeenCalled();
+  expect(pool).not.toHaveBeenCalled();
   expect(supplied.$disconnect).not.toHaveBeenCalled();
 });

@@ -11,7 +11,7 @@ import { JapanesePlacementFailure } from "../service";
 
 beforeEach(() => { vi.clearAllMocks(); mocks.user.mockResolvedValue({ id: "student", role: "STUDENT", learningLanguage: "JAPANESE" }); });
 test("Japanese assessment requires the Japanese student journey and completed onboarding", async () => {
-  expect(await JapaneseLayout({ children: "Japanese questions" })).toBe("Japanese questions");
+  expect((await JapaneseLayout({ children: "Japanese questions" })).props).toMatchObject({ scope: "japanesePlacement", children: "Japanese questions" });
   expect(mocks.onboard).toHaveBeenCalledWith("en", expect.objectContaining({ id: "student" }));
 });
 test.each([{ role: "STUDENT", learningLanguage: "ENGLISH" }, { role: "TEACHER", learningLanguage: "JAPANESE" }])("redirects wrong subject/role %j before serving the Japanese surface", async (user) => {

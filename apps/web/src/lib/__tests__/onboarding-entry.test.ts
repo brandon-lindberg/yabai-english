@@ -22,7 +22,7 @@ beforeEach(() => {
 
 test("teacher setup destinations are accessible before finishing onboarding", async () => {
   const layout = await DashboardLayout({ children: "profile or settings or availability" });
-  expect(layout.props.children).toContain("profile or settings or availability");
+  expect(JSON.stringify(layout)).toContain("profile or settings or availability");
   expect(mocks.teacher).not.toHaveBeenCalled();
 });
 
