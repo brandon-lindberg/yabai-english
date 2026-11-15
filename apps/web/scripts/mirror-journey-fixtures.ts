@@ -12,6 +12,7 @@ import { lockLearnerTransaction } from "../src/lib/learner-transaction-lock";
 import { ENGLISH_PLACEMENT_POLICY_V2 } from "../src/lib/placement-policy";
 import { japaneseStudyAnswer } from "../test/japanese-study-db-fixture";
 import { japanesePlacementResultFixture } from "../test/japanese-placement-result-fixture";
+import { refundableMonday } from "../test/mirror-booking-dates";
 
 // Explicit local QA only. Own every created row by a unique id and remove only
 // that recorded set. Never reseed, truncate, or reset an application database.
@@ -87,8 +88,7 @@ try {
         if (kind !== "events") {
           date.setTime(date.getTime() + 86_400_000 + (lifecycleKinds.indexOf(kind) - 1) * 7_200_000); date.setUTCMinutes(0, 0, 0);
         } else {
-          date.setUTCDate(date.getUTCDate() + ((8 - date.getUTCDay()) % 7 || 7));
-          date.setUTCHours(1, 0, 0, 0);
+          date.setTime(refundableMonday(date).getTime());
         }
         const bookingId = `${runId}-${kind}-${language.toLowerCase()}-booking`;
         await tx.booking.create({ data: { id: bookingId, studentId: learner.id, teacherId: language === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId,

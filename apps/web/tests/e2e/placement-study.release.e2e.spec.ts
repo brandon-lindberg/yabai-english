@@ -11,6 +11,7 @@ import { chooseEnglishAnswer, chooseJapaneseAnswer } from "./helpers/placement-a
 import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
 import { captureRelease } from "./helpers/release-verification";
 import { stripHtmlTags } from "../../src/lib/placement-question-display";
+import { captureStudyQueue } from "./helpers/study-queue";
 
 const englishBank = loadPlacementBankSync();
 const initialCorrect = [true, false, false, true, true, true, true];
@@ -354,11 +355,10 @@ test("study progress persists independently through deliberate subject and inter
   await page.setViewportSize({ width: 390, height: 950 });
   await chooseInterfaceLocale(page, en.common, "ja");
   await setHeaderTheme(page, ja.common, "dark");
-  const japaneseQueue = page.waitForResponse(response => response.url().endsWith("/api/japanese-study/queue") && response.request().method() === "POST");
+  const japaneseQueue = await captureStudyQueue(page, "/api/japanese-study/queue", "POST");
   await page.goto("/learn/study/N5/practice?kind=kanji");
   await expect(page.locator("[data-study-beta]")).toHaveText(ja.japaneseStudy.beta);
-  const queued = await japaneseQueue; expect(queued.status()).toBe(200);
-  const issued = await queued.json() as JapaneseStudyQueue;
+  const issued = await japaneseQueue() as JapaneseStudyQueue;
   const question = issued.cards[0].question;
   expect(question.task).toMatch(/^kanji_/);
   expect(JSON.stringify(issued)).not.toMatch(/correctChoiceId|answerJson|feedback|acceptedPairs/);
@@ -367,8 +367,9 @@ test("study progress persists independently through deliberate subject and inter
   const japaneseSaved = page.waitForResponse(response => response.url().endsWith("/api/japanese-study/reviews") && response.request().method() === "POST");
   await page.getByRole("button", { name: question.choices.find(choice => choice.id === answer.choiceId)!.text, exact: true }).press("Enter");
   const review = await japaneseSaved; expect(review.status()).toBe(200);
+  expect(review.request().postDataJSON().promptId).toBe(question.id);
   const result = await review.json();
-  expect(result).toMatchObject({ correct: true, correctCount: 1, wrongCount: 0, feedback: { onyomi: expect.any(Array), kunyomi: expect.any(Array) } });
+  expect(result).toMatchObject({ promptId: question.id, correct: true, correctCount: 1, wrongCount: 0, feedback: { onyomi: expect.any(Array), kunyomi: expect.any(Array) } });
   await expect(page.getByRole("button", { name: ja.study.nextCard, exact: true })).toBeVisible();
   await captureRelease(page, "JAPANESE-study-feedback");
   const after = fixtureCommand("release-learning-state");

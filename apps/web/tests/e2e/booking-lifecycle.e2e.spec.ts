@@ -38,6 +38,9 @@ for (const scenario of releaseCases()) test(`${scenario.language}: private lesso
     const teacher = await teacherContext.newPage();
     await signInMirrorUser(teacher, fixture.users[scenario.teacher].email, scenario.language);
     await expect(teacher).toHaveURL(/\/en\/dashboard$/);
+    const preview = await page.request.get(`/api/bookings/${bookingId}/cancel`);
+    expect(preview.status()).toBe(200);
+    expect(await preview.json()).toMatchObject({ studentPrivate: true, policy: { refundEligible: true, rescheduleOffered: false } });
     const initialOptions = (await (await page.request.get(`/api/bookings/${bookingId}/reschedule`)).json()).slots;
     expect(initialOptions.length).toBeGreaterThan(0);
     fixtureCommand("release-notification-availability", { learnerId: learner.id, active: false });
