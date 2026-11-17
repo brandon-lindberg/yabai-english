@@ -42,25 +42,30 @@ export function JapaneseStudyFeedbackDetails({ feedback, layout = "practice" }: 
   const practice = layout === "practice";
   const term = practice ? "text-muted" : "sr-only";
   const detail = practice ? "mt-1 text-foreground" : "text-foreground";
+  const reading = feedback.reading ? <div>
+    <dt className={term}>{t("reading")}</dt>
+    <dd lang="ja" className={`${detail} ${practice ? "font-medium" : "font-semibold"}`}>{feedback.reading}</dd>
+  </div> : null;
+  const meanings = <div>
+    <dt className={term}>{t("meanings")}</dt>
+    <dd lang="en" className={practice ? `${detail} leading-relaxed` : detail}>{feedback.meanings.join(practice ? "; " : ", ")}</dd>
+  </div>;
+  const categories = (["onyomi", "kunyomi", "nanori"] as const).map(category => {
+    const readings = feedback[category];
+    return readings?.length ? <div key={category} className={layout === "recap" ? "text-xs" : undefined}>
+      <dt className={layout === "preview" ? "text-xs text-muted" : "text-muted"}>{t(category)}</dt>
+      <dd lang="ja" className={practice ? `${detail} break-words leading-relaxed` : detail}>{readings.join(" · ")}</dd>
+    </div> : null;
+  });
+  if (practice) return <div className="grid grid-cols-2 items-start gap-6 text-sm [overflow-wrap:anywhere]">
+    <dl className="min-w-0 space-y-3">{reading}{categories}</dl>
+    <dl className="min-w-0 text-right">{meanings}</dl>
+  </div>;
   return (
     <dl className={layout === "recap"
       ? "max-h-full w-full space-y-2 overflow-y-auto px-1 text-center text-sm leading-snug [overflow-wrap:anywhere]"
-      : practice ? "space-y-3 text-sm" : "space-y-3 text-left text-base leading-snug [overflow-wrap:anywhere]"}>
-      {feedback.reading ? <div>
-        <dt className={term}>{t("reading")}</dt>
-        <dd lang="ja" className={`${detail} ${practice ? "font-medium" : "font-semibold"}`}>{feedback.reading}</dd>
-      </div> : null}
-      <div>
-        <dt className={term}>{t("meanings")}</dt>
-        <dd lang="en" className={practice ? `${detail} leading-relaxed` : detail}>{feedback.meanings.join(practice ? "; " : ", ")}</dd>
-      </div>
-      {(["onyomi", "kunyomi", "nanori"] as const).map(category => {
-        const readings = feedback[category];
-        return readings?.length ? <div key={category} className={layout === "recap" ? "text-xs" : undefined}>
-          <dt className={layout === "preview" ? "text-xs text-muted" : "text-muted"}>{t(category)}</dt>
-          <dd lang="ja" className={practice ? `${detail} break-words leading-relaxed` : detail}>{readings.join(" · ")}</dd>
-        </div> : null;
-      })}
+      : "space-y-3 text-left text-base leading-snug [overflow-wrap:anywhere]"}>
+      {reading}{meanings}{categories}
     </dl>
   );
 }

@@ -71,10 +71,12 @@ export function JapaneseStudySession(props: JapaneseStudySessionProps & { quickR
       </div>
     </InlineAlert> : null}
     {feedback && state.result ? <div role="status" className="space-y-4 border-t border-border pt-5">
-      <FeedbackHeading ref={feedbackHeading} tabIndex={-1} className="focus-visible:outline-none! text-base font-semibold text-foreground"><Status tone={state.result.correct ? "settled" : "error"}>{t(state.result.correct ? "feedbackCorrect" : "feedbackWrong")}</Status></FeedbackHeading>
+      <div className="flex items-center justify-between gap-4">
+        <FeedbackHeading ref={feedbackHeading} tabIndex={-1} className="min-w-0 focus-visible:outline-none! text-base font-semibold text-foreground"><Status tone={state.result.correct ? "settled" : "error"}>{t(state.result.correct ? "feedbackCorrect" : "feedbackWrong")}</Status></FeedbackHeading>
+        <Button onClick={state.next} className="shrink-0">{lastDailyCard ? jp("showDailyDeck") : t("nextCard")}</Button>
+      </div>
       <JapaneseStudyFeedbackDetails feedback={feedback} />
       {feedback.onyomi || feedback.kunyomi ? <p className="text-xs leading-relaxed text-muted">{jp("notation")}</p> : null}
-      <Button onClick={state.next}>{lastDailyCard ? jp("showDailyDeck") : t("nextCard")}</Button>
     </div> : null}
   </div>;
 }

@@ -12,6 +12,7 @@ import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferen
 import { captureRelease } from "./helpers/release-verification";
 import { stripHtmlTags } from "../../src/lib/placement-question-display";
 import { captureStudyQueue } from "./helpers/study-queue";
+import { expectCompactStudyFeedback } from "./helpers/study-feedback";
 
 const englishBank = loadPlacementBankSync();
 const initialCorrect = [true, false, false, true, true, true, true];
@@ -371,6 +372,13 @@ test("study progress persists independently through deliberate subject and inter
   const result = await review.json();
   expect(result).toMatchObject({ promptId: question.id, correct: true, correctCount: 1, wrongCount: 0, feedback: { onyomi: expect.any(Array), kunyomi: expect.any(Array) } });
   await expect(page.getByRole("button", { name: ja.study.nextCard, exact: true })).toBeVisible();
+  const readingCategory = (["onyomi", "kunyomi", "nanori"] as const).find(category => result.feedback[category]?.length)!;
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 950 });
+    await expectCompactStudyFeedback(page, { result: ja.study.feedbackCorrect, next: ja.study.nextCard,
+      reading: ja.japaneseStudy[readingCategory], meanings: ja.japaneseStudy.meanings });
+  }
+  await page.setViewportSize({ width: 390, height: 950 });
   await captureRelease(page, "JAPANESE-study-feedback");
   const after = fixtureCommand("release-learning-state");
   expect(after.states).toHaveLength(2);
