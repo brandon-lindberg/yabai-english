@@ -1,13 +1,15 @@
 // Offline interaction model. The catalogue contains only visible achievement definitions.
 const $ = (selector) => document.querySelector(selector);
 const assetRoot = "../../assets/achievements/first-edition/";
-const getCard = (id) => catalogue.find((card) => card.id === id);
+const cardsById = new Map(catalogue.map((card) => [card.id, card]));
+const getCard = (id) => cardsById.get(id);
+const pageSize = 8;
 let locale =
   new URLSearchParams(location.search).get("lang") === "ja" ? "ja" : "en";
 let subject = "ja",
   screen = "gallery",
   tab = "earned",
-  limit = 8,
+  pageIndex = 0,
   filter = "all";
 const translate = (en, ja) => (locale === "ja" ? ja : en);
 const local = (pair) => pair[locale === "ja" ? 1 : 0];
@@ -43,8 +45,10 @@ const group = (id) =>
     : /^loyalty-/.test(id)
       ? "loyalty"
       : "study";
-const image = (id, size, locked = false) =>
-  '<img alt="" class="art ' +
+const image = (id, size, locked = false, lazy = false) =>
+  '<img alt="" ' +
+  (lazy ? 'loading="lazy" decoding="async" ' : "") +
+  'class="art ' +
   (locked ? "locked" : "") +
   '" width="' +
   size +
@@ -88,12 +92,42 @@ function tile(card) {
     '<button class="tile" data-detail="' +
     card.id +
     '">' +
-    image(card.id, 128, !earned) +
+    image(card.id, 128, !earned, true) +
     "<b>" +
     safe(title(card)) +
     "</b><small>" +
     (earned ? translate("Earned", "獲得済み") : translate("Locked", "未獲得")) +
     "</small></button>"
+  );
+}
+function galleryPage(items, renderTile, skip = 0) {
+  const start = skip + pageIndex * pageSize;
+  const end = start + pageSize;
+  const tiles = items.slice(start, end).map(renderTile).join("");
+  const grid = '<div class="grid">' + tiles + "</div>";
+  if (items.length - skip <= pageSize) return grid;
+  const pages = Math.ceil((items.length - skip) / pageSize);
+  const previous =
+    pageIndex > 0
+      ? button("previous-page", translate("Previous page", "前のページ"))
+      : "";
+  const next =
+    end < items.length
+      ? button("next-page", translate("Next page", "次のページ"))
+      : "";
+  const label = translate(
+    `Page ${pageIndex + 1} of ${pages}`,
+    `${pages}ページ中${pageIndex + 1}ページ`,
+  );
+  return (
+    grid +
+    '<div class="actions">' +
+    previous +
+    "<small>" +
+    label +
+    "</small>" +
+    next +
+    "</div>"
   );
 }
 function gallery() {
@@ -128,14 +162,12 @@ function gallery() {
       "</p>" +
       detailButton(newest, translate("View artwork", "作品を見る")) +
       "</div></section>";
-    const more = current().earned.slice(1);
-    if (more.length)
+    if (current().earned.length > 1)
       content +=
         "<h2>" +
         translate("In your collection", "コレクション") +
-        '</h2><div class="grid">' +
-        more.map((id) => tile(getCard(id))).join("") +
-        "</div>";
+        "</h2>" +
+        galleryPage(current().earned, (id) => tile(getCard(id)), 1);
   } else if (!isAll) {
     content =
       '<section id="empty" class="space"><h2>' +
@@ -175,14 +207,8 @@ function gallery() {
       translate("Category", "カテゴリー") +
       ' <select id="filter">' +
       opts +
-      '</select></label></div><div class="grid">' +
-      cards.slice(0, limit).map(tile).join("") +
-      "</div>";
-    if (cards.length > limit)
-      content +=
-        '<button class="pill space" id="more">' +
-        translate("Show more", "もっと見る") +
-        "</button>";
+      "</select></label></div>" +
+      galleryPage(cards, tile);
     if (filter === "all")
       content +=
         '<div class="strip rule space"><span class="mystery" aria-hidden="true">?</span><b>' +
@@ -417,9 +443,13 @@ document.addEventListener("click", (event) => {
     return;
   }
   if (b.id === "close") return;
-  if (b.id === "more") {
-    limit += 8;
+  if (
+    b.dataset.action === "next-page" ||
+    b.dataset.action === "previous-page"
+  ) {
+    pageIndex += b.dataset.action === "next-page" ? 1 : -1;
     render();
+    $(".grid button")?.focus();
     return;
   }
   if (b.id === "reset") {
@@ -443,11 +473,12 @@ document.addEventListener("click", (event) => {
     screen = "practice";
   else if (["all", "earned"].includes(b.dataset.action)) {
     tab = b.dataset.action;
-    limit = 8;
+    pageIndex = 0;
     filter = "all";
   } else if (["gallery", "dashboard"].includes(b.dataset.action)) {
     screen = b.dataset.action;
     tab = "earned";
+    pageIndex = 0;
   } else return;
   render();
 });
@@ -458,13 +489,14 @@ $("#lang").onchange = (e) => {
 };
 $("#subject").onchange = (e) => {
   subject = e.target.value;
+  pageIndex = 0;
   dismiss();
   render();
 };
 document.addEventListener("change", (e) => {
   if (e.target.id === "filter") {
     filter = e.target.value;
-    limit = 8;
+    pageIndex = 0;
     render();
     $("#filter").focus();
   }

@@ -14,3 +14,5 @@ The dashboard reserves its first sections for lessons and practice. Recent badge
 The preview simulates a successful answer locally. Production work includes storing the award exactly once, extending the authenticated event path for lesson and cross-device unlocks, and measuring the additional cost on answer saves. Defer gallery data and artwork until the corresponding view opens. [Learner acceptance criteria](../../learning-achievements-plan.md) · [Teaching plan](../../teacher-achievements-plan.md)
 
 [Desktop gallery](gallery-1280.png) · [Japanese mobile gallery](gallery-390.png) · [Dashboard](dashboard.png) · [Mobile unlock popup](popup-mobile.png)
+
+The gallery displays eight tiles per page plus the featured earned piece. From the repository root, run `node docs/design/achievements/check-gallery.cjs` with the web app's dependencies and local Chrome installed to check mobile and desktop request counts, navigation and popup behavior. [Performance audit](../../achievement-performance-audit.md)

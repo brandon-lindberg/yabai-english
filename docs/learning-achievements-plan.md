@@ -216,6 +216,8 @@ Hidden achievements need **server-filtered presentation data**, not just CSS con
 
 ## Technical approach and evidence required
 
+The [performance audit](achievement-performance-audit.md) records measured gallery costs, integration risks in the existing save and notification paths, and the release checks for the production award engine.
+
 Reuse the existing shared review persistence and language-specific progression; introduce one achievement evaluator with versioned definitions and subject-keyed summaries. Do not duplicate English/Japanese engines or alter their mastery/access rules for a badge.
 
 - Record accepted learning facts with stable retry/deduplication identity. The English graded-review path needs explicit replay protection for achievement effects; do not assume the Japanese prompt receipt exists for both languages.

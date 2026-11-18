@@ -1,40 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, M_PLUS_1, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import { THEME_INIT_SCRIPT } from "@/lib/theme-init-script";
 import { SwRegister } from "@/components/sw-register";
+import "@fontsource-variable/archivo";
+import "@fontsource-variable/m-plus-1";
+import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import { APP_NAME } from "@/lib/brand";
 import { getLocale } from "next-intl/server";
-
-/** Latin + display voice. Variable, so every weight step is one file. */
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-/**
- * Japanese. Chosen over Zen Kaku Gothic New because at weight 900 it holds the
- * same stroke density as Archivo 900 — Zen Kaku renders visibly lighter beside
- * it, which would undercut every display line in a mixed ja/en heading.
- * Not preloaded: the JP glyph set ships as many unicode-range slices and
- * preloading them all would cost more than it saves.
- */
-const mplus1 = M_PLUS_1({
-  variable: "--font-mplus1",
-  weight: ["400", "500", "700", "900"],
-  subsets: ["latin"],
-  display: "swap",
-  preload: false,
-});
-
-/** Tabular figures for schedule and invoice data only, never as decoration. */
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -81,7 +54,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${archivo.variable} ${mplus1.variable} ${jetbrainsMono.variable} antialiased`}
+      className="antialiased"
       suppressHydrationWarning
     >
       <body className="flex min-h-dvh flex-col overflow-x-clip bg-transparent text-foreground">
