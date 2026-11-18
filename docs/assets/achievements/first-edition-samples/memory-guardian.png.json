@@ -1,0 +1,37 @@
+{
+  "achievementId": "mastery-0100",
+  "title": "Memory Guardian",
+  "slug": "memory-guardian",
+  "theme": "Dark fantasy",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "createdOn": "2026-11-18",
+  "approved": true,
+  "status": "completed",
+  "request": {
+    "description": "Original collectible achievement artwork for a language-learning app. One complete square scene, native 128x128 pixel art. Crisp deliberate pixel clusters, restrained 32-color palette, no antialiasing, no blur. Strong focal shape legible as a 64x64 thumbnail. Fill the square with the environment; keep the focal subject inside an 8-pixel safe margin. No frame, no lettering, numbers, logos or watermarks. Gentle dark-fantasy scene: a tiny brave armored guardian with a rounded helmet and glowing warm eyes stands in front of a weathered ruined stone arch. The guardian proudly carries an oversized closed book as a shield: obvious thick cream page edges, dark-red book cover and brass corners, no writing. Guardian and book dominate the lower middle; the arch frames them. Small glowing embers and amber light behind the guardian contrast strongly with slate blue stone and deep violet shadows. Make the guardian endearing and determined rather than frightening. Strong rim-lit silhouette, readable book-shaped shield, uncluttered background. No recognizable existing game character.",
+    "width": 128,
+    "height": 128,
+    "no_background": false,
+    "max_colors": 32
+  },
+  "jobId": "ad638bd6-fe0d-4db6-8d02-225384ba3132",
+  "sourceImageId": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+  "originalFile": "memory-guardian.png",
+  "thumbnailFile": "memory-guardian-64.png",
+  "chargedGenerations": 6,
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/ad638bd6-fe0d-4db6-8d02-225384ba3132/download",
+  "dimensions": [
+    128,
+    128
+  ],
+  "colors": 32,
+  "opaque": true,
+  "nativeBytes": 16017,
+  "thumbnailBytes": 7956,
+  "nativeSha256": "bd34b80d3ed2f24846f0cb17a8a444f34599042d99d778242c670aac59e38a90",
+  "pixelSha256": "499048527936e00172d4b4d6d2b59ef700c84fe7c2f49de8dfa43c35efd8bb9b",
+  "exportResampling": "nearest-neighbor; originals retain their native pixels",
+  "approvalNote": "Owner approved this sample on 18 November 2026.",
+  "approvedOn": "2026-11-18"
+}

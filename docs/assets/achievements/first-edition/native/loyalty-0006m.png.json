@@ -1,0 +1,38 @@
+{
+  "number": 34,
+  "id": "loyalty-0006m",
+  "titleEn": "Long Story Short",
+  "titleJa": "気づけば半年",
+  "visibility": "visible",
+  "artBrief": "**Romantic anime landscape.** A little riverside bench, a closed notebook, and glowing lantern reflections under a violet evening sky. Original quiet storytelling scene.",
+  "originalFile": "native/loyalty-0006m.png",
+  "thumbnailFile": "thumbs/loyalty-0006m.png",
+  "enlargedFile": "enlarged/loyalty-0006m.png",
+  "ownerApproved": true,
+  "status": "completed",
+  "origin": "approved sample batch",
+  "jobId": "d27c2e28-bfce-4a02-a4dc-9b4647a3e93d",
+  "sourceImageId": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+  "request": {
+    "description": "Original collectible achievement artwork for a language-learning app. One complete square scene, native 128x128 pixel art. Crisp deliberate pixel clusters, restrained 32-color palette, no antialiasing, no blur. Strong focal shape legible as a 64x64 thumbnail. Fill the square with the environment; keep the focal subject inside an 8-pixel safe margin. No frame, no lettering, numbers, logos or watermarks. Quiet romantic anime-inspired riverside landscape at violet dusk. A charming empty wooden bench with a clearly visible closed coral-colored notebook on its seat is the large focal subject in the foreground. A softly glowing amber lantern beside the bench casts warm light; its reflection and a few distant lantern reflections shimmer as deliberate pixel clusters across the indigo river. Lavender evening sky and a simple distant riverbank silhouette. The bench and notebook should read clearly even when small, with intimate storytelling and spacious calm; a warm place waiting for its reader. Painterly pixel clusters but firm pixel edges, luminous violet, rose, amber and indigo, no people, no text.",
+    "width": 128,
+    "height": 128,
+    "no_background": false,
+    "max_colors": 32
+  },
+  "sourceSampleFile": "../first-edition-samples/long-story-short.png",
+  "chargedGenerations": 6,
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "nativeBytes": 13964,
+  "thumbnailBytes": 6947,
+  "nativeSha256": "dedb5371616529cfcbceb056d40ed6b5a809e84bd50a0d3552f053d32b70ed54",
+  "pixelSha256": "213b0e3a43730314fa5f28f8c71fab2cf317e33cac3acb29768e740933aa0f08",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/d27c2e28-bfce-4a02-a4dc-9b4647a3e93d/download"
+}

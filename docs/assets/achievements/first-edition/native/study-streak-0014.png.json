@@ -1,0 +1,48 @@
+{
+  "number": 18,
+  "id": "study-streak-0014",
+  "titleEn": "Routine Familiar",
+  "titleJa": "習慣の使い魔",
+  "visibility": "visible",
+  "artBrief": "**Cozy storybook.** A round magical cat curls around a book beside a steaming cup; a little flame floats above its tail. Calm amber window light.",
+  "originalFile": "native/study-streak-0014.png",
+  "thumbnailFile": "thumbs/study-streak-0014.png",
+  "enlargedFile": "enlarged/study-streak-0014.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cozy storybook. A round magical cat curls around a book beside a steaming cup; a little flame floats above its tail. Calm amber window light. Keep this explicitly a magical CAT companion, not the app mascot. Round sleeping cat, curled tail, open book and one cup; warm amber window, muted plum and cream palette.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 5,
+  "jobId": "28845565-351a-4dbb-a149-eac2379f5728",
+  "sourceImageId": "1c893e79-a461-5660-85aa-dd6ee37e6d33",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 11452,
+  "thumbnailBytes": 5655,
+  "nativeSha256": "9b2e3b755b0ccec689b9c1f1a6e2bf9dd89d796f441b6a4c9a8fff24f1542c79",
+  "pixelSha256": "bd35d9c3bc1733558c0991bfbcf3fe9807e188bc3a8b72a5ca69ee261b6b234d",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/28845565-351a-4dbb-a149-eac2379f5728/download"
+}

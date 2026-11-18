@@ -1,0 +1,48 @@
+{
+  "number": 3,
+  "id": "cards-0100",
+  "titleEn": "Century Club",
+  "titleJa": "100枚クラブ",
+  "visibility": "visible",
+  "artBrief": "**Retro space arcade.** A small starship enters a luminous circular gate; a fan of collectible card shapes forms the trail. No numerals or lettering in the image.",
+  "originalFile": "native/cards-0100.png",
+  "thumbnailFile": "thumbs/cards-0100.png",
+  "enlargedFile": "enlarged/cards-0100.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Retro space arcade. A small starship enters a luminous circular gate; a fan of collectible card shapes forms the trail. No numerals or lettering in the image. Deep indigo space, luminous turquoise ring and a coral-and-cream ship. Keep the ship and gate larger than background stars; card trail is a few bold ivory rectangles.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 2,
+  "jobId": "d4371c7d-3715-4790-b038-29fbb5bb1703",
+  "sourceImageId": "0d8ade4b-33f6-5306-aec6-b9743288b6e3",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 12432,
+  "thumbnailBytes": 6395,
+  "nativeSha256": "4103aa0e792519adb43608905f4890fc07232def53018dd86f50e2385ef01508",
+  "pixelSha256": "18affe80b6963f04c343236bd66dfd2c2b2b14a920da1f96972b0f7943fff703",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/d4371c7d-3715-4790-b038-29fbb5bb1703/download"
+}

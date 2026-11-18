@@ -1,0 +1,48 @@
+{
+  "number": 4,
+  "id": "cards-0250",
+  "titleEn": "Deck Detective",
+  "titleJa": "カード探偵",
+  "visibility": "visible",
+  "artBrief": "**Chibi detective / rainy city.** A little detective examines a glowing card through a magnifying glass beside a rain-streaked cafe window. A playful noir palette.",
+  "originalFile": "native/cards-0250.png",
+  "thumbnailFile": "thumbs/cards-0250.png",
+  "enlargedFile": "enlarged/cards-0250.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Chibi detective / rainy city. A little detective examines a glowing card through a magnifying glass beside a rain-streaked cafe window. A playful noir palette. The detective is a white fox wearing a small brown detective hat and coat. A large lens magnifies the corner of the glowing card. Rainy teal window against warm amber interior.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 1,
+  "jobId": "57241e6b-c1e2-4ae6-9ecd-ae355b62c0f5",
+  "sourceImageId": "d925cb33-cfa9-5893-84ba-ba5e70bda9aa",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 11850,
+  "thumbnailBytes": 5947,
+  "nativeSha256": "37b9896fd350ee7ae5f1387e4251bd0e7d8be450c975bf3aae7fbdb5bf27dc16",
+  "pixelSha256": "faed6b4c9e5d0eaa6e8a226517adaf651cebe642bcfcc46e5279180231421273",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/57241e6b-c1e2-4ae6-9ecd-ae355b62c0f5/download"
+}

@@ -1,0 +1,34 @@
+{
+  "number": 28,
+  "id": "lesson-weeks-0012",
+  "titleEn": "Season Regular",
+  "titleJa": "ワンシーズンのおなじみさん",
+  "visibility": "visible",
+  "artBrief": "**Autumn Japan.** A welcoming study room framed by a glowing maple branch, with a lantern and an open book. Seasonal atmosphere is decorative, not a calendar restriction.",
+  "originalFile": "native/lesson-weeks-0012.png",
+  "thumbnailFile": "thumbs/lesson-weeks-0012.png",
+  "enlargedFile": "enlarged/lesson-weeks-0012.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Autumn Japan. A welcoming study room framed by a glowing maple branch, with a lantern and an open book. Seasonal atmosphere is decorative, not a calendar restriction. Warm Japanese study room through a large wooden window framed by one red-orange maple branch. One prominent open book and glowing paper lantern, amber and deep indigo, restful fall atmosphere.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 3,
+  "jobId": "8b95e362-730d-453b-8dd9-1febacdbb8c1",
+  "sourceImageId": "5d4ee73f-f9e6-5943-8dca-8d77491317d6"
+}

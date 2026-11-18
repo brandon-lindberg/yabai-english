@@ -5,6 +5,29 @@ import { japaneseStudyQuestionSchema } from "@/lib/study/japanese-public";
 
 
 describe("member-bound Japanese study prompts", () => {
+  it.each([
+    ["word-0", "vocabulary_reading"],
+    ["word-0", "vocabulary_meaning"],
+    ["kanji", "kanji_on"],
+    ["character-食", "kanji_kun"],
+  ] as const)("varies the correct position across issued %s / %s questions", (unitId, task) => {
+    const bank = fixture().build();
+    const counts = [0, 0, 0, 0];
+    const samples = 256;
+    for (let i = 0; i < samples; i++) {
+      const prompt = bank.create(unitId, { task, seed: `issued-${i}` });
+      expect(prompt.question.choices).toHaveLength(counts.length);
+      const index = prompt.question.choices.findIndex(choice => choice.id === prompt.correctChoiceId);
+      expect(index).toBeGreaterThanOrEqual(0);
+      counts[index]++;
+    }
+    // Fixed seeds keep this test repeatable. A broken shuffle can still visit every slot occasionally.
+    for (const count of counts) {
+      expect(count, JSON.stringify(counts)).toBeGreaterThan(samples / 8);
+      expect(count, JSON.stringify(counts)).toBeLessThan(samples * 3 / 8);
+    }
+  });
+
   it("projects bilingual, deterministic MCQs without keys or internal content", () => {
     const bank = fixture().build();
     const prompt = bank.create("word-0", { task: "vocabulary_reading", seed: "session-1" });

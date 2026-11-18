@@ -1,0 +1,34 @@
+{
+  "number": 31,
+  "id": "study-days-0100",
+  "titleEn": "Frequent Flyer",
+  "titleJa": "学びの常連",
+  "visibility": "visible",
+  "artBrief": "**Science-fiction travel.** A compact starship with a book-shaped sail passes colorful planets. Travel patches are abstract shapes, not flags or passport text.",
+  "originalFile": "native/study-days-0100.png",
+  "thumbnailFile": "thumbs/study-days-0100.png",
+  "enlargedFile": "enlarged/study-days-0100.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Science-fiction travel. A compact starship with a book-shaped sail passes colorful planets. Travel patches are abstract shapes, not flags or passport text. A compact little starship with one large open-book-shaped ivory sail passing two bold colorful planets. Deep space blues with coral and gold, dynamic but simple silhouette.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 2,
+  "jobId": "24299bf6-2260-49a4-8ef4-0f8d6805f7ba",
+  "sourceImageId": "7de17b91-5916-5d69-b806-1f572c6401e9"
+}

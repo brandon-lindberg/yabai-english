@@ -1,0 +1,34 @@
+{
+  "number": 12,
+  "id": "rank-0005",
+  "titleEn": "Side Quest Enthusiast",
+  "titleJa": "サブクエスト好き",
+  "visibility": "visible",
+  "artBrief": "**Retro adventure.** A cheerful traveler at a signpost with a map and several enticing miniature paths. Signposts carry shapes, never readable words.",
+  "originalFile": "native/rank-0005.png",
+  "thumbnailFile": "thumbs/rank-0005.png",
+  "enlargedFile": "enlarged/rank-0005.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Retro adventure. A cheerful traveler at a signpost with a map and several enticing miniature paths. Signposts carry shapes, never readable words. Use the white fox traveler with pointed ears, fluffy tail and satchel. Large parchment map, one forked wooden signpost; meadow palette and warm afternoon sunlight.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 1,
+  "jobId": "06ae71a6-61bd-4b9d-96c6-e2d528250219",
+  "sourceImageId": "de01576d-ff13-5fbb-a408-e28c9e339e92"
+}

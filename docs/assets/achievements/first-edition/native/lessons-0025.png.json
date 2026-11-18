@@ -1,0 +1,48 @@
+{
+  "number": 23,
+  "id": "lessons-0025",
+  "titleEn": "Dialogue Adventurer",
+  "titleJa": "対話の冒険者",
+  "visibility": "visible",
+  "artBrief": "**Samurai travel / spring Japan.** A traveler steps through a courtyard gate with a notebook as cherry petals drift past. A luminous open doorway is the focal shape.",
+  "originalFile": "native/lessons-0025.png",
+  "thumbnailFile": "thumbs/lessons-0025.png",
+  "enlargedFile": "enlarged/lessons-0025.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Samurai travel / spring Japan. A traveler steps through a courtyard gate with a notebook as cherry petals drift past. A luminous open doorway is the focal shape. Spring courtyard dominated by one luminous open gate and pink cherry branches. Small peaceful traveler with notebook, simple stepping stones; ivory, blush and jade palette.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 3,
+  "jobId": "87aab010-cc28-47b3-b6d9-c897793206bb",
+  "sourceImageId": "f8e88ed2-6962-5b33-98e0-0af5944574a6",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 16619,
+  "thumbnailBytes": 7583,
+  "nativeSha256": "230fe23258d6210a799da88b8c9dfced27a6ec077fb142d8e2598f7f8ba280a7",
+  "pixelSha256": "0e870a779340c1168263c4823084411a98d2f4663e4e539f96e54b734875d1a4",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/87aab010-cc28-47b3-b6d9-c897793206bb/download"
+}

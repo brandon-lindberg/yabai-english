@@ -1,0 +1,48 @@
+{
+  "number": 16,
+  "id": "study-streak-0003",
+  "titleEn": "Small Flame",
+  "titleJa": "小さな炎",
+  "visibility": "visible",
+  "artBrief": "**Chibi fantasy.** A friendly little flame curls around a candle shaped like a closed book. Cheerful eyes and generous negative space.",
+  "originalFile": "native/study-streak-0003.png",
+  "thumbnailFile": "thumbs/study-streak-0003.png",
+  "enlargedFile": "enlarged/study-streak-0003.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Chibi fantasy. A friendly little flame curls around a candle shaped like a closed book. Cheerful eyes and generous negative space. Large friendly orange flame with simple eyes curling around a clearly book-shaped candle, chunky cream page edges and a short wick. Simple dark-violet background, warm whimsical magic.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 5,
+  "jobId": "595935b0-2981-41fb-a42d-4daa459cba99",
+  "sourceImageId": "d6aaf527-d1ec-50d4-aaa3-1fa1acb4245d",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 13715,
+  "thumbnailBytes": 6237,
+  "nativeSha256": "8c55dcc0d3ab3e88c30002ea5fe4bfed2bd7dc1ee8458f99404e4b1d97c0596c",
+  "pixelSha256": "dbcbf1f036c880e568f150fd92e4dee9de5bd78601e0915ae34431c87d702c6a",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/595935b0-2981-41fb-a42d-4daa459cba99/download"
+}

@@ -1,0 +1,53 @@
+{
+  "number": 17,
+  "id": "study-streak-0007",
+  "titleEn": "Seven-Day Spell",
+  "titleJa": "7日間の魔法",
+  "visibility": "visible",
+  "artBrief": "**Romantic anime magic.** A small witch and an open spellbook under a crescent moon, with a ring of seven clear stars. Soft violet and warm gold.",
+  "originalFile": "native/study-streak-0007.png",
+  "thumbnailFile": "thumbs/study-streak-0007.png",
+  "enlargedFile": "enlarged/study-streak-0007.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "source_image_id": "7a6b6960-c914-5442-aaa3-cdf7bb982985",
+    "method": "text",
+    "use_color_palette_correction": true,
+    "description": "Make one tiny correction only: there are eight large golden five-pointed stars around the crescent moon. Remove the lowest star on the right, centered approximately at pixel x=87,y=61 of this native 128x128 image, directly above the book's right page and to the right of the witch's face. Replace only that star with the surrounding plain violet sky. Exactly seven large golden five-pointed stars must remain: one at the top and three along each upper side of the crescent. Preserve the other seven stars exactly, the moon, witch, hat, face, hands, book, island, clouds, buildings, palette, pixel grid and all other details. Do not add new stars or move existing elements. Keep the native size and opaque scene."
+  },
+  "batch": 5,
+  "jobId": "986771ef-2605-4cdc-8d63-f5eaf1400d34",
+  "sourceImageId": "703a5a9a-4ef4-5897-bb7c-09d313dddb37",
+  "revisions": [
+    {
+      "jobId": "a1951e0c-f7fd-483e-b57a-04a8e28c96ce",
+      "sourceImageId": "7a6b6960-c914-5442-aaa3-cdf7bb982985",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Romantic anime magic. A small witch and an open spellbook under a crescent moon, with a ring of seven clear stars. Soft violet and warm gold. A small original witch, large open book and crescent moon dominate the scene. Exactly seven separate golden star shapes arranged in a clear loose circle, no other star-shaped marks.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "chargedGenerations": 6,
+      "originalFile": "superseded/study-streak-0007-v1.png",
+      "reason": "Remove extra star: eight in initial result, seven required by the art brief."
+    }
+  ],
+  "tool": "edit_image_pro_flash",
+  "chargedGenerations": 12,
+  "latestJobChargedGenerations": 6,
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/986771ef-2605-4cdc-8d63-f5eaf1400d34/download"
+}

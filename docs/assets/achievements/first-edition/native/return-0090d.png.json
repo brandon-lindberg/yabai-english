@@ -1,0 +1,48 @@
+{
+  "number": 37,
+  "id": "return-0090d",
+  "titleEn": "Somehow, You Returned",
+  "titleJa": "伝説の帰還",
+  "visibility": "hidden",
+  "artBrief": "**Dark fantasy.** An absurdly small armored traveler emerges from a moss-covered doorway holding a warm lantern. Gentle humor and the glow of a second beginning.",
+  "originalFile": "native/return-0090d.png",
+  "thumbnailFile": "thumbs/return-0090d.png",
+  "enlargedFile": "enlarged/return-0090d.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Dark fantasy. An absurdly small armored traveler emerges from a moss-covered doorway holding a warm lantern. Gentle humor and the glow of a second beginning. Tiny friendly armored traveler under a huge moss-covered doorway, one bright amber lantern at chest height. Strong humorous size contrast, deep slate-violet and moss green, hopeful return.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 6,
+  "jobId": "bdeb4caf-2d52-4ab9-bf67-21271a0a08b4",
+  "sourceImageId": "ed64e6ad-2fc3-5eb9-b247-30d6d7b84a3d",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 17196,
+  "thumbnailBytes": 7639,
+  "nativeSha256": "6d94c731b490f145d12bf54dafb8db0f5887d5bfd3ea133cc81012b1c1cbce15",
+  "pixelSha256": "ceefbf4a15d989917b7282005caa68d3f9029555990fe95e69f6ee689214b4bf",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/bdeb4caf-2d52-4ab9-bf67-21271a0a08b4/download"
+}

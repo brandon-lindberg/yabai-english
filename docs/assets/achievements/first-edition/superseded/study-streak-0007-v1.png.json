@@ -1,0 +1,45 @@
+{
+  "number": 17,
+  "id": "study-streak-0007",
+  "titleEn": "Seven-Day Spell",
+  "titleJa": "7日間の魔法",
+  "visibility": "visible",
+  "artBrief": "**Romantic anime magic.** A small witch and an open spellbook under a crescent moon, with a ring of seven clear stars. Soft violet and warm gold.",
+  "originalFile": "native/study-streak-0007.png",
+  "thumbnailFile": "thumbs/study-streak-0007.png",
+  "enlargedFile": "enlarged/study-streak-0007.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Romantic anime magic. A small witch and an open spellbook under a crescent moon, with a ring of seven clear stars. Soft violet and warm gold. A small original witch, large open book and crescent moon dominate the scene. Exactly seven separate golden star shapes arranged in a clear loose circle, no other star-shaped marks.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 5,
+  "jobId": "a1951e0c-f7fd-483e-b57a-04a8e28c96ce",
+  "sourceImageId": "7a6b6960-c914-5442-aaa3-cdf7bb982985",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 14500,
+  "thumbnailBytes": 7240,
+  "nativeSha256": "0ff40addfe502f4b8398101707b70ebf13536827f9692fec6f448af02689e89e",
+  "pixelSha256": "02b9035ec2c5ebec2191228fdc5f1e672feabc3620c33979efb00ced8f7ed431"
+}

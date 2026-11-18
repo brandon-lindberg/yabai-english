@@ -1,0 +1,1948 @@
+{
+  "edition": "First Edition",
+  "createdOn": "2026-11-18",
+  "status": "generated; visual review complete",
+  "nativeSize": 128,
+  "approvedInventory": 39,
+  "newArtworkCount": 36,
+  "initialBatchUnits": 216,
+  "batches": [
+    [
+      2,
+      4,
+      7,
+      12,
+      15,
+      29
+    ],
+    [
+      3,
+      11,
+      13,
+      22,
+      31,
+      39
+    ],
+    [
+      5,
+      8,
+      14,
+      23,
+      28,
+      30
+    ],
+    [
+      9,
+      20,
+      24,
+      25,
+      26,
+      33
+    ],
+    [
+      16,
+      17,
+      18,
+      19,
+      27,
+      32
+    ],
+    [
+      6,
+      21,
+      35,
+      36,
+      37,
+      38
+    ]
+  ],
+  "artworks": [
+    {
+      "number": 1,
+      "id": "cards-0001",
+      "titleEn": "First Spark",
+      "titleJa": "はじまりのひらめき",
+      "visibility": "visible",
+      "artBrief": "**Sunny platformer.** A cute white fox adventurer opens a book; one bright star rises above a grassy island. Pointed ears, a fox muzzle and fluffy tail connect the mascot to the app's white fox logo. Bold, simple silhouette and joyful sky. The owner requested the fox after rejecting the chicken-like character in the first sample.",
+      "originalFile": "native/cards-0001.png",
+      "thumbnailFile": "thumbs/cards-0001.png",
+      "enlargedFile": "enlarged/cards-0001.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "approved sample batch",
+      "jobId": "0b07b095-2437-414f-a7c2-e7e25aac33d1",
+      "sourceImageId": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "request": {
+        "source_image_id": "34b460aa-6b03-57a6-b7e7-15e40e6c88f8",
+        "method": "text",
+        "use_color_palette_correction": true,
+        "description": "Edit only the little chicken-like adventurer into a clearly recognizable cute WHITE FOX mascot, echoing the app's white fox logo: two tall pointed triangular ears with dark inner ears, a tapered pointed muzzle with a tiny black nose, fluffy white cheek tufts, two bright dark eyes, small fox paws holding the existing open blue book, and a fluffy white fox tail curling visibly behind its body. Chibi fox proportions, delighted studious expression. It must read immediately as a fox, not a bird or cat: no beak, no wings, no head crest. Keep the same character position, approximate scale and cheerful pose. Preserve the original golden star, beam of light, blue book, floating grassy island, turquoise sky, clouds, composition and warm joyful platformer mood. Keep the same native 128x128 pixel grid and crisp original pixel-art style, restrained source palette, opaque full-scene background. No text or lettering. Change the mascot only."
+      },
+      "sourceSampleFile": "../first-edition-samples/first-spark-fox-v2.png",
+      "chargedGenerations": 6,
+      "colors": 26,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "nativeBytes": 9633,
+      "thumbnailBytes": 5059,
+      "nativeSha256": "19beca1efd7f59e0f16731ab9ca6e5dad00ad363994e3a38692d4aad89d91def",
+      "pixelSha256": "8b6a1995ef00f7955f33b852558b3c23e5e46a590bfcfe067287977336508545",
+      "provider": "PixelLab",
+      "tool": "edit_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/0b07b095-2437-414f-a7c2-e7e25aac33d1/download"
+    },
+    {
+      "number": 2,
+      "id": "cards-0025",
+      "titleEn": "Pocket Scholar",
+      "titleJa": "ポケットの学者",
+      "visibility": "visible",
+      "artBrief": "**Cute chibi.** A tiny scholar peeks from an oversized coat pocket, with a miniature book and a jaunty bookmark. Warm, expressive face.",
+      "originalFile": "native/cards-0025.png",
+      "thumbnailFile": "thumbs/cards-0025.png",
+      "enlargedFile": "enlarged/cards-0025.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cute chibi. A tiny scholar peeks from an oversized coat pocket, with a miniature book and a jaunty bookmark. Warm, expressive face. Make the scholar a tiny white fox with tall pointed ears, tapered muzzle and fluffy cheeks, emerging from a large indigo coat pocket; the miniature closed book is coral red.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 1,
+      "jobId": "814955b6-a2cd-404f-98cb-2882caf90836",
+      "sourceImageId": "b9506938-2d67-5b22-be47-5c3c501b02f5",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 12589,
+      "thumbnailBytes": 6095,
+      "nativeSha256": "4143a5664a613a4f1c1a6b0a6c0d1cb88bf066d2bdafbcc261c631bf75d00f00",
+      "pixelSha256": "d85e6b624be02fe3a781cdeb3cc85b745e74652e177663bbc271debb18ac9f5c",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/814955b6-a2cd-404f-98cb-2882caf90836/download"
+    },
+    {
+      "number": 3,
+      "id": "cards-0100",
+      "titleEn": "Century Club",
+      "titleJa": "100枚クラブ",
+      "visibility": "visible",
+      "artBrief": "**Retro space arcade.** A small starship enters a luminous circular gate; a fan of collectible card shapes forms the trail. No numerals or lettering in the image.",
+      "originalFile": "native/cards-0100.png",
+      "thumbnailFile": "thumbs/cards-0100.png",
+      "enlargedFile": "enlarged/cards-0100.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Retro space arcade. A small starship enters a luminous circular gate; a fan of collectible card shapes forms the trail. No numerals or lettering in the image. Deep indigo space, luminous turquoise ring and a coral-and-cream ship. Keep the ship and gate larger than background stars; card trail is a few bold ivory rectangles.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 2,
+      "jobId": "d4371c7d-3715-4790-b038-29fbb5bb1703",
+      "sourceImageId": "0d8ade4b-33f6-5306-aec6-b9743288b6e3",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 12432,
+      "thumbnailBytes": 6395,
+      "nativeSha256": "4103aa0e792519adb43608905f4890fc07232def53018dd86f50e2385ef01508",
+      "pixelSha256": "18affe80b6963f04c343236bd66dfd2c2b2b14a920da1f96972b0f7943fff703",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/d4371c7d-3715-4790-b038-29fbb5bb1703/download"
+    },
+    {
+      "number": 4,
+      "id": "cards-0250",
+      "titleEn": "Deck Detective",
+      "titleJa": "カード探偵",
+      "visibility": "visible",
+      "artBrief": "**Chibi detective / rainy city.** A little detective examines a glowing card through a magnifying glass beside a rain-streaked cafe window. A playful noir palette.",
+      "originalFile": "native/cards-0250.png",
+      "thumbnailFile": "thumbs/cards-0250.png",
+      "enlargedFile": "enlarged/cards-0250.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Chibi detective / rainy city. A little detective examines a glowing card through a magnifying glass beside a rain-streaked cafe window. A playful noir palette. The detective is a white fox wearing a small brown detective hat and coat. A large lens magnifies the corner of the glowing card. Rainy teal window against warm amber interior.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 1,
+      "jobId": "57241e6b-c1e2-4ae6-9ecd-ae355b62c0f5",
+      "sourceImageId": "d925cb33-cfa9-5893-84ba-ba5e70bda9aa",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 11850,
+      "thumbnailBytes": 5947,
+      "nativeSha256": "37b9896fd350ee7ae5f1387e4251bd0e7d8be450c975bf3aae7fbdb5bf27dc16",
+      "pixelSha256": "faed6b4c9e5d0eaa6e8a226517adaf651cebe642bcfcc46e5279180231421273",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/57241e6b-c1e2-4ae6-9ecd-ae355b62c0f5/download"
+    },
+    {
+      "number": 5,
+      "id": "cards-0500",
+      "titleEn": "Paper Dragon",
+      "titleJa": "紙のドラゴン",
+      "visibility": "visible",
+      "artBrief": "**Japanese paper fantasy.** An origami dragon unfolds from a stack of cards, with red maple leaves circling its wings. Clear dragon silhouette rather than intricate microtexture.",
+      "originalFile": "native/cards-0500.png",
+      "thumbnailFile": "thumbs/cards-0500.png",
+      "enlargedFile": "enlarged/cards-0500.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Japanese paper fantasy. An origami dragon unfolds from a stack of cards, with red maple leaves circling its wings. Clear dragon silhouette rather than intricate microtexture. A single bold crimson folded-paper dragon is the hero, with clearly folded wings and a stack of ivory cards beneath. Autumn gold and indigo setting.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 3,
+      "jobId": "d1eba8ca-d217-4534-8c2c-ae4d0e8d54bb",
+      "sourceImageId": "ebc6fbfe-ea17-5017-bd5d-f0a2605baaf5",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 16576,
+      "thumbnailBytes": 7545,
+      "nativeSha256": "2938bfd3451a74ef161d0039b4673688ec43f4b773f054361aa2d937f5aeead5",
+      "pixelSha256": "0e0cff06f3a0d476cebd501dc56da2828f6cde28d1bb0a48124c1a58dc0bfdfb",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/d1eba8ca-d217-4534-8c2c-ae4d0e8d54bb/download"
+    },
+    {
+      "number": 6,
+      "id": "cards-1000",
+      "titleEn": "Grand Librarian",
+      "titleJa": "大図書館の司書",
+      "visibility": "visible",
+      "artBrief": "**Pixel fine art.** A grand, warmly lit library with one imposing central bookshelf and a tiny ladder-climbing librarian; painterly clusters, restrained detail, strong light shape.",
+      "originalFile": "native/cards-1000.png",
+      "thumbnailFile": "thumbs/cards-1000.png",
+      "enlargedFile": "enlarged/cards-1000.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Pixel fine art. A grand, warmly lit library with one imposing central bookshelf and a tiny ladder-climbing librarian; painterly clusters, restrained detail, strong light shape. One huge glowing bookcase is the composition's central shape, the librarian and ladder small accents. A restrained painterly warm sepia, amber, teal-green palette.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 6,
+      "jobId": "35a0264b-0b85-4661-9c6a-b1069fa9850c",
+      "sourceImageId": "d270e3e5-cefe-5a24-ae49-f33070fa9387",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 21960,
+      "thumbnailBytes": 8712,
+      "nativeSha256": "735e74b03e2b1e46cede750e50b052caec8f09d9011f9efd1b39f4476c2a5a61",
+      "pixelSha256": "80e79bc1dc8b7696b8fa7c12d07db78825bb43d95be6573cc05e04e2eb9a1112",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/35a0264b-0b85-4661-9c6a-b1069fa9850c/download"
+    },
+    {
+      "number": 7,
+      "id": "mastery-0001",
+      "titleEn": "That One Stuck!",
+      "titleJa": "ひとつ、身についた！",
+      "visibility": "visible",
+      "artBrief": "**Cute chibi.** A delighted little creature proudly holds a single star-shaped card close to its chest. A tiny celebratory sparkle, no brain or intelligence ranking imagery.",
+      "originalFile": "native/mastery-0001.png",
+      "thumbnailFile": "thumbs/mastery-0001.png",
+      "enlargedFile": "enlarged/mastery-0001.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cute chibi. A delighted little creature proudly holds a single star-shaped card close to its chest. A tiny celebratory sparkle, no brain or intelligence ranking imagery. The delighted creature is the app's white fox, with pointed ears, tapered muzzle and fluffy tail. Make the large gold star-shaped card and pleased expression the focus.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 1,
+      "jobId": "e6dbdbb8-8394-4a85-90d6-c1ca6f35e805",
+      "sourceImageId": "6f97ff1b-f4ff-5281-b9ee-70c80e181c36",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 11696,
+      "thumbnailBytes": 5829,
+      "nativeSha256": "cfb9ef8a123acb6c21cbba8259bcea120d245faf7588132273852f7dd02f1812",
+      "pixelSha256": "00ff538c5b3556841a38e6cf842a53281d959c84b7e4a4a88583f29e081bb9f0",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/e6dbdbb8-8394-4a85-90d6-c1ca6f35e805/download"
+    },
+    {
+      "number": 8,
+      "id": "mastery-0010",
+      "titleEn": "Memory Smith",
+      "titleJa": "記憶の鍛冶屋",
+      "visibility": "visible",
+      "artBrief": "**Samurai-era craft.** A small swordsmith at a forge shapes a glowing bookmark on an anvil. Warm sparks, indigo apron, no military insignia.",
+      "originalFile": "native/mastery-0010.png",
+      "thumbnailFile": "thumbs/mastery-0010.png",
+      "enlargedFile": "enlarged/mastery-0010.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Samurai-era craft. A small swordsmith at a forge shapes a glowing bookmark on an anvil. Warm sparks, indigo apron, no military insignia. A peaceful craft scene, not combat. One strong glowing anvil and large bookmark shape, indigo-robed chibi artisan, amber sparks in a dark wooden workshop.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 3,
+      "jobId": "520721c1-898d-4856-9403-3464fa12c9d1",
+      "sourceImageId": "bf16a0ab-9d83-5bc8-b9a6-23efd737e601",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 15932,
+      "thumbnailBytes": 7228,
+      "nativeSha256": "711308dbd6714640fe78950d7c0099f9bfcef9664ce530d03833e870dcff4f23",
+      "pixelSha256": "3f2d4c7796c216993ac0a64e1825d28dc3d4c9f5d83bda3ae0cf179a7dbdc76c",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/520721c1-898d-4856-9403-3464fa12c9d1/download"
+    },
+    {
+      "number": 9,
+      "id": "mastery-0050",
+      "titleEn": "Mind Palace",
+      "titleJa": "記憶の宮殿",
+      "visibility": "visible",
+      "artBrief": "**French romantic fantasy.** A miniature illuminated palace surrounded by roses, with a book-shaped gate and a moonlit garden. The central facade must survive thumbnail reduction.",
+      "originalFile": "native/mastery-0050.png",
+      "thumbnailFile": "thumbs/mastery-0050.png",
+      "enlargedFile": "enlarged/mastery-0050.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. French romantic fantasy. A miniature illuminated palace surrounded by roses, with a book-shaped gate and a moonlit garden. The central facade must survive thumbnail reduction. Use a single central luminous symmetrical palace facade with an obvious open-book gateway. Large dark rose silhouettes frame the lower corners; lavender moonlight and warm windows.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 4,
+      "jobId": "ef9061c8-d839-4390-8996-d804a8d920a0",
+      "sourceImageId": "383bbabf-4278-59e5-a62f-503e76728e97",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 17505,
+      "thumbnailBytes": 7931,
+      "nativeSha256": "5d4098465028c8b9650278511ed227a2ebacfe9566ae90649dcf5f7699695814",
+      "pixelSha256": "611dcb11c6f0eaa77e99544fafde9fc852b9588af4d7827a9cba298e759d11cb",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/ef9061c8-d839-4390-8996-d804a8d920a0/download"
+    },
+    {
+      "number": 10,
+      "id": "mastery-0100",
+      "titleEn": "Memory Guardian",
+      "titleJa": "記憶の守り人",
+      "visibility": "visible",
+      "artBrief": "**Dark fantasy.** A tiny armored guardian with an oversized book-shaped shield stands before an ember-lit ruined arch. Expressive rather than threatening.",
+      "originalFile": "native/mastery-0100.png",
+      "thumbnailFile": "thumbs/mastery-0100.png",
+      "enlargedFile": "enlarged/mastery-0100.png",
+      "ownerApproved": true,
+      "status": "completed",
+      "origin": "approved sample batch",
+      "jobId": "ad638bd6-fe0d-4db6-8d02-225384ba3132",
+      "sourceImageId": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+      "request": {
+        "description": "Original collectible achievement artwork for a language-learning app. One complete square scene, native 128x128 pixel art. Crisp deliberate pixel clusters, restrained 32-color palette, no antialiasing, no blur. Strong focal shape legible as a 64x64 thumbnail. Fill the square with the environment; keep the focal subject inside an 8-pixel safe margin. No frame, no lettering, numbers, logos or watermarks. Gentle dark-fantasy scene: a tiny brave armored guardian with a rounded helmet and glowing warm eyes stands in front of a weathered ruined stone arch. The guardian proudly carries an oversized closed book as a shield: obvious thick cream page edges, dark-red book cover and brass corners, no writing. Guardian and book dominate the lower middle; the arch frames them. Small glowing embers and amber light behind the guardian contrast strongly with slate blue stone and deep violet shadows. Make the guardian endearing and determined rather than frightening. Strong rim-lit silhouette, readable book-shaped shield, uncluttered background. No recognizable existing game character.",
+        "width": 128,
+        "height": 128,
+        "no_background": false,
+        "max_colors": 32
+      },
+      "sourceSampleFile": "../first-edition-samples/memory-guardian.png",
+      "chargedGenerations": 6,
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "nativeBytes": 16017,
+      "thumbnailBytes": 7956,
+      "nativeSha256": "bd34b80d3ed2f24846f0cb17a8a444f34599042d99d778242c670aac59e38a90",
+      "pixelSha256": "499048527936e00172d4b4d6d2b59ef700c84fe7c2f49de8dfa43c35efd8bb9b",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/ad638bd6-fe0d-4db6-8d02-225384ba3132/download"
+    },
+    {
+      "number": 11,
+      "id": "mastery-0250",
+      "titleEn": "Archive Keeper",
+      "titleJa": "知識の番人",
+      "visibility": "visible",
+      "artBrief": "**Science fiction.** A little archivist tends a floating crystalline book inside an orbital library; deep blue space and one bright cyan focal object.",
+      "originalFile": "native/mastery-0250.png",
+      "thumbnailFile": "thumbs/mastery-0250.png",
+      "enlargedFile": "enlarged/mastery-0250.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Science fiction. A little archivist tends a floating crystalline book inside an orbital library; deep blue space and one bright cyan focal object. A round friendly space archivist beside a single large floating faceted cyan book. Dark blue orbital window and small distant planet; readable graphic silhouettes.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 2,
+      "jobId": "bdb7de9e-d1ee-4c49-a247-3ce243609af1",
+      "sourceImageId": "3d7411fd-677a-53c3-a858-d0db95f4a7bb",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 15950,
+      "thumbnailBytes": 7183,
+      "nativeSha256": "e542905a810b32b9687e8350ae8e2a309a8493b25c8fc3e650ad7ff5f0c6816e",
+      "pixelSha256": "be8ee238888a2365b1309218ee2722e5b5614c581d6dfdd992a404222de8f7c0",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/bdb7de9e-d1ee-4c49-a247-3ce243609af1/download"
+    },
+    {
+      "number": 12,
+      "id": "rank-0005",
+      "titleEn": "Side Quest Enthusiast",
+      "titleJa": "サブクエスト好き",
+      "visibility": "visible",
+      "artBrief": "**Retro adventure.** A cheerful traveler at a signpost with a map and several enticing miniature paths. Signposts carry shapes, never readable words.",
+      "originalFile": "native/rank-0005.png",
+      "thumbnailFile": "thumbs/rank-0005.png",
+      "enlargedFile": "enlarged/rank-0005.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Retro adventure. A cheerful traveler at a signpost with a map and several enticing miniature paths. Signposts carry shapes, never readable words. Use the white fox traveler with pointed ears, fluffy tail and satchel. Large parchment map, one forked wooden signpost; meadow palette and warm afternoon sunlight.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 1,
+      "jobId": "06ae71a6-61bd-4b9d-96c6-e2d528250219",
+      "sourceImageId": "de01576d-ff13-5fbb-a408-e28c9e339e92",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 12153,
+      "thumbnailBytes": 6052,
+      "nativeSha256": "aae562b8f198fcb1d2f5bf08e084618f5ce83a1c1fae9b5e064930b250ee05d4",
+      "pixelSha256": "dfbdad070a52090302a25be9c3d2a41a3de46c209fdbf20679e87100956a667e",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/06ae71a6-61bd-4b9d-96c6-e2d528250219/download"
+    },
+    {
+      "number": 13,
+      "id": "rank-0010",
+      "titleEn": "XP Magnet",
+      "titleJa": "経験値マグネット",
+      "visibility": "visible",
+      "artBrief": "**Science-fiction arcade.** A whimsical magnetic robot attracts glowing star fragments around a book-shaped power cell. Chunky, readable forms.",
+      "originalFile": "native/rank-0010.png",
+      "thumbnailFile": "thumbs/rank-0010.png",
+      "enlargedFile": "enlarged/rank-0010.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Science-fiction arcade. A whimsical magnetic robot attracts glowing star fragments around a book-shaped power cell. Chunky, readable forms. The magnetic robot has a clearly visible horseshoe-shaped magnet arm, a tiny friendly face and a large blue book power cell. Bright gold star fragments against dark indigo, exuberant arcade energy.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 2,
+      "jobId": "f67b9f3d-9c32-4359-b6bc-f418b4de0c44",
+      "sourceImageId": "0b165c86-3c57-5c9e-bf7a-7794d6ae91bb",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 9793,
+      "thumbnailBytes": 5050,
+      "nativeSha256": "fb10a2c31de8ddf8f6f23cb84cf48f4078ec820d2fa9c24f591d2f5122d92e5d",
+      "pixelSha256": "d0ccfc711be762227a8f56b9ac5b81eff68aaac186d85eedba67fda1d1fefbd6",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/f67b9f3d-9c32-4359-b6bc-f418b4de0c44/download"
+    },
+    {
+      "number": 14,
+      "id": "rank-0025",
+      "titleEn": "Quest Veteran",
+      "titleJa": "クエストの達人",
+      "visibility": "visible",
+      "artBrief": "**Samurai travel story.** A wandering scholar in a straw hat rests beside a milestone, carrying a bundle of books beneath an autumn tree. No rank insignia.",
+      "originalFile": "native/rank-0025.png",
+      "thumbnailFile": "thumbs/rank-0025.png",
+      "enlargedFile": "enlarged/rank-0025.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Samurai travel story. A wandering scholar in a straw hat rests beside a milestone, carrying a bundle of books beneath an autumn tree. No rank insignia. A peaceful small wandering scholar with a broad straw hat and visible book bundle under one red maple branch. Warm russet and muted blue, restful travel scene.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 3,
+      "jobId": "a881774c-6e2a-4452-a7d7-ee329d09b7e4",
+      "sourceImageId": "15a2ab23-ec30-587c-9c80-724b0fd46211",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 13969,
+      "thumbnailBytes": 7005,
+      "nativeSha256": "658857349f432827bed679601dc8cd0d4b9ba98cf569dccd8d65285d775dcfdf",
+      "pixelSha256": "1225a0f4ce17e7e4735bba4f388de353b132bf9619d14e470ca4fff2578eef43",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/a881774c-6e2a-4452-a7d7-ee329d09b7e4/download"
+    },
+    {
+      "number": 15,
+      "id": "level-first",
+      "titleEn": "Chapter Champion",
+      "titleJa": "ひとつの章を越えて",
+      "visibility": "visible",
+      "artBrief": "**Sunny platformer.** A traveler passes through a giant open-book arch into a brighter landscape. A completed chapter, not an exam certificate or proficiency claim.",
+      "originalFile": "native/level-first.png",
+      "thumbnailFile": "thumbs/level-first.png",
+      "enlargedFile": "enlarged/level-first.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Sunny platformer. A traveler passes through a giant open-book arch into a brighter landscape. A completed chapter, not an exam certificate or proficiency claim. Use the white fox traveler stepping through the large open-book gateway. Make the open book the central dominant arch, with warm light beyond, grassy platformer landscape.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 1,
+      "jobId": "427a316d-5804-405b-adb8-ba0460f9f440",
+      "sourceImageId": "6c66cf99-6789-57cc-bee4-97c98bd50f45",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 12752,
+      "thumbnailBytes": 6347,
+      "nativeSha256": "09a71cd92bc7efaf4e0ff9a96cd06767b151bd37a9bfbf972af9ea53941e853f",
+      "pixelSha256": "809a78e0a6abc9e0134c2972f8a56ef3e1f762ce71e2fe6719fc65f89abb6f49",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/427a316d-5804-405b-adb8-ba0460f9f440/download"
+    },
+    {
+      "number": 16,
+      "id": "study-streak-0003",
+      "titleEn": "Small Flame",
+      "titleJa": "小さな炎",
+      "visibility": "visible",
+      "artBrief": "**Chibi fantasy.** A friendly little flame curls around a candle shaped like a closed book. Cheerful eyes and generous negative space.",
+      "originalFile": "native/study-streak-0003.png",
+      "thumbnailFile": "thumbs/study-streak-0003.png",
+      "enlargedFile": "enlarged/study-streak-0003.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Chibi fantasy. A friendly little flame curls around a candle shaped like a closed book. Cheerful eyes and generous negative space. Large friendly orange flame with simple eyes curling around a clearly book-shaped candle, chunky cream page edges and a short wick. Simple dark-violet background, warm whimsical magic.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 5,
+      "jobId": "595935b0-2981-41fb-a42d-4daa459cba99",
+      "sourceImageId": "d6aaf527-d1ec-50d4-aaa3-1fa1acb4245d",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 13715,
+      "thumbnailBytes": 6237,
+      "nativeSha256": "8c55dcc0d3ab3e88c30002ea5fe4bfed2bd7dc1ee8458f99404e4b1d97c0596c",
+      "pixelSha256": "dbcbf1f036c880e568f150fd92e4dee9de5bd78601e0915ae34431c87d702c6a",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/595935b0-2981-41fb-a42d-4daa459cba99/download"
+    },
+    {
+      "number": 17,
+      "id": "study-streak-0007",
+      "titleEn": "Seven-Day Spell",
+      "titleJa": "7日間の魔法",
+      "visibility": "visible",
+      "artBrief": "**Romantic anime magic.** A small witch and an open spellbook under a crescent moon, with a ring of seven clear stars. Soft violet and warm gold.",
+      "originalFile": "native/study-streak-0007.png",
+      "thumbnailFile": "thumbs/study-streak-0007.png",
+      "enlargedFile": "enlarged/study-streak-0007.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "source_image_id": "7a6b6960-c914-5442-aaa3-cdf7bb982985",
+        "method": "text",
+        "use_color_palette_correction": true,
+        "description": "Make one tiny correction only: there are eight large golden five-pointed stars around the crescent moon. Remove the lowest star on the right, centered approximately at pixel x=87,y=61 of this native 128x128 image, directly above the book's right page and to the right of the witch's face. Replace only that star with the surrounding plain violet sky. Exactly seven large golden five-pointed stars must remain: one at the top and three along each upper side of the crescent. Preserve the other seven stars exactly, the moon, witch, hat, face, hands, book, island, clouds, buildings, palette, pixel grid and all other details. Do not add new stars or move existing elements. Keep the native size and opaque scene."
+      },
+      "batch": 5,
+      "jobId": "986771ef-2605-4cdc-8d63-f5eaf1400d34",
+      "sourceImageId": "703a5a9a-4ef4-5897-bb7c-09d313dddb37",
+      "colors": 25,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 12,
+      "nativeBytes": 13330,
+      "thumbnailBytes": 6675,
+      "nativeSha256": "92ab107f28dc9051c64d88ff2ef1e578ed35ddf83426aea4314dd41cafdb4aca",
+      "pixelSha256": "5a47a8de5cb9c3b4347e2f976d9fac56977a5ad12a9d4f6ad4ae98bacc5380fb",
+      "tool": "edit_image_pro_flash",
+      "latestJobChargedGenerations": 6,
+      "revisions": [
+        {
+          "jobId": "a1951e0c-f7fd-483e-b57a-04a8e28c96ce",
+          "sourceImageId": "7a6b6960-c914-5442-aaa3-cdf7bb982985",
+          "request": {
+            "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Romantic anime magic. A small witch and an open spellbook under a crescent moon, with a ring of seven clear stars. Soft violet and warm gold. A small original witch, large open book and crescent moon dominate the scene. Exactly seven separate golden star shapes arranged in a clear loose circle, no other star-shaped marks.",
+            "width": 128,
+            "height": 128,
+            "max_colors": 32,
+            "no_background": false,
+            "style_image": {
+              "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+              "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+            },
+            "style_options": {
+              "color_palette": false,
+              "outline": true,
+              "detail": true,
+              "shading": true
+            }
+          },
+          "chargedGenerations": 6,
+          "originalFile": "superseded/study-streak-0007-v1.png",
+          "reason": "Remove extra star: eight in initial result, seven required by the art brief."
+        }
+      ],
+      "provider": "PixelLab",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/986771ef-2605-4cdc-8d63-f5eaf1400d34/download"
+    },
+    {
+      "number": 18,
+      "id": "study-streak-0014",
+      "titleEn": "Routine Familiar",
+      "titleJa": "習慣の使い魔",
+      "visibility": "visible",
+      "artBrief": "**Cozy storybook.** A round magical cat curls around a book beside a steaming cup; a little flame floats above its tail. Calm amber window light.",
+      "originalFile": "native/study-streak-0014.png",
+      "thumbnailFile": "thumbs/study-streak-0014.png",
+      "enlargedFile": "enlarged/study-streak-0014.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cozy storybook. A round magical cat curls around a book beside a steaming cup; a little flame floats above its tail. Calm amber window light. Keep this explicitly a magical CAT companion, not the app mascot. Round sleeping cat, curled tail, open book and one cup; warm amber window, muted plum and cream palette.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 5,
+      "jobId": "28845565-351a-4dbb-a149-eac2379f5728",
+      "sourceImageId": "1c893e79-a461-5660-85aa-dd6ee37e6d33",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 11452,
+      "thumbnailBytes": 5655,
+      "nativeSha256": "9b2e3b755b0ccec689b9c1f1a6e2bf9dd89d796f441b6a4c9a8fff24f1542c79",
+      "pixelSha256": "bd35d9c3bc1733558c0991bfbcf3fe9807e188bc3a8b72a5ca69ee261b6b234d",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/28845565-351a-4dbb-a149-eac2379f5728/download"
+    },
+    {
+      "number": 19,
+      "id": "study-streak-0030",
+      "titleEn": "Flame Keeper",
+      "titleJa": "炎を絶やさぬ者",
+      "visibility": "visible",
+      "artBrief": "**Dark fantasy.** A small keeper shelters a bright brazier beneath a broken stone canopy while rain falls outside. Warmth and resilience lead the scene.",
+      "originalFile": "native/study-streak-0030.png",
+      "thumbnailFile": "thumbs/study-streak-0030.png",
+      "enlargedFile": "enlarged/study-streak-0030.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Dark fantasy. A small keeper shelters a bright brazier beneath a broken stone canopy while rain falls outside. Warmth and resilience lead the scene. A humble keeper shielding a bright amber brazier under broken slate canopy. Rain stays in the cool blue background; large warm flame as focal shape, resilient and cozy, not threatening.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 5,
+      "jobId": "7bac4824-f39c-400e-a84d-9fe6f746a581",
+      "sourceImageId": "c57d8fe6-3c48-5b41-a21d-60874e31aa1f",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 17046,
+      "thumbnailBytes": 8151,
+      "nativeSha256": "fe75efa26ad6b236d304d1026599e2a4db09641fddd91e124349ae79796b9089",
+      "pixelSha256": "cea2262d1bdd2e4eb5d37e5db5c44953ef925f54fc28bec914e0b3952364cb20",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/7bac4824-f39c-400e-a84d-9fe6f746a581/download"
+    },
+    {
+      "number": 20,
+      "id": "lessons-0001",
+      "titleEn": "Hello There",
+      "titleJa": "こんにちは、冒険！",
+      "visibility": "visible",
+      "artBrief": "**Romantic French cafe.** Two welcoming chairs, two cups, and an open notebook at a tiny window table; the scene celebrates conversation, not a romantic teacher relationship.",
+      "originalFile": "native/lessons-0001.png",
+      "thumbnailFile": "thumbs/lessons-0001.png",
+      "enlargedFile": "enlarged/lessons-0001.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Romantic French cafe. Two welcoming chairs, two cups, and an open notebook at a tiny window table; the scene celebrates conversation, not a romantic teacher relationship. Compact French cafe vignette. Two clearly separated welcoming chairs and two cups around a tiny round table with an open notebook; window light, creamy rose and warm amber. No people.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 4,
+      "jobId": "e0b70a43-7c70-4aca-b236-3367ca2ce570",
+      "sourceImageId": "6bac696e-4e4a-5915-8424-9e4a404e5e72",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 16237,
+      "thumbnailBytes": 7388,
+      "nativeSha256": "42642924267b821ec60987de4b004f168cb6a22142bfcfdf1b6460294fb0876f",
+      "pixelSha256": "17a760ba1a56d5ad48f2298fd1239a21be8e4d8277ae9e1799b35d58574a6263",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/e0b70a43-7c70-4aca-b236-3367ca2ce570/download"
+    },
+    {
+      "number": 21,
+      "id": "lessons-0005",
+      "titleEn": "I Have Notes",
+      "titleJa": "メモならあります！",
+      "visibility": "visible",
+      "artBrief": "**Expressive anime pixel art.** A delighted notebook character raises a pencil like a dramatic prop, with flying bookmarks and a spotlight-shaped burst. No rendered handwriting.",
+      "originalFile": "native/lessons-0005.png",
+      "thumbnailFile": "thumbs/lessons-0005.png",
+      "enlargedFile": "enlarged/lessons-0005.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Expressive anime pixel art. A delighted notebook character raises a pencil like a dramatic prop, with flying bookmarks and a spotlight-shaped burst. No rendered handwriting. One cheerful coral notebook character, with expressive eyes and small arms, lifts a large pencil dramatically. Two flowing bookmarks and golden theatrical rays, no written page content.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 6,
+      "jobId": "60abef50-c197-48cd-bf83-d1e19ddae8c7",
+      "sourceImageId": "37ac4c3e-fce6-5fbd-8c96-f166b0de69f5",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 11691,
+      "thumbnailBytes": 5868,
+      "nativeSha256": "d4f0fca4fc1de414e12e0e8e9d11c373e2e7e795edf195d48c106caddb14a64f",
+      "pixelSha256": "80a9778751a76cf86d52b21b9251cdb59452d690742862112115da1a5b985f22",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/60abef50-c197-48cd-bf83-d1e19ddae8c7/download"
+    },
+    {
+      "number": 22,
+      "id": "lessons-0010",
+      "titleEn": "Conversation Party",
+      "titleJa": "会話のパーティー",
+      "visibility": "visible",
+      "artBrief": "**Science-fiction ensemble.** A small space crew gathers around a glowing radio and book, with simple speech-bubble shapes. This is a metaphor, not a claim that the learner took group lessons.",
+      "originalFile": "native/lessons-0010.png",
+      "thumbnailFile": "thumbs/lessons-0010.png",
+      "enlargedFile": "enlarged/lessons-0010.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Science-fiction ensemble. A small space crew gathers around a glowing radio and book, with simple speech-bubble shapes. This is a metaphor, not a claim that the learner took group lessons. Three friendly small space crew members gather around one large glowing cyan radio with an open book. Simple blank speech bubbles and dark orbital backdrop, warm faces and graphic silhouettes.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 2,
+      "jobId": "87df3f57-08e3-4c57-84c1-d06d2296e1e7",
+      "sourceImageId": "e17a8539-c6a4-52c8-9129-5b44a254ea86",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 12134,
+      "thumbnailBytes": 5863,
+      "nativeSha256": "de566fb8aec231887efe3a4ceb4bc7a1fb80e099873013e248552a541ac13080",
+      "pixelSha256": "53d33028b54c06e5d143adcb082e330a0efbc6a104c3501e8737a4206d6545c4",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/87df3f57-08e3-4c57-84c1-d06d2296e1e7/download"
+    },
+    {
+      "number": 23,
+      "id": "lessons-0025",
+      "titleEn": "Dialogue Adventurer",
+      "titleJa": "対話の冒険者",
+      "visibility": "visible",
+      "artBrief": "**Samurai travel / spring Japan.** A traveler steps through a courtyard gate with a notebook as cherry petals drift past. A luminous open doorway is the focal shape.",
+      "originalFile": "native/lessons-0025.png",
+      "thumbnailFile": "thumbs/lessons-0025.png",
+      "enlargedFile": "enlarged/lessons-0025.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Samurai travel / spring Japan. A traveler steps through a courtyard gate with a notebook as cherry petals drift past. A luminous open doorway is the focal shape. Spring courtyard dominated by one luminous open gate and pink cherry branches. Small peaceful traveler with notebook, simple stepping stones; ivory, blush and jade palette.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 3,
+      "jobId": "87aab010-cc28-47b3-b6d9-c897793206bb",
+      "sourceImageId": "f8e88ed2-6962-5b33-98e0-0af5944574a6",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 16619,
+      "thumbnailBytes": 7583,
+      "nativeSha256": "230fe23258d6210a799da88b8c9dfced27a6ec077fb142d8e2598f7f8ba280a7",
+      "pixelSha256": "0e870a779340c1168263c4823084411a98d2f4663e4e539f96e54b734875d1a4",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/87aab010-cc28-47b3-b6d9-c897793206bb/download"
+    },
+    {
+      "number": 24,
+      "id": "lessons-0050",
+      "titleEn": "Speaking of Which",
+      "titleJa": "そういえば、もう50回",
+      "visibility": "visible",
+      "artBrief": "**French romance.** A glowing cafe on a riverside street at dusk, with a bridge and two empty cups in the foreground. Rose, amber, and deep blue color clusters.",
+      "originalFile": "native/lessons-0050.png",
+      "thumbnailFile": "thumbs/lessons-0050.png",
+      "enlargedFile": "enlarged/lessons-0050.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. French romance. A glowing cafe on a riverside street at dusk, with a bridge and two empty cups in the foreground. Rose, amber, and deep blue color clusters. Strong cafe facade with warm glowing windows beside a blue river and small bridge. Two prominent cups in the foreground, dusk rose and amber reflections, inviting calm.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 4,
+      "jobId": "37a24a4c-d001-4a20-ba8f-fe4b8760f17a",
+      "sourceImageId": "b6dba355-0624-599e-a3f2-235473b40334",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 15005,
+      "thumbnailBytes": 6900,
+      "nativeSha256": "d2600b62d4fc1b9b9ddb9304a729982e9296d316dde583651363d42d86329f34",
+      "pixelSha256": "55abd5c528ab733e66d211f4107de74d6303831723b75fbc159c7e4fec9f6f86",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/37a24a4c-d001-4a20-ba8f-fe4b8760f17a/download"
+    },
+    {
+      "number": 25,
+      "id": "lessons-0100",
+      "titleEn": "Centurion of Conversation",
+      "titleJa": "100回の語り部",
+      "visibility": "visible",
+      "artBrief": "**Pixel fine art / art nouveau.** A luminous open book within a flowing botanical arch; theatrical golden light suggests a grand storytelling stage. No embedded count or text.",
+      "originalFile": "native/lessons-0100.png",
+      "thumbnailFile": "thumbs/lessons-0100.png",
+      "enlargedFile": "enlarged/lessons-0100.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Pixel fine art / art nouveau. A luminous open book within a flowing botanical arch; theatrical golden light suggests a grand storytelling stage. No embedded count or text. Large open ivory book on a small stage under a flowing art-nouveau botanical arch. Gold and forest green, strong symmetrical theatrical composition, graceful leaf shapes not tiny filigree.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 4,
+      "jobId": "f461ccd5-7261-4957-9c4b-48583db65dee",
+      "sourceImageId": "d797f7a0-42c8-5778-9827-4644a5e111dc",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 17940,
+      "thumbnailBytes": 8703,
+      "nativeSha256": "2569a8a316b735df2858df8dbd39fe018af04afe01f6a09f135b5714727ff56d",
+      "pixelSha256": "0c178b4618cb22483e0e238b9a7197afa896e614e07220b8a95bcd97e79dbf48",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/f461ccd5-7261-4957-9c4b-48583db65dee/download"
+    },
+    {
+      "number": 26,
+      "id": "lesson-weeks-0004",
+      "titleEn": "Same Time Next Week?",
+      "titleJa": "また来週、この時間に",
+      "visibility": "visible",
+      "artBrief": "**Cozy French cafe.** A familiar corner table and an open appointment book under a hanging lamp. No clock hands implying a required lesson time.",
+      "originalFile": "native/lesson-weeks-0004.png",
+      "thumbnailFile": "thumbs/lesson-weeks-0004.png",
+      "enlargedFile": "enlarged/lesson-weeks-0004.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cozy French cafe. A familiar corner table and an open appointment book under a hanging lamp. No clock hands implying a required lesson time. An intimate empty cafe corner, round wooden table, large open appointment book with blank pages and a hanging amber lamp. Sage wall and terracotta upholstery, inviting evening glow.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 4,
+      "jobId": "df00b750-095c-43be-9373-a50bb48d3f09",
+      "sourceImageId": "59d06495-d755-5c54-9c5a-84b3a4994bae",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 12402,
+      "thumbnailBytes": 5869,
+      "nativeSha256": "4b7d52c30577147e17712338d4d5f43a0ecf9e8fdbf93c4215db2de23d04fffd",
+      "pixelSha256": "35e7865174041c0e2f7b2f0ffcbb8b72f671a07b65897dbf81ac8b18441f08e3",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/df00b750-095c-43be-9373-a50bb48d3f09/download"
+    },
+    {
+      "number": 27,
+      "id": "lesson-weeks-0008",
+      "titleEn": "Regular Character",
+      "titleJa": "すっかりおなじみ",
+      "visibility": "visible",
+      "artBrief": "**Cute chibi.** A friendly owl settles into a book-lined alcove with slippers and a little reserved-looking cushion, but no text on the cushion.",
+      "originalFile": "native/lesson-weeks-0008.png",
+      "thumbnailFile": "thumbs/lesson-weeks-0008.png",
+      "enlargedFile": "enlarged/lesson-weeks-0008.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cute chibi. A friendly owl settles into a book-lined alcove with slippers and a little reserved-looking cushion, but no text on the cushion. Keep the companion an OWL, as specified, with a round face and clear beak. Owl nestled into a book-lined alcove, soft slippers and a welcoming cushion, no lettering; warm cream and plum.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 5,
+      "jobId": "2ceb0f17-857f-46a2-8840-fdae4f8a9354",
+      "sourceImageId": "db8754fb-17ba-5ebc-a7fe-68bc4b7587e3",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 15154,
+      "thumbnailBytes": 7310,
+      "nativeSha256": "0aca9459fa6d4c7cbdc5babd5752c8b6c3fcee008ef5c701e2dd11f4f31de980",
+      "pixelSha256": "93e212f7483e1aaf05c7e9a94ea7dc4e1b36ab69f39e7ec1f287b3045558d477",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/2ceb0f17-857f-46a2-8840-fdae4f8a9354/download"
+    },
+    {
+      "number": 28,
+      "id": "lesson-weeks-0012",
+      "titleEn": "Season Regular",
+      "titleJa": "ワンシーズンのおなじみさん",
+      "visibility": "visible",
+      "artBrief": "**Autumn Japan.** A welcoming study room framed by a glowing maple branch, with a lantern and an open book. Seasonal atmosphere is decorative, not a calendar restriction.",
+      "originalFile": "native/lesson-weeks-0012.png",
+      "thumbnailFile": "thumbs/lesson-weeks-0012.png",
+      "enlargedFile": "enlarged/lesson-weeks-0012.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Autumn Japan. A welcoming study room framed by a glowing maple branch, with a lantern and an open book. Seasonal atmosphere is decorative, not a calendar restriction. Warm Japanese study room through a large wooden window framed by one red-orange maple branch. One prominent open book and glowing paper lantern, amber and deep indigo, restful fall atmosphere.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 3,
+      "jobId": "8b95e362-730d-453b-8dd9-1febacdbb8c1",
+      "sourceImageId": "5d4ee73f-f9e6-5943-8dca-8d77491317d6",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 15363,
+      "thumbnailBytes": 6968,
+      "nativeSha256": "e8b299f76db339937b6a3410d51326888d626fe5e9f7c340554314e88e5c40ad",
+      "pixelSha256": "71762a204897a7b276a83e0d8f37c0c1c0853e280750a0155ee7484116412751",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/8b95e362-730d-453b-8dd9-1febacdbb8c1/download"
+    },
+    {
+      "number": 29,
+      "id": "study-days-0010",
+      "titleEn": "Showing Up",
+      "titleJa": "今日も来た！",
+      "visibility": "visible",
+      "artBrief": "**Chibi adventure.** A small learner waves from a path of stepping stones, carrying a bright book-shaped backpack. Each step feels achievable.",
+      "originalFile": "native/study-days-0010.png",
+      "thumbnailFile": "thumbs/study-days-0010.png",
+      "enlargedFile": "enlarged/study-days-0010.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Chibi adventure. A small learner waves from a path of stepping stones, carrying a bright book-shaped backpack. Each step feels achievable. White fox learner with pointed ears and a fluffy tail, waving from a simple path of large stepping stones. Bright blue book-shaped backpack, hopeful grassy spring landscape, clear friendly silhouette.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 1,
+      "jobId": "d0c0454e-1ca8-4fcd-9af5-746ab8c0d4a9",
+      "sourceImageId": "ee314325-555d-5224-bfef-47d1a3199f09",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 14604,
+      "thumbnailBytes": 6736,
+      "nativeSha256": "3e8c8f6370f7197991eb2e316b5d942fe76acf479d78b589824b921abad42d37",
+      "pixelSha256": "804a8996fc75c2416b63b8f3acb7de12da329cc33b92453bec6cbb56112d6fb9",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/d0c0454e-1ca8-4fcd-9af5-746ab8c0d4a9/download"
+    },
+    {
+      "number": 30,
+      "id": "study-days-0030",
+      "titleEn": "Making It a Habit",
+      "titleJa": "いつもの習慣",
+      "visibility": "visible",
+      "artBrief": "**Quiet spring Japan.** A teapot, open book, and one cherry blossom at a sunlit desk. A compact still life with no tiny illegible page detail.",
+      "originalFile": "native/study-days-0030.png",
+      "thumbnailFile": "thumbs/study-days-0030.png",
+      "enlargedFile": "enlarged/study-days-0030.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Quiet spring Japan. A teapot, open book, and one cherry blossom at a sunlit desk. A compact still life with no tiny illegible page detail. Peaceful compact Japanese still life: large ivory teapot, open book with blank pages, one pink cherry blossom on a sunlit wooden desk. Soft sage and warm cream, generous quiet background.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 3,
+      "jobId": "d6b3a1ab-c351-4fcf-9c2f-7faebe8e5024",
+      "sourceImageId": "fdcc972c-5124-5c77-b0ba-1edb4d885180",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 11181,
+      "thumbnailBytes": 5579,
+      "nativeSha256": "f44458e20cc658d1fb88835d76d09e51ab11d66aae8e96c67448a33aaac5a03f",
+      "pixelSha256": "441a138bb0389fd7a59ca7cc1c492d6f4fe8bf9d39cda72c6676edd5210dcba9",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/d6b3a1ab-c351-4fcf-9c2f-7faebe8e5024/download"
+    },
+    {
+      "number": 31,
+      "id": "study-days-0100",
+      "titleEn": "Frequent Flyer",
+      "titleJa": "学びの常連",
+      "visibility": "visible",
+      "artBrief": "**Science-fiction travel.** A compact starship with a book-shaped sail passes colorful planets. Travel patches are abstract shapes, not flags or passport text.",
+      "originalFile": "native/study-days-0100.png",
+      "thumbnailFile": "thumbs/study-days-0100.png",
+      "enlargedFile": "enlarged/study-days-0100.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Science-fiction travel. A compact starship with a book-shaped sail passes colorful planets. Travel patches are abstract shapes, not flags or passport text. A compact little starship with one large open-book-shaped ivory sail passing two bold colorful planets. Deep space blues with coral and gold, dynamic but simple silhouette.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 2,
+      "jobId": "24299bf6-2260-49a4-8ef4-0f8d6805f7ba",
+      "sourceImageId": "7de17b91-5916-5d69-b806-1f572c6401e9",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 8732,
+      "thumbnailBytes": 4972,
+      "nativeSha256": "08592a5a320d072060312758e9dff086f2be75585e5dc3f05f921b1f9be8c4cf",
+      "pixelSha256": "57ea687506ff2bc22714837d8fd93cb56bd28b0f74ed0b132e41fcdcf807a33c",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/24299bf6-2260-49a4-8ef4-0f8d6805f7ba/download"
+    },
+    {
+      "number": 32,
+      "id": "study-days-0250",
+      "titleEn": "Part of the Furniture",
+      "titleJa": "もはや住人",
+      "visibility": "visible",
+      "artBrief": "**Cozy storybook.** A well-loved armchair, a slightly precarious book stack, and a tiny creature asleep on the armrest. Warm light gives the chair a recognizable silhouette.",
+      "originalFile": "native/study-days-0250.png",
+      "thumbnailFile": "thumbs/study-days-0250.png",
+      "enlargedFile": "enlarged/study-days-0250.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cozy storybook. A well-loved armchair, a slightly precarious book stack, and a tiny creature asleep on the armrest. Warm light gives the chair a recognizable silhouette. Use a tiny sleeping white fox on the chair armrest. Make the comfy amber armchair and chunky stack of blue/red books the main shapes; warm lamp light, gentle storybook interior.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 5,
+      "jobId": "e76a14cc-e43d-430c-92aa-2f69024c2ee3",
+      "sourceImageId": "6d22c001-c971-5487-9415-597a14ca8618",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 12870,
+      "thumbnailBytes": 6209,
+      "nativeSha256": "c398c3b77d40bcd80ffbb77ad4e13531aa72ce44f978c5f67d9ebb051b24b24c",
+      "pixelSha256": "904d6d63531ac07fb47c1b85877139e57bebf172ae5d6c9feaad593d6deb1939",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/e76a14cc-e43d-430c-92aa-2f69024c2ee3/download"
+    },
+    {
+      "number": 33,
+      "id": "loyalty-0003m",
+      "titleEn": "Getting Comfortable",
+      "titleJa": "ここがしっくり",
+      "visibility": "visible",
+      "artBrief": "**French romance.** A welcoming cafe window with a book, flowering plant, and a comfortably rumpled seat cushion. Intimate, warm, and unhurried.",
+      "originalFile": "native/loyalty-0003m.png",
+      "thumbnailFile": "thumbs/loyalty-0003m.png",
+      "enlargedFile": "enlarged/loyalty-0003m.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. French romance. A welcoming cafe window with a book, flowering plant, and a comfortably rumpled seat cushion. Intimate, warm, and unhurried. A warm cafe window still life, large closed blue book and a flowering plant beside a softly rumpled chair cushion. Rose, sage, creamy warm light, relaxed intimate French atmosphere.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 4,
+      "jobId": "9f8809af-28eb-4e31-bad2-15850ecbc57b",
+      "sourceImageId": "b65f19f4-9611-5c3a-9dc2-99407b8a6941",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 15517,
+      "thumbnailBytes": 7167,
+      "nativeSha256": "24b56976b4cfea9f42a845305ee3b56c9983fd1cfb61f334f22bedc5db50085c",
+      "pixelSha256": "c6f615faf51145605461a3b284ef7099e8a8598c94a64ebe0d88d3738545c5a5",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/9f8809af-28eb-4e31-bad2-15850ecbc57b/download"
+    },
+    {
+      "number": 34,
+      "id": "loyalty-0006m",
+      "titleEn": "Long Story Short",
+      "titleJa": "気づけば半年",
+      "visibility": "visible",
+      "artBrief": "**Romantic anime landscape.** A little riverside bench, a closed notebook, and glowing lantern reflections under a violet evening sky. Original quiet storytelling scene.",
+      "originalFile": "native/loyalty-0006m.png",
+      "thumbnailFile": "thumbs/loyalty-0006m.png",
+      "enlargedFile": "enlarged/loyalty-0006m.png",
+      "ownerApproved": true,
+      "status": "completed",
+      "origin": "approved sample batch",
+      "jobId": "d27c2e28-bfce-4a02-a4dc-9b4647a3e93d",
+      "sourceImageId": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "request": {
+        "description": "Original collectible achievement artwork for a language-learning app. One complete square scene, native 128x128 pixel art. Crisp deliberate pixel clusters, restrained 32-color palette, no antialiasing, no blur. Strong focal shape legible as a 64x64 thumbnail. Fill the square with the environment; keep the focal subject inside an 8-pixel safe margin. No frame, no lettering, numbers, logos or watermarks. Quiet romantic anime-inspired riverside landscape at violet dusk. A charming empty wooden bench with a clearly visible closed coral-colored notebook on its seat is the large focal subject in the foreground. A softly glowing amber lantern beside the bench casts warm light; its reflection and a few distant lantern reflections shimmer as deliberate pixel clusters across the indigo river. Lavender evening sky and a simple distant riverbank silhouette. The bench and notebook should read clearly even when small, with intimate storytelling and spacious calm; a warm place waiting for its reader. Painterly pixel clusters but firm pixel edges, luminous violet, rose, amber and indigo, no people, no text.",
+        "width": 128,
+        "height": 128,
+        "no_background": false,
+        "max_colors": 32
+      },
+      "sourceSampleFile": "../first-edition-samples/long-story-short.png",
+      "chargedGenerations": 6,
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "nativeBytes": 13964,
+      "thumbnailBytes": 6947,
+      "nativeSha256": "dedb5371616529cfcbceb056d40ed6b5a809e84bd50a0d3552f053d32b70ed54",
+      "pixelSha256": "213b0e3a43730314fa5f28f8c71fab2cf317e33cac3acb29768e740933aa0f08",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/d27c2e28-bfce-4a02-a4dc-9b4647a3e93d/download"
+    },
+    {
+      "number": 35,
+      "id": "loyalty-0012m",
+      "titleEn": "One Year Together",
+      "titleJa": "一緒に歩んだ1年",
+      "visibility": "visible",
+      "artBrief": "**Japanese seasons.** One strong tree silhouette changes from blossoms to summer green, maple red, and snow across its canopy. A small book rests at the roots. No anniversary number in the art.",
+      "originalFile": "native/loyalty-0012m.png",
+      "thumbnailFile": "thumbs/loyalty-0012m.png",
+      "enlargedFile": "enlarged/loyalty-0012m.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Japanese seasons. One strong tree silhouette changes from blossoms to summer green, maple red, and snow across its canopy. A small book rests at the roots. No anniversary number in the art. One unmistakable tree with four distinct canopy regions: pale pink blossom, summer green, autumn red, snowy white. One continuous trunk and a closed book at the roots, no divided-panel borders.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 6,
+      "jobId": "ddb4bab2-06ef-446f-a67d-9fc275b2f406",
+      "sourceImageId": "a0159dca-ff58-53a3-a05b-edfc6adc85b6",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 16317,
+      "thumbnailBytes": 7805,
+      "nativeSha256": "f11fd0dc7d59baa253e730d32a3ddbc776985ae66250ccd54206ff5f6823fc42",
+      "pixelSha256": "92441c6b7ef05982ded5a3468eef8031304478c2378907546bb1b405041d5a0d",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/ddb4bab2-06ef-446f-a67d-9fc275b2f406/download"
+    },
+    {
+      "number": 36,
+      "id": "return-0014d",
+      "titleEn": "Where Have You Been?",
+      "titleJa": "おかえり、待ってたよ",
+      "visibility": "hidden",
+      "artBrief": "**Cute chibi.** A worried-but-delighted companion holds a lantern and a comically oversized map. The map contains doodle paths, not readable words.",
+      "originalFile": "native/return-0014d.png",
+      "thumbnailFile": "thumbs/return-0014d.png",
+      "enlargedFile": "enlarged/return-0014d.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cute chibi. A worried-but-delighted companion holds a lantern and a comically oversized map. The map contains doodle paths, not readable words. White fox companion with tall pointed ears and fluffy tail, holding one bright lantern and an oversized unfolded map with abstract paths. Relief and delight in the expression, gentle dusk colors, no scolding.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 6,
+      "jobId": "0198d26a-ec93-4820-820a-1c38498d71cb",
+      "sourceImageId": "756d9ec5-666d-5004-8dae-213a7eafdc20",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 13995,
+      "thumbnailBytes": 6867,
+      "nativeSha256": "e596047425fec6929d832c3146702e7ffe065541108d08a12e7ab40683670ca0",
+      "pixelSha256": "19e61edd93020aa1ce50590aecacfb842857651622f82604cfd59bb6544689fc",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/0198d26a-ec93-4820-820a-1c38498d71cb/download"
+    },
+    {
+      "number": 37,
+      "id": "return-0090d",
+      "titleEn": "Somehow, You Returned",
+      "titleJa": "伝説の帰還",
+      "visibility": "hidden",
+      "artBrief": "**Dark fantasy.** An absurdly small armored traveler emerges from a moss-covered doorway holding a warm lantern. Gentle humor and the glow of a second beginning.",
+      "originalFile": "native/return-0090d.png",
+      "thumbnailFile": "thumbs/return-0090d.png",
+      "enlargedFile": "enlarged/return-0090d.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Dark fantasy. An absurdly small armored traveler emerges from a moss-covered doorway holding a warm lantern. Gentle humor and the glow of a second beginning. Tiny friendly armored traveler under a huge moss-covered doorway, one bright amber lantern at chest height. Strong humorous size contrast, deep slate-violet and moss green, hopeful return.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 6,
+      "jobId": "bdeb4caf-2d52-4ab9-bf67-21271a0a08b4",
+      "sourceImageId": "ed64e6ad-2fc3-5eb9-b247-30d6d7b84a3d",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 17196,
+      "thumbnailBytes": 7639,
+      "nativeSha256": "6d94c731b490f145d12bf54dafb8db0f5887d5bfd3ea133cc81012b1c1cbce15",
+      "pixelSha256": "ceefbf4a15d989917b7282005caa68d3f9029555990fe95e69f6ee689214b4bf",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/bdeb4caf-2d52-4ab9-bf67-21271a0a08b4/download"
+    },
+    {
+      "number": 38,
+      "id": "irregular-0001",
+      "titleEn": "Consistently Inconsistent",
+      "titleJa": "安定の気まぐれ",
+      "visibility": "hidden",
+      "artBrief": "**Pixel fine art.** A whimsical calendar-like mosaic with scattered star markers, a wandering ribbon, and a tiny paintbrush. No dates, numbers, or shame-coded red crosses.",
+      "originalFile": "native/irregular-0001.png",
+      "thumbnailFile": "thumbs/irregular-0001.png",
+      "enlargedFile": "enlarged/irregular-0001.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Pixel fine art. A whimsical calendar-like mosaic with scattered star markers, a wandering ribbon, and a tiny paintbrush. No dates, numbers, or shame-coded red crosses. One central abstract calendar-like mosaic of blank pastel tiles, irregularly placed gold star markers, a wandering coral ribbon and small paintbrush. Playful painterly pixel clusters, no dates or numerals.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 6,
+      "jobId": "cf6b99b2-cfc5-4f18-a73c-9c00892767a9",
+      "sourceImageId": "c28fd78c-dd58-5623-827f-1569129bd9b2",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 13198,
+      "thumbnailBytes": 6744,
+      "nativeSha256": "dec7653c987ac05c9660b2bfefe93212be8d8c23e669d97abc59b8f24b17d17d",
+      "pixelSha256": "deeb736f52583cded9f865c3b65b87a8298f776a619220214dad2d69fed375aa",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/cf6b99b2-cfc5-4f18-a73c-9c00892767a9/download"
+    },
+    {
+      "number": 39,
+      "id": "study-and-lessons-week",
+      "titleEn": "Side Quests & Main Story",
+      "titleJa": "サブクエも本編も",
+      "visibility": "visible",
+      "artBrief": "**Retro adventure.** Two paths—one marked by a book, the other by speech-bubble shapes—meet at a bright gateway. One small traveler proceeds through it. No text embedded in the symbols.",
+      "originalFile": "native/study-and-lessons-week.png",
+      "thumbnailFile": "thumbs/study-and-lessons-week.png",
+      "enlargedFile": "enlarged/study-and-lessons-week.png",
+      "ownerApproved": false,
+      "status": "completed",
+      "origin": "remaining artwork batch",
+      "request": {
+        "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Retro adventure. Two paths—one marked by a book, the other by speech-bubble shapes—meet at a bright gateway. One small traveler proceeds through it. No text embedded in the symbols. A white fox traveler where two broad paths meet at one bright gateway. One path has a large open-book symbol, the other a single blank speech-bubble sign. Warm adventure greens and gold, clear simple convergence.",
+        "width": 128,
+        "height": 128,
+        "max_colors": 32,
+        "no_background": false,
+        "style_image": {
+          "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+          "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+        },
+        "style_options": {
+          "color_palette": false,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        }
+      },
+      "batch": 2,
+      "jobId": "735c2a8e-19b8-41e6-a44d-dd95e2654dde",
+      "sourceImageId": "a16277e4-fc6f-5f69-941e-85342d0d75a9",
+      "colors": 32,
+      "dimensions": [
+        128,
+        128
+      ],
+      "opaque": true,
+      "chargedGenerations": 6,
+      "nativeBytes": 14197,
+      "thumbnailBytes": 7188,
+      "nativeSha256": "b8c5ce9498875589e4bef21c7729b76cac52cc6689c81397afb4577330e68926",
+      "pixelSha256": "ae11fdad58c97be4a2b8f08cd69a759a7a22c2aa2361d2612ed02d1571e0f4a3",
+      "provider": "PixelLab",
+      "tool": "create_image_pro_flash",
+      "downloadUrl": "https://api.pixellab.ai/mcp/images/735c2a8e-19b8-41e6-a44d-dd95e2654dde/download"
+    }
+  ],
+  "completedArtworkCount": 39,
+  "newArtworkGenerationUnits": 222,
+  "nativeBytes": 550666,
+  "thumbnailBytes": 263357,
+  "learningSubjects": [
+    "ENGLISH",
+    "JAPANESE"
+  ],
+  "artworkContainsLocalizedText": false,
+  "correctiveEditUnits": 6,
+  "precedingSampleGenerationUnits": 24,
+  "totalProjectGenerationUnits": 246,
+  "visualReview": {
+    "passed": true,
+    "reviewer": "Codex",
+    "date": "2026-11-18",
+    "sizes": [
+      64,
+      128,
+      256
+    ],
+    "evidence": "All six batches inspected at 64, 128 and 256 pixels on light review sheets; whole collection inspected at native size on dark surroundings. Original samples previously reviewed on both backgrounds.",
+    "corrections": [
+      "Seven-Day Spell: removed eighth star; seven-star result visually confirmed."
+    ],
+    "limitations": [
+      "Artwork review does not validate the unimplemented application gallery, popup or deployed performance.",
+      "Human approval of each newly generated individual artwork is not implied by generation authorization."
+    ]
+  }
+}

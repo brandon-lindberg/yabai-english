@@ -1,0 +1,34 @@
+{
+  "number": 6,
+  "id": "cards-1000",
+  "titleEn": "Grand Librarian",
+  "titleJa": "大図書館の司書",
+  "visibility": "visible",
+  "artBrief": "**Pixel fine art.** A grand, warmly lit library with one imposing central bookshelf and a tiny ladder-climbing librarian; painterly clusters, restrained detail, strong light shape.",
+  "originalFile": "native/cards-1000.png",
+  "thumbnailFile": "thumbs/cards-1000.png",
+  "enlargedFile": "enlarged/cards-1000.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Pixel fine art. A grand, warmly lit library with one imposing central bookshelf and a tiny ladder-climbing librarian; painterly clusters, restrained detail, strong light shape. One huge glowing bookcase is the composition's central shape, the librarian and ladder small accents. A restrained painterly warm sepia, amber, teal-green palette.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 6,
+  "jobId": "35a0264b-0b85-4661-9c6a-b1069fa9850c",
+  "sourceImageId": "d270e3e5-cefe-5a24-ae49-f33070fa9387"
+}

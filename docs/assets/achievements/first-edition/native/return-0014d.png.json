@@ -1,0 +1,48 @@
+{
+  "number": 36,
+  "id": "return-0014d",
+  "titleEn": "Where Have You Been?",
+  "titleJa": "おかえり、待ってたよ",
+  "visibility": "hidden",
+  "artBrief": "**Cute chibi.** A worried-but-delighted companion holds a lantern and a comically oversized map. The map contains doodle paths, not readable words.",
+  "originalFile": "native/return-0014d.png",
+  "thumbnailFile": "thumbs/return-0014d.png",
+  "enlargedFile": "enlarged/return-0014d.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cute chibi. A worried-but-delighted companion holds a lantern and a comically oversized map. The map contains doodle paths, not readable words. White fox companion with tall pointed ears and fluffy tail, holding one bright lantern and an oversized unfolded map with abstract paths. Relief and delight in the expression, gentle dusk colors, no scolding.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 6,
+  "jobId": "0198d26a-ec93-4820-820a-1c38498d71cb",
+  "sourceImageId": "756d9ec5-666d-5004-8dae-213a7eafdc20",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 13995,
+  "thumbnailBytes": 6867,
+  "nativeSha256": "e596047425fec6929d832c3146702e7ffe065541108d08a12e7ab40683670ca0",
+  "pixelSha256": "19e61edd93020aa1ce50590aecacfb842857651622f82604cfd59bb6544689fc",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/0198d26a-ec93-4820-820a-1c38498d71cb/download"
+}

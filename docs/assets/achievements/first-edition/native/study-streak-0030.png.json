@@ -1,0 +1,48 @@
+{
+  "number": 19,
+  "id": "study-streak-0030",
+  "titleEn": "Flame Keeper",
+  "titleJa": "炎を絶やさぬ者",
+  "visibility": "visible",
+  "artBrief": "**Dark fantasy.** A small keeper shelters a bright brazier beneath a broken stone canopy while rain falls outside. Warmth and resilience lead the scene.",
+  "originalFile": "native/study-streak-0030.png",
+  "thumbnailFile": "thumbs/study-streak-0030.png",
+  "enlargedFile": "enlarged/study-streak-0030.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Dark fantasy. A small keeper shelters a bright brazier beneath a broken stone canopy while rain falls outside. Warmth and resilience lead the scene. A humble keeper shielding a bright amber brazier under broken slate canopy. Rain stays in the cool blue background; large warm flame as focal shape, resilient and cozy, not threatening.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 5,
+  "jobId": "7bac4824-f39c-400e-a84d-9fe6f746a581",
+  "sourceImageId": "c57d8fe6-3c48-5b41-a21d-60874e31aa1f",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 17046,
+  "thumbnailBytes": 8151,
+  "nativeSha256": "fe75efa26ad6b236d304d1026599e2a4db09641fddd91e124349ae79796b9089",
+  "pixelSha256": "cea2262d1bdd2e4eb5d37e5db5c44953ef925f54fc28bec914e0b3952364cb20",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/7bac4824-f39c-400e-a84d-9fe6f746a581/download"
+}

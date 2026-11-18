@@ -1,0 +1,34 @@
+{
+  "number": 38,
+  "id": "irregular-0001",
+  "titleEn": "Consistently Inconsistent",
+  "titleJa": "安定の気まぐれ",
+  "visibility": "hidden",
+  "artBrief": "**Pixel fine art.** A whimsical calendar-like mosaic with scattered star markers, a wandering ribbon, and a tiny paintbrush. No dates, numbers, or shame-coded red crosses.",
+  "originalFile": "native/irregular-0001.png",
+  "thumbnailFile": "thumbs/irregular-0001.png",
+  "enlargedFile": "enlarged/irregular-0001.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Pixel fine art. A whimsical calendar-like mosaic with scattered star markers, a wandering ribbon, and a tiny paintbrush. No dates, numbers, or shame-coded red crosses. One central abstract calendar-like mosaic of blank pastel tiles, irregularly placed gold star markers, a wandering coral ribbon and small paintbrush. Playful painterly pixel clusters, no dates or numerals.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 6,
+  "jobId": "cf6b99b2-cfc5-4f18-a73c-9c00892767a9",
+  "sourceImageId": "c28fd78c-dd58-5623-827f-1569129bd9b2"
+}

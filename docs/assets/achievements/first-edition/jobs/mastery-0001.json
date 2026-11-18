@@ -1,0 +1,34 @@
+{
+  "number": 7,
+  "id": "mastery-0001",
+  "titleEn": "That One Stuck!",
+  "titleJa": "ひとつ、身についた！",
+  "visibility": "visible",
+  "artBrief": "**Cute chibi.** A delighted little creature proudly holds a single star-shaped card close to its chest. A tiny celebratory sparkle, no brain or intelligence ranking imagery.",
+  "originalFile": "native/mastery-0001.png",
+  "thumbnailFile": "thumbs/mastery-0001.png",
+  "enlargedFile": "enlarged/mastery-0001.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cute chibi. A delighted little creature proudly holds a single star-shaped card close to its chest. A tiny celebratory sparkle, no brain or intelligence ranking imagery. The delighted creature is the app's white fox, with pointed ears, tapered muzzle and fluffy tail. Make the large gold star-shaped card and pleased expression the focus.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 1,
+  "jobId": "e6dbdbb8-8394-4a85-90d6-c1ca6f35e805",
+  "sourceImageId": "6f97ff1b-f4ff-5281-b9ee-70c80e181c36"
+}

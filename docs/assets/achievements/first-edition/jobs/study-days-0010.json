@@ -1,0 +1,34 @@
+{
+  "number": 29,
+  "id": "study-days-0010",
+  "titleEn": "Showing Up",
+  "titleJa": "今日も来た！",
+  "visibility": "visible",
+  "artBrief": "**Chibi adventure.** A small learner waves from a path of stepping stones, carrying a bright book-shaped backpack. Each step feels achievable.",
+  "originalFile": "native/study-days-0010.png",
+  "thumbnailFile": "thumbs/study-days-0010.png",
+  "enlargedFile": "enlarged/study-days-0010.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Chibi adventure. A small learner waves from a path of stepping stones, carrying a bright book-shaped backpack. Each step feels achievable. White fox learner with pointed ears and a fluffy tail, waving from a simple path of large stepping stones. Bright blue book-shaped backpack, hopeful grassy spring landscape, clear friendly silhouette.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 1,
+  "jobId": "d0c0454e-1ca8-4fcd-9af5-746ab8c0d4a9",
+  "sourceImageId": "ee314325-555d-5224-bfef-47d1a3199f09"
+}

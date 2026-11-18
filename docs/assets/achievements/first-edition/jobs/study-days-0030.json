@@ -1,0 +1,34 @@
+{
+  "number": 30,
+  "id": "study-days-0030",
+  "titleEn": "Making It a Habit",
+  "titleJa": "いつもの習慣",
+  "visibility": "visible",
+  "artBrief": "**Quiet spring Japan.** A teapot, open book, and one cherry blossom at a sunlit desk. A compact still life with no tiny illegible page detail.",
+  "originalFile": "native/study-days-0030.png",
+  "thumbnailFile": "thumbs/study-days-0030.png",
+  "enlargedFile": "enlarged/study-days-0030.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Quiet spring Japan. A teapot, open book, and one cherry blossom at a sunlit desk. A compact still life with no tiny illegible page detail. Peaceful compact Japanese still life: large ivory teapot, open book with blank pages, one pink cherry blossom on a sunlit wooden desk. Soft sage and warm cream, generous quiet background.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 3,
+  "jobId": "d6b3a1ab-c351-4fcf-9c2f-7faebe8e5024",
+  "sourceImageId": "fdcc972c-5124-5c77-b0ba-1edb4d885180"
+}
