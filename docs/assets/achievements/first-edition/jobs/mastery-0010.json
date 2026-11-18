@@ -1,0 +1,34 @@
+{
+  "number": 8,
+  "id": "mastery-0010",
+  "titleEn": "Memory Smith",
+  "titleJa": "記憶の鍛冶屋",
+  "visibility": "visible",
+  "artBrief": "**Samurai-era craft.** A small swordsmith at a forge shapes a glowing bookmark on an anvil. Warm sparks, indigo apron, no military insignia.",
+  "originalFile": "native/mastery-0010.png",
+  "thumbnailFile": "thumbs/mastery-0010.png",
+  "enlargedFile": "enlarged/mastery-0010.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Samurai-era craft. A small swordsmith at a forge shapes a glowing bookmark on an anvil. Warm sparks, indigo apron, no military insignia. A peaceful craft scene, not combat. One strong glowing anvil and large bookmark shape, indigo-robed chibi artisan, amber sparks in a dark wooden workshop.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 3,
+  "jobId": "520721c1-898d-4856-9403-3464fa12c9d1",
+  "sourceImageId": "bf16a0ab-9d83-5bc8-b9a6-23efd737e601"
+}

@@ -1,0 +1,48 @@
+{
+  "number": 20,
+  "id": "lessons-0001",
+  "titleEn": "Hello There",
+  "titleJa": "こんにちは、冒険！",
+  "visibility": "visible",
+  "artBrief": "**Romantic French cafe.** Two welcoming chairs, two cups, and an open notebook at a tiny window table; the scene celebrates conversation, not a romantic teacher relationship.",
+  "originalFile": "native/lessons-0001.png",
+  "thumbnailFile": "thumbs/lessons-0001.png",
+  "enlargedFile": "enlarged/lessons-0001.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Romantic French cafe. Two welcoming chairs, two cups, and an open notebook at a tiny window table; the scene celebrates conversation, not a romantic teacher relationship. Compact French cafe vignette. Two clearly separated welcoming chairs and two cups around a tiny round table with an open notebook; window light, creamy rose and warm amber. No people.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 4,
+  "jobId": "e0b70a43-7c70-4aca-b236-3367ca2ce570",
+  "sourceImageId": "6bac696e-4e4a-5915-8424-9e4a404e5e72",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 16237,
+  "thumbnailBytes": 7388,
+  "nativeSha256": "42642924267b821ec60987de4b004f168cb6a22142bfcfdf1b6460294fb0876f",
+  "pixelSha256": "17a760ba1a56d5ad48f2298fd1239a21be8e4d8277ae9e1799b35d58574a6263",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/e0b70a43-7c70-4aca-b236-3367ca2ce570/download"
+}

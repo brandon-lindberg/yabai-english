@@ -1,0 +1,37 @@
+{
+  "achievementId": "cards-0001",
+  "title": "First Spark",
+  "slug": "first-spark",
+  "theme": "Sunny platformer",
+  "provider": "PixelLab",
+  "tool": "edit_image_pro_flash",
+  "createdOn": "2026-11-18",
+  "approved": false,
+  "status": "completed",
+  "request": {
+    "source_image_id": "34b460aa-6b03-57a6-b7e7-15e40e6c88f8",
+    "method": "text",
+    "use_color_palette_correction": true,
+    "description": "Edit only the little chicken-like adventurer into a clearly recognizable cute WHITE FOX mascot, echoing the app's white fox logo: two tall pointed triangular ears with dark inner ears, a tapered pointed muzzle with a tiny black nose, fluffy white cheek tufts, two bright dark eyes, small fox paws holding the existing open blue book, and a fluffy white fox tail curling visibly behind its body. Chibi fox proportions, delighted studious expression. It must read immediately as a fox, not a bird or cat: no beak, no wings, no head crest. Keep the same character position, approximate scale and cheerful pose. Preserve the original golden star, beam of light, blue book, floating grassy island, turquoise sky, clouds, composition and warm joyful platformer mood. Keep the same native 128x128 pixel grid and crisp original pixel-art style, restrained source palette, opaque full-scene background. No text or lettering. Change the mascot only."
+  },
+  "jobId": "0b07b095-2437-414f-a7c2-e7e25aac33d1",
+  "sourceImageId": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+  "originalFile": "first-spark-fox-v2.png",
+  "thumbnailFile": "first-spark-fox-v2-64.png",
+  "chargedGenerations": 6,
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/0b07b095-2437-414f-a7c2-e7e25aac33d1/download",
+  "dimensions": [
+    128,
+    128
+  ],
+  "colors": 26,
+  "opaque": true,
+  "nativeBytes": 9633,
+  "thumbnailBytes": 5059,
+  "nativeSha256": "19beca1efd7f59e0f16731ab9ca6e5dad00ad363994e3a38692d4aad89d91def",
+  "pixelSha256": "8b6a1995ef00f7955f33b852558b3c23e5e46a590bfcfe067287977336508545",
+  "exportResampling": "nearest-neighbor; originals retain their native pixels",
+  "reviewStatus": "Theme approved; fox revision completed for owner preview",
+  "parentSourceImageId": "34b460aa-6b03-57a6-b7e7-15e40e6c88f8",
+  "brandReference": "apps/web/public/apple-touch-icon.png (visually inspected; white fox anatomy described in edit prompt)"
+}

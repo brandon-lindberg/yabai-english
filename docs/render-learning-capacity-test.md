@@ -1,5 +1,7 @@
 # Render learning capacity test
 
+For ongoing feature and release work, follow the [foundational performance policy](performance-policy.md). This document retains the specific procedure and observations for the learning-performance validation deployment; it is not a blanket certification of later changes.
+
 This is a controlled validation deployment of the learning performance changes. Local checks qualify the code for this test; they do not certify the 512 MB / 0.5 CPU Render instance. Brandon owns staging, commits, pushes and deployment.
 
 ## Deploy

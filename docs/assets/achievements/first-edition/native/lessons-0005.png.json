@@ -1,0 +1,48 @@
+{
+  "number": 21,
+  "id": "lessons-0005",
+  "titleEn": "I Have Notes",
+  "titleJa": "メモならあります！",
+  "visibility": "visible",
+  "artBrief": "**Expressive anime pixel art.** A delighted notebook character raises a pencil like a dramatic prop, with flying bookmarks and a spotlight-shaped burst. No rendered handwriting.",
+  "originalFile": "native/lessons-0005.png",
+  "thumbnailFile": "thumbs/lessons-0005.png",
+  "enlargedFile": "enlarged/lessons-0005.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Expressive anime pixel art. A delighted notebook character raises a pencil like a dramatic prop, with flying bookmarks and a spotlight-shaped burst. No rendered handwriting. One cheerful coral notebook character, with expressive eyes and small arms, lifts a large pencil dramatically. Two flowing bookmarks and golden theatrical rays, no written page content.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 6,
+  "jobId": "60abef50-c197-48cd-bf83-d1e19ddae8c7",
+  "sourceImageId": "37ac4c3e-fce6-5fbd-8c96-f166b0de69f5",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 11691,
+  "thumbnailBytes": 5868,
+  "nativeSha256": "d4f0fca4fc1de414e12e0e8e9d11c373e2e7e795edf195d48c106caddb14a64f",
+  "pixelSha256": "80a9778751a76cf86d52b21b9251cdb59452d690742862112115da1a5b985f22",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/60abef50-c197-48cd-bf83-d1e19ddae8c7/download"
+}

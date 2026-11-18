@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { answersMatch, mcqCanonicalAnswer } from "./quiz";
+import { answersMatch, mcqCanonicalAnswer, shuffleInPlace } from "./quiz";
 
 const reorderTokenSchema = z.object({
   id: z.string().min(1),
@@ -61,17 +61,17 @@ export function queuePayloadFromExercise(ex: StudyCardExercise): StudyExerciseQu
 
 /** Deterministic shuffle for stable UX per card id (not cryptographically secure). */
 export function shuffleTokensForQueue<T extends { id: string }>(tokens: T[], seed: string): T[] {
-  const arr = [...tokens];
-  let h = 0;
+  const shuffled = [...tokens];
+  let state = 0;
   for (let i = 0; i < seed.length; i++) {
-    h = (h * 31 + seed.charCodeAt(i)) | 0;
+    state = (Math.imul(state, 31) + seed.charCodeAt(i)) >>> 0;
   }
-  for (let i = arr.length - 1; i > 0; i--) {
-    h = (h * 1103515245 + 12345) | 0;
-    const j = Math.abs(h) % (i + 1);
-    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
-  }
-  return arr;
+  shuffleInPlace(shuffled, () => {
+    // Exact 32-bit multiplication preserves the bits lost by floating-point multiplication.
+    state = (Math.imul(state, 1103515245) + 12345) >>> 0;
+    return state / 0x1_0000_0000;
+  });
+  return shuffled;
 }
 
 export type StudyReviewPayload =

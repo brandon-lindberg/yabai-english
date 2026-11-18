@@ -1,0 +1,48 @@
+{
+  "number": 35,
+  "id": "loyalty-0012m",
+  "titleEn": "One Year Together",
+  "titleJa": "一緒に歩んだ1年",
+  "visibility": "visible",
+  "artBrief": "**Japanese seasons.** One strong tree silhouette changes from blossoms to summer green, maple red, and snow across its canopy. A small book rests at the roots. No anniversary number in the art.",
+  "originalFile": "native/loyalty-0012m.png",
+  "thumbnailFile": "thumbs/loyalty-0012m.png",
+  "enlargedFile": "enlarged/loyalty-0012m.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Japanese seasons. One strong tree silhouette changes from blossoms to summer green, maple red, and snow across its canopy. A small book rests at the roots. No anniversary number in the art. One unmistakable tree with four distinct canopy regions: pale pink blossom, summer green, autumn red, snowy white. One continuous trunk and a closed book at the roots, no divided-panel borders.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 6,
+  "jobId": "ddb4bab2-06ef-446f-a67d-9fc275b2f406",
+  "sourceImageId": "a0159dca-ff58-53a3-a05b-edfc6adc85b6",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 16317,
+  "thumbnailBytes": 7805,
+  "nativeSha256": "f11fd0dc7d59baa253e730d32a3ddbc776985ae66250ccd54206ff5f6823fc42",
+  "pixelSha256": "92441c6b7ef05982ded5a3468eef8031304478c2378907546bb1b405041d5a0d",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/ddb4bab2-06ef-446f-a67d-9fc275b2f406/download"
+}

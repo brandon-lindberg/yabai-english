@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../../messages/en.json";
 import { BookingCancelButton } from "../booking-cancel-button";
@@ -14,7 +15,8 @@ const preview = {
   reschedule: { allowed: true }, timeZone: "Asia/Tokyo", refundAmountYen: 5000,
 };
 const reply = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status });
-const show = () => render(<NextIntlClientProvider locale="en" messages={en}><BookingCancelButton bookingId="booking" /></NextIntlClientProvider>);
+const view = <NextIntlClientProvider locale="en" messages={en}><BookingCancelButton bookingId="booking" /></NextIntlClientProvider>;
+const show = () => render(view);
 function mockRequests(options: { late?: boolean; slots?: boolean; boundary?: boolean } = {}) {
   const fetch = vi.fn(async (url: string, init?: RequestInit) => {
     if (url.endsWith("/reschedule")) return reply(init?.method === "POST" ? { ok: true } : { slots: options.slots === false ? [] : [
@@ -35,6 +37,20 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) { this.removeAttribute("open"); });
 });
 afterEach(() => { vi.unstubAllGlobals(); });
+
+test("the dashboard cancellation control accepts its first click once hydrated and opens the late preview", async () => {
+  const fetch = mockRequests({ late: true });
+  const container = document.createElement("div");
+  container.innerHTML = renderToString(view);
+  expect(container.querySelector("button")).toBeDisabled();
+  document.body.append(container);
+  render(view, { container, hydrate: true });
+  const button = screen.getByRole("button", { name: en.dashboard.cancelBooking });
+  await waitFor(() => expect(button).toBeEnabled());
+  fireEvent.click(button);
+  expect(await screen.findByRole("button", { name: en.dashboard.privateReschedule.lateCancelAction })).toBeVisible();
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
 
 test("Cancel booking opens the choices without cancelling or refunding", async () => {
   const fetch = mockRequests(); show();

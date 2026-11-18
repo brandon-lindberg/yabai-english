@@ -1,0 +1,48 @@
+{
+  "number": 14,
+  "id": "rank-0025",
+  "titleEn": "Quest Veteran",
+  "titleJa": "クエストの達人",
+  "visibility": "visible",
+  "artBrief": "**Samurai travel story.** A wandering scholar in a straw hat rests beside a milestone, carrying a bundle of books beneath an autumn tree. No rank insignia.",
+  "originalFile": "native/rank-0025.png",
+  "thumbnailFile": "thumbs/rank-0025.png",
+  "enlargedFile": "enlarged/rank-0025.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Samurai travel story. A wandering scholar in a straw hat rests beside a milestone, carrying a bundle of books beneath an autumn tree. No rank insignia. A peaceful small wandering scholar with a broad straw hat and visible book bundle under one red maple branch. Warm russet and muted blue, restful travel scene.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c70ec24-b514-59c8-bbe8-0f971bf33106",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 3,
+  "jobId": "a881774c-6e2a-4452-a7d7-ee329d09b7e4",
+  "sourceImageId": "15a2ab23-ec30-587c-9c80-724b0fd46211",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 13969,
+  "thumbnailBytes": 7005,
+  "nativeSha256": "658857349f432827bed679601dc8cd0d4b9ba98cf569dccd8d65285d775dcfdf",
+  "pixelSha256": "1225a0f4ce17e7e4735bba4f388de353b132bf9619d14e470ca4fff2578eef43",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/a881774c-6e2a-4452-a7d7-ee329d09b7e4/download"
+}

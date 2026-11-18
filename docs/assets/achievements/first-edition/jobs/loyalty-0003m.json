@@ -1,0 +1,34 @@
+{
+  "number": 33,
+  "id": "loyalty-0003m",
+  "titleEn": "Getting Comfortable",
+  "titleJa": "ここがしっくり",
+  "visibility": "visible",
+  "artBrief": "**French romance.** A welcoming cafe window with a book, flowering plant, and a comfortably rumpled seat cushion. Intimate, warm, and unhurried.",
+  "originalFile": "native/loyalty-0003m.png",
+  "thumbnailFile": "thumbs/loyalty-0003m.png",
+  "enlargedFile": "enlarged/loyalty-0003m.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. French romance. A welcoming cafe window with a book, flowering plant, and a comfortably rumpled seat cushion. Intimate, warm, and unhurried. A warm cafe window still life, large closed blue book and a flowering plant beside a softly rumpled chair cushion. Rose, sage, creamy warm light, relaxed intimate French atmosphere.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 4,
+  "jobId": "9f8809af-28eb-4e31-bad2-15850ecbc57b",
+  "sourceImageId": "b65f19f4-9611-5c3a-9dc2-99407b8a6941"
+}

@@ -79,6 +79,16 @@ jobs:
         run: yarn playwright install --with-deps chromium
 
       - name: Isolated English and Japanese lesson journeys
+        id: mirror_e2e
         run: yarn test:mirror:e2e
         env:
           MIRROR_TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
+
+      - name: Save failed browser page context
+        if: failure() && steps.mirror_e2e.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mirror-browser-error-context
+          path: apps/web/test-results/**/error-context.md
+          if-no-files-found: ignore
+          retention-days: 3

@@ -116,11 +116,26 @@ for (const scenario of releaseCases()) test(`${scenario.language}: private lesso
 });
 
 const savedBooking = (id: string) => fixtureCommand("release-status").bookings.find((row: { id: string }) => row.id === id);
+async function openLateCancellation(page: Page, bookingId: string, copy: typeof en | typeof ja) {
+  const nextLesson = page.getByRole("region", { name: copy.dashboard.highlights.nextLessonTitle, exact: true });
+  const [preview] = await Promise.all([
+    page.waitForResponse(response => response.url().endsWith(`/api/bookings/${bookingId}/cancel`) && response.request().method() === "GET"),
+    nextLesson.getByRole("button", { name: copy.dashboard.cancelBooking, exact: true }).click(),
+  ]);
+  expect(preview.status()).toBe(200);
+  expect(await preview.json()).toMatchObject({ studentPrivate: true, policy: { allowed: true, refundEligible: false, rescheduleOffered: true } });
+  const confirm = page.getByRole("dialog").getByRole("button", { name: copy.dashboard.privateReschedule.lateCancelAction, exact: true });
+  await expect(confirm).toBeVisible();
+  return confirm;
+}
+
 async function cancelLate(page: Page, bookingId: string, copy: typeof en | typeof ja) {
-  await page.getByRole("button", { name: copy.dashboard.cancelBooking, exact: true }).first().click();
-  const response = page.waitForResponse(response => response.url().endsWith(`/api/bookings/${bookingId}/cancel`) && response.request().method() === "POST");
-  await page.getByRole("dialog").getByRole("button", { name: copy.dashboard.privateReschedule.lateCancelAction, exact: true }).click();
-  expect((await response).status()).toBe(200);
+  const confirm = await openLateCancellation(page, bookingId, copy);
+  const [response] = await Promise.all([
+    page.waitForResponse(response => response.url().endsWith(`/api/bookings/${bookingId}/cancel`) && response.request().method() === "POST"),
+    confirm.click(),
+  ]);
+  expect(response.status()).toBe(200);
   await expect(page.getByRole("dialog").getByText(copy.dashboard.privateReschedule.requestSent, { exact: true })).toBeVisible();
 }
 
@@ -134,9 +149,8 @@ for (const scenario of releaseCases()) test(`${scenario.language}: late cancella
   const original = saved();
   await openLearner(page, learner.email, scenario);
   await expect(page.getByRole("button", { name: copy.dashboard.lessonDetail.rescheduleTitle, exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: copy.dashboard.cancelBooking, exact: true }).first().click();
+  await openLateCancellation(page, bookingId, copy);
   const dialog = page.getByRole("dialog");
-  await expect(dialog.getByRole("button", { name: copy.dashboard.privateReschedule.lateCancelAction, exact: true })).toBeVisible();
   await expect(dialog.getByRole("button", { name: copy.dashboard.lessonDetail.rescheduleTitle, exact: true })).toHaveCount(0);
   await dialog.getByRole("button", { name: copy.dashboard.cancelBookingKeep, exact: true }).click();
   expect(saved()).toEqual(original);

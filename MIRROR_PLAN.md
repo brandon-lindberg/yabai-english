@@ -4,6 +4,7 @@ Working branch: `the-mirror`. Brandon owns all commits and pushes.
 
 ## Binding rules
 
+- Performance is a release requirement: follow [the foundational performance policy](docs/performance-policy.md), measure affected paths before calling work ready, and disclose unverified deployment capacity.
 - Work one section at a time and report its evidence and remaining work.
 - For every implementation change: write a behavioral test, confirm red, implement, confirm green, then refactor while green.
 - Use impeccable for every design and style decision. Inherit the established design system unless a specific surface needs a deliberate new direction.

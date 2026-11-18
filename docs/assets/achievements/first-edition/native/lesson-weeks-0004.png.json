@@ -1,0 +1,48 @@
+{
+  "number": 26,
+  "id": "lesson-weeks-0004",
+  "titleEn": "Same Time Next Week?",
+  "titleJa": "また来週、この時間に",
+  "visibility": "visible",
+  "artBrief": "**Cozy French cafe.** A familiar corner table and an open appointment book under a hanging lamp. No clock hands implying a required lesson time.",
+  "originalFile": "native/lesson-weeks-0004.png",
+  "thumbnailFile": "thumbs/lesson-weeks-0004.png",
+  "enlargedFile": "enlarged/lesson-weeks-0004.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cozy French cafe. A familiar corner table and an open appointment book under a hanging lamp. No clock hands implying a required lesson time. An intimate empty cafe corner, round wooden table, large open appointment book with blank pages and a hanging amber lamp. Sage wall and terracotta upholstery, inviting evening glow.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 4,
+  "jobId": "df00b750-095c-43be-9373-a50bb48d3f09",
+  "sourceImageId": "59d06495-d755-5c54-9c5a-84b3a4994bae",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 12402,
+  "thumbnailBytes": 5869,
+  "nativeSha256": "4b7d52c30577147e17712338d4d5f43a0ecf9e8fdbf93c4215db2de23d04fffd",
+  "pixelSha256": "35e7865174041c0e2f7b2f0ffcbb8b72f671a07b65897dbf81ac8b18441f08e3",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/df00b750-095c-43be-9373-a50bb48d3f09/download"
+}

@@ -1,0 +1,34 @@
+{
+  "number": 32,
+  "id": "study-days-0250",
+  "titleEn": "Part of the Furniture",
+  "titleJa": "もはや住人",
+  "visibility": "visible",
+  "artBrief": "**Cozy storybook.** A well-loved armchair, a slightly precarious book stack, and a tiny creature asleep on the armrest. Warm light gives the chair a recognizable silhouette.",
+  "originalFile": "native/study-days-0250.png",
+  "thumbnailFile": "thumbs/study-days-0250.png",
+  "enlargedFile": "enlarged/study-days-0250.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cozy storybook. A well-loved armchair, a slightly precarious book stack, and a tiny creature asleep on the armrest. Warm light gives the chair a recognizable silhouette. Use a tiny sleeping white fox on the chair armrest. Make the comfy amber armchair and chunky stack of blue/red books the main shapes; warm lamp light, gentle storybook interior.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 5,
+  "jobId": "e76a14cc-e43d-430c-92aa-2f69024c2ee3",
+  "sourceImageId": "6d22c001-c971-5487-9415-597a14ca8618"
+}

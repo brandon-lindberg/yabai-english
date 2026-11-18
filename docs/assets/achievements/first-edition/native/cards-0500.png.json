@@ -1,0 +1,48 @@
+{
+  "number": 5,
+  "id": "cards-0500",
+  "titleEn": "Paper Dragon",
+  "titleJa": "紙のドラゴン",
+  "visibility": "visible",
+  "artBrief": "**Japanese paper fantasy.** An origami dragon unfolds from a stack of cards, with red maple leaves circling its wings. Clear dragon silhouette rather than intricate microtexture.",
+  "originalFile": "native/cards-0500.png",
+  "thumbnailFile": "thumbs/cards-0500.png",
+  "enlargedFile": "enlarged/cards-0500.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Japanese paper fantasy. An origami dragon unfolds from a stack of cards, with red maple leaves circling its wings. Clear dragon silhouette rather than intricate microtexture. A single bold crimson folded-paper dragon is the hero, with clearly folded wings and a stack of ivory cards beneath. Autumn gold and indigo setting.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 3,
+  "jobId": "d1eba8ca-d217-4534-8c2c-ae4d0e8d54bb",
+  "sourceImageId": "ebc6fbfe-ea17-5017-bd5d-f0a2605baaf5",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 16576,
+  "thumbnailBytes": 7545,
+  "nativeSha256": "2938bfd3451a74ef161d0039b4673688ec43f4b773f054361aa2d937f5aeead5",
+  "pixelSha256": "0e0cff06f3a0d476cebd501dc56da2828f6cde28d1bb0a48124c1a58dc0bfdfb",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/d1eba8ca-d217-4534-8c2c-ae4d0e8d54bb/download"
+}

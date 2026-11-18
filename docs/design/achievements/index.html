@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Art Gallery · Design preview</title>
+    <link rel="stylesheet" href="preview.css" />
+    <script defer src="visible-catalogue.js"></script>
+    <script defer src="preview.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <img
+          src="../../../apps/web/public/apple-touch-icon.png"
+          alt=""
+          width="32"
+          height="32"
+        /><strong id="brand"></strong>
+        <nav id="nav"></nav>
+      </div>
+    </header>
+    <main id="main"></main>
+    <aside id="toast" hidden>
+      <button id="toast-action"></button
+      ><button id="dismiss" type="button">×</button>
+    </aside>
+    <span id="announce" class="sr" role="status" aria-live="polite"></span>
+    <dialog id="detail">
+      <form method="dialog"><button id="close">×</button></form>
+      <div id="detail-content"></div>
+    </dialog>
+    <footer>
+      <div class="foot">
+        <span id="demo-label"></span
+        ><label
+          ><span id="subject-label"></span>
+          <select id="subject"></select></label
+        ><label
+          ><span id="lang-label"></span>
+          <select id="lang">
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+          </select></label
+        ><button id="reset"></button>
+      </div>
+    </footer>
+  </body>
+</html>

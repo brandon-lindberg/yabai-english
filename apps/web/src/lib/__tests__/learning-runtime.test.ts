@@ -56,6 +56,28 @@ test("a completed or failed handler releases its slot without retrying a mutatio
   expect(await response.json()).toEqual({ saved: true });
 });
 
+test("separately loaded routes share admission limits and return a retryable response on refusal", async () => {
+  vi.resetModules();
+  const route = await import("../learning-runtime");
+  const { learningWorkGate: routeGate } = await import("../learning-work-gate");
+  const leases = await Promise.all(Array.from({ length: 4 }, () => learningWorkGate.acquire()));
+  const queued = new AbortController();
+  const run = vi.fn(async () => Response.json({}));
+  try {
+    const pending = route.learningResponse(new Request("http://localhost", { signal: queued.signal }), "study.overview", run);
+    expect(routeGate.snapshot()).toMatchObject({ active: 4, queued: 1 });
+    queued.abort();
+    const response = await pending;
+    expect(response.status).toBe(503);
+    expect(response.headers.get("Retry-After")).toBe("2");
+    expect(await response.json()).toEqual({ error: "LEARNING_BUSY" });
+    expect(run).not.toHaveBeenCalled();
+  } finally {
+    queued.abort();
+    leases.forEach(lease => lease.release());
+  }
+});
+
 test("streaming preparation holds admission until commit even after its response is returned and cancelled", async () => {
   let commit!: () => void;
   const work = new Promise<void>(resolve => { commit = resolve; });

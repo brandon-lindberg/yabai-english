@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+:root {
+  /* The browser loads only the bundled M PLUS 1 subsets needed for the page. */
+  --font-archivo: "Archivo Variable";
+  --font-mplus1: "M PLUS 1 Variable";
+  --font-geist-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
 /*
   English Studio — single calm brand palette (light / dark).
   Storage key: english-platform-theme (light | dark), set by theme-init-script + ThemeToggle.

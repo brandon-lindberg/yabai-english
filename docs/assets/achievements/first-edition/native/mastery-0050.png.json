@@ -1,0 +1,48 @@
+{
+  "number": 9,
+  "id": "mastery-0050",
+  "titleEn": "Mind Palace",
+  "titleJa": "記憶の宮殿",
+  "visibility": "visible",
+  "artBrief": "**French romantic fantasy.** A miniature illuminated palace surrounded by roses, with a book-shaped gate and a moonlit garden. The central facade must survive thumbnail reduction.",
+  "originalFile": "native/mastery-0050.png",
+  "thumbnailFile": "thumbs/mastery-0050.png",
+  "enlargedFile": "enlarged/mastery-0050.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. French romantic fantasy. A miniature illuminated palace surrounded by roses, with a book-shaped gate and a moonlit garden. The central facade must survive thumbnail reduction. Use a single central luminous symmetrical palace facade with an obvious open-book gateway. Large dark rose silhouettes frame the lower corners; lavender moonlight and warm windows.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 4,
+  "jobId": "ef9061c8-d839-4390-8996-d804a8d920a0",
+  "sourceImageId": "383bbabf-4278-59e5-a62f-503e76728e97",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 17505,
+  "thumbnailBytes": 7931,
+  "nativeSha256": "5d4098465028c8b9650278511ed227a2ebacfe9566ae90649dcf5f7699695814",
+  "pixelSha256": "611dcb11c6f0eaa77e99544fafde9fc852b9588af4d7827a9cba298e759d11cb",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/ef9061c8-d839-4390-8996-d804a8d920a0/download"
+}

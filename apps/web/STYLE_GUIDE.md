@@ -7,7 +7,7 @@ Use this document (and `src/app/globals.css`) as the reference for visual consis
 ## Stack
 
 - **Tailwind CSS v4** with `@import "tailwindcss"` and `@theme inline` in `globals.css`.
-- **Fonts:** [Geist Sans](https://vercel.com/font) and [Geist Mono](https://vercel.com/font) via `next/font/google` in `src/app/layout.tsx` (`--font-geist-sans`, `--font-geist-mono`).
+- **Fonts:** Archivo for Latin, M PLUS 1 for Japanese, and JetBrains Mono for tabular data. The root layout imports the bundled variable fonts, and `globals.css` defines the font stacks.
 - **Theme:** `data-theme="light"` | `data-theme="dark"` on `<html>`, initialized by `src/lib/theme-init-script.ts` (`beforeInteractive` script in root layout). Storage key: **`english-platform-theme`**.
 
 ---

@@ -1,0 +1,35 @@
+{
+  "achievementId": "cards-0001",
+  "title": "First Spark",
+  "slug": "first-spark",
+  "theme": "Sunny platformer",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "createdOn": "2026-11-18",
+  "approved": false,
+  "status": "completed",
+  "request": {
+    "description": "Original collectible achievement artwork for a language-learning app. One complete square scene, native 128x128 pixel art. Crisp deliberate pixel clusters, restrained 32-color palette, no antialiasing, no blur. Strong focal shape legible as a 64x64 thumbnail. Fill the square with the environment; keep the focal subject inside an 8-pixel safe margin. No frame, no lettering, numbers, logos or watermarks. Joyful retro platformer scene: an original small round cream-colored adventurer stands on a grassy floating island, opening a big blue book. A single bright golden star rises from the open pages above the adventurer's delighted face. The adventurer, book and star form one clear central vertical composition, filling most of the canvas. Clear turquoise sky, a few chunky soft clouds, vibrant grassy green and warm golden light. Cute expressive proportions, simple silhouette, cheerful sense of a first discovery. No recognizable existing game character.",
+    "width": 128,
+    "height": 128,
+    "no_background": false,
+    "max_colors": 32
+  },
+  "jobId": "de293a6a-bcf6-441a-9f6b-5e9114db45b7",
+  "sourceImageId": "34b460aa-6b03-57a6-b7e7-15e40e6c88f8",
+  "originalFile": "first-spark.png",
+  "thumbnailFile": "first-spark-64.png",
+  "chargedGenerations": 6,
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/de293a6a-bcf6-441a-9f6b-5e9114db45b7/download",
+  "dimensions": [
+    128,
+    128
+  ],
+  "colors": 32,
+  "opaque": true,
+  "nativeBytes": 10601,
+  "thumbnailBytes": 5665,
+  "nativeSha256": "41242f7673e5ed58e2640cf35ab8c1b20344151188dab2bf13dd06952aa8a968",
+  "pixelSha256": "879d178370e0bbdbd3056b836d5afe476ba49ecfcd5c14e43c052a35f7619193",
+  "exportResampling": "nearest-neighbor; originals retain their native pixels"
+}

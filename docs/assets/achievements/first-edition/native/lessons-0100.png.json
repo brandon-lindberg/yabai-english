@@ -1,0 +1,48 @@
+{
+  "number": 25,
+  "id": "lessons-0100",
+  "titleEn": "Centurion of Conversation",
+  "titleJa": "100回の語り部",
+  "visibility": "visible",
+  "artBrief": "**Pixel fine art / art nouveau.** A luminous open book within a flowing botanical arch; theatrical golden light suggests a grand storytelling stage. No embedded count or text.",
+  "originalFile": "native/lessons-0100.png",
+  "thumbnailFile": "thumbs/lessons-0100.png",
+  "enlargedFile": "enlarged/lessons-0100.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Pixel fine art / art nouveau. A luminous open book within a flowing botanical arch; theatrical golden light suggests a grand storytelling stage. No embedded count or text. Large open ivory book on a small stage under a flowing art-nouveau botanical arch. Gold and forest green, strong symmetrical theatrical composition, graceful leaf shapes not tiny filigree.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "0ef91090-0acd-5c1e-819d-fff60f10755c",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 4,
+  "jobId": "f461ccd5-7261-4957-9c4b-48583db65dee",
+  "sourceImageId": "d797f7a0-42c8-5778-9827-4644a5e111dc",
+  "colors": 32,
+  "dimensions": [
+    128,
+    128
+  ],
+  "opaque": true,
+  "chargedGenerations": 6,
+  "nativeBytes": 17940,
+  "thumbnailBytes": 8703,
+  "nativeSha256": "2569a8a316b735df2858df8dbd39fe018af04afe01f6a09f135b5714727ff56d",
+  "pixelSha256": "0c178b4618cb22483e0e238b9a7197afa896e614e07220b8a95bcd97e79dbf48",
+  "provider": "PixelLab",
+  "tool": "create_image_pro_flash",
+  "downloadUrl": "https://api.pixellab.ai/mcp/images/f461ccd5-7261-4957-9c4b-48583db65dee/download"
+}

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { Status } from "@/components/ui/status";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
@@ -20,6 +21,7 @@ export function BookingCancelButton({ bookingId, withinDialog = false, onComplet
   const t = useTranslations("dashboard");
   const locale = useLocale();
   const router = useRouter();
+  const ready = useHydrated();
   const [open, setOpen] = useState(false);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -122,7 +124,7 @@ export function BookingCancelButton({ bookingId, withinDialog = false, onComplet
     <h2 className="text-base font-semibold">{title}</h2>{content}
   </section>;
   return <>
-    <Button variant="secondary" size="sm" onClick={() => void begin()}>{t("cancelBooking")}</Button>
+    <Button variant="secondary" size="sm" disabled={!ready} onClick={() => void begin()}>{t("cancelBooking")}</Button>
     {open ? <Modal open title={title} onClose={close} dismissOnBackdrop={!busy}>{content}</Modal> : null}
   </>;
 }

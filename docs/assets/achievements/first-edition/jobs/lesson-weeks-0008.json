@@ -1,0 +1,34 @@
+{
+  "number": 27,
+  "id": "lesson-weeks-0008",
+  "titleEn": "Regular Character",
+  "titleJa": "すっかりおなじみ",
+  "visibility": "visible",
+  "artBrief": "**Cute chibi.** A friendly owl settles into a book-lined alcove with slippers and a little reserved-looking cushion, but no text on the cushion.",
+  "originalFile": "native/lesson-weeks-0008.png",
+  "thumbnailFile": "thumbs/lesson-weeks-0008.png",
+  "enlargedFile": "enlarged/lesson-weeks-0008.png",
+  "ownerApproved": false,
+  "status": "completed",
+  "origin": "remaining artwork batch",
+  "request": {
+    "description": "One original collectible achievement illustration for a language-learning app, native 128x128 pixel art, opaque square environmental scene. Crisp deliberate pixel clusters, clean readable silhouettes, restrained 32-color palette. A single strong focal subject should remain identifiable at 64x64. Fill the canvas but keep the main subject within an 8-pixel safe margin. No badge frame, lettering, numbers, readable text, logos or watermarks; no photorealism, blur or smooth vector art. Cute chibi. A friendly owl settles into a book-lined alcove with slippers and a little reserved-looking cushion, but no text on the cushion. Keep the companion an OWL, as specified, with a round face and clear beak. Owl nestled into a book-lined alcove, soft slippers and a welcoming cushion, no lettering; warm cream and plum.",
+    "width": 128,
+    "height": 128,
+    "max_colors": 32,
+    "no_background": false,
+    "style_image": {
+      "source_image_id": "9c7ae646-440b-5595-ae19-f2d89d53aae1",
+      "usage_description": "Copy only pixel cluster scale, crisp edge handling and shading discipline. Do not copy the reference scene, objects, layout or palette. Follow the new scene brief. Where a white fox is requested, preserve its pointed ears, muzzle and fluffy tail."
+    },
+    "style_options": {
+      "color_palette": false,
+      "outline": true,
+      "detail": true,
+      "shading": true
+    }
+  },
+  "batch": 5,
+  "jobId": "2ceb0f17-857f-46a2-8840-fdae4f8a9354",
+  "sourceImageId": "db8754fb-17ba-5ebc-a7fe-68bc4b7587e3"
+}
