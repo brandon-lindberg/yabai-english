@@ -1,4 +1,4 @@
-// Visible artwork for the offline design preview.
+// Public first-edition catalogue, shared with the offline design preview.
 const catalogue = [
   {
     "id": "cards-0001",
@@ -541,3 +541,5 @@ const catalogue = [
     ]
   }
 ];
+
+if (typeof module !== "undefined") module.exports = catalogue;

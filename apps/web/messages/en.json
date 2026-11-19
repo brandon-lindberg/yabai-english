@@ -180,6 +180,30 @@
     "howHeading": "How it works",
     "pillarsHeading": "Why learners use English Studio Japan"
   },
+  "artGallery": {
+    "title": "Art Gallery",
+    "english": "Your English learning collection",
+    "japanese": "Your Japanese learning collection",
+    "all": "All achievements",
+    "collected": "Collected",
+    "count": "{earned} of {total} collected",
+    "locked": "Locked",
+    "earned": "Earned",
+    "upcoming": "Upcoming",
+    "upcomingInfo": "Tracking for this achievement is coming in a later release.",
+    "hidden": "{count} hidden achievements",
+    "hiddenHelp": "Their artwork and names are a surprise.",
+    "empty": "Your first piece starts with one flashcard.",
+    "study": "Practice flashcards",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {pages}",
+    "back": "Back to collection",
+    "awarded": "Added to your collection on {date}.",
+    "progress": "{value} of {target}",
+    "views": "Collection views",
+    "pages": "Collection pages"
+  },
   "dashboard": {
     "taxonomyPage": {
       "title": "Class taxonomy",
@@ -296,6 +320,7 @@
       "lessons": "Lessons & rates",
       "students": "Students",
       "myTeachers": "My teachers",
+      "achievements": "Achievements",
       "schedule": "Schedule",
       "taxonomy": "Taxonomy",
       "invoices": "Invoices"

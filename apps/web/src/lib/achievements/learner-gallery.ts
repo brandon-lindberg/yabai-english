@@ -1,0 +1,42 @@
+import "server-only";
+import type { LearningLanguage, PrismaClient } from "@/generated/prisma/client";
+import { attemptedQuickReviewState } from "@/lib/study/quick-review-selection";
+import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
+import { achievementCollection } from "./gallery";
+
+/** Reconcile this learner and subject on a gallery visit. Ordinary study saves and dashboard loads do no award work. */
+export async function getLearnerGallery(db: PrismaClient, userId: string, learningLanguage: LearningLanguage) {
+  const owner = { userId, learningLanguage };
+  const track = { learningLanguage, slug: learningLanguage === "ENGLISH" ? "english-flashcards" : "japanese-flashcards" };
+  const readAwards = () => db.learningAchievementAward.findMany({
+    where: owner, select: { achievementId: true, awardedAt: true },
+  });
+  const [cards, levels, lessons, existing] = await Promise.all([
+    db.userStudyCardState.count({
+      where: { userId, ...attemptedQuickReviewState, card: { deck: { level: { track } } } },
+      orderBy: { cardId: "asc" }, take: 1000,
+    }),
+    db.userStudyLevelProgress.aggregate({
+      where: { userId, level: { track } }, _sum: { xp: true }, _max: { completedAt: true, assessmentPassedAt: true },
+    }),
+    db.booking.count({
+      where: { studentId: userId, learningLanguage, status: { in: ["CONFIRMED", "COMPLETED"] }, endsAt: { lte: new Date() } },
+      orderBy: { startsAt: "asc" }, take: 100,
+    }),
+    readAwards(),
+  ]);
+  const completed = learningLanguage === "ENGLISH" ? levels._max.assessmentPassedAt : levels._max.completedAt;
+  const collection = achievementCollection({
+    cards, lessons, rank: studyRpgProgressFromTotalXp(levels._sum.xp ?? 0).rank, completedLevels: completed ? 1 : 0,
+  });
+  const awarded = new Map(existing.map(row => [row.achievementId, row.awardedAt]));
+  const missing = collection.filter(card => card.qualified && !awarded.has(card.id));
+  if (missing.length) {
+    // Unique per account, subject and badge, including simultaneous first visits.
+    await db.learningAchievementAward.createMany({
+      data: missing.map(card => ({ ...owner, achievementId: card.id })), skipDuplicates: true,
+    });
+    for (const row of await readAwards()) awarded.set(row.achievementId, row.awardedAt);
+  }
+  return collection.map(card => ({ ...card, awardedAt: awarded.get(card.id) ?? null }));
+}

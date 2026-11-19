@@ -10,6 +10,7 @@ import { ScopedMessages } from "@/components/i18n/scoped-messages";
 afterEach(cleanup);
 test.each([en, ja])("sends only the shell and relevant learning messages", messages => {
   const shell = clientMessages(messages, "shell");
+  expect(clientMessages(messages, "gallery")).toEqual({ dashboard: { nav: messages.dashboard.nav } });
   expect(shell).toEqual({ common: messages.common, auth: messages.auth, learningJourney: messages.learningJourney, chat: messages.chat });
   const english = clientMessages(messages, "placement");
   const japanese = clientMessages(messages, "japanesePlacement");
