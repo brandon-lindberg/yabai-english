@@ -1,6 +1,6 @@
 # Learning achievements — product and art plan
 
-The first learner edition has 39 reviewed pixel artworks. The interactive design preview covers the dashboard, Art Gallery and clickable unlock popup in both interface languages. Production award tracking and delivery are pending. [Open the preview](design/achievements/index.html) · [Bilingual catalogue](achievement-catalogue-first-edition.md) · [Artwork review](assets/achievements/first-edition/README.md)
+The first learner edition has 39 reviewed pixel artworks. The interactive design preview covers the dashboard, Art Gallery and clickable unlock popup in both interface languages. The application now includes the learning gallery and 16 historical milestones. The remaining award rules and real-time delivery are pending. [Open the preview](design/achievements/index.html) · [Bilingual catalogue](achievement-catalogue-first-edition.md) · [Artwork review](assets/achievements/first-edition/README.md)
 
 ## Confirmed direction
 
@@ -12,7 +12,7 @@ The first learner edition has 39 reviewed pixel artworks. The interactive design
 - **All artwork remains pixel art.** Themes may span joyful platformers, dark fantasy, romantic anime, science fiction, samurai, Japanese seasons, French romance, chibi, and painterly/fine-art compositions translated into pixels.
 - When artwork represents the app's mascot, use the white fox from the brand identity. The owner rejected First Spark's chicken-like character; the corrected art has pointed fox ears, a muzzle and fluffy tail. Other approved themed subjects need not all become foxes.
 - **39 unique artworks at 128×128 native pixels**, shared by the independent English and Japanese collections: 36 visible achievements and 3 hidden achievements.
-- Add an **Art Gallery / アートギャラリー** navigation entry and page after the learner earns their first badge. The gallery celebrates collected artwork; an achievement view also shows visible unearned badges and concealed surprises.
+- Add an **Art Gallery / アートギャラリー** page linked by an **Achievements / 実績** dashboard tab from the first visit. The gallery celebrates collected artwork; an achievement view also shows visible unearned badges and concealed surprises.
 - Localize the entire experience into English and Japanese, independently of the learning subject. Artwork contains no embedded interface text.
 - Performance is a release requirement under the [foundational policy](performance-policy.md). This feature must not reintroduce full-history reads, repeated catalog loading, or slow answer saves.
 
@@ -150,7 +150,7 @@ Common asset requirements for the art brief:
 
 **Job:** a learner should immediately see recognition of past work and a realistic next goal, then return to studying or lessons. The dashboard remains an operational learning surface; the collection adds delight without taking over the lesson schedule.
 
-- Add a compact **Achievements** section with recent earned badges, one or two attainable next milestones, and a link to **Art Gallery** once available. Avoid mounting the full catalogue or its images on every dashboard load.
+- Add a compact **Achievements** section with recent earned badges, one or two attainable next milestones, and the permanent dashboard link to **Art Gallery**. Avoid mounting the full catalogue or its images on every dashboard load.
 - The gallery/achievement page shows the current learning subject, earned count by edition/category, and filters for Study, Lessons, Loyalty, and Earned/In progress. Surprise rewards have their own treatment. Switching UI language only changes copy.
 - Each standard achievement has artwork, name, exact requirement, and progress or earned date. A detail view can show the joke and a larger image; essential requirements cannot depend on hover.
 - An unlock gives a short non-blocking announcement after the server confirms it. Coalesce multiple unlocks from a single milestone/backfill; do not cover the next-card button or steal focus. Backfilled awards get one collection notice, not dozens of toasts.
@@ -174,13 +174,12 @@ The owner explicitly requests a subtle Steam-like popup when an achievement is e
 
 ## Art Gallery: access, browsing, and reveal states
 
-Proposed route: `/[locale]/dashboard/art-gallery`, named **Art Gallery** in English and **アートギャラリー** in Japanese. Route structure and navigation placement are finalized with the existing dashboard conventions during implementation.
+The **Achievements / 実績** dashboard tab opens `/[locale]/dashboard/art-gallery`, named **Art Gallery** in English and **アートギャラリー** in Japanese.
 
-- **First badge opens the gallery.** On the first durable award, announce that the gallery is available and offer a link without navigating away from the current card/lesson. Add its dashboard navigation entry; keep it available on later visits.
-- The first learner badge in either subject opens the Learning gallery. Switching to a subject with zero learner awards shows its empty collection. The Teaching gallery unlocks through a teaching achievement. An account that teaches and studies keeps separate galleries, counts, streaks and notifications. [Teaching plan](teacher-achievements-plan.md)
-- Before the first award, show the first achievable milestone on the dashboard. A direct gallery URL shows a localized first-badge explanation and study link instead of a broken page. Existing learners whose eligible history produces a first award get gallery access too.
-- **My gallery** is the default page view: display collected art with breathing room and short captions, arranged as a personal exhibition. Sort by recently earned by default; allow browsing by theme or family. Open an artwork to see the enlarged image, localized title/story, how it was earned, subject, and earned date.
-- **All achievements** is a second view on the same page: show progress toward the visible collection, faded unearned works, earned works, and anonymous mystery slots. This avoids building and maintaining a second independent collection system.
+- **Achievements is visible from the first dashboard visit.** The Art Gallery opens on **All achievements** and shows each public work with its localized requirement. Locked works appear in grayscale. Hidden works remain anonymous.
+- **Collected** shows full-color earned works, most recently added first. A learner with zero badges can browse the artwork and jump to flashcard practice.
+- Each learning subject has its own collection. Opening it checks that learner’s saved card, study-rank, curriculum and eligible lesson records. The date on a retrospective award is the date the artwork was added to the collection. Teaching is a separate planned collection. [Teaching plan](teacher-achievements-plan.md)
+- Open an artwork to see the enlarged image, localized title/story, how it was earned, subject, and earned date.
 - Gallery presentation should let the art lead while retaining the app's typography/navigation. Use frames/captions as gallery content, not a decorative redesign of the whole dashboard. Pixel-art worlds vary inside the artwork, not in ten different sets of controls.
 - On mobile, preserve the artwork's square dimensions with a compact wrapping layout, readable captions, and touch targets. Enlarged artwork must fit the viewport with room for controls and text; keyboard and touch users can inspect details without hover.
 
@@ -226,10 +225,10 @@ Reuse the existing shared review persistence and language-specific progression; 
 - Keep rendering, artwork, and notification delivery outside answer-saving transactions. An optional celebration failure must not undo a saved answer; an achievement can be reconciled from its durable fact.
 - For lessons, implement the agreed server-side ended-booking eligibility and correction path. Do not trust a browser clock or request-body status. The owner's real-time popup requirement adds a durable lesson-end trigger and authenticated event delivery; bounded, resumable per-user reconciliation on activity/gallery access remains a recovery path, not the primary real-time mechanism. Specify the trigger, transport, indexed lookups, once-only receipts and bounded reconnect behavior before implementation. Do not rescan all historical bookings on every answer or add a minute-by-minute global polling job. Prevent duplicate credits from reschedules/reconciliation retries, and handle delayed/out-of-order credits by the actual lesson end date.
 - Paginate collection APIs and return only display data. Index actual lookups such as learner + subject + achievement and learner + subject + day; prove query plans and write cost rather than adding speculative indexes.
-- Derive first-badge gallery access from stored award evidence, not a browser-only flag. Filter hidden presentation data before serialization and message scoping; ordinary client message bundles must not reveal unearned secret names or requirements.
+- Use stored award evidence for the collected view. The public catalogue is available to signed-in learners with zero awards. Filter hidden presentation data before serialization and message scoping; ordinary client message bundles must not reveal unearned secret names or requirements.
 - Backfill from eligible history with checkpoints and batch limits. Never scan every learner/history during a dashboard request or server startup.
 
-Tests must cover language isolation, duplicate/concurrent submissions, multi-device races, one-time mastery, day/week boundaries, timezone changes/DST, gaps/returns including short daily sessions, anniversaries/leap days, confirmed-ended versus pending/cancelled/future bookings, reschedules/refunds, delayed lesson credits, missing historical evidence, edition expansion, and permanent earned awards. Include first-badge gallery navigation, zero-badge deep links, switching subjects/locales, visible locked versus hidden representations, server-side spoiler filtering, missing translations, accessible announcements, and phone/desktop art sizing. Follow TDD red/green for implementation.
+Tests must cover language isolation, duplicate/concurrent submissions, multi-device races, one-time mastery, day/week boundaries, timezone changes/DST, gaps/returns including short daily sessions, anniversaries/leap days, confirmed-ended versus pending/cancelled/future bookings, reschedules/refunds, delayed lesson credits, missing historical evidence, edition expansion, and permanent earned awards. Include dashboard navigation before the first badge, zero-badge deep links, switching subjects/locales, visible locked versus hidden representations, server-side spoiler filtering, missing translations, accessible announcements, and phone/desktop art sizing. Follow TDD red/green for implementation.
 
 Before calling the feature ready, measure the changed answer and dashboard paths with full English/Japanese catalogs, sparse/full study histories, long lesson histories (including synthetic accounts well beyond 100 lessons), and five distinct concurrent learners. Compare feature-enabled and baseline latency, query count/rows, memory, and payloads. Include duplicate requests, cold loads, recovery, and paginated later-edition fixtures. Report added per-answer cost explicitly under the performance policy.
 
@@ -237,9 +236,9 @@ Before calling the feature ready, measure the changed answer and dashboard paths
 
 1. The first edition has 39 approved artworks, 36 visible and three hidden. The two learning subjects use the same illustrations and separate award records.
 2. The offline design preview covers the dashboard, gallery, first unlock, hidden and locked states, and clickable popup. Sample progress lets reviewers exercise both interface languages and an empty second subject. [Preview guide](design/achievements/README.md)
-3. Implement the first durable learner award and deliver it with a confirmed answer. Use the real dashboard and a mobile practice session to test gallery access, saved answers and keyboard focus before expanding the catalogue.
+3. Connect durable learner awards to confirmed answer events for real-time delivery. Use the real dashboard and a mobile practice session to test gallery access, saved answers and keyboard focus before expanding the catalogue.
 4. Connect eligible ended bookings and missed-event recovery. Verify idempotency, localization, delivery latency, bounded work, and memory before deployment. [Performance requirements](performance-policy.md)
 
 On 18 November the owner approved the sample styles with a white-fox correction, then authorized the remaining artwork. The complete collection now contains 39 native 128×128 images with 64×64 thumbnails and 256×256 review enlargements. All new images were inspected at those three sizes, and the complete collection was checked on dark surroundings. One extra star in Seven-Day Spell was corrected and rechecked. Native files with provenance total 550,666 bytes; thumbnails total 263,357 bytes. The 36 new images plus correction cost 222 generation units; including earlier sample work, the project total is 246. See the [full review evidence](assets/achievements/first-edition/README.md).
 
-The design preview uses the approved artwork and local sample progress. The next implementation step is the role-scoped award receipt and first learner unlock, tested from a saved answer through to gallery access before expanding to lesson events. [Preview guide](design/achievements/README.md) · [Independent teaching collection](teacher-achievements-plan.md)
+The design preview uses the approved artwork and local sample progress. The live gallery reconciles 16 milestones on demand. Realtime popups, the remaining 20 public rules and the three hidden rules require further implementation. [Preview guide](design/achievements/README.md) · [Independent teaching collection](teacher-achievements-plan.md)

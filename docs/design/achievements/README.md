@@ -1,5 +1,7 @@
 # Learner achievement preview
 
+This offline prototype illustrates the original first-unlock flow. The application exposes **Dashboard → Achievements** from the first visit, including for learners with zero badges. [Current gallery behavior](../../learning-achievements-plan.md#art-gallery-access-browsing-and-reveal-states)
+
 [Open the interactive preview](index.html) directly in a browser. It uses the first-edition artwork and sample learner progress. Each reload resets the demo.
 
 | Try this | What to look for |
