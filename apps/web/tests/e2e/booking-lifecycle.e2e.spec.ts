@@ -218,7 +218,10 @@ for (const scenario of releaseCases()) for (const action of ["reschedule", "clos
     const errors: string[] = [];
     teacher.on("pageerror", error => errors.push(error.message));
     teacher.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
-    await teacher.goto(`${prefix}/dashboard/schedule/reschedule`);
+    await teacher.getByRole("navigation", { name: copy.dashboard.nav.ariaLabel, exact: true })
+      .getByRole("link", { name: copy.dashboard.nav.schedule, exact: true }).click();
+    await teacher.getByRole("navigation", { name: copy.dashboard.schedulePage.ariaScheduleSections, exact: true })
+      .getByRole("link", { name: copy.dashboard.privateReschedule.title, exact: true }).click();
     const row = teacher.locator(`[data-private-request="${bookingId}"]`);
     await expect(row.getByText(copy.dashboard.privateReschedule.pendingStatus, { exact: true })).toBeVisible();
     await captureRelease(teacher, `${scenario.language}-teacher-request-${action}`);
