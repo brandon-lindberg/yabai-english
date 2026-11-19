@@ -288,6 +288,7 @@ model User {
   broadcastsSent            AdminBroadcast[]             @relation("AdminBroadcastSender")
   ownedStudyDecks           StudyDeck[]                  @relation("StudyDeckOwner")
   studyLevelProgress        UserStudyLevelProgress[]
+  learningAchievementAwards LearningAchievementAward[]
   studyCardStates           UserStudyCardState[]
   studyAssessmentAttempts   UserStudyAssessmentAttempt[]
   studyQuickReviewDays      StudyQuickReviewDay[]
@@ -1393,6 +1394,17 @@ model StudyCard {
   reviewPrompts StudyReviewPrompt[]
 
   @@index([deckId, sortOrder])
+}
+
+/// Permanent learner awards. The grant time may be later than the qualifying activity.
+model LearningAchievementAward {
+  userId           String
+  learningLanguage LearningLanguage
+  achievementId    String
+  awardedAt        DateTime @default(now())
+  user             User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, learningLanguage, achievementId])
 }
 
 model UserStudyLevelProgress {

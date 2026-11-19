@@ -8,6 +8,7 @@ export const clientMessageScopes = {
   japanesePlacement: ["japanesePlacement", "placement", "onboarding", "study", "japaneseStudy",
     "dashboard.quickReview", "dashboard.previous", "dashboard.next"],
   learn: ["learn", "study", "japaneseStudy", "onboarding"],
+  gallery: ["dashboard.nav"],
   dashboard: ["dashboard", "booking", "study", "japaneseStudy", "japanesePlacement", "onboarding",
     "paymentMethods", "paymentPolicy", "admin.teachingLanguages"],
   admin: ["admin", "dashboard", "booking", "org.roles"],

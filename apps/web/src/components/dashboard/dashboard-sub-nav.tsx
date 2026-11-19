@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, usePathname } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { SubNav, SubNavLink } from "@/components/ui/sub-nav";
 
 type Tab =
@@ -11,12 +11,14 @@ type Tab =
   | "students"
   | "myTeachers"
   | "schedule"
+  | "achievements"
   | "taxonomy"
   | "invoices"
   /** Routes outside this nav (e.g. Settings from the account menu). */
   | "none";
 
 function activeTab(pathname: string): Tab {
+  if (pathname.includes("/dashboard/art-gallery")) return "achievements";
   if (pathname.includes("/dashboard/profile")) return "profile";
   if (pathname.includes("/dashboard/lessons")) return "lessons";
   if (pathname.includes("/dashboard/students")) return "students";
@@ -39,6 +41,7 @@ export function DashboardSubNav({
   const pathname = usePathname();
   const tab = activeTab(pathname);
   const t = useTranslations("dashboard.nav");
+  const locale = useLocale();
 
   if (tab === "none") return null;
 
@@ -68,6 +71,11 @@ export function DashboardSubNav({
           </Link>
         )}
       />
+      {isStudent || isTeacher ? (
+        <SubNavLink active={tab === "achievements"} render={(p) => (
+          <Link href="/dashboard/art-gallery" locale={locale} prefetch={false} {...p}>{t("achievements")}</Link>
+        )} />
+      ) : null}
       {isTeacher ? (
         <SubNavLink
           active={tab === "lessons"}

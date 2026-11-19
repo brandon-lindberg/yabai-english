@@ -180,6 +180,30 @@
     "howHeading": "使い方",
     "pillarsHeading": "English Studio Japan が選ばれる理由"
   },
+  "artGallery": {
+    "title": "アートギャラリー",
+    "english": "英語学習のコレクション",
+    "japanese": "日本語学習のコレクション",
+    "all": "すべての実績",
+    "collected": "獲得済み",
+    "count": "全{total}件のうち{earned}件を獲得",
+    "locked": "未獲得",
+    "earned": "獲得済み",
+    "upcoming": "今後追加",
+    "upcomingInfo": "この実績の記録は今後のアップデートで開始します。",
+    "hidden": "ひみつの実績が{count}件",
+    "hiddenHelp": "どんな名前と絵が待っているかはお楽しみに。",
+    "empty": "最初の作品は、フラッシュカードを1枚解くところから。",
+    "study": "フラッシュカードを練習する",
+    "previous": "前へ",
+    "next": "次へ",
+    "page": "{pages}ページ中{page}ページ",
+    "back": "コレクションに戻る",
+    "awarded": "{date}にコレクションに追加されました。",
+    "progress": "{target}件中{value}件",
+    "views": "コレクションの表示",
+    "pages": "コレクションのページ"
+  },
   "dashboard": {
     "taxonomyPage": {
       "title": "クラス分類",
@@ -296,6 +320,7 @@
       "lessons": "レッスン・料金",
       "students": "受講生一覧",
       "myTeachers": "講師一覧",
+      "achievements": "実績",
       "schedule": "スケジュール",
       "taxonomy": "クラス分類",
       "invoices": "請求書"

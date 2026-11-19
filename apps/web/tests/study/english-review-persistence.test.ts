@@ -3,6 +3,7 @@ import type { PrismaClient } from "@/generated/prisma/client";
 import { withIsolatedPostgres } from "../../test/isolated-postgres";
 import { POST } from "@/app/api/study/review/route";
 import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
+import { getLearnerGallery } from "@/lib/achievements/learner-gallery";
 
 const mocks = vi.hoisted(() => ({ db: null as unknown as PrismaClient, notify: vi.fn(), role: "STUDENT" }));
 vi.mock("@/lib/prisma", () => ({ get prisma() { return mocks.db; } }));
@@ -21,6 +22,32 @@ async function seed(db: PrismaClient) {
   } } } });
   await db.studyCard.createMany({ data: Array.from({ length: 5 }, (_, i) => ({ id: `card-${i}`, deckId: "deck", frontJa: "猫", backEn: "cat" })) });
 }
+
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("opening the gallery reconciles historical grades once per learner and subject", async () => {
+  await withIsolatedPostgres("20261119000000_learning_achievement_awards", async ({ db, applyMigration }) => {
+    await applyMigration();
+    await seed(db);
+    await db.user.create({ data: { id: "another-learner" } });
+    await db.userStudyCardState.createMany({ data: [
+      { userId: "learner", cardId: "card-0", wrongCount: 68 },
+      { userId: "learner", cardId: "card-1", correctCount: 1 },
+      { userId: "learner", cardId: "card-2" },
+    ] });
+    await db.userStudyLevelProgress.create({ data: { userId: "learner", levelId: "level", xp: 1516 } });
+    const read = () => getLearnerGallery(db, "learner", "ENGLISH");
+    const visits = await Promise.all(Array.from({ length: 5 }, read));
+    for (const cards of visits) {
+      expect(cards.filter(card => card.awardedAt).map(card => card.id)).toEqual(["cards-0001", "rank-0005"]);
+      expect(cards.find(card => card.id === "cards-0025")?.progress?.value).toBe(2);
+    }
+    expect(await db.learningAchievementAward.count()).toBe(2);
+    for (const cards of [await getLearnerGallery(db, "learner", "JAPANESE"), await getLearnerGallery(db, "another-learner", "ENGLISH")]) {
+      expect(cards.filter(card => card.awardedAt)).toHaveLength(0);
+    }
+    await db.userStudyCardState.deleteMany({ where: { userId: "learner" } });
+    expect((await read()).find(card => card.id === "cards-0001")?.awardedAt).toEqual(visits[0][0].awardedAt);
+  });
+}, 30_000);
 
 test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("English saves read XP once inside the learner lock and fetch only the required card context", async () => {
   await withIsolatedPostgres("20261113000000_study_runtime_references", async ({ db, applyMigration }) => {

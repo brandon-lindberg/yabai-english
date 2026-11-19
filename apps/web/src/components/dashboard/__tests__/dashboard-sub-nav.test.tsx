@@ -24,6 +24,14 @@ describe("DashboardSubNav", () => {
     usePathnameMock.mockReturnValue("/en/dashboard/lessons");
   });
 
+  test.each([{ isStudent: true }, { isTeacher: true }])("makes the learning collection discoverable before an unlock", (role) => {
+    usePathnameMock.mockReturnValue("/en/dashboard/art-gallery");
+    render(<NextIntlClientProvider locale="en" messages={en}><DashboardSubNav {...role} /></NextIntlClientProvider>);
+    const gallery = screen.getByRole("link", { name: "Achievements" });
+    expect(gallery).toHaveAttribute("href", "/dashboard/art-gallery");
+    expect(gallery.className).toContain("text-foreground");
+  });
+
   test("shows a teacher lessons and rates tab", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>

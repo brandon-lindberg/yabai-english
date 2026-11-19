@@ -7,7 +7,7 @@ const server = base.webServer;
 if (!server || Array.isArray(server)) throw new Error("One owned QA server is required");
 const domains = process.env.MIRROR_DOMAIN_TEST === "true";
 export default defineConfig({
-  ...base, testMatch: domains ? ["learning-domains.e2e.spec.ts"] : ["booking-lifecycle.e2e.spec.ts", "payment-recovery.e2e.spec.ts", "student-onboarding-to-booking.e2e.spec.ts", "teacher-onboarding.e2e.spec.ts", "teacher-lesson-completion.e2e.spec.ts", "placement-study.release.e2e.spec.ts"], timeout: 120_000,
+  ...base, testMatch: domains ? ["learning-domains.e2e.spec.ts"] : ["art-gallery.e2e.spec.ts", "booking-lifecycle.e2e.spec.ts", "payment-recovery.e2e.spec.ts", "student-onboarding-to-booking.e2e.spec.ts", "teacher-onboarding.e2e.spec.ts", "teacher-lesson-completion.e2e.spec.ts", "placement-study.release.e2e.spec.ts"], timeout: 120_000,
   use: { ...base.use, actionTimeout: 20_000 },
   webServer: { ...server, env: {
     MIRROR_QA_DIST_DIR: ".next/mirror-qa",
