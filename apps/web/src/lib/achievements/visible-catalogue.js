@@ -1,4 +1,24 @@
 // Public first-edition catalogue, shared with the offline design preview.
+const studyDayDetails = [
+  "Review at least 5 different flashcards in a day. Wrong answers count too.",
+  "1日に違うカードを5枚以上復習すると1日分。間違えたカードも数えます。"
+];
+const lessonDetails = [
+  "A confirmed lesson counts once its scheduled end time passes. Free trials count too.",
+  "予約が確定したレッスンは、終了予定時刻を過ぎると1回として数えます。無料体験も対象です。"
+];
+const lessonWeekDetails = [
+  "Finish at least one lesson each week, Monday through Sunday. Free trials count too.",
+  "月曜から日曜までにレッスンを1回以上受けると、その週の分になります。無料体験も対象です。"
+];
+
+function anniversaryDetails(months, activeMonths) {
+  return [
+    `Review 5 different cards in a day or finish a lesson to start the clock. Do either again once ${months} months have passed. Be active in at least ${activeMonths} of the last ${months} months, including this month.`,
+    `初めて1日に違うカードを5枚復習した日か、最初のレッスンを終えた日から数えます。${months}か月たったら、またどちらかに挑戦。今月を含む直近${months}か月のうち${activeMonths}か月以上で、どちらかを達成すると獲得できます。`
+  ];
+}
+
 const catalogue = [
   {
     "id": "cards-0001",
@@ -11,8 +31,8 @@ const catalogue = [
       "小さなひらめきから、冒険がはじまる。"
     ],
     "rule": [
-      "Submit a graded answer for your first flashcard.",
-      "はじめてフラッシュカードの問題に回答する。"
+      "Answer your first flashcard.",
+      "フラッシュカードの練習で最初の1問に答える。"
     ]
   },
   {
@@ -101,8 +121,8 @@ const catalogue = [
       "「たぶん」が、少しずつ「わかった」に。"
     ],
     "rule": [
-      "Bring your first flashcard to mastery.",
-      "はじめて1枚のフラッシュカードをマスターする。"
+      "Master your first flashcard.",
+      "カードを初めて1枚マスターする。"
     ]
   },
   {
@@ -116,8 +136,8 @@ const catalogue = [
       "練習で鍛えて、ときどき間違えて。記憶のできあがり。"
     ],
     "rule": [
-      "Bring 10 different flashcards to mastery.",
-      "異なるフラッシュカードを10枚マスターする。"
+      "Master 10 different flashcards.",
+      "違うカードを10枚マスターする。"
     ]
   },
   {
@@ -131,8 +151,8 @@ const catalogue = [
       "覚えたことに、すてきな住まいができました。"
     ],
     "rule": [
-      "Bring 50 different flashcards to mastery.",
-      "異なるフラッシュカードを50枚マスターする。"
+      "Master 50 different flashcards.",
+      "違うカードを50枚マスターする。"
     ]
   },
   {
@@ -146,8 +166,8 @@ const catalogue = [
       "知識を守るのは、意外とちいさな守り人。"
     ],
     "rule": [
-      "Bring 100 different flashcards to mastery.",
-      "異なるフラッシュカードを100枚マスターする。"
+      "Master 100 different flashcards.",
+      "違うカードを100枚マスターする。"
     ]
   },
   {
@@ -161,8 +181,8 @@ const catalogue = [
       "おみやげもいいけれど、集めたのは「わかった」の数。"
     ],
     "rule": [
-      "Bring 250 different flashcards to mastery.",
-      "異なるフラッシュカードを250枚マスターする。"
+      "Master 250 different flashcards.",
+      "違うカードを250枚マスターする。"
     ]
   },
   {
@@ -236,9 +256,10 @@ const catalogue = [
       "火花もすてき。育っていく炎は、もっとすてき。"
     ],
     "rule": [
-      "Complete a study day on 3 consecutive days.",
-      "3日連続で、毎日5枚以上の異なるカードを復習する。"
-    ]
+      "Keep a 3-day flashcard streak.",
+      "3日連続でカードを練習する。"
+    ],
+    "details": studyDayDetails
   },
   {
     "id": "study-streak-0007",
@@ -251,9 +272,10 @@ const catalogue = [
       "魔法のひけつは、今日もまた来たこと。"
     ],
     "rule": [
-      "Complete a study day on 7 consecutive days.",
-      "7日連続で、毎日5枚以上の異なるカードを復習する。"
-    ]
+      "Keep a 7-day flashcard streak.",
+      "7日連続でカードを練習する。"
+    ],
+    "details": studyDayDetails
   },
   {
     "id": "study-streak-0014",
@@ -266,9 +288,10 @@ const catalogue = [
       "学習習慣に、そっと寄りそう相棒ができた。"
     ],
     "rule": [
-      "Complete a study day on 14 consecutive days.",
-      "14日連続で、毎日5枚以上の異なるカードを復習する。"
-    ]
+      "Keep a 14-day flashcard streak.",
+      "14日連続でカードを練習する。"
+    ],
+    "details": studyDayDetails
   },
   {
     "id": "study-streak-0030",
@@ -281,9 +304,10 @@ const catalogue = [
       "いつもの日々の中で、炎をつなぎ続けた。"
     ],
     "rule": [
-      "Complete a study day on 30 consecutive days.",
-      "30日連続で、毎日5枚以上の異なるカードを復習する。"
-    ]
+      "Keep a 30-day flashcard streak.",
+      "30日連続でカードを練習する。"
+    ],
+    "details": studyDayDetails
   },
   {
     "id": "lessons-0001",
@@ -296,9 +320,10 @@ const catalogue = [
       "新しい会話から、新しい一歩。"
     ],
     "rule": [
-      "Earn your first lesson credit.",
-      "はじめてレッスン実績を1回分獲得する。"
-    ]
+      "Complete your first lesson.",
+      "初めてのレッスンを終える。"
+    ],
+    "details": lessonDetails
   },
   {
     "id": "lessons-0005",
@@ -311,9 +336,10 @@ const catalogue = [
       "ノート、ついに主役になる。"
     ],
     "rule": [
-      "Earn 5 lesson credits.",
-      "レッスン実績を5回分獲得する。"
-    ]
+      "Complete 5 lessons.",
+      "レッスンを5回受ける。"
+    ],
+    "details": lessonDetails
   },
   {
     "id": "lessons-0010",
@@ -326,9 +352,10 @@ const catalogue = [
       "会話が、冒険の仲間になった。"
     ],
     "rule": [
-      "Earn 10 lesson credits.",
-      "レッスン実績を10回分獲得する。"
-    ]
+      "Complete 10 lessons.",
+      "レッスンを10回受ける。"
+    ],
+    "details": lessonDetails
   },
   {
     "id": "lessons-0025",
@@ -341,9 +368,10 @@ const catalogue = [
       "会話を重ねるたび、小さな扉が開いていく。"
     ],
     "rule": [
-      "Earn 25 lesson credits.",
-      "レッスン実績を25回分獲得する。"
-    ]
+      "Complete 25 lessons.",
+      "レッスンを25回受ける。"
+    ],
+    "details": lessonDetails
   },
   {
     "id": "lessons-0050",
@@ -356,9 +384,10 @@ const catalogue = [
       "ひとつの会話が、次の会話へ。気づけば、こんなに。"
     ],
     "rule": [
-      "Earn 50 lesson credits.",
-      "レッスン実績を50回分獲得する。"
-    ]
+      "Complete 50 lessons.",
+      "レッスンを50回受ける。"
+    ],
+    "details": lessonDetails
   },
   {
     "id": "lessons-0100",
@@ -371,9 +400,10 @@ const catalogue = [
       "100回ぶんの会話。その物語は、まだ続いていく。"
     ],
     "rule": [
-      "Earn 100 lesson credits.",
-      "レッスン実績を100回分獲得する。"
-    ]
+      "Complete 100 lessons.",
+      "レッスンを100回受ける。"
+    ],
+    "details": lessonDetails
   },
   {
     "id": "lesson-weeks-0004",
@@ -386,9 +416,10 @@ const catalogue = [
       "1週間の中に、学びの居場所ができた。"
     ],
     "rule": [
-      "Earn at least one lesson credit in each of 4 consecutive weeks.",
-      "4週連続で、毎週1回以上のレッスン実績を獲得する。"
-    ]
+      "Take a lesson 4 weeks in a row.",
+      "4週連続でレッスンを受ける。"
+    ],
+    "details": lessonWeekDetails
   },
   {
     "id": "lesson-weeks-0008",
@@ -401,9 +432,10 @@ const catalogue = [
       "ゲスト出演のはずが、すっかりレギュラーに。"
     ],
     "rule": [
-      "Earn at least one lesson credit in each of 8 consecutive weeks.",
-      "8週連続で、毎週1回以上のレッスン実績を獲得する。"
-    ]
+      "Take a lesson 8 weeks in a row.",
+      "8週連続でレッスンを受ける。"
+    ],
+    "details": lessonWeekDetails
   },
   {
     "id": "lesson-weeks-0012",
@@ -416,9 +448,10 @@ const catalogue = [
       "景色が変わっても、学びはいつもの場所に。"
     ],
     "rule": [
-      "Earn at least one lesson credit in each of 12 consecutive weeks.",
-      "12週連続で、毎週1回以上のレッスン実績を獲得する。"
-    ]
+      "Take a lesson 12 weeks in a row.",
+      "12週連続でレッスンを受ける。"
+    ],
+    "details": lessonWeekDetails
   },
   {
     "id": "study-days-0010",
@@ -431,9 +464,10 @@ const catalogue = [
       "自分の学びに、小さな時間をつくった10日間。"
     ],
     "rule": [
-      "Complete 10 study days in total. They do not have to be consecutive.",
-      "学習日を合計10日達成する。連続していなくてもOK。"
-    ]
+      "Practice flashcards on 10 different days.",
+      "合計10日、カードを練習する。"
+    ],
+    "details": studyDayDetails
   },
   {
     "id": "study-days-0030",
@@ -446,9 +480,10 @@ const catalogue = [
       "本を開いて、ひと息。いつもの小さな習慣。"
     ],
     "rule": [
-      "Complete 30 study days in total. They do not have to be consecutive.",
-      "学習日を合計30日達成する。連続していなくてもOK。"
-    ]
+      "Practice flashcards on 30 different days.",
+      "合計30日、カードを練習する。"
+    ],
+    "details": studyDayDetails
   },
   {
     "id": "study-days-0100",
@@ -461,9 +496,10 @@ const catalogue = [
       "次の行き先は、まだ知らない発見。"
     ],
     "rule": [
-      "Complete 100 study days in total. They do not have to be consecutive.",
-      "学習日を合計100日達成する。連続していなくてもOK。"
-    ]
+      "Practice flashcards on 100 different days.",
+      "合計100日、カードを練習する。"
+    ],
+    "details": studyDayDetails
   },
   {
     "id": "study-days-0250",
@@ -476,9 +512,10 @@ const catalogue = [
       "席、空けておきました。もう、あなたの指定席ですね。"
     ],
     "rule": [
-      "Complete 250 study days in total. They do not have to be consecutive.",
-      "学習日を合計250日達成する。連続していなくてもOK。"
-    ]
+      "Practice flashcards on 250 different days.",
+      "合計250日、カードを練習する。"
+    ],
+    "details": studyDayDetails
   },
   {
     "id": "loyalty-0003m",
@@ -491,9 +528,10 @@ const catalogue = [
       "この場所が、少しずつなじんできた。"
     ],
     "rule": [
-      "On or after your 3-month learning anniversary, complete a study day or earn a lesson credit, with activity in at least 2 of the last 3 calendar months, including the current month.",
-      "学びはじめて3か月以降に、学習日を達成するか、レッスン実績を獲得する。その時点で、今月を含む直近3か月のうち2か月以上に学習日またはレッスン実績があること。"
-    ]
+      "Three months in. Back for more!",
+      "学び始めて3か月。今日もひとつ！"
+    ],
+    "details": anniversaryDetails(3, 2)
   },
   {
     "id": "loyalty-0006m",
@@ -506,9 +544,10 @@ const catalogue = [
       "半年たっても、物語にはまだ続きがある。"
     ],
     "rule": [
-      "On or after your 6-month learning anniversary, complete a study day or earn a lesson credit, with activity in at least 3 of the last 6 calendar months, including the current month.",
-      "学びはじめて6か月以降に、学習日を達成するか、レッスン実績を獲得する。その時点で、今月を含む直近6か月のうち3か月以上に学習日またはレッスン実績があること。"
-    ]
+      "Six months in. Keep the story going!",
+      "学び始めて半年。続きのページへ！"
+    ],
+    "details": anniversaryDetails(6, 3)
   },
   {
     "id": "loyalty-0012m",
@@ -521,9 +560,10 @@ const catalogue = [
       "自分のペースで、何度もこの物語に戻ってきた1年。"
     ],
     "rule": [
-      "On or after your one-year learning anniversary, complete a study day or earn a lesson credit, with activity in at least 6 of the last 12 calendar months, including the current month.",
-      "学びはじめて1年以降に、学習日を達成するか、レッスン実績を獲得する。その時点で、今月を含む直近12か月のうち6か月以上に学習日またはレッスン実績があること。"
-    ]
+      "One year in. Hello, chapter two!",
+      "学び始めて1年。さあ、2年目へ！"
+    ],
+    "details": anniversaryDetails(12, 6)
   },
   {
     "id": "study-and-lessons-week",
@@ -536,8 +576,12 @@ const catalogue = [
       "ひとりの練習と、先生との会話が合流した。"
     ],
     "rule": [
-      "Complete 3 study days and earn at least one lesson credit in the same calendar week.",
-      "同じ週に学習日を3日達成し、レッスン実績を1回以上獲得する。"
+      "Three study days. One lesson. Same week!",
+      "1週間で、カードを3日、レッスンを1回！"
+    ],
+    "details": [
+      "Between Monday and Sunday, review 5 different cards on at least 3 days and finish at least one lesson.",
+      "月曜から日曜までに、違うカードを1日5枚以上復習する日を3日つくり、レッスンを1回以上受けます。"
     ]
   }
 ];

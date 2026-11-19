@@ -34,6 +34,19 @@ for (const japanese of [false, true]) {
     expect(art.size).toBeLessThanOrEqual(8);
     await page.getByRole("link", { name: copy.artGallery.next, exact: true }).click();
     await expect(page.getByRole("heading", { name: japanese ? "記憶の宮殿" : "Mind Palace" })).toBeVisible();
+    await page.goto(`/${japanese ? "ja" : "en"}/dashboard/art-gallery?page=5`);
+    const anniversary = japanese ? "ここがしっくり" : "Getting Comfortable";
+    const threshold = japanese ? /直近3か月のうち2か月以上/ : /at least 2 of the last 3 months/;
+    await expect(page.getByRole("heading", { name: anniversary })).toBeVisible();
+    await expect(page.getByText(threshold)).toHaveCount(0);
+    await page.getByRole("link", { name: new RegExp(anniversary) }).click();
+    const conditions = page.getByText(japanese ? "詳しい条件" : "What counts?", { exact: true });
+    await expect(conditions).toBeVisible();
+    await expect(page.getByText(threshold)).toBeHidden();
+    await conditions.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByText(threshold)).toBeVisible();
+    await page.getByRole("link", { name: copy.artGallery.back }).click();
     await page.getByRole("link", { name: copy.artGallery.collected, exact: true }).click();
     if (japanese) {
       await expect(works).toHaveCount(1);
