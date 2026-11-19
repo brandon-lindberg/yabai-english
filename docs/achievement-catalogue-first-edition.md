@@ -11,9 +11,9 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 - Every threshold applies only to the current learning subject. Count distinct logical cards across catalog revisions; repeated prompts for one unit do not create new cards.
 - A **study day** means completing reviews of five distinct cards in the learner's achievement timezone; mistakes count. Quick-review participation handling follows the product plan. Mere visits do not qualify.
 - A **mastered card** is a distinct card that has met the existing subject's mastery rules at least once. These awards do not change the live mastery percentage or revoke an award after a wrong answer.
-- A **lesson credit** is automatic when a stored `CONFIRMED` or `COMPLETED` booking reaches its scheduled end. Pending/unpaid or cancelled bookings do not count; attendance is unverified. Count by scheduled end date and once per booking, including eligible free trials.
+- A **completed lesson** counts when a stored `CONFIRMED` or `COMPLETED` booking reaches its scheduled end. Pending/unpaid or cancelled bookings do not count; attendance is unverified. Count by scheduled end date and once per booking, including eligible free trials.
 - Weeks are proposed as Monday–Sunday in the learner's persisted achievement timezone. Anniversary participation thresholds remain proposed as detailed below; they are not consecutive-day requirements.
-- Any valid recorded review or eligible ended lesson interrupts a period of inactivity, even if the review day has fewer than five cards. Comeback awards require completing a study day or gaining a lesson credit on the return day. Preserve the earlier gap while that day is being completed.
+- Any valid recorded review or eligible ended lesson interrupts a period of inactivity, even if the review day has fewer than five cards. Comeback awards require completing a study day or completing a lesson on the return day. Preserve the earlier gap while that day is being completed.
 - Use locale-aware number/date formatting in the implementation. The literal numbers below make the draft readable; do not build UI copy by concatenating these sentences.
 
 ## Cards studied — 6 visible awards
@@ -21,8 +21,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 01 — First Spark / はじまりのひらめき
 
 - ID: `cards-0001` · Visible.
-- Unlock EN: Submit a graded answer for your first flashcard.
-- Unlock JA: はじめてフラッシュカードの問題に回答する。
+- Unlock EN: Answer your first flashcard.
+- Unlock JA: フラッシュカードの練習で最初の1問に答える。
 - Caption EN: Every adventure starts with one tiny spark.
 - Caption JA: 小さなひらめきから、冒険がはじまる。
 - Art: **Sunny platformer.** A cute white fox adventurer opens a book; one bright star rises above a grassy island. Pointed ears, a fox muzzle and fluffy tail connect the mascot to the app's white fox logo. Bold, simple silhouette and joyful sky. The owner requested the fox after rejecting the chicken-like character in the first sample.
@@ -77,8 +77,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 07 — That One Stuck! / ひとつ、身についた！
 
 - ID: `mastery-0001` · Visible.
-- Unlock EN: Bring your first flashcard to mastery.
-- Unlock JA: はじめて1枚のフラッシュカードをマスターする。
+- Unlock EN: Master your first flashcard.
+- Unlock JA: カードを初めて1枚マスターする。
 - Caption EN: A little less guessing. A little more knowing.
 - Caption JA: 「たぶん」が、少しずつ「わかった」に。
 - Art: **Cute chibi.** A delighted little creature proudly holds a single star-shaped card close to its chest. A tiny celebratory sparkle, no brain or intelligence ranking imagery.
@@ -86,8 +86,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 08 — Memory Smith / 記憶の鍛冶屋
 
 - ID: `mastery-0010` · Visible.
-- Unlock EN: Bring 10 different flashcards to mastery.
-- Unlock JA: 異なるフラッシュカードを10枚マスターする。
+- Unlock EN: Master 10 different flashcards.
+- Unlock JA: 違うカードを10枚マスターする。
 - Caption EN: Forged through practice. Tempered by the occasional wrong answer.
 - Caption JA: 練習で鍛えて、ときどき間違えて。記憶のできあがり。
 - Art: **Samurai-era craft.** A small swordsmith at a forge shapes a glowing bookmark on an anvil. Warm sparks, indigo apron, no military insignia.
@@ -95,8 +95,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 09 — Mind Palace / 記憶の宮殿
 
 - ID: `mastery-0050` · Visible.
-- Unlock EN: Bring 50 different flashcards to mastery.
-- Unlock JA: 異なるフラッシュカードを50枚マスターする。
+- Unlock EN: Master 50 different flashcards.
+- Unlock JA: 違うカードを50枚マスターする。
 - Caption EN: Your ideas have moved into a rather lovely address.
 - Caption JA: 覚えたことに、すてきな住まいができました。
 - Art: **French romantic fantasy.** A miniature illuminated palace surrounded by roses, with a book-shaped gate and a moonlit garden. The central facade must survive thumbnail reduction.
@@ -104,8 +104,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 10 — Memory Guardian / 記憶の守り人
 
 - ID: `mastery-0100` · Visible.
-- Unlock EN: Bring 100 different flashcards to mastery.
-- Unlock JA: 異なるフラッシュカードを100枚マスターする。
+- Unlock EN: Master 100 different flashcards.
+- Unlock JA: 違うカードを100枚マスターする。
 - Caption EN: The knowledge is guarded. The guardian is surprisingly small.
 - Caption JA: 知識を守るのは、意外とちいさな守り人。
 - Art: **Dark fantasy.** A tiny armored guardian with an oversized book-shaped shield stands before an ember-lit ruined arch. Expressive rather than threatening.
@@ -113,8 +113,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 11 — Archive Keeper / 知識の番人
 
 - ID: `mastery-0250` · Visible.
-- Unlock EN: Bring 250 different flashcards to mastery.
-- Unlock JA: 異なるフラッシュカードを250枚マスターする。
+- Unlock EN: Master 250 different flashcards.
+- Unlock JA: 違うカードを250枚マスターする。
 - Caption EN: Some people collect souvenirs. You collect understanding.
 - Caption JA: おみやげもいいけれど、集めたのは「わかった」の数。
 - Art: **Science fiction.** A little archivist tends a floating crystalline book inside an orbital library; deep blue space and one bright cyan focal object.
@@ -164,8 +164,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 16 — Small Flame / 小さな炎
 
 - ID: `study-streak-0003` · Visible.
-- Unlock EN: Complete a study day on 3 consecutive days.
-- Unlock JA: 3日連続で、毎日5枚以上の異なるカードを復習する。
+- Unlock EN: Keep a 3-day flashcard streak.
+- Unlock JA: 3日連続でカードを練習する。
 - Caption EN: A spark is nice. Keeping it going is nicer.
 - Caption JA: 火花もすてき。育っていく炎は、もっとすてき。
 - Art: **Chibi fantasy.** A friendly little flame curls around a candle shaped like a closed book. Cheerful eyes and generous negative space.
@@ -173,8 +173,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 17 — Seven-Day Spell / 7日間の魔法
 
 - ID: `study-streak-0007` · Visible.
-- Unlock EN: Complete a study day on 7 consecutive days.
-- Unlock JA: 7日連続で、毎日5枚以上の異なるカードを復習する。
+- Unlock EN: Keep a 7-day flashcard streak.
+- Unlock JA: 7日連続でカードを練習する。
 - Caption EN: The secret ingredient was showing up again.
 - Caption JA: 魔法のひけつは、今日もまた来たこと。
 - Art: **Romantic anime magic.** A small witch and an open spellbook under a crescent moon, with a ring of seven clear stars. Soft violet and warm gold.
@@ -182,8 +182,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 18 — Routine Familiar / 習慣の使い魔
 
 - ID: `study-streak-0014` · Visible.
-- Unlock EN: Complete a study day on 14 consecutive days.
-- Unlock JA: 14日連続で、毎日5枚以上の異なるカードを復習する。
+- Unlock EN: Keep a 14-day flashcard streak.
+- Unlock JA: 14日連続でカードを練習する。
 - Caption EN: Your study habit has acquired a small, judgment-free companion.
 - Caption JA: 学習習慣に、そっと寄りそう相棒ができた。
 - Art: **Cozy storybook.** A round magical cat curls around a book beside a steaming cup; a little flame floats above its tail. Calm amber window light.
@@ -191,8 +191,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 19 — Flame Keeper / 炎を絶やさぬ者
 
 - ID: `study-streak-0030` · Visible.
-- Unlock EN: Complete a study day on 30 consecutive days.
-- Unlock JA: 30日連続で、毎日5枚以上の異なるカードを復習する。
+- Unlock EN: Keep a 30-day flashcard streak.
+- Unlock JA: 30日連続でカードを練習する。
 - Caption EN: Through ordinary days, the flame kept burning.
 - Caption JA: いつもの日々の中で、炎をつなぎ続けた。
 - Art: **Dark fantasy.** A small keeper shelters a bright brazier beneath a broken stone canopy while rain falls outside. Warmth and resilience lead the scene.
@@ -202,8 +202,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 20 — Hello There / こんにちは、冒険！
 
 - ID: `lessons-0001` · Visible.
-- Unlock EN: Earn your first lesson credit.
-- Unlock JA: はじめてレッスン実績を1回分獲得する。
+- Unlock EN: Complete your first lesson.
+- Unlock JA: 初めてのレッスンを終える。
 - Caption EN: A new conversation. A new beginning.
 - Caption JA: 新しい会話から、新しい一歩。
 - Art: **Romantic French cafe.** Two welcoming chairs, two cups, and an open notebook at a tiny window table; the scene celebrates conversation, not a romantic teacher relationship.
@@ -211,8 +211,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 21 — I Have Notes / メモならあります！
 
 - ID: `lessons-0005` · Visible.
-- Unlock EN: Earn 5 lesson credits.
-- Unlock JA: レッスン実績を5回分獲得する。
+- Unlock EN: Complete 5 lessons.
+- Unlock JA: レッスンを5回受ける。
 - Caption EN: The notebook has entered its main-character era.
 - Caption JA: ノート、ついに主役になる。
 - Art: **Expressive anime pixel art.** A delighted notebook character raises a pencil like a dramatic prop, with flying bookmarks and a spotlight-shaped burst. No rendered handwriting.
@@ -220,8 +220,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 22 — Conversation Party / 会話のパーティー
 
 - ID: `lessons-0010` · Visible.
-- Unlock EN: Earn 10 lesson credits.
-- Unlock JA: レッスン実績を10回分獲得する。
+- Unlock EN: Complete 10 lessons.
+- Unlock JA: レッスンを10回受ける。
 - Caption EN: The conversation has officially joined the adventure.
 - Caption JA: 会話が、冒険の仲間になった。
 - Art: **Science-fiction ensemble.** A small space crew gathers around a glowing radio and book, with simple speech-bubble shapes. This is a metaphor, not a claim that the learner took group lessons.
@@ -229,8 +229,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 23 — Dialogue Adventurer / 対話の冒険者
 
 - ID: `lessons-0025` · Visible.
-- Unlock EN: Earn 25 lesson credits.
-- Unlock JA: レッスン実績を25回分獲得する。
+- Unlock EN: Complete 25 lessons.
+- Unlock JA: レッスンを25回受ける。
 - Caption EN: Every conversation opens another little door.
 - Caption JA: 会話を重ねるたび、小さな扉が開いていく。
 - Art: **Samurai travel / spring Japan.** A traveler steps through a courtyard gate with a notebook as cherry petals drift past. A luminous open doorway is the focal shape.
@@ -238,8 +238,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 24 — Speaking of Which / そういえば、もう50回
 
 - ID: `lessons-0050` · Visible.
-- Unlock EN: Earn 50 lesson credits.
-- Unlock JA: レッスン実績を50回分獲得する。
+- Unlock EN: Complete 50 lessons.
+- Unlock JA: レッスンを50回受ける。
 - Caption EN: One conversation led to another. And rather a lot more.
 - Caption JA: ひとつの会話が、次の会話へ。気づけば、こんなに。
 - Art: **French romance.** A glowing cafe on a riverside street at dusk, with a bridge and two empty cups in the foreground. Rose, amber, and deep blue color clusters.
@@ -247,8 +247,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 25 — Centurion of Conversation / 100回の語り部
 
 - ID: `lessons-0100` · Visible.
-- Unlock EN: Earn 100 lesson credits.
-- Unlock JA: レッスン実績を100回分獲得する。
+- Unlock EN: Complete 100 lessons.
+- Unlock JA: レッスンを100回受ける。
 - Caption EN: A hundred chapters of conversation. The story continues.
 - Caption JA: 100回ぶんの会話。その物語は、まだ続いていく。
 - Art: **Pixel fine art / art nouveau.** A luminous open book within a flowing botanical arch; theatrical golden light suggests a grand storytelling stage. No embedded count or text.
@@ -258,8 +258,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 26 — Same Time Next Week? / また来週、この時間に
 
 - ID: `lesson-weeks-0004` · Visible.
-- Unlock EN: Earn at least one lesson credit in each of 4 consecutive weeks.
-- Unlock JA: 4週連続で、毎週1回以上のレッスン実績を獲得する。
+- Unlock EN: Take a lesson 4 weeks in a row.
+- Unlock JA: 4週連続でレッスンを受ける。
 - Caption EN: A little room in the week for a little more learning.
 - Caption JA: 1週間の中に、学びの居場所ができた。
 - Art: **Cozy French cafe.** A familiar corner table and an open appointment book under a hanging lamp. No clock hands implying a required lesson time.
@@ -267,8 +267,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 27 — Regular Character / すっかりおなじみ
 
 - ID: `lesson-weeks-0008` · Visible.
-- Unlock EN: Earn at least one lesson credit in each of 8 consecutive weeks.
-- Unlock JA: 8週連続で、毎週1回以上のレッスン実績を獲得する。
+- Unlock EN: Take a lesson 8 weeks in a row.
+- Unlock JA: 8週連続でレッスンを受ける。
 - Caption EN: You were a guest star. Now you are a regular.
 - Caption JA: ゲスト出演のはずが、すっかりレギュラーに。
 - Art: **Cute chibi.** A friendly owl settles into a book-lined alcove with slippers and a little reserved-looking cushion, but no text on the cushion.
@@ -276,8 +276,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 28 — Season Regular / ワンシーズンのおなじみさん
 
 - ID: `lesson-weeks-0012` · Visible.
-- Unlock EN: Earn at least one lesson credit in each of 12 consecutive weeks.
-- Unlock JA: 12週連続で、毎週1回以上のレッスン実績を獲得する。
+- Unlock EN: Take a lesson 12 weeks in a row.
+- Unlock JA: 12週連続でレッスンを受ける。
 - Caption EN: The scenery changes. Your learning keeps its place.
 - Caption JA: 景色が変わっても、学びはいつもの場所に。
 - Art: **Autumn Japan.** A welcoming study room framed by a glowing maple branch, with a lantern and an open book. Seasonal atmosphere is decorative, not a calendar restriction.
@@ -287,8 +287,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 29 — Showing Up / 今日も来た！
 
 - ID: `study-days-0010` · Visible.
-- Unlock EN: Complete 10 study days in total. They do not have to be consecutive.
-- Unlock JA: 学習日を合計10日達成する。連続していなくてもOK。
+- Unlock EN: Practice flashcards on 10 different days.
+- Unlock JA: 合計10日、カードを練習する。
 - Caption EN: Ten days of making a little space for yourself.
 - Caption JA: 自分の学びに、小さな時間をつくった10日間。
 - Art: **Chibi adventure.** A small learner waves from a path of stepping stones, carrying a bright book-shaped backpack. Each step feels achievable.
@@ -296,8 +296,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 30 — Making It a Habit / いつもの習慣
 
 - ID: `study-days-0030` · Visible.
-- Unlock EN: Complete 30 study days in total. They do not have to be consecutive.
-- Unlock JA: 学習日を合計30日達成する。連続していなくてもOK。
+- Unlock EN: Practice flashcards on 30 different days.
+- Unlock JA: 合計30日、カードを練習する。
 - Caption EN: A book, a moment, and a familiar little ritual.
 - Caption JA: 本を開いて、ひと息。いつもの小さな習慣。
 - Art: **Quiet spring Japan.** A teapot, open book, and one cherry blossom at a sunlit desk. A compact still life with no tiny illegible page detail.
@@ -305,8 +305,8 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 31 — Frequent Flyer / 学びの常連
 
 - ID: `study-days-0100` · Visible.
-- Unlock EN: Complete 100 study days in total. They do not have to be consecutive.
-- Unlock JA: 学習日を合計100日達成する。連続していなくてもOK。
+- Unlock EN: Practice flashcards on 100 different days.
+- Unlock JA: 合計100日、カードを練習する。
 - Caption EN: Your next destination appears to be another discovery.
 - Caption JA: 次の行き先は、まだ知らない発見。
 - Art: **Science-fiction travel.** A compact starship with a book-shaped sail passes colorful planets. Travel patches are abstract shapes, not flags or passport text.
@@ -314,21 +314,21 @@ The IDs below are proposed permanent identifiers shared by both languages. Award
 ### 32 — Part of the Furniture / もはや住人
 
 - ID: `study-days-0250` · Visible.
-- Unlock EN: Complete 250 study days in total. They do not have to be consecutive.
-- Unlock JA: 学習日を合計250日達成する。連続していなくてもOK。
+- Unlock EN: Practice flashcards on 250 different days.
+- Unlock JA: 合計250日、カードを練習する。
 - Caption EN: We saved you a seat. It appears to be yours now.
 - Caption JA: 席、空けておきました。もう、あなたの指定席ですね。
 - Art: **Cozy storybook.** A well-loved armchair, a slightly precarious book stack, and a tiny creature asleep on the armrest. Warm light gives the chair a recognizable silhouette.
 
 ## Loyalty — 3 visible awards
 
-These participation requirements implement the proposed anniversary-plus-continued-learning approach. "Active month" means at least one qualifying study day or lesson credit; it does not mean activity every day in that month. The current month is included in the trailing month window. Titles and dates never imply a consecutive daily streak.
+These participation requirements implement the proposed anniversary-plus-continued-learning approach. "Active month" means at least one qualifying study day or completed lesson; it does not mean activity every day in that month. The current month is included in the trailing month window. Open a badge for the exact rule. On or after the anniversary, the learner completes a study day or a lesson. Counting the current calendar month, the activity minimums are 2 of the last 3 months, 3 of the last 6 months, and 6 of the last 12 months, respectively.
 
 ### 33 — Getting Comfortable / ここがしっくり
 
 - ID: `loyalty-0003m` · Visible.
-- Unlock EN: On or after your 3-month learning anniversary, complete a study day or earn a lesson credit, with activity in at least 2 of the last 3 calendar months, including the current month.
-- Unlock JA: 学びはじめて3か月以降に、学習日を達成するか、レッスン実績を獲得する。その時点で、今月を含む直近3か月のうち2か月以上に学習日またはレッスン実績があること。
+- Unlock EN: Three months in. Back for more!
+- Unlock JA: 学び始めて3か月。今日もひとつ！
 - Caption EN: This little corner of the world is starting to feel familiar.
 - Caption JA: この場所が、少しずつなじんできた。
 - Art: **French romance.** A welcoming cafe window with a book, flowering plant, and a comfortably rumpled seat cushion. Intimate, warm, and unhurried.
@@ -336,8 +336,8 @@ These participation requirements implement the proposed anniversary-plus-continu
 ### 34 — Long Story Short / 気づけば半年
 
 - ID: `loyalty-0006m` · Visible.
-- Unlock EN: On or after your 6-month learning anniversary, complete a study day or earn a lesson credit, with activity in at least 3 of the last 6 calendar months, including the current month.
-- Unlock JA: 学びはじめて6か月以降に、学習日を達成するか、レッスン実績を獲得する。その時点で、今月を含む直近6か月のうち3か月以上に学習日またはレッスン実績があること。
+- Unlock EN: Six months in. Keep the story going!
+- Unlock JA: 学び始めて半年。続きのページへ！
 - Caption EN: Six months later, the story still has more to say.
 - Caption JA: 半年たっても、物語にはまだ続きがある。
 - Art: **Romantic anime landscape.** A little riverside bench, a closed notebook, and glowing lantern reflections under a violet evening sky. Original quiet storytelling scene.
@@ -345,8 +345,8 @@ These participation requirements implement the proposed anniversary-plus-continu
 ### 35 — One Year Together / 一緒に歩んだ1年
 
 - ID: `loyalty-0012m` · Visible.
-- Unlock EN: On or after your one-year learning anniversary, complete a study day or earn a lesson credit, with activity in at least 6 of the last 12 calendar months, including the current month.
-- Unlock JA: 学びはじめて1年以降に、学習日を達成するか、レッスン実績を獲得する。その時点で、今月を含む直近12か月のうち6か月以上に学習日またはレッスン実績があること。
+- Unlock EN: One year in. Hello, chapter two!
+- Unlock JA: 学び始めて1年。さあ、2年目へ！
 - Caption EN: A year of returning to the story, in your own rhythm.
 - Caption JA: 自分のペースで、何度もこの物語に戻ってきた1年。
 - Art: **Japanese seasons.** One strong tree silhouette changes from blossoms to summer green, maple red, and snow across its canopy. A small book rests at the roots. No anniversary number in the art.
@@ -358,8 +358,10 @@ The following names, copy, goals, scene descriptions, and image references must 
 ### 36 — Where Have You Been? / おかえり、待ってたよ
 
 - ID: `return-0014d` · Hidden.
-- Unlock EN: Return after at least 14 full inactive days, then complete a study day or earn a lesson credit on your return day.
-- Unlock JA: 学習活動のない日が14日以上続いた後に戻り、その日に学習日を達成するか、レッスン実績を獲得する。
+- Unlock EN: Back for more after 14 days away!
+- Unlock JA: 14日以上休んで、学びにカムバック！
+- Detail EN: Return after at least 14 full inactive days. Review 5 different cards or complete a lesson on the day you return.
+- Detail JA: 学習を丸14日以上休んだ後、復帰した日に違うカードを5枚復習するか、レッスンを1回受ける。
 - Caption EN: Your flashcards started a search party. Welcome back.
 - Caption JA: カードたちが捜索隊を結成していました。おかえりなさい。
 - Art: **Cute chibi.** A worried-but-delighted companion holds a lantern and a comically oversized map. The map contains doodle paths, not readable words.
@@ -367,8 +369,10 @@ The following names, copy, goals, scene descriptions, and image references must 
 ### 37 — Somehow, You Returned / 伝説の帰還
 
 - ID: `return-0090d` · Hidden.
-- Unlock EN: Return after at least 90 full inactive days, then complete a study day or earn a lesson credit on your return day.
-- Unlock JA: 学習活動のない日が90日以上続いた後に戻り、その日に学習日を達成するか、レッスン実績を獲得する。
+- Unlock EN: Back for more after 90 days away!
+- Unlock JA: 90日以上休んで、学びにカムバック！
+- Detail EN: Return after at least 90 full inactive days. Review 5 different cards or complete a lesson on the day you return.
+- Detail JA: 学習を丸90日以上休んだ後、復帰した日に違うカードを5枚復習するか、レッスンを1回受ける。
 - Caption EN: The quest log was getting dusty. Your adventure continues.
 - Caption JA: 冒険の記録に、少しほこりが。続きのページを開こう。
 - Art: **Dark fantasy.** An absurdly small armored traveler emerges from a moss-covered doorway holding a warm lantern. Gentle humor and the glow of a second beginning.
@@ -376,8 +380,10 @@ The following names, copy, goals, scene descriptions, and image references must 
 ### 38 — Consistently Inconsistent / 安定の気まぐれ
 
 - ID: `irregular-0001` · Hidden.
-- Unlock EN: Complete 10 study days across at least 30 calendar days, including 3 study-day returns after gaps of at least 3 full inactive days.
-- Unlock JA: 30日以上の期間に学習日を10日達成し、その間に3日以上学習活動がなかった後の復帰日で学習日を達成したことが3回以上ある。
+- Unlock EN: Ten study days. Three comebacks!
+- Unlock JA: 学習日が10日、カムバックが3回！
+- Detail EN: Spread 10 study days across at least 30 calendar days. On 3 of those study days, return after at least 3 full inactive days.
+- Detail JA: 30日以上の期間で学習日を10日達成する。そのうち3回は、丸3日以上休んだ後の復帰日に達成する。
 - Caption EN: Your timetable is abstract art. You still keep showing up.
 - Caption JA: あなたの予定表は抽象画。それでも、ちゃんと戻ってくる。
 - Art: **Pixel fine art.** A whimsical calendar-like mosaic with scattered star markers, a wandering ribbon, and a tiny paintbrush. No dates, numbers, or shame-coded red crosses.
@@ -387,8 +393,8 @@ The following names, copy, goals, scene descriptions, and image references must 
 ### 39 — Side Quests & Main Story / サブクエも本編も
 
 - ID: `study-and-lessons-week` · Visible.
-- Unlock EN: Complete 3 study days and earn at least one lesson credit in the same calendar week.
-- Unlock JA: 同じ週に学習日を3日達成し、レッスン実績を1回以上獲得する。
+- Unlock EN: Three study days. One lesson. Same week!
+- Unlock JA: 1週間で、カードを3日、レッスンを1回！
 - Caption EN: The practice and the conversation have joined forces.
 - Caption JA: ひとりの練習と、先生との会話が合流した。
 - Art: **Retro adventure.** Two paths—one marked by a book, the other by speech-bubble shapes—meet at a bright gateway. One small traveler proceeds through it. No text embedded in the symbols.
@@ -402,13 +408,13 @@ Use expandable, accessible explanations for terms instead of hiding essential qu
 | Study day | Review five different cards in one day. Wrong answers count too. | 1日に異なるカードを5枚復習すると、学習日として数えます。間違えた回答も含まれます。 |
 | Distinct cards | Each card counts once, however many times you review it. | 同じカードを何度復習しても、枚数は1枚として数えます。 |
 | Mastery | A card counts when it first reaches mastery under this subject's study rules. | この学習言語のルールで、はじめてマスターしたカードを数えます。 |
-| Lesson credit | Confirmed lessons count after their scheduled end time. Cancelled bookings and bookings still awaiting payment do not count. Confirmed free trials count too. Attendance is not verified. | 予約が確定したレッスンを、終了予定時刻の後に数えます。キャンセル済み・支払い待ちの予約は含みません。予約が確定した無料体験レッスンも対象です。実際の出席確認は行っていません。 |
-| Active month | A month with at least one study day or lesson credit. Months do not have to be consecutive. | 学習日を1日以上達成するか、レッスン実績を1回以上獲得した月です。連続していなくてもかまいません。 |
+| Completed lesson | Confirmed lessons count after their scheduled end time. Cancelled bookings and bookings still awaiting payment do not count. Confirmed free trials count too. Attendance is not verified. | 予約が確定したレッスンを、終了予定時刻の後に数えます。キャンセル済み・支払い待ちの予約は含みません。予約が確定した無料体験レッスンも対象です。実際の出席確認は行っていません。 |
+| Active month | A month with at least one study day or completed lesson. Months do not have to be consecutive. | 学習日が1日以上あるか、レッスンを1回以上受けた月です。連続していなくてもかまいません。 |
 | First learning activity | Your first verifiable study day or eligible lesson in this learning language. | この学習言語で、記録から確認できる最初の学習日、または対象のレッスンです。 |
 | Retained award | Once earned, this achievement stays in your collection even if a streak ends. | 一度獲得した実績は、連続記録が途切れてもコレクションに残ります。 |
 | Gallery invitation | Your Art Gallery is open. Your first artwork is waiting for you. | アートギャラリーが開きました。最初の作品が、あなたを待っています。 |
 
-Credit end dates, inactivity gaps, and anniversaries use server-owned facts and the persisted achievement timezone. A 90-day return can legitimately unlock both comeback tiers together; show one coalesced celebration. Backfilled awards receive one collection notice, not a replay of every toast.
+Lesson end dates, inactivity gaps, and anniversaries use server-owned facts and the persisted achievement timezone. A 90-day return can legitimately unlock both comeback tiers together; show one coalesced celebration. Backfilled awards receive one collection notice, not a replay of every toast.
 
 ## Art-production and localization review
 

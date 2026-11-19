@@ -202,6 +202,7 @@
     "awarded": "{date}にコレクションに追加されました。",
     "progress": "{target}件中{value}件",
     "views": "コレクションの表示",
+    "conditions": "詳しい条件",
     "pages": "コレクションのページ"
   },
   "dashboard": {

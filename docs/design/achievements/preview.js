@@ -376,6 +376,8 @@ function inspect(id) {
     "</small><p>" +
     safe(local(card.rule)) +
     "</p>" +
+    (card.details ? "<details><summary>" + translate("What counts?", "詳しい条件") +
+      "</summary><p>" + safe(local(card.details)) + "</p></details>" : "") +
     (earned ? "<p>" + safe(local(card.caption)) + "</p>" : "");
   $("#detail").setAttribute("aria-labelledby", "detail-title");
   $("#detail").showModal();

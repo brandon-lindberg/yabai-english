@@ -53,6 +53,10 @@ export default async function ArtGalleryPage({ searchParams }: { searchParams: P
           <PageHeader title={piece.title[index]} description={piece.caption[index]} />
           <p className="font-bold">{stateLabel(piece)}</p>
           <p className="mt-2">{piece.rule[index]}</p>
+          {piece.details && <details className="mt-3 text-sm">
+            <summary className="w-fit cursor-pointer font-semibold">{t("conditions")}</summary>
+            <p className="mt-2 leading-relaxed">{piece.details[index]}</p>
+          </details>}
           <p className="mt-3 text-sm text-muted">{piece.awardedAt
             ? t("awarded", { date: new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "Asia/Tokyo" }).format(piece.awardedAt) })
             : piece.progress ? t("progress", piece.progress) : t("upcomingInfo")}</p>
