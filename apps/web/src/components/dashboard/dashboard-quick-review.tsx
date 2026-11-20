@@ -106,8 +106,8 @@ export function DashboardQuickReview({
         {cards.map((c) => (
           <li key={c.id} className="flex min-h-0 flex-col items-stretch justify-start">
             <QuickReviewFlipCard
-              front={<span className="line-clamp-6 whitespace-pre-line text-sm font-medium leading-snug text-foreground">{resolveQuickReviewFrontText(c.frontJa)}</span>}
-              back={<span className="line-clamp-4 text-sm font-medium leading-snug text-foreground">{resolveQuickReviewBackText(c.frontJa, c.backEn)}</span>}
+              front={<span className="whitespace-pre-line text-sm font-medium leading-snug text-foreground [overflow-wrap:anywhere]">{resolveQuickReviewFrontText(c.frontJa)}</span>}
+              back={<span className="block text-sm font-medium leading-snug text-foreground [overflow-wrap:anywhere]">{resolveQuickReviewBackText(c.frontJa, c.backEn)}</span>}
               disabled={pendingId === c.id}
               onLearned={() => void postOutcome(c.id, "learned")}
               onNotYet={() => void postOutcome(c.id, "not_yet")}

@@ -5,6 +5,7 @@ import ja from "../../messages/ja.json";
 import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
 import { captureRelease, releaseCases } from "./helpers/release-verification";
 import { fixtureCommand, followMirrorGoogleSignIn, interceptMirrorGoogleSignIn, readMirrorFixtures, releaseStudent } from "./helpers/mirror-fixtures";
+import { captureStudyQueue } from "./helpers/study-queue";
 import type { JapaneseQuickReviewQueue, JapaneseStudyQueue, JapaneseStudyQuestion, JapaneseStudyResult } from "../../src/lib/study/japanese-public";
 
 const sites = { ENGLISH: "http://englishstudiojapan.localhost:3100", JAPANESE: "http://japanesestudio.localhost:3100" };
@@ -254,7 +255,9 @@ test("Japanese N5 practice loads and saves with or without a placement result", 
 test("completed Japanese quick review shows the same five cards in a Dashboard row after reload", async ({ page }) => {
   const learner = releaseStudent("resume-english");
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await signIn(page, "JAPANESE", learner.email);
+  await setHeaderTheme(page, en.common, "light");
   fixtureCommand("release-study-publish");
   try {
     const api = `${sites.JAPANESE}/api/japanese-study`;
@@ -269,15 +272,13 @@ test("completed Japanese quick review shows the same five cards in a Dashboard r
       expect(saved.status()).toBe(200);
     }
 
+    const readDailyQueue = await captureStudyQueue(page, "/api/japanese-study/quick-review", "POST");
     await page.reload();
     const review = page.getByRole("region", { name: en.japaneseStudy.quickTitle });
     const deck = review.getByRole("list", { name: en.japaneseStudy.dailyDeckLabel });
     const cards = deck.getByRole("listitem");
-    const issued = japaneseStudyPost(page, "quick-review");
     await review.getByRole("button", { name: en.japaneseStudy.quickStart }).click();
-    const queue = await issued;
-    expect(queue.status()).toBe(200);
-    const daily = await queue.json() as JapaneseQuickReviewQueue;
+    const daily = await readDailyQueue() as JapaneseQuickReviewQueue;
     expect(daily.cards).toHaveLength(5);
     expect(daily.cards[0].question.unitId).toBe(practice.cards[0].question.unitId);
     const reviewed: JapaneseStudyResult["feedback"][] = [];
@@ -305,8 +306,20 @@ test("completed Japanese quick review shows the same five cards in a Dashboard r
     const kanji = Math.max(0, reviewed.findIndex(feedback => feedback.onyomi?.length || feedback.kunyomi?.length));
     const card = cards.nth(kanji);
     const feedback = reviewed[kanji];
-    await card.getByRole("button", { name: frontLabels[kanji], exact: true }).press("Enter");
-    await expect(card.getByRole("button", { name: `${feedback.written} · ${en.dashboard.quickReview.tapToFlipBack}`, exact: true })).toBeFocused();
+    const front = card.getByRole("button", { name: frontLabels[kanji], exact: true });
+    const beforeFlip = await front.boundingBox();
+    await expect(front).toHaveCSS("background-color", "rgb(255, 255, 255)");
+    await front.press("Enter");
+    const flipBack = card.getByRole("button", { name: `${feedback.written} · ${en.dashboard.quickReview.tapToFlipBack}`, exact: true });
+    await expect(flipBack).toBeFocused();
+    const back = flipBack.locator("..");
+    await expect(back).toHaveCSS("background-color", "rgb(255, 255, 255)");
+    expect(await back.boundingBox()).toEqual(beforeFlip);
+    expect(await back.evaluate(face => {
+      const details = face.querySelector("dl")!;
+      return details.scrollHeight <= details.clientHeight + 1 &&
+        details.getBoundingClientRect().bottom < face.getBoundingClientRect().bottom;
+    })).toBe(true);
     if (feedback.meanings.length) await expect(card.getByText(feedback.meanings.join(", "), { exact: true })).toBeVisible();
     await captureRelease(page, "JAPANESE-quick-review-recap-desktop");
     await page.reload();

@@ -63,7 +63,7 @@ export function JapaneseStudyFeedbackDetails({ feedback, layout = "practice" }: 
   </div>;
   return (
     <dl className={layout === "recap"
-      ? "max-h-full w-full space-y-2 overflow-y-auto px-1 text-center text-sm leading-snug [overflow-wrap:anywhere]"
+      ? "space-y-2 px-1 text-sm leading-snug [overflow-wrap:anywhere]"
       : "space-y-3 text-left text-base leading-snug [overflow-wrap:anywhere]"}>
       {reading}{meanings}{categories}
     </dl>
