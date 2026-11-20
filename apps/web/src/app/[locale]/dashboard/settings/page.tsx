@@ -6,6 +6,8 @@ import { normalizeOnboardingNextHref } from "@/lib/teacher-onboarding-progress";
 import { OnboardingResumeBanner } from "@/components/onboarding-resume-banner";
 import { GoogleIntegrationsSettingsContent } from "@/components/dashboard/google-integrations-settings-content";
 import { SettingsTabs } from "@/components/settings/settings-tabs";
+import { AppIconSettings } from "@/components/settings/app-icon-settings";
+import { getRequestAppAppearance } from "@/lib/app-icon-request";
 import { TeacherPaymentsSettings } from "@/components/settings/teacher-payments-settings";
 import { TeacherTierSettings } from "@/components/settings/teacher-tier-settings";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
@@ -32,13 +34,15 @@ export default async function DashboardSettingsPage({
   const isTeacher = isTeacherCabinetRole(session.user.role);
   const stripeConnectEnabled = Boolean(process.env.STRIPE_SECRET_KEY);
   const showTeacherPayments = isTeacher;
-  const activeTab =
-    showTeacherPayments && tab === "tier"
+  const activeTab = tab === "appearance"
+    ? "appearance"
+    : showTeacherPayments && tab === "tier"
       ? "tier"
       : showTeacherPayments && tab !== "google"
         ? "payments"
         : "google";
-  const teacherProfile = showTeacherPayments
+  const appearance = activeTab === "appearance" ? await getRequestAppAppearance() : null;
+  const teacherProfile = showTeacherPayments && activeTab !== "appearance"
     ? await prisma.teacherProfile.findUnique({
         where: { userId: session.user.id },
         select: {
@@ -133,6 +137,7 @@ export default async function DashboardSettingsPage({
       {activeTab === "google" ? (
         <GoogleIntegrationsSettingsContent searchParams={searchParams} />
       ) : null}
+      {appearance ? <AppIconSettings icon={appearance.icon} defaultIcon={appearance.defaultIcon} /> : null}
     </div>
   );
 }

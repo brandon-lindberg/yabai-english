@@ -7,28 +7,27 @@ import "@fontsource-variable/m-plus-1";
 import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import { APP_NAME } from "@/lib/brand";
+import { appIconPath } from "@/lib/app-icon";
+import { getRequestAppAppearance } from "@/lib/app-icon-request";
 import { getLocale } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: APP_NAME,
-  description: "Private online English and Japanese lessons with a teacher.",
-  manifest: "/manifest.json",
-  icons: {
-    icon: [
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
+export async function generateMetadata(): Promise<Metadata> {
+  const { site, icon } = await getRequestAppAppearance();
+  return {
     title: APP_NAME,
-  },
-  other: {
-    "mobile-web-app-capable": "yes",
-  },
-};
+    description: "Private online English and Japanese lessons with a teacher.",
+    icons: {
+      icon: icon === "ink" ? "/favicon.ico" : { url: appIconPath(icon, "icon-96.png"), sizes: "96x96", type: "image/png" },
+      apple: [{ url: appIconPath(icon, "apple-touch-icon.png"), sizes: "180x180", type: "image/png" }],
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: site?.brandName ?? APP_NAME,
+    },
+    other: { "mobile-web-app-capable": "yes" },
+  };
+}
 
 /**
  * Mobile baseline ~iPhone 14 (390 CSS px); explicit viewport avoids odd zoom/layout in Safari.
@@ -50,13 +49,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
+  const [locale, { site }] = await Promise.all([getLocale(), getRequestAppAppearance()]);
   return (
     <html
       lang={locale}
       className="antialiased"
       suppressHydrationWarning
     >
+      <head>
+        {/* Browsers omit cookies from manifest fetches unless the link opts in. */}
+        <link rel="manifest" href={site ? "/manifest.webmanifest" : "/manifest.json"} crossOrigin="use-credentials" />
+      </head>
       <body className="flex min-h-dvh flex-col overflow-x-clip bg-transparent text-foreground">
         <Script
           id="english-platform-theme-init"

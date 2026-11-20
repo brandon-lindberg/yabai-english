@@ -39,6 +39,61 @@ function japaneseStudyPost(page: Page, path: "queue" | "quick-review" | "reviews
   return page.waitForResponse(response => response.url().endsWith(`/api/japanese-study/${path}`) && response.request().method() === "POST");
 }
 
+test("app icon changes the browser manifest and Apple touch icon for this site", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 850 });
+  await signIn(page, "JAPANESE", releaseStudent("timeout-japanese").email);
+  await page.goto(`${sites.JAPANESE}/en/dashboard/settings`);
+  const copy = en.dashboard.settingsPage;
+  await page.getByRole("link", { name: copy.tabAppearance, exact: true }).click();
+  const defaultIcon = page.getByRole("radio", { name: `${copy.appIcon.vermilion} ${copy.appIcon.default}` });
+  await expect(defaultIcon).toBeChecked();
+  const manifestLink = page.locator("head link[rel=manifest]");
+  await expect(manifestLink).toHaveCount(1);
+  await expect(manifestLink).toHaveAttribute("href", "/manifest.webmanifest");
+  await expect(manifestLink).toHaveAttribute("crossorigin", "use-credentials");
+
+  const browser = await page.context().newCDPSession(page);
+  try {
+    async function expectIcon(color: string) {
+      await expect(page.locator("link[rel=apple-touch-icon]")).toHaveAttribute("href", `/app-icons/${color}/apple-touch-icon.png`);
+      const { data, errors } = await browser.send("Page.getAppManifest");
+      expect(errors).toEqual([]);
+      expect(JSON.parse(data ?? "null")).toMatchObject({
+        id: "/", name: "Japanese Studio", start_url: "/",
+        icons: expect.arrayContaining([
+          expect.objectContaining({ src: `/app-icons/${color}/icon-512.png` }),
+          expect.objectContaining({ src: `/app-icons/${color}/icon-maskable-512.png`, purpose: "maskable" }),
+        ]),
+      });
+    }
+
+    await expectIcon("vermilion");
+    const indigo = page.getByRole("radio", { name: copy.appIcon.indigo, exact: true });
+    const save = page.getByRole("button", { name: copy.appIcon.save, exact: true });
+    await indigo.press("Space");
+    await expect(indigo).toBeChecked();
+    await Promise.all([page.waitForEvent("load"), save.click()]);
+    await expect(indigo).toBeChecked();
+    await expectIcon("indigo");
+    await captureRelease(page, "app-icon-japanese-mobile");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await setHeaderTheme(page, en.common, "dark");
+    await captureRelease(page, "app-icon-japanese-desktop-dark");
+
+    const english = await page.request.get(`${sites.ENGLISH}/manifest.webmanifest`);
+    expect(await english.json()).toMatchObject({
+      id: "/", name: "English Studio Japan",
+      icons: expect.arrayContaining([expect.objectContaining({ src: "/icon-512.png" })]),
+    });
+    await defaultIcon.press("Space");
+    await Promise.all([page.waitForEvent("load"), save.click()]);
+    await expect(defaultIcon).toBeChecked();
+    await expectIcon("vermilion");
+  } finally {
+    await browser.detach();
+  }
+});
+
 async function answerJapaneseCard(page: Page, learnerId: string, question: JapaneseStudyQuestion) {
   const answer = japaneseAnswer(learnerId, question);
   const choice = question.choices.find(option => option.id === answer.choiceId)!;

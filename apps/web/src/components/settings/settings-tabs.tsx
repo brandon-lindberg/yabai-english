@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { SubNav, SubNavLink } from "@/components/ui/sub-nav";
 
-type SettingsTab = "payments" | "tier" | "google";
+type SettingsTab = "payments" | "tier" | "google" | "appearance";
 
 type Props = {
   activeTab: SettingsTab;
@@ -42,6 +42,14 @@ export function SettingsTabs({ activeTab, showPayments = false, showTier = false
         render={(p) => (
           <Link href="/dashboard/settings?tab=google" {...p}>
             {t("tabGoogle")}
+          </Link>
+        )}
+      />
+      <SubNavLink
+        active={activeTab === "appearance"}
+        render={(p) => (
+          <Link href="/dashboard/settings?tab=appearance" {...p}>
+            {t("tabAppearance")}
           </Link>
         )}
       />

@@ -31,8 +31,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return site ? {
     metadataBase: new URL(site.origin),
     title: site.brandName,
-    manifest: "/manifest.webmanifest",
-    appleWebApp: { capable: true, statusBarStyle: "default", title: site.brandName },
   } : {};
 }
 

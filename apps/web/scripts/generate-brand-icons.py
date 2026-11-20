@@ -28,12 +28,11 @@ part if the artwork is ever recut.
 import io
 import struct
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageOps
 
 ROOT = Path(__file__).resolve().parents[3]
 SOURCE = ROOT / "brand" / "esj-logo-source.png"
 PUBLIC = ROOT / "apps" / "web" / "public"
-APP_DIR = ROOT / "apps" / "web" / "src" / "app"
 
 # The five authored tiles, largest to smallest.
 TILES = {
@@ -51,6 +50,36 @@ TILE_INK = (20, 20, 20, 255)
 # Maskable icons are cropped by the platform to an arbitrary shape; only the
 # middle 80% is guaranteed visible.
 MASKABLE_SAFE = 0.80
+
+# Colour the original luminance values so the engraved fox detail, edge mask,
+# and padding come from the same artwork as the ink icon.
+COLOUR_RAMPS = {
+    "vermilion": ("#31171c", "#9e3934", "#fff4da"),
+    "indigo": ("#161b39", "#374e9a", "#f2f2ff"),
+    "forest": ("#142b22", "#286348", "#eff7dd"),
+}
+
+
+def emit_colour_variants() -> None:
+    icons_dir = PUBLIC / "app-icons"
+    preview_file = "icon-96.png"
+    (icons_dir / "ink").mkdir(parents=True, exist_ok=True)
+    with Image.open(PUBLIC / "icon-192.png") as icon:
+        icon.resize((96, 96), Image.LANCZOS).save(icons_dir / "ink" / preview_file, optimize=True)
+
+    files = (preview_file, "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png")
+    for colour, (shadow, ground, highlight) in COLOUR_RAMPS.items():
+        variant_dir = icons_dir / colour
+        variant_dir.mkdir(parents=True, exist_ok=True)
+        for name in files:
+            source = icons_dir / "ink" / name if name == preview_file else PUBLIC / name
+            with Image.open(source) as icon:
+                coloured = ImageOps.colorize(icon.convert("L"), shadow, highlight, ground, midpoint=20)
+                if "A" in icon.getbands():
+                    alpha = icon.getchannel("A")
+                    if alpha.getextrema() != (255, 255):
+                        coloured.putalpha(alpha)
+                coloured.quantize(colors=256).save(variant_dir / name, optimize=True)
 
 
 def tile(n: int, size: int, *, keep_shape: bool = False) -> Image.Image:
@@ -148,12 +177,14 @@ def main() -> None:
 
     # Favicon: each embedded size from the tile drawn nearest to it, so the 16px
     # entry is the simplified circular mark rather than a shrunk illustration.
-    ico_path = APP_DIR / "favicon.ico"
+    ico_path = PUBLIC / "favicon.ico"
     write_ico(ico_path, {16: tile(5, 16), 32: tile(4, 32), 48: tile(3, 48)})
     written.append(ico_path)
 
     for p in written:
         print(f"  {p.relative_to(ROOT)}  ({p.stat().st_size:,} bytes)")
+
+    emit_colour_variants()
 
 
 if __name__ == "__main__":

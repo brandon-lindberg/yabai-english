@@ -50,7 +50,7 @@ describe("brand name", () => {
   });
 
   test("no user-visible manifest or metadata uses the bare name", () => {
-    expect(repoFile("public", "manifest.json")).not.toMatch(BARE_NAME);
+    expect(repoFile("src", "lib", "app-manifest.ts")).not.toMatch(BARE_NAME);
     expect(repoFile("src", "app", "layout.tsx")).not.toMatch(BARE_NAME);
   });
 });

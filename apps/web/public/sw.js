@@ -1,13 +1,11 @@
 // English Studio — Service Worker
 // Caches app shell and serves offline fallback for navigation requests.
 
-// Bumped to v2 to evict v1. `activate` deletes every cache whose key is not
-// this one, so raising the version is what forces existing installs to drop
-// whatever they cached under the old, never-revalidating rules below.
-const CACHE_NAME = "english-studio-v2";
+// Drop old cached manifests now that they carry a browser's app-icon preference.
+const CACHE_NAME = "english-studio-v3";
 const OFFLINE_URL = "/~offline";
 
-const APP_SHELL = ["/", OFFLINE_URL, "/manifest.json"];
+const APP_SHELL = ["/", OFFLINE_URL];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -38,6 +36,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.pathname.startsWith("/api/")) return;
   if (/^\/(?:(?:en|ja)\/)?auth\//.test(url.pathname)) return;
+  if (url.pathname === "/manifest.json" || url.pathname === "/manifest.webmanifest") return;
 
   // Navigation requests: network-first with offline fallback
   if (event.request.mode === "navigate") {
