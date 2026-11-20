@@ -41,6 +41,7 @@ function loadServiceWorker({
   networkFails?: boolean;
 } = {}) {
   const listeners: Listeners = {};
+  const addAll = vi.fn().mockResolvedValue(undefined);
   const put = vi.fn().mockResolvedValue(undefined);
   const deleted: string[] = [];
 
@@ -49,9 +50,9 @@ function loadServiceWorker({
   );
 
   const caches = {
-    open: vi.fn().mockResolvedValue({ put, match: vi.fn().mockResolvedValue(cached) }),
+    open: vi.fn().mockResolvedValue({ addAll, put, match: vi.fn().mockResolvedValue(cached) }),
     match: vi.fn().mockResolvedValue(cached),
-    keys: vi.fn().mockResolvedValue(["english-studio-v1", "english-studio-v2"]),
+    keys: vi.fn().mockResolvedValue([]),
     delete: vi.fn((key: string) => {
       deleted.push(key);
       return Promise.resolve(true);
@@ -76,7 +77,7 @@ function loadServiceWorker({
     console,
   });
 
-  return { listeners, put, caches, fetchMock, deleted };
+  return { listeners, addAll, put, caches, fetchMock, deleted };
 }
 
 function fetchEvent(url: string, { mode = "no-cors", method = "GET" } = {}) {
@@ -197,14 +198,35 @@ describe("service worker asset caching", () => {
     expect(sw.fetchMock).not.toHaveBeenCalled();
   });
 
-  test("evicts caches from earlier versions on activate", async () => {
+  test.each(["/manifest.json", "/manifest.webmanifest"])("leaves %s to the browser without caching it", (pathname) => {
+    sw = loadServiceWorker({ cached: makeResponse("old icon") });
+    const { event, getResponse, waited } = fetchEvent(`https://example.test${pathname}`, { mode: "cors" });
+
+    sw.listeners.fetch(event);
+
+    expect(getResponse()).toBeUndefined();
+    expect(waited).toHaveLength(0);
+    expect(sw.caches.match).not.toHaveBeenCalled();
+    expect(sw.fetchMock).not.toHaveBeenCalled();
+  });
+
+  test("keeps the installed offline shell and evicts earlier caches on activate", async () => {
     sw = loadServiceWorker();
     const waited: Promise<unknown>[] = [];
+    const waitUntil = (promise: Promise<unknown>) => waited.push(promise);
 
-    sw.listeners.activate({ waitUntil: (p: Promise<unknown>) => waited.push(p) });
+    sw.listeners.install({ waitUntil });
     await Promise.all(waited);
 
-    // v1 is the cache that held the never-revalidated assets.
-    expect(sw.deleted).toEqual(["english-studio-v1"]);
+    expect(sw.addAll).toHaveBeenCalledWith(["/", "/~offline"]);
+    expect(sw.caches.open).toHaveBeenCalledTimes(1);
+    const [currentCache] = sw.caches.open.mock.calls[0];
+    const olderCaches = ["english-studio-v1", "english-studio-v2"];
+    sw.caches.keys.mockResolvedValue([...new Set([...olderCaches, currentCache])]);
+
+    sw.listeners.activate({ waitUntil });
+    await Promise.all(waited);
+
+    expect(sw.deleted).toEqual(olderCaches);
   });
 });
