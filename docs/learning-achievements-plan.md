@@ -1,6 +1,6 @@
 # Learning achievements — product and art plan
 
-The first learner edition has 39 reviewed pixel artworks. The interactive design preview covers the dashboard, Art Gallery and clickable unlock popup in both interface languages. The application now includes the learning gallery and 16 historical milestones. The remaining award rules and real-time delivery are pending. [Open the preview](design/achievements/index.html) · [Bilingual catalogue](achievement-catalogue-first-edition.md) · [Artwork review](assets/achievements/first-edition/README.md)
+The first learner edition has 39 reviewed pixel artworks. The Art Gallery reconciles 16 milestones. Flashcard answers deliver newly earned card and study-rank awards immediately, including the first completed Japanese level. [Open the design preview](design/achievements/index.html) · [Bilingual catalogue](achievement-catalogue-first-edition.md) · [Artwork review](assets/achievements/first-edition/README.md)
 
 ## Confirmed direction
 
@@ -241,4 +241,4 @@ Before calling the feature ready, measure the changed answer and dashboard paths
 
 On 18 November the owner approved the sample styles with a white-fox correction, then authorized the remaining artwork. The complete collection now contains 39 native 128×128 images with 64×64 thumbnails and 256×256 review enlargements. All new images were inspected at those three sizes, and the complete collection was checked on dark surroundings. One extra star in Seven-Day Spell was corrected and rechecked. Native files with provenance total 550,666 bytes; thumbnails total 263,357 bytes. The 36 new images plus correction cost 222 generation units; including earlier sample work, the project total is 246. See the [full review evidence](assets/achievements/first-edition/README.md).
 
-The design preview uses the approved artwork and local sample progress. The live gallery reconciles 16 milestones on demand. Realtime popups, the remaining 20 public rules and the three hidden rules require further implementation. [Preview guide](design/achievements/README.md) · [Independent teaching collection](teacher-achievements-plan.md)
+The design preview uses the approved artwork and local sample progress. The live flashcard popup displays confirmed awards in the viewport and opens the Art Gallery in a separate tab. Lesson and other-device delivery, catch-up, the remaining 20 public rules and the three hidden rules are pending. [Preview guide](design/achievements/README.md) · [Independent teaching collection](teacher-achievements-plan.md)

@@ -20,6 +20,7 @@ import {
   type StudyReviewPayload,
 } from "@/lib/study/card-exercise";
 import { saveStudyReviewProgress } from "@/lib/study/review-progress";
+import { advanceEnglishStudyAwardCount, grantStudyAwards } from "@/lib/achievements/study-awards";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -89,7 +90,7 @@ async function handlePOST(req: Request) {
   );
   const now = new Date();
 
-  const { state, xpGained: xpGain, progress: result, masteryScore, totalStudyXp } = await prisma.$transaction(async tx => {
+  const { state, xpGained: xpGain, progress: result, masteryScore, totalStudyXp, awards } = await prisma.$transaction(async tx => {
     const saved = await saveStudyReviewProgress(tx, { userId: session.user.id, cardId: card.id, levelId: level.id,
       correct, now, answerTimeMs: parsed.data.answerTimeMs });
     // The shared saver holds the learner lock until commit. Read the resulting
@@ -101,7 +102,12 @@ async function handlePOST(req: Request) {
       where: { userId_levelId: { userId: session.user.id, levelId: level.id } },
       data: { masteryScore },
     });
-    return { ...saved, masteryScore, totalStudyXp };
+    const userId = session.user.id;
+    const newCardTotal = saved.firstAnswer ? await advanceEnglishStudyAwardCount(tx, userId, level.trackId) : undefined;
+    const awards = await grantStudyAwards(tx, { userId, learningLanguage: "ENGLISH" }, {
+      newCardTotal, totalXp: totalStudyXp, xpGained: saved.xpGained,
+    });
+    return { ...saved, masteryScore, totalStudyXp, awards };
   });
   const { correctCount, wrongCount, streakCorrect, averageAnswerMs, latencySampleCount } = state;
   const rpg = studyRpgProgressFromTotalXp(totalStudyXp);
@@ -133,6 +139,7 @@ async function handlePOST(req: Request) {
     practiceBand: classifyPracticeBand(perfSlice),
     accuracyPercent: studyAccuracyPercent(correctCount, wrongCount),
     averageAnswerMs,
+    ...(awards.length ? { awards } : {}),
   });
 }
 

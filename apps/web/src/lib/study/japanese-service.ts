@@ -22,6 +22,7 @@ import { weightedSampleWithoutReplacement } from "./quiz";
 import { studyMasteryPercent } from "./mastery";
 import type { ReportQueuePreparation } from "./queue-preparation";
 import { studyLevelIndex } from "./constants";
+import { grantStudyAwards } from "@/lib/achievements/study-awards";
 
 export class JapaneseStudyFailure extends PrivateApiFailure {}
 const fail = (status: number, code: string): never => { throw new JapaneseStudyFailure(status, code); };
@@ -231,9 +232,16 @@ export async function submitJapaneseStudyReview(db: PrismaClient, userId: string
     const after = japaneseProgressionFromState(track, progressionState);
     await saveMilestones(tx, userId, after, now, progressionState.progress);
     const level = after.levels.find(level => level.id === card.deck.levelId)!;
+    const totalStudyXp = progressionState.progress.reduce((sum, row) => sum + row.xp, 0);
+    const newCardTotal = saved.firstAnswer ? after.levels.reduce((sum, { practice }) =>
+      sum + practice.learningCount + practice.weakCount + practice.masteredCount, 0) : undefined;
+    const awards = await grantStudyAwards(tx, { userId, learningLanguage: "JAPANESE" }, {
+      newCardTotal, totalXp: totalStudyXp, xpGained: saved.xpGained,
+      firstLevelCompleted: progression.completed.length === 0 && after.completed.length > 0,
+    });
     const result = resultSchema.parse({
       promptId, correct: graded.correct, feedback: graded.feedback, xpGained: saved.xpGained, levelXp: saved.progress.xp,
-      totalStudyXp: progressionState.progress.reduce((sum, row) => sum + row.xp, 0),
+      totalStudyXp, ...(awards.length ? { awards } : {}),
       masteryScore: masteryScore(level.mastery),
       correctCount: saved.state.correctCount, wrongCount: saved.state.wrongCount, streakCorrect: saved.state.streakCorrect,
       accuracyPercent: studyAccuracyPercent(saved.state.correctCount, saved.state.wrongCount), averageAnswerMs: saved.state.averageAnswerMs,

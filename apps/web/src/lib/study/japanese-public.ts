@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { QUICK_REVIEW_DAILY_MAX } from "./quick-review-day";
 import { JAPANESE_REFERENCE_BANDS, japaneseLocalizedText } from "../japanese-placement/public";
+import { studyAwardsSchema } from "../achievements/study-award-public";
 
 export const JAPANESE_STUDY_TASKS = ["vocabulary_meaning", "vocabulary_reading", "kanji_on", "kanji_kun"] as const;
 export type JapaneseStudyTask = typeof JAPANESE_STUDY_TASKS[number];
@@ -49,6 +50,7 @@ export const japaneseStudyResultSchema = z.object({
   correctCount: z.number().int(), wrongCount: z.number().int(), streakCorrect: z.number().int(),
   accuracyPercent: z.number().nullable(), averageAnswerMs: z.number().nullable(),
   practiceBand: z.enum(["new", "learning", "weak", "mastered"]),
+  awards: studyAwardsSchema.optional(),
   unlocked: z.array(z.enum(JAPANESE_REFERENCE_BANDS)), completed: z.array(z.enum(JAPANESE_REFERENCE_BANDS)),
 }).strict();
 export type JapaneseStudyResult = z.infer<typeof japaneseStudyResultSchema>;

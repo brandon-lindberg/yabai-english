@@ -27,5 +27,6 @@ export async function saveStudyReviewProgress(tx: Prisma.TransactionClient, inpu
     create: { userId, levelId, xp: xpGained, lastStudiedAt: now },
     update: { xp: { increment: xpGained }, lastStudiedAt: now },
   });
-  return { state, xpGained, progress };
+  const firstAnswer = !previous?.correctCount && !previous?.wrongCount;
+  return { state, xpGained, progress, firstAnswer };
 }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { japaneseStudyQueueSchema, japaneseStudyResultSchema, japaneseQuickReviewQueueSchema, type JapaneseStudyQueue, type JapaneseQuickReviewQueue, type JapaneseStudyResult } from "@/lib/study/japanese-public";
 import { studyRpgProgressFromTotalXp, type StudyRpgSnapshot } from "@/lib/study/rpg-xp";
 import type { StudyQueueFocus } from "./study-practice-session";
+import { useStudyAwardAnnouncement } from "./study-achievement-popups";
 
 export type JapaneseStudySessionProps = {
   levelCode?: string; quickReview?: boolean; initialRpg: StudyRpgSnapshot; queueFocus?: StudyQueueFocus; kind?: "mixed" | "vocabulary" | "kanji";
@@ -19,6 +20,7 @@ const requestError = (status: number, fallback: "queue" | "save"): ErrorState =>
 
 /** Japanese automatic practice: opaque issued choices and exact retries, never client grading. */
 export function useJapaneseStudySession({ levelCode, initialRpg, queueFocus = "mixed", kind = "mixed", quickReview = false }: JapaneseStudySessionProps) {
+  const announce = useStudyAwardAnnouncement();
   const [queue, setQueue] = useState<JapaneseStudyQueue | JapaneseQuickReviewQueue | null>(null);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -89,6 +91,7 @@ export function useJapaneseStudySession({ levelCode, initialRpg, queueFocus = "m
       if (data.promptId !== JSON.parse(body).promptId) throw new Error("Review identity mismatch");
       if (revision !== generation.current) return;
       pending.current = null; resultRef.current = data; setResult(data);
+      announce(data.awards);
       setUnlocked(data.unlocked);
       setRpg(studyRpgProgressFromTotalXp(data.totalStudyXp));
       setScore(previous => ({ xp: previous.xp + data.xpGained, correct: previous.correct + (data.correct ? 1 : 0), wrong: previous.wrong + (data.correct ? 0 : 1) }));

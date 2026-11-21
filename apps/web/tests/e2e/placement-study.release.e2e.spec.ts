@@ -325,6 +325,7 @@ test("study progress persists independently through deliberate subject and inter
   const englishSaved = page.waitForResponse(response => response.url().endsWith("/api/study/review") && response.request().method() === "POST");
   await page.locator("main ul").filter({ has: page.getByRole("button") }).last().getByRole("button").first().press("Enter");
   expect((await englishSaved).status()).toBe(200);
+  await expect(page.locator("[data-study-achievement-popup]").getByRole("link", { name: /First Spark/ })).toBeInViewport();
   const englishState = fixtureCommand("release-learning-state");
   expect(englishState.states).toHaveLength(1);
   expect(englishState.states[0]).toMatchObject({ userId: learner.id, reps: 1, card: { deck: { level: { track: { learningLanguage: "ENGLISH" } } } } });
@@ -366,12 +367,35 @@ test("study progress persists independently through deliberate subject and inter
   await captureRelease(page, "JAPANESE-study-question");
   const answer = fixtureCommand("release-study-answer", { learnerId: learner.id, promptId: question.id });
   const japaneseSaved = page.waitForResponse(response => response.url().endsWith("/api/japanese-study/reviews") && response.request().method() === "POST");
-  await page.getByRole("button", { name: question.choices.find(choice => choice.id === answer.choiceId)!.text, exact: true }).press("Enter");
+  const choice = page.getByRole("button", { name: question.choices.find(choice => choice.id === answer.choiceId)!.text, exact: true });
+  await page.setViewportSize({ width: 390, height: 490 });
+  await choice.scrollIntoViewIfNeeded();
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+  await choice.click();
+  const popup = page.locator("[data-study-achievement-popup]");
+  const award = popup.getByRole("link", { name: /はじまりのひらめき/ });
+  await expect(award).toBeInViewport();
+  await expect(award).toHaveAttribute("target", "_blank");
+  await expect(award).toHaveAttribute("href", /piece=cards-0001/);
   const review = await japaneseSaved; expect(review.status()).toBe(200);
   expect(review.request().postDataJSON().promptId).toBe(question.id);
   const result = await review.json();
-  expect(result).toMatchObject({ promptId: question.id, correct: true, correctCount: 1, wrongCount: 0, feedback: { onyomi: expect.any(Array), kunyomi: expect.any(Array) } });
-  await expect(page.getByRole("button", { name: ja.study.nextCard, exact: true })).toBeVisible();
+  expect(result).toMatchObject({ promptId: question.id, correct: true, correctCount: 1, wrongCount: 0, feedback: { onyomi: expect.any(Array), kunyomi: expect.any(Array) },
+    awards: [{ id: "cards-0001", language: "JAPANESE" }] });
+  const nextCard = page.getByRole("button", { name: ja.study.nextCard, exact: true });
+  await expect(nextCard).toBeVisible();
+  expect(await page.evaluate(() => scrollY)).toBeGreaterThan(0);
+  await expect(popup).toHaveCSS("position", "fixed");
+  const toast = (await popup.boundingBox())!;
+  expect(toast.y + toast.height).toBeLessThan((await nextCard.boundingBox())!.y);
+  const [artwork] = await Promise.all([page.waitForEvent("popup"), award.click()]);
+  try {
+    await expect(artwork.getByRole("heading", { name: "はじまりのひらめき", exact: true })).toBeVisible();
+    await expect(artwork.getByText(ja.artGallery.earned, { exact: true })).toBeVisible();
+  } finally {
+    await artwork.close();
+  }
+  await expect(nextCard).toBeEnabled();
   const readingCategory = (["onyomi", "kunyomi", "nanori"] as const).find(category => result.feedback[category]?.length)!;
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 950 });

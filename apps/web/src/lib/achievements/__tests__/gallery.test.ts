@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { achievementCollection } from "../gallery";
+import { achievementCollection, crossedStudyMilestones } from "../gallery";
 
 test("68 distinct cards and rank five qualify for three badges even without a lesson", () => {
   const entries = achievementCollection({ cards: 68, rank: 5, lessons: 0, completedLevels: 0 });
@@ -14,4 +14,10 @@ test("the public catalogue covers 36 bilingual works and reveals no secret achie
   expect(entries.every(entry => entry.title.length === 2 && entry.rule.length === 2)).toBe(true);
   expect(entries.filter(entry => entry.qualified).map(entry => entry.id)).toEqual(["level-first", "lessons-0001"]);
   expect(entries.some(entry => /return-|irregular-/.test(entry.id))).toBe(false);
+});
+
+test("one study answer can cross card and rank milestones without replaying past milestones", () => {
+  expect(crossedStudyMilestones({ newCardTotal: 25, totalXp: 1264, xpGained: 12 }).map(entry => entry.id))
+    .toEqual(["cards-0025", "rank-0005"]);
+  expect(crossedStudyMilestones({ newCardTotal: 26, totalXp: 1276, xpGained: 12 })).toEqual([]);
 });

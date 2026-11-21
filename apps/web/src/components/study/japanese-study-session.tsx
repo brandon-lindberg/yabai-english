@@ -11,8 +11,15 @@ import { JapaneseStudyUnavailable } from "./japanese-study-unavailable";
 import { JapaneseStudyFeedbackDetails, StudyPracticeLoading, StudyPromptCard, StudySessionProgress } from "./study-practice-parts";
 import { useJapaneseStudySession, type JapaneseStudySessionProps } from "./use-japanese-study-session";
 import { describeJapaneseUsage } from "@/lib/study/japanese-usage";
+import { StudyAchievementPopups } from "./study-achievement-popups";
 
-export function JapaneseStudySession(props: JapaneseStudySessionProps & { quickReviewCompletion?: ReactNode; onQuickReviewComplete?: () => void }) {
+type Props = JapaneseStudySessionProps & { quickReviewCompletion?: ReactNode; onQuickReviewComplete?: () => void };
+
+export function JapaneseStudySession(props: Props) {
+  return <StudyAchievementPopups><JapanesePractice {...props} /></StudyAchievementPopups>;
+}
+
+function JapanesePractice(props: Props) {
   const state = useJapaneseStudySession(props);
   const t = useTranslations("study");
   const jp = useTranslations("japaneseStudy");

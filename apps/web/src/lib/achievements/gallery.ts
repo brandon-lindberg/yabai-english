@@ -1,4 +1,5 @@
 import catalogue from "./visible-catalogue";
+import { xpToAdvanceFromRank } from "@/lib/study/rpg-xp";
 
 type Evidence = { cards: number; rank: number; lessons: number; completedLevels: number };
 
@@ -13,8 +14,32 @@ function milestone(id: string): { metric: keyof Evidence; target: number } | nul
 }
 
 const definitions = catalogue.map(card => ({ ...card, milestone: milestone(card.id) }));
+const studyMilestones = definitions.filter(({ milestone }) => milestone && milestone.metric !== "lessons").map(card => {
+  let rankXp = 0;
+  if (card.milestone?.metric === "rank") {
+    for (let rank = 1; rank < card.milestone.target; rank++) rankXp += xpToAdvanceFromRank(rank);
+  }
+  return { ...card, rankXp };
+});
 export const hiddenAchievementCount = 3;
 export const galleryPageSize = 8;
+
+export const studyCardAwardLimit = Math.max(...definitions.flatMap(({ milestone }) =>
+  milestone?.metric === "cards" ? [milestone.target] : [],
+));
+
+export function crossedStudyMilestones({ newCardTotal, totalXp, xpGained, firstLevelCompleted }: {
+  newCardTotal?: number;
+  totalXp: number;
+  xpGained: number;
+  firstLevelCompleted?: boolean;
+}) {
+  return studyMilestones.filter(({ milestone, rankXp }) => {
+    if (milestone?.metric === "cards") return newCardTotal === milestone.target;
+    if (milestone?.metric === "rank") return totalXp - xpGained < rankXp && rankXp <= totalXp;
+    return milestone?.metric === "completedLevels" && firstLevelCompleted;
+  });
+}
 
 export function achievementCollection(evidence: Evidence) {
   return definitions.map(({ milestone, ...card }) => {

@@ -289,6 +289,7 @@ model User {
   ownedStudyDecks           StudyDeck[]                  @relation("StudyDeckOwner")
   studyLevelProgress        UserStudyLevelProgress[]
   learningAchievementAwards LearningAchievementAward[]
+  learningAchievementStudyProgress LearningAchievementStudyProgress[]
   studyCardStates           UserStudyCardState[]
   studyAssessmentAttempts   UserStudyAssessmentAttempt[]
   studyQuickReviewDays      StudyQuickReviewDay[]
@@ -1405,6 +1406,16 @@ model LearningAchievementAward {
   user             User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, learningLanguage, achievementId])
+}
+
+/// Capped distinct-card count for practice paths that already aggregate only the current level.
+model LearningAchievementStudyProgress {
+  userId           String
+  learningLanguage LearningLanguage
+  cards            Int
+  user             User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, learningLanguage])
 }
 
 model UserStudyLevelProgress {

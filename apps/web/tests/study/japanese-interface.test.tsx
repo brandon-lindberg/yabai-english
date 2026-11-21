@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../messages/en.json";
@@ -10,6 +10,7 @@ import { StudyLevelList } from "@/components/study/study-level-list";
 import { JapaneseStudyUnavailable } from "@/components/study/japanese-study-unavailable";
 import { studyQuestion, kanjiQuestion, studyQueue, studyResult } from "../../test/japanese-study-ui-fixture";
 import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
+import { StudyAchievementPopups, useStudyAwardAnnouncement } from "@/components/study/study-achievement-popups";
 
 vi.mock("@/i18n/navigation", () => ({ Link: ({ children, href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a href={href} {...props}>{children}</a> }));
 const fetchMock = vi.fn();
@@ -99,6 +100,56 @@ test("prevents duplicate submissions while the first answer is in flight", async
   fireEvent.click(answer); fireEvent.click(answer);
   await waitFor(() => expect(answer).toBeDisabled());
   expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+
+test("announces a confirmed Japanese flashcard award without interrupting the next card", async () => {
+  const award = { id: "cards-0001", awardedAt: "2026-11-21T12:00:00.000Z", language: "JAPANESE", title: ["First Spark", "はじまりのひらめき"] };
+  fetchMock.mockResolvedValueOnce(reply(studyQueue())).mockResolvedValueOnce(reply({ ...studyResult(), awards: [award] }));
+  const { container } = show("ja");
+  const answer = await screen.findByRole("button", { name: "cat" });
+  expect(screen.queryByText("はじまりのひらめき")).toBeNull();
+  fireEvent.click(answer);
+  const popup = await screen.findByRole("link", { name: /はじまりのひらめき/ });
+  expect(container).not.toContainElement(popup);
+  expect(popup).toHaveAttribute("href", "/dashboard/art-gallery?view=collected&piece=cards-0001");
+  expect(popup).toHaveAttribute("target", "_blank");
+  fireEvent.click(screen.getByRole("button", { name: "次のカード" }));
+  expect(screen.getByRole("button", { name: "た.べる" })).toBeEnabled();
+  expect(popup).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "実績通知を閉じる" }));
+  expect(popup).not.toBeInTheDocument();
+});
+
+test("groups two awards, pauses dismissal on focus, and suppresses a replay", async () => {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "performance"] });
+  const batch = [
+    { id: "cards-0025", title: ["Pocket Scholar", "ポケットの学者"] },
+    { id: "rank-0005", title: ["The Apprentice", "見習い"] },
+  ].map(({ id, title }) => ({
+    id, title: [title[0], title[1]] as [string, string], awardedAt: "2026-11-21T12:01:00.000Z", language: "ENGLISH" as const,
+  }));
+  function ConfirmAnswer() {
+    const announce = useStudyAwardAnnouncement();
+    return <button onClick={() => announce(batch)}>Confirm answer</button>;
+  }
+  try {
+    render(<NextIntlClientProvider locale="en" messages={en}><StudyAchievementPopups><ConfirmAnswer /></StudyAchievementPopups></NextIntlClientProvider>);
+    const confirm = screen.getByRole("button", { name: "Confirm answer" });
+    fireEvent.click(confirm);
+    const popup = screen.getByRole("link", { name: /2 achievements unlocked/ });
+    expect(popup).toHaveAttribute("href", "/en/dashboard/art-gallery?view=collected");
+    act(() => popup.focus());
+    act(() => vi.advanceTimersByTime(6000));
+    expect(popup).toBeVisible();
+    act(() => confirm.focus());
+    act(() => vi.advanceTimersByTime(5000));
+    expect(popup).not.toBeInTheDocument();
+    fireEvent.click(confirm);
+    expect(screen.queryByRole("link", { name: /2 achievements unlocked/ })).toBeNull();
+  } finally {
+    cleanup();
+    vi.useRealTimers();
+  }
 });
 
 test("renders shared level rows with Japanese mastery/access and no English exit test", () => {

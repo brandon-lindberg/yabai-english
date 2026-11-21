@@ -62,7 +62,8 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("English saves read XP once ins
     const response = await review();
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ correct: true, xpGained: 12, levelXp: 12, masteryScore: 20,
-      correctCount: 1, wrongCount: 0, averageAnswerMs: 2000, rpg: { totalStudyXp: 12 } });
+      correctCount: 1, wrongCount: 0, averageAnswerMs: 2000, rpg: { totalStudyXp: 12 },
+      awards: [{ id: "cards-0001", language: "ENGLISH" }] });
     expect(operations.filter(op => op === "UserStudyLevelProgress.aggregate")).toHaveLength(1);
     expect(operations.indexOf("sql.$queryRaw")).toBeLessThan(operations.indexOf("UserStudyLevelProgress.aggregate"));
     expect(operations).not.toContain("User.findUnique"); // Entry level needs no placement or role lookup.
@@ -71,6 +72,13 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("English saves read XP once ins
       deck: { select: { level: { select: { id: true, trackId: true, levelCode: true } } } },
     } });
     expect(operations.filter(op => op === "StudyTrack.findUnique")).toHaveLength(1);
+    expect(operations.filter(op => op === "UserStudyCardState.count")).toHaveLength(1);
+    operations.length = 0;
+    expect(await (await review()).json()).not.toHaveProperty("awards");
+    expect(operations.some(op => op.startsWith("LearningAchievement"))).toBe(false);
+    expect((await review("card-1")).status).toBe(200);
+    expect(operations).not.toContain("UserStudyCardState.count");
+    expect(await db.learningAchievementStudyProgress.findFirst()).toMatchObject({ cards: 2, learningLanguage: "ENGLISH" });
   });
 }, 30_000);
 

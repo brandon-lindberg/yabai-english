@@ -14,19 +14,28 @@ import { Choice, ChoiceList } from "@/components/ui/choice";
 import { Outcome } from "@/components/ui/outcome";
 import { QUEUE_STREAM_TYPE, readPreparedQueue, type QueuePreparationProgress } from "@/lib/study/queue-preparation";
 import { Status } from "@/components/ui/status";
+import { StudyAchievementPopups, useStudyAwardAnnouncement } from "./study-achievement-popups";
+import { studyAwardsSchema } from "@/lib/achievements/study-award-public";
 
 export type StudyQueueFocus = "mixed" | "weak" | "mastered";
 
-export function StudyPracticeSession({
-  levelCode,
-  initialRpg,
-  queueFocus = "mixed",
-}: {
+type Props = {
   levelCode: StudyLevelCode;
   initialRpg: StudyRpgSnapshot;
   queueFocus?: StudyQueueFocus;
-}) {
+};
+
+export function StudyPracticeSession(props: Props) {
+  return <StudyAchievementPopups><EnglishPractice {...props} /></StudyAchievementPopups>;
+}
+
+function EnglishPractice({
+  levelCode,
+  initialRpg,
+  queueFocus = "mixed",
+}: Props) {
   const t = useTranslations("study");
+  const announce = useStudyAwardAnnouncement();
   const [rpg, setRpg] = useState<StudyRpgSnapshot>(initialRpg);
   const [cards, setCards] = useState<StudyQueueCard[]>([]);
   const [index, setIndex] = useState(0);
@@ -150,7 +159,12 @@ export function StudyPracticeSession({
         correctAnswer: string;
         xpGained?: number;
         rpg?: StudyRpgSnapshot;
+        awards?: unknown;
       };
+      if (data.awards) {
+        const awards = studyAwardsSchema.safeParse(data.awards);
+        if (awards.success) announce(awards.data);
+      }
       await advanceAfterResult(data);
     } catch {
       setError("Network error");

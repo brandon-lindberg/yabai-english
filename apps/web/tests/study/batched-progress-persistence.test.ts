@@ -17,12 +17,14 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("Japanese issuance is batched a
     const answer=await japaneseStudyAnswer(db,queue.cards[0].question.id);
     calls.length=0;
     const saved=await submitJapaneseStudyReview(measured,"learner",answer);
-    expect(saved).toMatchObject({correct:true,xpGained:12});
+    expect(saved).toMatchObject({ correct: true, xpGained: 12, awards: [{ id: "cards-0001", language: "JAPANESE" }] });
     expect(calls.filter(c=>c==="UserStudyCardState.findMany")).toHaveLength(0);
+    expect(calls.filter(c=>c==="UserStudyCardState.count")).toHaveLength(0);
     expect(calls.filter(c=>c==="rollup")).toHaveLength(1);
     expect(calls.filter(c=>c==="UserStudyCardState.findUnique")).toHaveLength(1);
     expect(calls.filter(c=>c==="UserStudyLevelProgress.upsert")).toHaveLength(1);
     expect(await submitJapaneseStudyReview(measured,"learner",answer)).toEqual(saved);
+    expect(await db.learningAchievementAward.count()).toBe(1);
   });
 },30000);
 
