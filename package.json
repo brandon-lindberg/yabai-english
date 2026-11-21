@@ -56,8 +56,8 @@
   },
   "packageManager": "yarn@1.22.22",
   "dependencies": {
-    "@codemirror/language": "^6.12.3",
-    "@lezer/highlight": "^1.2.3",
-    "yjs": "^13.6.30"
+    "@codemirror/language": "^6.13.1",
+    "@lezer/highlight": "^1.2.5",
+    "yjs": "^13.6.33"
   }
 }

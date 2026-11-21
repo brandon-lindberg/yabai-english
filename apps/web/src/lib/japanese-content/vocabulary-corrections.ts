@@ -11,7 +11,16 @@ import { dictionarySenseAllowsPair, normalizeDictionaryText as normalizedMeaning
 const text = z.string().trim().min(1);
 const digest = z.string().regex(/^[a-f0-9]{64}$/);
 const base = { id: text, beforeSha256: digest, reason: text };
-const patch = vocabularySchema.pick({ word: true, reading: true, romaji: true, pos: true, meanings: true, jmdict_id: true, other_forms: true, other_readings: true, examples: true }).partial().strict();
+// An omitted correction must preserve the source value, including arrays with corpus defaults.
+const patch = vocabularySchema
+  .pick({ word: true, reading: true, romaji: true, pos: true, meanings: true, jmdict_id: true })
+  .extend({
+    other_forms: vocabularySchema.shape.other_forms.removeDefault(),
+    other_readings: vocabularySchema.shape.other_readings.removeDefault(),
+    examples: vocabularySchema.shape.examples.removeDefault(),
+  })
+  .partial()
+  .strict();
 const sense = { entryId: text, sense: z.number().int().positive() };
 const exampleIndex = { index: z.number().int().nonnegative(), reason: text };
 const exampleSelectionSchema = z.object({ keep: z.array(z.object(exampleIndex).strict()), omit: z.array(z.object(exampleIndex).strict()) }).strict();

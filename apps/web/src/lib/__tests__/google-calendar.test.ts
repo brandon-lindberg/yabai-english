@@ -15,12 +15,13 @@ const { prismaMock } = vi.hoisted(() => ({
 
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 
-vi.mock("googleapis/build/src/apis/calendar", () => ({
-  auth: {
-    OAuth2: vi.fn().mockImplementation(() => ({
-      setCredentials: vi.fn(),
-    })),
-  },
+vi.mock("google-auth-library", () => ({
+  OAuth2Client: vi.fn(class {
+    setCredentials = vi.fn();
+  }),
+}));
+
+vi.mock("@googleapis/calendar", () => ({
   calendar: vi.fn(),
 }));
 
@@ -29,7 +30,7 @@ const originalKey = process.env.CALENDAR_TOKEN_ENCRYPTION_KEY;
 describe("Google lesson calendar operations", () => {
   test.each(lessonSubjectCases)("the existing Google client creates the $learningLanguage lesson event", async ({ nameEn }) => {
     const { encryptRefreshToken } = await import("@/lib/calendar-token");
-    const google = await import("googleapis/build/src/apis/calendar");
+    const google = await import("@googleapis/calendar");
     const { createMeetLessonEvent } = await import("@/lib/google-calendar");
     prismaMock.googleIntegrationAccount.findUnique.mockResolvedValue({ refreshToken: encryptRefreshToken("test-token"), revoked: false });
     const insert = vi.fn().mockResolvedValue({ data: { id: "existing-google-event", hangoutLink: "https://meet.google.com/test-room" } });
@@ -96,7 +97,7 @@ describe("Google lesson calendar operations", () => {
 
   test("marks revoked and returns gracefully when Google returns invalid_grant", async () => {
     const { encryptRefreshToken } = await import("@/lib/calendar-token");
-    const google = await import("googleapis/build/src/apis/calendar");
+    const google = await import("@googleapis/calendar");
     const encrypted = encryptRefreshToken("refresh-token");
     prismaMock.googleIntegrationAccount.findUnique.mockResolvedValue({
       refreshToken: encrypted,
@@ -141,7 +142,7 @@ describe("Google lesson calendar operations", () => {
 
   test("rescheduling, guest updates, cancellation and notes lookup use the existing teacher calendar", async () => {
     const { encryptRefreshToken } = await import("@/lib/calendar-token");
-    const google = await import("googleapis/build/src/apis/calendar");
+    const google = await import("@googleapis/calendar");
     const { patchMeetLessonEvent, addMeetLessonEventAttendee, removeMeetLessonEventAttendee, deleteMeetLessonEvent } = await import("@/lib/google-calendar");
     const { resolveBookingNotesLink } = await import("@/lib/google/meeting-notes-link");
     prismaMock.googleIntegrationAccount.findUnique.mockResolvedValue({ refreshToken: encryptRefreshToken("teacher-token"), revoked: false });

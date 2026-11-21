@@ -11,6 +11,7 @@ export const JAPANESE_POLICY_REVISION = "japanese-posterior-v1";
 export const JAPANESE_GROUPED_POLICY_REVISION = "japanese-posterior-passages-v2";
 export const JAPANESE_RUBRIC_POLICY_REVISION = "japanese-jlpt-rubric-v1";
 export const JAPANESE_BANK_ITEM_LIMIT = 1000;
+const bankItemLimitError = `Array must contain at most ${JAPANESE_BANK_ITEM_LIMIT} element(s)`;
 export const JAPANESE_MAX_QUESTIONS = 60;
 export function japanesePolicyRevision(schemaVersion: 3 | 4 | 5) {
   return schemaVersion === 3 ? JAPANESE_POLICY_REVISION : schemaVersion === 4 ? JAPANESE_GROUPED_POLICY_REVISION : JAPANESE_RUBRIC_POLICY_REVISION;
@@ -79,8 +80,8 @@ const bankSchema = z.object({
   schemaVersion: z.union([z.literal(3), z.literal(4), z.literal(5)]), id: identity, version: z.number().int().positive(),
   assessment: assessmentSchema.nullable(),
   sources: z.array(japaneseBankSourceSchema).min(1),
-  items: z.array(itemSchema).min(6).max(JAPANESE_BANK_ITEM_LIMIT),
-  sequence: z.array(identity).min(6).max(JAPANESE_BANK_ITEM_LIMIT),
+  items: z.array(itemSchema).min(6).max(JAPANESE_BANK_ITEM_LIMIT, bankItemLimitError),
+  sequence: z.array(identity).min(6).max(JAPANESE_BANK_ITEM_LIMIT, bankItemLimitError),
   reviews: z.object({ japaneseTeacher: review, rights: review, placement: review }).strict(),
   ownerRelease: ownerRelease.optional(),
 }).strict();

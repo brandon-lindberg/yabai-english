@@ -1,9 +1,28 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
+import { AVAILABILITY_WINDOW_MONTHS } from "../../src/lib/availability-window";
 import { readMirrorFixtures, followMirrorGoogleSignIn, fixtureCommand } from "./helpers/mirror-fixtures";
 import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
 import { captureRelease, releaseCases } from "./helpers/release-verification";
+
+async function chooseBookingTime(page: Page, copy: typeof en.booking, startsAtUtc: string) {
+  await page.getByRole("button", { name: copy.calendarMonth, exact: true }).click();
+  const month = page.getByTestId("slot-calendar-month-grid");
+  await expect(month).toBeVisible();
+  const slot = month.locator(`button[data-starts-at*="T${startsAtUtc}"]`).first();
+  const firstDay = month.locator("[data-month-day-cell]").first();
+
+  // The release bookings can occupy the last paid Monday in the first month.
+  for (let remaining = AVAILABILITY_WINDOW_MONTHS; remaining > 1 && !(await slot.isVisible()); remaining--) {
+    const previousDay = await firstDay.getAttribute("data-month-day-cell");
+    await page.getByRole("button", { name: copy.next, exact: true }).click();
+    if (previousDay) await expect(firstDay).not.toHaveAttribute("data-month-day-cell", previousDay);
+  }
+
+  await expect(slot, `Expected an open ${startsAtUtc} UTC slot within the booking window`).toBeVisible();
+  await slot.click();
+}
 
 for (const scenario of releaseCases()) test(`${scenario.language}: landing, onboarding, private trial and unpaid checkout stay in the chosen subject`, async ({ page }) => {
   const fixture = readMirrorFixtures();
@@ -54,12 +73,13 @@ for (const scenario of releaseCases()) test(`${scenario.language}: landing, onbo
   expect(session.user.learningLanguage).toBe(scenario.language);
   await page.getByTestId("step-card-bookLesson").click();
   const teacherName = `Mirror QA ${scenario.language === "JAPANESE" ? "Japanese" : "English"} Teacher`;
-  await expect(page.getByText(teacherName, { exact: true })).toBeVisible();
-  await expect(page.getByText(`Mirror QA ${scenario.language === "JAPANESE" ? "English" : "Japanese"} Teacher`, { exact: true })).toHaveCount(0);
-  await page.getByRole("link", { name: copy.booking.teacherCardViewProfile, exact: true }).click();
+  const teachers = page.getByTestId("teacher-rows");
+  const teacherRow = teachers.locator(`[data-row-id="${scenario.teacherId}"]`);
+  await expect(teacherRow.getByRole("heading", { name: teacherName, exact: true })).toBeVisible();
+  await expect(teachers.getByRole("heading", { name: `Mirror QA ${scenario.language === "JAPANESE" ? "English" : "Japanese"} Teacher`, exact: true })).toHaveCount(0);
+  await teacherRow.getByRole("link", { name: copy.booking.teacherCardViewProfile, exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(teacherName);
-  await page.getByRole("button", { name: copy.booking.calendarMonth, exact: true }).click();
-  await page.locator('button[data-starts-at*="T02:00"]').first().click();
+  await chooseBookingTime(page, copy.booking, "02:00");
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByText(/30/).first()).toBeVisible();
   await expect(dialog.getByRole("button", { name: copy.booking.confirm, exact: true })).toBeEnabled();
@@ -75,8 +95,7 @@ for (const scenario of releaseCases()) test(`${scenario.language}: landing, onbo
   await expect(page.getByText(teacherName, { exact: true }).first()).toBeVisible();
   await captureRelease(page, `${scenario.language}-confirmed`);
   await page.goto(`${prefix}/book/teachers/${scenario.teacherId}`);
-  await page.getByRole("button", { name: copy.booking.calendarMonth, exact: true }).click();
-  await page.locator('button[data-starts-at*="T01:00"]').first().click();
+  await chooseBookingTime(page, copy.booking, "01:00");
   const pending = page.waitForResponse(res => res.url().endsWith("/api/bookings") && res.request().method() === "POST");
   await page.getByRole("dialog").getByRole("button", { name: copy.booking.confirm, exact: true }).click();
   const pendingReply = await pending;

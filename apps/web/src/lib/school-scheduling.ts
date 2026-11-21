@@ -48,7 +48,7 @@ export function validateSlotTimes(
 }
 
 function legacyMessageForIssue(
-  issue: { path: (string | number)[]; message: string },
+  issue: { path: readonly PropertyKey[]; message: string },
   input: SlotValidationInput,
 ): string {
   const field = issue.path[0];

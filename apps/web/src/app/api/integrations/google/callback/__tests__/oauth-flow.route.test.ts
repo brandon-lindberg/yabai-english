@@ -12,8 +12,8 @@ const { authMock, getTokenMock, prismaMock } = vi.hoisted(() => ({
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/calendar-token", () => ({ encryptIntegrationToken: (token: string) => `encrypted:${token}` }));
-vi.mock("googleapis/build/src/apis/calendar", () => ({
-  auth: { OAuth2: class { getToken = getTokenMock; } },
+vi.mock("google-auth-library", () => ({
+  OAuth2Client: class { getToken = getTokenMock; },
 }));
 
 import { GET as connect } from "@/app/api/integrations/google/connect/route";
