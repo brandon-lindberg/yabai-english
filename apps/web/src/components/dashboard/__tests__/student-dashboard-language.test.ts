@@ -1,12 +1,13 @@
 import { beforeEach, expect, test, vi } from "vitest";
 import { japanesePlacementResultFixture } from "../../../../test/japanese-placement-result-fixture";
-const mocks = vi.hoisted(() => ({ quick: vi.fn(), overview: vi.fn(), resume: vi.fn(), japanese: vi.fn(), user: vi.fn(), profile: vi.fn(), studied: vi.fn(), award: vi.fn() }));
+const mocks = vi.hoisted(() => ({ quick: vi.fn(), overview: vi.fn(), resume: vi.fn(), japanese: vi.fn(), user: vi.fn(), profile: vi.fn(), studied: vi.fn(), award: vi.fn(), achievementAwards: vi.fn() }));
 vi.mock("@/lib/prisma", () => ({ prisma: {
   studentProfile: { findUnique: mocks.profile }, user: { findUnique: mocks.user },
   googleIntegrationSettings: { findUnique: async () => null },
   booking: { count: async () => 0 }, chatThread: { count: async () => 0 },
   userStudyLevelProgress: { findFirst: mocks.studied },
   studyTrack: { findUnique: async () => null }, japanesePlacementAttempt: { findFirst: mocks.award },
+  learningAchievementAward: { findMany: mocks.achievementAwards },
 } }));
 vi.mock("next-intl/server", () => ({ getLocale: async () => "en", getTranslations: async () => (key: string) => key }));
 vi.mock("@/lib/dashboard/student-bookings", () => ({ getStudentBookingsForDashboard: async () => ({ upcoming: [], completed: [] }) }));
@@ -24,6 +25,7 @@ beforeEach(() => {
   mocks.overview.mockResolvedValue(null); mocks.resume.mockResolvedValue(null); mocks.studied.mockResolvedValue(null);
   mocks.japanese.mockResolvedValue({ available: false });
   mocks.award.mockResolvedValue(null);
+  mocks.achievementAwards.mockResolvedValue([]);
 });
 
 test("Japanese dashboard shows the saved award and its completion date independently of the English profile", async () => {
@@ -73,10 +75,29 @@ test("persisted English intent retains English helpers and scopes onboarding stu
   expect(mocks.studied.mock.calls[0][0].where.level.track).toEqual({ learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" });
 });
 
+test("previews the five latest awards for the dashboard subject", async () => {
+  const ids = ["cards-0100", "rank-0005", "cards-0025", "lessons-0001", "cards-0001"];
+  mocks.achievementAwards.mockResolvedValue(ids.map(achievementId => ({ achievementId })));
+  const page = await StudentDashboard({ ...props, learningLanguage: "ENGLISH" });
+  expect(mocks.achievementAwards).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+    where: expect.objectContaining({ userId: "student", learningLanguage: "JAPANESE" }),
+    select: { achievementId: true },
+    orderBy: [{ awardedAt: "desc" }, { achievementId: "asc" }],
+    take: 5,
+  }));
+  expect(page?.props.statsAside.props.achievements.map(({ id }: { id: string }) => id)).toEqual(ids);
+});
+
+test("leaves out the achievement preview until the learner earns a badge", async () => {
+  const page = await StudentDashboard(props);
+  expect(page?.props.statsAside).toBeUndefined();
+});
+
 test("inactive or removed accounts do not fetch either study system", async () => {
   for (const user of [null, { role: "STUDENT", accountStatus: "HIDDEN", learningLanguage: "JAPANESE" }]) {
     mocks.user.mockResolvedValue(user);
     expect(await StudentDashboard(props)).toBeNull();
   }
   expect(mocks.japanese).not.toHaveBeenCalled(); expect(mocks.quick).not.toHaveBeenCalled();
+  expect(mocks.achievementAwards).not.toHaveBeenCalled();
 });

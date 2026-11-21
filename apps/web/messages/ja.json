@@ -393,6 +393,7 @@
       "statUpcoming": "今後のレッスン",
       "statCompleted": "完了したレッスン",
       "statRank": "学習ランク",
+      "recentAchievements": "最近の実績",
       "reservationTitle": "仮予約 — まだ確定していません",
       "reservationExplain": "{expires}まで確保されています。お支払いを完了するとレッスンが確定します。完了しない場合、仮予約は解除されます。"
     },

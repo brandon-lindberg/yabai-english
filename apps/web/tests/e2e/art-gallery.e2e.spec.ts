@@ -20,6 +20,9 @@ for (const japanese of [false, true]) {
       await chooseInterfaceLocale(page, en.common, "ja");
       await setHeaderTheme(page, ja.common, "dark");
     }
+    const dashboard = page.url();
+    const recent = page.getByRole("region", { name: copy.dashboard.highlights.recentAchievements });
+    await expect(recent).toHaveCount(0);
     const tab = page.getByRole("link", { name: copy.dashboard.nav.achievements, exact: true });
     await expect(tab).toBeVisible();
     expect(art.size).toBe(0);
@@ -57,6 +60,14 @@ for (const japanese of [false, true]) {
       await expect(page.getByText(/コレクションに追加/)).toBeVisible();
       await page.getByRole("link", { name: copy.artGallery.back }).click();
       await expect(works).toHaveCount(1);
+      await page.goto(dashboard);
+      await expect(recent.getByRole("link")).toHaveCount(1);
+      const badge = recent.getByRole("link", { name: "こんにちは、冒険！" });
+      await expect(badge).toHaveCSS("width", "44px");
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await badge.focus();
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("heading", { level: 1, name: "こんにちは、冒険！" })).toBeVisible();
     } else {
       await expect(page.getByText(copy.artGallery.empty)).toBeVisible();
       await expect(page.getByRole("link", { name: copy.artGallery.study })).toBeVisible();

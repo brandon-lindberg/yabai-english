@@ -41,6 +41,7 @@ export function StatLedger({
   stats,
   size = "lg",
   className = "",
+  aside,
 }: {
   stats: Stat[];
   /**
@@ -49,6 +50,7 @@ export function StatLedger({
    */
   size?: "lg" | "sm";
   className?: string;
+  aside?: ReactNode;
 }) {
   const figure =
     size === "lg"
@@ -67,43 +69,48 @@ export function StatLedger({
       .filter(Boolean)
       .join(" ");
 
-  return (
-    <div
-      className={["overflow-hidden border-y border-border", className]
-        .filter(Boolean)
-        .join(" ")}
+  const ledger = (
+    <dl
+      className="-ml-px -mt-px grid"
+      style={{ gridTemplateColumns: `repeat(auto-fit, minmax(${minColumn}, 1fr))` }}
     >
-      <dl
-        className="-ml-px -mt-px grid"
-        style={{ gridTemplateColumns: `repeat(auto-fit, minmax(${minColumn}, 1fr))` }}
-      >
-        {stats.map((stat) => {
-          const body = (
-            <>
-              <dd
-                className={`${figure} font-black tracking-[-0.035em] tabular-nums text-foreground`}
-              >
-                {stat.value}
-              </dd>
-              <dt
-                className={`mt-2 leading-snug text-muted ${size === "lg" ? "text-sm" : "text-xs"}`}
-              >
-                {stat.label}
-              </dt>
-            </>
-          );
+      {stats.map((stat) => {
+        const body = (
+          <>
+            <dd
+              className={`${figure} font-black tracking-[-0.035em] tabular-nums text-foreground`}
+            >
+              {stat.value}
+            </dd>
+            <dt
+              className={`mt-2 leading-snug text-muted ${size === "lg" ? "text-sm" : "text-xs"}`}
+            >
+              {stat.label}
+            </dt>
+          </>
+        );
 
-          return stat.render ? (
-            <div key={stat.label} className="contents">
-              {stat.render({ className: cellClass(true), children: body })}
-            </div>
-          ) : (
-            <div key={stat.label} className={cellClass(false)}>
-              {body}
-            </div>
-          );
-        })}
-      </dl>
+        return stat.render ? (
+          <div key={stat.label} className="contents">
+            {stat.render({ className: cellClass(true), children: body })}
+          </div>
+        ) : (
+          <div key={stat.label} className={cellClass(false)}>
+            {body}
+          </div>
+        );
+      })}
+    </dl>
+  );
+
+  return (
+    <div className={["overflow-hidden border-y border-border", aside && "@container", className].filter(Boolean).join(" ")}>
+      {aside ? (
+        <div className="grid @3xl:grid-cols-[minmax(0,3fr)_minmax(18rem,1fr)]">
+          <div className="overflow-hidden">{ledger}</div>
+          <div className="border-t border-border px-4 py-4 sm:px-6 @3xl:border-l @3xl:border-t-0">{aside}</div>
+        </div>
+      ) : ledger}
     </div>
   );
 }

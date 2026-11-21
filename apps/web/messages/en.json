@@ -393,6 +393,7 @@
       "statUpcoming": "Upcoming lessons",
       "statCompleted": "Lessons completed",
       "statRank": "Study rank",
+      "recentAchievements": "Recent achievements",
       "reservationTitle": "Reserved — not booked yet",
       "reservationExplain": "This time is held for you until {expires}. Finish paying to confirm the lesson, or the reservation will be released."
     },

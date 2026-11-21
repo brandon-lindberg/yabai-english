@@ -17,6 +17,8 @@ import { DashboardSpine } from "@/components/dashboard/dashboard-spine";
 import { DashboardFlashcardStats } from "@/components/dashboard/dashboard-flashcard-stats";
 import { DashboardStudyHighlight } from "@/components/dashboard/dashboard-study-highlight";
 import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-review";
+import { DashboardRecentAchievements } from "@/components/dashboard/dashboard-recent-achievements";
+import { getRecentLearnerAchievements } from "@/lib/achievements/recent";
 import { buttonClasses } from "@/components/ui/button";
 import { resolveBookingDisplayStatus } from "@/lib/booking-status";
 import type { LearningLanguage } from "@/generated/prisma/enums";
@@ -65,6 +67,7 @@ export async function StudentDashboard({
     overview,
     resume,
     japanese,
+    achievements,
   ] = await Promise.all([
     readStudentOnboardingState(prisma, userId, learningLanguage),
     getStudentBookingsForDashboard(prisma, userId),
@@ -72,6 +75,7 @@ export async function StudentDashboard({
     isEnglish ? getStudyTrackOverview(prisma, userId, "english-flashcards") : null,
     isEnglish ? getStudyResumeInfo(prisma, userId) : null,
     !isEnglish ? getJapaneseDashboardStudy(prisma, userId) : null,
+    getRecentLearnerAchievements(prisma, userId, learningLanguage),
   ]);
 
   const japaneseStudy = japanese?.available ? japanese : null;
@@ -141,6 +145,9 @@ export async function StudentDashboard({
           value: studyOverview?.rpg ? studyOverview.rpg.rank : "—",
         }] : []),
       ]}
+      statsAside={achievements.length > 0
+        ? <DashboardRecentAchievements achievements={achievements} locale={locale} label={th("recentAchievements")} />
+        : undefined}
     >
       {showResumeOnboarding ? (
         <div className="flex flex-col gap-3 border-y border-border py-4 sm:flex-row sm:items-center sm:justify-between">

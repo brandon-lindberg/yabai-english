@@ -4,7 +4,7 @@ import { attemptedQuickReviewState } from "@/lib/study/quick-review-selection";
 import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
 import { achievementCollection } from "./gallery";
 
-/** Reconcile this learner and subject on a gallery visit. Ordinary study saves and dashboard loads do no award work. */
+/** Reconcile this learner and subject on a gallery visit. Dashboard previews read saved awards. */
 export async function getLearnerGallery(db: PrismaClient, userId: string, learningLanguage: LearningLanguage) {
   const owner = { userId, learningLanguage };
   const track = { learningLanguage, slug: learningLanguage === "ENGLISH" ? "english-flashcards" : "japanese-flashcards" };
