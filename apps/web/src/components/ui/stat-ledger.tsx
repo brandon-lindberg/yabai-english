@@ -58,7 +58,10 @@ export function StatLedger({
       : "text-[clamp(1.25rem,3vw,1.75rem)] leading-none";
   const pad = size === "lg" ? "py-6" : "py-4";
   /* Wide enough for a five-digit figure at display scale before it must wrap. */
-  const minColumn = size === "lg" ? "8rem" : "6rem";
+  const columns = size === "lg"
+    ? "grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]"
+    : "grid-cols-[repeat(auto-fit,minmax(6rem,1fr))]";
+  const pairAsideOnMobile = Boolean(aside) && stats.length === 3;
 
   const cellClass = (interactive: boolean) =>
     [
@@ -71,8 +74,12 @@ export function StatLedger({
 
   const ledger = (
     <dl
-      className="-ml-px -mt-px grid"
-      style={{ gridTemplateColumns: `repeat(auto-fit, minmax(${minColumn}, 1fr))` }}
+      className={[
+        "-ml-px -mt-px grid",
+        columns,
+        // Share both rows with the aside so the last two cells stay aligned.
+        pairAsideOnMobile && "max-md:col-[1/span_2] max-md:row-[1/span_2] max-md:m-0 max-md:grid-cols-subgrid max-md:grid-rows-subgrid",
+      ].filter(Boolean).join(" ")}
     >
       {stats.map((stat) => {
         const body = (
@@ -106,9 +113,17 @@ export function StatLedger({
   return (
     <div className={["overflow-hidden border-y border-border", aside && "@container", className].filter(Boolean).join(" ")}>
       {aside ? (
-        <div className="grid @3xl:grid-cols-[minmax(0,3fr)_minmax(18rem,1fr)]">
-          <div className="overflow-hidden">{ledger}</div>
-          <div className="border-t border-border px-4 py-4 sm:px-6 @3xl:border-l @3xl:border-t-0">{aside}</div>
+        <div className={[
+          "grid @3xl:grid-cols-[minmax(0,3fr)_minmax(18rem,1fr)]",
+          pairAsideOnMobile && "max-md:-ml-px max-md:-mt-px max-md:grid-cols-2",
+        ].filter(Boolean).join(" ")}>
+          <div className={pairAsideOnMobile ? "overflow-hidden max-md:contents" : "overflow-hidden"}>{ledger}</div>
+          <div className={[
+            "border-t border-border px-4 py-4 sm:px-6 @3xl:border-l @3xl:border-t-0",
+            pairAsideOnMobile && "max-md:col-start-2 max-md:row-start-2 max-md:border-l",
+          ].filter(Boolean).join(" ")}>
+            {aside}
+          </div>
         </div>
       ) : ledger}
     </div>

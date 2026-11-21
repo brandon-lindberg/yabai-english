@@ -3,6 +3,7 @@ import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
 import { readMirrorFixtures, releaseStudent, signInMirrorUser } from "./helpers/mirror-fixtures";
 import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
+import { captureRelease } from "./helpers/release-verification";
 
 for (const japanese of [false, true]) {
   test(`art gallery shows ${japanese ? "a returning Japanese learner's collection on mobile" : "locked achievements on a new English dashboard"}`, async ({ page }) => {
@@ -74,3 +75,29 @@ for (const japanese of [false, true]) {
     }
   });
 }
+
+test("art gallery shows the newest achievement beside Study rank on phones", async ({ page }) => {
+  const learner = readMirrorFixtures().users[0];
+  await page.setViewportSize({ width: 320, height: 844 });
+  await signInMirrorUser(page, learner.email, "ENGLISH");
+  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  const dashboard = page.url();
+  await page.getByRole("link", { name: en.dashboard.nav.achievements, exact: true }).click();
+  await expect(page.getByRole("heading", { name: en.artGallery.title })).toBeVisible();
+  await page.goto(dashboard);
+
+  const recent = page.getByRole("region", { name: en.dashboard.highlights.recentAchievements });
+  const rank = page.getByText(en.dashboard.highlights.statRank, { exact: true }).locator("..");
+  await expect(recent.getByRole("link")).toHaveCount(1);
+  for (const width of [320, 390, 1280]) {
+    await page.setViewportSize({ width, height: 844 });
+    await expect(rank).toBeVisible();
+    const rankCell = (await rank.boundingBox())!;
+    const achievementCell = (await recent.boundingBox())!;
+    expect(achievementCell.x, `Achievement is beside Study rank at ${width}px`).toBeGreaterThanOrEqual(rankCell.x + rankCell.width - 1);
+    expect(achievementCell.y).toBeGreaterThanOrEqual(rankCell.y);
+    expect(achievementCell.y + achievementCell.height).toBeLessThanOrEqual(rankCell.y + rankCell.height);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await captureRelease(page, `achievement-ledger-${width}`);
+  }
+});

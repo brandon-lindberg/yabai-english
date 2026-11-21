@@ -12,5 +12,7 @@ export function AppChatPanel() {
     || /^\/learn\/study\/[^/]+\/assessment\/?$/.test(pathname);
   // Keep the existing unread/realtime behavior once chat is available, without
   // downloading or mounting the panel for guests or during an assessment.
-  return assessment || status !== "authenticated" || !session?.user ? null : <ChatPanel />;
+  return assessment || status !== "authenticated" || !session?.user
+    ? null
+    : <ChatPanel key={session.user.id} />;
 }

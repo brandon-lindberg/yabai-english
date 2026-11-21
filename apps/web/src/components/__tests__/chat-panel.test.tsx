@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
 
@@ -43,6 +43,8 @@ vi.mock("@/lib/realtime-client", () => ({
 }));
 
 import { ChatPanel } from "../chat-panel";
+
+const learnerChatOnboardingHref = "/en/dashboard?openChat=1&onboardingStep=chat&onboardingNext=%2Fonboarding%2Fnext";
 
 function threadsPayload(unreadCount: number) {
   return [
@@ -136,10 +138,12 @@ describe("ChatPanel unread badge refresh", () => {
   const fetchMock = vi.fn();
 
   beforeEach(() => {
+    localStorage.clear();
     sessionState.user = { id: "student-1", role: "STUDENT" };
     fetchMock.mockReset();
     subscribeRealtimeMock.mockClear();
     vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("scrollTo", vi.fn());
     // jsdom doesn't implement scrollIntoView, but the chat panel calls it when
     // messages load. Stub it to a no-op so open-panel flows don't crash.
     const proto = Element.prototype as unknown as {
@@ -151,7 +155,75 @@ describe("ChatPanel unread badge refresh", () => {
   });
 
   afterEach(() => {
+    cleanup();
+    window.history.replaceState(null, "", "/");
     vi.unstubAllGlobals();
+  });
+
+  test("opens a read-only demo during learner onboarding and remembers its removal", async () => {
+    window.history.replaceState(null, "", learnerChatOnboardingHref);
+    fetchMock.mockResolvedValue(jsonResponse([]));
+    const panel = (
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ChatPanel />
+      </NextIntlClientProvider>
+    );
+    const { unmount } = render(panel);
+
+    const remove = await screen.findByRole("button", { name: "Remove demo" });
+    expect(screen.getByText(/What should I bring to our first lesson\?/)).toBeInTheDocument();
+    expect(screen.queryByTestId("chat-composer")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: en.chat.moreActions })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls).toEqual([["/api/chat/threads"]]);
+
+    fireEvent.click(screen.getByRole("button", { name: en.chat.backToThreads }));
+    fireEvent.click(screen.getByRole("button", { name: /Demo teacher/ }));
+    expect(remove).toBeVisible();
+    fireEvent.click(remove);
+    expect(screen.queryByRole("button", { name: /Demo teacher/ })).not.toBeInTheDocument();
+    expect(screen.getByText(en.chat.noThreads)).toBeInTheDocument();
+    expect(fetchMock.mock.calls).toEqual([["/api/chat/threads"]]);
+    unmount();
+
+    window.history.replaceState(null, "", learnerChatOnboardingHref);
+    render(panel);
+    await screen.findByText(en.chat.noThreads);
+    expect(screen.queryByRole("button", { name: "Remove demo" })).not.toBeInTheDocument();
+  });
+
+  test("opens existing conversations in learner onboarding", async () => {
+    window.history.replaceState(null, "", learnerChatOnboardingHref);
+    fetchMock.mockImplementation(async (url: string) =>
+      jsonResponse(url === "/api/chat/threads" ? threadsPayload(0) : []),
+    );
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ChatPanel />
+      </NextIntlClientProvider>,
+    );
+
+    expect(await screen.findByRole("button", { name: /Teacher One/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Demo teacher/ })).not.toBeInTheDocument();
+  });
+
+  test("removing the demo leaves new real messages unread", async () => {
+    window.history.replaceState(null, "", learnerChatOnboardingHref);
+    fetchMock.mockResolvedValue(jsonResponse([]));
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ChatPanel />
+      </NextIntlClientProvider>,
+    );
+    const remove = await screen.findByRole("button", { name: "Remove demo" });
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(threadsPayload(1)));
+    await act(async () => getLastHandlers()?.onChatUpdate({ threadId: "thread-1" }));
+    const teacher = await screen.findByRole("button", { name: /Teacher One/ });
+    await act(async () => fireEvent.click(remove));
+    expect(fetchMock.mock.calls).toEqual([["/api/chat/threads"], ["/api/chat/threads"]]);
+
+    await act(async () => fireEvent.click(teacher));
+    expect(fetchMock).toHaveBeenCalledWith("/api/chat/threads/thread-1/messages");
   });
 
   test("refreshes unread count when a realtime chat:update event fires", async () => {

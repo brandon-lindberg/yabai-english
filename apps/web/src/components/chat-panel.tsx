@@ -6,8 +6,10 @@ import type {
   KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
 } from "react";
+import { useSearchParams } from "next/navigation";
 import { useVerifiedSession } from "@/hooks/use-verified-session";
 import { useTranslations } from "next-intl";
+import { resolveSafeCallbackUrl, stripOptionalLocalePrefix } from "@/lib/auth-callback-url";
 import { getReceiptKey } from "@/lib/chat-receipts";
 import { subscribeRealtime } from "@/lib/realtime-client";
 import { useLatestRef } from "@/hooks/use-latest-ref";
@@ -74,6 +76,68 @@ const PANEL_WIDTH_KEY_STEP = 32;
 /** Room left of the sidebar so the page behind it never disappears entirely. */
 const PANEL_VIEWPORT_GUTTER = 64;
 
+type DemoPreference = "available" | "removed";
+
+function readDemoPreference(key: string | null): DemoPreference | null {
+  if (!key) return null;
+  try {
+    const value = localStorage.getItem(key);
+    return value === "available" || value === "removed" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function ChatMessageBubble({ body, right }: { body: string; right: boolean }) {
+  return (
+    <div
+      className={`relative rounded-2xl px-3 py-2 text-sm ${
+        right
+          ? "rounded-br-md bg-primary text-primary-foreground"
+          : "rounded-bl-md border border-border bg-surface text-foreground"
+      }`}
+    >
+      <p className="whitespace-pre-wrap wrap-anywhere">{body}</p>
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute bottom-0 h-2 w-2 ${
+          right
+            ? "right-[-3px] rotate-45 bg-primary"
+            : "left-[-5px] rotate-45 border-b border-l border-border bg-surface"
+        }`}
+      />
+    </div>
+  );
+}
+
+function ChatDemoTranscript({ onRemove }: { onRemove: () => void }) {
+  const t = useTranslations("chat");
+  return (
+    <>
+      <ol className="min-w-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-2 py-3">
+        {(["greeting", "question", "reply"] as const).map((message) => {
+          const fromStudent = message === "question";
+          return (
+            <li key={message} className={`flex ${fromStudent ? "justify-end" : "justify-start"}`}>
+              <div className="min-w-0 max-w-[85%]">
+                <p className={`mb-1 text-xs text-muted ${fromStudent ? "text-right" : ""}`}>
+                  {t(fromStudent ? "messageFromStudent" : "demo.teacher")}
+                </p>
+                <ChatMessageBubble body={t(`demo.${message}`)} right={fromStudent} />
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="mt-2 flex justify-end border-t border-border pt-3">
+        <button type="button" onClick={onRemove} className={buttonClasses({ variant: "secondary" })}>
+          {t("demo.remove")}
+        </button>
+      </div>
+    </>
+  );
+}
+
 function clampPanelWidth(px: number) {
   const viewportMax =
     typeof window === "undefined" ? PANEL_WIDTH_MAX : window.innerWidth - PANEL_VIEWPORT_GUTTER;
@@ -115,6 +179,15 @@ export function ChatPanel() {
   );
   const { data: session } = useVerifiedSession();
   const isAdminViewer = session?.user?.role === "SUPER_ADMIN";
+  const demoStorageKey = session?.user?.role === "STUDENT" && session.user.id
+    ? `chat-demo:${session.user.id}`
+    : null;
+  const [demoPreference, setDemoPreference] = useState(() => readDemoPreference(demoStorageKey));
+  const [demoRequested, setDemoRequested] = useState(false);
+  const [demoSelected, setDemoSelected] = useState(false);
+  const demoAvailable = Boolean(demoStorageKey) && demoPreference === "available";
+  const viewingDemo = demoAvailable && demoSelected;
+  const search = useSearchParams();
   const [open, setOpen] = useState(false);
   // The panel is never server-rendered (it starts closed), so reading storage
   // in the initializer cannot cause a hydration mismatch.
@@ -141,7 +214,9 @@ export function ChatPanel() {
   const [threadSwipeOpenId, setThreadSwipeOpenId] = useState<string>("");
   const [threadSwipeDragOffset, setThreadSwipeDragOffset] = useState<number>(0);
   const [threadsLoading, setThreadsLoading] = useState(true);
+  const [hasLoadedThreads, setHasLoadedThreads] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const threadSwipeRef = useRef<{
     threadId: string;
@@ -158,14 +233,16 @@ export function ChatPanel() {
   } | null>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("openChat") === "1") {
       setOpen(true);
       const step = params.get("onboardingStep");
-      const returnHref = params.get("onboardingNext");
+      const returnHref = resolveSafeCallbackUrl(params.get("onboardingNext"), "");
       if (step && returnHref) {
         setOnboardingContext({ step, returnHref });
+      }
+      if (step === "chat" && stripOptionalLocalePrefix(returnHref.split("?")[0]) === "/onboarding/next") {
+        setDemoRequested(true);
       }
       params.delete("openChat");
       const qs = params.toString();
@@ -173,10 +250,42 @@ export function ChatPanel() {
         window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash;
       window.history.replaceState(null, "", newUrl);
     }
+  }, [search]);
+
+  const rememberDemo = useCallback((preference: DemoPreference) => {
+    if (!demoStorageKey) return;
+    setDemoPreference(preference);
+    try {
+      localStorage.setItem(demoStorageKey, preference);
+    } catch {
+      // The demo remains usable for this visit when storage is unavailable.
+    }
+  }, [demoStorageKey]);
+
+  const openDemo = useCallback(() => {
+    setDemoSelected(true);
+    setMobilePane("chat");
   }, []);
+
+  useEffect(() => {
+    if (!open || !demoRequested || !hasLoadedThreads) return;
+    setDemoRequested(false);
+    if (!demoStorageKey || demoPreference === "removed" || threads.length > 0) return;
+    rememberDemo("available");
+    openDemo();
+  }, [open, demoRequested, hasLoadedThreads, demoStorageKey, demoPreference, threads.length, rememberDemo, openDemo]);
+
+  function removeDemo() {
+    rememberDemo("removed");
+    setDemoSelected(false);
+    setActiveThreadId("");
+    setMobilePane("threads");
+    closeButtonRef.current?.focus();
+  }
 
   const closeAndMaybeCompleteOnboarding = useCallback(async () => {
     setOpen(false);
+    setDemoRequested(false);
     if (!onboardingContext) return;
     const { step, returnHref } = onboardingContext;
     setOnboardingContext(null);
@@ -221,6 +330,7 @@ export function ChatPanel() {
     if (!res.ok) return;
     const data = (await res.json()) as ThreadItem[];
     setThreads(data);
+    setHasLoadedThreads(true);
     if (data.length === 0) {
       setActiveThreadId("");
       setMessages([]);
@@ -276,11 +386,11 @@ export function ChatPanel() {
     // Only load (and thereby mark-as-read) when the panel is actually open.
     // Otherwise just mounting the dashboard would silently clear every unread
     // badge before the user ever sees it.
-    if (!open) return;
+    if (!open || viewingDemo) return;
     queueMicrotask(() => {
       void loadMessages(activeThreadId);
     });
-  }, [activeThreadId, loadMessages, open]);
+  }, [activeThreadId, loadMessages, open, viewingDemo]);
 
   useEffect(() => {
     if (!activeThreadId) {
@@ -306,7 +416,9 @@ export function ChatPanel() {
 
     The connection now depends on who is signed in, and nothing else.
   */
-  const streamContextRef = useLatestRef({ open, activeThreadId, loadThreads, loadMessages });
+  const streamContextRef = useLatestRef({
+    open: open && !viewingDemo, activeThreadId, loadThreads, loadMessages,
+  });
 
   useEffect(() => {
     const userId = session?.user?.id;
@@ -836,7 +948,7 @@ export function ChatPanel() {
           <div className="mb-2 flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
             <div className="flex items-center gap-2">
-              {activeThread && (
+              {activeThread && !viewingDemo && (
                 <ChatModerationMenu
                   menuAriaLabel={t("moreActions")}
                   blockLabel={t("blockUser")}
@@ -852,6 +964,7 @@ export function ChatPanel() {
               )}
               <button
                 type="button"
+                ref={closeButtonRef}
                 onClick={() => void closeAndMaybeCompleteOnboarding()}
                 className="rounded-full border border-border px-2 py-1 text-xs text-muted hover:bg-[var(--app-hover)]"
               >
@@ -967,6 +1080,19 @@ export function ChatPanel() {
                 </div>
               )}
               <div className="max-h-full space-y-2 overflow-y-auto overflow-x-hidden overscroll-contain pr-1">
+                {demoAvailable && (
+                  <button
+                    type="button"
+                    aria-pressed={viewingDemo}
+                    onClick={openDemo}
+                    className={`w-full rounded-xl border px-3 py-2.5 text-left text-sm transition-colors hover:bg-[var(--app-hover)] ${
+                      viewingDemo ? "border-accent bg-[var(--app-hover)]" : "border-border bg-surface"
+                    }`}
+                  >
+                    <span className="block font-semibold text-foreground">{t("demo.teacher")}</span>
+                    <span className="block text-xs text-muted">{t("demo.readOnly")}</span>
+                  </button>
+                )}
                 {isAdminViewer && adminMode === "broadcast" ? (
                   <div className="space-y-2 px-1">
                     <p className="text-sm text-muted">{t("broadcastLeftPanelHint")}</p>
@@ -1030,7 +1156,7 @@ export function ChatPanel() {
                       </div>
                     ))}
                   </div>
-                ) : threads.length === 0 ? (
+                ) : threads.length === 0 ? demoAvailable ? null : (
                   <p className="px-2 text-sm text-muted">
                     {isAdminViewer && adminQueue === "blocked"
                       ? t("adminNoBlockedThreads")
@@ -1247,6 +1373,7 @@ export function ChatPanel() {
                                   closeThreadSwipe(thread.id);
                                   return;
                                 }
+                                setDemoSelected(false);
                                 setActiveThreadId(thread.id);
                                 setMobilePane("chat");
                               }}
@@ -1263,7 +1390,7 @@ export function ChatPanel() {
                               onPointerCancel={() => onThreadSwipeEnd()}
                               style={{ transform: `translateX(${swipeOffset}px)` }}
                               className={`relative z-10 w-full rounded-xl border px-3 py-2 text-left text-xs transition-transform ${
-                                thread.id === activeThreadId
+                                !viewingDemo && thread.id === activeThreadId
                                   ? "border-accent bg-[var(--app-hover)]"
                                   : "border-border bg-surface"
                               } ${isSwipeOpen ? "pointer-events-none" : ""}`}
@@ -1356,7 +1483,9 @@ export function ChatPanel() {
                 <>
               <div className="mb-2 flex items-center justify-between gap-2 border-b border-border pb-2">
                 <div className="min-w-0 wrap-anywhere">
-                  {isAdminViewer && activeThread && !isAdminInActiveThread ? (
+                  {viewingDemo ? (
+                    <h3 className="text-sm font-semibold text-foreground">{t("demo.teacher")}</h3>
+                  ) : isAdminViewer && activeThread && !isAdminInActiveThread ? (
                     // Reviewing someone else's conversation names both parties;
                     // the admin's own conversation names the person they are
                     // talking to.
@@ -1378,17 +1507,19 @@ export function ChatPanel() {
                       )}
                     </p>
                   )}
-                  <p className="text-xs text-muted">{t("conversations")}</p>
+                  <p className="text-xs text-muted">{t(viewingDemo ? "demo.readOnly" : "conversations")}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setMobilePane("threads")}
-                  className="shrink-0 rounded-full border border-border px-2 py-1 text-xs text-muted hover:bg-[var(--app-hover)] @[40rem]:hidden"
+                  className={buttonClasses({ variant: "secondary", className: "shrink-0 @[40rem]:hidden" })}
                 >
                   {t("backToThreads")}
                 </button>
               </div>
 
+              {viewingDemo ? <ChatDemoTranscript onRemove={removeDemo} /> : (
+                <>
               {activeThread &&
                 (isAdminViewer
                   ? adminMode !== "broadcast"
@@ -1499,22 +1630,7 @@ export function ChatPanel() {
                                     : t("messageFromAdmin")}
                               </p>
                             )}
-                            <div
-                              className={`relative rounded-2xl px-3 py-2 text-sm ${
-                                bubbleOnRight
-                                  ? "rounded-br-md bg-primary text-primary-foreground"
-                                  : "rounded-bl-md border border-border bg-surface text-foreground"
-                              }`}
-                            >
-                              <p className="whitespace-pre-wrap wrap-anywhere">{msg.body}</p>
-                              <span
-                                className={`pointer-events-none absolute bottom-0 h-2 w-2 ${
-                                  bubbleOnRight
-                                    ? "right-[-3px] rotate-45 bg-primary"
-                                    : "left-[-5px] rotate-45 border-b border-l border-border bg-surface"
-                                }`}
-                              />
-                            </div>
+                            <ChatMessageBubble body={msg.body} right={bubbleOnRight} />
                             <p
                               className={`mt-1 text-[10px] text-muted ${bubbleOnRight ? "text-right" : ""}`}
                             >
@@ -1565,6 +1681,8 @@ export function ChatPanel() {
               )}
               {isBlocked && (
                 <p className="mt-2 text-xs text-muted">{t("blockedComposerHint")}</p>
+              )}
+                </>
               )}
                 </>
               )}

@@ -1842,8 +1842,8 @@
         "body": "Compare teachers, then pick a lesson type and time slot."
       },
       "chat": {
-        "title": "Use teacher chat",
-        "body": "Coordinate with teachers before and after lessons."
+        "title": "Explore teacher chat",
+        "body": "See how to ask questions and get ready for lessons."
       },
       "placement": {
         "title": "Take placement test",
@@ -1910,6 +1910,14 @@
     "enableTwoWay": "Enable two-way student chat",
     "enableTwoWayReplies": "Allow the recipient to reply",
     "noThreads": "No chat threads yet.",
+    "demo": {
+      "teacher": "Demo teacher",
+      "readOnly": "Read-only example",
+      "greeting": "Hi! What would you like to work on in your first lesson?",
+      "question": "I'd like to practice introducing myself. What should I bring to our first lesson?",
+      "reply": "Bring a few words or phrases you already know. We'll use them to build a short introduction together.",
+      "remove": "Remove demo"
+    },
     "unknownUser": "User",
     "noMessagesYet": "No messages yet.",
     "today": "Today",

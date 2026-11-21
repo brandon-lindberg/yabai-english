@@ -69,6 +69,18 @@ for (const scenario of releaseCases()) test(`${scenario.language}: landing, onbo
   await expect(page).toHaveURL(new RegExp(scenario.language === "JAPANESE" ? "/japanese-placement\\?" : "/placement\\?"));
   await page.getByRole("link", { name: copy.onboarding.resumeCta, exact: true }).click();
   await expect(page).toHaveURL(/\/onboarding\/next$/);
+  await page.getByTestId("step-card-chat").click();
+  const removeDemo = page.getByRole("button", { name: copy.chat.demo.remove, exact: true });
+  await expect(page.getByRole("heading", { name: copy.chat.demo.teacher, exact: true })).toBeVisible();
+  await expect(page.getByText(copy.chat.demo.question, { exact: true })).toBeVisible();
+  await expect(page.getByTestId("chat-composer")).toHaveCount(0);
+  await captureRelease(page, `${scenario.language}-onboarding-chat-demo`);
+  await page.getByRole("button", { name: copy.chat.backToThreads, exact: true }).click();
+  await page.getByRole("button", { name: `${copy.chat.demo.teacher} ${copy.chat.demo.readOnly}` }).click();
+  await removeDemo.click();
+  await expect(page.getByText(copy.chat.noThreads, { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: copy.chat.close, exact: true }).click();
+  await expect(page).toHaveURL(/\/onboarding\/next$/);
   const session = await (await page.request.get("/api/auth/session")).json();
   expect(session.user.learningLanguage).toBe(scenario.language);
   await page.getByTestId("step-card-bookLesson").click();
