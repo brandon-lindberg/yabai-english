@@ -5,11 +5,15 @@ export function achievementScope(teaching: boolean, language: LearningLanguage):
   return language === "JAPANESE" ? "LEARN_JAPANESE" : "LEARN_ENGLISH";
 }
 
-export function achievementRarity(earned: number, eligible: number) {
+export function achievementRarity(earned: number, eligible: number, viewerEarned = false) {
   if (eligible === 0) return null;
+  // The snapshot can predate the viewer's award, so the actual count is at least one.
+  const count = Math.max(earned, Number(viewerEarned));
+  const hundredths = Math.floor(count * 10_000 / eligible);
+  const belowMinimum = count > 0 && hundredths === 0;
   return {
-    // Floor to a tenth of a percent so a rare 9.99% badge never reads as 10%.
-    fraction: Math.floor(earned * 1000 / eligible) / 1000,
-    rare: earned * 10 < eligible,
+    fraction: (belowMinimum ? 1 : hundredths) / 10_000,
+    belowMinimum,
+    rare: count > 0 && count * 10 < eligible,
   };
 }

@@ -40,13 +40,20 @@ describe("community unlock rates", () => {
   });
 
   test("uses the unrounded percentage for the strict 10% cutoff", () => {
-    expect(achievementRarity(99, 991)).toEqual({ fraction: 0.099, rare: true });
-    expect(achievementRarity(1, 10)).toEqual({ fraction: 0.1, rare: false });
-    expect(achievementRarity(1, 3)).toEqual({ fraction: 0.333, rare: false });
+    expect(achievementRarity(99, 991)).toEqual({ fraction: 0.0998, rare: true, belowMinimum: false });
+    expect(achievementRarity(1, 10)).toEqual({ fraction: 0.1, rare: false, belowMinimum: false });
+    expect(achievementRarity(1, 3)).toEqual({ fraction: 0.3333, rare: false, belowMinimum: false });
   });
 
   test("distinguishes zero unlocks from a missing cohort", () => {
-    expect(achievementRarity(0, 30)).toEqual({ fraction: 0, rare: true });
+    expect(achievementRarity(0, 30)).toEqual({ fraction: 0, rare: false, belowMinimum: false });
     expect(achievementRarity(0, 0)).toBeNull();
+  });
+
+  test("uses a known personal award when the community snapshot still says zero", () => {
+    expect(achievementRarity(0, 5, true)).toEqual({ fraction: 0.2, rare: false, belowMinimum: false });
+    expect(achievementRarity(0, 10_000, true)).toEqual({ fraction: 0.0001, rare: true, belowMinimum: false });
+    expect(achievementRarity(1, 10_001, true)).toEqual({ fraction: 0.0001, rare: true, belowMinimum: true });
+    expect(achievementRarity(2, 10, true)).toMatchObject({ fraction: 0.2 });
   });
 });

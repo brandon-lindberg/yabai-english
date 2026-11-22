@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
@@ -11,6 +9,7 @@ import { teachingHiddenAchievementCount } from "@/lib/achievements/teaching-cata
 import { galleryPageSize, hiddenAchievementCount } from "@/lib/achievements/gallery";
 import { achievementScope } from "@/lib/achievements/rarity";
 import { readUnlockRates } from "@/lib/achievements/rarity-snapshot";
+import { achievementArtworkSource } from "@/lib/achievements/artwork";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { PageHeader } from "@/components/ui/page-header";
 import { buttonClasses } from "@/components/ui/button";
@@ -37,10 +36,7 @@ async function Artwork({ id, earned, hidden, rare, large = false, eager = false 
   eager?: boolean;
 }) {
   if (hidden && !earned) return null;
-  // Hidden artwork is delivered only with an earned card. There is no public asset URL.
-  const source = hidden
-    ? `data:image/png;base64,${await readFile(join(process.cwd(), "data", "teaching-achievement-art", `${id}.png`), "base64")}`
-    : `/achievements/${id}.png`;
+  const source = await achievementArtworkSource(id, hidden);
   return (
     <div data-achievement-rare={rare || undefined} className={`grid aspect-square place-items-center overflow-hidden rounded-sm border border-border bg-surface ${large ? "p-5" : "p-2.5 sm:p-3"} ${rare ? styles.rareArtwork : ""}`}>
       <Image src={source} width={128} height={128} alt="" unoptimized loading={eager || large ? "eager" : "lazy"}
@@ -70,13 +66,15 @@ export default async function ArtGalleryPage({ searchParams }: { searchParams: P
   const index = locale === "ja" ? 1 : 0;
   const piece = items.find(card => card.id === options.piece);
   const stateLabel = (card: typeof cards[number]) => t(card.awardedAt ? "earned" : card.progress ? "locked" : "upcoming");
-  const percentage = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 });
+  const percentage = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 2 });
   function rarityFor(card: typeof cards[number]) {
-    const rate = unlockRate(card.id);
+    const rate = unlockRate(card.id, Boolean(card.awardedAt));
     const rare = Boolean(rate?.rare && (card.progress || card.awardedAt));
     return {
       rare,
-      label: rate ? t(rare ? "rareRate" : "unlockRate", { percent: percentage.format(rate.fraction) }) : t("ratePending"),
+      label: rate
+        ? t(rare ? "rareRate" : "unlockRate", { percent: `${rate.belowMinimum ? "<" : ""}${percentage.format(rate.fraction)}` })
+        : t("ratePending"),
     };
   }
 

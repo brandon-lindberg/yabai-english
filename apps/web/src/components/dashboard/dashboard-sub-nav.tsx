@@ -11,15 +11,15 @@ const tabs = [
   { key: "schedule", href: "/dashboard/schedule", icon: "calendar" },
   { key: "profile", href: "/dashboard/profile", icon: "profile" },
   { key: "achievements", href: "/dashboard/art-gallery", icon: "trophy", audience: "student-or-teacher" },
-  { key: "lessons", href: "/dashboard/lessons", audience: "teacher" },
-  { key: "students", href: "/dashboard/students", audience: "teacher" },
-  { key: "invoices", href: "/dashboard/invoices", audience: "teacher" },
+  { key: "lessons", href: "/dashboard/lessons", icon: "bookOpen", audience: "teacher" },
+  { key: "students", href: "/dashboard/students", icon: "people", audience: "teacher" },
+  { key: "invoices", href: "/dashboard/invoices", icon: "receipt", audience: "teacher" },
   { key: "myTeachers", href: "/dashboard/my-teachers", icon: "graduationCap", audience: "student" },
-  { key: "taxonomy", href: "/dashboard/taxonomy", audience: "teacher" },
+  { key: "taxonomy", href: "/dashboard/taxonomy", icon: "tags", audience: "teacher" },
 ] as const satisfies readonly {
   key: string;
   href: ComponentProps<typeof Link>["href"];
-  icon?: ComponentProps<typeof InterfaceIcon>["name"];
+  icon: ComponentProps<typeof InterfaceIcon>["name"];
   audience?: "student" | "teacher" | "student-or-teacher";
 }[];
 
@@ -38,22 +38,23 @@ export function DashboardSubNav({
   if (pathname.includes("/dashboard/settings") || pathname.includes("/dashboard/integrations")) return null;
 
   const active = tabs.find(({ key, href }) => key !== "overview" && pathname.includes(href))?.key ?? "overview";
-  const mobileIcons = isStudent && !isTeacher;
+  const mobileColumns = isTeacher
+    ? "max-md:grid-cols-4 min-[384px]:max-md:grid-cols-8 md:gap-x-4 lg:gap-x-6"
+    : "max-md:grid-cols-5";
 
   return (
     <SubNav
       label={t("ariaLabel")}
-      listClassName={mobileIcons ? "max-md:grid max-md:w-full max-md:grid-cols-5 max-md:gap-0" : undefined}
+      listClassName={`max-md:grid max-md:w-full max-md:gap-0 ${mobileColumns}`}
     >
       {tabs.map((item) => {
-        const { key, href } = item;
+        const { key, href, icon } = item;
         if ("audience" in item) {
           if (item.audience === "teacher" && !isTeacher) return null;
           if (item.audience === "student" && !isStudent) return null;
           if (item.audience === "student-or-teacher" && !isStudent && !isTeacher) return null;
         }
 
-        const icon = mobileIcons && "icon" in item ? item.icon : undefined;
         const label = t(key);
         const isGallery = key === "achievements";
         return (
@@ -66,16 +67,12 @@ export function DashboardSubNav({
                 href={href}
                 locale={isGallery ? locale : undefined}
                 prefetch={isGallery ? false : undefined}
-                aria-label={icon ? label : undefined}
-                title={icon ? label : undefined}
-                className={icon ? `${className} max-md:grid max-md:min-h-11 max-md:place-items-center max-md:p-0` : className}
+                aria-label={label}
+                title={label}
+                className={`${className} max-md:grid max-md:min-h-11 max-md:place-items-center max-md:p-0`}
               >
-                {icon ? (
-                  <>
-                    <span className="md:hidden"><InterfaceIcon name={icon} /></span>
-                    <span className="hidden md:inline">{label}</span>
-                  </>
-                ) : label}
+                <span className="md:hidden"><InterfaceIcon name={icon} /></span>
+                <span className="hidden md:inline">{label}</span>
               </Link>
             )}
           />

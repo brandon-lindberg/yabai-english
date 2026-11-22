@@ -8,7 +8,7 @@ type TeachingEvidence = {
   twoTeachingDays?: boolean;
 };
 
-const teachingMilestones = [
+export const teachingMilestones = [
   { id: "teach-profile", metric: "completeProfile", target: 1,
     title: ["Meet Your Teacher", "はじめまして、先生です"],
     caption: ["Your own corner of the studio.", "スタジオに、あなたの席ができました。"],

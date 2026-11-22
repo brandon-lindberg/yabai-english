@@ -1,5 +1,5 @@
 import { buildOccurrenceSkipIndex } from "@/lib/availability-occurrence-skips";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { getTeacherBookingsForDashboard } from "@/lib/dashboard/teacher-bookings";
@@ -8,6 +8,8 @@ import { isTeacherCalendarReady } from "@/lib/teacher-calendar-status";
 import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { TEACHER_HOME_SCHEDULE_HREFS, withDashboardOnboarding } from "@/lib/teacher-dashboard-home-links";
 import { DashboardSpine } from "@/components/dashboard/dashboard-spine";
+import { DashboardRecentAchievements } from "@/components/dashboard/dashboard-recent-achievements";
+import { getRecentTeacherAchievements } from "@/lib/achievements/recent";
 import { TeacherUpcomingLessons } from "@/components/dashboard/teacher-upcoming-lessons";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { inlineLinkClass } from "@/components/ui/inline-link";
@@ -37,7 +39,7 @@ export async function TeacherDashboard({
   const tCommon = await getTranslations("common");
   const th = await getTranslations("dashboard.highlights");
 
-  const [teacherProfile, googleSettings] = await Promise.all([
+  const [teacherProfile, googleSettings, achievements, locale] = await Promise.all([
     prisma.teacherProfile.findUnique({
       where: { userId },
       /*
@@ -74,6 +76,8 @@ export async function TeacherDashboard({
       where: { userId },
       select: { calendarConnected: true },
     }),
+    getRecentTeacherAchievements(prisma, userId),
+    getLocale(),
   ]);
 
   const bookings = teacherProfile
@@ -184,6 +188,9 @@ export async function TeacherDashboard({
           ),
         },
       ]}
+      statsAside={achievements.length
+        ? <DashboardRecentAchievements achievements={achievements} locale={locale} label={th("recentAchievements")} />
+        : undefined}
     >
       {isTeacherCabinetRole(role) && !calendarReady ? (
         <InlineAlert variant="info">

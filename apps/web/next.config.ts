@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+const teachingArtwork = ["./data/teaching-achievement-art/*.png"];
 
 const nextConfig: NextConfig = {
   // Load features when visited; preloading every route exhausts the small server.
@@ -13,7 +14,8 @@ const nextConfig: NextConfig = {
   typescript: { tsconfigPath: process.env.MIRROR_QA_DIST_DIR ? "tsconfig.mirror.json" : "tsconfig.json" },
   outputFileTracingIncludes: {
     "/api/japanese-study/attribution": ["./data/japanese-content/ATTRIBUTION.md"],
-    "/**/dashboard/art-gallery": ["./data/teaching-achievement-art/*.png"],
+    "/**/dashboard/art-gallery": teachingArtwork,
+    "/**/dashboard": teachingArtwork,
   },
   /**
    * Without this, Turbopack can treat `apps/` (parent of this package) as the workspace

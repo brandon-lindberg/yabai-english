@@ -13,6 +13,10 @@ const shapes = {
   profile: <><circle cx="12" cy="8" r="4" /><path d="M4 21v-2a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7v2" /></>,
   trophy: <path d="M7 4h10v6a5 5 0 0 1-10 0V4Zm0 2H3v2a4 4 0 0 0 4 4m10-6h4v2a4 4 0 0 1-4 4m-5 3v5m-4 0h8" />,
   graduationCap: <path d="m2 9 10-5 10 5-10 5-10-5Zm4 2v5a9 9 0 0 0 12 0v-5m4-2v7" />,
+  bookOpen: <path d="M12 6a7 7 0 0 0-5-2H3v14h4a7 7 0 0 1 5 2 7 7 0 0 1 5-2h4V4h-4a7 7 0 0 0-5 2Zm0 0v14" />,
+  people: <><circle cx="9" cy="8" r="3" /><path d="M3 20v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v2m2-15a3 3 0 0 1 0 6m0 2a5 5 0 0 1 4 5v2" /></>,
+  receipt: <path d="M5 3h14v18l-3.5-2-3.5 2-3.5-2L5 21V3Zm4 5h6m-6 4h6m-6 4h3" />,
+  tags: <><path d="M3 4h8l10 10-7 7L3 10V4Z" /><circle cx="7.5" cy="8" r="1" /></>,
 } satisfies Record<string, ReactNode>;
 
 export function InterfaceIcon({ name }: { name: keyof typeof shapes }) {

@@ -33,10 +33,10 @@ export async function readUnlockRates(db: PrismaClient, scope: AchievementScope)
       console.warn("Achievement unlock snapshot refresh failed", { scope });
     }));
   }
-  return (achievementId: string) => {
+  return (achievementId: string, viewerEarned: boolean) => {
     if (!snapshot || !snapshot.awardedCounts || typeof snapshot.awardedCounts !== "object"
       || Array.isArray(snapshot.awardedCounts)) return null;
     const count = snapshot.awardedCounts[achievementId];
-    return achievementRarity(typeof count === "number" ? count : 0, snapshot.eligibleUsers);
+    return achievementRarity(typeof count === "number" ? count : 0, snapshot.eligibleUsers, viewerEarned);
   };
 }

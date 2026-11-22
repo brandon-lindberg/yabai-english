@@ -105,6 +105,13 @@ try {
     const fixtures = readOwnedFixtures();
     if (!fixtures.trialProductId || !/^mirror_test_[a-f0-9]{32}$/.test(schema)) throw new Error("Learning verification requires isolated release fixtures");
     const operation = process.argv[2];
+    if (operation === "release-stale-teaching-rarity") {
+      const data = { eligibleUsers: 10_000, awardedCounts: {}, refreshedAt: new Date() };
+      await prisma.achievementUnlockSnapshot.upsert({
+        where: { scope: "TEACHING" }, create: { scope: "TEACHING", ...data }, update: data,
+      });
+      console.log(JSON.stringify({ eligibleUsers: data.eligibleUsers })); return;
+    }
     if (operation === "release-achievement-rarity") {
       await prisma.$queryRaw`SELECT refresh_achievement_unlock_snapshot(scope)
         FROM unnest(enum_range(NULL::"AchievementScope")) AS scopes(scope)`;

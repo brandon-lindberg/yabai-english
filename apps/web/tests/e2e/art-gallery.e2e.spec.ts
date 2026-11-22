@@ -11,6 +11,8 @@ test("art gallery shows the teaching collection and rare unlock rates", async ({
   await page.emulateMedia({ reducedMotion: "reduce" });
   await signInMirrorUser(page, teacher.email, "JAPANESE");
   await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByRole("region", { name: en.dashboard.highlights.recentAchievements })).toHaveCount(0);
+  fixtureCommand("release-stale-teaching-rarity");
   await page.getByRole("link", { name: en.dashboard.nav.achievements, exact: true }).click();
   await expect(page.getByText(en.artGallery.teaching, { exact: true })).toBeVisible();
   const art = page.locator('main img[src^="/achievements/"]');
@@ -19,30 +21,32 @@ test("art gallery shows the teaching collection and rare unlock rates", async ({
   await expect(page.getByText("3 of 11 collected", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Class Is In", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "First Spark", exact: true })).toHaveCount(0);
+  const profile = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "Meet Your Teacher" }) });
+  await expect(profile.getByText("Rare · 0.01% unlocked", { exact: true })).toBeVisible();
+  const frame = profile.locator("[data-achievement-rare]");
+  await expect(frame).toBeVisible();
+  const frameSource = () => frame.evaluate(el => getComputedStyle(el, "::after").borderImageSource);
+  await expect.poll(frameSource).toContain("/achievements/frames/rare-gold.png");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect.poll(frameSource).toContain("/achievements/frames/rare-gold-motion.png");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const locked = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "The Hundredth Bell" }) });
+  await expect(locked.getByText("0% unlocked", { exact: true })).toBeVisible();
+  await expect(locked.locator("[data-achievement-rare]")).toHaveCount(0);
+  await captureRelease(page, "teaching-gallery-mobile");
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await captureRelease(page, "teaching-gallery-desktop");
   const snapshots: { scope: string; eligibleUsers: number; awardedCounts: Record<string, number> }[] =
     fixtureCommand("release-achievement-rarity");
   const teaching = snapshots.find(snapshot => snapshot.scope === "TEACHING")!;
   expect(teaching.awardedCounts["teach-profile"]).toBeGreaterThan(0);
-  const fraction = Math.floor(teaching.awardedCounts["teach-profile"] * 1000 / teaching.eligibleUsers) / 1000;
-  const rate = new Intl.NumberFormat("en", { style: "percent", maximumFractionDigits: 1 }).format(fraction);
+  const fraction = Math.floor(teaching.awardedCounts["teach-profile"] * 10_000 / teaching.eligibleUsers) / 10_000;
+  const rate = new Intl.NumberFormat("en", { style: "percent", maximumFractionDigits: 2 }).format(fraction);
   await page.reload();
-
-  const rare = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "The Hundredth Bell" }) });
-  await expect(rare.getByText("Rare · 0% unlocked", { exact: true })).toBeVisible();
-  const frame = rare.locator("[data-achievement-rare]");
-  await expect(frame).toBeVisible();
-  expect(await frame.evaluate(el => getComputedStyle(el, "::after").animationName)).toBe("none");
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  expect(await frame.evaluate(el => getComputedStyle(el, "::after").animationName)).toContain("achievementShine");
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  const profile = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "Meet Your Teacher" }) });
   await expect(profile.getByText(`${rate} unlocked`, { exact: true })).toBeVisible();
-  await captureRelease(page, "teaching-gallery-mobile");
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await captureRelease(page, "teaching-gallery-desktop");
-  await rare.getByRole("link").click();
+  await locked.getByRole("link").click();
   await expect(page.getByRole("heading", { level: 1, name: "The Hundredth Bell" })).toBeVisible();
-  await expect(page.getByText("Rare · 0% unlocked", { exact: true })).toBeVisible();
+  await expect(page.getByText("0% unlocked", { exact: true })).toBeVisible();
   await chooseInterfaceLocale(page, en.common, "ja");
   await expect(page.getByRole("heading", { level: 1, name: "100回目のチャイム" })).toBeVisible();
 
@@ -60,6 +64,43 @@ test("art gallery shows the teaching collection and rare unlock rates", async ({
   await expect(page.getByText(/獲得率/)).toBeVisible();
   await page.getByRole("link", { name: new RegExp(ja.artGallery.back) }).click();
   await expect(page.getByText("ひみつの実績が2件", { exact: true })).toBeVisible();
+
+  await page.getByRole("navigation", { name: ja.dashboard.nav.ariaLabel }).getByRole("link", { name: ja.dashboard.nav.overview, exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  const main = page.getByRole("main");
+  const recent = main.getByRole("region", { name: ja.dashboard.highlights.recentAchievements });
+  const nav = main.getByRole("navigation", { name: ja.dashboard.nav.ariaLabel });
+  const stat = (label: string) => main.getByRole("link", { name: new RegExp(`^${label}:`) });
+  for (const width of [320, 390, 1280]) {
+    await page.setViewportSize({ width, height: 844 });
+    await expect(recent).toBeVisible();
+    await expect(nav.getByRole("link")).toHaveCount(8);
+    if (width < 768) {
+      await expect(nav.locator("svg:visible")).toHaveCount(8);
+      await expect.poll(() => nav.getByRole("link").evaluateAll(links =>
+        links.filter(link => {
+          const { width, height } = link.getBoundingClientRect();
+          return width >= 44 && height >= 44;
+        }).length,
+      )).toBe(8);
+      const upcoming = (await stat(ja.dashboard.teacherHome.statUpcoming).boundingBox())!;
+      const completed = (await stat(ja.dashboard.teacherHome.statCompleted).boundingBox())!;
+      const slots = (await stat(ja.dashboard.teacherHome.statSlots).boundingBox())!;
+      const awards = (await recent.boundingBox())!;
+      expect(upcoming.y).toBe(completed.y);
+      expect(upcoming.x).toBe(slots.x);
+      expect(awards.x).toBeGreaterThanOrEqual(slots.x + slots.width - 1);
+      expect(awards.y).toBeGreaterThanOrEqual(slots.y);
+      expect(awards.y + awards.height).toBeLessThanOrEqual(slots.y + slots.height);
+    } else {
+      await expect(nav.locator("svg:visible")).toHaveCount(0);
+    }
+    await expect(recent.getByRole("link")).toHaveCount(width < 768 ? 3 : 4);
+    await expect(recent.getByRole("link").first()).toHaveAccessibleName("つづきは次回");
+    await expect(recent.getByRole("link").first().locator('img[src^="data:image/png;base64,"]')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await captureRelease(page, `teacher-dashboard-achievements-${width}`);
+  }
 });
 
 for (const japanese of [false, true]) {
@@ -173,7 +214,7 @@ test("art gallery shows three recent achievements beside Study rank on phones", 
   await page.reload();
 
   const recent = page.getByRole("region", { name: en.dashboard.highlights.recentAchievements });
-  const rank = page.getByText(en.dashboard.highlights.statRank, { exact: true }).locator("..");
+  const rank = page.getByRole("main").getByText(en.dashboard.highlights.statRank, { exact: true }).locator("..");
   const links = recent.getByRole("link");
   for (const width of [320, 390, 1280]) {
     await page.setViewportSize({ width, height: 844 });

@@ -64,7 +64,7 @@ export async function DashboardSpine({
         emptyAction={nextEmptyAction}
       />
 
-      <StatLedger stats={stats} aside={statsAside} />
+      <StatLedger stats={stats} aside={statsAside} twoColumnsOnMobile />
 
       {children}
     </div>
