@@ -330,6 +330,23 @@ test("study progress persists independently through deliberate subject and inter
   expect(englishState.states).toHaveLength(1);
   expect(englishState.states[0]).toMatchObject({ userId: learner.id, reps: 1, card: { deck: { level: { track: { learningLanguage: "ENGLISH" } } } } });
   await captureRelease(page, "ENGLISH-study-saved");
+  const desktop = page.viewportSize()!;
+  await page.setViewportSize({ width: 390, height: 950 });
+  await page.goto("/en/dashboard");
+  const analytics = page.locator("section").filter({ has: page.getByRole("heading", { name: en.dashboard.highlights.flashcardStatsTitle, exact: true }) });
+  const analyticsCells = analytics.locator("dl > div");
+  await expect(analyticsCells).toHaveCount(4);
+  const [accuracy, average, weak, mastered] = await analyticsCells.evaluateAll(cells => cells.map(cell => {
+    const { x, y } = cell.getBoundingClientRect();
+    return { x, y };
+  }));
+  expect(average.x).toBeGreaterThan(accuracy.x);
+  expect(weak.y).toBeGreaterThan(accuracy.y);
+  expect(average.y).toBe(accuracy.y);
+  expect(weak.x).toBe(accuracy.x);
+  expect(mastered).toEqual({ x: average.x, y: weak.y });
+  await captureRelease(page, "flashcard-analytics-390");
+  await page.setViewportSize(desktop);
   await page.getByRole("link", { name: en.learningJourney.japanese.switch, exact: true }).click();
   expect((await (await page.request.get("/api/auth/session")).json()).user.learningLanguage).toBe("ENGLISH");
   await page.getByRole("button", { name: en.learningJourney.japanese.browse, exact: true }).click();

@@ -33,6 +33,7 @@ export function tabClasses(active: boolean) {
 export function SubNav({
   label,
   showLabel = false,
+  listClassName = "",
   children,
 }: {
   label: string;
@@ -45,6 +46,7 @@ export function SubNav({
    * them was an accessible name a sighted user never receives.
    */
   showLabel?: boolean;
+  listClassName?: string;
   children: ReactNode;
 }) {
   return (
@@ -67,7 +69,7 @@ export function SubNav({
         {showLabel ? (
           <span className="shrink-0 pb-3 pt-1 text-sm text-muted">{label}</span>
         ) : null}
-        <ul className="flex list-none flex-wrap gap-x-6 p-0">{children}</ul>
+        <ul className={`flex list-none flex-wrap gap-x-6 p-0 ${listClassName}`}>{children}</ul>
       </div>
     </nav>
   );

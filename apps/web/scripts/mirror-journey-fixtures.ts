@@ -128,6 +128,18 @@ try {
     if (!fixtures.users.some(user => user.id === learnerId)) throw new Error("Unknown release learner");
     const learner = await prisma.user.findUniqueOrThrow({ where: { id: learnerId }, select: { role: true, learningLanguage: true } });
     if (learner.role !== "STUDENT") throw new Error("Student fixture required");
+    if (operation === "release-dashboard-achievements") {
+      const ids = ["cards-0500", "cards-0250", "cards-0100", "rank-0005", "cards-0025"];
+      const now = Date.now();
+      await prisma.learningAchievementAward.createMany({
+        data: ids.map((achievementId, index) => ({
+          userId: learnerId, achievementId, learningLanguage: learner.learningLanguage,
+          awardedAt: new Date(now - index * 60_000),
+        })),
+        skipDuplicates: true,
+      });
+      console.log(JSON.stringify(ids)); return;
+    }
     if (operation === "release-admin-moderation") {
       const teacher = fixtures.users.find((user) => user.id.endsWith(learner.learningLanguage === "JAPANESE" ? "-japanese-teacher" : "-english-teacher"))!;
       const report = {

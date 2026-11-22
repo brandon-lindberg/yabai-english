@@ -42,6 +42,7 @@ export function StatLedger({
   size = "lg",
   className = "",
   aside,
+  twoColumnsOnMobile = false,
 }: {
   stats: Stat[];
   /**
@@ -51,6 +52,7 @@ export function StatLedger({
   size?: "lg" | "sm";
   className?: string;
   aside?: ReactNode;
+  twoColumnsOnMobile?: boolean;
 }) {
   const figure =
     size === "lg"
@@ -78,7 +80,9 @@ export function StatLedger({
         "-ml-px -mt-px grid",
         columns,
         // Share both rows with the aside so the last two cells stay aligned.
-        pairAsideOnMobile && "max-md:col-[1/span_2] max-md:row-[1/span_2] max-md:m-0 max-md:grid-cols-subgrid max-md:grid-rows-subgrid",
+        pairAsideOnMobile
+          ? "max-md:col-[1/span_2] max-md:row-[1/span_2] max-md:m-0 max-md:grid-cols-subgrid max-md:grid-rows-subgrid"
+          : twoColumnsOnMobile && "max-md:grid-cols-2",
       ].filter(Boolean).join(" ")}
     >
       {stats.map((stat) => {

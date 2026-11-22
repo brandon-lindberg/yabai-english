@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
-import { readMirrorFixtures, releaseStudent, signInMirrorUser } from "./helpers/mirror-fixtures";
+import { fixtureCommand, readMirrorFixtures, releaseStudent, signInMirrorUser } from "./helpers/mirror-fixtures";
 import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
 import { captureRelease } from "./helpers/release-verification";
 
@@ -21,6 +21,32 @@ for (const japanese of [false, true]) {
       await chooseInterfaceLocale(page, en.common, "ja");
       await setHeaderTheme(page, ja.common, "dark");
     }
+    const sections = page.getByRole("navigation", { name: copy.dashboard.nav.ariaLabel });
+    const overview = sections.getByRole("link", { name: copy.dashboard.nav.overview });
+    await expect(overview).toHaveAttribute("aria-current", "page");
+    const sectionLinks = [copy.dashboard.nav.overview, copy.dashboard.nav.schedule,
+      copy.dashboard.nav.profile, copy.dashboard.nav.achievements, copy.dashboard.nav.myTeachers];
+    if (japanese) {
+      for (const width of [320, 390]) {
+        await page.setViewportSize({ width, height: 844 });
+        const rows = await sections.getByRole("link").evaluateAll(links =>
+          links.map(link => link.getBoundingClientRect().top));
+        expect(new Set(rows).size, `Dashboard tabs stay on one row at ${width}px`).toBe(1);
+        for (const name of sectionLinks) {
+          const link = sections.getByRole("link", { name, exact: true });
+          await expect(link.locator("svg[aria-hidden=true]")).toBeVisible();
+          await expect(link.getByText(name, { exact: true })).toBeHidden();
+          const bounds = (await link.boundingBox())!;
+          expect(bounds.width).toBeGreaterThanOrEqual(44);
+          expect(bounds.height).toBeGreaterThanOrEqual(44);
+        }
+      }
+    } else {
+      for (const name of sectionLinks) {
+        await expect(sections.getByRole("link", { name, exact: true }).getByText(name, { exact: true })).toBeVisible();
+      }
+    }
+    await captureRelease(page, `learner-dashboard-tabs-${japanese ? "phone" : "desktop"}`);
     const dashboard = page.url();
     const recent = page.getByRole("region", { name: copy.dashboard.highlights.recentAchievements });
     await expect(recent).toHaveCount(0);
@@ -76,28 +102,43 @@ for (const japanese of [false, true]) {
   });
 }
 
-test("art gallery shows the newest achievement beside Study rank on phones", async ({ page }) => {
+test("art gallery shows three recent achievements beside Study rank on phones", async ({ page }) => {
   const learner = readMirrorFixtures().users[0];
   await page.setViewportSize({ width: 320, height: 844 });
   await signInMirrorUser(page, learner.email, "ENGLISH");
   await expect(page).toHaveURL(/\/en\/dashboard$/);
-  const dashboard = page.url();
-  await page.getByRole("link", { name: en.dashboard.nav.achievements, exact: true }).click();
-  await expect(page.getByRole("heading", { name: en.artGallery.title })).toBeVisible();
-  await page.goto(dashboard);
+  const ids: string[] = fixtureCommand("release-dashboard-achievements", { learnerId: learner.id });
+  const requestedArt = new Set<string>();
+  page.on("request", request => {
+    const { pathname } = new URL(request.url());
+    if (pathname.startsWith("/achievements/")) requestedArt.add(pathname);
+  });
+  await page.reload();
 
   const recent = page.getByRole("region", { name: en.dashboard.highlights.recentAchievements });
   const rank = page.getByText(en.dashboard.highlights.statRank, { exact: true }).locator("..");
-  await expect(recent.getByRole("link")).toHaveCount(1);
+  const links = recent.getByRole("link");
   for (const width of [320, 390, 1280]) {
     await page.setViewportSize({ width, height: 844 });
+    const visibleIds = ids.slice(0, width < 768 ? 3 : 5);
+    await expect(links).toHaveCount(visibleIds.length);
+    expect(await links.evaluateAll(items => items.map(item => new URL((item as HTMLAnchorElement).href).searchParams.get("piece")))).toEqual(visibleIds);
+    expect(new Set(await links.evaluateAll(items => items.map(item => item.getBoundingClientRect().top))).size).toBe(1);
     await expect(rank).toBeVisible();
-    const rankCell = (await rank.boundingBox())!;
-    const achievementCell = (await recent.boundingBox())!;
-    expect(achievementCell.x, `Achievement is beside Study rank at ${width}px`).toBeGreaterThanOrEqual(rankCell.x + rankCell.width - 1);
-    expect(achievementCell.y).toBeGreaterThanOrEqual(rankCell.y);
-    expect(achievementCell.y + achievementCell.height).toBeLessThanOrEqual(rankCell.y + rankCell.height);
+    const rankElement = (await rank.elementHandle())!;
+    const alignment = await recent.evaluate((achievements, rankCell) => {
+      const rankBounds = rankCell.getBoundingClientRect();
+      const achievementBounds = achievements.getBoundingClientRect();
+      return {
+        beside: achievementBounds.left >= rankBounds.right - 1,
+        sameRow: achievementBounds.top >= rankBounds.top && achievementBounds.bottom <= rankBounds.bottom,
+      };
+    }, rankElement);
+    await rankElement.dispose();
+    expect(alignment, `Achievements are beside Study rank at ${width}px`).toEqual({ beside: true, sameRow: true });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await recent.scrollIntoViewIfNeeded();
+    await expect.poll(() => [...requestedArt].sort()).toEqual(visibleIds.map(id => `/achievements/${id}.png`).sort());
     await captureRelease(page, `achievement-ledger-${width}`);
   }
 });

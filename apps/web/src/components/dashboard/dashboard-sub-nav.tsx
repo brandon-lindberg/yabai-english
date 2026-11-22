@@ -1,35 +1,27 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { InterfaceIcon } from "@/components/ui/interface-icon";
 import { SubNav, SubNavLink } from "@/components/ui/sub-nav";
 
-type Tab =
-  | "overview"
-  | "profile"
-  | "lessons"
-  | "students"
-  | "myTeachers"
-  | "schedule"
-  | "achievements"
-  | "taxonomy"
-  | "invoices"
-  /** Routes outside this nav (e.g. Settings from the account menu). */
-  | "none";
-
-function activeTab(pathname: string): Tab {
-  if (pathname.includes("/dashboard/art-gallery")) return "achievements";
-  if (pathname.includes("/dashboard/profile")) return "profile";
-  if (pathname.includes("/dashboard/lessons")) return "lessons";
-  if (pathname.includes("/dashboard/students")) return "students";
-  if (pathname.includes("/dashboard/my-teachers")) return "myTeachers";
-  if (pathname.includes("/dashboard/schedule")) return "schedule";
-  if (pathname.includes("/dashboard/taxonomy")) return "taxonomy";
-  if (pathname.includes("/dashboard/invoices")) return "invoices";
-  if (pathname.includes("/dashboard/settings")) return "none";
-  if (pathname.includes("/dashboard/integrations")) return "none";
-  return "overview";
-}
+const tabs = [
+  { key: "overview", href: "/dashboard", icon: "home" },
+  { key: "schedule", href: "/dashboard/schedule", icon: "calendar" },
+  { key: "profile", href: "/dashboard/profile", icon: "profile" },
+  { key: "achievements", href: "/dashboard/art-gallery", icon: "trophy", audience: "student-or-teacher" },
+  { key: "lessons", href: "/dashboard/lessons", audience: "teacher" },
+  { key: "students", href: "/dashboard/students", audience: "teacher" },
+  { key: "invoices", href: "/dashboard/invoices", audience: "teacher" },
+  { key: "myTeachers", href: "/dashboard/my-teachers", icon: "graduationCap", audience: "student" },
+  { key: "taxonomy", href: "/dashboard/taxonomy", audience: "teacher" },
+] as const satisfies readonly {
+  key: string;
+  href: ComponentProps<typeof Link>["href"];
+  icon?: ComponentProps<typeof InterfaceIcon>["name"];
+  audience?: "student" | "teacher" | "student-or-teacher";
+}[];
 
 export function DashboardSubNav({
   isTeacher = false,
@@ -39,93 +31,56 @@ export function DashboardSubNav({
   isStudent?: boolean;
 }) {
   const pathname = usePathname();
-  const tab = activeTab(pathname);
   const t = useTranslations("dashboard.nav");
   const locale = useLocale();
 
-  if (tab === "none") return null;
+  // Settings and integrations have their own navigation.
+  if (pathname.includes("/dashboard/settings") || pathname.includes("/dashboard/integrations")) return null;
+
+  const active = tabs.find(({ key, href }) => key !== "overview" && pathname.includes(href))?.key ?? "overview";
+  const mobileIcons = isStudent && !isTeacher;
 
   return (
-    <SubNav label={t("ariaLabel")}>
-      <SubNavLink
-        active={tab === "overview"}
-        render={(p) => (
-          <Link href="/dashboard" {...p}>
-            {t("overview")}
-          </Link>
-        )}
-      />
-      <SubNavLink
-        active={tab === "schedule"}
-        render={(p) => (
-          <Link href="/dashboard/schedule" {...p}>
-            {t("schedule")}
-          </Link>
-        )}
-      />
-      <SubNavLink
-        active={tab === "profile"}
-        render={(p) => (
-          <Link href="/dashboard/profile" {...p}>
-            {t("profile")}
-          </Link>
-        )}
-      />
-      {isStudent || isTeacher ? (
-        <SubNavLink active={tab === "achievements"} render={(p) => (
-          <Link href="/dashboard/art-gallery" locale={locale} prefetch={false} {...p}>{t("achievements")}</Link>
-        )} />
-      ) : null}
-      {isTeacher ? (
-        <SubNavLink
-          active={tab === "lessons"}
-          render={(p) => (
-            <Link href="/dashboard/lessons" {...p}>
-              {t("lessons")}
-            </Link>
-          )}
-        />
-      ) : null}
-      {isTeacher ? (
-        <SubNavLink
-          active={tab === "students"}
-          render={(p) => (
-            <Link href="/dashboard/students" {...p}>
-              {t("students")}
-            </Link>
-          )}
-        />
-      ) : null}
-      {isTeacher ? (
-        <SubNavLink
-          active={tab === "invoices"}
-          render={(p) => (
-            <Link href="/dashboard/invoices" {...p}>
-              {t("invoices")}
-            </Link>
-          )}
-        />
-      ) : null}
-      {isStudent ? (
-        <SubNavLink
-          active={tab === "myTeachers"}
-          render={(p) => (
-            <Link href="/dashboard/my-teachers" {...p}>
-              {t("myTeachers")}
-            </Link>
-          )}
-        />
-      ) : null}
-      {isTeacher ? (
-        <SubNavLink
-          active={tab === "taxonomy"}
-          render={(p) => (
-            <Link href="/dashboard/taxonomy" {...p}>
-              {t("taxonomy")}
-            </Link>
-          )}
-        />
-      ) : null}
+    <SubNav
+      label={t("ariaLabel")}
+      listClassName={mobileIcons ? "max-md:grid max-md:w-full max-md:grid-cols-5 max-md:gap-0" : undefined}
+    >
+      {tabs.map((item) => {
+        const { key, href } = item;
+        if ("audience" in item) {
+          if (item.audience === "teacher" && !isTeacher) return null;
+          if (item.audience === "student" && !isStudent) return null;
+          if (item.audience === "student-or-teacher" && !isStudent && !isTeacher) return null;
+        }
+
+        const icon = mobileIcons && "icon" in item ? item.icon : undefined;
+        const label = t(key);
+        const isGallery = key === "achievements";
+        return (
+          <SubNavLink
+            key={key}
+            active={active === key}
+            render={({ className, ...props }) => (
+              <Link
+                {...props}
+                href={href}
+                locale={isGallery ? locale : undefined}
+                prefetch={isGallery ? false : undefined}
+                aria-label={icon ? label : undefined}
+                title={icon ? label : undefined}
+                className={icon ? `${className} max-md:grid max-md:min-h-11 max-md:place-items-center max-md:p-0` : className}
+              >
+                {icon ? (
+                  <>
+                    <span className="md:hidden"><InterfaceIcon name={icon} /></span>
+                    <span className="hidden md:inline">{label}</span>
+                  </>
+                ) : label}
+              </Link>
+            )}
+          />
+        );
+      })}
     </SubNav>
   );
 }
