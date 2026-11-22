@@ -202,7 +202,7 @@ export async function TeacherDashboard({
       ) : null}
 
       <Section title={t("teacherHome.upcomingSection")}>
-        <ul className="list-none border-t border-border p-0">
+        <ul className="list-none border-t border-border p-0 [&>li:last-child]:border-b-0">
           <TeacherUpcomingLessons upcoming={bookings.upcoming} />
         </ul>
       </Section>

@@ -42,6 +42,7 @@ export function StatLedger({
   size = "lg",
   className = "",
   aside,
+  bottomRule = true,
   twoColumnsOnMobile = false,
 }: {
   stats: Stat[];
@@ -52,6 +53,7 @@ export function StatLedger({
   size?: "lg" | "sm";
   className?: string;
   aside?: ReactNode;
+  bottomRule?: boolean;
   twoColumnsOnMobile?: boolean;
 }) {
   const figure =
@@ -115,7 +117,7 @@ export function StatLedger({
   );
 
   return (
-    <div className={["overflow-hidden border-y border-border", aside && "@container", className].filter(Boolean).join(" ")}>
+    <div className={["overflow-hidden border-t border-border", bottomRule && "border-b", aside && "@container", className].filter(Boolean).join(" ")}>
       {aside ? (
         <div className={[
           "grid @3xl:grid-cols-[minmax(0,3fr)_minmax(18rem,1fr)]",

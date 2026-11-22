@@ -26,6 +26,7 @@ export async function DashboardFlashcardStats({
     <Section title={t("flashcardStatsTitle")} description={t("flashcardStatsIntro")} size="sm">
       <StatLedger
         size="sm"
+        bottomRule={false}
         twoColumnsOnMobile
         stats={[
           { label: t("flashcardAccuracy"), value: acc != null ? `${acc}%` : "—" },

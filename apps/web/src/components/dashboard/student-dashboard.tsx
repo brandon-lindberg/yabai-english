@@ -150,7 +150,7 @@ export async function StudentDashboard({
         : undefined}
     >
       {showResumeOnboarding ? (
-        <div className="flex flex-col gap-3 border-y border-border py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-t border-border py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-foreground">{tOnboarding("resumeHint")}</p>
           <Link href="/onboarding/next" className={buttonClasses({ variant: "secondary" })}>
             {tOnboarding("resumeChecklistCta")}
@@ -161,7 +161,7 @@ export async function StudentDashboard({
       {/* Was an AppCard — the page's last one. Level and the actions that follow
           from it are a row of facts, not a tray. */}
       {profile && isEnglish ? (
-        <div className="flex flex-col gap-4 border-y border-border py-4 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="flex flex-col gap-4 border-t border-border py-4 sm:flex-row sm:flex-wrap sm:items-center">
           <p className="min-w-0 flex-1 text-sm text-muted">
             {t("placedLevel")}: <span className="font-semibold text-foreground">{placedLevel}</span>
           </p>
@@ -186,7 +186,7 @@ export async function StudentDashboard({
         </div>
       ) : null}
 
-      {!isEnglish ? <section className="border-y border-border py-6">
+      {!isEnglish ? <section className="border-t border-border py-6">
         <h2 className="text-base font-semibold text-foreground">{jp("title")}</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">{jp("entry")}</p>
         {japaneseEstimate?.status === "estimated" && japanesePlacementResult ? <div className="mt-4 space-y-1">

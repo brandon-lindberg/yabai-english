@@ -54,7 +54,7 @@ export async function DashboardSpine({
 }) {
   return (
     <div className="space-y-10">
-      <OnboardingResumeBanner href={onboardingHref} step={onboardingStep} />
+      <OnboardingResumeBanner href={onboardingHref} step={onboardingStep} bottomRule={false} />
       <PageHeader title={title} description={description} />
 
       <DashboardNextLesson
@@ -64,7 +64,7 @@ export async function DashboardSpine({
         emptyAction={nextEmptyAction}
       />
 
-      <StatLedger stats={stats} aside={statsAside} twoColumnsOnMobile />
+      <StatLedger stats={stats} aside={statsAside} bottomRule={false} twoColumnsOnMobile />
 
       {children}
     </div>
