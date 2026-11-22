@@ -17,7 +17,11 @@ Start with eight visible achievements. The titles below are proposed English and
 | The Hundredth Bell / 100回目のチャイム | Finish 100 classes. Keep counting for future editions. |
 | See You Again / また会えましたね | Teach the same learner in two distinct eligible classes on different local dates. Reuse the learner plan's calendar-day policy. |
 
-Consider **Message Received / お返事しました** as a later, one-time award for replying to a student's message in an eligible private booking thread. Use committed sender, recipient and sequence metadata. Ignore message text, broadcasts, self messages, blocked sends and moderation activity. Unlock once without rewarding message volume or publishing the student's identity. Defer this badge until the messaging event and historical evidence support that rule.
+| Hidden achievement | When it unlocks |
+| --- | --- |
+| To Be Continued… / つづきは次回 | A finished, eligible class has a saved lesson note. |
+| The Fox Writes Back / キツネ先生のお返事 | The teacher replies after a student message in a private lesson chat. The award uses committed message times and participant IDs. |
+| Second Bell / ふたつ目のチャイム | The teacher finishes two distinct classes on different days of the same Monday-to-Sunday week in Japan time. |
 
 ## How a class counts
 
@@ -40,3 +44,11 @@ Within each context, the first award opens **that context's** Art Gallery. A tea
 4. Test first unlocks in each role, the same account studying and teaching, five seats arriving concurrently, mixed seat cancellations, reschedules, empty classes, retries, and repeat learners. Test notification delivery to the right account and collection in both interface languages. Benchmark the write paths before enabling them. [Performance policy](performance-policy.md)
 
 Teacher art commissioning and implementation follow approval of the teaching catalogue. The approved 39 learner illustrations retain their own catalogue.
+
+## Gallery release
+
+The dashboard selects the collection by account role. Teaching awards reconcile saved profile and booking history when the teacher opens the gallery. Group bookings retain their occurrence identity if the original group session link is removed.
+
+Community unlock rates use three cohorts. Each learner cohort includes accounts currently learning that subject. The teaching cohort includes teachers and administrators with a teaching profile. Rates use recorded awards and refresh from shared snapshots after gallery visits when the snapshot is at least five minutes old. Awards below 10% have a gold frame, with a brief shimmer when motion is enabled.
+
+Three hidden teaching awards use existing lesson notes, private lesson chat replies, and teaching days within a Monday-to-Sunday week in Japan time. The gallery shows only the remaining count until each award is saved. It delivers the hidden artwork with the earned card and includes the award in the teaching cohort's next rarity refresh.

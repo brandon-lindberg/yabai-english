@@ -25,6 +25,12 @@ enum AccountStatus {
   SUSPENDED
 }
 
+enum AchievementScope {
+  LEARN_ENGLISH
+  LEARN_JAPANESE
+  TEACHING
+}
+
 enum JapanesePlacementAttemptStatus {
   IN_PROGRESS
   COMPLETED
@@ -289,6 +295,7 @@ model User {
   ownedStudyDecks           StudyDeck[]                  @relation("StudyDeckOwner")
   studyLevelProgress        UserStudyLevelProgress[]
   learningAchievementAwards LearningAchievementAward[]
+  teachingAchievementAwards TeachingAchievementAward[]
   learningAchievementStudyProgress LearningAchievementStudyProgress[]
   studyCardStates           UserStudyCardState[]
   studyAssessmentAttempts   UserStudyAssessmentAttempt[]
@@ -994,6 +1001,8 @@ model Booking {
   /// The group class this booking is a seat in. Null for a private lesson.
   groupLessonSessionId  String?
   groupLessonSession    GroupLessonSession? @relation(fields: [groupLessonSessionId], references: [id], onDelete: SetNull)
+  /// Retained when the group session link is removed so historical seats still count once.
+  teachingGroupOccurrenceId String?
 
   startsAt              DateTime
   endsAt                DateTime
@@ -1406,6 +1415,23 @@ model LearningAchievementAward {
   user             User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, learningLanguage, achievementId])
+}
+
+model TeachingAchievementAward {
+  userId        String
+  achievementId String
+  awardedAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, achievementId])
+}
+
+/// One shared, periodically refreshed count per collection keeps gallery reads constant-size.
+model AchievementUnlockSnapshot {
+  scope         AchievementScope @id
+  eligibleUsers Int
+  awardedCounts Json
+  refreshedAt   DateTime
 }
 
 /// Capped distinct-card count for practice paths that already aggregate only the current level.

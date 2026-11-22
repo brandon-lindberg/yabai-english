@@ -105,6 +105,11 @@ try {
     const fixtures = readOwnedFixtures();
     if (!fixtures.trialProductId || !/^mirror_test_[a-f0-9]{32}$/.test(schema)) throw new Error("Learning verification requires isolated release fixtures");
     const operation = process.argv[2];
+    if (operation === "release-achievement-rarity") {
+      await prisma.$queryRaw`SELECT refresh_achievement_unlock_snapshot(scope)
+        FROM unnest(enum_range(NULL::"AchievementScope")) AS scopes(scope)`;
+      console.log(JSON.stringify(await prisma.achievementUnlockSnapshot.findMany())); return;
+    }
     if (operation === "release-learning-state") {
       const userIds = fixtures.users.map(user => user.id);
       console.log(JSON.stringify({
