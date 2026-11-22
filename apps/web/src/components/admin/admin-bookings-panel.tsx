@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { BookingStatus, LearningLanguage } from "@/generated/prisma/enums";
 import { Link } from "@/i18n/navigation";
@@ -23,22 +24,24 @@ export type AdminBookingRow = {
   meetUrl: string | null;
 };
 
-export function AdminBookingsPanel({ bookings, locale, search }: {
+export function AdminBookingsPanel({ bookings, locale, search, pagination }: {
   bookings: AdminBookingRow[];
   locale: string;
   search: string;
+  pagination?: ReactNode;
 }) {
   const t = useTranslations("admin.bookingsPanel");
   const dashboard = useTranslations("dashboard");
   const language = useTranslations("admin.teachingLanguages");
   const timeZone = useBrowserTimezone();
   if (!bookings.length) return <p className="border-y border-border py-6 text-sm text-muted">{t("emptyResults")}</p>;
+  // Show pagination with the rows so the links cannot move during a click.
   if (!timeZone) return <p role="status" className="py-6 text-sm text-muted">{t("loadingTimes")}</p>;
 
   const dayFormat = new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone });
   const timeFormat = new Intl.DateTimeFormat(locale, { timeStyle: "short", timeZone });
   const returnQuery = search ? `?${new URLSearchParams({ from: search })}` : "";
-  return (
+  const rows = (
     <GroupedList
       items={bookings}
       labelOf={(b) => dayFormat.format(new Date(b.startsAtIso))}
@@ -62,4 +65,5 @@ export function AdminBookingsPanel({ bookings, locale, search }: {
       )}
     />
   );
+  return <>{rows}{pagination}</>;
 }

@@ -73,8 +73,13 @@ for (const scenario of releaseCases()) test(`${scenario.language}: admin reconci
   await search.fill(learner.email);
   await apply.click();
   await expect(page.getByRole("status").filter({ hasText: /\b206\b/ })).toBeVisible();
-  await page.getByRole("link", { name: copy.admin.grid.next, exact: true }).click();
-  await expect(page).toHaveURL(/page=2/);
+  const firstResult = page.locator("main [data-row-id]").first();
+  const firstBookingId = (await firstResult.getAttribute("data-row-id"))!;
+  const pagination = page.getByRole("navigation", { name: lessons.pages });
+  await pagination.getByRole("link", { name: copy.admin.grid.next, exact: true }).click();
+  await expect(page).toHaveURL(url => url.searchParams.get("page") === "2" && url.searchParams.get("q") === learner.email);
+  await expect(pagination.getByRole("link", { name: copy.admin.grid.prev, exact: true })).toBeVisible();
+  await expect(firstResult).not.toHaveAttribute("data-row-id", firstBookingId);
   const target = page.locator(`[data-row-id="${data.bookingId}"]`);
   await expect(target).toHaveCount(0);
   await search.fill(data.bookingId);

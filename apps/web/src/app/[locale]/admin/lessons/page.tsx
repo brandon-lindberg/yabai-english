@@ -29,6 +29,12 @@ export default async function AdminLessonsPage({ searchParams }: {
     query.person ? prisma.user.findUnique({ where: { id: query.person }, select: { name: true, email: true } }) : null,
   ]);
   const pageHref = (page: number) => adminLessonsHref(adminLessonSearch({ ...query, page }));
+  const pagination = result && result.totalPages > 1 ? (
+    <nav aria-label={t("bookingsPanel.pages")} className="flex flex-wrap gap-2">
+      {result.page > 1 && <Link className={buttonClasses({ variant: "secondary" })} href={pageHref(result.page - 1)}>{t("grid.prev")}</Link>}
+      {result.page < result.totalPages && <Link className={buttonClasses({ variant: "secondary" })} href={pageHref(result.page + 1)}>{t("grid.next")}</Link>}
+    </nav>
+  ) : null;
 
   return (
     <main className="space-y-6">
@@ -46,7 +52,7 @@ export default async function AdminLessonsPage({ searchParams }: {
         <p role="status" className="text-sm text-muted">
           {t("bookingsPanel.results", { total: result.total, page: result.page, pages: result.totalPages })}
         </p>
-        <AdminBookingsPanel search={search} locale={locale} bookings={result.bookings.map((booking) => {
+        <AdminBookingsPanel search={search} locale={locale} pagination={pagination} bookings={result.bookings.map((booking) => {
           const names = lessonProductNames(booking.lessonProduct, booking.learningLanguage);
           return {
             id: booking.id, learningLanguage: booking.learningLanguage, startsAtIso: booking.startsAt.toISOString(),
@@ -57,10 +63,6 @@ export default async function AdminLessonsPage({ searchParams }: {
             reschedulePending: booking.privateRescheduleStatus === "PENDING",
           };
         })} />
-        {result.totalPages > 1 && <nav aria-label={t("bookingsPanel.pages")} className="flex flex-wrap gap-2">
-          {result.page > 1 && <Link className={buttonClasses({ variant: "secondary" })} href={pageHref(result.page - 1)}>{t("grid.prev")}</Link>}
-          {result.page < result.totalPages && <Link className={buttonClasses({ variant: "secondary" })} href={pageHref(result.page + 1)}>{t("grid.next")}</Link>}
-        </nav>}
       </> : <p role="alert" className="text-sm text-destructive">{t("bookingsPanel.invalidFilters")}</p>}
     </main>
   );
