@@ -14,6 +14,9 @@ export async function DashboardStudyStreak({ streak, locale, account }: {
 }) {
   const t = await getTranslations("dashboard.studyStreak");
   const isDaily = streak.mode === "DAILY";
+  const latestMissed = isDaily
+    ? streak.week.findLast((day, position) => day < streak.today && !streak.days[position])
+    : undefined;
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
   const date = new Intl.DateTimeFormat(locale, { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
   const weekRange = new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", timeZone: "UTC" });
@@ -49,18 +52,22 @@ export async function DashboardStudyStreak({ streak, locale, account }: {
                 const today = day === streak.today;
                 const value = calendarDate(day);
                 const state = stamp ? "dayStudied" : today ? "dayOpen" : day > streak.today ? "dayFuture" : "dayMissed";
+                const missed = state === "dayMissed";
                 return (
                   <li key={day} data-studied={stamp ? "" : undefined} aria-current={today ? "date" : undefined}
+                    data-missed-stamp={missed ? "" : undefined}
                     className="grid justify-items-center gap-1 py-2 aria-[current=date]:bg-surface">
                     <span className="sr-only">{t(state, { date: date.format(value) })}</span>
                     <time aria-hidden="true" dateTime={day} className={today ? "text-sm font-bold" : "text-sm text-muted"}>
                       {weekday.format(value)}
                     </time>
                     <span className="grid size-8 place-items-center">
-                      {stamp ? today
-                        ? <StudyDayStamp claim={{ account, day }} />
-                        : <span aria-hidden="true" className={styles.stamp} />
-                        : <span aria-hidden="true" className={today ? `${styles.guide} text-muted` : "size-1 rounded-full bg-border"} />}
+                      {stamp && today && <StudyDayStamp claim={{ account, day }} />}
+                      {stamp && !today && <span aria-hidden="true" className={styles.stamp} />}
+                      {missed && (day === latestMissed
+                        ? <StudyDayStamp claim={{ account, day }} kind="missed" />
+                        : <span aria-hidden="true" className={styles.missed} />)}
+                      {!stamp && !missed && <span aria-hidden="true" className={today ? `${styles.guide} text-muted` : "size-1 rounded-full bg-border"} />}
                     </span>
                   </li>
                 );

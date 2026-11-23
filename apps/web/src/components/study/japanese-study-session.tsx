@@ -66,9 +66,15 @@ function JapanesePractice(props: Props) {
         return <span key={`${index}:${value}`}>{index ? "; " : ""}<span lang={label.lang}>{label.text}</span></span>;
       })}</p> : null}
     </StudyPromptCard>
-    {!state.result ? <ChoiceList columns={2}>{question.choices.map(choice => <Choice key={choice.id} state={state.selected === choice.id ? "selected" : "idle"} disabled={state.locked} onSelect={() => state.choose(choice.id)}>
-      <span lang={question.task === "vocabulary_meaning" ? "en" : "ja"} className="break-words">{choice.text}</span>
-    </Choice>)}</ChoiceList> : null}
+    {!state.result ? (
+      <ChoiceList columns={2} className="[&_button[aria-pressed=true]]:bg-[var(--app-hover)] [&_button[aria-pressed=true]]:[box-shadow:none]">
+        {question.choices.map(choice => (
+          <Choice key={choice.id} state={state.selected === choice.id ? "selected" : "idle"} disabled={state.locked} onSelect={() => state.choose(choice.id)}>
+            <span lang={question.task === "vocabulary_meaning" ? "en" : "ja"} className="break-words">{choice.text}</span>
+          </Choice>
+        ))}
+      </ChoiceList>
+    ) : null}
     {state.busy ? <p role="status" className="text-sm text-muted">{jp("saving")}</p> : null}
     {state.error === "save" || state.error === "refresh" ? <InlineAlert role="alert">
       <p>{jp(state.error === "save" ? "saveError" : "refreshError")}</p>

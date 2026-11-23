@@ -3,21 +3,22 @@
 import { useEffect, useRef } from "react";
 import styles from "./study-streak.module.css";
 
-let lastPress = "";
+type StampKind = "earned" | "missed";
+const lastPress: Record<StampKind, string> = { earned: "", missed: "" };
 
-export function StudyDayStamp({ claim }: { claim: { account: string; day: string } }) {
+export function StudyDayStamp({ claim, kind = "earned" }: { claim: { account: string; day: string }; kind?: StampKind }) {
   const target = useRef<HTMLSpanElement>(null);
   const { account, day } = claim;
 
   useEffect(() => {
     const node = target.current;
     if (!node) return;
-    const key = "studio-study-stamp:" + account;
+    const key = (kind === "missed" ? "studio-study-stamp:missed:" : "studio-study-stamp:") + account;
     function press() {
       observer?.disconnect();
       const receipt = key + ":" + day;
-      if (lastPress === receipt) return;
-      lastPress = receipt;
+      if (lastPress[kind] === receipt) return;
+      lastPress[kind] = receipt;
       try {
         if (localStorage.getItem(key) === day) return;
         localStorage.setItem(key, day);
@@ -34,7 +35,7 @@ export function StudyDayStamp({ claim }: { claim: { account: string; day: string
     }
     observer.observe(node);
     return () => observer?.disconnect();
-  }, [account, day]);
+  }, [account, day, kind]);
 
-  return <span aria-hidden="true" ref={target} className={styles.stamp} />;
+  return <span aria-hidden="true" ref={target} className={kind === "missed" ? styles.missed : styles.stamp} />;
 }

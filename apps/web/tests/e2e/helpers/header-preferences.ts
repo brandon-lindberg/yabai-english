@@ -14,7 +14,8 @@ async function withAchievementPopupDismissal(page: Page, interact: () => Promise
   const dismiss = popup.getByRole("button", { name: en.study.dismissAchievement, exact: true })
     .or(popup.getByRole("button", { name: ja.study.dismissAchievement, exact: true }));
   // An award can appear over the header while Playwright is checking a click.
-  await page.addLocatorHandler(dismiss, button => button.click(), { noWaitAfter: true });
+  // Keyboard dismissal avoids an outside pointer press that would close an open menu.
+  await page.addLocatorHandler(dismiss, button => button.press("Enter"), { noWaitAfter: true });
   try {
     await interact();
   } finally {

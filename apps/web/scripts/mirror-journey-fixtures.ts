@@ -228,11 +228,13 @@ try {
       let invoiceId = "";
       await prisma.$transaction(async tx => {
         const target = await tx.booking.update({ where: { id: bookingId }, data: { startsAt, endsAt, status: "CANCELLED", cancelledFromStatus: "CONFIRMED", privateRescheduleStatus: "REFUND_REQUESTED", rescheduleRequestedAt: startsAt } });
+        // These rows exercise admin pagination. Keep them out of the shared
+        // achievement queue and the completed history used by other journeys.
         await tx.booking.createMany({ data: Array.from({ length: 205 }, (_, index) => {
           const offset = (index + 1) * 86_400_000;
           return {
             id: `${bookingId}-search-${index}`, teacherId, studentId: learnerId, lessonProductId: target.lessonProductId,
-            learningLanguage: language, status: "COMPLETED", startsAt: new Date(+startsAt + offset), endsAt: new Date(+endsAt + offset),
+            learningLanguage: language, status: "CANCELLED", startsAt: new Date(+startsAt + offset), endsAt: new Date(+endsAt + offset),
           };
         }) });
         await tx.payment.update({ where: { id: paymentId }, data: { paidAt: startsAt, providerPaymentId: `pi_qa_${paymentId}`, providerCheckoutId: `cs_qa_${paymentId}`, metadataJson: { connectedAccountId: account } } });

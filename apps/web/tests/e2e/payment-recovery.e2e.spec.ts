@@ -50,7 +50,8 @@ for (const scenario of releaseCases()) test(`${scenario.language}: admin reconci
   await page.getByRole("link", { name: schedule.open }).click();
   await page.getByLabel(schedule.date).fill("2025-02-12");
   await page.getByRole("button", { name: schedule.jump }).click();
-  const cancelledLesson = page.getByRole("link", { name: new RegExp(copy.dashboard.statusCancelled) });
+  const cancelledLesson = page.getByTestId("schedule-chip").and(page.locator(`[data-booking-id="${data.bookingId}"]`));
+  await expect(cancelledLesson).toHaveAccessibleName(new RegExp(copy.dashboard.statusCancelled));
   await expect(cancelledLesson).toContainText(/(?:4:15\s*PM|16:15)/);
   await captureRelease(page, `${scenario.language}-admin-student-schedule`);
   await cancelledLesson.click();

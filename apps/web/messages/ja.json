@@ -243,7 +243,7 @@
       "dayStudied": "{date}、学習日を達成",
       "dayOpen": "{date}、今日、学習日は未達成",
       "dayFuture": "{date}、これから",
-      "dayMissed": "{date}、学習日は未達成",
+      "dayMissed": "{date}、学習をお休みした日",
       "save": "ストリーク設定を保存",
       "saving": "保存中…",
       "saved": "ストリーク設定を保存しました。",

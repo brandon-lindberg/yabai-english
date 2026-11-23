@@ -11,7 +11,13 @@ for (const scenario of releaseCases()) test(`${scenario.language}: its teacher s
   await signInMirrorUser(page, fixture.users[scenario.teacher].email, scenario.language);
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await page.goto("/en/dashboard/schedule/completed");
+  const learnerGroup = page.getByRole("button", { name: /^Mirror QA Student 0\b/ });
+  const openLearnerHistory = async () => {
+    await expect(learnerGroup).toBeVisible();
+    if (await learnerGroup.getAttribute("aria-expanded") === "false") await learnerGroup.click();
+  };
   const lesson = page.locator(`[id="booking-${bookingId}"]`);
+  await openLearnerHistory();
   await lesson.getByRole("button").first().press("Enter");
   const editor = lesson.locator('[contenteditable="true"]');
   await editor.fill(notes);
@@ -21,6 +27,7 @@ for (const scenario of releaseCases()) test(`${scenario.language}: its teacher s
   await expect(lesson.getByText(en.dashboard.schedulePage.lessonNotesSaved, { exact: true })).toBeVisible();
   await captureRelease(page, `${scenario.language}-teacher-notes`);
   await page.reload();
+  await openLearnerHistory();
   await lesson.getByRole("button").first().click();
   await expect(lesson.locator('[contenteditable="true"]')).toContainText(notes);
   const context = await browser.newContext();

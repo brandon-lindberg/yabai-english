@@ -1,11 +1,12 @@
 import { expect, test } from "vitest";
 import { withIsolatedPostgres } from "../../test/isolated-postgres";
 import { recordAchievementReview } from "@/lib/achievements/learner-calendar";
-import { getStudyStreak, saveStudyStreakPreference } from "@/lib/study/streak-service";
+import { getStudyStreak, getStudyStreakPreference, saveStudyStreakPreference } from "@/lib/study/streak-service";
 import { studyStreakPreferenceSchema } from "@/lib/study/streak-preference";
 
 const enabled = process.env.MIRROR_TEST_DATABASE_URL;
 const migration = "20261123010000_achievement_events";
+const repairMigration = "20261123040000_repair_study_streak_schema";
 
 test("weekly goals are whole numbers from one through seven", () => {
   for (const weeklyGoal of [0, 1.5, 8, "2"]) {
@@ -20,6 +21,66 @@ test("accepts a boolean visibility preference and preserves older settings reque
   expect(studyStreakPreferenceSchema.safeParse({ ...weekly, enabled: "false" }).success).toBe(false);
   expect(studyStreakPreferenceSchema.parse(weekly)).toEqual(weekly);
 });
+
+test.runIf(enabled)("repairs a recorded early streak schema and preserves settings while rebuilding lesson and card history", async () => {
+  await withIsolatedPostgres(repairMigration, async ({ db, client, applyMigration, verifyDatamodel }) => {
+    await client.query(`
+      DROP TRIGGER study_streak_on_completed_lesson ON "AchievementWork";
+      DROP TRIGGER study_streak_on_new_day ON "StudyStreakDay";
+      DROP FUNCTION study_streak_on_completed_lesson();
+      DROP FUNCTION study_streak_on_new_day();
+      DROP FUNCTION study_calendar_timezone(text, "LearningLanguage");
+      DROP VIEW eligible_learning_lesson;
+      DROP TABLE "StudyStreakDay";
+      CREATE OR REPLACE FUNCTION study_streak_on_qualification() RETURNS trigger LANGUAGE plpgsql AS $$
+      BEGIN
+        RETURN NULL;
+      END;
+      $$;
+    `);
+    const owner = { userId: "legacy-student", learningLanguage: "JAPANESE" as const };
+    await db.user.createMany({ data: [{ id: owner.userId }, { id: "legacy-teacher", role: "TEACHER" }] });
+    await db.teacherProfile.create({ data: { id: "legacy-profile", userId: "legacy-teacher" } });
+    await db.lessonProduct.create({ data: { id: "legacy-product", tier: "STANDARD", durationMin: 60, nameEn: "Lesson", nameJa: "授業" } });
+    await db.studyStreak.create({ data: { ...owner, enabled: false, mode: "WEEKLY", weeklyGoal: 2, daily: 5, lastStudyDay: new Date("2020-11-18") } });
+    const cards = ["a", "b", "c", "d", "e"];
+    await db.learningAchievementStudyDay.create({
+      data: { ...owner, day: new Date("2020-11-16"), cardIds: cards, timezone: "Asia/Tokyo" },
+    });
+    await db.booking.createMany({ data: [
+      { id: "legacy-completed", status: "COMPLETED", startsAt: new Date("2020-11-17T01:00:00Z"), endsAt: new Date("2020-11-17T02:00:00Z") },
+      { id: "legacy-cancelled", status: "CANCELLED", startsAt: new Date("2020-11-18T01:00:00Z"), endsAt: new Date("2020-11-18T02:00:00Z") },
+    ].map(booking => ({ ...booking, status: booking.status as "COMPLETED" | "CANCELLED", learningLanguage: owner.learningLanguage,
+      studentId: owner.userId, teacherId: "legacy-profile", lessonProductId: "legacy-product" })) });
+
+    await applyMigration();
+    await verifyDatamodel();
+    expect(await getStudyStreakPreference(db, owner)).toEqual({ enabled: false, mode: "WEEKLY", weeklyGoal: 2 });
+    await saveStudyStreakPreference(db, owner, { enabled: true, mode: "DAILY", weeklyGoal: 2 });
+    expect(await getStudyStreak(db, owner, new Date("2020-11-17T03:00:00Z"))).toMatchObject({
+      count: 2, days: [true, true, false, false, false, false, false],
+    });
+    for (const card of cards) await recordAchievementReview(db, owner, card, new Date("2020-11-18T03:00:00Z"));
+    expect(await getStudyStreak(db, owner, new Date("2020-11-18T04:00:00Z"))).toMatchObject({
+      count: 3, days: [true, true, true, false, false, false, false],
+    });
+    expect(await getStudyStreak(db, { ...owner, learningLanguage: "ENGLISH" }, new Date("2020-11-18T04:00:00Z"))).toMatchObject({ count: 0 });
+  });
+}, 30_000);
+
+test.runIf(enabled)("the corrective migration leaves an already current streak summary untouched", async () => {
+  await withIsolatedPostgres(repairMigration, async ({ db, client, applyMigration }) => {
+    const owner = { userId: "current-learner", learningLanguage: "ENGLISH" as const };
+    await db.user.create({ data: { id: owner.userId } });
+    await db.learningAchievementStudyDay.create({
+      data: { ...owner, day: new Date("2020-11-16"), cardIds: ["a", "b", "c", "d", "e"], timezone: "Asia/Tokyo" },
+    });
+    const before = await client.query('SELECT xmin::text, daily FROM "StudyStreak"');
+    expect(before.rows).toMatchObject([{ daily: 1 }]);
+    await applyMigration();
+    expect((await client.query('SELECT xmin::text, daily FROM "StudyStreak"')).rows).toEqual(before.rows);
+  });
+}, 30_000);
 
 test.runIf(enabled)("preserves previous study days, handles late dates, and derives each cadence without sharing progress across subjects", async () => {
   await withIsolatedPostgres(migration, async ({ db, client, applyMigration }) => {

@@ -1,6 +1,13 @@
+import { Children, isValidElement, type ReactNode } from "react";
 import { beforeEach, expect, test, vi } from "vitest";
+import { studyWeekDays } from "@/lib/study/calendar-date";
+import { defaultStudyStreakPreference } from "@/lib/study/streak-preference";
 import { japanesePlacementResultFixture } from "../../../../test/japanese-placement-result-fixture";
-const mocks = vi.hoisted(() => ({ quick: vi.fn(), overview: vi.fn(), resume: vi.fn(), japanese: vi.fn(), user: vi.fn(), profile: vi.fn(), studied: vi.fn(), award: vi.fn(), achievementAwards: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  quick: vi.fn(), overview: vi.fn(), resume: vi.fn(), japanese: vi.fn(), user: vi.fn(),
+  profile: vi.fn(), studied: vi.fn(), award: vi.fn(), achievementAwards: vi.fn(),
+  streak: vi.fn<typeof import("@/lib/study/streak-service").getStudyStreak>(),
+}));
 vi.mock("@/lib/prisma", () => ({ prisma: {
   studentProfile: { findUnique: mocks.profile }, user: { findUnique: mocks.user },
   googleIntegrationSettings: { findUnique: async () => null },
@@ -15,6 +22,9 @@ vi.mock("@/lib/study/quick-review", () => ({ getOrCreateQuickReviewCards: mocks.
 vi.mock("@/lib/study/get-overview", () => ({ getStudyTrackOverview: mocks.overview }));
 vi.mock("@/lib/dashboard/study-resume", () => ({ getStudyResumeInfo: mocks.resume }));
 vi.mock("@/lib/dashboard/japanese-study", () => ({ getJapaneseDashboardStudy: mocks.japanese }));
+vi.mock("@/lib/study/streak-service", () => ({ getStudyStreak: mocks.streak }));
+import { DashboardStudyStreak } from "../dashboard-study-streak";
+import { StudyDayStamp } from "../study-day-stamp";
 import { StudentDashboard } from "../student-dashboard";
 const props = { userId: "student", learningLanguage: "JAPANESE" as const, onboardingHref: null, onboardingStep: null };
 beforeEach(() => {
@@ -26,6 +36,7 @@ beforeEach(() => {
   mocks.japanese.mockResolvedValue({ available: false });
   mocks.award.mockResolvedValue(null);
   mocks.achievementAwards.mockResolvedValue([]);
+  mocks.streak.mockResolvedValue(null);
 });
 
 test("Japanese dashboard shows the saved award and its completion date independently of the English profile", async () => {
@@ -43,6 +54,7 @@ test("Japanese draft dashboard uses current persisted intent and shows no Englis
   expect(mocks.quick).not.toHaveBeenCalled(); expect(mocks.overview).not.toHaveBeenCalled(); expect(mocks.resume).not.toHaveBeenCalled();
   expect(mocks.studied.mock.calls[0][0].where.level.track).toEqual({ learningLanguage: "JAPANESE", publicationStatus: "PUBLISHED" });
   expect(mocks.japanese).toHaveBeenCalledWith(expect.anything(), "student");
+  expect(mocks.streak).toHaveBeenCalledExactlyOnceWith(expect.anything(), { userId: "student", learningLanguage: "JAPANESE" });
   expect(page?.props.title).toBe("japanese.dashboard");
   expect(JSON.stringify(page?.props)).not.toContain("ADVANCED");
   expect(JSON.stringify(page?.props)).toContain('"/learn/study"');
@@ -72,6 +84,7 @@ test("persisted English intent retains English helpers and scopes onboarding stu
   expect(mocks.japanese).not.toHaveBeenCalled();
   expect(mocks.quick).toHaveBeenCalledWith(expect.anything(), "student");
   expect(mocks.overview).toHaveBeenCalledWith(expect.anything(), "student", "english-flashcards");
+  expect(mocks.streak).toHaveBeenCalledExactlyOnceWith(expect.anything(), { userId: "student", learningLanguage: "ENGLISH" });
   expect(mocks.studied.mock.calls[0][0].where.level.track).toEqual({ learningLanguage: "ENGLISH", publicationStatus: "PUBLISHED" });
 });
 
@@ -93,6 +106,51 @@ test("leaves out the achievement preview until the learner earns a badge", async
   expect(page?.props.statsAside).toBeUndefined();
 });
 
+test("shows a study streak only when the streak service returns one", async () => {
+  const today = "2026-11-23";
+  const streak = {
+    ...defaultStudyStreakPreference, today, week: studyWeekDays(today),
+    days: [false, false, false, false, false, false, false], count: 0, studiedThisWeek: 0, studiedThisMonth: false,
+  };
+  mocks.streak.mockResolvedValueOnce(streak);
+  for (const visible of [true, false]) {
+    const page = await StudentDashboard(props);
+    const children = Children.toArray(page?.props.children);
+    expect(children.some(child => isValidElement(child) && child.type === DashboardStudyStreak)).toBe(visible);
+  }
+});
+
+test("shows fox stamps without visible explanations and keeps each day's accessible status", async () => {
+  const today = "2026-11-26";
+  const streak = {
+    ...defaultStudyStreakPreference, today, week: studyWeekDays(today),
+    days: [false, true, false, false, false, false, false], count: 0, studiedThisWeek: 1, studiedThisMonth: true,
+  };
+  const calendar = await DashboardStudyStreak({ streak, account: "student:JAPANESE", locale: "en" });
+  function elements(children: ReactNode): ReturnType<typeof Children.toArray> {
+    return Children.toArray(children).flatMap(child => isValidElement<{ children?: ReactNode }>(child)
+      ? [child, ...elements(child.props.children)] : []);
+  }
+  expect(JSON.stringify(calendar.props)).not.toContain("restingFoxHint");
+  const cells = elements(calendar).filter(cell => isValidElement(cell) && cell.type === "li");
+  expect(cells.every(cell => isValidElement<{ title?: string }>(cell) && cell.props.title === undefined)).toBe(true);
+  expect(cells.map(cell => {
+    if (!isValidElement<Record<string, ReactNode>>(cell)) return {};
+    const contents = elements(cell);
+    return {
+      state: isValidElement<{ children: string }>(contents[1]) ? contents[1].props.children : undefined,
+      missed: cell.props["data-missed-stamp"] === "",
+      animated: contents.some(child => isValidElement(child) && child.type === StudyDayStamp),
+    };
+  })).toEqual([
+    { state: "dayMissed", missed: true, animated: false },
+    { state: "dayStudied", missed: false, animated: false },
+    { state: "dayMissed", missed: true, animated: true },
+    { state: "dayOpen", missed: false, animated: false },
+    ...Array.from({ length: 3 }, () => ({ state: "dayFuture", missed: false, animated: false })),
+  ]);
+});
+
 test("inactive or removed accounts do not fetch either study system", async () => {
   for (const user of [null, { role: "STUDENT", accountStatus: "HIDDEN", learningLanguage: "JAPANESE" }]) {
     mocks.user.mockResolvedValue(user);
@@ -100,4 +158,5 @@ test("inactive or removed accounts do not fetch either study system", async () =
   }
   expect(mocks.japanese).not.toHaveBeenCalled(); expect(mocks.quick).not.toHaveBeenCalled();
   expect(mocks.achievementAwards).not.toHaveBeenCalled();
+  expect(mocks.streak).not.toHaveBeenCalled();
 });

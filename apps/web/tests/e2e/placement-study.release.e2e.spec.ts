@@ -388,7 +388,19 @@ test("study progress persists independently through deliberate subject and inter
   await page.setViewportSize({ width: 390, height: 490 });
   await choice.scrollIntoViewIfNeeded();
   await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
-  await choice.click();
+  const saveGate = Promise.withResolvers<void>();
+  await page.route("**/api/japanese-study/reviews", async route => {
+    await saveGate.promise;
+    await route.continue();
+  }, { times: 1 });
+  try {
+    await choice.click();
+    await expect(choice).toBeDisabled();
+    await expect(choice).toHaveAttribute("aria-pressed", "true");
+    await expect(choice).toHaveCSS("box-shadow", "none");
+  } finally {
+    saveGate.resolve();
+  }
   const popup = page.locator("[data-study-achievement-popup]");
   const award = popup.getByRole("link", { name: /はじまりのひらめき/ });
   await expect(award).toBeInViewport();
@@ -401,6 +413,8 @@ test("study progress persists independently through deliberate subject and inter
     awards: [{ id: "cards-0001", language: "JAPANESE" }] });
   const nextCard = page.getByRole("button", { name: ja.study.nextCard, exact: true });
   await expect(nextCard).toBeVisible();
+  await expect(choice).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: ja.study.feedbackCorrect, exact: true })).toBeFocused();
   expect(await page.evaluate(() => scrollY)).toBeGreaterThan(0);
   await expect(popup).toHaveCSS("position", "fixed");
   const toast = (await popup.boundingBox())!;
@@ -479,8 +493,20 @@ test("the first mastered Japanese flashcard opens a live achievement popup on a 
       await artwork.close();
     }
     await expect(award).toBeVisible();
+    // Reveal the real popup as Account opens so dismissal runs after the click.
+    await page.evaluate(label => {
+      const popup = document.querySelector<HTMLElement>("[data-study-achievement-popup]");
+      if (!popup) throw new Error("The mastery popup must be present before opening Account");
+      popup.style.visibility = "hidden";
+      function reveal(event: MouseEvent) {
+        if (!(event.target instanceof Element) || event.target.closest("summary")?.getAttribute("aria-label") !== label) return;
+        popup?.style.removeProperty("visibility");
+        document.removeEventListener("click", reveal, true);
+      }
+      document.addEventListener("click", reveal, true);
+    }, en.common.accountMenu);
     await chooseInterfaceLocale(page, en.common, "ja");
-    await expect(page.locator("[data-study-achievement-popup]")).toHaveCount(0);
+    await expect(page.locator('[data-study-achievement-popup] a[href*="piece=mastery-0001"]')).toHaveCount(0);
   } finally {
     fixtureCommand("release-study-hide");
   }

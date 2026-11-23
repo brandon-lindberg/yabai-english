@@ -243,7 +243,7 @@
       "dayStudied": "{date}, study day complete",
       "dayOpen": "{date}, today, study day still open",
       "dayFuture": "{date}, upcoming",
-      "dayMissed": "{date}, study day incomplete",
+      "dayMissed": "{date}, missed study day",
       "save": "Save streak settings",
       "saving": "Saving…",
       "saved": "Streak settings saved.",
