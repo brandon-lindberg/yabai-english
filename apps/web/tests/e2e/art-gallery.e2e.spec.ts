@@ -1,9 +1,25 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
 import { fixtureCommand, readMirrorFixtures, releaseStudent, signInMirrorUser } from "./helpers/mirror-fixtures";
 import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
 import { captureRelease } from "./helpers/release-verification";
+
+const lockArtwork = "/achievements/locked.png";
+
+async function expectCollectedDate(card: Locator, locale: "en" | "ja") {
+  const status = card.getByText((locale === "ja" ? ja : en).artGallery.earned, { exact: true });
+  const date = card.locator("time[datetime]");
+  await expect(date).toBeVisible();
+  const instant = (await date.getAttribute("datetime"))!;
+  const numericDate = new Intl.DateTimeFormat(locale, { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Asia/Tokyo" });
+  await expect(date).toHaveText(numericDate.format(new Date(instant)));
+  const [tile, label, time] = await Promise.all([card.boundingBox(), status.boundingBox(), date.boundingBox()]);
+  expect(time!.x).toBeGreaterThan(label!.x + label!.width);
+  expect(time!.x + time!.width).toBeCloseTo(tile!.x + tile!.width, 0);
+  expect(time!.y).toBeCloseTo(label!.y, 0);
+  return instant;
+}
 
 test("art gallery shows the teaching collection and rare unlock rates", async ({ page }) => {
   const fixture = readMirrorFixtures(), teacher = fixture.users[3];
@@ -21,7 +37,13 @@ test("art gallery shows the teaching collection and rare unlock rates", async ({
   await expect(page.getByRole("heading", { name: "Class Is In", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "First Spark", exact: true })).toHaveCount(0);
   const profile = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "Meet Your Teacher" }) });
-  await expect(profile.getByText("Rare · 0.01% unlocked", { exact: true })).toBeVisible();
+  await expect(profile.locator("img")).toHaveAttribute("src", "/achievements/teach-profile.png");
+  const rarity = profile.getByText("Rare · 0.01% unlocked", { exact: true });
+  await expect(rarity).toBeVisible();
+  const awardedAt = await expectCollectedDate(profile, "en");
+  for (const property of ["font-size", "font-weight", "font-variant-numeric", "color"]) {
+    await expect(profile.locator("time")).toHaveCSS(property, await rarity.evaluate((element, name) => getComputedStyle(element).getPropertyValue(name), property));
+  }
   const frame = profile.locator("[data-achievement-rare]");
   await expect(frame).toBeVisible();
   const frameSource = () => frame.evaluate(el => getComputedStyle(el, "::after").borderImageSource);
@@ -30,11 +52,17 @@ test("art gallery shows the teaching collection and rare unlock rates", async ({
   await expect.poll(frameSource).toContain("/achievements/frames/rare-gold-motion.png");
   await page.emulateMedia({ reducedMotion: "reduce" });
   const locked = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "The Hundredth Bell" }) });
+  await expect(locked.locator("img")).toHaveAttribute("src", lockArtwork);
   await expect(locked.getByText("0% unlocked", { exact: true })).toBeVisible();
   await expect(locked.locator("[data-achievement-rare]")).toHaveCount(0);
+  await expect(locked.locator("time")).toHaveCount(0);
   await captureRelease(page, "teaching-gallery-mobile");
   await page.setViewportSize({ width: 1280, height: 900 });
+  await page.getByRole("link", { name: en.artGallery.collected, exact: true }).click();
+  expect(await expectCollectedDate(profile, "en")).toBe(awardedAt);
+  await expect(page.locator(`main img[src="${lockArtwork}"]`)).toHaveCount(0);
   await captureRelease(page, "teaching-gallery-desktop");
+  await page.getByRole("link", { name: en.artGallery.all, exact: true }).click();
   const snapshots: { scope: string; eligibleUsers: number; awardedCounts: Record<string, number> }[] =
     fixtureCommand("release-achievement-rarity");
   const teaching = snapshots.find(snapshot => snapshot.scope === "TEACHING")!;
@@ -45,6 +73,7 @@ test("art gallery shows the teaching collection and rare unlock rates", async ({
   await expect(profile.getByText(`${rate} unlocked`, { exact: true })).toBeVisible();
   await locked.getByRole("link").click();
   await expect(page.getByRole("heading", { level: 1, name: "The Hundredth Bell" })).toBeVisible();
+  await expect(art).toHaveAttribute("src", lockArtwork);
   await expect(page.getByText("0% unlocked", { exact: true })).toBeVisible();
   await chooseInterfaceLocale(page, en.common, "ja");
   await expect(page.getByRole("heading", { level: 1, name: "100回目のチャイム" })).toBeVisible();
@@ -160,9 +189,11 @@ for (const japanese of [false, true]) {
     await expect(page.getByText(japanese ? copy.artGallery.japanese : copy.artGallery.english)).toBeVisible();
     const works = page.locator('main img[src^="/achievements/"]');
     await expect(works).toHaveCount(8);
-    await expect(works.first()).toHaveCSS("filter", "grayscale(1)");
+    await expect(page.locator(`main img[src="${lockArtwork}"]`)).toHaveCount(8);
+    await expect.poll(() => art.has(lockArtwork)).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    expect(art.size).toBeLessThanOrEqual(japanese ? 9 : 8);
+    expect([...art].every(path => path === lockArtwork || japanese && path === "/achievements/lessons-0001.png")).toBe(true);
+    await captureRelease(page, `learner-gallery-lock-${japanese ? "mobile" : "desktop"}`);
     await page.getByRole("link", { name: copy.artGallery.next, exact: true }).click();
     await expect(page.getByRole("heading", { name: japanese ? "記憶の宮殿" : "Mind Palace" })).toBeVisible();
     await page.goto(`/${japanese ? "ja" : "en"}/dashboard/art-gallery?page=5`);
@@ -173,6 +204,7 @@ for (const japanese of [false, true]) {
     await page.getByRole("link", { name: new RegExp(anniversary) }).click();
     const conditions = page.getByText(japanese ? "詳しい条件" : "What counts?", { exact: true });
     await expect(conditions).toBeVisible();
+    await expect(works).toHaveAttribute("src", lockArtwork);
     await expect(page.getByText(threshold)).toBeHidden();
     await conditions.focus();
     await page.keyboard.press("Enter");
@@ -181,11 +213,17 @@ for (const japanese of [false, true]) {
     await page.getByRole("link", { name: copy.artGallery.collected, exact: true }).click();
     if (japanese) {
       await expect(works).toHaveCount(1);
+      await expect(works.first()).toHaveAttribute("src", "/achievements/lessons-0001.png");
       await expect(works.first()).toHaveCSS("filter", "none");
+      await page.setViewportSize({ width: 320, height: 844 });
+      const firstLesson = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "こんにちは、冒険！" }) });
+      const awardedAt = await expectCollectedDate(firstLesson, "ja");
+      await captureRelease(page, "learner-gallery-collected-date-mobile");
       await page.locator('a[href*="piece=lessons-0001"]').click();
       await expect(page.getByRole("heading", { level: 1, name: "こんにちは、冒険！" })).toBeVisible();
       await page.reload();
-      await expect(page.getByText(/コレクションに追加/)).toBeVisible();
+      const detailDate = new Intl.DateTimeFormat("ja", { dateStyle: "long", timeZone: "Asia/Tokyo" }).format(new Date(awardedAt));
+      await expect(page.getByText(copy.artGallery.awarded.replace("{date}", detailDate), { exact: true })).toBeVisible();
       await page.getByRole("link", { name: copy.artGallery.back }).click();
       await expect(works).toHaveCount(1);
       await page.goto(dashboard);

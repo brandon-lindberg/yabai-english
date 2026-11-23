@@ -17,6 +17,7 @@ import { SubNav, SubNavLink } from "@/components/ui/sub-nav";
 import styles from "./achievement-gallery.module.css";
 
 const path = "/dashboard/art-gallery";
+const tileMetadata = "text-xs tabular-nums text-muted";
 type Options = { view?: string; page?: string; piece?: string };
 
 function galleryHref(collected: boolean, page = 1, piece?: string) {
@@ -36,11 +37,12 @@ async function Artwork({ id, earned, hidden, rare, large = false, eager = false 
   eager?: boolean;
 }) {
   if (hidden && !earned) return null;
-  const source = await achievementArtworkSource(id, hidden);
+  const source = earned ? await achievementArtworkSource(id, hidden) : "/achievements/locked.png";
+  const imageSize = earned ? 128 : 32;
   return (
     <div data-achievement-rare={rare || undefined} className={`grid aspect-square place-items-center overflow-hidden rounded-sm border border-border bg-surface ${large ? "p-5" : "p-2.5 sm:p-3"} ${rare ? styles.rareArtwork : ""}`}>
-      <Image src={source} width={128} height={128} alt="" unoptimized loading={eager || large ? "eager" : "lazy"}
-        className={`aspect-square h-full w-full object-contain [image-rendering:pixelated] ${earned ? "" : "opacity-50 grayscale"}`} />
+      <Image src={source} width={imageSize} height={imageSize} alt="" unoptimized loading={eager || large ? "eager" : "lazy"}
+        className={`object-contain [image-rendering:pixelated] ${earned ? "size-full" : large ? "size-24" : "size-16"}`} />
     </div>
   );
 }
@@ -103,6 +105,9 @@ export default async function ArtGalleryPage({ searchParams }: { searchParams: P
     );
   }
 
+  const numericDate = new Intl.DateTimeFormat(locale, {
+    year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Asia/Tokyo",
+  });
   return (
     <section>
       <PageHeader title={t("title")} description={t(teaching ? "teaching" : language === "JAPANESE" ? "japanese" : "english")}
@@ -125,10 +130,15 @@ export default async function ArtGalleryPage({ searchParams }: { searchParams: P
                 <Link locale={locale} href={galleryHref(onlyCollected, page, card.id)} prefetch={false} className="group block rounded-sm">
                   <Artwork id={card.id} earned={!!card.awardedAt} hidden={isHidden(card)} rare={rare} eager={i === 0} />
                   <h2 className="mt-3 text-base font-bold leading-tight group-hover:underline">{card.title[index]}</h2>
-                  <p className="mt-1 text-xs font-semibold text-muted">{stateLabel(card)}</p>
+                  <p className={`mt-1 flex flex-wrap items-baseline gap-x-2 ${tileMetadata}`}>
+                    <span className="font-semibold">{stateLabel(card)}</span>
+                    {card.awardedAt && <time className="ms-auto whitespace-nowrap" dateTime={card.awardedAt.toISOString()}>
+                      {numericDate.format(card.awardedAt)}
+                    </time>}
+                  </p>
                 </Link>
                 <p className="mt-2 text-sm leading-snug">{card.rule[index]}</p>
-                <p className="mt-1 text-xs tabular-nums text-muted">{label}</p>
+                <p className={`mt-1 ${tileMetadata}`}>{label}</p>
               </li>
             );
           })}
