@@ -110,7 +110,7 @@ test("shows a study streak only when the streak service returns one", async () =
   const today = "2026-11-23";
   const streak = {
     ...defaultStudyStreakPreference, today, week: studyWeekDays(today),
-    days: [false, false, false, false, false, false, false], count: 0, studiedThisWeek: 0, studiedThisMonth: false,
+    days: [false, false, false, false, false, false, false], count: 0, studiedThisWeek: 0, studiedThisMonth: 0,
   };
   mocks.streak.mockResolvedValueOnce(streak);
   for (const visible of [true, false]) {
@@ -124,7 +124,7 @@ test("shows fox stamps without visible explanations and keeps each day's accessi
   const today = "2026-11-26";
   const streak = {
     ...defaultStudyStreakPreference, today, week: studyWeekDays(today),
-    days: [false, true, false, false, false, false, false], count: 0, studiedThisWeek: 1, studiedThisMonth: true,
+    days: [false, true, false, false, false, false, false], count: 0, studiedThisWeek: 1, studiedThisMonth: 1,
   };
   const calendar = await DashboardStudyStreak({ streak, account: "student:JAPANESE", locale: "en" });
   function elements(children: ReactNode): ReturnType<typeof Children.toArray> {

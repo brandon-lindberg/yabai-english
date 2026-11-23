@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
 import { loadPlacementBankSync } from "../../src/lib/placement-bank/load-placement-bank";
@@ -542,8 +542,19 @@ test("study streak settings persist and the current study stamp plays once", asy
   const saved = page.getByText(en.dashboard.studyStreak.saved, { exact: true });
   await expect(toggle).toBeChecked();
   const mode = page.getByLabel(en.dashboard.studyStreak.cadence, { exact: true });
+  async function expectInsetChevron(select: Locator) {
+    await expect(select).toHaveCSS("appearance", "none");
+    const chevron = select.locator("..").locator("svg[aria-hidden=true]");
+    await expect(chevron).toBeVisible();
+    const control = (await select.boundingBox())!;
+    const icon = (await chevron.boundingBox())!;
+    expect(control.x + control.width - icon.x - icon.width).toBeGreaterThanOrEqual(12);
+    expect(icon.y + icon.height / 2).toBeCloseTo(control.y + control.height / 2, 0);
+  }
+  await expectInsetChevron(mode);
   await mode.selectOption("WEEKLY");
   const aim = page.getByLabel(en.dashboard.studyStreak.weeklyGoal, { exact: true });
+  await expectInsetChevron(aim);
   await expect(aim).toHaveValue("1");
   await aim.selectOption("3");
   await save.click();
@@ -570,15 +581,41 @@ test("study streak settings persist and the current study stamp plays once", asy
   await save.click();
   await expect(saved).toBeVisible();
   await page.goto("/en/dashboard");
-  await expect(calendar).toHaveCount(0);
+  const slots = calendar.getByRole("listitem");
+  await expect(slots).toHaveCount(3);
+  await expect(slots.first()).toContainText("Day 1");
+  await expect(slots.last()).toContainText("Day 3");
   await expect(page.getByRole("main").getByText(/of 3 study days this week/)).toBeVisible();
+  await captureRelease(page, "study-streak-weekly-mobile");
 
   await page.getByRole("link", { name: en.dashboard.studyStreak.edit, exact: true }).click();
   await mode.selectOption("MONTHLY");
+  const monthlyAim = page.getByLabel(en.dashboard.studyStreak.monthlyGoal, { exact: true });
+  await expectInsetChevron(monthlyAim);
+  await expect(monthlyAim).toHaveValue("1");
+  await monthlyAim.selectOption("20");
   await save.click();
   await expect(saved).toBeVisible();
+  await page.reload();
+  await expect(monthlyAim).toHaveValue("20");
   await page.goto("/en/dashboard");
-  await expect(page.getByRole("main").getByText(en.dashboard.studyStreak.monthMet)).toBeVisible();
+  await expect(page.getByRole("main").getByText(/of 20 study days this month/)).toBeVisible();
+  await expect(slots).toHaveCount(7);
+  await expect(slots.first()).toContainText("Day 1");
+  const next = calendar.getByRole("button", { name: en.dashboard.studyStreak.nextGoalDays });
+  const previous = calendar.getByRole("button", { name: en.dashboard.studyStreak.previousGoalDays });
+  await expect(previous).toBeDisabled();
+  await next.press("Enter");
+  await expect(slots.first()).toContainText("Day 8");
+  await expect(slots).toHaveCount(7);
+  await next.click();
+  await expect(slots).toHaveCount(6);
+  await expect(slots.last()).toContainText("Day 20");
+  await expect(next).toBeDisabled();
+  await captureRelease(page, "study-streak-monthly-mobile");
+  await previous.click();
+  await expect(slots.first()).toContainText("Day 8");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
   await page.getByRole("link", { name: en.dashboard.studyStreak.edit, exact: true }).click();
   await mode.selectOption("DAILY");
@@ -594,5 +631,9 @@ test("study streak settings persist and the current study stamp plays once", asy
   await captureRelease(page, "study-streak-desktop");
   await page.getByRole("link", { name: ja.dashboard.studyStreak.edit, exact: true }).click();
   await expect(page.getByRole("switch", { name: "学習ストリークを表示", exact: true })).toBeChecked();
+  const japaneseMode = page.getByLabel(ja.dashboard.studyStreak.cadence, { exact: true });
+  await japaneseMode.selectOption("MONTHLY");
+  await expectInsetChevron(japaneseMode);
+  await expectInsetChevron(page.getByLabel(ja.dashboard.studyStreak.monthlyGoal, { exact: true }));
   await captureRelease(page, "study-streak-settings-desktop");
 });

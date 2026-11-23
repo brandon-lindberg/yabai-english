@@ -1,18 +1,19 @@
 import "server-only";
 import type { PrismaClient } from "@/generated/prisma/client";
 import { studyCalendarTimezone, type LearnerOwner } from "@/lib/achievements/learner-calendar";
-import { dayNumber, monthNumber, studyWeekDays, weekNumber } from "./calendar-date";
+import { dayNumber, daysInStudyMonth, monthNumber, studyWeekDays, weekNumber } from "./calendar-date";
 import { defaultStudyStreakPreference, type StudyStreakPreference, type StudyStreakUpdate } from "./streak-preference";
 
 type Summary = StudyStreakPreference & {
   lastStudyDay: string | null;
   daily: number;
-  monthly: number;
   weekDays: number;
   priorWeeks: number[];
+  monthDays: number;
+  priorMonthsMet: number;
 };
 
-const preferenceFields = { enabled: true, mode: true, weeklyGoal: true } as const;
+const preferenceFields = { enabled: true, mode: true, weeklyGoal: true, monthlyGoal: true } as const;
 
 export async function getStudyStreakPreference(db: PrismaClient, owner: LearnerOwner): Promise<StudyStreakPreference> {
   return await db.studyStreak.findUnique({
@@ -34,8 +35,8 @@ export async function getStudyStreak(db: PrismaClient, owner: LearnerOwner, now 
     ({ today: string; stamps: string[] } & ({ mode: null } | Summary))[]
   >`
     WITH local_day AS (SELECT (${now.toISOString()}::timestamptz AT TIME ZONE ${studyCalendarTimezone(owner)})::date AS day)
-    SELECT d.day::text AS today, s.enabled, s.mode, s."weeklyGoal", s."lastStudyDay"::text AS "lastStudyDay",
-      s.daily, s.monthly, s."weekDays", s."priorWeeks", ARRAY(
+    SELECT d.day::text AS today, s.enabled, s.mode, s."weeklyGoal", s."monthlyGoal", s."lastStudyDay"::text AS "lastStudyDay",
+      s.daily, s."weekDays", s."priorWeeks", s."monthDays", s."priorMonths"[s."monthlyGoal"] AS "priorMonthsMet", ARRAY(
         SELECT fact.day::text FROM "StudyStreakDay" fact
         WHERE fact."userId" = ${owner.userId} AND fact."learningLanguage" = ${owner.learningLanguage}::"LearningLanguage"
           AND fact.day BETWEEN date_trunc('week', d.day::timestamp)::date AND d.day
@@ -48,19 +49,23 @@ export async function getStudyStreak(db: PrismaClient, owner: LearnerOwner, now 
   const { today, stamps } = row;
   const summary = row.mode === null ? null : row;
   const preference = summary
-    ? { enabled: summary.enabled, mode: summary.mode, weeklyGoal: summary.weeklyGoal }
+    ? { enabled: summary.enabled, mode: summary.mode, weeklyGoal: summary.weeklyGoal, monthlyGoal: summary.monthlyGoal }
     : defaultStudyStreakPreference;
   const week = studyWeekDays(today);
   const days = week.map(day => stamps.includes(day));
   const lastDay = summary?.lastStudyDay;
   const monthGap = lastDay ? monthNumber(today) - monthNumber(lastDay) : Infinity;
+  const studiedThisMonth = summary && monthGap === 0 ? summary.monthDays : 0;
   let count = 0;
 
   if (summary && lastDay) {
     const dayGap = dayNumber(today) - dayNumber(lastDay);
     const weekGap = weekNumber(dayNumber(today)) - weekNumber(dayNumber(lastDay));
     if (preference.mode === "DAILY" && dayGap >= 0 && dayGap <= 1) count = summary.daily;
-    if (preference.mode === "MONTHLY" && monthGap >= 0 && monthGap <= 1) count = summary.monthly;
+    if (preference.mode === "MONTHLY") {
+      const metGoal = summary.monthDays >= Math.min(preference.monthlyGoal, daysInStudyMonth(lastDay));
+      if (monthGap === 0 || (monthGap === 1 && metGoal)) count = summary.priorMonthsMet + Number(metGoal);
+    }
     if (preference.mode === "WEEKLY") {
       const metGoal = summary.weekDays >= preference.weeklyGoal;
       if (weekGap === 0 || (weekGap === 1 && metGoal)) {
@@ -69,7 +74,7 @@ export async function getStudyStreak(db: PrismaClient, owner: LearnerOwner, now 
     }
   }
 
-  return { ...preference, today, week, days, count, studiedThisWeek: stamps.length, studiedThisMonth: monthGap === 0 };
+  return { ...preference, today, week, days, count, studiedThisWeek: stamps.length, studiedThisMonth };
 }
 
 export type StudyStreak = NonNullable<Awaited<ReturnType<typeof getStudyStreak>>>;

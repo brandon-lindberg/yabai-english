@@ -7,6 +7,7 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
+import { InterfaceIcon } from "./interface-icon";
 
 /**
  * Form primitives for Alphabet Storm.
@@ -232,12 +233,28 @@ export function Textarea({
 export function Select({
   className = "",
   children,
+  multiple,
+  size,
   ...rest
 }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select {...rest} className={controlClasses(rest["aria-invalid"] === true, className)}>
+  const hasChevron = !multiple && (size ?? 1) <= 1 && !rest.hidden;
+  const control = (
+    <select {...rest} multiple={multiple} size={size} className={controlClasses(
+      rest["aria-invalid"] === true,
+      hasChevron ? `peer appearance-none pe-10 forced-colors:appearance-auto forced-colors:pe-3 ${className}` : className,
+    )}>
       {children}
     </select>
+  );
+
+  if (!hasChevron) return control;
+  return (
+    <div className="relative min-w-0">
+      {control}
+      <span className="pointer-events-none absolute inset-y-0 end-3 flex items-center text-foreground peer-disabled:opacity-40 forced-colors:hidden">
+        <InterfaceIcon name="chevron" />
+      </span>
+    </div>
   );
 }
 

@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { expect, test } from "vitest";
 import { withIsolatedPostgres } from "../../test/isolated-postgres";
 import { recordAchievementReview } from "@/lib/achievements/learner-calendar";
@@ -7,6 +8,7 @@ import { studyStreakPreferenceSchema } from "@/lib/study/streak-preference";
 const enabled = process.env.MIRROR_TEST_DATABASE_URL;
 const migration = "20261123010000_achievement_events";
 const repairMigration = "20261123040000_repair_study_streak_schema";
+const monthlyMigration = "20261123050000_study_streak_monthly_goal";
 
 test("weekly goals are whole numbers from one through seven", () => {
   for (const weeklyGoal of [0, 1.5, 8, "2"]) {
@@ -14,6 +16,49 @@ test("weekly goals are whole numbers from one through seven", () => {
   }
   expect(studyStreakPreferenceSchema.parse({ mode: "WEEKLY", weeklyGoal: 7 })).toEqual({ mode: "WEEKLY", weeklyGoal: 7 });
 });
+
+test("monthly goals are whole numbers from one through 31", () => {
+  const monthly = { mode: "MONTHLY", weeklyGoal: 3 };
+  for (const monthlyGoal of [0, 1.5, 32, "20"]) {
+    expect(studyStreakPreferenceSchema.safeParse({ ...monthly, monthlyGoal }).success).toBe(false);
+  }
+  expect(studyStreakPreferenceSchema.parse({ ...monthly, monthlyGoal: 20 })).toEqual({ ...monthly, monthlyGoal: 20 });
+  expect(studyStreakPreferenceSchema.parse(monthly)).toEqual(monthly);
+});
+
+test.runIf(enabled)("monthly goals use distinct study dates, retain history across goal changes, and adapt to short months", async () => {
+  await withIsolatedPostgres(monthlyMigration, async ({ db, client, applyMigration, verifyDatamodel }) => {
+    const owner = { userId: "monthly-learner", learningLanguage: "ENGLISH" as const };
+    const other = { ...owner, learningLanguage: "JAPANESE" as const };
+    const get = (day: string) => getStudyStreak(db, owner, new Date(`${day}T03:00:00Z`));
+    const add = (days: string[]) => client.query(`INSERT INTO "StudyStreakDay" ("userId", "learningLanguage", day, timezone)
+      SELECT $1, 'ENGLISH', day, 'Asia/Tokyo' FROM unnest($2::date[]) AS day ON CONFLICT DO NOTHING`,
+      [owner.userId, days]);
+    await db.user.create({ data: { id: owner.userId } });
+    await add(["2025-09-29", "2025-09-30", "2025-10-01", "2025-11-01", "2025-11-02", "2025-11-03"]);
+    await client.query(`UPDATE "StudyStreak" SET mode = 'MONTHLY', "weeklyGoal" = 3 WHERE "userId" = $1`, [owner.userId]);
+    await applyMigration();
+    await verifyDatamodel();
+    expect(await get("2025-11-03")).toMatchObject({ monthlyGoal: 1, count: 3, studiedThisMonth: 3 });
+
+    await saveStudyStreakPreference(db, owner, { mode: "MONTHLY", weeklyGoal: 3, monthlyGoal: 2 });
+    expect(await get("2025-11-03")).toMatchObject({ monthlyGoal: 2, count: 1, studiedThisMonth: 3 });
+    await add(["2025-10-02", "2025-11-03"]);
+    expect(await get("2025-11-03")).toMatchObject({ count: 3, studiedThisMonth: 3 });
+    expect(await get("2025-12-01")).toMatchObject({ count: 3, studiedThisMonth: 0 });
+    await add(["2025-12-01"]);
+    expect(await get("2025-12-01")).toMatchObject({ count: 3, studiedThisMonth: 1 });
+    expect(await get("2026-01-01")).toMatchObject({ count: 0, studiedThisMonth: 0 });
+    await saveStudyStreakPreference(db, owner, { mode: "WEEKLY", weeklyGoal: 3 });
+    expect(await getStudyStreakPreference(db, owner)).toMatchObject({ monthlyGoal: 2 });
+    expect(await getStudyStreakPreference(db, other)).toMatchObject({ monthlyGoal: 1 });
+
+    await saveStudyStreakPreference(db, owner, { mode: "MONTHLY", weeklyGoal: 3, monthlyGoal: 31 });
+    await add(Array.from({ length: 28 }, (_, i) => `2026-02-${String(i + 1).padStart(2, "0")}`));
+    expect(await get("2026-02-28")).toMatchObject({ monthlyGoal: 31, count: 1, studiedThisMonth: 28 });
+    expect(await get("2026-03-01")).toMatchObject({ monthlyGoal: 31, count: 1, studiedThisMonth: 0 });
+  });
+}, 30_000);
 
 test("accepts a boolean visibility preference and preserves older settings requests", () => {
   const weekly = { mode: "WEEKLY", weeklyGoal: 3 };
@@ -42,7 +87,8 @@ test.runIf(enabled)("repairs a recorded early streak schema and preserves settin
     await db.user.createMany({ data: [{ id: owner.userId }, { id: "legacy-teacher", role: "TEACHER" }] });
     await db.teacherProfile.create({ data: { id: "legacy-profile", userId: "legacy-teacher" } });
     await db.lessonProduct.create({ data: { id: "legacy-product", tier: "STANDARD", durationMin: 60, nameEn: "Lesson", nameJa: "授業" } });
-    await db.studyStreak.create({ data: { ...owner, enabled: false, mode: "WEEKLY", weeklyGoal: 2, daily: 5, lastStudyDay: new Date("2020-11-18") } });
+    await client.query(`INSERT INTO "StudyStreak" ("userId", "learningLanguage", enabled, mode, "weeklyGoal", daily, "lastStudyDay")
+      VALUES ($1, $2::"LearningLanguage", false, 'WEEKLY', 2, 5, DATE '2020-11-18')`, [owner.userId, owner.learningLanguage]);
     const cards = ["a", "b", "c", "d", "e"];
     await db.learningAchievementStudyDay.create({
       data: { ...owner, day: new Date("2020-11-16"), cardIds: cards, timezone: "Asia/Tokyo" },
@@ -55,7 +101,7 @@ test.runIf(enabled)("repairs a recorded early streak schema and preserves settin
 
     await applyMigration();
     await verifyDatamodel();
-    expect(await getStudyStreakPreference(db, owner)).toEqual({ enabled: false, mode: "WEEKLY", weeklyGoal: 2 });
+    expect(await getStudyStreakPreference(db, owner)).toEqual({ enabled: false, mode: "WEEKLY", weeklyGoal: 2, monthlyGoal: 1 });
     await saveStudyStreakPreference(db, owner, { enabled: true, mode: "DAILY", weeklyGoal: 2 });
     expect(await getStudyStreak(db, owner, new Date("2020-11-17T03:00:00Z"))).toMatchObject({
       count: 2, days: [true, true, false, false, false, false, false],
@@ -69,7 +115,7 @@ test.runIf(enabled)("repairs a recorded early streak schema and preserves settin
 }, 30_000);
 
 test.runIf(enabled)("the corrective migration leaves an already current streak summary untouched", async () => {
-  await withIsolatedPostgres(repairMigration, async ({ db, client, applyMigration }) => {
+  await withIsolatedPostgres(repairMigration, async ({ db, client }) => {
     const owner = { userId: "current-learner", learningLanguage: "ENGLISH" as const };
     await db.user.create({ data: { id: owner.userId } });
     await db.learningAchievementStudyDay.create({
@@ -77,7 +123,7 @@ test.runIf(enabled)("the corrective migration leaves an already current streak s
     });
     const before = await client.query('SELECT xmin::text, daily FROM "StudyStreak"');
     expect(before.rows).toMatchObject([{ daily: 1 }]);
-    await applyMigration();
+    await client.query(await readFile(`prisma/migrations/${repairMigration}/migration.sql`, "utf8"));
     expect((await client.query('SELECT xmin::text, daily FROM "StudyStreak"')).rows).toEqual(before.rows);
   });
 }, 30_000);
@@ -121,9 +167,9 @@ test.runIf(enabled)("preserves previous study days, handles late dates, and deri
     await saveStudyStreakPreference(db, learner, { enabled: true, mode: "WEEKLY", weeklyGoal: 2 });
     expect(await get("2026-11-25")).toMatchObject({ mode: "WEEKLY", count: 3, studiedThisWeek: 3 });
     await saveStudyStreakPreference(db, learner, { mode: "MONTHLY", weeklyGoal: 2 });
-    expect(await get("2026-12-01")).toMatchObject({ mode: "MONTHLY", count: 2, studiedThisMonth: false });
+    expect(await get("2026-12-01")).toMatchObject({ mode: "MONTHLY", count: 2, studiedThisMonth: 0 });
     await study("2026-12-01");
-    expect(await get("2026-12-01")).toMatchObject({ mode: "MONTHLY", count: 3, studiedThisMonth: true });
+    expect(await get("2026-12-01")).toMatchObject({ mode: "MONTHLY", count: 3, studiedThisMonth: 1 });
     expect(await get("2027-02-01")).toMatchObject({ mode: "MONTHLY", count: 0 });
     expect(await getStudyStreak(db, japanese, date("2026-12-01"))).toMatchObject({ mode: "DAILY", count: 0 });
     const rows = await client.query('SELECT count(*)::int AS total FROM "StudyStreak"');
@@ -194,6 +240,6 @@ test.runIf(enabled)("eligible completed lessons extend all streak modes on their
     await saveStudyStreakPreference(db, owner, { mode: "MONTHLY", weeklyGoal: 2 });
     const december = new Date("2026-12-01T05:00:00Z");
     await drainAchievementWork(db, december, true);
-    expect(await getStudyStreak(db, owner, december)).toMatchObject({ count: 2, studiedThisMonth: true });
+    expect(await getStudyStreak(db, owner, december)).toMatchObject({ count: 2, studiedThisMonth: 1 });
   });
 }, 30_000);

@@ -7,9 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Select } from "@/components/ui/field";
 import { FormStatus } from "@/components/ui/form-status";
 import { Section } from "@/components/ui/section";
-import { studyStreakModes, type StudyStreakPreference } from "@/lib/study/streak-preference";
-
-const weeklyGoals = Array.from({ length: 7 }, (_, index) => index + 1);
+import { studyStreakGoalLimits, studyStreakModes, type StudyStreakPreference } from "@/lib/study/streak-preference";
 
 export function StudyStreakSettings({ initial }: { initial: StudyStreakPreference }) {
   const t = useTranslations("dashboard.studyStreak");
@@ -18,7 +16,10 @@ export function StudyStreakSettings({ initial }: { initial: StudyStreakPreferenc
   const [draft, setDraft] = useState(initial);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const visibilityHintId = useId();
-  const changed = saved.enabled !== draft.enabled || saved.mode !== draft.mode || saved.weeklyGoal !== draft.weeklyGoal;
+  const changed = saved.enabled !== draft.enabled || saved.mode !== draft.mode
+    || saved.weeklyGoal !== draft.weeklyGoal || saved.monthlyGoal !== draft.monthlyGoal;
+  const goalMode = draft.mode === "DAILY" ? null : draft.mode;
+  const goalField = goalMode === "MONTHLY" ? "monthlyGoal" : "weeklyGoal";
 
   function updateDraft(update: Partial<StudyStreakPreference>) {
     setDraft(current => ({ ...current, ...update }));
@@ -70,10 +71,13 @@ export function StudyStreakSettings({ initial }: { initial: StudyStreakPreferenc
               {studyStreakModes.map(mode => <option key={mode} value={mode}>{t(`mode.${mode}`)}</option>)}
             </Select>}
           </Field>}
-          {draft.enabled && draft.mode === "WEEKLY" && (
-            <Field label={t("weeklyGoal")}>
-              {attributes => <Select {...attributes} value={draft.weeklyGoal} onChange={event => updateDraft({ weeklyGoal: Number(event.target.value) })}>
-                {weeklyGoals.map(goal => <option key={goal} value={goal}>{t("goalDays", { count: goal })}</option>)}
+          {draft.enabled && goalMode && (
+            <Field label={t(goalField)} hint={goalMode === "MONTHLY" && draft.monthlyGoal > 28 ? t("shortMonthHint") : undefined}>
+              {attributes => <Select {...attributes} value={draft[goalField]} onChange={event => updateDraft({ [goalField]: Number(event.target.value) })}>
+                {Array.from({ length: studyStreakGoalLimits[goalMode] }, (_, index) => {
+                  const goal = index + 1;
+                  return <option key={goal} value={goal}>{t("goalDays", { count: goal })}</option>;
+                })}
               </Select>}
             </Field>
           )}

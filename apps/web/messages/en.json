@@ -226,9 +226,11 @@
       "hint": {
         "DAILY": "Complete a study day each day.",
         "WEEKLY": "Reach your goal each week, Monday through Sunday.",
-        "MONTHLY": "Complete one study day in each calendar month."
+        "MONTHLY": "Reach your goal each calendar month."
       },
       "weeklyGoal": "Study days per week",
+      "monthlyGoal": "Study days per month",
+      "shortMonthHint": "In shorter months, studying every day meets your goal.",
       "goalDays": "{count, plural, one {# day} other {# days}}",
       "counter": {
         "DAILY": "{count, plural, one {# day in a row} other {# days in a row}}",
@@ -237,9 +239,15 @@
       },
       "studyDay": "Answer 5 different flashcards or complete a lesson to count a study day.",
       "weekProgress": "{count} of {goal} study days this week",
-      "monthMet": "You’ve completed a study day this month.",
-      "monthPending": "Complete one study day this month.",
+      "monthProgress": "{count} of {goal} study days this month",
       "calendarLabel": "This week’s study calendar, Monday through Sunday",
+      "goalCalendar": "Study days in your goal",
+      "goalDay": "Day {day}",
+      "goalDayComplete": "Day {day}, study day complete",
+      "goalDayOpen": "Day {day}, study day open",
+      "goalPage": "Showing days {first} to {last} of {goal}",
+      "previousGoalDays": "Previous days",
+      "nextGoalDays": "Next days",
       "dayStudied": "{date}, study day complete",
       "dayOpen": "{date}, today, study day still open",
       "dayFuture": "{date}, upcoming",

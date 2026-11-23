@@ -1483,11 +1483,14 @@ model StudyStreak {
   enabled          Boolean          @default(true)
   mode             StudyStreakMode  @default(DAILY)
   weeklyGoal       Int              @default(1)
+  monthlyGoal      Int              @default(1)
   lastStudyDay     DateTime?        @db.Date
   daily            Int              @default(0)
   monthly          Int              @default(0)
   weekDays         Int              @default(0)
   priorWeeks       Int[]            @default([0, 0, 0, 0, 0, 0, 0])
+  monthDays        Int              @default(0)
+  priorMonths      Int[]            @default([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, learningLanguage])

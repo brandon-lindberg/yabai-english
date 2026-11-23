@@ -226,9 +226,11 @@
       "hint": {
         "DAILY": "毎日、学習日を1日分達成しましょう。",
         "WEEKLY": "月曜から日曜までの間に、設定した日数を達成しましょう。",
-        "MONTHLY": "毎月、学習日を1日分達成しましょう。"
+        "MONTHLY": "毎月、設定した日数を達成しましょう。"
       },
       "weeklyGoal": "週の学習日数",
+      "monthlyGoal": "月の学習日数",
+      "shortMonthHint": "設定した日数より短い月は、毎日学習すると目標達成になります。",
       "goalDays": "{count}日",
       "counter": {
         "DAILY": "{count}日連続",
@@ -237,9 +239,15 @@
       },
       "studyDay": "異なるフラッシュカード5枚に答えるか、レッスンを1回終えると、学習日1日分になります。",
       "weekProgress": "今週の学習日数 {count}/{goal}日",
-      "monthMet": "今月の学習日を達成しました。",
-      "monthPending": "今月、学習日を1日分達成しましょう。",
+      "monthProgress": "今月の学習日数 {count}/{goal}日",
       "calendarLabel": "今週の学習カレンダー（月曜から日曜）",
+      "goalCalendar": "目標までの学習日",
+      "goalDay": "{day}日目",
+      "goalDayComplete": "{day}日目、学習日を達成",
+      "goalDayOpen": "{day}日目、学習日は未達成",
+      "goalPage": "全{goal}日のうち{first}日目から{last}日目を表示",
+      "previousGoalDays": "前の日数を表示",
+      "nextGoalDays": "次の日数を表示",
       "dayStudied": "{date}、学習日を達成",
       "dayOpen": "{date}、今日、学習日は未達成",
       "dayFuture": "{date}、これから",

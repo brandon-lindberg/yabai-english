@@ -1,8 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Section } from "@/components/ui/section";
+import { daysInStudyMonth } from "@/lib/study/calendar-date";
 import type { StudyStreak } from "@/lib/study/streak-service";
 import { StudyDayStamp } from "./study-day-stamp";
+import { StudyGoalCalendar } from "./study-goal-calendar";
 import styles from "./study-streak.module.css";
 
 const calendarDate = (day: string) => new Date(day + "T12:00:00Z");
@@ -20,9 +22,11 @@ export async function DashboardStudyStreak({ streak, locale, account }: {
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
   const date = new Intl.DateTimeFormat(locale, { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
   const weekRange = new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", timeZone: "UTC" });
-  const periodHint = streak.mode === "WEEKLY"
-    ? t("weekProgress", { count: Math.min(streak.studiedThisWeek, streak.weeklyGoal), goal: streak.weeklyGoal })
-    : t(streak.studiedThisMonth ? "monthMet" : "monthPending");
+  const dateRange = weekRange.formatRange(calendarDate(streak.week[0]), calendarDate(streak.week[6]));
+  const monthly = streak.mode === "MONTHLY";
+  const goal = monthly ? Math.min(streak.monthlyGoal, daysInStudyMonth(streak.today)) : streak.weeklyGoal;
+  const studied = monthly ? streak.studiedThisMonth : streak.studiedThisWeek;
+  const studiedToday = streak.days[streak.week.indexOf(streak.today)];
 
   return (
     <Section
@@ -38,13 +42,13 @@ export async function DashboardStudyStreak({ streak, locale, account }: {
             {t(`counter.${streak.mode}`, { count: streak.count })}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-muted">
-            {isDaily ? t("studyDay") : periodHint}
+            {isDaily ? t("studyDay") : t(monthly ? "monthProgress" : "weekProgress", { count: Math.min(studied, goal), goal })}
           </p>
         </div>
-        {isDaily && (
+        {isDaily ? (
           <div data-study-streak-calendar="">
             <p className="mb-2 text-sm font-medium tabular-nums text-muted">
-              {weekRange.formatRange(calendarDate(streak.week[0]), calendarDate(streak.week[6]))}
+              {dateRange}
             </p>
             <ol className="grid grid-cols-7 divide-x divide-border border-y border-border" aria-label={t("calendarLabel")}>
               {streak.week.map((day, position) => {
@@ -74,6 +78,16 @@ export async function DashboardStudyStreak({ streak, locale, account }: {
               })}
             </ol>
           </div>
+        ) : (
+          <StudyGoalCalendar
+            key={`${streak.mode}:${streak.today}:${goal}:${studied}`}
+            period={monthly
+              ? new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(calendarDate(streak.today))
+              : dateRange}
+            goal={goal}
+            studied={studied}
+            claim={studiedToday ? { account, day: streak.today } : undefined}
+          />
         )}
       </div>
     </Section>
