@@ -49,3 +49,9 @@ The 33 existing realtime client, bus, stream and notification-bell tests passed 
 - The isolated database fixture persisted all 39 awards in each learner subject and all 11 teacher awards. Threshold tests cover live card, mastery, rank and calendar rules. Chromium verified the learner mastery and hidden teacher note popups.
 - Five concurrent signed-in learners kept the shared realtime streams open on the local Node 22 production build. Over 75 warm answer saves, p50 was 17 ms and p95 was 28 ms. Five cold queue preparations had a 63 ms p95. The largest sampled server RSS was 315 MiB. Session, dashboard and health requests succeeded throughout four practice rounds.
 - The daily review write uses one learner/subject/day key and retains at most five card IDs. The calendar worker reads activity dates in pages of 256 and leases up to 12 due jobs at a time. The smoke tests used disposable PostgreSQL on the same Mac. Render memory and capacity remain unmeasured for this change.
+
+## Personal study streak
+
+- After adding lesson activity, five simultaneous learners with 2,000 qualifying dates each completed 200 streak reads at 0.85 ms p95 on local PostgreSQL 17. The calendar range query used the `StudyStreakDay` primary key, returned seven rows and hit three shared buffers. Replaying 10,000 existing dates into the summaries took 513 ms in the disposable schema.
+- The summary updates once per qualifying date. Over 100 trials per variant, fifth-card writes took 1.70 ms p95 with and without the streak trigger. Processing a lesson-end work item took 0.99 ms p95 with the trigger and 0.44 ms without it. It uses the existing work queue.
+- Five learners on the local Node 22 production build completed 75 warm saves at 27 ms p95 and 20 dashboard reads at 148 ms p95. Five cold queue requests took 68 ms p95. The largest sampled server RSS was 314 MiB. Render capacity remains unmeasured.

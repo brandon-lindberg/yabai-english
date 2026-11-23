@@ -4,16 +4,18 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { SubNav, SubNavLink } from "@/components/ui/sub-nav";
 
-type SettingsTab = "payments" | "tier" | "google" | "appearance";
+type SettingsTab = "payments" | "tier" | "google" | "appearance" | "streak";
 
 type Props = {
   activeTab: SettingsTab;
   showPayments?: boolean;
   showTier?: boolean;
+  showStreak?: boolean;
 };
 
-export function SettingsTabs({ activeTab, showPayments = false, showTier = false }: Props) {
+export function SettingsTabs({ activeTab, showPayments = false, showTier = false, showStreak = false }: Props) {
   const t = useTranslations("dashboard.settingsPage");
+  const study = useTranslations("dashboard.studyStreak");
 
   return (
     <SubNav label={t("tabsAriaLabel")}>
@@ -53,6 +55,11 @@ export function SettingsTabs({ activeTab, showPayments = false, showTier = false
           </Link>
         )}
       />
+      {showStreak ? (
+        <SubNavLink active={activeTab === "streak"} render={props => (
+          <Link href="/dashboard/settings?tab=streak" {...props}>{study("title")}</Link>
+        )} />
+      ) : null}
     </SubNav>
   );
 }

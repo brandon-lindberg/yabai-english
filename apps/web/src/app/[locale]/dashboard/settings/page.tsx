@@ -1,3 +1,6 @@
+import { StudyStreakSettings } from "@/components/settings/study-streak-settings";
+import { getStudyStreakPreference } from "@/lib/study/streak-service";
+import { learningLanguageForRequest } from "@/lib/learning-site-request";
 import { auth } from "@/auth";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
@@ -34,7 +37,10 @@ export default async function DashboardSettingsPage({
   const isTeacher = isTeacherCabinetRole(session.user.role);
   const stripeConnectEnabled = Boolean(process.env.STRIPE_SECRET_KEY);
   const showTeacherPayments = isTeacher;
-  const activeTab = tab === "appearance"
+  const showStreak = session.user.role === "STUDENT";
+  const activeTab = showStreak && tab === "streak"
+    ? "streak"
+    : tab === "appearance"
     ? "appearance"
     : showTeacherPayments && tab === "tier"
       ? "tier"
@@ -42,6 +48,8 @@ export default async function DashboardSettingsPage({
         ? "payments"
         : "google";
   const appearance = activeTab === "appearance" ? await getRequestAppAppearance() : null;
+  const streakLanguage = activeTab === "streak" ? await learningLanguageForRequest(session.user.learningLanguage) : null;
+  const streak = streakLanguage ? await getStudyStreakPreference(prisma, { userId: session.user.id, learningLanguage: streakLanguage }) : null;
   const teacherProfile = showTeacherPayments && activeTab !== "appearance"
     ? await prisma.teacherProfile.findUnique({
         where: { userId: session.user.id },
@@ -99,6 +107,7 @@ export default async function DashboardSettingsPage({
         activeTab={activeTab}
         showPayments={showTeacherPayments}
         showTier={showTeacherPayments}
+        showStreak={showStreak}
       />
       {activeTab === "payments" && teacherProfile ? (
         <TeacherPaymentsSettings
@@ -137,6 +146,7 @@ export default async function DashboardSettingsPage({
       {activeTab === "google" ? (
         <GoogleIntegrationsSettingsContent searchParams={searchParams} />
       ) : null}
+      {streak ? <StudyStreakSettings key={streakLanguage} initial={streak} /> : null}
       {appearance ? <AppIconSettings icon={appearance.icon} defaultIcon={appearance.defaultIcon} /> : null}
     </div>
   );

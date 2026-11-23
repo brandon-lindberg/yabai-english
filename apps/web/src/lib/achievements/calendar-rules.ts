@@ -1,10 +1,7 @@
 import type { CalendarEvidence } from "./gallery";
+import { dayMs, dayNumber, monthNumber, weekNumber } from "@/lib/study/calendar-date";
 
 export type ActivityDay = { day: string; study: boolean; lesson: boolean };
-const dayMs = 86_400_000;
-const dayNumber = (day: string) => Date.parse(day + "T00:00:00Z") / dayMs;
-const monthNumber = (day: string) => +day.slice(0, 4) * 12 + +day.slice(5, 7) - 1;
-const weekNumber = (day: number) => Math.floor((day + 3) / 7);
 
 function anniversary(first: string, months: number) {
   const month = monthNumber(first) + months;
@@ -18,7 +15,7 @@ export function learnerCalendar(trackingStartedDay = "0001-01-01") {
   const evidence: CalendarEvidence = {
     studyStreak: 0, studyDays: 0, lessonWeeks: 0, loyalty3: 0, loyalty6: 0, loyalty12: 0, comeback: 0, irregular: 0, mixedWeek: 0,
   };
-  let previous = -Infinity, lastStudy = -Infinity, lastLessonWeek = -Infinity, firstStudy = Infinity;
+  let previous = -Infinity, lastStreakDay = -Infinity, lastLessonWeek = -Infinity, firstStudy = Infinity;
   let week = -Infinity, weekStudy = 0, weekLesson = false, studyRun = 0, lessonRun = 0, studyReturns = 0;
   let anniversaries: number[] | undefined;
   let months: number[] = [];
@@ -34,11 +31,8 @@ export function learnerCalendar(trackingStartedDay = "0001-01-01") {
     if (study) {
       firstStudy = Math.min(firstStudy, date);
       evidence.studyDays++;
-      studyRun = date === lastStudy + 1 ? studyRun + 1 : 1;
-      evidence.studyStreak = Math.max(evidence.studyStreak, studyRun);
       if (gap >= 3) studyReturns++;
       if (evidence.studyDays >= 10 && date - firstStudy >= 29 && studyReturns >= 3) evidence.irregular = 1;
-      lastStudy = date;
       weekStudy++;
     }
     if (lesson && thisWeek !== lastLessonWeek) {
@@ -49,6 +43,9 @@ export function learnerCalendar(trackingStartedDay = "0001-01-01") {
     }
     if (weekStudy >= 3 && weekLesson) evidence.mixedWeek = 1;
     if (study || lesson) {
+      studyRun = date === lastStreakDay + 1 ? studyRun + 1 : 1;
+      evidence.studyStreak = Math.max(evidence.studyStreak, studyRun);
+      lastStreakDay = date;
       evidence.comeback = Math.max(evidence.comeback, gap);
       anniversaries ??= [anniversary(day, 3), anniversary(day, 6), anniversary(day, 12)];
       const month = monthNumber(day);

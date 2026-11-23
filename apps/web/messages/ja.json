@@ -212,6 +212,41 @@
     "pages": "コレクションのページ"
   },
   "dashboard": {
+    "studyStreak": {
+      "title": "学習ストリーク",
+      "edit": "ストリーク設定",
+      "cadence": "学習ペース",
+      "mode": {
+        "DAILY": "毎日",
+        "WEEKLY": "毎週",
+        "MONTHLY": "毎月"
+      },
+      "hint": {
+        "DAILY": "毎日、学習日を1日分達成しましょう。",
+        "WEEKLY": "月曜から日曜までの間に、設定した日数を達成しましょう。",
+        "MONTHLY": "毎月、学習日を1日分達成しましょう。"
+      },
+      "weeklyGoal": "週の学習日数",
+      "goalDays": "{count}日",
+      "counter": {
+        "DAILY": "{count}日連続",
+        "WEEKLY": "{count}週連続",
+        "MONTHLY": "{count}か月連続"
+      },
+      "studyDay": "異なるフラッシュカード5枚に答えるか、レッスンを1回終えると、学習日1日分になります。",
+      "weekProgress": "今週の学習日数 {count}/{goal}日",
+      "monthMet": "今月の学習日を達成しました。",
+      "monthPending": "今月、学習日を1日分達成しましょう。",
+      "calendarLabel": "今週の学習カレンダー（月曜から日曜）",
+      "dayStudied": "{date}、学習日を達成",
+      "dayOpen": "{date}、今日、学習日は未達成",
+      "dayFuture": "{date}、これから",
+      "dayMissed": "{date}、学習日は未達成",
+      "save": "ストリーク設定を保存",
+      "saving": "保存中…",
+      "saved": "ストリーク設定を保存しました。",
+      "saveError": "ストリーク設定を保存できませんでした。もう一度お試しください。"
+    },
     "taxonomyPage": {
       "title": "クラス分類",
       "description": "空き枠に付けられるクラスレベルとクラスタイプを設定します。",

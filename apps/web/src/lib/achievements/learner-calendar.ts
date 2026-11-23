@@ -6,20 +6,15 @@ import { achievementScope } from "./rarity";
 
 export type LearnerOwner = { userId: string; learningLanguage: LearningLanguage };
 
-function usedTimezone(owner: LearnerOwner) {
-  return Prisma.sql`COALESCE(
-    (SELECT "timezone" FROM "LearningAchievementStudyDay"
-     WHERE "userId" = ${owner.userId} AND "learningLanguage" = ${owner.learningLanguage}::"LearningLanguage"
-     ORDER BY day DESC LIMIT 1),
-    (SELECT achievement_timezone(p.timezone) FROM "StudentProfile" p WHERE p."userId" = ${owner.userId}),
-    'Asia/Tokyo')`;
+export function studyCalendarTimezone(owner: LearnerOwner) {
+  return Prisma.sql`study_calendar_timezone(${owner.userId}, ${owner.learningLanguage}::"LearningLanguage")`;
 }
 
 /** Record one graded review. Only the fifth distinct card requests evaluation. */
 export async function recordAchievementReview(tx: Prisma.TransactionClient, owner: LearnerOwner, cardId: string, now: Date) {
   const scope = achievementScope(false, owner.learningLanguage);
   const queued = await tx.$executeRaw`
-    WITH zone AS (SELECT ${usedTimezone(owner)} AS tz),
+    WITH zone AS (SELECT ${studyCalendarTimezone(owner)} AS tz),
     recorded AS (
       INSERT INTO "LearningAchievementStudyDay" AS d ("userId", "learningLanguage", day, "timezone", "cardIds")
       SELECT ${owner.userId}, ${owner.learningLanguage}::"LearningLanguage",
@@ -37,14 +32,14 @@ export async function recordAchievementReview(tx: Prisma.TransactionClient, owne
 }
 
 export async function readLearnerCalendar(db: PrismaClient, owner: LearnerOwner, now = new Date()) {
-  const eligible = Prisma.sql`SELECT b."endsAt" FROM "Booking" b
+  const eligible = Prisma.sql`SELECT b."endsAt" FROM eligible_learning_lesson b
     WHERE b."studentId" = ${owner.userId} AND b."learningLanguage" = ${owner.learningLanguage}::"LearningLanguage"
-      AND b.status IN ('CONFIRMED', 'COMPLETED') AND b."endsAt" <= ${now}`;
+      AND b."endsAt" <= ${now}`;
   const [totals, zones] = await Promise.all([
     db.$queryRaw<{ lessons: number }[]>`SELECT count(*)::int AS lessons FROM (${eligible} LIMIT ${lessonAwardLimit}) lessons`,
     db.$queryRaw<{ zone: string; trackedFrom: string }[]>`
       SELECT zone.name AS zone, ((t."startedAt" AT TIME ZONE 'UTC') AT TIME ZONE zone.name)::date::text AS "trackedFrom"
-      FROM "AchievementTracking" t CROSS JOIN (SELECT ${usedTimezone(owner)} AS name) zone
+      FROM "AchievementTracking" t CROSS JOIN (SELECT ${studyCalendarTimezone(owner)} AS name) zone
       WHERE t.id = 1
     `,
   ]);

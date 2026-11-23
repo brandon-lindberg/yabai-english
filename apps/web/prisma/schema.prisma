@@ -299,6 +299,8 @@ model User {
   learningAchievementStudyProgress LearningAchievementStudyProgress[]
   learningAchievementMasteryProgress LearningAchievementMasteryProgress[]
   learningAchievementStudyDays LearningAchievementStudyDay[]
+  studyStreaks StudyStreak[]
+  studyStreakDays StudyStreakDay[]
   achievementWork AchievementWork[]
   studyCardStates           UserStudyCardState[]
   studyAssessmentAttempts   UserStudyAssessmentAttempt[]
@@ -1464,6 +1466,37 @@ model LearningAchievementStudyDay {
   day              DateTime         @db.Date
   timezone         String
   cardIds          String[]
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, learningLanguage, day])
+}
+
+enum StudyStreakMode {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+model StudyStreak {
+  userId           String
+  learningLanguage LearningLanguage
+  mode             StudyStreakMode  @default(DAILY)
+  weeklyGoal       Int              @default(1)
+  lastStudyDay     DateTime?        @db.Date
+  daily            Int              @default(0)
+  monthly          Int              @default(0)
+  weekDays         Int              @default(0)
+  priorWeeks       Int[]            @default([0, 0, 0, 0, 0, 0, 0])
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, learningLanguage])
+}
+
+model StudyStreakDay {
+  userId           String
+  learningLanguage LearningLanguage
+  day              DateTime         @db.Date
+  timezone         String
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, learningLanguage, day])

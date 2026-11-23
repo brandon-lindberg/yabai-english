@@ -1,4 +1,6 @@
 import { expect, type Page } from "@playwright/test";
+import en from "../../../messages/en.json";
+import ja from "../../../messages/ja.json";
 
 type Labels = { menu: string; accountMenu?: string; locale: string; switchToDark: string; switchToLight: string };
 
@@ -7,18 +9,39 @@ function headerTrigger(page: Page, labels: Labels) {
   return (labels.accountMenu ? guest.or(page.getByRole("button", { name: labels.accountMenu, exact: true })) : guest).filter({ visible: true }).first();
 }
 
+async function withAchievementPopupDismissal(page: Page, interact: () => Promise<void>) {
+  const popup = page.locator("[data-study-achievement-popup]");
+  const dismiss = popup.getByRole("button", { name: en.study.dismissAchievement, exact: true })
+    .or(popup.getByRole("button", { name: ja.study.dismissAchievement, exact: true }));
+  // An award can appear over the header while Playwright is checking a click.
+  await page.addLocatorHandler(dismiss, button => button.click(), { noWaitAfter: true });
+  try {
+    await interact();
+  } finally {
+    await page.removeLocatorHandler(dismiss);
+  }
+}
+
+export async function clickHeaderNotifications(page: Page, name: string) {
+  await withAchievementPopupDismissal(page, () => page.getByRole("button", { name: new RegExp(`^${name}`) }).click());
+}
+
 export async function openHeaderMenu(page: Page, labels: Labels) {
   const trigger = headerTrigger(page, labels);
   const locale = page.getByRole("button", { name: labels.locale, exact: true });
-  await expect(trigger.or(locale).filter({ visible: true }).first()).toBeVisible();
-  if (await locale.isVisible()) return;
-  if (await trigger.locator("..").getAttribute("open") === null) await trigger.click();
-  await expect(trigger.locator("..")).toHaveJSProperty("open", true);
+  await withAchievementPopupDismissal(page, async () => {
+    await expect(trigger.or(locale).filter({ visible: true }).first()).toBeVisible();
+    if (await locale.isVisible()) return;
+    if (await trigger.locator("..").getAttribute("open") === null) await trigger.click();
+    await expect(trigger.locator("..")).toHaveJSProperty("open", true);
+  });
 }
 
 export async function closeHeaderMenu(page: Page, labels: Labels) {
   const trigger = headerTrigger(page, labels);
-  if (await trigger.isVisible() && await trigger.locator("..").getAttribute("open") !== null) await trigger.click();
+  if (await trigger.isVisible() && await trigger.locator("..").getAttribute("open") !== null) {
+    await withAchievementPopupDismissal(page, () => trigger.click());
+  }
 }
 
 export async function setHeaderTheme(page: Page, labels: Labels, theme: "light" | "dark") {

@@ -3,7 +3,7 @@ import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
 import { signInMirrorUser, readMirrorFixtures, fixtureCommand } from "./helpers/mirror-fixtures";
 import { captureRelease, releaseCases } from "./helpers/release-verification";
-import { chooseInterfaceLocale, setHeaderTheme } from "./helpers/header-preferences";
+import { chooseInterfaceLocale, clickHeaderNotifications, setHeaderTheme } from "./helpers/header-preferences";
 import { dayKeyFromIso } from "../../src/lib/slot-calendar";
 import { DateTime } from "luxon";
 
@@ -18,9 +18,9 @@ async function openLearner(page: Page, email: string, scenario: ReturnType<typeo
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   // Exercise a React control before native details menus or screenshot styles
   // can change server markup while its client handlers are still hydrating.
-  await page.getByRole("button", { name: /Notifications/ }).click();
+  await clickHeaderNotifications(page, en.common.notifications);
   await expect(page.getByTestId("notification-panel")).toBeVisible();
-  await page.getByRole("button", { name: /Notifications/ }).click();
+  await clickHeaderNotifications(page, en.common.notifications);
   if (scenario.locale === "ja") await chooseInterfaceLocale(page, en.common, "ja");
   await setHeaderTheme(page, scenario.locale === "ja" ? ja.common : en.common, scenario.theme);
 }
@@ -106,10 +106,10 @@ for (const scenario of releaseCases()) test(`${scenario.language}: private lesso
         expect(notices[0].bodyJa).not.toMatch(/5,000|5000|¥|￥/);
       } else expect(notices[0].bodyEn).toContain("5,000");
     }
-    await page.getByRole("button", { name: new RegExp(copy.common.notifications) }).click();
+    await clickHeaderNotifications(page, copy.common.notifications);
     await expect(page.getByTestId("notification-panel").getByText(scenario.locale === "ja" ? "レッスンの返金が完了しました" : "Lesson refunded", { exact: true })).toBeVisible();
     await captureRelease(page, `${scenario.language}-student-lifecycle-notifications`);
-    await teacher.getByRole("button", { name: /Notifications/ }).click();
+    await clickHeaderNotifications(teacher, en.common.notifications);
     await expect(teacher.getByTestId("notification-panel").getByText("Lesson refunded", { exact: true })).toBeVisible();
     expect(errors).toEqual([]);
   } finally { await teacherContext.close(); }
@@ -264,7 +264,7 @@ for (const scenario of releaseCases()) for (const action of ["reschedule", "clos
       }
     }
     if (action === "close") {
-      await page.getByRole("button", { name: new RegExp(copy.common.notifications) }).click();
+      await clickHeaderNotifications(page, copy.common.notifications);
       await expect(page.getByTestId("notification-panel").getByText(scenario.locale === "ja" ? "再予約リクエストが終了しました" : "Reschedule request closed", { exact: true })).toHaveCount(0);
       await captureRelease(page, `${scenario.language}-student-closure-notifications-simplified`);
     }

@@ -470,6 +470,7 @@ test("the first mastered Japanese flashcard opens a live achievement popup on a 
     const award = page.locator("[data-study-achievement-popup]").getByRole("link", { name: /That One Stuck!/ });
     await expect(award).toBeInViewport();
     await expect(award).toHaveAttribute("href", /piece=mastery-0001/);
+    await award.focus();
     const [artwork] = await Promise.all([page.waitForEvent("popup"), award.click()]);
     try {
       await expect(artwork.getByRole("heading", { name: "That One Stuck!", exact: true })).toBeVisible();
@@ -477,7 +478,71 @@ test("the first mastered Japanese flashcard opens a live achievement popup on a 
     } finally {
       await artwork.close();
     }
+    await expect(award).toBeVisible();
+    await chooseInterfaceLocale(page, en.common, "ja");
+    await expect(page.locator("[data-study-achievement-popup]")).toHaveCount(0);
   } finally {
     fixtureCommand("release-study-hide");
   }
+});
+
+test("study streak settings persist and the current study stamp plays once", async ({ page }) => {
+  const learner = releaseStudent("resume-english");
+  await page.setViewportSize({ width: 375, height: 812 });
+  fixtureCommand("release-study-streak", { learnerId: learner.id });
+  await signInMirrorUser(page, learner.email, "ENGLISH");
+  await expect(page).toHaveURL(/\/en\/dashboard$/);
+
+  const calendar = page.locator("[data-study-streak-calendar]");
+  const today = calendar.locator('[aria-current="date"]');
+  await expect(page.locator("[data-study-streak-count]")).toHaveText("3 days in a row");
+  await calendar.scrollIntoViewIfNeeded();
+  await expect(calendar.getByRole("listitem")).toHaveCount(7);
+  const pressingStamp = today.locator("[data-pressing]");
+  await expect(pressingStamp).toBeVisible();
+  await captureRelease(page, "study-streak-mobile");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(pressingStamp).toHaveCSS("animation-name", "none");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.reload();
+  await expect(today).toBeVisible();
+  await calendar.scrollIntoViewIfNeeded();
+  await expect(today).toHaveAttribute("data-studied", "");
+  await expect(today.locator("[data-pressing]")).toHaveCount(0);
+
+  await page.getByRole("link", { name: en.dashboard.studyStreak.edit, exact: true }).click();
+  const mode = page.getByLabel(en.dashboard.studyStreak.cadence, { exact: true });
+  await mode.selectOption("WEEKLY");
+  const aim = page.getByLabel(en.dashboard.studyStreak.weeklyGoal, { exact: true });
+  await expect(aim).toHaveValue("1");
+  await aim.selectOption("3");
+  await page.getByRole("button", { name: en.dashboard.studyStreak.save, exact: true }).click();
+  await expect(page.getByText(en.dashboard.studyStreak.saved, { exact: true })).toBeVisible();
+  await captureRelease(page, "study-streak-settings-mobile");
+  await page.reload();
+  await expect(mode).toHaveValue("WEEKLY");
+  await expect(aim).toHaveValue("3");
+  await page.goto("/en/dashboard");
+  await expect(calendar).toHaveCount(0);
+  await expect(page.getByRole("main").getByText(/of 3 study days this week/)).toBeVisible();
+
+  await page.getByRole("link", { name: en.dashboard.studyStreak.edit, exact: true }).click();
+  await mode.selectOption("MONTHLY");
+  await page.getByRole("button", { name: en.dashboard.studyStreak.save, exact: true }).click();
+  await expect(page.getByText(en.dashboard.studyStreak.saved, { exact: true })).toBeVisible();
+  await page.goto("/en/dashboard");
+  await expect(page.getByRole("main").getByText(en.dashboard.studyStreak.monthMet)).toBeVisible();
+
+  await page.getByRole("link", { name: en.dashboard.studyStreak.edit, exact: true }).click();
+  await mode.selectOption("DAILY");
+  await page.getByRole("button", { name: en.dashboard.studyStreak.save, exact: true }).click();
+  await expect(page.getByText(en.dashboard.studyStreak.saved, { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/en/dashboard");
+  await chooseInterfaceLocale(page, en.common, "ja");
+  await setHeaderTheme(page, ja.common, "dark");
+  await expect(page.getByRole("heading", { name: ja.dashboard.studyStreak.title, exact: true })).toBeVisible();
+  await calendar.scrollIntoViewIfNeeded();
+  await expect(today).toHaveAttribute("data-studied", "");
+  await captureRelease(page, "study-streak-desktop");
 });

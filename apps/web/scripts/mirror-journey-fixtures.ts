@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from "node:fs";
 import { randomUUID } from "node:crypto";
+import { setTimeout as delay } from "node:timers/promises";
 import { parse } from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
@@ -13,6 +14,7 @@ import { ENGLISH_PLACEMENT_POLICY_V2 } from "../src/lib/placement-policy";
 import { japaneseStudyAnswer } from "../test/japanese-study-db-fixture";
 import { japanesePlacementResultFixture } from "../test/japanese-placement-result-fixture";
 import { refundableMonday } from "../test/mirror-booking-dates";
+import { drainAchievementWork } from "../src/lib/achievements/achievement-work";
 
 // Explicit local QA only. Own every created row by a unique id and remove only
 // that recorded set. Never reseed, truncate, or reset an application database.
@@ -140,6 +142,41 @@ try {
     if (!fixtures.users.some(user => user.id === learnerId)) throw new Error("Unknown release learner");
     const learner = await prisma.user.findUniqueOrThrow({ where: { id: learnerId }, select: { role: true, learningLanguage: true } });
     if (learner.role !== "STUDENT") throw new Error("Student fixture required");
+    if (operation === "release-study-streak") {
+      const endedAt = new Date();
+      const [clock] = await prisma.$queryRaw<{ today: string }[]>`
+        SELECT (${endedAt.toISOString()}::timestamptz AT TIME ZONE 'Asia/Tokyo')::date::text AS today
+      `;
+      const today = new Date(clock.today);
+      const days = Array.from({ length: 2 }, (_, i) => new Date(today.getTime() - (2 - i) * 86_400_000));
+      await prisma.learningAchievementStudyDay.createMany({
+        data: days.map(day => ({
+          userId: learnerId, learningLanguage: learner.learningLanguage, day, timezone: "Asia/Tokyo", cardIds: ["a", "b", "c", "d", "e"],
+        })),
+      });
+      if (!fixtures.placementProductId) throw new Error("Missing lesson fixture");
+      await prisma.booking.create({ data: {
+        id: fixtures.runId + "-streak-lesson", studentId: learnerId, learningLanguage: learner.learningLanguage,
+        teacherId: learner.learningLanguage === "ENGLISH" ? fixtures.englishTeacherId : fixtures.japaneseTeacherId,
+        lessonProductId: fixtures.placementProductId, status: "COMPLETED",
+        startsAt: new Date(endedAt.getTime() - 3_600_000), endsAt: endedAt,
+      } });
+      const credited = { userId: learnerId, learningLanguage: learner.learningLanguage, day: today };
+      // The shared worker leases a small batch at a time. Wait for this
+      // fixture's actual persisted date before opening the dashboard.
+      for (let attempt = 0; attempt < 8; attempt++) {
+        await drainAchievementWork(prisma, new Date(), true);
+        if (await prisma.studyStreakDay.findUnique({ where: { userId_learningLanguage_day: credited }, select: { day: true } })) {
+          console.log(JSON.stringify({ today: clock.today })); return;
+        }
+        await delay(50);
+      }
+      const queued = await prisma.achievementWork.findFirst({
+        where: { userId: learnerId, source: "lesson:" + fixtures.runId + "-streak-lesson" },
+        select: { dueAt: true, leaseUntil: true },
+      });
+      throw new Error(`The finished lesson was not recorded for ${clock.today}. Lesson end: ${endedAt.toISOString()}. Pending work: ${JSON.stringify(queued)}`);
+    }
     if (operation === "release-study-before-first-mastery") {
       if (learner.learningLanguage !== "JAPANESE") throw new Error("Japanese study fixture required");
       const cards = await prisma.studyCard.findMany({

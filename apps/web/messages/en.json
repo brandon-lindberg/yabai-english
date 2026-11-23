@@ -212,6 +212,41 @@
     "pages": "Collection pages"
   },
   "dashboard": {
+    "studyStreak": {
+      "title": "Study streak",
+      "edit": "Streak settings",
+      "cadence": "Streak schedule",
+      "mode": {
+        "DAILY": "Daily",
+        "WEEKLY": "Weekly",
+        "MONTHLY": "Monthly"
+      },
+      "hint": {
+        "DAILY": "Complete a study day each day.",
+        "WEEKLY": "Reach your goal each week, Monday through Sunday.",
+        "MONTHLY": "Complete one study day in each calendar month."
+      },
+      "weeklyGoal": "Study days per week",
+      "goalDays": "{count, plural, one {# day} other {# days}}",
+      "counter": {
+        "DAILY": "{count, plural, one {# day in a row} other {# days in a row}}",
+        "WEEKLY": "{count, plural, one {# week in a row} other {# weeks in a row}}",
+        "MONTHLY": "{count, plural, one {# month in a row} other {# months in a row}}"
+      },
+      "studyDay": "Answer 5 different flashcards or complete a lesson to count a study day.",
+      "weekProgress": "{count} of {goal} study days this week",
+      "monthMet": "You’ve completed a study day this month.",
+      "monthPending": "Complete one study day this month.",
+      "calendarLabel": "This week’s study calendar, Monday through Sunday",
+      "dayStudied": "{date}, study day complete",
+      "dayOpen": "{date}, today, study day still open",
+      "dayFuture": "{date}, upcoming",
+      "dayMissed": "{date}, study day incomplete",
+      "save": "Save streak settings",
+      "saving": "Saving…",
+      "saved": "Streak settings saved.",
+      "saveError": "Couldn’t save your streak settings. Try again."
+    },
     "taxonomyPage": {
       "title": "Class taxonomy",
       "description": "Configure the class levels and class types your availability slots can be tagged with.",

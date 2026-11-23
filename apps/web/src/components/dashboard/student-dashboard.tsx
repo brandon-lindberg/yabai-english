@@ -17,6 +17,8 @@ import { DashboardSpine } from "@/components/dashboard/dashboard-spine";
 import { DashboardFlashcardStats } from "@/components/dashboard/dashboard-flashcard-stats";
 import { DashboardStudyHighlight } from "@/components/dashboard/dashboard-study-highlight";
 import { DashboardQuickReview } from "@/components/dashboard/dashboard-quick-review";
+import { DashboardStudyStreak } from "@/components/dashboard/dashboard-study-streak";
+import { getStudyStreak } from "@/lib/study/streak-service";
 import { DashboardRecentAchievements } from "@/components/dashboard/dashboard-recent-achievements";
 import { getRecentLearnerAchievements } from "@/lib/achievements/recent";
 import { buttonClasses } from "@/components/ui/button";
@@ -68,6 +70,7 @@ export async function StudentDashboard({
     resume,
     japanese,
     achievements,
+    streak,
   ] = await Promise.all([
     readStudentOnboardingState(prisma, userId, learningLanguage),
     getStudentBookingsForDashboard(prisma, userId),
@@ -76,6 +79,7 @@ export async function StudentDashboard({
     isEnglish ? getStudyResumeInfo(prisma, userId) : null,
     !isEnglish ? getJapaneseDashboardStudy(prisma, userId) : null,
     getRecentLearnerAchievements(prisma, userId, learningLanguage),
+    getStudyStreak(prisma, { userId, learningLanguage }),
   ]);
 
   const japaneseStudy = japanese?.available ? japanese : null;
@@ -157,6 +161,8 @@ export async function StudentDashboard({
           </Link>
         </div>
       ) : null}
+
+      <DashboardStudyStreak streak={streak} locale={locale} account={userId + ":" + learningLanguage} />
 
       {/* Was an AppCard — the page's last one. Level and the actions that follow
           from it are a row of facts, not a tray. */}

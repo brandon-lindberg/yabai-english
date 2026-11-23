@@ -12,12 +12,18 @@ function fromDates(study: string[], lessons: string[] = [], partial: string[] = 
 
 test("study days, streaks, and mixed weeks use distinct days and Monday boundaries", () => {
   const days = ["2026-11-16", "2026-11-17", "2026-11-18"];
-  expect(fromDates(days, ["2026-11-15"])).toMatchObject({ studyDays: 3, studyStreak: 3, mixedWeek: 0 });
+  expect(fromDates(days, ["2026-11-15"])).toMatchObject({ studyDays: 3, studyStreak: 4, mixedWeek: 0 });
   expect(fromDates(days, ["2026-11-22"])).toMatchObject({ studyDays: 3, studyStreak: 3, mixedWeek: 1 });
   const study = Array.from({ length: 250 }, (_, day) => new Date(Date.UTC(2025, 0, day + 1)).toISOString().slice(0, 10));
   const lessons = Array.from({ length: 12 }, (_, week) => study[week * 7]);
   const cards = achievementCollection(fromDates(study, lessons)).filter(award => award.qualified);
   expect(cards.filter(award => /^(study-(streak|days)|lesson-weeks)-/.test(award.id))).toHaveLength(11);
+});
+
+test("lessons bridge the study streak and earn its badge with flashcard dates", () => {
+  const evidence = fromDates(["2026-11-16", "2026-11-18"], ["2026-11-16", "2026-11-17"], ["2026-11-19"]);
+  expect(evidence).toMatchObject({ studyDays: 2, studyStreak: 3, mixedWeek: 0 });
+  expect(achievementCollection(evidence).find(badge => badge.id === "study-streak-0003")?.qualified).toBe(true);
 });
 
 test("a partial review interrupts inactivity but never counts as a study day or earns a comeback", () => {

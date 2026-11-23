@@ -3,6 +3,10 @@ const studyDayDetails = [
   "Review at least 5 different flashcards in a day. Wrong answers count too.",
   "1日に違うカードを5枚以上復習すると1日分。間違えたカードも数えます。"
 ];
+const studyStreakDetails = [
+  "Review 5 different flashcards or complete a lesson. Each calendar day counts once.",
+  "違うカードを5枚復習するか、レッスンを1回終えると達成。1日につき1回まで数えます。"
+];
 const lessonDetails = [
   "A confirmed lesson counts once its scheduled end time passes. Free trials count too.",
   "予約が確定したレッスンは、終了予定時刻を過ぎると1回として数えます。無料体験も対象です。"
@@ -256,10 +260,10 @@ const catalogue = [
       "火花もすてき。育っていく炎は、もっとすてき。"
     ],
     "rule": [
-      "Keep a 3-day flashcard streak.",
-      "3日連続でカードを練習する。"
+      "Keep a 3-day study streak.",
+      "3日連続で学習する。"
     ],
-    "details": studyDayDetails
+    "details": studyStreakDetails
   },
   {
     "id": "study-streak-0007",
@@ -272,10 +276,10 @@ const catalogue = [
       "魔法のひけつは、今日もまた来たこと。"
     ],
     "rule": [
-      "Keep a 7-day flashcard streak.",
-      "7日連続でカードを練習する。"
+      "Keep a 7-day study streak.",
+      "7日連続で学習する。"
     ],
-    "details": studyDayDetails
+    "details": studyStreakDetails
   },
   {
     "id": "study-streak-0014",
@@ -288,10 +292,10 @@ const catalogue = [
       "学習習慣に、そっと寄りそう相棒ができた。"
     ],
     "rule": [
-      "Keep a 14-day flashcard streak.",
-      "14日連続でカードを練習する。"
+      "Keep a 14-day study streak.",
+      "14日連続で学習する。"
     ],
-    "details": studyDayDetails
+    "details": studyStreakDetails
   },
   {
     "id": "study-streak-0030",
@@ -304,10 +308,10 @@ const catalogue = [
       "いつもの日々の中で、炎をつなぎ続けた。"
     ],
     "rule": [
-      "Keep a 30-day flashcard streak.",
-      "30日連続でカードを練習する。"
+      "Keep a 30-day study streak.",
+      "30日連続で学習する。"
     ],
-    "details": studyDayDetails
+    "details": studyStreakDetails
   },
   {
     "id": "lessons-0001",
