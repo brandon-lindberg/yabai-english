@@ -37,7 +37,10 @@ const accountAccessAdapter: Adapter = {
 const googleOptions = {
   clientId: process.env.AUTH_GOOGLE_ID,
   clientSecret: process.env.AUTH_GOOGLE_SECRET,
-  authorization: "https://accounts.google.com/o/oauth2/v2/auth",
+  authorization: {
+    url: "https://accounts.google.com/o/oauth2/v2/auth",
+    params: { prompt: "select_account" },
+  },
   allowDangerousEmailAccountLinking: true,
   // Fetch userinfo so Google profile pictures are available on sign-in.
   idToken: false,

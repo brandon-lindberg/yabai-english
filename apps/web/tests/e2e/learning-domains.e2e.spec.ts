@@ -441,9 +441,11 @@ test("sign-in and signup show a Google button before opening the only provider",
     await expect(page.locator('input[type="email"]')).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect((await googleButton.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    await interceptMirrorGoogleSignIn(page, () => googleButton.click());
+    const signIn = await interceptMirrorGoogleSignIn(page, () => googleButton.click());
+    expect(signIn.searchParams.get("prompt")).toBe("select_account");
     const failure = `${origin}${prefix}/auth/error?error=Configuration`;
-    await interceptMirrorGoogleSignIn(page, () => page.goto(failure));
+    const retry = await interceptMirrorGoogleSignIn(page, () => page.goto(failure));
+    expect(retry.searchParams.get("prompt")).toBe("select_account");
     await page.goto(failure);
     await expect(page.getByRole("alert")).toHaveText(copy.auth.signInRetry);
     await expect(createAccount).toHaveCount(0);
@@ -455,6 +457,7 @@ test("sign-in and signup show a Google button before opening the only provider",
     expect(new URL(page.url()).searchParams.get("signup")).toBe("1");
     const google = await interceptMirrorGoogleSignIn(page, () => googleButton.click());
     await expect(page).toHaveURL(/^https:\/\/accounts\.google\.com\/o\/oauth2\/v2\/auth\?/);
+    expect(google.searchParams.get("prompt")).toBe("select_account");
     expect(google.searchParams.get("redirect_uri")).toBe(googleCallback);
     expect(google.searchParams.get("code_challenge_method")).toBe("S256");
 

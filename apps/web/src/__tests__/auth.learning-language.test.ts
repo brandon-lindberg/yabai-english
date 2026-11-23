@@ -77,7 +77,10 @@ describe("the existing Google provider serves both learning paths", () => {
     prismaMock.studentProfile.findUnique.mockResolvedValue({ placementCompletedAt: null });
     prismaMock.user.findUnique.mockResolvedValue({ role: "STUDENT", locale: "en", learningLanguage, accountStatus: "ACTIVE" });
     expect(captured.config!.providers).toHaveLength(1);
-    expect(captured.config!.providers[0]).toMatchObject({ id: "google" });
+    expect(captured.config!.providers[0]).toMatchObject({
+      id: "google",
+      options: { authorization: { params: { prompt: "select_account" } } },
+    });
     expect(captured.config!.session?.strategy).toBe("database");
     const result = await captured.config!.callbacks!.session!({ session: { user: {} }, user: { id: "same-account" }, token: {} } as SessionArgs) as Session;
     expect(result.user).toMatchObject({ id: "same-account", learningLanguage, locale: "en" });

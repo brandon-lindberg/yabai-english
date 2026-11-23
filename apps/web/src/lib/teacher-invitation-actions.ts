@@ -74,7 +74,7 @@ export async function continueTeacherInvitation(locale: string, form: FormData) 
     const pending = invite.recipientEmail ? `${token}.${randomBytes(32).toString("base64url")}` : token;
     store.set(cookieName, pending, cookieOptions);
     try {
-      destination = await googleAuthorizationUrl(target, { prompt: "select_account" });
+      destination = await googleAuthorizationUrl(target);
     } catch (error) {
       console.error("[auth] Teacher invitation Google sign-in could not start", error instanceof Error ? error.name : "Unknown error");
     }
