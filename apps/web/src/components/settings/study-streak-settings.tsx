@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,13 @@ export function StudyStreakSettings({ initial }: { initial: StudyStreakPreferenc
   const [saved, setSaved] = useState(initial);
   const [draft, setDraft] = useState(initial);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const changed = saved.mode !== draft.mode || saved.weeklyGoal !== draft.weeklyGoal;
+  const visibilityHintId = useId();
+  const changed = saved.enabled !== draft.enabled || saved.mode !== draft.mode || saved.weeklyGoal !== draft.weeklyGoal;
+
+  function updateDraft(update: Partial<StudyStreakPreference>) {
+    setDraft(current => ({ ...current, ...update }));
+    setStatus("idle");
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,22 +46,33 @@ export function StudyStreakSettings({ initial }: { initial: StudyStreakPreferenc
     <Section title={t("title")} description={t("studyDay")} ruled={false}>
       <form onSubmit={submit} className="max-w-sm">
         <fieldset disabled={status === "saving"} className="space-y-4">
-          <Field label={t("cadence")} hint={t(`hint.${draft.mode}`)}>
+          <div>
+            <label className="relative flex min-h-11 items-center justify-between gap-4 font-medium">
+              {t("show")}
+              <input
+                type="checkbox"
+                role="switch"
+                className="peer absolute inset-0 z-10 m-0 size-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                aria-describedby={visibilityHintId}
+                checked={draft.enabled}
+                onChange={event => updateDraft({ enabled: event.target.checked })}
+              />
+              <span aria-hidden="true" className="relative h-6 w-11 shrink-0 rounded-full border border-muted bg-surface after:absolute after:start-[3px] after:top-[3px] after:size-4 after:rounded-full after:bg-foreground peer-checked:border-primary peer-checked:bg-primary peer-checked:after:translate-x-5 peer-checked:after:bg-primary-foreground peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-foreground peer-disabled:opacity-40" />
+            </label>
+            <p id={visibilityHintId} className="text-sm text-muted">{t("visibilityHint")}</p>
+          </div>
+          {draft.enabled && <Field label={t("cadence")} hint={t(`hint.${draft.mode}`)}>
             {attributes => <Select {...attributes} value={draft.mode} onChange={event => {
               const mode = studyStreakModes.find(value => value === event.target.value);
               if (!mode) return;
-              setDraft({ ...draft, mode });
-              setStatus("idle");
+              updateDraft({ mode });
             }}>
               {studyStreakModes.map(mode => <option key={mode} value={mode}>{t(`mode.${mode}`)}</option>)}
             </Select>}
-          </Field>
-          {draft.mode === "WEEKLY" && (
+          </Field>}
+          {draft.enabled && draft.mode === "WEEKLY" && (
             <Field label={t("weeklyGoal")}>
-              {attributes => <Select {...attributes} value={draft.weeklyGoal} onChange={event => {
-                setDraft({ ...draft, weeklyGoal: Number(event.target.value) });
-                setStatus("idle");
-              }}>
+              {attributes => <Select {...attributes} value={draft.weeklyGoal} onChange={event => updateDraft({ weeklyGoal: Number(event.target.value) })}>
                 {weeklyGoals.map(goal => <option key={goal} value={goal}>{t("goalDays", { count: goal })}</option>)}
               </Select>}
             </Field>

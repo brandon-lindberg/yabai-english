@@ -14,6 +14,13 @@ test("weekly goals are whole numbers from one through seven", () => {
   expect(studyStreakPreferenceSchema.parse({ mode: "WEEKLY", weeklyGoal: 7 })).toEqual({ mode: "WEEKLY", weeklyGoal: 7 });
 });
 
+test("accepts a boolean visibility preference and preserves older settings requests", () => {
+  const weekly = { mode: "WEEKLY", weeklyGoal: 3 };
+  expect(studyStreakPreferenceSchema.parse({ ...weekly, enabled: false })).toEqual({ ...weekly, enabled: false });
+  expect(studyStreakPreferenceSchema.safeParse({ ...weekly, enabled: "false" }).success).toBe(false);
+  expect(studyStreakPreferenceSchema.parse(weekly)).toEqual(weekly);
+});
+
 test.runIf(enabled)("preserves previous study days, handles late dates, and derives each cadence without sharing progress across subjects", async () => {
   await withIsolatedPostgres(migration, async ({ db, client, applyMigration }) => {
     await applyMigration();
@@ -44,6 +51,14 @@ test.runIf(enabled)("preserves previous study days, handles late dates, and deri
     expect(await get("2026-11-23")).toMatchObject({ mode: "WEEKLY", count: 2, studiedThisWeek: 1 });
     await study("2026-11-24");
     expect(await get("2026-11-24")).toMatchObject({ mode: "WEEKLY", count: 3, studiedThisWeek: 2 });
+    await saveStudyStreakPreference(db, learner, { enabled: false, mode: "WEEKLY", weeklyGoal: 2 });
+    await study("2026-11-25");
+    expect(await get("2026-11-25")).toBeNull();
+    await saveStudyStreakPreference(db, learner, { mode: "WEEKLY", weeklyGoal: 2 });
+    expect(await get("2026-11-25")).toBeNull();
+    expect(await getStudyStreak(db, japanese, date("2026-11-25"))).toMatchObject({ enabled: true, mode: "DAILY" });
+    await saveStudyStreakPreference(db, learner, { enabled: true, mode: "WEEKLY", weeklyGoal: 2 });
+    expect(await get("2026-11-25")).toMatchObject({ mode: "WEEKLY", count: 3, studiedThisWeek: 3 });
     await saveStudyStreakPreference(db, learner, { mode: "MONTHLY", weeklyGoal: 2 });
     expect(await get("2026-12-01")).toMatchObject({ mode: "MONTHLY", count: 2, studiedThisMonth: false });
     await study("2026-12-01");
@@ -74,7 +89,7 @@ test.runIf(enabled)("the migration combines existing graded dates and completed 
     await applyMigration();
     await verifyDatamodel();
     expect(await getStudyStreak(db, owner, new Date("2020-11-19T03:00:00Z"))).toMatchObject({
-      count: 3, days: [true, true, true, false, false, false, false],
+      enabled: true, count: 3, days: [true, true, true, false, false, false, false],
     });
   });
 }, 30_000);

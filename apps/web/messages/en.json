@@ -215,6 +215,8 @@
     "studyStreak": {
       "title": "Study streak",
       "edit": "Streak settings",
+      "show": "Show study streak",
+      "visibilityHint": "Show your streak in Overview. Your activity still counts when it’s hidden.",
       "cadence": "Streak schedule",
       "mode": {
         "DAILY": "Daily",

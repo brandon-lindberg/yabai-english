@@ -2,7 +2,7 @@ import "server-only";
 import type { PrismaClient } from "@/generated/prisma/client";
 import { studyCalendarTimezone, type LearnerOwner } from "@/lib/achievements/learner-calendar";
 import { dayNumber, monthNumber, studyWeekDays, weekNumber } from "./calendar-date";
-import { defaultStudyStreakPreference, type StudyStreakPreference } from "./streak-preference";
+import { defaultStudyStreakPreference, type StudyStreakPreference, type StudyStreakUpdate } from "./streak-preference";
 
 type Summary = StudyStreakPreference & {
   lastStudyDay: string | null;
@@ -12,18 +12,20 @@ type Summary = StudyStreakPreference & {
   priorWeeks: number[];
 };
 
+const preferenceFields = { enabled: true, mode: true, weeklyGoal: true } as const;
+
 export async function getStudyStreakPreference(db: PrismaClient, owner: LearnerOwner): Promise<StudyStreakPreference> {
   return await db.studyStreak.findUnique({
-    where: { userId_learningLanguage: owner }, select: { mode: true, weeklyGoal: true },
+    where: { userId_learningLanguage: owner }, select: preferenceFields,
   }) ?? defaultStudyStreakPreference;
 }
 
-export async function saveStudyStreakPreference(db: PrismaClient, owner: LearnerOwner, preference: StudyStreakPreference) {
+export async function saveStudyStreakPreference(db: PrismaClient, owner: LearnerOwner, preference: StudyStreakUpdate) {
   return db.studyStreak.upsert({
     where: { userId_learningLanguage: owner },
     create: { ...owner, ...preference },
     update: preference,
-    select: { mode: true, weeklyGoal: true },
+    select: preferenceFields,
   });
 }
 
@@ -32,7 +34,7 @@ export async function getStudyStreak(db: PrismaClient, owner: LearnerOwner, now 
     ({ today: string; stamps: string[] } & ({ mode: null } | Summary))[]
   >`
     WITH local_day AS (SELECT (${now.toISOString()}::timestamptz AT TIME ZONE ${studyCalendarTimezone(owner)})::date AS day)
-    SELECT d.day::text AS today, s.mode, s."weeklyGoal", s."lastStudyDay"::text AS "lastStudyDay",
+    SELECT d.day::text AS today, s.enabled, s.mode, s."weeklyGoal", s."lastStudyDay"::text AS "lastStudyDay",
       s.daily, s.monthly, s."weekDays", s."priorWeeks", ARRAY(
         SELECT fact.day::text FROM "StudyStreakDay" fact
         WHERE fact."userId" = ${owner.userId} AND fact."learningLanguage" = ${owner.learningLanguage}::"LearningLanguage"
@@ -40,10 +42,14 @@ export async function getStudyStreak(db: PrismaClient, owner: LearnerOwner, now 
       ) AS stamps
     FROM local_day d LEFT JOIN "StudyStreak" s
       ON s."userId" = ${owner.userId} AND s."learningLanguage" = ${owner.learningLanguage}::"LearningLanguage"
+    WHERE s.enabled IS NOT FALSE
   `;
+  if (!row) return null;
   const { today, stamps } = row;
   const summary = row.mode === null ? null : row;
-  const preference = summary ? { mode: summary.mode, weeklyGoal: summary.weeklyGoal } : defaultStudyStreakPreference;
+  const preference = summary
+    ? { enabled: summary.enabled, mode: summary.mode, weeklyGoal: summary.weeklyGoal }
+    : defaultStudyStreakPreference;
   const week = studyWeekDays(today);
   const days = week.map(day => stamps.includes(day));
   const lastDay = summary?.lastStudyDay;
@@ -66,4 +72,4 @@ export async function getStudyStreak(db: PrismaClient, owner: LearnerOwner, now 
   return { ...preference, today, week, days, count, studiedThisWeek: stamps.length, studiedThisMonth: monthGap === 0 };
 }
 
-export type StudyStreak = Awaited<ReturnType<typeof getStudyStreak>>;
+export type StudyStreak = NonNullable<Awaited<ReturnType<typeof getStudyStreak>>>;

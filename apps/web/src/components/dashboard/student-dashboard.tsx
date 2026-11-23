@@ -162,7 +162,7 @@ export async function StudentDashboard({
         </div>
       ) : null}
 
-      <DashboardStudyStreak streak={streak} locale={locale} account={userId + ":" + learningLanguage} />
+      {streak && <DashboardStudyStreak streak={streak} locale={locale} account={userId + ":" + learningLanguage} />}
 
       {/* Was an AppCard — the page's last one. Level and the actions that follow
           from it are a row of facts, not a tray. */}

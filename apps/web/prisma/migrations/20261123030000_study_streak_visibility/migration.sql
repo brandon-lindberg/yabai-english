@@ -1,0 +1,1 @@
+ALTER TABLE "StudyStreak" ADD COLUMN "enabled" BOOLEAN NOT NULL DEFAULT true;

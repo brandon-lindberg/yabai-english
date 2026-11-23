@@ -1480,6 +1480,7 @@ enum StudyStreakMode {
 model StudyStreak {
   userId           String
   learningLanguage LearningLanguage
+  enabled          Boolean          @default(true)
   mode             StudyStreakMode  @default(DAILY)
   weeklyGoal       Int              @default(1)
   lastStudyDay     DateTime?        @db.Date

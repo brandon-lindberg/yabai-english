@@ -493,7 +493,7 @@ test("study streak settings persist and the current study stamp plays once", asy
   await signInMirrorUser(page, learner.email, "ENGLISH");
   await expect(page).toHaveURL(/\/en\/dashboard$/);
 
-  const calendar = page.locator("[data-study-streak-calendar]");
+  const calendar = page.locator("[data-study-streak-calendar]").filter({ visible: true });
   const today = calendar.locator('[aria-current="date"]');
   await expect(page.locator("[data-study-streak-count]")).toHaveText("3 days in a row");
   await calendar.scrollIntoViewIfNeeded();
@@ -511,32 +511,53 @@ test("study streak settings persist and the current study stamp plays once", asy
   await expect(today.locator("[data-pressing]")).toHaveCount(0);
 
   await page.getByRole("link", { name: en.dashboard.studyStreak.edit, exact: true }).click();
+  const toggle = page.getByRole("switch", { name: "Show study streak", exact: true });
+  const save = page.getByRole("button", { name: en.dashboard.studyStreak.save, exact: true });
+  const saved = page.getByText(en.dashboard.studyStreak.saved, { exact: true });
+  await expect(toggle).toBeChecked();
   const mode = page.getByLabel(en.dashboard.studyStreak.cadence, { exact: true });
   await mode.selectOption("WEEKLY");
   const aim = page.getByLabel(en.dashboard.studyStreak.weeklyGoal, { exact: true });
   await expect(aim).toHaveValue("1");
   await aim.selectOption("3");
-  await page.getByRole("button", { name: en.dashboard.studyStreak.save, exact: true }).click();
-  await expect(page.getByText(en.dashboard.studyStreak.saved, { exact: true })).toBeVisible();
+  await save.click();
+  await expect(saved).toBeVisible();
   await captureRelease(page, "study-streak-settings-mobile");
   await page.reload();
   await expect(mode).toHaveValue("WEEKLY");
   await expect(aim).toHaveValue("3");
+  const settingsUrl = page.url();
+  await toggle.press("Space");
+  await expect(toggle).not.toBeChecked();
+  await expect(mode).toHaveCount(0);
+  await save.click();
+  await expect(saved).toBeVisible();
+  await captureRelease(page, "study-streak-settings-off-mobile");
+  await page.goto("/en/dashboard");
+  await expect(page.getByRole("heading", { name: en.dashboard.studyStreak.title, exact: true })).toHaveCount(0);
+  await expect(page.locator("[data-study-streak-count]").filter({ visible: true })).toHaveCount(0);
+  await page.goto(settingsUrl);
+  await expect(toggle).not.toBeChecked();
+  await toggle.click();
+  await expect(mode).toHaveValue("WEEKLY");
+  await expect(aim).toHaveValue("3");
+  await save.click();
+  await expect(saved).toBeVisible();
   await page.goto("/en/dashboard");
   await expect(calendar).toHaveCount(0);
   await expect(page.getByRole("main").getByText(/of 3 study days this week/)).toBeVisible();
 
   await page.getByRole("link", { name: en.dashboard.studyStreak.edit, exact: true }).click();
   await mode.selectOption("MONTHLY");
-  await page.getByRole("button", { name: en.dashboard.studyStreak.save, exact: true }).click();
-  await expect(page.getByText(en.dashboard.studyStreak.saved, { exact: true })).toBeVisible();
+  await save.click();
+  await expect(saved).toBeVisible();
   await page.goto("/en/dashboard");
   await expect(page.getByRole("main").getByText(en.dashboard.studyStreak.monthMet)).toBeVisible();
 
   await page.getByRole("link", { name: en.dashboard.studyStreak.edit, exact: true }).click();
   await mode.selectOption("DAILY");
-  await page.getByRole("button", { name: en.dashboard.studyStreak.save, exact: true }).click();
-  await expect(page.getByText(en.dashboard.studyStreak.saved, { exact: true })).toBeVisible();
+  await save.click();
+  await expect(saved).toBeVisible();
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/en/dashboard");
   await chooseInterfaceLocale(page, en.common, "ja");
@@ -545,4 +566,7 @@ test("study streak settings persist and the current study stamp plays once", asy
   await calendar.scrollIntoViewIfNeeded();
   await expect(today).toHaveAttribute("data-studied", "");
   await captureRelease(page, "study-streak-desktop");
+  await page.getByRole("link", { name: ja.dashboard.studyStreak.edit, exact: true }).click();
+  await expect(page.getByRole("switch", { name: "学習ストリークを表示", exact: true })).toBeChecked();
+  await captureRelease(page, "study-streak-settings-desktop");
 });
