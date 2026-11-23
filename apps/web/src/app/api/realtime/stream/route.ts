@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+import { drainAchievementWork, readRecentAwardNotices } from "@/lib/achievements/achievement-work";
+import { achievementScope } from "@/lib/achievements/rarity";
+import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
+import { prisma } from "@/lib/prisma";
+import { REALTIME_EVENTS } from "@/lib/realtime-events";
 import { auth } from "@/auth";
 import {
   subscribeToUserRealtime,
@@ -28,6 +33,7 @@ export async function GET(req: Request) {
   }
 
   const userId = session.user.id;
+  const scope = achievementScope(isTeacherCabinetRole(session.user.role), session.user.learningLanguage ?? "ENGLISH");
   const encoder = new TextEncoder();
 
   let cleanup = () => {};
@@ -49,21 +55,32 @@ export async function GET(req: Request) {
       const safeEnqueue = (chunk: string) => {
         if (closed) return;
         try {
+          if ((controller.desiredSize ?? 0) < -32) { cleanup(); return; }
           controller.enqueue(encoder.encode(chunk));
         } catch {
           cleanup();
         }
       };
 
+      const sync = (urgent = false) => {
+        void drainAchievementWork(prisma, new Date(), urgent).catch(() => {});
+      };
       resources.unsubscribe = subscribeToUserRealtime(userId, (event) => {
+        if (event.event === "achievement-work") { sync(true); return; }
         safeEnqueue(encodeFrame(event));
+        if (event.event === REALTIME_EVENTS.CHAT_UPDATE || event.event === REALTIME_EVENTS.NOTIFICATIONS_UPDATE) sync();
       });
 
       resources.heartbeat = setInterval(() => {
         safeEnqueue(`: keep-alive\n\n`);
+        sync();
       }, HEARTBEAT_INTERVAL_MS);
 
       safeEnqueue(`event: connected\ndata: {}\n\n`);
+      void readRecentAwardNotices(prisma, userId, scope).then(awards => {
+        if (awards.length) safeEnqueue(encodeFrame({ event: REALTIME_EVENTS.ACHIEVEMENTS, payload: awards }));
+      }).catch(() => {});
+      sync();
     },
     cancel() { cleanup(); },
   });

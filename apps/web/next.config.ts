@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
   distDir: process.env.MIRROR_QA_DIST_DIR ?? ".next",
   typescript: { tsconfigPath: process.env.MIRROR_QA_DIST_DIR ? "tsconfig.mirror.json" : "tsconfig.json" },
   outputFileTracingIncludes: {
+    "/api/achievement-art/*": teachingArtwork,
     "/api/japanese-study/attribution": ["./data/japanese-content/ATTRIBUTION.md"],
     "/**/dashboard/art-gallery": teachingArtwork,
     "/**/dashboard": teachingArtwork,

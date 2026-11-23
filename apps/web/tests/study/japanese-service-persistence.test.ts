@@ -6,6 +6,23 @@ import { createJapaneseStudyQueue, submitJapaneseStudyReview, getJapaneseStudyOv
 const migration = "20261023030000_study_review_prompts";
 const enabled = !!process.env.MIRROR_TEST_DATABASE_URL;
 
+test.runIf(enabled)("the answer that masters a Japanese card saves an award and returns it on identical retry", async () => {
+  await withIsolatedPostgres(migration, async ({ db, applyMigration }) => {
+    await applyMigration();
+    await seed(db);
+    await db.userStudyCardState.create({ data: { userId: "learner", cardId: "extra-1", correctCount: 7, streakCorrect: 7, reps: 7 } });
+    const queue = await createJapaneseStudyQueue(db, "learner", { levelCode: "N5", limit: 50 });
+    const target = queue.cards.find(card => card.question.unitId === "extra-1")!;
+    const input = await answer(db, target.question.id);
+    const [a, b] = await Promise.all([submitJapaneseStudyReview(db, "learner", input), submitJapaneseStudyReview(db, "learner", input)]);
+    expect(a).toEqual(b);
+    expect(a).toMatchObject({ practiceBand: "mastered", correctCount: 8, awards: [{ id: "mastery-0001", language: "JAPANESE" }] });
+    const saved = await db.learningAchievementAward.findMany({ where: { userId: "learner", achievementId: "mastery-0001" } });
+    expect(saved).toHaveLength(1);
+    expect(saved[0]?.learningLanguage).toBe("JAPANESE");
+  });
+}, 30_000);
+
 test.runIf(enabled)("issues private unique queues, rotates tasks and saves concurrent identical retries once", async () => {
   await withIsolatedPostgres(migration, async ({ db, applyMigration, verifyDatamodel }) => {
     await applyMigration(); await verifyDatamodel(); await seed(db);
@@ -83,9 +100,13 @@ test.runIf(enabled)("saves mastery milestones atomically and rolls back failed r
     await client.query(`CREATE FUNCTION fail_study_save() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Synthetic result failure'; END; $$; CREATE TRIGGER fail_study_save BEFORE UPDATE ON "StudyReviewPrompt" FOR EACH ROW EXECUTE FUNCTION fail_study_save();`);
     await expect(submitJapaneseStudyReview(db, "learner", input)).rejects.toThrow();
     expect((await db.userStudyCardState.findUniqueOrThrow({ where: { userId_cardId: { userId: "learner", cardId: "extra-1" } } })).correctCount).toBe(7);
+    expect(await db.learningAchievementAward.count({ where: { achievementId: "mastery-0001" } })).toBe(0);
     expect(await db.userStudyLevelProgress.findMany({ where: { userId: "learner" }, orderBy: { id: "asc" } })).toEqual(before);
     await client.query('DROP TRIGGER fail_study_save ON "StudyReviewPrompt"');
-    expect(await submitJapaneseStudyReview(db, "learner", input)).toMatchObject({ correct: true, unlocked: ["N5", "N4"], completed: ["N5"] });
+    expect(await submitJapaneseStudyReview(db, "learner", input)).toMatchObject({
+      correct: true, unlocked: ["N5", "N4"], completed: ["N5"],
+      awards: expect.arrayContaining([expect.objectContaining({ id: "level-first", language: "JAPANESE" })]),
+    });
     expect(await db.userStudyLevelProgress.findUnique({ where: { userId_levelId: { userId: "learner", levelId: "level-N5" } } })).toMatchObject({ masteryScore: 100, completedAt: expect.any(Date), assessmentPassedAt: null });
     expect(await db.userStudyLevelProgress.findUnique({ where: { userId_levelId: { userId: "learner", levelId: "level-N4" } } })).toBeTruthy();
     expect(await db.userStudyAssessmentAttempt.count()).toBe(0);

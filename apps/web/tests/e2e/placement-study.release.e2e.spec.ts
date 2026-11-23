@@ -447,3 +447,37 @@ test("study progress persists independently through deliberate subject and inter
   expect(fixtureCommand("release-learning-state").profiles).toEqual(after.profiles);
   } finally { fixtureCommand("release-study-hide"); }
 });
+
+test("the first mastered Japanese flashcard opens a live achievement popup on a phone", async ({ page }) => {
+  const learner = releaseStudent("timeout-japanese");
+  await page.setViewportSize({ width: 390, height: 490 });
+  await signInMirrorUser(page, learner.email, "JAPANESE");
+  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  fixtureCommand("release-study-publish");
+  try {
+    expect(fixtureCommand("release-study-before-first-mastery", { learnerId: learner.id }).cards).toBeGreaterThan(0);
+    const queue = await captureStudyQueue(page, "/api/japanese-study/queue", "POST");
+    await page.goto("/en/learn/study/N5/practice?kind=kanji");
+    const { question } = (await queue() as JapaneseStudyQueue).cards[0];
+    const answer = fixtureCommand("release-study-answer", { learnerId: learner.id, promptId: question.id });
+    const button = page.getByRole("button", { name: question.choices.find(choice => choice.id === answer.choiceId)!.text, exact: true });
+    await button.scrollIntoViewIfNeeded();
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+    const saved = page.waitForResponse(response => response.url().endsWith("/api/japanese-study/reviews") && response.request().method() === "POST");
+    await button.click();
+    const result = await (await saved).json();
+    expect(result).toMatchObject({ practiceBand: "mastered", awards: [{ id: "mastery-0001", language: "JAPANESE" }] });
+    const award = page.locator("[data-study-achievement-popup]").getByRole("link", { name: /That One Stuck!/ });
+    await expect(award).toBeInViewport();
+    await expect(award).toHaveAttribute("href", /piece=mastery-0001/);
+    const [artwork] = await Promise.all([page.waitForEvent("popup"), award.click()]);
+    try {
+      await expect(artwork.getByRole("heading", { name: "That One Stuck!", exact: true })).toBeVisible();
+      await expect(artwork.getByText(en.artGallery.earned, { exact: true })).toBeVisible();
+    } finally {
+      await artwork.close();
+    }
+  } finally {
+    fixtureCommand("release-study-hide");
+  }
+});

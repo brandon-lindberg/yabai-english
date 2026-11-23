@@ -10,11 +10,15 @@ import { ChoiceList, ChoiceRadio } from "@/components/ui/choice";
 import { Outcome } from "@/components/ui/outcome";
 import { Status } from "@/components/ui/status";
 
+import { studyAwardsSchema } from "@/lib/achievements/study-award-public";
+import { useStudyAwardAnnouncement } from "./study-achievement-popups";
+
 type Item = { id: string; promptJa: string; promptEn: string; options: string[] };
 
 export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) {
   const t = useTranslations("study");
   const locale = useLocale();
+  const announce = useStudyAwardAnnouncement();
   const [items, setItems] = useState<Item[]>([]);
   const [passingScore, setPassingScore] = useState(70);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -68,7 +72,9 @@ export function StudyAssessmentForm({ assessmentId }: { assessmentId: string }) 
         setError("Submit failed");
         return;
       }
-      const data = (await res.json()) as { score: number; passed: boolean; passingScore: number };
+      const data = (await res.json()) as { score: number; passed: boolean; passingScore: number; awards?: unknown };
+      const awards = studyAwardsSchema.safeParse(data.awards);
+      if (awards.success) announce(awards.data);
       setResult(data);
     } catch {
       setError("Network error");

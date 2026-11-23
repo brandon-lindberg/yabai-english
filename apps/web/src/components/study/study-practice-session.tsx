@@ -14,7 +14,7 @@ import { Choice, ChoiceList } from "@/components/ui/choice";
 import { Outcome } from "@/components/ui/outcome";
 import { QUEUE_STREAM_TYPE, readPreparedQueue, type QueuePreparationProgress } from "@/lib/study/queue-preparation";
 import { Status } from "@/components/ui/status";
-import { StudyAchievementPopups, useStudyAwardAnnouncement } from "./study-achievement-popups";
+import { useStudyAwardAnnouncement } from "./study-achievement-popups";
 import { studyAwardsSchema } from "@/lib/achievements/study-award-public";
 
 export type StudyQueueFocus = "mixed" | "weak" | "mastered";
@@ -26,7 +26,7 @@ type Props = {
 };
 
 export function StudyPracticeSession(props: Props) {
-  return <StudyAchievementPopups><EnglishPractice {...props} /></StudyAchievementPopups>;
+  return <EnglishPractice {...props} />;
 }
 
 function EnglishPractice({

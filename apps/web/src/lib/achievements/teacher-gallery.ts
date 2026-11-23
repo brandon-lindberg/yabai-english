@@ -1,8 +1,10 @@
 import "server-only";
 import type { PrismaClient } from "@/generated/prisma/client";
+import { saveAchievements } from "./award-store";
+import type { AchievementNotice } from "./study-award-public";
 import { teachingClassAwardLimit, teachingCollection } from "./teaching-catalogue";
 
-export async function getTeacherGallery(db: PrismaClient, userId: string, now = new Date()) {
+export async function getTeacherGallery(db: PrismaClient, userId: string, now = new Date(), onGrant?: (awards: AchievementNotice[]) => void) {
   const readAwards = () => db.teachingAchievementAward.findMany({
     where: { userId },
     select: { achievementId: true, awardedAt: true },
@@ -99,10 +101,8 @@ export async function getTeacherGallery(db: PrismaClient, userId: string, now = 
   });
   const missing = cards.filter(card => card.qualified && !awards.has(card.id));
   if (missing.length) {
-    await db.teachingAchievementAward.createMany({
-      data: missing.map(card => ({ userId, achievementId: card.id })),
-      skipDuplicates: true,
-    });
+    const granted = await saveAchievements(db, userId, "TEACHING", missing.map(card => card.id));
+    onGrant?.(granted);
     for (const award of await readAwards()) awards.set(award.achievementId, award.awardedAt);
   }
   return cards.flatMap(card => {

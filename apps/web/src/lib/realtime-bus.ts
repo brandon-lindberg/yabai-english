@@ -1,8 +1,11 @@
 import { EventEmitter } from "node:events";
 
+import type { AchievementNotice } from "@/lib/achievements/study-award-public";
 import { REALTIME_EVENTS } from "@/lib/realtime-events";
 
 export type RealtimeEvent =
+  | { event: "achievement-work"; payload: Record<string, never> }
+  | { event: typeof REALTIME_EVENTS.ACHIEVEMENTS; payload: AchievementNotice[] }
   | { event: typeof REALTIME_EVENTS.CHAT_UPDATE; payload: { threadId: string } }
   | { event: typeof REALTIME_EVENTS.NOTIFICATIONS_UPDATE; payload: Record<string, never> };
 
@@ -61,4 +64,14 @@ export function publishNotificationsUpdate(userId: string) {
     event: REALTIME_EVENTS.NOTIFICATIONS_UPDATE,
     payload: {},
   } satisfies RealtimeEvent);
+}
+
+
+export function publishAchievementAwards(userId: string, awards: AchievementNotice[]) {
+  if (!awards.length) return;
+  getBus().emit(channel(userId), { event: REALTIME_EVENTS.ACHIEVEMENTS, payload: awards } satisfies RealtimeEvent);
+}
+
+export function publishAchievementWork(userId: string) {
+  getBus().emit(channel(userId), { event: "achievement-work", payload: {} } satisfies RealtimeEvent);
 }

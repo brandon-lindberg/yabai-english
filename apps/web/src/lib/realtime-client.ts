@@ -1,8 +1,10 @@
 "use client";
 
+import { achievementNoticeSchema, type AchievementNotice } from "@/lib/achievements/study-award-public";
 import { REALTIME_EVENTS } from "@/lib/realtime-events";
 
 export type RealtimeHandlers = {
+  onAchievements?: (awards: AchievementNotice[]) => void;
   onChatUpdate: (payload: { threadId?: string }) => void;
   onNotificationsUpdate: () => void;
   /**
@@ -63,6 +65,12 @@ function openStream() {
     for (const s of subscribers) s.onNotificationsUpdate();
   }) as EventListener);
 
+  es.addEventListener(REALTIME_EVENTS.ACHIEVEMENTS, ((ev: MessageEvent) => {
+    try {
+      const result = achievementNoticeSchema.array().max(50).safeParse(JSON.parse(ev.data as string));
+      if (result.success) for (const subscriber of subscribers) subscriber.onAchievements?.(result.data);
+    } catch { /* Ignore malformed frames. */ }
+  }) as EventListener);
   return es;
 }
 

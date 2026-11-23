@@ -1,4 +1,5 @@
 import "server-only";
+import { noticeFromStudyAward } from "@/lib/achievements/study-award-public";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { Prisma, PrismaClient, StudyCard, StudyReviewPrompt, UserStudyLevelProgress } from "@/generated/prisma/client";
@@ -22,6 +23,8 @@ import { weightedSampleWithoutReplacement } from "./quiz";
 import { studyMasteryPercent } from "./mastery";
 import type { ReportQueuePreparation } from "./queue-preparation";
 import { studyLevelIndex } from "./constants";
+import { recordAchievementReview } from "@/lib/achievements/learner-calendar";
+import { publishAchievementAwards, publishAchievementWork } from "@/lib/realtime-bus";
 import { grantStudyAwards } from "@/lib/achievements/study-awards";
 
 export class JapaneseStudyFailure extends PrivateApiFailure {}
@@ -203,7 +206,7 @@ export async function submitJapaneseStudyReview(db: PrismaClient, userId: string
   const parsed = reviewSchema.safeParse(raw);
   if (!parsed.success) return fail(400, "INVALID_REVIEW");
   const { promptId, choiceId, answerTimeMs, dailyDayKey } = parsed.data;
-  return db.$transaction(async tx => {
+  const savedReview = await db.$transaction(async tx => {
     await lockStudyLearner(tx, userId);
     const track = await requireContext(tx, userId);
     const prompt = await tx.studyReviewPrompt.findFirst({ where: { id: promptId, userId } });
@@ -218,7 +221,7 @@ export async function submitJapaneseStudyReview(db: PrismaClient, userId: string
       studyLevelIndex(prompt.studyBand, "JAPANESE") > studyLevelIndex(progression.unlocked.at(-1)!, "JAPANESE")) return fail(409, "PROMPT_STALE");
     if (prompt.answeredAt) {
       if (prompt.choiceId !== choiceId) return fail(409, "REVIEW_CONFLICT");
-      return resultSchema.parse(prompt.resultJson);
+      return { result: resultSchema.parse(prompt.resultJson) };
     }
     if (prompt.expiresAt <= now) return fail(409, "PROMPT_EXPIRED");
     const previous = await tx.userStudyCardState.findUnique({ where: { userId_cardId: { userId, cardId: card.id } } });
@@ -236,21 +239,25 @@ export async function submitJapaneseStudyReview(db: PrismaClient, userId: string
     const newCardTotal = saved.firstAnswer ? after.levels.reduce((sum, { practice }) =>
       sum + practice.learningCount + practice.weakCount + practice.masteredCount, 0) : undefined;
     const awards = await grantStudyAwards(tx, { userId, learningLanguage: "JAPANESE" }, {
-      newCardTotal, totalXp: totalStudyXp, xpGained: saved.xpGained,
+      newCardTotal, masteredCardId: saved.masteredCardId, totalXp: totalStudyXp, xpGained: saved.xpGained,
       firstLevelCompleted: progression.completed.length === 0 && after.completed.length > 0,
     });
+    const checkCalendar = await recordAchievementReview(tx, { userId, learningLanguage: "JAPANESE" }, card.id, now);
     const result = resultSchema.parse({
       promptId, correct: graded.correct, feedback: graded.feedback, xpGained: saved.xpGained, levelXp: saved.progress.xp,
       totalStudyXp, ...(awards.length ? { awards } : {}),
       masteryScore: masteryScore(level.mastery),
       correctCount: saved.state.correctCount, wrongCount: saved.state.wrongCount, streakCorrect: saved.state.streakCorrect,
       accuracyPercent: studyAccuracyPercent(saved.state.correctCount, saved.state.wrongCount), averageAnswerMs: saved.state.averageAnswerMs,
-      practiceBand: classifyPracticeBand(saved.state), unlocked: after.unlocked, completed: after.completed,
+      practiceBand: saved.practiceBand, unlocked: after.unlocked, completed: after.completed,
     });
     await recordJapaneseDailyAnswer(tx, { userId, cardId: card.id, promptId, correct: result.correct, xp: result.xpGained, now });
     await tx.studyReviewPrompt.update({ where: { id: promptId }, data: { answeredAt: now, choiceId, resultJson: json(result), activeKey: null } });
-    return result;
+    return { result, awards, checkCalendar };
   }, { timeout: 30_000 });
+  if (savedReview.awards) publishAchievementAwards(userId, savedReview.awards.map(noticeFromStudyAward));
+  if (savedReview.checkCalendar) publishAchievementWork(userId);
+  return savedReview.result;
 }
 
 /** Up to five previously correct, authorized cards, fixed for the current UTC day. */

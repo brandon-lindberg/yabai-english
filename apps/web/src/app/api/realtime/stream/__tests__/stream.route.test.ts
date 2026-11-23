@@ -1,8 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-const { authMock } = vi.hoisted(() => ({ authMock: vi.fn() }));
+const { authMock, recentAwardsMock } = vi.hoisted(() => ({ authMock: vi.fn(), recentAwardsMock: vi.fn() }));
 
 vi.mock("@/auth", () => ({ auth: authMock }));
+vi.mock("@/lib/achievements/achievement-work", () => ({
+  drainAchievementWork: async () => {},
+  readRecentAwardNotices: recentAwardsMock,
+}));
 
 import { GET } from "@/app/api/realtime/stream/route";
 import {
@@ -27,6 +31,8 @@ async function readChunk(
 describe("GET /api/realtime/stream", () => {
   beforeEach(() => {
     authMock.mockReset();
+    recentAwardsMock.mockReset();
+    recentAwardsMock.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -97,6 +103,22 @@ describe("GET /api/realtime/stream", () => {
     const chunk = await readChunk(reader);
     expect(chunk).toContain("event: notifications:update");
 
+    await reader.cancel();
+  });
+
+  test("reconnect replays a teacher unlock through the dedicated achievement event", async () => {
+    authMock.mockResolvedValue({ user: { id: "teacher", role: "TEACHER" } });
+    recentAwardsMock.mockResolvedValue([{
+      id: "teach-hidden-notes", scope: "TEACHING", hidden: true,
+      title: ["To Be Continued…", "つづきは次回"], awardedAt: "2026-11-23T03:00:00.000Z",
+    }]);
+    const response = await GET(new Request("http://localhost/api/realtime/stream"));
+    const reader = response.body!.getReader();
+    await readChunk(reader);
+    const frame = await readChunk(reader);
+    expect(recentAwardsMock).toHaveBeenCalledWith(expect.anything(), "teacher", "TEACHING");
+    expect(frame).toContain("event: achievements:unlocked");
+    expect(frame).toContain('"id":"teach-hidden-notes"');
     await reader.cancel();
   });
 

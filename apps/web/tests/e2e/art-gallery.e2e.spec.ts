@@ -11,7 +11,6 @@ test("art gallery shows the teaching collection and rare unlock rates", async ({
   await page.emulateMedia({ reducedMotion: "reduce" });
   await signInMirrorUser(page, teacher.email, "JAPANESE");
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.getByRole("region", { name: en.dashboard.highlights.recentAchievements })).toHaveCount(0);
   fixtureCommand("release-stale-teaching-rarity");
   await page.getByRole("link", { name: en.dashboard.nav.achievements, exact: true }).click();
   await expect(page.getByText(en.artGallery.teaching, { exact: true })).toBeVisible();
@@ -55,9 +54,13 @@ test("art gallery shows the teaching collection and rare unlock rates", async ({
   await expect(page.getByRole("heading", { level: 1, name: ja.artGallery.title })).toBeVisible();
   expect(await page.content()).not.toContain("つづきは次回");
   expect((await page.request.get("/achievements/teach-hidden-notes.png")).status()).toBe(404);
+  expect((await page.request.get("/api/achievement-art/teach-hidden-notes")).status()).toBe(404);
   expect((await page.request.patch(`/api/bookings/${fixture.pastBookings!.JAPANESE}/completion-notes`, {
     data: { completionNotesMd: "Practice a short introduction before next class." },
   })).ok()).toBe(true);
+  const popup = page.locator("[data-study-achievement-popup]").getByRole("link", { name: /つづきは次回/ });
+  await expect(popup).toBeInViewport({ timeout: 15_000 });
+  expect((await page.request.get("/api/achievement-art/teach-hidden-notes")).status()).toBe(200);
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: "つづきは次回" })).toBeVisible();
   await expect(page.locator('main img[src^="data:image/png;base64,"]')).toBeVisible();
@@ -147,10 +150,10 @@ for (const japanese of [false, true]) {
     await captureRelease(page, `learner-dashboard-tabs-${japanese ? "phone" : "desktop"}`);
     const dashboard = page.url();
     const recent = page.getByRole("region", { name: copy.dashboard.highlights.recentAchievements });
-    await expect(recent).toHaveCount(0);
+    await expect(recent).toHaveCount(japanese ? 1 : 0);
     const tab = page.getByRole("link", { name: copy.dashboard.nav.achievements, exact: true });
     await expect(tab).toBeVisible();
-    expect(art.size).toBe(0);
+    expect([...art].every(path => japanese && path === "/achievements/lessons-0001.png")).toBe(true);
     await tab.click();
     await expect(page.getByRole("heading", { name: copy.artGallery.title })).toBeVisible();
     await expect(tab).toHaveAttribute("aria-current", "page");
@@ -159,7 +162,7 @@ for (const japanese of [false, true]) {
     await expect(works).toHaveCount(8);
     await expect(works.first()).toHaveCSS("filter", "grayscale(1)");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    expect(art.size).toBeLessThanOrEqual(8);
+    expect(art.size).toBeLessThanOrEqual(japanese ? 9 : 8);
     await page.getByRole("link", { name: copy.artGallery.next, exact: true }).click();
     await expect(page.getByRole("heading", { name: japanese ? "記憶の宮殿" : "Mind Palace" })).toBeVisible();
     await page.goto(`/${japanese ? "ja" : "en"}/dashboard/art-gallery?page=5`);
@@ -201,7 +204,7 @@ for (const japanese of [false, true]) {
 }
 
 test("art gallery shows three recent achievements beside Study rank on phones", async ({ page }) => {
-  const learner = readMirrorFixtures().users[0];
+  const learner = releaseStudent("resume-english");
   await page.setViewportSize({ width: 320, height: 844 });
   await signInMirrorUser(page, learner.email, "ENGLISH");
   await expect(page).toHaveURL(/\/en\/dashboard$/);

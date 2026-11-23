@@ -56,7 +56,7 @@ export default async function ArtGalleryPage({ searchParams }: { searchParams: P
     readUnlockRates(prisma, scope),
   ]);
   const isHidden = (card: typeof cards[number]) => "hidden" in card && card.hidden;
-  const surprises = teaching ? teachingHiddenAchievementCount - cards.filter(isHidden).length : hiddenAchievementCount;
+  const surprises = (teaching ? teachingHiddenAchievementCount : hiddenAchievementCount) - cards.filter(isHidden).length;
   const collected = cards.filter(card => card.awardedAt !== null)
     .sort((a, b) => b.awardedAt!.getTime() - a.awardedAt!.getTime());
   const onlyCollected = options.view === "collected";

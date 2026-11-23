@@ -1,3 +1,4 @@
+import { publishAchievementWork } from "@/lib/realtime-bus";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
@@ -64,6 +65,7 @@ export async function PATCH(req: Request, { params }: Props) {
     },
   });
 
+  publishAchievementWork(booking.teacher.userId);
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`);
     revalidatePath(`/${locale}/dashboard/schedule/completed`);

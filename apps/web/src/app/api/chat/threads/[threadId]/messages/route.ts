@@ -1,3 +1,4 @@
+import { publishAchievementWork } from "@/lib/realtime-bus";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
@@ -148,6 +149,7 @@ export async function POST(req: Request, { params }: Props) {
     data: chatMessageData(thread, session.user.id, parsed.data.body),
   });
 
+  if (session.user.role === "TEACHER" && session.user.id === thread.teacherId) publishAchievementWork(session.user.id);
   await touchChatThread(threadId);
 
   await Promise.all([

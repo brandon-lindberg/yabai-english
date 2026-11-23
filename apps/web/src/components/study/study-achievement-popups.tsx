@@ -5,16 +5,18 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { createPortal } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { InterfaceIcon } from "@/components/ui/interface-icon";
-import type { StudyAward } from "@/lib/achievements/study-award-public";
+import { noticeFromStudyAward, type AchievementNotice, type StudyAward } from "@/lib/achievements/study-award-public";
+import { subscribeRealtime } from "@/lib/realtime-client";
 import { appPathForLocale } from "@/lib/i18n-app-path";
 
 const receiptKey = "studio-seen-study-awards";
 const maxReceipts = 64;
-const awardKey = ({ language, id, awardedAt }: StudyAward) => `${language}:${id}:${awardedAt}`;
+const awardKey = ({ scope, id, awardedAt }: AchievementNotice) => `${scope}:${id}:${awardedAt}`;
 
-function claimAwards(seen: Set<string>, batch: readonly StudyAward[]) {
+function claimAwards(seen: Set<string>, batch: readonly AchievementNotice[], userId: string) {
+  const storageKey = receiptKey + ":" + userId;
   try {
-    const stored: unknown = JSON.parse(localStorage.getItem(receiptKey) ?? "[]");
+    const stored: unknown = JSON.parse(localStorage.getItem(storageKey) ?? "[]");
     if (Array.isArray(stored)) {
       for (const key of stored.slice(-maxReceipts)) if (typeof key === "string") seen.add(key);
     }
@@ -29,7 +31,7 @@ function claimAwards(seen: Set<string>, batch: readonly StudyAward[]) {
   seen.clear();
   for (const key of recent) seen.add(key);
   if (fresh.length) {
-    try { localStorage.setItem(receiptKey, JSON.stringify(recent)); } catch { /* In-memory fallback. */ }
+    try { localStorage.setItem(storageKey, JSON.stringify(recent)); } catch { /* In-memory fallback. */ }
   }
   return fresh;
 }
@@ -38,18 +40,26 @@ type AnnounceStudyAwards = (awards?: readonly StudyAward[]) => void;
 const StudyAwardAnnouncement = createContext<AnnounceStudyAwards>(() => {});
 export const useStudyAwardAnnouncement = () => useContext(StudyAwardAnnouncement);
 
-export function StudyAchievementPopups({ children }: { children: ReactNode }) {
-  const [pending, setPending] = useState<StudyAward[][]>([]);
+export function StudyAchievementPopups({ children, userId, scope }: {
+  children: ReactNode; userId: string; scope: AchievementNotice["scope"];
+}) {
+  const [pending, setPending] = useState<AchievementNotice[][]>([]);
   const seen = useRef(new Set<string>());
-  const announce = useCallback<AnnounceStudyAwards>(batch => {
-    if (!batch?.length) return;
-    const fresh = claimAwards(seen.current, batch);
+  const show = useCallback((batch: readonly AchievementNotice[]) => {
+    const inScope = batch.filter(award => award.scope === scope);
+    if (!inScope.length) return;
+    const fresh = claimAwards(seen.current, inScope, userId);
     if (fresh.length) {
       setPending(previous => previous.length < 3
         ? [...previous, fresh]
         : [previous[0], previous[1], [...previous[2], ...fresh]]);
     }
-  }, []);
+  }, [scope, userId]);
+  const announce = useCallback<AnnounceStudyAwards>(batch => { if (batch) show(batch.map(noticeFromStudyAward)); }, [show]);
+  useEffect(() => subscribeRealtime({
+    onAchievements: show,
+    onChatUpdate: () => {}, onNotificationsUpdate: () => {}, onConnected: () => {},
+  }), [show]);
   const dismiss = useCallback(() => setPending(previous => previous.slice(1)), []);
   const t = useTranslations("study");
   const locale = useLocale();
@@ -70,7 +80,7 @@ export function StudyAchievementPopups({ children }: { children: ReactNode }) {
 }
 
 function AchievementPopup({ award, multiple, title, label, dismiss, closeLabel }: {
-  award: StudyAward; multiple: boolean; title: string; label: string; dismiss: () => void; closeLabel: string;
+  award: AchievementNotice; multiple: boolean; title: string; label: string; dismiss: () => void; closeLabel: string;
 }) {
   const locale = useLocale();
   const [hovered, setHovered] = useState(false);
@@ -114,7 +124,7 @@ function AchievementPopup({ award, multiple, title, label, dismiss, closeLabel }
   >
     <a href={appPathForLocale(locale, "/dashboard/art-gallery", query)} target="_blank" rel="noopener"
       className="flex min-w-0 flex-1 items-center gap-3 rounded-s-xl py-2 ps-2 pe-1 hover:bg-[var(--app-hover)]">
-      <Image src={`/achievements/${award.id}.png`} alt="" width={48} height={48} unoptimized
+      <Image src={award.hidden ? `/api/achievement-art/${award.id}` : `/achievements/${award.id}.png`} alt="" width={48} height={48} unoptimized
         className="size-12 shrink-0 rounded-md [image-rendering:pixelated]" />
       <span className="min-w-0 break-words">
         <span className="block text-xs font-medium text-muted">{label}</span>

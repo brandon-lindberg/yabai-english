@@ -1,11 +1,11 @@
 import "server-only";
 import type { LearningLanguage, Prisma, PrismaClient } from "@/generated/prisma/client";
-import catalogue from "./visible-catalogue";
+import { learnerBadges as catalogue } from "./gallery";
 import { teachingMilestones } from "./teaching-catalogue";
 
 export type RecentAchievement = { id: string; title: readonly string[]; hidden?: boolean };
 
-const learnerBadges = new Map(catalogue.map(({ id, title }) => [id, { id, title }]));
+const learnerBadges = new Map<string, RecentAchievement>(catalogue.map(({ id, title, hidden }) => [id, { id, title, hidden }]));
 const teacherBadges = new Map<string, RecentAchievement>(teachingMilestones.map(badge => [
   badge.id, { id: badge.id, title: badge.title, hidden: "hidden" in badge },
 ]));

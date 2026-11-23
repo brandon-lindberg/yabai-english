@@ -3,6 +3,7 @@ import type { Prisma, UserStudyCardState } from "@/generated/prisma/client";
 import { nextStudyReviewState } from "./scheduler";
 import { xpForMcq } from "./quiz";
 import { lockLearnerTransaction } from "../learner-transaction-lock";
+import { classifyPracticeBand } from "./study-card-analytics";
 
 /** Serialize practice mutations for one learner, including queue issuance. */
 export async function lockStudyLearner(tx: Prisma.TransactionClient, userId: string) {
@@ -28,5 +29,8 @@ export async function saveStudyReviewProgress(tx: Prisma.TransactionClient, inpu
     update: { xp: { increment: xpGained }, lastStudiedAt: now },
   });
   const firstAnswer = !previous?.correctCount && !previous?.wrongCount;
-  return { state, xpGained, progress, firstAnswer };
+  const practiceBand = classifyPracticeBand(state);
+  // When a legacy mastered card slips, its prior saved state still proves mastery.
+  const masteredCardId = (classifyPracticeBand(previous) === "mastered") !== (practiceBand === "mastered") ? cardId : undefined;
+  return { state, xpGained, progress, firstAnswer, practiceBand, masteredCardId };
 }

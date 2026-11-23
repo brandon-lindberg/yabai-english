@@ -7,6 +7,8 @@ import { isStudyLevelUnlocked } from "@/lib/study/access";
 import { assertLevelOrder, nextStudyLevel } from "@/lib/study/constants";
 import { studyAssessmentItemsJsonSchema } from "@/lib/study/schemas";
 import { z } from "zod";
+import { saveAchievements } from "@/lib/achievements/award-store";
+import { publishAchievementAwards } from "@/lib/realtime-bus";
 
 const bodySchema = z.object({
   assessmentId: z.string().min(1),
@@ -56,7 +58,7 @@ async function handlePOST(req: Request) {
   const score = items.length === 0 ? 0 : Math.round((correct / items.length) * 100);
   const passed = score >= assessment.passingScore;
 
-  await prisma.$transaction(async (tx) => {
+  const awards = await prisma.$transaction(async (tx) => {
     await tx.userStudyAssessmentAttempt.create({
       data: {
         userId: session.user.id,
@@ -99,8 +101,11 @@ async function handlePOST(req: Request) {
           });
         }
       }
+      return saveAchievements(tx, session.user.id, "LEARN_ENGLISH", ["level-first"]);
     }
+    return [];
   });
+  publishAchievementAwards(session.user.id, awards);
 
   return NextResponse.json({
     score,
@@ -108,6 +113,7 @@ async function handlePOST(req: Request) {
     passed,
     correctCount: correct,
     totalCount: items.length,
+    ...(awards.length ? { awards: awards.map(({ id, title, awardedAt }) => ({ id, title, awardedAt, language: "ENGLISH" })) } : {}),
   });
 }
 

@@ -1,3 +1,4 @@
+import { publishAchievementWork } from "@/lib/realtime-bus";
 import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
@@ -741,6 +742,7 @@ export async function POST(req: Request) {
     userId: teacher.userId,
     ...teacherNotification,
   });
+  publishAchievementWork(teacher.userId);
 
   return NextResponse.json(fresh ?? confirmedBooking);
 }

@@ -1,3 +1,6 @@
+import { StudyAchievementPopups } from "@/components/study/study-achievement-popups";
+import { achievementScope } from "@/lib/achievements/rarity";
+import { isTeacherCabinetRole } from "@/lib/dashboard/teacher-cabinet-role";
 import { LearningSiteProvider } from "@/components/learning-site-provider";
 import { getRequestLearningSite } from "@/lib/learning-site-request";
 import { configuredLearningSites } from "@/lib/learning-sites";
@@ -47,6 +50,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const session = await auth();
   const guestLearningLanguage = session?.user ? null : await getGuestLearningLanguage();
 
+  const scope = achievementScope(isTeacherCabinetRole(session?.user?.role), session?.user?.learningLanguage ?? "ENGLISH");
   return (
     <NextIntlClientProvider messages={clientMessages(messages, "shell")}>
       <AppProviders session={session}>
@@ -65,7 +69,9 @@ export default async function LocaleLayout({ children, params }: Props) {
             visibly changed width when you switched from week to month.
           */}
           <div className="flex min-h-0 flex-1 flex-col overflow-x-clip [&>main]:w-full">
-            {children}
+            {session?.user?.id ? <StudyAchievementPopups key={session.user.id + ":" + scope} userId={session.user.id} scope={scope}>
+              {children}
+            </StudyAchievementPopups> : children}
           </div>
           <SiteFooter />
           <AppChatPanel />

@@ -140,9 +140,20 @@ try {
     if (!fixtures.users.some(user => user.id === learnerId)) throw new Error("Unknown release learner");
     const learner = await prisma.user.findUniqueOrThrow({ where: { id: learnerId }, select: { role: true, learningLanguage: true } });
     if (learner.role !== "STUDENT") throw new Error("Student fixture required");
+    if (operation === "release-study-before-first-mastery") {
+      if (learner.learningLanguage !== "JAPANESE") throw new Error("Japanese study fixture required");
+      const cards = await prisma.studyCard.findMany({
+        where: { kind: "JAPANESE_KANJI", deck: { level: { levelCode: "N5", track: { slug: "japanese-flashcards" } } } },
+        select: { id: true },
+      });
+      await prisma.userStudyCardState.createMany({
+        data: cards.map(card => ({ userId: learnerId, cardId: card.id, correctCount: 7, streakCorrect: 7, reps: 7 })),
+      });
+      console.log(JSON.stringify({ cards: cards.length })); return;
+    }
     if (operation === "release-dashboard-achievements") {
       const ids = ["cards-0500", "cards-0250", "cards-0100", "rank-0005", "cards-0025"];
-      const now = Date.now();
+      const now = Date.now() - 20 * 60_000;
       await prisma.learningAchievementAward.createMany({
         data: ids.map((achievementId, index) => ({
           userId: learnerId, achievementId, learningLanguage: learner.learningLanguage,

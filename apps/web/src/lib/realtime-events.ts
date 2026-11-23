@@ -1,4 +1,5 @@
 export const REALTIME_EVENTS = {
+  ACHIEVEMENTS: "achievements:unlocked",
   CHAT_UPDATE: "chat:update",
   NOTIFICATIONS_UPDATE: "notifications:update",
 } as const;

@@ -17,7 +17,7 @@ const fetchMock = vi.fn();
 const reply = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status });
 const show = (locale = "en", focus: "mixed" | "weak" | "mastered" = "mixed") => render(
   <NextIntlClientProvider locale={locale} messages={locale === "ja" ? ja : en}>
-    <JapaneseStudySession levelCode="N5" initialRpg={studyRpgProgressFromTotalXp(0)} queueFocus={focus} kind="mixed" />
+    <StudyAchievementPopups userId="japanese-review-test" scope="LEARN_JAPANESE"><JapaneseStudySession levelCode="N5" initialRpg={studyRpgProgressFromTotalXp(0)} queueFocus={focus} kind="mixed" /></StudyAchievementPopups>
   </NextIntlClientProvider>,
 );
 beforeEach(() => { fetchMock.mockReset(); vi.stubGlobal("fetch", fetchMock); });
@@ -133,7 +133,7 @@ test("groups two awards, pauses dismissal on focus, and suppresses a replay", as
     return <button onClick={() => announce(batch)}>Confirm answer</button>;
   }
   try {
-    render(<NextIntlClientProvider locale="en" messages={en}><StudyAchievementPopups><ConfirmAnswer /></StudyAchievementPopups></NextIntlClientProvider>);
+    render(<NextIntlClientProvider locale="en" messages={en}><StudyAchievementPopups userId="grouped-award-test" scope="LEARN_ENGLISH"><ConfirmAnswer /></StudyAchievementPopups></NextIntlClientProvider>);
     const confirm = screen.getByRole("button", { name: "Confirm answer" });
     fireEvent.click(confirm);
     const popup = screen.getByRole("link", { name: /2 achievements unlocked/ });

@@ -1,3 +1,4 @@
+import { noticeFromStudyAward } from "@/lib/achievements/study-award-public";
 import { learningResponse } from "@/lib/learning-runtime";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
@@ -8,11 +9,7 @@ import { getTotalStudyXpForTrack } from "@/lib/study/get-overview";
 import { computeLevelMastery } from "@/lib/study/mastery";
 import { notifyStudyRankUpIfNeeded } from "@/lib/study/rpg-rank-notification";
 import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
-import {
-  classifyPracticeBand,
-  studyAccuracyPercent,
-  type StudyCardPerformanceSlice,
-} from "@/lib/study/study-card-analytics";
+import { studyAccuracyPercent } from "@/lib/study/study-card-analytics";
 import {
   correctAnswerForDisplay,
   gradeStudyCardReview,
@@ -22,6 +19,8 @@ import {
 import { saveStudyReviewProgress } from "@/lib/study/review-progress";
 import { advanceEnglishStudyAwardCount, grantStudyAwards } from "@/lib/achievements/study-awards";
 import { z } from "zod";
+import { recordAchievementReview } from "@/lib/achievements/learner-calendar";
+import { publishAchievementAwards, publishAchievementWork } from "@/lib/realtime-bus";
 
 const bodySchema = z.object({
   cardId: z.string().min(1),
@@ -90,7 +89,7 @@ async function handlePOST(req: Request) {
   );
   const now = new Date();
 
-  const { state, xpGained: xpGain, progress: result, masteryScore, totalStudyXp, awards } = await prisma.$transaction(async tx => {
+  const { state, xpGained: xpGain, progress: result, masteryScore, totalStudyXp, practiceBand, awards, checkCalendar } = await prisma.$transaction(async tx => {
     const saved = await saveStudyReviewProgress(tx, { userId: session.user.id, cardId: card.id, levelId: level.id,
       correct, now, answerTimeMs: parsed.data.answerTimeMs });
     // The shared saver holds the learner lock until commit. Read the resulting
@@ -105,11 +104,14 @@ async function handlePOST(req: Request) {
     const userId = session.user.id;
     const newCardTotal = saved.firstAnswer ? await advanceEnglishStudyAwardCount(tx, userId, level.trackId) : undefined;
     const awards = await grantStudyAwards(tx, { userId, learningLanguage: "ENGLISH" }, {
-      newCardTotal, totalXp: totalStudyXp, xpGained: saved.xpGained,
+      newCardTotal, masteredCardId: saved.masteredCardId, totalXp: totalStudyXp, xpGained: saved.xpGained,
     });
-    return { ...saved, masteryScore, totalStudyXp, awards };
+    const checkCalendar = await recordAchievementReview(tx, { userId, learningLanguage: "ENGLISH" }, card.id, now);
+    return { ...saved, masteryScore, totalStudyXp, awards, checkCalendar };
   });
-  const { correctCount, wrongCount, streakCorrect, averageAnswerMs, latencySampleCount } = state;
+  publishAchievementAwards(session.user.id, awards.map(noticeFromStudyAward));
+  if (checkCalendar) publishAchievementWork(session.user.id);
+  const { correctCount, wrongCount, streakCorrect, averageAnswerMs } = state;
   const rpg = studyRpgProgressFromTotalXp(totalStudyXp);
 
   await notifyStudyRankUpIfNeeded({
@@ -117,14 +119,6 @@ async function handlePOST(req: Request) {
     previousTotalXp: totalStudyXp - xpGain,
     newTotalXp: totalStudyXp,
   });
-
-  const perfSlice: StudyCardPerformanceSlice = {
-    correctCount,
-    wrongCount,
-    streakCorrect,
-    averageAnswerMs,
-    latencySampleCount,
-  };
 
   return NextResponse.json({
     correct,
@@ -136,7 +130,7 @@ async function handlePOST(req: Request) {
     wrongCount,
     streakCorrect,
     rpg,
-    practiceBand: classifyPracticeBand(perfSlice),
+    practiceBand,
     accuracyPercent: studyAccuracyPercent(correctCount, wrongCount),
     averageAnswerMs,
     ...(awards.length ? { awards } : {}),

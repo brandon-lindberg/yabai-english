@@ -52,3 +52,7 @@ The dashboard selects the collection by account role. Teaching awards reconcile 
 Community unlock rates use three cohorts. Each learner cohort includes accounts currently learning that subject. The teaching cohort includes teachers and administrators with a teaching profile. Rates use recorded awards and refresh from shared snapshots after gallery visits when the snapshot is at least five minutes old. Awards below 10% have a gold frame, with a brief shimmer when motion is enabled.
 
 Three hidden teaching awards use existing lesson notes, private lesson chat replies, and teaching days within a Monday-to-Sunday week in Japan time. The gallery shows only the remaining count until each award is saved. It delivers the hidden artwork with the earned card and includes the award in the teaching cohort's next rarity refresh.
+
+## Live unlocks
+
+Profile saves, booking confirmations and scheduled ends, saved notes, and private replies enqueue durable checks. Active app sessions process them in bounded batches on the existing realtime connection. The gallery also reconciles historical evidence, and award uniqueness prevents either path from granting a badge twice. Hidden artwork requires the corresponding award.

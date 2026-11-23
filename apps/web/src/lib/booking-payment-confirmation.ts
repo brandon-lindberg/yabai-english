@@ -1,3 +1,4 @@
+import { publishAchievementWork } from "@/lib/realtime-bus";
 import { BookingStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createMeetLessonEvent } from "@/lib/google-calendar";
@@ -224,6 +225,7 @@ export async function confirmPaidBookingFromPayment(
     deduplicationKey: `payment-confirmed:${booking.id}`,
     ...teacherNotification,
   });
+  publishAchievementWork(updated.teacher.userId);
 
   return { ok: true as const, booking: finalBooking };
 }

@@ -3,7 +3,7 @@ import type { AbstractIntlMessages } from "next-intl";
 // Layout scopes follow the route tree, so retained layouts never need to guess
 // the active pathname. Server translations still use the complete dictionary.
 export const clientMessageScopes = {
-  shell: ["common", "auth", "learningJourney", "chat"],
+  shell: ["common", "auth", "learningJourney", "chat", "study.viewAwardCollection", "study.achievementUnlocked", "study.dismissAchievement"],
   placement: ["placement", "onboarding"],
   japanesePlacement: ["japanesePlacement", "placement", "onboarding", "study", "japaneseStudy",
     "dashboard.quickReview", "dashboard.previous", "dashboard.next"],

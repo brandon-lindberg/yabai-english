@@ -43,3 +43,9 @@ Use database-enforced uniqueness for both the credited fact and the award, scope
 - Apply the existing targets of warm learning API p95 ≤300 ms, cold queue/start p95 ≤1 s and peak process RSS <400 MiB on the documented 512 MB service. Check health and authentication during load. A lost answer, duplicate award, unexplained 502 or restart fails the run. [Performance policy](performance-policy.md) · [Render procedure](render-learning-capacity-test.md)
 
 The 33 existing realtime client, bus, stream and notification-bell tests passed locally. They exercise subscription sharing and disconnect cleanup. They provide a baseline for adding achievement delivery. The preview uses local sample progress and never performs an award transaction.
+
+## 23 November verification
+
+- The isolated database fixture persisted all 39 awards in each learner subject and all 11 teacher awards. Threshold tests cover live card, mastery, rank and calendar rules. Chromium verified the learner mastery and hidden teacher note popups.
+- Five concurrent signed-in learners kept the shared realtime streams open on the local Node 22 production build. Over 75 warm answer saves, p50 was 17 ms and p95 was 28 ms. Five cold queue preparations had a 63 ms p95. The largest sampled server RSS was 315 MiB. Session, dashboard and health requests succeeded throughout four practice rounds.
+- The daily review write uses one learner/subject/day key and retains at most five card IDs. The calendar worker reads activity dates in pages of 256 and leases up to 12 due jobs at a time. The smoke tests used disposable PostgreSQL on the same Mac. Render memory and capacity remain unmeasured for this change.

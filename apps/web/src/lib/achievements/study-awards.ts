@@ -2,6 +2,9 @@ import "server-only";
 import type { LearningLanguage, Prisma } from "@/generated/prisma/client";
 import { attemptedQuickReviewState } from "@/lib/study/quick-review-selection";
 import { crossedStudyMilestones, studyCardAwardLimit } from "./gallery";
+import { recordMasteredCard } from "./study-mastery";
+import { saveAchievements } from "./award-store";
+import { achievementScope } from "./rarity";
 import type { StudyAward } from "./study-award-public";
 
 /** Called after the new card state is written, while holding the learner's study lock. */
@@ -27,21 +30,15 @@ export async function advanceEnglishStudyAwardCount(tx: Prisma.TransactionClient
 
 export async function grantStudyAwards(tx: Prisma.TransactionClient, owner: { userId: string; learningLanguage: LearningLanguage }, evidence: {
   newCardTotal?: number;
+  masteredCardId?: string;
   totalXp: number;
   xpGained: number;
   firstLevelCompleted?: boolean;
 }): Promise<StudyAward[]> {
-  const candidates = crossedStudyMilestones(evidence);
-  if (!candidates.length) return [];
-
-  const granted = await tx.learningAchievementAward.createManyAndReturn({
-    data: candidates.map(({ id }) => ({ ...owner, achievementId: id })),
-    select: { achievementId: true, awardedAt: true },
-    skipDuplicates: true,
-  });
-  const byId = new Map(granted.map(row => [row.achievementId, row.awardedAt]));
-  return candidates.flatMap(({ id, title }) => {
-    const awardedAt = byId.get(id);
-    return awardedAt ? [{ id, awardedAt: awardedAt.toISOString(), language: owner.learningLanguage, title: [title[0], title[1]] }] : [];
-  });
+  const newMasteredTotal = evidence.masteredCardId
+    ? await recordMasteredCard(tx, owner, evidence.masteredCardId)
+    : undefined;
+  const candidates = crossedStudyMilestones({ ...evidence, newMasteredTotal });
+  const granted = await saveAchievements(tx, owner.userId, achievementScope(false, owner.learningLanguage), candidates.map(({ id }) => id));
+  return granted.map(({ id, title, awardedAt }) => ({ id, title, awardedAt, language: owner.learningLanguage }));
 }

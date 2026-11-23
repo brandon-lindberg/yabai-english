@@ -1,3 +1,4 @@
+import { publishAchievementWork } from "@/lib/realtime-bus";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -116,5 +117,6 @@ export async function PATCH(req: Request) {
     revalidatePath(`/${locale}/book/teachers/${profile.id}`);
   }
 
+  publishAchievementWork(session.user.id);
   return NextResponse.json({ ok: true, teacherProfileId: profile.id });
 }

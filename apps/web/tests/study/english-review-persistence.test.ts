@@ -2,6 +2,7 @@ import { beforeEach, expect, test, vi } from "vitest";
 import type { PrismaClient } from "@/generated/prisma/client";
 import { withIsolatedPostgres } from "../../test/isolated-postgres";
 import { POST } from "@/app/api/study/review/route";
+import { POST as submitAssessment } from "@/app/api/study/assessment/submit/route";
 import { studyRpgProgressFromTotalXp } from "@/lib/study/rpg-xp";
 import { getLearnerGallery } from "@/lib/achievements/learner-gallery";
 
@@ -30,22 +31,42 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("opening the gallery reconciles
     await db.user.create({ data: { id: "another-learner" } });
     await db.userStudyCardState.createMany({ data: [
       { userId: "learner", cardId: "card-0", wrongCount: 68 },
-      { userId: "learner", cardId: "card-1", correctCount: 1 },
+      { userId: "learner", cardId: "card-1", correctCount: 7, wrongCount: 1, streakCorrect: 5 },
       { userId: "learner", cardId: "card-2" },
     ] });
     await db.userStudyLevelProgress.create({ data: { userId: "learner", levelId: "level", xp: 1516 } });
     const read = () => getLearnerGallery(db, "learner", "ENGLISH");
     const visits = await Promise.all(Array.from({ length: 5 }, read));
     for (const cards of visits) {
-      expect(cards.filter(card => card.awardedAt).map(card => card.id)).toEqual(["cards-0001", "rank-0005"]);
+      expect(cards.filter(card => card.awardedAt).map(card => card.id)).toEqual(["cards-0001", "mastery-0001", "rank-0005"]);
       expect(cards.find(card => card.id === "cards-0025")?.progress?.value).toBe(2);
     }
-    expect(await db.learningAchievementAward.count()).toBe(2);
+    expect(await db.learningAchievementAward.count()).toBe(3);
     for (const cards of [await getLearnerGallery(db, "learner", "JAPANESE"), await getLearnerGallery(db, "another-learner", "ENGLISH")]) {
       expect(cards.filter(card => card.awardedAt)).toHaveLength(0);
     }
     await db.userStudyCardState.deleteMany({ where: { userId: "learner" } });
     expect((await read()).find(card => card.id === "cards-0001")?.awardedAt).toEqual(visits[0][0].awardedAt);
+    expect((await read()).find(card => card.id === "mastery-0010")?.progress?.value).toBe(1);
+  });
+}, 30_000);
+
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("English grants mastery once per card even after losing and regaining it", async () => {
+  await withIsolatedPostgres("20261119000000_learning_achievement_awards", async ({ db, applyMigration }) => {
+    await applyMigration();
+    await seed(db);
+    mocks.db = db;
+    await db.userStudyCardState.create({ data: { userId: "learner", cardId: "card-0", correctCount: 7, streakCorrect: 7 } });
+    const first = await (await review()).json();
+    expect(first).toMatchObject({ practiceBand: "mastered", awards: [{ id: "mastery-0001", language: "ENGLISH" }] });
+    expect(await (await review("card-0", "dog")).json()).toMatchObject({ practiceBand: "learning" });
+    for (let i = 0; i < 5; i++) expect((await review()).status).toBe(200);
+    const again = await (await review()).json();
+    expect(again.practiceBand).toBe("mastered");
+    expect(again).not.toHaveProperty("awards");
+    const gallery = await getLearnerGallery(db, "learner", "ENGLISH");
+    expect(gallery.find(card => card.id === "mastery-0010")?.progress?.value).toBe(1);
+    expect(await db.learningAchievementAward.count({ where: { achievementId: "mastery-0001" } })).toBe(1);
   });
 }, 30_000);
 
@@ -133,5 +154,28 @@ test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("English save access still resp
     expect((await review()).status).toBe(403);
     await db.studyTrack.update({ where: { id: "english" }, data: { publicationStatus: "PUBLISHED", learningLanguage: "JAPANESE" } });
     expect((await review()).status).toBe(403);
+  });
+}, 30_000);
+
+test.runIf(process.env.MIRROR_TEST_DATABASE_URL)("a failed English assessment does not unlock Chapter Champion, and the first pass grants it immediately once", async () => {
+  await withIsolatedPostgres("20261123010000_achievement_events", async ({ db, applyMigration }) => {
+    await applyMigration();
+    await seed(db);
+    mocks.db = db;
+    await db.studyAssessment.create({ data: { id: "exit", levelId: "level", itemsJson: { items: [
+      { id: "item", promptJa: "猫", promptEn: "Cat", options: ["cat", "dog"], correctIndex: 0 },
+    ] } } });
+    const submit = async (answer: number) => {
+      const response = await submitAssessment(new Request("http://localhost/api/study/assessment/submit", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ assessmentId: "exit", answers: { item: answer } }),
+      }));
+      expect(response.status).toBe(200);
+      return response.json();
+    };
+    expect(await submit(1)).toMatchObject({ passed: false });
+    expect(await db.learningAchievementAward.count()).toBe(0);
+    expect(await submit(0)).toMatchObject({ passed: true, awards: [{ id: "level-first", language: "ENGLISH" }] });
+    expect(await submit(0)).not.toHaveProperty("awards");
+    expect(await db.learningAchievementAward.count({ where: { achievementId: "level-first", learningLanguage: "ENGLISH" } })).toBe(1);
   });
 }, 30_000);
